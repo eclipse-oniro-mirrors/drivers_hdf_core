@@ -24,6 +24,19 @@ enum AudioRegCfgIndex {
     AUDIO_REG_CFG_INDEX_MAX
 };
 
+enum AudioEnumRegCfgIndex {
+    AUDIO_ENUM_REG_CFG_REG_INDEX = 0,
+    AUDIO_ENUM_REG_CFG_RREG_INDEX,
+    AUDIO_ENUM_REG_CFG_SHIFT_INDEX,
+    AUDIO_ENUM_REG_CFG_RSHIFT_INDEX,
+    AUDIO_ENUM_REG_CFG_MAX_INDEX,
+    AUDIO_ENUM_REG_CFG_MASK_INDEX,
+    AUDIO_ENUM_REG_CFG_TEXTS_INDEX,
+    AUDIO_ENUM_REG_CFG_VALUE_INDEX,
+    AUDIO_ENUM_REG_CFG_SAPM_INDEX,
+    AUDIO_ENUM_REG_CFG_INDEX_MAX
+};
+
 enum AudioAddrCfgIndex {
     AUDIO_ADDR_CFG_REG_INDEX = 0,
     AUDIO_ADDR_CFG_VALUE_INDEX,
@@ -33,6 +46,7 @@ enum AudioAddrCfgIndex {
 enum AudioCrtlCfgIndex {
     AUDIO_CTRL_CFG_INDEX_INDEX = 0,
     AUDIO_CTRL_CFG_IFACE_INDEX,
+    AUDIO_CTRL_CFG_TYPE_INDEX,
     AUDIO_CTRL_CFG_ENABLE_INDEX,
     AUDIO_CTRL_CFG_INDEX_MAX
 };
@@ -54,7 +68,9 @@ static char *g_audioRegGroupName[AUDIO_GROUP_MAX] = {
     "resetSeqConfig",
     "initSeqConfig",
     "ctrlParamsSeqConfig",
+    "ctrlParamsMuxSeqConfig",
     "ctrlSapmParamsSeqConfig",
+    "ctrlSapmMuxParamsSeqConfig",
     "daiStartupSeqConfig",
     "daiParamsSeqConfig",
     "daiTriggerSeqConfig",
@@ -216,6 +232,50 @@ static int32_t ParseAudioRegItem(const struct DeviceResourceIface *parser, const
     return HDF_SUCCESS;
 }
 
+static int32_t ParseAudioEnumRegItem(const struct DeviceResourceIface *parser, const struct DeviceResourceNode *regNode,
+    struct AudioRegCfgGroupNode* group)
+{
+    int32_t step;
+    int32_t index;
+    int32_t *buf;
+
+    if (group == NULL || parser == NULL || regNode == NULL) {
+        ADM_LOG_ERR("Input para check error");
+        return HDF_FAILURE;
+    }
+
+    buf = GetRegArray(parser, regNode, group, AUDIO_ENUM_REG_CFG_INDEX_MAX);
+    if (buf == NULL) {
+        ADM_LOG_ERR("malloc reg array buf failed!");
+        return HDF_FAILURE;
+    }
+
+    group->regEnumCfgItem =
+        (struct AudioEnumCtrlConfig*)OsalMemCalloc(group->itemNum * sizeof(*(group->regEnumCfgItem)));
+    if (group->regEnumCfgItem == NULL) {
+        OsalMemFree(buf);
+        ADM_LOG_ERR("malloc audio Enum reg config item is failed!");
+        return HDF_ERR_MALLOC_FAIL;
+    }
+
+    for (index = 0; index < group->itemNum; ++index) {
+        step = AUDIO_ENUM_REG_CFG_INDEX_MAX * index;
+
+        group->regEnumCfgItem[index].reg    = buf[step + AUDIO_ENUM_REG_CFG_REG_INDEX];
+        group->regEnumCfgItem[index].reg2   = buf[step + AUDIO_ENUM_REG_CFG_RREG_INDEX];
+        group->regEnumCfgItem[index].shiftLeft  = buf[step + AUDIO_ENUM_REG_CFG_SHIFT_INDEX];
+        group->regEnumCfgItem[index].shiftRight = buf[step + AUDIO_ENUM_REG_CFG_RSHIFT_INDEX];
+        group->regEnumCfgItem[index].max    = buf[step + AUDIO_ENUM_REG_CFG_MAX_INDEX];
+        group->regEnumCfgItem[index].mask   = buf[step + AUDIO_ENUM_REG_CFG_MASK_INDEX];
+        group->regEnumCfgItem[index].texts  = buf[step + AUDIO_ENUM_REG_CFG_TEXTS_INDEX];
+        group->regEnumCfgItem[index].values = buf[step + AUDIO_ENUM_REG_CFG_VALUE_INDEX];
+        group->regEnumCfgItem[index].sapm   = buf[step + AUDIO_ENUM_REG_CFG_SAPM_INDEX];
+    }
+    OsalMemFree(buf);
+
+    return HDF_SUCCESS;
+}
+
 static int32_t ParseAudioSapmItem(const struct DeviceResourceIface *parser, const struct DeviceResourceNode *regNode,
     struct AudioRegCfgGroupNode* group)
 {
@@ -288,6 +348,7 @@ static int32_t ParseAudioCtrlItem(const struct DeviceResourceIface *parser, cons
 
         group->ctrlCfgItem[index].arrayIndex = buf[step + AUDIO_CTRL_CFG_INDEX_INDEX];
         group->ctrlCfgItem[index].iface      = buf[step + AUDIO_CTRL_CFG_IFACE_INDEX];
+        group->ctrlCfgItem[index].type       = buf[step + AUDIO_CTRL_CFG_TYPE_INDEX];
         group->ctrlCfgItem[index].enable     = buf[step + AUDIO_CTRL_CFG_ENABLE_INDEX];
     }
     OsalMemFree(buf);
@@ -363,6 +424,10 @@ static int32_t ParseAudioRegGroup(const struct DeviceResourceIface *parser,
         case AUDIO_CTRL_SAPM_PATAM_GROUP:
         case AUDIO_DAI_STARTUP_PATAM_GROUP:
             ret = ParseAudioRegItem(parser, regCfgNode, group);
+            break;
+        case AUDIO_CTRL_PATAM_MUX_GROUP:
+        case AUDIO_CTRL_SAPM_PATAM_MUX_GROUP:
+            ret = ParseAudioEnumRegItem(parser, regCfgNode, group);
             break;
         case AUDIO_SAPM_COMP_GROUP:
             ret = ParseAudioSapmItem(parser, regCfgNode, group);

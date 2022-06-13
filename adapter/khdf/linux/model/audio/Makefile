@@ -99,3 +99,5 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/input/driver \
              -I$(srctree)/drivers/hdf/evdev \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/headset_monitor/include
+
+ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_CAP_REPORT) += -DAUDIO_ENABLE_CAP_THRESHOLD

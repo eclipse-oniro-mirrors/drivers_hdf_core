@@ -64,14 +64,17 @@ struct DaiParamsVal {
 int32_t CodecGetServiceName(const struct HdfDeviceObject *device, const char **drvCodecName);
 int32_t CodecGetDaiName(const struct HdfDeviceObject *device, const char **drvDaiName);
 int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecData *codecData);
-int32_t CodecSetConfigInfo(struct CodecData *codeData, struct DaiData *daiData);
-int32_t CodecSetCtlFunc(struct CodecData *codeData, const void *aiaoGetCtrl, const void *aiaoSetCtrl);
+int32_t CodecSetConfigInfoOfControls(struct CodecData *codeData, struct DaiData *daiData);
+int32_t CodecSetCtlFunc(struct CodecData *codeData, enum AudioControlType controlType, const void *getCtrl,
+    const void *setCtrl);
 int32_t CodecDeviceReadReg(const struct CodecDevice *codec, uint32_t reg, uint32_t *value);
 int32_t CodecDeviceWriteReg(const struct CodecDevice *codec, uint32_t reg, uint32_t value);
 int32_t CodecDaiRegI2cRead(const struct DaiDevice *dai, uint32_t reg, uint32_t *value);
 int32_t CodecDaiRegI2cWrite(const struct DaiDevice *dai, uint32_t reg, uint32_t value);
 int32_t CodecDeviceRegI2cRead(const struct CodecDevice *codec, uint32_t reg, uint32_t *value);
 int32_t CodecDeviceRegI2cWrite(const struct CodecDevice *codec, uint32_t reg, uint32_t value);
+int32_t CodecDeviceInitRegConfig(const struct CodecDevice *device);
+int32_t CodecDaiDeviceStartupRegConfig(const struct DaiDevice *device);
 
 #ifdef __cplusplus
 #if __cplusplus

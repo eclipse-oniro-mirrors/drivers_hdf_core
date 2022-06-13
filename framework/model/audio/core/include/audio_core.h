@@ -25,6 +25,8 @@ extern "C" {
 int32_t AudioCodecRegUpdate(struct CodecDevice *codec, struct AudioMixerControl *mixerCtrl);
 int32_t AudioDaiRegUpdate(const struct DaiDevice *dai, struct AudioMixerControl *mixerCtrl);
 
+int32_t AudioCodecMuxRegUpdate(struct CodecDevice *codec, struct AudioEnumKcontrol *enumCtrl, const uint32_t *value);
+
 int32_t AudioSocRegisterPlatform(struct HdfDeviceObject *device, struct PlatformData *platformData);
 int32_t AudioSocRegisterDai(struct HdfDeviceObject *device, struct DaiData *daiData);
 int32_t AudioRegisterDsp(struct HdfDeviceObject *device, struct DspData *dspData, struct DaiData *DaiData);
@@ -62,6 +64,10 @@ int32_t AudioCodecWriteReg(const struct CodecDevice *codec, uint32_t reg, uint32
 int32_t AudioInfoCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemInfo *elemInfo);
 int32_t AudioCodecGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);
 int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct AudioCtrlElemValue *elemValue);
+
+int32_t AudioInfoEnumCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemInfo *elemInfo);
+int32_t AudioCodecGetEnumCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);
+int32_t AudioCodecSetEnumCtrlOps(const struct AudioKcontrol *kcontrol, const struct AudioCtrlElemValue *elemValue);
 
 int32_t AudioCpuDaiSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct AudioCtrlElemValue *elemValue);
 int32_t AudioCpuDaiGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);

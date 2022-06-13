@@ -62,7 +62,7 @@ int32_t AudioSocRegisterPlatformTest(void)
     (void)memset_s(&platformData, sizeof(struct PlatformData), 0, sizeof(struct PlatformData));
     platformData.drvPlatformName = "dma_service_0";
     if (AudioSocRegisterPlatform(device, &platformData) != HDF_SUCCESS) {
-        HDF_LOGE("%s_[%d] AudioSocRegisterPlatform fail", __func__);
+        HDF_LOGE("%s_[%d] AudioSocRegisterPlatform fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
     HDF_LOGI("%s: success", __func__);

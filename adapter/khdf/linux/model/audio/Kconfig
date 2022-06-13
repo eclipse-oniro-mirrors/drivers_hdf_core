@@ -27,6 +27,13 @@ config DRIVERS_HDF_AUDIO_ANA_HEADSET
             support hook interrupt mode.
             support hook adc mode.
 
+config DRIVERS_HDF_AUDIO_CAP_REPORT
+    bool "Audio capture event report"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice capture event report.
+
 config DRIVERS_HDF_AUDIO_TEST
     bool "Enable HDF Audio driver Test"
     default n

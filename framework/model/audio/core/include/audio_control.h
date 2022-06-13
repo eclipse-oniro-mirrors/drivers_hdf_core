@@ -17,10 +17,24 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
+#define AUDIO_ELEMENT_NAME_LEN 64
+
 struct AudioCtrlElemId {
     const char *cardServiceName;
     int32_t iface;
     const char *itemName; /* ASCII name of item */
+};
+
+struct AudioCtlElemListReport {
+    char name[AUDIO_ELEMENT_NAME_LEN];
+    int32_t iface;
+};
+
+struct AudioCtlElemList {
+    const char *cardServiceName;
+    uint32_t count;     /* R: count of all elements */
+    uint32_t space;     /* W: count of element IDs to get */
+    struct AudioCtlElemListReport *ctlElemListAddr;    /* R: AudioCtrlElemId list addr */
 };
 
 struct AudioCtrlElemInfo {
@@ -34,6 +48,19 @@ struct AudioCtrlElemInfo {
 struct AudioCtrlElemValue {
     struct AudioCtrlElemId id;
     uint32_t value[2];
+};
+
+/* enumerated kcontrol */
+struct AudioEnumKcontrol {
+    uint32_t reg;
+    uint32_t reg2;
+    uint8_t shiftLeft;
+    uint8_t shiftRight;
+    uint32_t max;
+    uint32_t mask;
+    const char * const *texts;
+    const uint32_t *values;
+    void *sapm;
 };
 
 /* mixer control */
