@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,7 +18,7 @@
 #if (defined(__GNUC__) || defined(__clang__))
 #define HDF_DRIVER_SEC_NAME(type, name) \
         ({extern type name;            \
-           &name;                       \
+           &(name);                       \
         })
 #define HDF_DRIVER_BEGIN() HDF_DRIVER_SEC_NAME(size_t, _hdf_drivers_start)
 #define HDF_DRIVER_END() HDF_DRIVER_SEC_NAME(size_t, _hdf_drivers_end)

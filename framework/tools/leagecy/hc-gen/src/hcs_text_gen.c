@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -122,7 +122,7 @@ static int32_t InitConfigVariableNames()
     return NOERR;
 }
 
-static void ReleaseConfigVariableNames()
+static void ReleaseConfigVariableNames(void)
 {
     if (g_configRootVariableName != NULL) {
         HcsMemFree(g_configRootVariableName);
@@ -140,7 +140,7 @@ static void ReleaseConfigVariableNames()
     }
 }
 
-static const char *GetConfigRootVariableName()
+static const char *GetConfigRootVariableName(void)
 {
     return g_configRootVariableName;
 }
@@ -202,7 +202,7 @@ static void HcsReleaseSymbol(struct HcsSymbol *s)
     HcsMemFree(s);
 }
 
-static void HcsSymbolTableRelease()
+static void HcsSymbolTableRelease(void)
 {
     HcsReleaseSymbol(g_hcsSymbolTable->symbols);
     HcsMemFree(g_hcsSymbolTable);
@@ -403,7 +403,8 @@ static int32_t HcsPrintTermDefinition(const ParserObject *object)
                 return res;
             }
             res = HcsFormatOutputWrite("const struct %s* %s;\n", refType, object->configTerm.name);
-        } break;
+            break;
+        }
         default:
             break;
     }
@@ -807,7 +808,7 @@ static void ToUpperString(char *str, uint32_t strLen)
 }
 
 #define HCS_HEADER_MACRO_MAX_LEN 150
-static char *GenHeaderProtectionMacro()
+static char *GenHeaderProtectionMacro(void)
 {
     char *fileName = HcsGetOutputFileNameWithoutSuffix();
     if (fileName == NULL) {

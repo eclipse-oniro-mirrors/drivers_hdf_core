@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -61,7 +61,7 @@ typedef struct ParserObjectBase ParserObjectBase;
         uint64_t value;        \
         uint64_t integerValue; \
         char *stringValue;     \
-    };
+    }
 
 struct ParserObjectBase {
     PARSER_OBJECT_COMMON;
