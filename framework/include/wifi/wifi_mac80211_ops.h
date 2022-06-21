@@ -659,6 +659,50 @@ struct HdfMac80211BaseOps {
      * @version 1.0
      */
     int32_t (*GetChannelMeasResult)(const char *ifName, int32_t commandId, uint32_t *paramBuf, uint32_t *paramBufLen);
+
+    /**
+     * @brief Obtaining Coex Channel List.
+     *
+     * @param ifName Indicates the pointer to the network interface name.
+     * @param buf Coex channel list result data.
+     * @param bufLen Buffer size of coex channel list result data.
+     *
+     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
+     *
+     * @since 3.2
+     * @version 1.0
+     */
+    int32_t (*GetCoexChannelList)(const char *ifName, uint8_t *buf, uint32_t *bufLen);
+
+    /**
+     * @brief Send hml command to driver.
+     *
+     * @param ifName Indicates the pointer to the network interface name.
+     * * @param cmd Hml command sent to driver.
+     * @param data Param data send to dirver.
+     * @param bufLen Data length of param data.
+     *
+     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
+     *
+     * @since 3.2
+     * @version 1.0
+     */
+    int32_t (*SendHmlCmd)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
+
+    /**
+     * @brief Send hml command to driver.
+     *
+     * @param ifName Indicates the pointer to the network interface name.
+     * @param cmd P2p command sent to driver.
+     * @param data Param data send to dirver.
+     * @param bufLen Data length of param data.
+     *
+     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
+     *
+     * @since 3.2
+     * @version 1.0
+     */
+    int32_t (*SendP2pCmd)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
 };
 
 /**
