@@ -235,7 +235,7 @@ class AttrEditor {
                 break;
             case 4://ref
                 v.type_ = DataType.REFERENCE;
-                v.value_ = "_unknow_";
+                v.value_ = "unknow";
                 break;
             case 5://delete
                 v.type_ = DataType.DELETE;
