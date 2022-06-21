@@ -14,6 +14,8 @@
 #include "hdf_base.h"
 #include "hdf_ibus_intf.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

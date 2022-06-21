@@ -10,7 +10,7 @@
 #include "osal_time.h"
 #include "hdf_log.h"
 #include "flow_control.h"
-#define HDF_LOG_TAG "WiFiFlowControl"
+#define HDF_LOG_TAG HDF_WIFI_CORE
 #define FLOW_CONTROL_MAP_SIZE 3
 struct FcPriority {
     FlowDir dir;

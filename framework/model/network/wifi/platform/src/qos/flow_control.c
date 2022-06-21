@@ -15,7 +15,7 @@
 #include "net_device.h"
 #include "net_device_adapter.h"
 
-#define HDF_LOG_TAG "WiFiFlowControl"
+#define HDF_LOG_TAG HDF_WIFI_CORE
 #define ETHER_TYPE_PROCESS_COUNT 8
 #define TOS_TO_ID_COUNT 6
 #define PROTOCOL_STANDARD_SHIFT_COUNT 2
