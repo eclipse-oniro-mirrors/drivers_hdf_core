@@ -27,12 +27,12 @@ int32_t I3cTransfer(DevHandle handle, struct I3cMsg *msgs, int16_t count, enum T
     int32_t ret = HDF_SUCCESS;
 
     if (handle == NULL) {
+        HDF_LOGE("%s: handle is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (msgs == NULL || count <= 0) {
-        HDF_LOGE("I3cTransfer: err params! msgs:%s, count:%d",
-            (msgs == NULL) ? "0" : "x", count);
+        HDF_LOGE("I3cTransfer: err params! msgs:%s, count:%hd", (msgs == NULL) ? "0" : "x", count);
         return HDF_ERR_INVALID_PARAM;
     }
 
