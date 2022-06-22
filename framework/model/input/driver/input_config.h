@@ -148,9 +148,17 @@ typedef struct {
     uint16_t gpioSW;
 } EncoderCfg;
 
+typedef struct {
+    struct HdfDeviceObject *hdfInfraredDev;
+    uint8_t devType;
+    uint16_t gpioNum;
+    uint16_t irqFlag;
+} InfraredCfg;
+
 int32_t ParseTouchBoardConfig(const struct DeviceResourceNode *node, TouchBoardCfg *config);
 int32_t ParseTouchChipConfig(const struct DeviceResourceNode *node, TouchChipCfg *config);
 int32_t ParseKeyConfig(const struct DeviceResourceNode *node, KeyChipCfg *config);
 int32_t ParseEncoderConfig(const struct DeviceResourceNode *node, EncoderCfg *config);
+int32_t ParseInfraredConfig(const struct DeviceResourceNode *node, InfraredCfg *config);
 
 #endif

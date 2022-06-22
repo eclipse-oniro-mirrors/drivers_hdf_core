@@ -23,6 +23,30 @@
 #define I2C 0
 #define SPI 1
 
+int32_t ParseInfraredConfig(const struct DeviceResourceNode *node, InfraredCfg *config)
+{
+    int32_t ret;
+    struct DeviceResourceIface *parser = NULL;
+    if (node == NULL || config == NULL) {
+        HDF_LOGE("%s: param is null", __func__);
+        return HDF_FAILURE;
+    }
+
+    parser = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    if (parser == NULL) {
+        HDF_LOGE("%s: instance parser failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    const struct DeviceResourceNode *keyNode = node;
+    ret = parser->GetUint8(keyNode, "inputType", &config->devType, 0);
+    CHECK_PARSER_RET(ret, "GetUint8");
+    ret = parser->GetUint16(keyNode, "gpioNum", &config->gpioNum, 0);
+    CHECK_PARSER_RET(ret, "GetUint16");
+
+    return HDF_SUCCESS;
+}
+
 int32_t ParseKeyConfig(const struct DeviceResourceNode *node, KeyChipCfg *config)
 {
     int32_t ret;
