@@ -8,6 +8,8 @@
 
 #include "wifi_module.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
+
 #ifdef __cplusplus
 extern "C" {
 #endif

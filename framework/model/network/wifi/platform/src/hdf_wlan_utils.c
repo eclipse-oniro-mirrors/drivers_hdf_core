@@ -12,6 +12,7 @@
 #include "wifi_module.h"
 #include "hdf_wlan_chipdriver_manager.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
 const char * const HDF_WIFI_PLATFORM_DRIVER_NAME = "HDF_WIFI_PLATFORM_DRIVER";
 
 const char *GetPlatformDriverName(void)
