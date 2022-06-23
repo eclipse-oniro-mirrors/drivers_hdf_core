@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -43,6 +43,7 @@ int32_t DelFeature(struct WifiModule *module, uint16_t featureType)
         featureData = NULL;
         return HDF_SUCCESS;
     }
+    HDF_LOGE("%s: DelFeature fail!", __func__);
     return HDF_FAILURE;
 }
 

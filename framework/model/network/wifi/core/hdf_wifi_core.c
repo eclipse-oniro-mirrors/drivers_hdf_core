@@ -65,6 +65,7 @@ static int32_t HdfWifiDriverBind(struct HdfDeviceObject *dev)
     };
 
     if (dev == NULL) {
+        HDF_LOGE("%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
 
@@ -81,6 +82,7 @@ static int32_t HdfWifiDriverBind(struct HdfDeviceObject *dev)
         return errCode;
     }
     dev->service = &wifiService;
+    HDF_LOGD("%s: Wifi driver bind successed!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -339,6 +341,7 @@ static void ReleaseWlanDevice(struct HdfWlanDevice *device)
 static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConfig)
 {
     if (deviceConfig == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
     struct HdfWlanDevice *device = NULL;
@@ -461,6 +464,7 @@ static int32_t HdfWlanInitThread(void *para)
     OsalSleep(initDelaySec);
     HDF_LOGW("Driver HdfWiFi initing...");
     if (device == NULL) {
+        HDF_LOGE("%s: Device is null!", __func__);
         return HDF_FAILURE;
     }
 

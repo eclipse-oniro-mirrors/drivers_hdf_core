@@ -414,6 +414,7 @@ static int32_t WifiCmdEnableEapol(const RequestContext *context, struct HdfSBuf 
     eapol.callback = (void *)HdfWifiEventEapolRecv;
     eapol.context = NULL;
 
+    HDF_LOGD("%s: WifiCmdEnableEapol finished", __func__);
     return EnableEapol(netdev, &eapol);
 }
 
@@ -744,6 +745,7 @@ static int32_t WifiCmdSetNetdev(const RequestContext *context, struct HdfSBuf *r
         SetNetworkAddr(netdev, info->ifType);
         ret = SetNetIfInfo(netdev, info->ifType);
     }
+    HDF_LOGD("%s: WifiCmdSetNetdev finished", __func__);
     return ret;
 }
 
@@ -1622,6 +1624,7 @@ int32_t BaseInit()
         ServiceCfg cfg = {.dispatcherId = DEFAULT_DISPATCHER_ID};
         g_baseService = CreateService(BaseService, &cfg);
         if (g_baseService == NULL) {
+            HDF_LOGE("%s: The g_baseService is null, CreateService failed!", __func__);
             return HDF_FAILURE;
         }
     }
