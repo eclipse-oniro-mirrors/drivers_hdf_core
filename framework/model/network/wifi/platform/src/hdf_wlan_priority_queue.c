@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -37,6 +37,7 @@ PriorityQueue *CreatePriorityQueue(uint16_t queueSize, uint8_t priorityLevelCoun
     queueMemSize = sizeof(PriorityQueueImpl) + (priorityLevelCount * sizeof(HdfWlanQueue *));
     priorityQueue = (PriorityQueueImpl *)OsalMemCalloc(queueMemSize);
     if (priorityQueue == NULL) {
+        HDF_LOGE("%s: Request memory failed", __func__);
         return NULL;
     }
     priorityQueue->priorityLevelCount = priorityLevelCount;
@@ -54,6 +55,7 @@ PriorityQueue *CreatePriorityQueue(uint16_t queueSize, uint8_t priorityLevelCoun
     }
     status = OsalSemInit(&priorityQueue->messageSemaphore, 0);
     if (status != HDF_SUCCESS) {
+        HDF_LOGE("%s: OsalSemInit failed! status=%d", __func__, status);
         DestroyPriorityQueue((PriorityQueue *)priorityQueue);
         return NULL;
     }
@@ -67,6 +69,7 @@ void DestroyPriorityQueue(PriorityQueue *queue)
     HDF_STATUS status;
     PriorityQueueImpl *queueImpl = (PriorityQueueImpl *)queue;
     if (queue == NULL) {
+        HDF_LOGE("%s: Input param is null", __func__);
         return;
     }
 
@@ -79,7 +82,7 @@ void DestroyPriorityQueue(PriorityQueue *queue)
     }
     status = OsalSemDestroy(&queueImpl->messageSemaphore);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:Destroy message queue semaphore failed!status=%d", __func__, status);
+        HDF_LOGE("%s:Destroy message queue semaphore failed! status=%d", __func__, status);
     }
 
     OsalMemFree(queueImpl);
@@ -91,6 +94,7 @@ int32_t PushPriorityQueue(PriorityQueue *queue, const uint8_t priority, void *co
     uint8_t pri;
     PriorityQueueImpl *queueImpl = NULL;
     if (queue == NULL || context == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     queueImpl = (PriorityQueueImpl *)queue;
@@ -101,7 +105,7 @@ int32_t PushPriorityQueue(PriorityQueue *queue, const uint8_t priority, void *co
 
     ret = PushQueue(queueImpl->queues[pri], context);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:Write queue failed!ret=%d", __func__, ret);
+        HDF_LOGE("%s:Write queue failed! ret=%d", __func__, ret);
         return ret;
     }
 
@@ -128,16 +132,19 @@ void *PopPriorityQueue(PriorityQueue *queue, uint32_t waitInMS)
     void *context = NULL;
     HDF_STATUS status;
     if (queue == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
 
     context = PopQueueByPri(queueImpl);
     if (context != NULL || waitInMS == 0) {
+        HDF_LOGD("%s: Context isn't null or waitInMs is zero!", __func__);
         return context;
     }
 
     status = OsalSemWait(&queueImpl->messageSemaphore, waitInMS);
     if (status != HDF_SUCCESS) {
+        HDF_LOGE("%s: OsalSemWait failed! status=%d", __func__, status);
         return NULL;
     }
     return PopQueueByPri(queueImpl);

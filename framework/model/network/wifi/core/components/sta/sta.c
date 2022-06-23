@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -225,6 +225,7 @@ static int32_t WifiCmdAssoc(const RequestContext *context, struct HdfSBuf *reqDa
         return HDF_FAILURE;
     }
     if (WifiSetAssocParams(&assoc, netdev, &params) != HDF_SUCCESS) {
+        HDF_LOGE("%s: WifiSetAssocParams failed", __func__);
         return HDF_FAILURE;
     }
     capability = GetHwCapability(netdev);
@@ -306,6 +307,7 @@ static int32_t WifiCmdScan(const RequestContext *context, struct HdfSBuf *reqDat
     }
     ret = WifiFillScanParam(&params, reqData);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: WifiFillScanParam failed", __func__);
         return ret;
     }
     ret = ScanAll(netdev, &params);
@@ -407,6 +409,7 @@ int32_t StaInit(struct WifiFeature *feature)
         };
         g_staService = CreateService(STAService, &cfg);
         if (g_staService == NULL) {
+            HDF_LOGE("%s: The g_staService is null, CreateService failed!", __func__);
             return HDF_FAILURE;
         }
     }
