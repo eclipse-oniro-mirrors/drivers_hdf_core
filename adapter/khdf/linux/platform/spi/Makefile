@@ -16,5 +16,5 @@ include drivers/hdf/khdf/platform/platform.mk
 
 obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/spi/spi_core.o \
           $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/spi/spi_if.o \
-          hi35xx_spi_adapter.o
+          spi_adapter.o
 
