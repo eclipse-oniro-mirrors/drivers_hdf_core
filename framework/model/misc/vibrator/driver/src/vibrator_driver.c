@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -41,7 +41,7 @@ int32_t RegisterVibrator(struct VibratorOps *ops)
     return HDF_SUCCESS;
 }
 
-void StartTimeVibrator()
+void StartTimeVibrator(void)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
@@ -51,7 +51,7 @@ void StartTimeVibrator()
     HdfAddWork(&drvData->workQueue, &drvData->work);
 }
 
-void StopVibrator()
+void StopVibrator(void)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 

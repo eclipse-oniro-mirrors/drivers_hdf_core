@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,8 +19,7 @@
 
 #define BUS_FUNC_MAX 1
 
-enum PowerType
-{
+enum PowerType {
     POWER_TYPE_ALWAYS_ON = 0,
     POWER_TYPE_GPIO
 };
@@ -43,8 +42,7 @@ struct HdfPowersConfig {
     struct HdfPowerConfig power[0];
 };
 
-enum ResetType
-{
+enum ResetType {
     RESET_TYPE_NOT_MANAGEABLE = 0,
     RESET_TYPE_GPIO
 };

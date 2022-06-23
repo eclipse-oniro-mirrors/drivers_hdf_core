@@ -1616,7 +1616,7 @@ static struct MessageDef g_wifiBaseFeatureCmds[] = {
 };
 ServiceDefine(BaseService, BASE_SERVICE_ID, g_wifiBaseFeatureCmds);
 
-int32_t BaseInit()
+int32_t BaseInit(void)
 {
     if (g_baseService == NULL) {
         ServiceCfg cfg = {.dispatcherId = DEFAULT_DISPATCHER_ID};
@@ -1628,7 +1628,7 @@ int32_t BaseInit()
     return HDF_SUCCESS;
 }
 
-int32_t BaseDeinit()
+int32_t BaseDeinit(void)
 {
     if (g_baseService != NULL && g_baseService->Destroy != NULL) {
         g_baseService->Destroy(g_baseService);

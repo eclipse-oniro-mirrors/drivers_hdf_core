@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -98,18 +98,18 @@ struct ServiceDef {
 Service *InitService(struct ServiceDef *def, const ServiceCfg *cfg);
 
 #define DUEMessage(CMDID, HANDLER, PRI) \
-    [CMDID] = {                         \
-        .handler = HANDLER,             \
-        .pri = PRI                      \
+    [(CMDID)] = {                         \
+        .handler = (HANDLER),             \
+        .pri = (PRI)                      \
     }
 
 #define ServiceDefine(ServiceName, SERVICE_ID, ServiceMap)                    \
     Service *CreateService##ServiceName(const ServiceCfg *cfg)                \
     {                                                                         \
         static struct ServiceDef serviceDef = {                               \
-            .serviceId = SERVICE_ID,                                          \
+            .serviceId = (SERVICE_ID),                                          \
             .messagesLength = sizeof(ServiceMap) / sizeof(struct MessageDef), \
-            .messages = ServiceMap                                            \
+            .messages = (ServiceMap)                                            \
         };                                                                    \
         return InitService(&serviceDef, cfg);                                 \
     }

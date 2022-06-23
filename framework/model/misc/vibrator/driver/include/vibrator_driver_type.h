@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,8 +19,8 @@
 } while (0)
 
 #define CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, str) do { \
-    if (ret != HDF_SUCCESS) { \
-        HDF_LOGE("%s:line %d %s fail, ret = %d!", __func__, __LINE__, str, ret); \
+    if ((ret) != HDF_SUCCESS) { \
+        HDF_LOGE("%s:line %d %s fail, ret = %d!", __func__, __LINE__, (str), (ret)); \
         return HDF_FAILURE; \
     } \
 } while (0)
