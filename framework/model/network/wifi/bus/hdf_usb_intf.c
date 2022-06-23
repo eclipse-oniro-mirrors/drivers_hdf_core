@@ -187,12 +187,23 @@ static struct DevHandle *HdfGetDevHandle(struct BusDev *dev, const struct HdfCon
 
 static int32_t HdfUsbInit(struct BusDev *dev, const struct HdfConfigWlanBus *busCfg)
 {
+    int32_t ret;
     if (dev == NULL || busCfg == NULL) {
         HDF_LOGE("%s: input parameter error!", __func__);
         return HDF_FAILURE;
     }
     (void)HdfGetDevHandle(dev, busCfg);
     HDF_LOGI("%s:", __func__);
+    ret = HdfUsbEnableFunc(dev);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: enable usb failed!", __func__);
+        return HDF_FAILURE;
+    }
+    ret = HdfUsbSetBlk(dev, busCfg->blockSize);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set usb block size failed!", __func__);
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }
 
