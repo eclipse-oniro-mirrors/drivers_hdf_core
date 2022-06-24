@@ -83,7 +83,7 @@ static void RecvDataHandle(InfraredDriver *infraredDrv, uint32_t data)
             input_report_key(infraredDrv->inputDev, g_infraredKeyTable[i].infraredCode, 1);
             break;
         }
-    } 
+    }
 
     input_report_key(infraredDrv->inputDev, g_infraredKeyTable[i].infraredCode, 0);
     input_sync(infraredDrv->inputDev);
