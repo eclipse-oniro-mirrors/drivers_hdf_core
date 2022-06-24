@@ -11,7 +11,6 @@
 #include <securec.h>
 #include "osal_time.h"
 #include "input_config.h"
-#include "hdf_key.h"
 #include "hdf_input_device_manager.h"
 
 typedef struct InfraredDriverInfo {
