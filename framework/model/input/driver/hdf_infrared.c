@@ -15,12 +15,13 @@
 #include "hdf_input_device_manager.h"
 #include "event_hub.h"
 
-#define AVERAGE_ERROR 10
-#define PILOT_CODE 200
+#define AVERAGE_ERROR 15
+#define PILOT_CODE 225
 #define LOGIC_1 84
 #define LOGIC_0 28
 #define MAX_DATA_LEN 32
 
+/* {key value, key input event} */
 static struct InfraredKey g_infraredKeyTable[] = {
     {0xA2, KEY_CHANNELUP},
     {0x62, KEY_CHANNEL},
@@ -41,13 +42,13 @@ static struct InfraredKey g_infraredKeyTable[] = {
     {0x42, KEY_7},
     {0x4A, KEY_8},
     {0x52, KEY_9},
-    {0x98, KEY_10CHANNELSUP},
-    {0xB0, KEY_1},
+    {0x98, BTN_0},
+    {0xB0, BTN_1},
 };
 
 static uint16_t TimeCounter(uint16_t intGpioNum)
 {
-    uint16_t timer = 0;
+    uint16_t counter = 0;
     uint16_t gpioValue = 0;
     int32_t ret = GpioRead(intGpioNum, &gpioValue);
     if (ret != HDF_SUCCESS) {
@@ -56,10 +57,10 @@ static uint16_t TimeCounter(uint16_t intGpioNum)
     }
 
     while (gpioValue == 1) {
-        timer++;
-        OsalUDelay(20);
-        if (timer >= PILOT_CODE) {
-            return timer;
+        counter++;
+        OsalUDelay(20); // delay 20us
+        if (counter >= PILOT_CODE) {
+            return counter;
         }
         ret = GpioRead(intGpioNum, &gpioValue);
         if (ret != HDF_SUCCESS) {
@@ -67,13 +68,12 @@ static uint16_t TimeCounter(uint16_t intGpioNum)
             return HDF_FAILURE;
         }
     }
-    return timer;
+    return counter;
 }
 
 static void RecvDataHandle(InfraredDriver *infraredDrv, uint32_t data)
 {
-    if (((data & 0xFF00) >> 8) + (data & 0xFF) != 0xFF) {
-        printk("gwgw wrong Data %x result = %x\n", data, ((data & 0xFF00) >> 8) + (data & 0xFF));
+    if (((data & 0xFF00) >> 8) + (data & 0xFF) != 0xFF) { // 8 bit
         return;
     }
 
@@ -96,7 +96,7 @@ static void EventHandle(InfraredDriver *infraredDrv)
     uint16_t dataLen = 0;
     uint16_t recvFlag = 0;
     uint16_t gpioValue = 0;
-    uint16_t timer = 0;
+    uint16_t counter = 0;
     uint32_t recvData = 0;
     while (1) {
         ret = GpioRead(infraredDrv->infraredCfg->gpioNum, &gpioValue);
@@ -106,21 +106,21 @@ static void EventHandle(InfraredDriver *infraredDrv)
         }
 
         if (gpioValue == 1) {
-            timer = TimeCounter(infraredDrv->infraredCfg->gpioNum);
-            if (timer >= 250) {
+            counter = TimeCounter(infraredDrv->infraredCfg->gpioNum);
+            if (counter >= PILOT_CODE + AVERAGE_ERROR) {
                 break;
             }
-            if (timer >= 180 && timer < PILOT_CODE + AVERAGE_ERROR) {
+            if ((counter >=  PILOT_CODE - AVERAGE_ERROR) && (counter < PILOT_CODE + AVERAGE_ERROR)) {
                 recvFlag = 1;
-            } else if (timer >= 65 && timer < LOGIC_1 + AVERAGE_ERROR) {
+            } else if ((counter >= LOGIC_1 - AVERAGE_ERROR) && (counter < LOGIC_1 + AVERAGE_ERROR)) {
                 dataBit = 1;
-            } else if (timer >= LOGIC_0 - AVERAGE_ERROR && timer < LOGIC_0 + AVERAGE_ERROR) {
+            } else if ((counter >= LOGIC_0 - AVERAGE_ERROR) && (counter < LOGIC_0 + AVERAGE_ERROR)) {
                 dataBit = 0;
             } else {
                 recvData = 0;
                 recvFlag = 0;
                 dataBit = 0;
-                timer = 0;
+                counter = 0;
                 dataLen = 0;
             }
 
@@ -133,7 +133,7 @@ static void EventHandle(InfraredDriver *infraredDrv)
                     recvFlag = 0;
                     dataLen = 0;
                     dataBit = 0;
-                    timer = 0;
+                    counter = 0;
                     break;
                 }
                 dataLen++;
@@ -298,14 +298,11 @@ static int32_t HdfInfraredDriverInit(struct HdfDeviceObject *device)
 
     ret = RegisterInfraredDevice(infraredCfg);
     if (ret != HDF_SUCCESS) {
-        goto EXIT;
+        OsalMemFree(infraredCfg);
+        return HDF_FAILURE;
     }
     HDF_LOGI("%s: exit succ!", __func__);
     return HDF_SUCCESS;
-
-EXIT:
-    OsalMemFree(infraredCfg);
-    return HDF_FAILURE;
 }
 
 static int32_t HdfInfraredDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
