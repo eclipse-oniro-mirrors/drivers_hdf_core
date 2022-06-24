@@ -355,7 +355,7 @@ void DevSvcManagerRelease(struct IDevSvcManager *inst)
     OsalMutexDestroy(&devSvcManager->mutex);
 }
 
-struct IDevSvcManager *DevSvcManagerGetInstance()
+struct IDevSvcManager *DevSvcManagerGetInstance(void)
 {
     static struct IDevSvcManager *instance = NULL;
     if (instance == NULL) {

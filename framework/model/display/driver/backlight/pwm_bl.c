@@ -99,7 +99,7 @@ static int32_t ParseBlPwmCfg(const struct DeviceResourceNode *node, struct BlPwm
     }
     ret = parser->GetString(node, "backlightDevName", &blPwmDev->name, NULL);
     CHECK_PARSER_RET(ret, "GetString");
-    ret = parser->GetUint32(node, "pwmMaxPeroid", &blPwmDev->config.period, 0);
+    ret = parser->GetUint32(node, "pwmMaxPeriod", &blPwmDev->config.period, 0);
     CHECK_PARSER_RET(ret, "GetUint32");
     ret = parser->GetUint32(node, "minBrightness", &blPwmDev->props.minBrightness, DEF_MIN_BRIGHTNESS);
     CHECK_PARSER_RET(ret, "GetUint32");

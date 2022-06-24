@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -15,7 +15,7 @@
 #include "net_device.h"
 #include "net_device_adapter.h"
 
-#define HDF_LOG_TAG "WiFiFlowControl"
+#define HDF_LOG_TAG HDF_WIFI_CORE
 #define ETHER_TYPE_PROCESS_COUNT 8
 #define TOS_TO_ID_COUNT 6
 #define PROTOCOL_STANDARD_SHIFT_COUNT 2
@@ -396,7 +396,7 @@ void DeInitFlowControl(struct FlowControlModule *fcm)
     return;
 }
 
-struct FlowControlModule *GetFlowControlModule()
+struct FlowControlModule *GetFlowControlModule(void)
 {
     return g_fcm;
 }

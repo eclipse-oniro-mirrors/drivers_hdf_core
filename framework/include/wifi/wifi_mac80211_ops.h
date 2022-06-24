@@ -631,78 +631,33 @@ struct HdfMac80211BaseOps {
     int32_t (*SetPowerMode)(const char *ifName, uint8_t mode);
 
     /**
-     * @brief Start channel measurement.
+    * @brief Start channel measurement(asynchronous interface, need call getChannelMeasResult to
+     * get measurement results).
      *
      * @param ifName Indicates the pointer to the network interface name.
-     * @param commandId Indicates the ID of the delivered command.
-     * @param paramBuf Parameters of the measurement channel.
-     * @param paramBufLen Buffer size for measuring channel parameters.
+     * @param measParam Parameters of the measurement channel.
      *
      * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
      *
      * @since 3.2
      * @version 1.0
      */
-    int32_t (*StartChannelMeas)(const char *ifName, int32_t commandId, const int32_t *paramBuf, uint32_t paramBufLen);
+    int32_t (*StartChannelMeas)(const char *ifName, const MeasParam *measParam);
 
     /**
-     * @brief Obtaining Channel Measurement Results.
+     * @brief Set projection screen parameters.
      *
      * @param ifName Indicates the pointer to the network interface name.
-     * @param commandId Indicates the ID of the delivered command.
-     * @param paramBuf Channel measurement result data.
-     * @param paramBufLen Buffer size of channel measurement result data.
+     * @param cmd Command of projection screen configuration.
+     * @param data Parameters data send to dirver.
+     * @param bufLen Indicates the length of parameters data.
      *
-     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
+     * @return Returns <b>0</b> if set projection screen parameters successful; returns a negative value otherwise.
      *
      * @since 3.2
      * @version 1.0
      */
-    int32_t (*GetChannelMeasResult)(const char *ifName, int32_t commandId, uint32_t *paramBuf, uint32_t *paramBufLen);
-
-    /**
-     * @brief Obtaining Coex Channel List.
-     *
-     * @param ifName Indicates the pointer to the network interface name.
-     * @param buf Coex channel list result data.
-     * @param bufLen Buffer size of coex channel list result data.
-     *
-     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
-     *
-     * @since 3.2
-     * @version 1.0
-     */
-    int32_t (*GetCoexChannelList)(const char *ifName, uint8_t *buf, uint32_t *bufLen);
-
-    /**
-     * @brief Send hml command to driver.
-     *
-     * @param ifName Indicates the pointer to the network interface name.
-     * * @param cmd Hml command sent to driver.
-     * @param data Param data send to dirver.
-     * @param bufLen Data length of param data.
-     *
-     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
-     *
-     * @since 3.2
-     * @version 1.0
-     */
-    int32_t (*SendHmlCmd)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
-
-    /**
-     * @brief Send hml command to driver.
-     *
-     * @param ifName Indicates the pointer to the network interface name.
-     * @param cmd P2p command sent to driver.
-     * @param data Param data send to dirver.
-     * @param bufLen Data length of param data.
-     *
-     * @return Returns <b>0</b> if get infos successful; returns a negative value otherwise.
-     *
-     * @since 3.2
-     * @version 1.0
-     */
-    int32_t (*SendP2pCmd)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
+    int32_t (*SetProjectionScreenParam)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
 };
 
 /**

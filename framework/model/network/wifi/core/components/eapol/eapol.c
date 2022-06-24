@@ -12,7 +12,7 @@
 #include "osal_mem.h"
 #include "hdf_log.h"
 
-#define HDF_LOG_TAG             HDF_WIFI_EAPOL
+#define HDF_LOG_TAG HDF_WIFI_CORE
 
 #define RETURN_IF_INPUT_VALID(netDevice, buff) do {                 \
         if ((netDevice) == NULL || (buff) == NULL) {                        \

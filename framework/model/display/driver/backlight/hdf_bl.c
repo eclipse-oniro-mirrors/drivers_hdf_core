@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -81,7 +81,7 @@ FAIL:
 struct BacklightDev *RegisterBlDev(const char *name, struct BacklightProperties *props,
     struct BacklightOps *ops, void *priv)
 {
-    int32_t devNum;
+    uint32_t devNum;
     int32_t i;
     struct BacklightDev *blDev = NULL;
     struct BlDevManager *blDevManager = NULL;

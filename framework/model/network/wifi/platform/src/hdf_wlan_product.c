@@ -11,6 +11,7 @@
 #include "hdf_wlan_utils.h"
 #include "securec.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
 #define MAX_WLAN_DEVICE 3
 /**
  * @brief Defines the Product Data.

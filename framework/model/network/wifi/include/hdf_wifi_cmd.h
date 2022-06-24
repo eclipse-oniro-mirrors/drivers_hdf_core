@@ -430,6 +430,17 @@ typedef enum {
     WIFI_CHAN_NO_160MHZ     = 1 << 8,
 } WifiChannelFlags;
 
+typedef struct {
+    int32_t channelId;
+    int32_t measTime;
+} MeasParam;
+
+typedef struct {
+    int32_t channelId;
+    int32_t chload;
+    int32_t noise;
+} MeasResult;
+
 #ifdef __cplusplus
 #if __cplusplus
 }

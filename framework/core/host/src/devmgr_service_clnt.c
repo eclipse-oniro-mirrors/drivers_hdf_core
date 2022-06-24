@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -64,7 +64,7 @@ int DevmgrServiceClntDetachDevice(devid_t devid)
     return devMgrSvcIf->DetachDevice(devMgrSvcIf, devid);
 }
 
-struct DevmgrServiceClnt *DevmgrServiceClntGetInstance()
+struct DevmgrServiceClnt *DevmgrServiceClntGetInstance(void)
 {
     static struct DevmgrServiceClnt instance = {0};
     if (instance.devMgrSvcIf == NULL) {

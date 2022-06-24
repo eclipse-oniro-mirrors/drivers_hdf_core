@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,11 +19,11 @@ struct SpiCntlr;
 struct SpiCntlrMethod;
 
 struct SpiCntlrMethod {
-    int32_t (*GetCfg)(struct SpiCntlr *, struct SpiCfg *);
-    int32_t (*SetCfg)(struct SpiCntlr *, struct SpiCfg *);
-    int32_t (*Transfer)(struct SpiCntlr *, struct SpiMsg *, uint32_t);
-    int32_t (*Open)(struct SpiCntlr *);
-    int32_t (*Close)(struct SpiCntlr *);
+    int32_t (*GetCfg)(struct SpiCntlr *cntlr, struct SpiCfg *cfg);
+    int32_t (*SetCfg)(struct SpiCntlr *cntlr, struct SpiCfg *cfg);
+    int32_t (*Transfer)(struct SpiCntlr *cntlr, struct SpiMsg *msg, uint32_t count);
+    int32_t (*Open)(struct SpiCntlr *cntlr);
+    int32_t (*Close)(struct SpiCntlr *cntlr);
 };
 
 struct SpiCntlr {
@@ -75,10 +75,10 @@ static inline struct SpiCntlr *SpiCntlrFromDevice(struct HdfDeviceObject *device
     return (device == NULL) ? NULL : (struct SpiCntlr *)device->service;
 }
 
-int32_t SpiCntlrTransfer(struct SpiCntlr *, uint32_t, struct SpiMsg *, uint32_t);
-int32_t SpiCntlrSetCfg(struct SpiCntlr *, uint32_t, struct SpiCfg *);
-int32_t SpiCntlrGetCfg(struct SpiCntlr *, uint32_t, struct SpiCfg *);
-int32_t SpiCntlrOpen(struct SpiCntlr *, uint32_t);
-int32_t SpiCntlrClose(struct SpiCntlr *, uint32_t);
+int32_t SpiCntlrTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiMsg *msg, uint32_t count);
+int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cfg);
+int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cfg);
+int32_t SpiCntlrOpen(struct SpiCntlr *cntlr, uint32_t csNum);
+int32_t SpiCntlrClose(struct SpiCntlr *cntlr, uint32_t csNum);
 
 #endif /* SPI_CORE_H */

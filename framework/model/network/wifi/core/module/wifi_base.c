@@ -414,6 +414,7 @@ static int32_t WifiCmdEnableEapol(const RequestContext *context, struct HdfSBuf 
     eapol.callback = (void *)HdfWifiEventEapolRecv;
     eapol.context = NULL;
 
+    HDF_LOGD("%s: WifiCmdEnableEapol finished", __func__);
     return EnableEapol(netdev, &eapol);
 }
 
@@ -744,6 +745,7 @@ static int32_t WifiCmdSetNetdev(const RequestContext *context, struct HdfSBuf *r
         SetNetworkAddr(netdev, info->ifType);
         ret = SetNetIfInfo(netdev, info->ifType);
     }
+    HDF_LOGD("%s: WifiCmdSetNetdev finished", __func__);
     return ret;
 }
 
@@ -1461,8 +1463,7 @@ static int32_t WifiCmdSetPowerMode(const RequestContext *context, struct HdfSBuf
     return ret;
 }
 
-static uint32_t HdfdWlanStartChannelMeas(const char *ifName, int32_t commandId, const int32_t *paramBuf,
-    uint32_t paramBufLen)
+static uint32_t HdfWlanStartChannelMeas(const char *ifName,  const MeasParam *measParam)
 {
     struct NetDevice *netdev = NULL;
 
@@ -1485,18 +1486,17 @@ static uint32_t HdfdWlanStartChannelMeas(const char *ifName, int32_t commandId, 
         HDF_LOGE("%s: chipDriver->ops->StartChannelMeas is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->StartChannelMeas(ifName, commandId, paramBuf, paramBufLen);
+    return chipDriver->ops->StartChannelMeas(ifName, measParam);
 }
 
 static int32_t WifiCmdStartChannelMeas(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
+    const MeasParam *measParam = NULL;
     int32_t ret;
+    uint32_t replayDataSize;
     const char *ifName = NULL;
-    int32_t commandId;
-    const int32_t *paramBuf = NULL;
-    uint32_t paramBufLen;
-    (void)context;
 
+    (void)context;
     if (reqData == NULL || rspData == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -1505,93 +1505,31 @@ static int32_t WifiCmdStartChannelMeas(const RequestContext *context, struct Hdf
         HDF_LOGE("%s: read ifName failed!", __func__);
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadInt32(reqData, &commandId)) {
+    if (!HdfSbufReadBuffer(reqData, (const void **)&measParam, &replayDataSize)||
+        replayDataSize != sizeof(MeasParam)) {
         HDF_LOGE("%s: read commandId failed!", __func__);
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadBuffer(reqData, (const void **)(&paramBuf), &paramBufLen)) {
-        HDF_LOGE("%s: read paramBuf failed!", __func__);
-        return HDF_FAILURE;
-    }
-    ret = HdfdWlanStartChannelMeas(ifName, commandId, paramBuf, paramBufLen);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to start channel meas, %d", __func__, ret);
-    }
-
-    return ret;
-}
-
-static uint32_t HdfdWlanGetChannelMeasResult(const char *ifName, int32_t commandId, uint32_t *paramBuf,
-    uint32_t *paramBufLen)
-{
-    struct NetDevice *netdev = NULL;
-
-    netdev = NetDeviceGetInstByName(ifName);
-    if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
-        return HDF_FAILURE;
-    }
-    struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
-    if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
-        return HDF_FAILURE;
-    }
-    if (chipDriver->ops == NULL) {
-        HDF_LOGE("%s: chipDriver->ops is null", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
-    if (chipDriver->ops->GetChannelMeasResult == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->GetChannelMeasResult is null", __func__);
-        return HDF_ERR_NOT_SUPPORT;
-    }
-    return chipDriver->ops->GetChannelMeasResult(ifName, commandId, paramBuf, paramBufLen);
-}
-
-static int32_t WifiCmdGetChannelMeasResult(const RequestContext *context, struct HdfSBuf *reqData,
-    struct HdfSBuf *rspData)
-{
-    int32_t ret;
-    const char *ifName = NULL;
-    int32_t commandId;
-    uint32_t *paramBuf = NULL;
-    uint32_t paramBufLen;
-    (void)context;
-
-    if (reqData == NULL || rspData == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
-    ifName = HdfSbufReadString(reqData);
-    if (ifName == NULL) {
-        HDF_LOGE("%s: read ifName failed!", __func__);
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufReadInt32(reqData, &commandId)) {
-        HDF_LOGE("%s: read commandId failed!", __func__);
-        return HDF_FAILURE;
-    }
-    ret = HdfdWlanGetChannelMeasResult(ifName, commandId, paramBuf, &paramBufLen);
+    ret = HdfWlanStartChannelMeas(ifName, measParam);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to get channel meas result, %d", __func__, ret);
         return ret;
     }
-    if (!HdfSbufWriteBuffer(rspData, paramBuf, paramBufLen)) {
-        HDF_LOGE("%s: write paramBuf failed!", __func__);
-        ret = HDF_FAILURE;
-    }
+
     return ret;
 }
 
-static int32_t HdfWlanGetCoexChannelList(const char *ifName, uint8_t *buf, uint32_t *bufLen)
+static int32_t HdfWlanSetProjectionScreenParam(const char *ifName, int cmd, const int8_t *buf, uint32_t bufLen)
 {
     struct NetDevice *netdev = NULL;
-
+    struct HdfChipDriver *chipDriver = NULL;
+    
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
         HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
         return HDF_FAILURE;
     }
-    struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
+    chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
         HDF_LOGE("%s:bad net device found!", __func__);
         return HDF_FAILURE;
@@ -1601,90 +1539,23 @@ static int32_t HdfWlanGetCoexChannelList(const char *ifName, uint8_t *buf, uint3
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    if (chipDriver->ops->GetCoexChannelList == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->GetChannelMeasResult is null", __func__);
+    if (chipDriver->ops->SetProjectionScreenParam == NULL) {
+        HDF_LOGE("%s: chipDriver->ops->SetProjectionScreenParam is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->GetCoexChannelList(ifName, buf, bufLen);
+    return chipDriver->ops->SetProjectionScreenParam(ifName, cmd, buf, bufLen);
 }
 
-static int32_t WifiCmdGetCoexChannelList(const RequestContext *context, struct HdfSBuf *reqData,
+static int32_t WifiSetProjectionScreenParam(const RequestContext *context, struct HdfSBuf *reqData,
     struct HdfSBuf *rspData)
 {
     int32_t ret = HDF_FAILURE;
     const char *ifName = NULL;
-    uint8_t *buf = NULL;
-    uint32_t bufLen;
-    (void)context;
-
-    if (reqData == NULL || rspData == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
-    ifName = HdfSbufReadString(reqData);
-    if (ifName == NULL) {
-        HDF_LOGE("%s: read ifName failed!", __func__);
-        return ret;
-    }
-    if (!HdfSbufReadUint32(reqData, &bufLen)) {
-        HDF_LOGE("%s: bufLen=%u", __func__, bufLen);
-        return ret;
-    }
-    buf = OsalMemAlloc(bufLen);
-    if (buf == NULL) {
-            HDF_LOGE("%s: OsalMemAlloc fail!", __func__);
-            return ret;
-    }
-    do {
-        ret = HdfWlanGetCoexChannelList(ifName, buf, &bufLen);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: fail to get coex channel list, %d", __func__, ret);
-            break;
-        }
-        if (!HdfSbufWriteBuffer(rspData, buf, bufLen)) {
-            HDF_LOGE("%s: write paramBuf failed!", __func__);
-            ret = HDF_FAILURE;
-        }
-    } while (0);
-    
-    OsalMemFree(buf);
-    return ret;
-}
-
-static int32_t HdfWlanSendHmlCmd(const char *ifName, int cmd, const int8_t *buf, uint32_t bufLen)
-{
-    struct NetDevice *netdev = NULL;
-
-    netdev = NetDeviceGetInstByName(ifName);
-    if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
-        return HDF_FAILURE;
-    }
-    struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
-    if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
-        return HDF_FAILURE;
-    }
-    if (chipDriver->ops == NULL) {
-        HDF_LOGE("%s: chipDriver->ops is null", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
-    if (chipDriver->ops->SendHmlCmd == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->HmlSendCmd is null", __func__);
-        return HDF_ERR_NOT_SUPPORT;
-    }
-    return chipDriver->ops->SendHmlCmd(ifName, cmd, buf, bufLen);
-}
-
-static int32_t WifiCmdSendHmlCmd(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
-{
-    int32_t ret = HDF_FAILURE;
-    const char *ifName = NULL;
     int32_t cmd;
     int8_t *buf = NULL;
     uint32_t bufLen;
-    (void)context;
 
+    (void)context;
     if (reqData == NULL || rspData == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -1701,67 +1572,9 @@ static int32_t WifiCmdSendHmlCmd(const RequestContext *context, struct HdfSBuf *
         HDF_LOGE("%s: read buf failed!", __func__);
         return ret;
     }
-    ret = HdfWlanSendHmlCmd(ifName, cmd, buf, bufLen);
+    ret = HdfWlanSetProjectionScreenParam(ifName, cmd, buf, bufLen);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to send hml command, %d", __func__, ret);
-    }
-    return ret;
-}
-
-static int32_t HdfWlanSendP2pCmd(const char *ifName, int cmd, const int8_t *buf, uint32_t bufLen)
-{
-    struct NetDevice *netdev = NULL;
-
-    netdev = NetDeviceGetInstByName(ifName);
-    if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
-        return HDF_FAILURE;
-    }
-    struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
-    if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
-        return HDF_FAILURE;
-    }
-    if (chipDriver->ops == NULL) {
-        HDF_LOGE("%s: chipDriver->ops is null", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
-    if (chipDriver->ops->SendP2pCmd == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->SendP2pCmd is null", __func__);
-        return HDF_ERR_NOT_SUPPORT;
-    }
-    return chipDriver->ops->SendP2pCmd(ifName, cmd, buf, bufLen);
-}
-
-static int32_t WifiCmdSendP2pCmd(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
-{
-    int32_t ret = HDF_FAILURE;
-    const char *ifName = NULL;
-    int32_t cmd;
-    int8_t *buf = NULL;
-    uint32_t bufLen;
-    (void)context;
-
-    if (reqData == NULL || rspData == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
-    ifName = HdfSbufReadString(reqData);
-    if (ifName == NULL) {
-        HDF_LOGE("%s: read ifName failed!", __func__);
-        return ret;
-    }
-    if (!HdfSbufReadInt32(reqData, &cmd)) {
-        HDF_LOGE("%s: read cmd failed!", __func__);
-        return ret;
-    }
-    if (!HdfSbufReadBuffer(reqData, (const void **)&buf, &bufLen)) {
-        HDF_LOGE("%s: read buf failed!", __func__);
-        return ret;
-    }
-    ret = HdfWlanSendP2pCmd(ifName, cmd, buf, bufLen);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to send hml command, %d", __func__, ret);
+        HDF_LOGE("%s: fail to config projection screen, %d", __func__, ret);
     }
     return ret;
 }
@@ -1796,26 +1609,24 @@ static struct MessageDef g_wifiBaseFeatureCmds[] = {
     DUEMessage(CMD_BASE_GET_POWER_MODE, WifiCmdGetPowerMode, 0),
     DUEMessage(CMD_BASE_SET_POWER_MODE, WifiCmdSetPowerMode, 0),
     DUEMessage(CMD_BASE_START_CHANNEL_MEAS, WifiCmdStartChannelMeas, 0),
-    DUEMessage(CMD_BASE_GET_CHANNEL_MEAS_RESULT, WifiCmdGetChannelMeasResult, 0),
-    DUEMessage(CMD_BASE_GET_COEX_CHANNEL_LIST, WifiCmdGetCoexChannelList, 0),
-    DUEMessage(CMD_BASE_SEND_HML_CMD, WifiCmdSendHmlCmd, 0),
-    DUEMessage(CMD_BASE_SEND_P2P_CMD, WifiCmdSendP2pCmd, 0),
+    DUEMessage(CMD_BASE_SET_PROJECTION_SCREEN_PARAM, WifiSetProjectionScreenParam, 0),
 };
 ServiceDefine(BaseService, BASE_SERVICE_ID, g_wifiBaseFeatureCmds);
 
-int32_t BaseInit()
+int32_t BaseInit(void)
 {
     if (g_baseService == NULL) {
         ServiceCfg cfg = {.dispatcherId = DEFAULT_DISPATCHER_ID};
         g_baseService = CreateService(BaseService, &cfg);
         if (g_baseService == NULL) {
+            HDF_LOGE("%s: The g_baseService is null, CreateService failed!", __func__);
             return HDF_FAILURE;
         }
     }
     return HDF_SUCCESS;
 }
 
-int32_t BaseDeinit()
+int32_t BaseDeinit(void)
 {
     if (g_baseService != NULL && g_baseService->Destroy != NULL) {
         g_baseService->Destroy(g_baseService);

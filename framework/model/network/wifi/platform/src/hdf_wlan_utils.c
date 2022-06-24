@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -12,6 +12,7 @@
 #include "wifi_module.h"
 #include "hdf_wlan_chipdriver_manager.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
 const char * const HDF_WIFI_PLATFORM_DRIVER_NAME = "HDF_WIFI_PLATFORM_DRIVER";
 
 const char *GetPlatformDriverName(void)
@@ -22,10 +23,12 @@ const char *GetPlatformDriverName(void)
 struct HdfWifiNetDeviceData *GetPlatformData(const struct NetDevice *netDev)
 {
     if (netDev == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
 
     if (netDev->classDriverName != HDF_WIFI_PLATFORM_DRIVER_NAME) {
+        HDF_LOGE("%s: Unexpected classDriverName!", __func__);
         return NULL;
     }
 
@@ -38,6 +41,7 @@ struct HdfChipDriver *GetChipDriver(const struct NetDevice *netDev)
     if (data != NULL) {
         return data->chipDriver;
     }
+    HDF_LOGD("%s: The data is null!", __func__);
     return NULL;
 }
 
@@ -140,6 +144,7 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
     char ifName[IFNAMSIZ] = {0};
     struct HdfWifiNetDeviceData *data = NULL;
     if (device == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
     data = (struct HdfWifiNetDeviceData *)OsalMemCalloc(sizeof(struct HdfWifiNetDeviceData));

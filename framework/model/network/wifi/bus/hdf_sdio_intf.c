@@ -15,6 +15,8 @@
 #include "hdf_log.h"
 #include "securec.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -318,35 +320,36 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
     struct DevHandle *handle = NULL;
     SdioCommonInfo palSdioCommonInfo;
 
-    if (dev == NULL || busCfg == NULL) {
-        HDF_LOGE("%s: input parameter error!", __func__);
-        goto sdioInitFail;
-    }
-    handle = HdfGetDevHandle(dev, busCfg);
-    if (handle == NULL) {
-        HDF_LOGE("%s: sdio card detected fail!", __func__);
-        return HDF_FAILURE;
-    }
-    SdioClaimHost(handle);
-    (void)memset_s(&palSdioCommonInfo, sizeof(SdioCommonInfo), 0, sizeof(SdioCommonInfo));
-    SdioGetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
-    palSdioCommonInfo.funcInfo.enTimeout = busCfg->timeout;
-    SdioSetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
-    ret = HdfSdioEnableFunc(dev);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: enable sdio failed!", __func__);
-        goto sdioInitFail;
-    }
-    ret = HdfSdioSetBlk(dev, busCfg->blockSize);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set sdio block size failed!", __func__);
-        goto sdioInitFail;
-    }
-    SdioReleaseHost(handle);
-    HDF_LOGI("%s: sdio bus init success!", __func__);
-    return ret;
+    do {
+        if (dev == NULL || busCfg == NULL) {
+            HDF_LOGE("%s: Input parameter error!", __func__);
+            break;
+        }
+        handle = HdfGetDevHandle(dev, busCfg);
+        if (handle == NULL) {
+            HDF_LOGE("%s: Sdio card detected fail!", __func__);
+            return HDF_FAILURE;
+        }
+        SdioClaimHost(handle);
+        (void)memset_s(&palSdioCommonInfo, sizeof(SdioCommonInfo), 0, sizeof(SdioCommonInfo));
+        SdioGetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
+        palSdioCommonInfo.funcInfo.enTimeout = busCfg->timeout;
+        SdioSetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
+        ret = HdfSdioEnableFunc(dev);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: Enable sdio failed!", __func__);
+            break;
+        }
+        ret = HdfSdioSetBlk(dev, busCfg->blockSize);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: Set sdio block size failed!", __func__);
+            break;
+        }
+        SdioReleaseHost(handle);
+        HDF_LOGI("%s: Sdio bus init success!", __func__);
+        return ret;
+    } while (0);
 
-sdioInitFail:
     SdioClose(handle);
     return HDF_FAILURE;
 }
@@ -375,7 +378,7 @@ static void HdfSetBusOps(struct BusDev *dev)
 int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig)
 {
     if (dev == NULL) {
-        HDF_LOGE("%s:set sdio device ops failed!", __func__);
+        HDF_LOGE("%s:Set sdio device ops failed!", __func__);
         return HDF_FAILURE;
     }
     HdfSetBusOps(dev);

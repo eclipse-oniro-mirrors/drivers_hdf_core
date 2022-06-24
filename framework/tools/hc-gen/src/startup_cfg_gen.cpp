@@ -101,8 +101,8 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     }
     ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name <<"\"],\n";
     ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID <<"\",\n";
-    ofs_ << GID_INFO << "\"" << hostInfoMap_[name].hostGID <<"\"],\n";
-    if (hostInfoMap_[name].hostCaps != "") {
+    ofs_ << GID_INFO << hostInfoMap_[name].hostGID <<"],\n";
+    if (!hostInfoMap_[name].hostCaps.empty()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps <<"],\n";
     }
     ofs_ << SECON_INFO << name << ":s0\"\n";
@@ -159,12 +159,12 @@ void StartupCfgGen::HostInfosOutput()
     }
 }
 
-void StartupCfgGen::GetHostCaps(const std::shared_ptr<AstObject> &capsTerm, HostInfo &hostData)
+void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
-    if (capsTerm == nullptr) {
+    if (term == nullptr) {
         return;
     }
-    std::shared_ptr<AstObject> capsArray = capsTerm->Child();
+    std::shared_ptr<AstObject> capsArray = term->Child();
     if (capsArray == nullptr) {
         return;
     }
@@ -172,9 +172,9 @@ void StartupCfgGen::GetHostCaps(const std::shared_ptr<AstObject> &capsTerm, Host
     std::shared_ptr<AstObject> capsInfo = capsArray->Child();
     while (capArraySize && capsInfo != nullptr) {
         if (!capsInfo->StringValue().empty()) {
-            hostData.hostCaps.append("\"").append(capsInfo->StringValue()).append("\"");
+            config.append("\"").append(capsInfo->StringValue()).append("\"");
             if (capArraySize != 1) {
-                hostData.hostCaps.append(", ");
+                config.append(", ");
             }
         }
 
@@ -246,13 +246,14 @@ bool StartupCfgGen::GetHostInfo()
             hostData.hostUID = object->Child()->StringValue();
         }
 
-        hostData.hostGID = serviceName;
         object = hostInfo->Lookup("gid", PARSEROP_CONFTERM);
-        if (object != nullptr && !object->Child()->StringValue().empty()) {
-            hostData.hostGID = object->Child()->StringValue();
+        GetConfigArray(object, hostData.hostGID);
+        if (hostData.hostGID.empty()) {
+            hostData.hostGID.append("\"").append(serviceName).append("\"");
         }
+
         object = hostInfo->Lookup("caps", PARSEROP_CONFTERM);
-        GetHostCaps(object, hostData);
+        GetConfigArray(object, hostData.hostCaps);
         GetHostLoadMode(hostInfo, hostData);
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));

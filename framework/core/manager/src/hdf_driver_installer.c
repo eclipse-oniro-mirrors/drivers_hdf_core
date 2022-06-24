@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -47,7 +47,7 @@ struct HdfObject *DriverInstallerCreate(void)
     return (struct HdfObject *)&driverInstaller;
 }
 
-struct IDriverInstaller *DriverInstallerGetInstance()
+struct IDriverInstaller *DriverInstallerGetInstance(void)
 {
     static struct IDriverInstaller *installer = NULL;
     if (installer == NULL) {

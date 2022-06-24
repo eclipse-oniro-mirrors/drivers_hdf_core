@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -54,12 +54,14 @@ static void HandleResponseMessage(const RemoteService *service, MessageContext *
     HDF_STATUS status;
     (void)service;
     if (context->requestType < MESSAGE_RSP_START) {
+        HDF_LOGD("%s: Not expected requestType!", __func__);
         return;
     }
 
     if (context->requestType == MESSAGE_TYPE_SYNC_RSP) {
         status = OsalSemPost(&context->rspSemaphore);
         if (status != HDF_SUCCESS) {
+            HDF_LOGE("%s: OsalSemPost failed! status=%d", __func__, status);
             ReleaseMessageContext(context);
         }
     } else if (context->requestType == MESSAGE_TYPE_ASYNC_RSP) {
@@ -122,6 +124,7 @@ static void DestroyLocalNodeRemoteService(RemoteService *service)
 {
     LocalNodeService *localService = NULL;
     if (service == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return;
     }
     localService = (LocalNodeService *)service;
@@ -139,6 +142,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
     ErrorCode errCode;
     (void)node;
     if (mapper == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
     if (dispatcher == NULL || dispatcher->Ref == NULL) {
@@ -147,6 +151,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
     }
     service = (LocalNodeService *)OsalMemCalloc(sizeof(LocalNodeService));
     if (service == NULL) {
+        HDF_LOGE("%s: Request memory failed!", __func__);
         return NULL;
     }
     do {
@@ -165,6 +170,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
 
         errCode = INIT_SHARED_OBJ(RemoteService, (RemoteService *)service, DestroyLocalNodeRemoteService);
         if (errCode != ME_SUCCESS) {
+            HDF_LOGE("%s: Init shared obj failed! errCode=%d", __func__, errCode);
             break;
         }
     } while (false);
@@ -182,11 +188,13 @@ static ErrorCode InitLocalNode(MessageNode *node)
     HDF_STATUS status;
     ErrorCode errCode;
     if (node == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
     status = OsalMutexTimedLock(&node->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
+        HDF_LOGE("%s: Lock mutexTime failed!", __func__);
         return ME_ERROR_OPER_MUTEX_FAILED;
     }
     errCode = ME_SUCCESS;
@@ -221,8 +229,9 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexUnlock(&node->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:unlock mutex failed!", __func__);
+        HDF_LOGE("%s:unlock mutex failed! status=%d", __func__, status);
     }
+    HDF_LOGD("%s: InitLocalNode finished! errCode=%d", __func__, errCode);
     return errCode;
 }
 
@@ -230,6 +239,7 @@ static void DestroyLocalNode(MessageNode *node)
 {
     int32_t ret;
     if (node == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return;
     }
     ret = OsalMutexDestroy(&node->mutex);
@@ -245,11 +255,13 @@ ErrorCode CreateLocalNode(MessageNode **node)
     LocalMessageNode *newNode = NULL;
     ErrorCode errCode;
     if (node == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
     HDF_LOGI("Creating local node...");
     newNode = (LocalMessageNode *)OsalMemCalloc(sizeof(LocalMessageNode));
     if (newNode == NULL) {
+        HDF_LOGE("%s: Failed to request memory!", __func__);
         return ME_ERROR_RES_LAKE;
     }
     do {
@@ -269,6 +281,7 @@ ErrorCode CreateLocalNode(MessageNode **node)
 
         errCode = INIT_SHARED_OBJ(MessageNode, (MessageNode *)newNode, DestroyLocalNode);
         if (errCode != ME_SUCCESS) {
+            HDF_LOGE("%s: Init shared obj failed! errCode=%d", __func__, errCode);
             break;
         }
     } while (false);
