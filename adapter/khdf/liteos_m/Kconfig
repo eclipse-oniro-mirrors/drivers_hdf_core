@@ -185,3 +185,5 @@ config DRIVERS_HDF_PLATFORM_REGULATOR
     depends on DRIVERS_HDF_PLATFORM
     help
       Answer Y to enable HDF platform regulator driver.
+
+source "../../drivers/hdf_core/adapter/khdf/liteos_m/model/storage/Kconfig"
