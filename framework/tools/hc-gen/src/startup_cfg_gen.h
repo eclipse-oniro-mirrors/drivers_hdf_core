@@ -57,7 +57,7 @@ private:
 
     void HostInfosOutput();
 
-    void GetHostCaps(const std::shared_ptr<AstObject> &capsTerm, HostInfo &hostData);
+    void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
 
     void GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData);
 
