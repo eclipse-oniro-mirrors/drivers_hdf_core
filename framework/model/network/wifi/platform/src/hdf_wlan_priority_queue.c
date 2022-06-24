@@ -144,7 +144,6 @@ void *PopPriorityQueue(PriorityQueue *queue, uint32_t waitInMS)
 
     status = OsalSemWait(&queueImpl->messageSemaphore, waitInMS);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s: OsalSemWait failed! status=%d", __func__, status);
         return NULL;
     }
     return PopQueueByPri(queueImpl);
