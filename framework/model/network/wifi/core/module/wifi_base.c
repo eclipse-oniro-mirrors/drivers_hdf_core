@@ -378,7 +378,7 @@ static int32_t WifiCmdReceiveEapol(const RequestContext *context, struct HdfSBuf
     }
 
     ret = ReceiveEapol(netdev, &eapol);
-    HDF_LOGI("%s:receiveEapol ret=%d", __func__, ret);
+    HDF_LOGD("%s:receiveEapol ret=%d", __func__, ret);
     if (!ret) {
         if (!HdfSbufWriteBuffer(rspData, eapol.buf, eapol.len)) {
             HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
@@ -815,7 +815,9 @@ static int32_t WifiCmdSendAction(const RequestContext *context, struct HdfSBuf *
 
     ret = SendAction(netdev, &actionData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to remain on channel,%d", __func__, ret);
+        HDF_LOGE("%s: fail to send action, ret=%d", __func__, ret);
+    } else {
+        HDF_LOGI("%s: send action success!", __func__);
     }
     return ret;
 }
