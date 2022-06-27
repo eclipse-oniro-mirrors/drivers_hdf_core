@@ -59,6 +59,7 @@ class Generator {
         let ret = new Object();
         ret.type_ = node.type_
         ret.name_ = node.name_;
+        ret.lineno_ = node.lineno_;
         ret.parent_ = parent;
         switch (node.type_) {
             case 1:// uint8
