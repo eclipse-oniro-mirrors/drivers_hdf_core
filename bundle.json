@@ -63,15 +63,6 @@
           }
         },
         {
-          "name": "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-            "header": {
-              "header_files": [
-                "hdf_uhdf_test.h"
-              ],
-              "header_base": "//drivers/hdf_core/framework/test/unittest/include"
-          }
-        },
-        {
           "name": "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
             "header": {
               "header_files": [
