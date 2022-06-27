@@ -57,10 +57,10 @@ def audio_build_file_operation(path, args_tuple):
         temp_line = r'      "$${file_parent_path}/${source_path}",'
         for source in source_path:
             temp_handle = Template(temp_line.replace("\"$", "temp_flag"))
-            temp_dict = analyze_parent_path(
+            parent_temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
             sources_line += temp_handle.substitute(
-                temp_dict).replace("temp_flag", "\"$") + "\n"
+                parent_temp_dict).replace("temp_flag", "\"$") + "\n"
         build_resource = multi_resource + sources_line + multi_end
     else:
         build_resource = '    sources += [ "$${file_parent_path}/${source_path}" ]\n'
@@ -112,11 +112,15 @@ def analyze_parent_path(date, source_path, head_path,
         "head_path": "",
     }
     if source_path:
-        parent_path = source_path.split(devices)[0].strip(
+        parent_path_temp = source_path.split(devices)[0].strip(
             root).replace("\\", "/").strip("/")
+        parent_path = '/'.join(parent_path_temp.split('/')[:3])
+		
     else:
-        parent_path = head_path.split(devices)[0].strip(
+        parent_path_temp = head_path.split(devices)[0].strip(
             root).replace("\\", "/").strip("/")
+        parent_path = '/'.join(parent_path_temp.split('/')[:3])
+		
     if kernel_type == "linux":
         for k, v in macro_definition_dict.items():
             if v.find(parent_path) != -1:
@@ -128,14 +132,24 @@ def analyze_parent_path(date, source_path, head_path,
         for k, v in macro_definition_dict.items():
             if v.find(parent_path) != -1:
                 date_replace['file_parent_path'] = k
+
+    relatively_path_dict, _ = hdf_utils.ini_file_read_operation(
+        section_name="audio", node_name='driver_path')
+    audio_board_name = parent_path_temp.split('/')[3]
+    if audio_board_name.startswith("rk3568"):
+        relatively_path = relatively_path_dict["rk3568"]
+
+    else:
+        relatively_path = relatively_path_dict["hi3516"]
+
     if source_path:
         file_source_path_full = source_path.replace("\\", "/")
         date_replace['source_path'] = file_source_path_full.split(
-            parent_path)[-1].strip('/')
+            relatively_path)[-1].strip('/')
     if head_path:
         file_head_path_full = head_path.replace("\\", "/")
         date_replace['head_path'] = '/'.join(file_head_path_full.split(
-            parent_path)[-1].split('/')[:-1]).strip('/')
+            relatively_path)[-1].split('/')[:-1]).strip('/')
     return date_replace
 
 
@@ -148,11 +162,16 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
     if judge_result:
         return
     end_index, frameworks_name, frameworks_value = result_tuple
-
-    first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper})) {\n"
-    include_line = '    include_dirs += [ "$FRAMEWORKS_${model_name_upper}_ROOT/${head_file_path}" ]\n'
-    second_line = '    sources += [ "$FRAMEWORKS_${model_name_upper}_ROOT/${source_file_path}" ]\n'
-    third_line = "  }\n"
+    if build_gn_path.find("FRAMEWORKS".lower()) != -1:
+        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper})) {\n"
+        include_line = '    include_dirs += [ "$FRAMEWORKS_${model_name_upper}_ROOT/${head_file_path}" ]\n'
+        second_line = '    sources += [ "$FRAMEWORKS_${model_name_upper}_ROOT/${source_file_path}" ]\n'
+        third_line = "  }\n"
+    else:
+        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper})) {\n"
+        include_line = '    include_dirs += [ "$PERIPHERAL_${model_name_upper}_ROOT/${head_file_path}" ]\n'
+        second_line = '    sources += [ "$PERIPHERAL_${model_name_upper}_ROOT/${source_file_path}" ]\n'
+        third_line = "  }\n"
     build_add_template = first_line + include_line + second_line + third_line
     include_model_info = frameworks_value.split("model")[-1].strip('"') + "/"
     build_gn_path_config = source_file_path.split(include_model_info)
