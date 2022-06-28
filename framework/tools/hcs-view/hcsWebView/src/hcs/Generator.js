@@ -51,6 +51,7 @@ class Generator {
             child = child.next_;
         }
         ret.nodeType_ = node.nodeType_
+        ret.isOpen_ = true
         this.astToObjConfigNodeType(node.nodeType_, ret, node);
    }
 

@@ -44,7 +44,9 @@ class MainEditor {
             oldy: -1
         }
         this.nodeBtns = [];
+        this.nodeMoreBtns = [];
         this.nodeBtnPoint_ = 0;
+        this.nodeMoreBtnPoint_ = 0;
         XMessage.gi().registRecvCallback(this.onReceive);
         XMessage.gi().send("inited", "");
         AttrEditor.gi().freshEditor();
@@ -149,10 +151,30 @@ class MainEditor {
     configNodeProc(w, pm2f, data, offx, offy, path) {
         this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
 
-        for (let i in data.value_) {
-            this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
-            pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-                data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+        if (data.value_.length > 0) {
+            this.setNodeMoreButton(pm2f, offx, offy + data.posY, w, 20, data);
+        }
+        if (data.type_ == 6) {
+            for (let i in data.value_) {
+                if (data.value_[i].parent_.type_ == 6 && data.value_[i].parent_.isOpen_) {
+                    this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                    pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                        data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+                } else if (data.value_[i].parent_.type_ == 7) {
+                    this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                    pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                        data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+                }
+                else {
+                    NapiLog.logInfo("Node collapse does not need to draw child node");
+                }
+            }
+        } else {
+            for (let i in data.value_) {
+                this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                    data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+            }
         }
     }
     drawObj(pm2f, data, offx, offy, path) {
@@ -218,6 +240,22 @@ class MainEditor {
         pbtn.node_ = node;
         this.nodeBtnPoint_ += 1;
     }
+
+    setNodeMoreButton(pm2f, x, y, w, h, node) {
+        if (this.nodeMoreBtnPoint_ >= this.nodeMoreBtns.length) {
+            this.nodeMoreBtns.push(new XButton());
+        }
+        let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
+        pbtn.move(x + w + 3, y - 3, 15, h + 6);
+        pbtn.draw();
+        pm2f.drawLine(x + w + 3, y + 10, x + w + 13, y + 10, 0xffffffff, 2)
+        if(!node.isOpen_){
+            pm2f.drawLine(x + w + 8, y + 5, x + w + 8, y + 15, 0xffffffff, 2)
+        }
+        pbtn.node_ = node;
+        this.nodeMoreBtnPoint_ += 1;
+    }
+
     draw(pm2f) {
         pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, 0xff303030);
 
@@ -226,6 +264,7 @@ class MainEditor {
             this.calcPostionY(data, 0);
 
             this.nodeBtnPoint_ = 0;
+            this.nodeMoreBtnPoint_ = 0;
             this.drawObj(pm2f, data, this.offX_, this.offY_, "");
         }
         this.btnSelectTemp.move(Scr.logicw - 120, 20, 100, 25).draw();
@@ -350,6 +389,18 @@ class MainEditor {
                 return true;
             }
         }
+
+        for (let i = 0; i < this.nodeMoreBtnPoint_; i++) {
+            if (this.nodeMoreBtns[i].procTouch(msg, x, y)) {
+                let nodeMoreBtn = this.nodeMoreBtns[i];
+                if (nodeMoreBtn.isClicked()) {
+                    this.buttonClickedProc(nodeMoreBtn);
+                    this.nodeMoreBtns[i].node_.isOpen_ = !this.nodeMoreBtns[i].node_.isOpen_;
+                }
+                return true;
+            }
+        }
+        
         //Drag screen
         if (msg == 1 && !this.dropAll_.locked) {
             this.dropAll_.locked = true;
