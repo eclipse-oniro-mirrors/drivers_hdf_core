@@ -27,7 +27,7 @@ class HdfDeviceInfoHcsFile(object):
             self.root = root
             self.driver = driver
             self.lines = None
-            board_parent_path = HdfToolSettings().get_board_parent_path(board)
+            board_parent_path = HdfToolSettings().get_board_parent_path(self.board)
             self.hcspath = os.path.join(self.root, board_parent_path, "device_info.hcs")
             self.data = {
                 "driver_name": self.driver,

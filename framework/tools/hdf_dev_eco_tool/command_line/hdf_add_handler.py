@@ -446,14 +446,18 @@ class HdfAddHandler(HdfCommandHandlerBase):
             framework_drv_root_dir = hdf_utils.get_module_dir(
                 root, module)
             hdf_utils.judge_file_path_exists(framework_drv_root_dir)
-
-            add_driver = HdfAddDriver(args=self.args)
+            add_driver = HdfAddDriver(args=args_tuple)
             # create driver Source File (.c 、.h)
             state, driver_file_list, driver_head_list = add_driver.add_driver(*args_tuple)
             if board == "hispark_taurus":
                 file_path = add_driver.add_liteos(driver_file_list, driver_head_list)
             elif board.endswith("linux"):
                 file_path = add_driver.add_linux(driver_file_list, driver_head_list)
+            elif board.startswith("rk3568"):
+
+                file_path = add_driver.add_kernel(driver_file_list, driver_head_list)
+            elif board.startswith("hispark_taurus_standard_kernel"):
+                file_path = add_driver.add_kernel(driver_file_list, driver_head_list)
             else:
                 file_path = []
 
