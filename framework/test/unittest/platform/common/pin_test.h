@@ -17,10 +17,13 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
+#define NAME_SIZE_MAX 100
+
 struct PinTestConfig {
     const char *pinName;
-    char funcNameBuf[30];
     const char *funcName;
+    char pinNameBuf[NAME_SIZE_MAX];
+    char funcNameBuf[NAME_SIZE_MAX];
     enum PinPullType PullTypeNum;
     uint32_t strengthNum;
 };
