@@ -14,8 +14,10 @@
       "components": [
         "hiviewdfx_hilog_native",
         "utils_base",
+        "init",
         "ipc",
-        "samgr_standard"
+        "samgr_standard",
+        "selinux"
       ],
       "third_part": [
         "bounds_checking_function"
