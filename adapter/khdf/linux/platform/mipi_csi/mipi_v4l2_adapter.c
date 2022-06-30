@@ -17,13 +17,14 @@
  */
 
 #include <asm/unaligned.h>
-#include <linux/acpi.h>
-#include <linux/i2c.h>
-#include <linux/module.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-event.h>
 #include <media/v4l2-fwnode.h>
+#include <linux/acpi.h>
+#include <linux/i2c.h>
+#include <linux/module.h>
+#include <linux/version.h>
 #include "hdf_log.h"
 #include "mipi_csi_core.h"
 
@@ -218,8 +219,13 @@ static int SetStream(int enable)
     camera->streaming = enable;
 
     /* vflip and hflip cannot change during streaming */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 19, 249)
     __v4l2_ctrl_grab(camera->vflip, enable);
     __v4l2_ctrl_grab(camera->hflip, enable);
+#else
+    v4l2_ctrl_grab(camera->vflip, enable);
+    v4l2_ctrl_grab(camera->hflip, enable);
+#endif
     mutex_unlock(&drvData->mutex);
 
     return 0;
