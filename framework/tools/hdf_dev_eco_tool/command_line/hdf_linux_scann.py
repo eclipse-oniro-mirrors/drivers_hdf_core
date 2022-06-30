@@ -138,7 +138,6 @@ class HdfLinuxScan(object):
 
     def scan_enable_dict(self, lines, test_dict, names):
         re_temp3 = "CONFIG_[A-Z _ 0-9]+"
-
         list1_12 = []
         for index, line in enumerate(lines):
             if re.search("^ifeq", line):
@@ -223,7 +222,7 @@ class HdfLinuxScan(object):
 
     def get_model_scan(self):
         enable_model_path_list = self.enable_scan()
-        result_dict00 = {}
+        result_dict = {}
         for model_makefile_path in enable_model_path_list:
             model_name = self._get_model_name(model_makefile_path)
             model_makefile_lines = hdf_utils.\
@@ -242,14 +241,14 @@ class HdfLinuxScan(object):
             result = self._prefix_template_replace(
                 name_split_dict, enable_dict,
                 makefile_path=model_makefile_path)
-            if result_dict00.get(model_name, None):
-                result_dict00.get(model_name).update(result)
+            if result_dict.get(model_name, None):
+                result_dict.get(model_name).update(result)
             else:
-                result_dict00[model_name] = result
-        result_dict00["deconfig"] = self.get_config_path()[0]
-        result_dict00["makefile_path"] = self.makefile_path
-        result_dict00["hcs_path"] = self.hcs_path
-        return json.dumps(result_dict00, indent=4)
+                result_dict[model_name] = result
+        result_dict["deconfig"] = self.get_config_path()[0]
+        result_dict["makefile_path"] = self.makefile_path
+        result_dict["hcs_path"] = self.hcs_path
+        return json.dumps(result_dict, indent=4)
 
     def scann_driver_configs(self, makefile_path):
         driver_configs_list = ['Kconfig', 'Makefile']
@@ -270,59 +269,49 @@ class HdfLinuxScan(object):
         config_file_path = self.scann_driver_configs(makefile_path)
         return_dict = {}
         temp_template = Template(json.dumps(name_split_dict))
-        dict000 = json.loads(temp_template.substitute(enable_dict))
-        for k0, v0 in dict000.items():
-            if isinstance(v0, dict):
-                return_dict[k0] = {}
-                for k01, v01 in v0.items():
-                    drivers_sources = []
-                    for i in v01:
-                        i = i.replace(".o", ".c")
-                        prefix4_field = re.search(self.re_temp_current, i)
-                        prefix5_field = re.search(self.te_temp5, i)
-
-                        if prefix4_field or prefix5_field:
-                            replace_field = "/".join(
-                                makefile_path.replace("\\", '/').
-                                    split("/")[:-1]
-                            ) + "/"
-                            if prefix4_field:
-                                i = i.replace(prefix4_field.group(),
-                                              replace_field).strip()
-                            elif prefix5_field:
-                                i = os.path.join(replace_field, i)
-                        if os.path.exists(i):
-                            drivers_sources.append(i)
-                    return_dict.get(k0)[k01] = {
-                        "driver_configs": config_file_path,
-                        "drivers_sources": drivers_sources,
-                    }
-            else:
-                return_dict[k0] = {}
+        replace_result_dict = json.loads(temp_template.substitute(enable_dict))
+        for result_k, result_v in replace_result_dict.items():
+            if not isinstance(result_v, dict):
+                return_dict[result_k] = {}
                 drivers_sources = []
-                for i in v0:
-                    i = i.replace(".o", ".c")
-                    prefix5_field = re.search(self.te_temp5, i)
-                    prefix4_field = re.search(self.re_temp_current, i)
-                    if prefix4_field or prefix5_field:
-                        replace_field = "/".join(
-                            makefile_path.replace("\\", '/').
-                                split("/")[:-1]
-                        ) + "/"
-                        if prefix4_field:
-                            i = i.replace(prefix4_field.group(),
-                                          replace_field).strip()
-                        elif prefix5_field:
-                            i = os.path.join(replace_field, i)
-                    if i.find("=") != -1:
-                        i = i.split("=")[-1].strip()
-                    if os.path.exists(i):
-                        drivers_sources.append(i)
-                return_dict[k0] = {
+                drivers_sources_list = self.drivers_file_find(
+                    result_v, makefile_path, drivers_sources)
+                return_dict[result_k] = {
                     "driver_configs": config_file_path,
-                    "drivers_sources": drivers_sources,
+                    "drivers_sources": drivers_sources_list,
                 }
+            else:
+                return_dict[result_k] = {}
+                for result_assistant_k, result_assistant_v in result_v.items():
+                    drivers_sources = []
+                    drivers_sources_list = self.drivers_file_find(
+                        result_assistant_v, makefile_path, drivers_sources)
+                    return_dict.get(result_k)[result_assistant_k] = {
+                        "driver_configs": config_file_path,
+                        "drivers_sources": drivers_sources_list,
+                    }
         return return_dict
+
+    def drivers_file_find(self, args_list, makefile_path, drivers_sources):
+        for info in args_list:
+            info = info.replace(".o", ".c")
+            prefix4_field = re.search(self.re_temp_current, info)
+            prefix5_field = re.search(self.te_temp5, info)
+            if prefix4_field or prefix5_field:
+                replace_field = "/".join(
+                    makefile_path.replace("\\", '/').
+                        split("/")[:-1]
+                ) + "/"
+                if prefix4_field:
+                    info = info.replace(prefix4_field.group(),
+                                  replace_field).strip()
+                elif prefix5_field:
+                    info = os.path.join(replace_field, info)
+            if info.find("=") != -1:
+                info = info.split("=")[-1].strip()
+            if os.path.exists(info):
+                drivers_sources.append(info)
+        return drivers_sources
 
     def path_replace(self, lines, enable_list, makefile_path):
         enable_dict = {}
@@ -344,49 +333,52 @@ class HdfLinuxScan(object):
             re_enable = '^%s' % key_enable
             for line in lines:
                 result = re.search(re_enable, line)
-                if result:
-                    line = line.strip().split("=")[-1].strip()
-                    result_replace_field = re.search(
-                        self.re_temp_prefix0, line)
-                    prefix1_field = re.search(self.re_temp_prefix1, line)
-                    prefix2_field = re.search(self.re_temp_prefix2, line)
-                    prefix3_field = re.search(self.re_temp_current, line)
-                    if result_replace_field or \
-                            prefix1_field or \
-                            prefix2_field or \
-                            prefix3_field:
-                        if result_replace_field:
-                            enable_dict[key_enable] = \
-                                "/".join(
-                                    [self.root,
-                                        line.replace(result_replace_field.group(),
-                                                     "drivers/").strip()])
-                        if prefix1_field:
-                            enable_dict[key_enable] = \
-                                "/".join(
-                                    [self.root,
-                                     line.replace(prefix1_field.group(),
-                                                  "drivers").strip()]
-                                )
-                        if prefix2_field:
-                            enable_dict[key_enable] = \
-                                "/".join(
-                                    [self.root,
-                                    line.strip(prefix2_field.group() + "/").
-                                        strip()]
-                                )
-                        if prefix3_field:
-                            replace_field = \
-                                "/".join(
-                                    makefile_path.replace("\\", '/').
-                                        split("/")[:-1]
-                                )
-                            enable_dict[key_enable] = \
-                                line.replace(prefix3_field.group(),
-                                             replace_field).strip()
-                    else:
-                        enable_dict[key_enable] = line.split("=")[-1].strip()
+                if not result:
+                    continue
+                line = line.strip().split("=")[-1].strip()
+                enable_dict = self.parent_path_regular(
+                    line, enable_dict, key_enable, makefile_path)
         return enable_dict
+
+    def parent_path_regular(self, line, enable_dict, key_enable, makefile_path):
+        result_replace_field = re.search(
+            self.re_temp_prefix0, line)
+        prefix1_field = re.search(self.re_temp_prefix1, line)
+        prefix2_field = re.search(self.re_temp_prefix2, line)
+        prefix3_field = re.search(self.re_temp_current, line)
+        if result_replace_field or prefix1_field \
+                or prefix2_field or prefix3_field:
+            if result_replace_field:
+                enable_dict[key_enable] = self.parent_path_splice(
+                    self.re_temp_prefix0, line)
+            if prefix1_field:
+                enable_dict[key_enable] = self.parent_path_splice(
+                    self.re_temp_prefix1, line)
+            if prefix2_field:
+                enable_dict[key_enable] = "/".join(
+                    [self.root, line.strip(
+                        prefix2_field.group() + "/").strip()])
+            if prefix3_field:
+                replace_field = "/".join(
+                    makefile_path.replace("\\", '/').split("/")[:-1])
+                enable_dict[key_enable] = line.replace(
+                    prefix3_field.group(), replace_field).strip()
+        else:
+            enable_dict[key_enable] = line.split("=")[-1].strip()
+        return enable_dict
+
+    def parent_path_splice(self, re_prefix, line):
+        re_split_list = re.split(re_prefix, line)
+        if re_split_list[-1].startswith("hdf_core"):
+            return "/".join([self.root, "drivers",
+                             re_split_list[-1].strip()])
+        else:
+            if re_split_list[-1].startswith("framework"):
+                return "/".join([self.root, "drivers/hdf_core",
+                                 re_split_list[-1].strip()])
+            else:
+                return "/".join([self.root, "drivers",
+                                 re_split_list[-1].strip()])
 
     def name_split_func(self, result, config_enable_lines):
         enable_list = []
@@ -395,39 +387,9 @@ class HdfLinuxScan(object):
             key = "%s=y\n" % enable_key
             if key in config_enable_lines:
                 if isinstance(enable_value, dict):
-                    # 先判断第一级的使能(没有使能的话直接下一个文件)
-                    if enable_key.find("HDF") != -1:
-                        child_enable_key = ''.join(
-                            ["HDF", enable_key.split("HDF")[-1]]
-                        ).lower()
-                    else:
-                        child_enable_key = enable_key.lower()
-                    name_split_dict[child_enable_key] = {}
-                    for k1, v1 in enable_value.items():
-                        if k1.find("HDF") != -1:
-                            grand_enable_key = ''.join(
-                                ["HDF", k1.split("HDF")[-1]]
-                            ).lower()
-                        else:
-                            grand_enable_key = k1.lower()
-                        # 先判断第二级的使能(没有使能的话直接下一个文件)
-                        key1 = "%s=y\n" % k1
-                        if key1 in config_enable_lines:
-                            name_split_dict.get(child_enable_key)[grand_enable_key] = []
-                            for name in v1:
-                                # 分为 几种情况
-                                if name.find("+=") != -1:
-                                    child_enable_list, str1 = \
-                                        self.get_name(
-                                            str1=name.split("+=")[-1].strip()
-                                        )
-                                else:
-                                    child_enable_list, str1 = \
-                                        self.get_name(str1=name.strip())
-                                enable_list.extend(child_enable_list)
-                                name_split_dict.get(child_enable_key).get(grand_enable_key).append(str1)
-                        else:
-                            continue
+                    enable_list, name_split_dict = self.operate_dict(
+                        enable_key, name_split_dict, enable_value,
+                        config_enable_lines, enable_list)
                 elif isinstance(enable_value, list):
                     if enable_key.find("HDF") != -1:
                         k2 = ''.join(
@@ -437,18 +399,49 @@ class HdfLinuxScan(object):
                         k2 = enable_key.lower()
                     name_split_dict[k2] = []
                     for name in enable_value:
-                        if name.find("+=") != -1:
-                            child_enable_list, str1 = \
-                                self.get_name(
-                                    str1=name.split("+=")[-1].strip())
-                        else:
-                            child_enable_list, str1 = \
-                                self.get_name(str1=name.strip())
+                        child_enable_list, str1 = self.get_driver(name)
                         enable_list.extend(child_enable_list)
                         name_split_dict.get(k2).append(str1)
             else:
                 continue
         return name_split_dict, enable_list
+
+    def get_driver(self, name):
+        if name.find("+=") != -1:
+            return self.get_name(str1=name.split("+=")[-1].strip())
+        else:
+            return self.get_name(str1=name.strip())
+
+    def operate_dict(self, enable_key, name_split_dict, enable_value,
+                     config_enable_lines, enable_list):
+        if enable_key.find("HDF") != -1:
+            child_enable_key = ''.join(
+                ["HDF", enable_key.split("HDF")[-1]]
+            ).lower()
+        else:
+            child_enable_key = enable_key.lower()
+        name_split_dict[child_enable_key] = {}
+        for k1, v1 in enable_value.items():
+            if k1.find("HDF") != -1:
+                grand_enable_key = ''.join(
+                    ["HDF", k1.split("HDF")[-1]]
+                ).lower()
+            else:
+                grand_enable_key = k1.lower()
+            # First judge the enables of the second level
+            # (if there is no enable, the next file is directly)
+            key1 = "%s=y\n" % k1
+            if key1 in config_enable_lines:
+                name_split_dict.get(child_enable_key)[grand_enable_key] = []
+                for name in v1:
+                    # Divided into several cases
+                    child_enable_list, str1 = self.get_driver(name)
+                    enable_list.extend(child_enable_list)
+                    name_split_dict.get(child_enable_key).get(
+                        grand_enable_key).append(str1)
+            else:
+                continue
+        return enable_list, name_split_dict
 
     def get_name(self, str1):
         temp_re = "[A-Z _ 0-9]+"
