@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -82,8 +82,8 @@ int32_t PinSetFunc(DevHandle handle, const char *funcName)
 {
     struct PinCntlr *cntlr = NULL;
 
-    if (handle == NULL) {
-        HDF_LOGE("%s: invalid handle!", __func__);
+    if (handle == NULL || funcName == NULL) {
+        HDF_LOGE("%s: invalid handle or funcName!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 

@@ -54,27 +54,33 @@ static int32_t PinTestGetTestConfig(struct PinTestConfig *config)
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Remote dispatch failed", __func__);
+        HdfSbufRecycle(reply);
         return ret;
     }
 
     if (!HdfSbufReadBuffer(reply, &buf, &len)) {
         HDF_LOGE("%s: Read buf failed", __func__);
+        HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
 
     if (len != sizeof(*config)) {
         HDF_LOGE("%s: Config size:%zu, read size:%u", __func__, sizeof(*config), len);
+        HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
 
     if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
         HDF_LOGE("%s: Memcpy buf failed", __func__);
+        HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
+    config->pinName = config->pinNameBuf;
     HdfSbufRecycle(reply);
+    HdfIoServiceRecycle(service);
     HDF_LOGD("%s: Done", __func__);
     return HDF_SUCCESS;
 }
@@ -85,9 +91,6 @@ struct PinTester *PinTesterGet(void)
     static struct PinTester tester;
     static bool hasInit = false;
 
-    if (hasInit) {
-        return &tester;
-    }
     HDF_LOGI("%s: enter", __func__);
     if (hasInit) {
         return &tester;
@@ -97,11 +100,13 @@ struct PinTester *PinTesterGet(void)
         HDF_LOGE("%s: read config failed:%d", __func__, ret);
         return NULL;
     }
+
     tester.handle = PinGet(tester.config.pinName);
     if (tester.handle == NULL) {
         HDF_LOGE("%s: open pin:%s failed", __func__, tester.config.pinName);
         return NULL;
     }
+
     hasInit = true;
     HDF_LOGD("%s: Done", __func__);
     return &tester;
@@ -112,8 +117,8 @@ static int32_t PinSetGetPullTest(void)
     struct PinTester *tester = NULL;
     int32_t ret;
     enum PinPullType getPullTypeNum;
-
     getPullTypeNum = 0;
+
     tester = PinTesterGet();
     if (tester == NULL) {
         HDF_LOGE("%s: Get tester failed!", __func__);
@@ -230,16 +235,6 @@ int32_t PinTestSetUpAll(void)
         HDF_LOGE("%s: get strengthNum failed!", __func__);
         return ret;
     }
-    g_oldPinCfg.funcName = (char *)OsalMemCalloc(PIN_FUNC_NAME_LENGTH * sizeof(char));
-    if (g_oldPinCfg.funcName == NULL) {
-        HDF_LOGE("%s: alloc g_oldPinCfg.funcName failed", __func__);
-        return HDF_ERR_MALLOC_FAIL;
-    }
-    tester->config.funcName = (char *)OsalMemCalloc(PIN_FUNC_NAME_LENGTH * sizeof(char));
-    if (tester->config.funcName == NULL) {
-        HDF_LOGE("%s: alloc tester->config.funcName failed", __func__);
-        return HDF_ERR_MALLOC_FAIL;
-    }
     ret = PinGetFunc(tester->handle, &g_oldPinCfg.funcName);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get funcName failed!", __func__);
@@ -247,7 +242,6 @@ int32_t PinTestSetUpAll(void)
     }
     HDF_LOGI(":%s old funcName:%s", __func__, g_oldPinCfg.funcName);
     HDF_LOGD("%s: exit!", __func__);
-
     return HDF_SUCCESS;
 }
 
@@ -277,8 +271,8 @@ int32_t PinTestTearDownAll(void)
         HDF_LOGE("%s: set funcName failed!", __func__);
         return ret;
     }
-    HDF_LOGD("%s: exit!", __func__);
 
+    HDF_LOGD("%s: exit!", __func__);
     return HDF_SUCCESS;
 }
 

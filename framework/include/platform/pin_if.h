@@ -35,6 +35,7 @@ enum PinPullType {
     PIN_PULL_UP =  1,       /**< SET PIN RESISTANCE UP. */
     PIN_PULL_DOWN = 2,      /**< SET PIN RESISTANCE DOWN. */
 };
+
 /**
  * @brief Obtains the handle of a pin.
  *
@@ -48,6 +49,22 @@ enum PinPullType {
  * @since 1.0
  */
 DevHandle PinGet(const char *pinName);
+
+/**
+ * @brief Enumerates PIN I/O commands.
+ *
+ * @since 1.0
+ */
+enum PinIoCmd {
+    PIN_IO_GET = 0,
+    PIN_IO_PUT = 1,
+    PIN_IO_SET_PULL = 2,
+    PIN_IO_GET_PULL = 3,
+    PIN_IO_SET_STRENGTH = 4,
+    PIN_IO_GET_STRENGTH = 5,
+    PIN_IO_SET_FUNC = 6,
+    PIN_IO_GET_FUNC = 7,
+};
 
 /**
  * @brief Releases the handle of a pin.

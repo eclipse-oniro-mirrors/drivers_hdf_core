@@ -28,16 +28,30 @@ public:
 
 void HdfPinTest::SetUpTestCase()
 {
+    int32_t ret;
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETUP_ALL, -1};
     HdfTestOpenService();
     HdfTestSendMsgToService(&msg);
+
+    ret = PinTestExecute(PIN_TEST_CMD_SETUP_ALL);
+    if (ret != 0) {
+        printf("%s: User SetUp FAIL:%d\n\r", __func__, ret);
+    }
+    printf("%s: exit!\n", __func__);
 }
 
 void HdfPinTest::TearDownTestCase()
 {
+    int32_t ret;
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_TEARDOWN_ALL, -1};
     HdfTestSendMsgToService(&msg);
     HdfTestCloseService();
+
+    ret = PinTestExecute(PIN_TEST_CMD_TEARDOWN_ALL);
+    if (ret != 0) {
+        printf("%s: User TearDown FAIL:%d\n\r", __func__, ret);
+    }
+    printf("%s: exit!\n", __func__);
 }
 
 void HdfPinTest::SetUp()
@@ -58,6 +72,9 @@ HWTEST_F(HdfPinTest, PinSetGetPull001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETGETPULL, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_SETGETPULL));
 }
 
 /**
@@ -70,6 +87,9 @@ HWTEST_F(HdfPinTest, PinSetGetStrength001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETGETSTRENGTH, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_SETGETSTRENGTH));
 }
 
 /**
@@ -82,6 +102,9 @@ HWTEST_F(HdfPinTest, PinSetGetPinFunc001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETGETFUNC, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_SETGETFUNC));
 }
 
 /**
@@ -94,4 +117,7 @@ HWTEST_F(HdfPinTest, PinReliabilityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_RELIABILITY));
 }
