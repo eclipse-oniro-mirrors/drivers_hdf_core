@@ -59,7 +59,7 @@ PriorityQueue *CreatePriorityQueue(uint16_t queueSize, uint8_t priorityLevelCoun
         DestroyPriorityQueue((PriorityQueue *)priorityQueue);
         return NULL;
     }
-
+    HDF_LOGD("%s: CreatePriorityQueue finished!", __func__);
     return (PriorityQueue *)priorityQueue;
 }
 
@@ -86,6 +86,7 @@ void DestroyPriorityQueue(PriorityQueue *queue)
     }
 
     OsalMemFree(queueImpl);
+    HDF_LOGD("%s: DestroyPriorityQueue finished!", __func__);
 }
 
 int32_t PushPriorityQueue(PriorityQueue *queue, const uint8_t priority, void *context)
@@ -110,6 +111,7 @@ int32_t PushPriorityQueue(PriorityQueue *queue, const uint8_t priority, void *co
     }
 
     (void)OsalSemPost(&queueImpl->messageSemaphore);
+    HDF_LOGD("%s:PushPriorityQueue successful!", __func__);
     return HDF_SUCCESS;
 }
 

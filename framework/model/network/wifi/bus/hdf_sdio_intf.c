@@ -300,7 +300,7 @@ static struct DevHandle *HdfGetDevHandle(struct BusDev *dev, const struct HdfCon
         palSdioConfig[cnt].funcNr = busCfg->funcNum[0];
         handle = SdioOpen(busCfg->busIdx, &palSdioConfig[cnt]);
         if (handle != NULL) {
-            HDF_LOGI("%s: sdio card detected!", __func__);
+            HDF_LOGI("%s: Sdio card detected!", __func__);
             break;
         }
     }

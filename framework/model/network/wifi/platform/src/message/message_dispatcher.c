@@ -98,9 +98,10 @@ ErrorCode AppendToLocalDispatcher(MessageDispatcher *dispatcher, const uint8_t p
     }
 
     if (dispatcher->status != ME_STATUS_RUNNING) {
-        HDF_LOGE("%s:dispatcher is not running", __func__);
+        HDF_LOGE("%s:Dispatcher is not running", __func__);
         return ME_ERROR_DISPATCHER_NOT_RUNNING;
     }
+    HDF_LOGD("%s:AppendToLocalDispatcher finished!", __func__);
     return PushPriorityQueue(dispatcher->messageQueue, priority, context);
 }
 
@@ -115,6 +116,7 @@ void SetToResponse(MessageContext *context)
     context->senderId = context->receiverId;
     context->receiverId = senderId;
     context->requestType = MESSAGE_RSP_START + context->requestType - MESSAGE_REQ_START;
+    HDF_LOGD("%s:SetToResponse finished", __func__);
 }
 
 static void HandleAsyncResponse(MessageContext *context)
@@ -227,6 +229,7 @@ static void ReleaseAllMessage(MessageDispatcher *dispatcher)
 {
     MessageContext *context = NULL;
     do {
+        HDF_LOGD("%s: ReleaseAllMessage starting...!", __func__);
         context = PopPriorityQueue(dispatcher->messageQueue, 0);
         ReleaseMessageContext(context);
     } while (context != NULL);
@@ -362,6 +365,7 @@ static void ShutdownDispatcher(MessageDispatcher *dispatcher)
     if (status != HDF_SUCCESS) {
         HDF_LOGE("%s:Destroy mutex failed!", __func__);
     }
+    HDF_LOGD("%s:ShutdownDispatcher successful!", __func__);
 }
 
 IMPLEMENT_SHARED_OBJ(MessageDispatcher);
@@ -386,6 +390,7 @@ static void DestroyLocalDispatcher(MessageDispatcher *dispatcher)
     }
 
     DEINIT_SHARED_OBJ(MessageDispatcher, dispatcher);
+    HDF_LOGD("%s:DestroyLocalDispatcher finished!", __func__);
 }
 
 ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const DispatcherConfig *config)
@@ -404,6 +409,7 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
         return ME_ERROR_RES_LAKE;
     }
     do {
+        HDF_LOGI("%s: Create local dispatcher...!", __func__);
         localDispatcher->status = ME_STATUS_STOPPED;
         localDispatcher->AppendMessage = AppendToLocalDispatcher;
         localDispatcher->Shutdown = ShutdownDispatcher;
@@ -436,6 +442,6 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
         DestroyLocalDispatcher((MessageDispatcher *)localDispatcher);
         OsalMemFree(localDispatcher);
     }
-    HDF_LOGD("%s: errCode=%d", __func__, errCode);
+    HDF_LOGI("%s: CreateLocalDispatcher finished! errCode=%d", __func__, errCode);
     return errCode;
 }

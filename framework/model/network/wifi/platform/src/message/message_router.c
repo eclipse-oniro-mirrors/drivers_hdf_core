@@ -67,6 +67,7 @@ static void ReleaseRemoteService(RemoteService *service)
     if (service->Disref != NULL) {
         service->Disref(service);
     }
+    HDF_LOGD("%s:ReleaseRemoteService finished!", __func__);
 }
 
 static MessageDispatcher *RefDispatcherInner(const DispatcherId dispatcherId, bool requireLock)
@@ -138,7 +139,7 @@ static ErrorCode RegDispatcher(DispatcherId dispatcherId, MessageDispatcher *dis
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Unable to unlock!status=%d", status);
     }
-    HDF_LOGD("%s: errCode = %d", __func__, errCode);
+    HDF_LOGD("%s: RegDispatcher finished! errCode = %d", __func__, errCode);
     return errCode;
 }
 
@@ -176,7 +177,7 @@ ErrorCode AddDispatcher(DispatcherConfig *config)
     if (errCode != ME_SUCCESS && dispatcher->Disref != NULL) {
         dispatcher->Disref(dispatcher);
     }
-    HDF_LOGD("%s: errCode = %d", __func__, errCode);
+    HDF_LOGD("%s: AddDispatcher finished! errCode = %d", __func__, errCode);
     return errCode;
 }
 
@@ -538,6 +539,7 @@ static ErrorCode InitNodes(void)
             }
         }
     }
+    HDF_LOGI("%s: InitNodes successful!", __func__);
     return ME_SUCCESS;
 }
 
@@ -554,6 +556,7 @@ static void ReleaseNodes(void)
         }
         g_messageNodes[i] = NULL;
     }
+    HDF_LOGD("%s: ReleaseNodes finished!", __func__);
 }
 
 static ErrorCode DoStartMessageRouter(uint8_t nodesConfig)
@@ -571,14 +574,14 @@ static ErrorCode DoStartMessageRouter(uint8_t nodesConfig)
         g_servicesIndex[i].dispatcherId = BAD_DISPATCHER_ID;
     }
     do {
-        HDF_LOGE("%s:Create local node ...", __func__);
+        HDF_LOGD("%s:Create local node ...", __func__);
         errCode = CreateLocalNode(&g_messageNodes[LOCAL_NODE_INDEX]);
         if (errCode != ME_SUCCESS) {
             HDF_LOGE("%s:Create local node failed!ret=%d", __func__, errCode);
             break;
         }
 #if defined(KERNEL_SERVER_SUPPORT) || defined(USERSPACE_CLIENT_SUPPORT)
-        HDF_LOGE("%s:Create remote node ...", __func__);
+        HDF_LOGI("%s:Create remote node ...", __func__);
         errCode = CreateRemoteMessageNode(nodesConfig);
         if (errCode != ME_SUCCESS) {
             HDF_LOGE("%s:Create remote node failed!ret=%d", __func__, errCode);
@@ -629,14 +632,15 @@ ErrorCode StartMessageRouter(uint8_t nodesConfig)
     }
     status = OsalMutexTimedLock(&g_routerMutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to get lock!status=%d", status);
+        HDF_LOGE("%s: Unable to get lock!status=%d", __func__, status);
         return ME_ERROR_OPER_MUTEX_FAILED;
     }
     errCode = DoStartMessageRouter(nodesConfig);
     status = OsalMutexUnlock(&g_routerMutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to get lock!status=%d", status);
+        HDF_LOGE("%s: Unable to get lock!status=%d", __func__, status);
     }
+    HDF_LOGD("%s: StartMessageRouter finished! errCode=%d", __func__, errCode);
     return errCode;
 }
 
@@ -674,6 +678,7 @@ static ErrorCode DoShutdownMessageRouter(void)
 
     ReleaseNodes();
     g_routerStatus = ME_STATUS_STOPPED;
+    HDF_LOGD("%s: DoShutdownMessageRouter successful!", __func__);
     return ME_SUCCESS;
 }
 

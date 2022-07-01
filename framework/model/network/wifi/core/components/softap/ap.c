@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -41,6 +41,7 @@ static uint32_t ChangeBeacon(struct NetDevice *netDev, WifiApSetting *apSettings
     beaconConf.tailIEs = apSettings->beaconData.tail;
     beaconConf.tailIEsLength = apSettings->beaconData.tailLen;
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->apOps, ConfigBeacon);
+    HDF_LOGD("%s: ChangeBeacon finished!", __func__);
     return chipDriver->apOps->ConfigBeacon(netDev, &beaconConf);
 }
 
@@ -50,7 +51,7 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
     int32_t ret;
     struct HdfChipDriver *chipDriver = NULL;
     errno_t err;
-    HDF_LOGI("%s:starting ap...", __func__);
+    HDF_LOGI("%s: Starting ap...", __func__);
     chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
         HDF_LOGE("%s:bad net device found!", __func__);
@@ -83,6 +84,7 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
         HDF_LOGE("%s:StartAp failed!ret=%d", __func__, ret);
         return HDF_FAILURE;
     }
+    HDF_LOGI("%s: Start ap finished!", __func__);
     return NetIfSetStatus(netDev, NETIF_UP);
 }
 
@@ -100,6 +102,7 @@ static uint32_t StopAp(struct NetDevice *netDev)
         HDF_LOGE("StopAp:failed, error[%d]", ret);
         return ret;
     }
+    HDF_LOGI("%s: StopAp finished!", __func__);
     return NetIfSetStatus(netDev, NETIF_DOWN);
 }
 
@@ -153,7 +156,7 @@ static int32_t WifiFillApSettingsParams(struct HdfSBuf *reqData,  WifiApSetting 
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "mode");
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s:apSettings->freqParams.mode=%d", __func__, apSettings->freqParams.mode);
+    HDF_LOGI("%s: ApSettings->freqParams.mode=%d", __func__, apSettings->freqParams.mode);
     if (!HdfSbufReadInt32(reqData, &(apSettings->freqParams.freq))) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freq");
         return HDF_FAILURE;
@@ -263,8 +266,8 @@ static int32_t WifiCmdSetAp(const RequestContext *context, struct HdfSBuf *reqDa
         HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s:%s starting AP ...", __func__, ifName);
     ret = StartAp(netdev, &apSettings);
+    HDF_LOGI("%s: WifiCmdSetAp finished!", __func__);
     return ret;
 }
 
@@ -326,9 +329,10 @@ static int32_t WifiCmdChangeBeacon(const RequestContext *context, struct HdfSBuf
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HDF_LOGE("%s: Netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
+    HDF_LOGI("%s: Wifi cmd changeBeacon finished!", __func__);
     return ChangeBeacon(netdev, &apSettings);
 }
 

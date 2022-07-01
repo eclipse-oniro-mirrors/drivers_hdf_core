@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -42,6 +42,7 @@ int HdfWlanAddDevice(struct HdfWlanDevice *device)
         if (g_hdfWlanProductData->wlanDevice[i] == NULL) {
             g_hdfWlanProductData->wlanDevice[i] = device;
             device->id = i;
+            HDF_LOGI("%s: HdfWlanAddDevice successful!", __func__);
             return HDF_SUCCESS;
         }
     }
@@ -69,7 +70,7 @@ int HdfWlanInitProduct(struct HdfDeviceObject *device, const struct HdfConfigWla
         return ret;
     }
     g_hdfWlanProductData->device = device;
-
+    HDF_LOGI("%s: HdfWlanInitProduct successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -100,6 +101,7 @@ struct HdfDeviceObject *HdfWlanGetDevice(void)
 struct HdfWlanDevice *HdfWlanGetWlanDevice(uint8_t chipId)
 {
     if (chipId >= MAX_WLAN_DEVICE || g_hdfWlanProductData == NULL) {
+        HDF_LOGD("%s: HdfWlanGetWlanDevice is null!", __func__);
         return NULL;
     }
     return g_hdfWlanProductData->wlanDevice[chipId];

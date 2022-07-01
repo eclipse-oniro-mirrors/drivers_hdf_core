@@ -36,7 +36,7 @@ static void HandleRequestMessage(const RemoteService *service, MessageContext *c
     struct MessageDef messageDef = { NULL, 0 };
 
     if (context == NULL || service == NULL) {
-        HDF_LOGE("%s:input is NULL", __func__);
+        HDF_LOGE("%s:Input is NULL", __func__);
         return;
     }
     if (localNodeService->mapper != NULL && context->commandId < localNodeService->mapper->messagesLength) {
@@ -47,6 +47,7 @@ static void HandleRequestMessage(const RemoteService *service, MessageContext *c
     } else {
         context->responseStatus = messageDef.handler((RequestContext *)context, context->reqData, context->rspData);
     }
+    HDF_LOGD("%s:HandleRequestMessage finished!", __func__);
 }
 
 static void HandleResponseMessage(const RemoteService *service, MessageContext *context)
@@ -73,6 +74,7 @@ static void HandleResponseMessage(const RemoteService *service, MessageContext *
     } else {
         HDF_LOGE("%s:Response type not supported!type=%u", __func__, context->requestType);
     }
+    HDF_LOGD("%s: HandleResponseMessage  finished!", __func__);
 }
 
 ErrorCode SendMessageLocalNode(const RemoteService *service, MessageContext *context)
@@ -134,6 +136,7 @@ static void DestroyLocalNodeRemoteService(RemoteService *service)
     localService->mapper = NULL;
     localService->dispatcher = NULL;
     DEINIT_SHARED_OBJ(RemoteService, service);
+    HDF_LOGD("%s:DestroyLocalNodeRemoteService finished!", __func__);
 }
 
 RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *dispatcher, struct ServiceDef *mapper)
@@ -155,6 +158,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
         return NULL;
     }
     do {
+        HDF_LOGD("%s: Create local node service...!", __func__);
         service->status = ME_STATUS_RUNNING;
         service->ExecRequestMsg = HandleRequestMessage;
         service->ExecResponseMsg = HandleResponseMessage;
@@ -164,6 +168,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
         service->mapper = mapper;
         service->dispatcher = dispatcher->Ref(dispatcher);
         if (service->dispatcher == NULL) {
+            HDF_LOGD("%s: Service->dispatcher is null!", __func__);
             errCode = ME_ERROR_NO_SUCH_DISPATCHER;
             break;
         }
@@ -180,6 +185,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
         OsalMemFree(service);
         return NULL;
     }
+    HDF_LOGD("%s: CreateLocalNodeService finished!", __func__);
     return (RemoteService *)service;
 }
 
@@ -191,7 +197,7 @@ static ErrorCode InitLocalNode(MessageNode *node)
         HDF_LOGE("%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
-
+    HDF_LOGD("%s:Init local node...", __func__);
     status = OsalMutexTimedLock(&node->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("%s: Lock mutexTime failed!", __func__);
@@ -210,16 +216,17 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexUnlock(&node->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:unlock mutex failed!", __func__);
+        HDF_LOGE("%s:Unlock mutex failed! status=%d", __func__, status);
     }
 
     if (errCode != ME_SUCCESS) {
+        HDF_LOGE("%s:Unexpected errCode! errCode=%d", __func__, errCode);
         return errCode;
     }
 
     status = OsalMutexTimedLock(&node->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:lock mutex failed!", __func__);
+        HDF_LOGE("%s:Lock mutex failed! status=%d", __func__, status);
     }
     if (errCode == ME_SUCCESS) {
         node->status = ME_STATUS_RUNNING;
@@ -229,7 +236,7 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexUnlock(&node->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:unlock mutex failed! status=%d", __func__, status);
+        HDF_LOGE("%s:Unlock mutex failed! status=%d", __func__, status);
     }
     HDF_LOGD("%s: InitLocalNode finished! errCode=%d", __func__, errCode);
     return errCode;
@@ -247,6 +254,7 @@ static void DestroyLocalNode(MessageNode *node)
         HDF_LOGE("%s:Release mutex failed!ret=%d", __func__, ret);
     }
     DEINIT_SHARED_OBJ(MessageNode, node);
+    HDF_LOGD("%s: DestroyLocalNode finished!", __func__);
 }
 
 ErrorCode CreateLocalNode(MessageNode **node)
@@ -258,7 +266,7 @@ ErrorCode CreateLocalNode(MessageNode **node)
         HDF_LOGE("%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
-    HDF_LOGI("Creating local node...");
+    HDF_LOGI("%s: Creating local node...!", __func__);
     newNode = (LocalMessageNode *)OsalMemCalloc(sizeof(LocalMessageNode));
     if (newNode == NULL) {
         HDF_LOGE("%s: Failed to request memory!", __func__);

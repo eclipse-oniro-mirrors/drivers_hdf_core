@@ -43,16 +43,16 @@ static int HdfWlanBusInit(struct HdfWlanDevice *data, const struct HdfConfigWlan
     struct BusDev *bus = NULL;
     bus = HdfWlanCreateBusManager(busConfig);
     if (bus == NULL) {
-        HDF_LOGE("%s:Create bus manager failed!", __func__);
+        HDF_LOGE("%s: Create bus manager failed!", __func__);
         return HDF_FAILURE;
     }
     data->bus = bus;
     if (bus->priData.driverName == NULL) {
-        HDF_LOGE("%s:get driver name failed!", __func__);
+        HDF_LOGE("%s: Get driver name failed!", __func__);
         return HDF_FAILURE;
     }
     data->driverName = bus->priData.driverName;
-    HDF_LOGI("%s: driver name = %s", __func__, data->driverName);
+    HDF_LOGI("%s: Driver name = %s", __func__, data->driverName);
     return HDF_SUCCESS;
 }
 
@@ -68,7 +68,7 @@ static int32_t HdfWifiDriverBind(struct HdfDeviceObject *dev)
         HDF_LOGE("%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
-
+    HDF_LOGI("%s: Wifi driver binding...!", __func__);
     errCode = StartMessageRouter(MESSAGE_NODE_CONFIG_DEFAULT);
     if (errCode != ME_SUCCESS) {
         HDF_LOGE("%s:Start message router failed!", __func__);
@@ -82,7 +82,7 @@ static int32_t HdfWifiDriverBind(struct HdfDeviceObject *dev)
         return errCode;
     }
     dev->service = &wifiService;
-    HDF_LOGD("%s: Wifi driver bind successed!", __func__);
+    HDF_LOGI("%s: Wifi driver bind successed!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -93,6 +93,7 @@ static struct HdfConfigWlanDeviceList *HdfWlanGetDeviceList(void)
         HDF_LOGE("%s: HdfWlanGetModuleConfigRoot get failed", __func__);
         return NULL;
     }
+    HDF_LOGD("%s: HdfWlanGetDeviceList finished!", __func__);
     return &rootConfig->wlanConfig.deviceList;
 }
 
@@ -127,14 +128,14 @@ struct ResetManager *CreateResetMgrByConfig(void)
 static int32_t HdfWlanGetConfig(const struct HdfDeviceObject *device)
 {
     if (device == NULL) {
-        HDF_LOGE("%s: input pointer is null", __func__);
+        HDF_LOGE("%s: Input pointer is null", __func__);
         return HDF_FAILURE;
     }
     if (HdfParseWlanConfig(device->property) != HDF_SUCCESS) {
         HDF_LOGE("%s:ParseWifiConfig failed!", __func__);
         return HDF_FAILURE;
     }
-
+    HDF_LOGI("%s: HdfWlanGetConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -150,7 +151,7 @@ static int32_t HdfWlanPowerOnProcess(struct PowerManager *powerMgr)
         HDF_LOGE("%s:power on failed!", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGW("%s:Chip power on!", __func__);
+    HDF_LOGI("%s: HdfWlanPowerOnProcess successful!", __func__);
     return HDF_SUCCESS;
 }
 static int32_t HdfWlanResetProcess(struct ResetManager *resetMgr)
@@ -163,7 +164,7 @@ static int32_t HdfWlanResetProcess(struct ResetManager *resetMgr)
         HDF_LOGE("%s:reset failed!", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGW("%s:Chip reset success!", __func__);
+    HDF_LOGI("%s: HdfWlanResetProcess success!", __func__);
     return HDF_SUCCESS;
 }
 #endif
@@ -180,6 +181,7 @@ static struct HdfChipDriverFactory *HdfWlanGetDriverFactory(const char *driverNa
         HDF_LOGE("%s: initMgr is NULL", __func__);
         return NULL;
     }
+    HDF_LOGD("%s: HdfWlanGetDriverFactory finished!", __func__);
     return initMgr->GetChipDriverByName(driverName);
 }
 
@@ -220,7 +222,7 @@ static int32_t HdfWlanDeinitInterface(struct HdfWlanDevice *device, const char *
         factory->Release(chipDriver);
     }
     chipDriver = NULL;
-
+    HDF_LOGI("%s: HdfWlanDeinitInterface successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -230,6 +232,7 @@ static int32_t HdfWlanInitInterface(struct HdfWlanDevice *device, struct HdfChip
     NetDevice *netDev = NULL;
     struct HdfChipDriver *chipDriver = NULL;
     do {
+        HDF_LOGI("%s: Wlan init interface starting...!", __func__);
         struct HdfWifiNetDeviceData *data = NULL;
         chipDriver = factory->Build(device, index);
         if (chipDriver == NULL) {
@@ -301,6 +304,7 @@ static int32_t HdfWlanDeinitInterfaces(struct HdfWlanDevice *device, struct HdfC
     }
     OsalMemFree(ifNames);
     ifNames = NULL;
+    HDF_LOGI("%s: Wlan deinit interfaces finished!", __func__);
     return ret;
 }
 
@@ -317,7 +321,7 @@ static int32_t HdfWlanInitInterfaces(struct HdfWlanDevice *device, struct HdfChi
             HDF_LOGE("%s:Init NetInterface failed!driverName=%s,portIndex=%hhu", __func__, device->driverName, i);
         }
     }
-    HDF_LOGI("%s:%s init interfaces finished!", __func__, chipDriverFact->driverName);
+    HDF_LOGI("%s: %s init interfaces finished!", __func__, chipDriverFact->driverName);
     return ret;
 }
 
@@ -443,9 +447,9 @@ int32_t HdfWifiInitDevice(struct HdfWlanDevice *device)
 
     ret = HdfWlanInitInterfaces(device, chipDriverFact);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:init interfaces failed! ret=%d!", __func__, ret);
+        HDF_LOGE("%s: Init interfaces failed! ret=%d!", __func__, ret);
     } else {
-        HDF_LOGD("%s:init interfaces success! netIfMap=%x.", __func__, device->netIfMap);
+        HDF_LOGD("%s: Init interfaces success! netIfMap=%x.", __func__, device->netIfMap);
     }
     return ret;
 }
@@ -462,7 +466,7 @@ static int32_t HdfWlanInitThread(void *para)
     int32_t ret;
 
     OsalSleep(initDelaySec);
-    HDF_LOGW("Driver HdfWiFi initing...");
+    HDF_LOGI("%s: Driver HdfWiFi initing...", __func__);
     if (device == NULL) {
         HDF_LOGE("%s: Device is null!", __func__);
         return HDF_FAILURE;
@@ -498,7 +502,7 @@ static int32_t HdfWlanInitThread(void *para)
         (void)HdfWifiInitDevice(wlanDevice);
     }
 
-    HDF_LOGV("%s:finished.", __func__);
+    HDF_LOGI("%s: HdfWlanInitThread successful!", __func__);
     return HDF_SUCCESS;
 }
 /* load chip factory thread */
@@ -522,6 +526,7 @@ static int32_t HdfWlanScanAndInitThread(struct HdfDeviceObject *device)
         HDF_LOGE("LoadChipFactoryThread: start LoadChipFactoryThread thread fail:%d", ret);
         return HDF_DEV_ERR_DEV_INIT_FAIL;
     }
+    HDF_LOGI("%s: HdfWlanScanAndInitThread successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -531,8 +536,9 @@ static int32_t HdfWlanMainInit(struct HdfDeviceObject *device)
     struct HdfConfigWlanRoot *rootConfig = NULL;
     const struct HdfConfigWlanModuleConfig *moduleConfig = NULL;
 
-    HDF_LOGV("%s:start..", __func__);
+    HDF_LOGI("%s: HdfWlanMainInit start...", __func__);
     if (device == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     if (HdfWlanGetConfig(device) != HDF_SUCCESS) {
@@ -550,7 +556,7 @@ static int32_t HdfWlanMainInit(struct HdfDeviceObject *device)
         HDF_LOGE("%s: LoadChipFactoryThread failed, the load process failed!", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGV("%s:finished.", __func__);
+    HDF_LOGI("%s: HdfWlanMainInit finished!", __func__);
     return HDF_SUCCESS;
 }
 /* release the resource created in the init process */
