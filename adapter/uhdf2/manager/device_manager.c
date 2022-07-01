@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "devmgr_service.h"
 #include "devmgr_service_full.h"
+#include "devmgr_uevent.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
 
@@ -33,7 +34,7 @@ int main()
     if (instance->StartService != NULL) {
         status = instance->StartService(instance);
     }
-
+    (void)DevMgrUeventReceiveStart();
     if (status == HDF_SUCCESS) {
         struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)instance;
         struct HdfMessageLooper *looper = &fullService->looper;
