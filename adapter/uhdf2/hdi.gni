@@ -56,7 +56,7 @@ template("hdi") {
   lib_client = "lib" + target_name + "_proxy" + "_" + files_info.version
   lib_server = "lib" + target_name + "_stub" + "_" + files_info.version
 
-  idl_headers_config = "$target_name" + "_idl_headers"
+  idl_headers_config = "$target_name" + "_idl_headers_config"
   config("$idl_headers_config") {
     include_dirs = [
       "${files_info.root_package_dir}",
@@ -212,10 +212,17 @@ template("hdi") {
     }
   }
 
+  # generate code and shared library
   group("$target_name" + "_idl_target") {
     deps = [
       ":$lib_client",
       ":$lib_server",
     ]
+  }
+
+  # only generate code and provide header file path
+  group("$target_name" + "_idl_headers") {
+    public_configs = [ ":$idl_headers_config" ]
+    deps = [ ":hdi_gen" ]
   }
 }
