@@ -52,10 +52,12 @@ static void SetProcTitle(char **argv, const char *newTitle)
 {
     size_t len = strlen(argv[0]);
     if (strlen(newTitle) > len) {
+        HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle);
         return;
     }
     (void)memset_s(argv[0], len, 0, len);
     if (strcpy_s(argv[0], len + 1, newTitle) != EOK) {
+        HDF_LOGE("failed to set new process title");
         return;
     }
     prctl(PR_SET_NAME, newTitle);
