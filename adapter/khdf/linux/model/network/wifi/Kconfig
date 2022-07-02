@@ -1,23 +1,9 @@
 config DRIVERS_HDF_WIFI
     bool "Enable HDF wifi"
     default n
-    depends on DRIVERS_HDF && DRIVERS_HDF_PLATFORM_SDIO
+    depends on DRIVERS_HDF_WIFI_BUS && DRIVERS_HDF_NETWORK
     help
       Answer Y to enable HDF wifi.
-
-config DRIVERS_HDF_WLAN_SDIO
-    bool "Enable HDF wlan sdio bus"
-    default n
-    depends on DRIVERS_HDF_WIFI
-    help
-      Answer Y to support HDF wlan sdio bus
-
-config DRIVERS_HDF_WLAN_USB
-    bool "Enable HDF wlan usb bus"
-    default n
-    depends on DRIVERS_HDF_WIFI
-    help
-      Answer Y to support HDF wlan usb bus
 
 config DRIVERS_HI3881
     bool "Enable hi3881"

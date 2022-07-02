@@ -55,11 +55,7 @@ $(MODULE_NAME)-objs := $(HDF_WIFI_FRAMEWORKS_ROOT)/$(WAP_PATH)/ap.o \
                        $(HDF_WIFI_FRAMEWORKS_ROOT)/$(PLATFORM_PATH)/hdf_wlan_product.o \
                        $(HDF_WIFI_FRAMEWORKS_ROOT)/$(PLATFORM_PATH)/hdf_wlan_reset_manager.o \
                        $(HDF_WIFI_FRAMEWORKS_ROOT)/$(PLATFORM_PATH)/hdf_wlan_utils.o \
-                       $(HDF_WIFI_FRAMEWORKS_ROOT)/$(IBUS_PATH)/hdf_ibus_intf.o \
-
-$(MODULE_NAME)-$(CONFIG_DRIVERS_HDF_WLAN_SDIO) += $(HDF_WIFI_FRAMEWORKS_ROOT)/$(IBUS_PATH)/hdf_sdio_intf.o
-$(MODULE_NAME)-$(CONFIG_DRIVERS_HDF_WLAN_USB) += $(HDF_WIFI_FRAMEWORKS_ROOT)/$(IBUS_PATH)/hdf_usb_intf.o
-
+                       
 ccflags-$(CONFIG_DRIVERS_HDF_WIFI) += \
     $(HDF_FRAMEWORKS_INC) \
     $(HDF_WIFI_FRAMEWORKS_INC) \
@@ -73,4 +69,4 @@ HDF_WIFI_FLAGS +=-D_PRE_OS_VERSION=_PRE_OS_VERSION_LINUX
 ccflags-$(CONFIG_DRIVERS_HDF_WIFI) += $(HDF_WIFI_FLAGS)
 
 obj-$(CONFIG_DRIVERS_HDF_WIFI) += vendor/
-
+obj-$(CONFIG_DRIVERS_HDF_WIFI) += bus/
