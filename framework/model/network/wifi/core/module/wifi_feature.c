@@ -22,6 +22,7 @@ int32_t AddFeature(struct WifiModule *module, uint16_t featureType, struct WifiF
     }
     module->feList.fe[featureType] = (struct WifiFeature *)feature;
     if (feature->init != NULL) {
+        HDF_LOGD("%s: AddFeature finished!", __func__);
         return feature->init(feature);
     }
 
@@ -41,6 +42,7 @@ int32_t DelFeature(struct WifiModule *module, uint16_t featureType)
     if ((featureData != NULL) && (featureData->deInit != NULL)) {
         featureData->deInit(module->feList.fe[featureType]);
         featureData = NULL;
+        HDF_LOGD("%s: DelFeature finished!", __func__);
         return HDF_SUCCESS;
     }
     HDF_LOGE("%s: DelFeature fail!", __func__);

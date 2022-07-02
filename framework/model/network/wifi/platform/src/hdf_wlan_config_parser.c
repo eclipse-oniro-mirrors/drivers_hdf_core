@@ -243,6 +243,7 @@ static int32_t ParseWlanPowerConfig(const struct DeviceResourceNode *node,
         HDF_LOGE("%s: activeLevel fail!", __func__);
         return HDF_FAILURE;
     }
+    HDF_LOGD("%s: ParseWlanPowerConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -278,7 +279,7 @@ static int32_t ParseWlanPowersConfig(const struct DeviceResourceNode *node, stru
     if (ParseWlanPowerConfig(secPowerNode, &powersConfig->power1) != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
-
+    HDF_LOGD("%s: ParseWlanPowersConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -315,6 +316,7 @@ static int32_t ParseWlanResetConfig(const struct DeviceResourceNode *node, struc
         HDF_LOGE("%s: activeLevel fail!", __func__);
         return HDF_FAILURE;
     }
+    HDF_LOGD("%s: ParseWlanResetConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -354,6 +356,7 @@ static int32_t ParseWlanBusConfig(const struct DeviceResourceNode *node, struct 
         HDF_LOGE("%s: timeout fail!", __func__);
         return HDF_FAILURE;
     }
+    HDF_LOGD("%s: ParseWlanBusConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -422,6 +425,7 @@ static int32_t ParseWlanDevListConfig(const struct DeviceResourceNode *node, str
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
         if (ParseWlanDevInstConfig(childNode, &devConfig->deviceInst[index]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: ParseWlanDevInstConfig failed!", __func__);
             return HDF_FAILURE;
         }
         index++;
@@ -453,7 +457,7 @@ static int32_t ParseWlanChipBusConfig(const struct DeviceResourceNode *node, str
         HDF_LOGE("%s: deviceId fail!", __func__);
         return HDF_FAILURE;
     }
-
+    HDF_LOGD("%s: ParseWlanChipBusConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -485,7 +489,7 @@ static int32_t ParseWlanChipsCompsConfig(const struct DeviceResourceNode *node, 
     if (ParseWlanChipBusConfig(chipBusNode, &chipInst->chipBus) != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
-
+    HDF_LOGD("%s: ParseWlanChipsCompsConfig successful!", __func__);
     return HDF_SUCCESS;
 }
 /* parse wlan chipList config */
@@ -501,6 +505,7 @@ static int32_t ParseWlanChipsConfig(const struct DeviceResourceNode *node, struc
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
         if (ParseWlanChipsCompsConfig(childNode, &chipList->chipInst[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: ParseWlanChipsCompsConfig failed!\n", __func__);
             return HDF_FAILURE;
         }
         cnt++;
@@ -548,6 +553,7 @@ static int32_t ParseWlanConfig(const struct DeviceResourceNode *node, struct Hdf
     if (ret != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
+    HDF_LOGD("%s: ParseWlanConfig finished!", __func__);
     return ret;
 }
 

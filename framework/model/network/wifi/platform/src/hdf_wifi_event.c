@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -52,7 +52,7 @@ int32_t HdfWifiEventNewSta(const struct NetDevice *netDev, const uint8_t *macAdd
         return HDF_FAILURE;
     }
 
-    HDF_LOGI("%s netDev->name=%s, MAC=XX:XX:XX:XX:XX:%02X", __func__, netDev->name,
+    HDF_LOGI("%s: netDev->name=%s, MAC=XX:XX:XX:XX:XX:%02X", __func__, netDev->name,
         (addrLen > 0) ? macAddr[addrLen - 1] : -1);
 
     ret = HdfWlanSendBroadcastEvent(WIFI_WPA_EVENT_NEW_STA, data);

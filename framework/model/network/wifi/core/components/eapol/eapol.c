@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -210,22 +210,22 @@ int32_t CreateEapolData(struct NetDevice *netDevice)
     struct EapolData *eapolData = NULL;
 
     if (netDevice == NULL) {
-        HDF_LOGE("%s fail : netdev = null!", __func__);
+        HDF_LOGE("%s Fail : netdev = null!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (netDevice->specialProcPriv != NULL) {
-        HDF_LOGI("%s already create!", __func__);
+        HDF_LOGI("%s: CreateEapolData already create!", __func__);
         return HDF_SUCCESS;
     }
     eapolData = (struct EapolData *)OsalMemCalloc(sizeof(struct EapolData));
     if (eapolData == NULL) {
-        HDF_LOGE("%s fail : malloc fail!", __func__);
+        HDF_LOGE("%s Fail : malloc fail!", __func__);
         return HDF_FAILURE;
     }
     (void)memset_s(eapolData, sizeof(struct EapolData), 0, sizeof(struct EapolData));
     NetBufQueueInit(&eapolData->eapolQueue);
     netDevice->specialProcPriv = eapolData;
-    HDF_LOGI("%s success!", __func__);
+    HDF_LOGI("%s: CreateEapolData success!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -241,7 +241,7 @@ void DestroyEapolData(struct NetDevice *netDevice)
     NetBufQueueClear(&eapolData->eapolQueue);
     OsalMemFree(eapolData);
     netDevice->specialProcPriv = NULL;
-    HDF_LOGE("%s success!", __func__);
+    HDF_LOGI("%s: DestroyEapolData success!", __func__);
     return;
 }
 
