@@ -14,8 +14,10 @@
       "components": [
         "hiviewdfx_hilog_native",
         "utils_base",
+        "init",
         "ipc",
-        "samgr_standard"
+        "samgr_standard",
+        "selinux"
       ],
       "third_part": [
         "bounds_checking_function"
@@ -60,15 +62,6 @@
                 "osal.h"
               ],
               "header_base": "//drivers/hdf_core/framework/include"
-          }
-        },
-        {
-          "name": "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-            "header": {
-              "header_files": [
-                "hdf_uhdf_test.h"
-              ],
-              "header_base": "//drivers/hdf_core/framework/test/unittest/include"
           }
         },
         {

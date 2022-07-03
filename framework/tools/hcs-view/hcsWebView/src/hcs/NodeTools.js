@@ -137,7 +137,7 @@ NodeTools.redefineCheck = function (node) {
         let nameMap = [];
         for (let i in pn.value_) {
             if (nameMap.indexOf(pn.value_[i].name_) >= 0) {
-                pn.value_[i].errMsg_ = "重名"
+                pn.value_[i].errMsg_ = "重名:"+pn.value_[i].lineno_;
                 ret = false;
             }
             else {
@@ -171,6 +171,7 @@ NodeTools.copyNode = function (node, parent) {
     let ret = {
         type_: node.type_,
         name_: node.name_,
+        lineno_: node.lineno_,
         parent_: parent
     }; if (node.raw_ != undefined)
         ret.raw_ = node.raw_
@@ -190,7 +191,7 @@ NodeTools.copyNode = function (node, parent) {
             if ([NodeType.INHERIT, NodeType.COPY, NodeType.REFERENCE].indexOf(node.nodeType_) > -1) {
                 ret.ref_ = node.ref_;
             } else if (!([NodeType.DATA, NodeType.TEMPLETE, NodeType.DELETE].indexOf(node.nodeType_) > -1)) {
-                NapiLog.logError("unknow node type");
+                NapiLog.logError("unknow node type:"+ret.lineno_);
             }
             ret.value_ = []
             for (let i in node.value_) { ret.value_.push(NodeTools.copyNode(node.value_[i], ret)) }
@@ -226,7 +227,7 @@ NodeTools.nodeNestCheck = function (node) {
     NodeTools.recursionAll(node, (pn) => {
         if (pn.type_ == DataType.NODE) {
             if (pn.nodeType_ == NodeType.COPY && pn.raw_.errMsg_ == null) {
-                pn.raw_.errMsg_ = "有Copy的嵌套";
+                pn.raw_.errMsg_ = "有Copy的嵌套"+pn.raw_.lineno_;
             }
         }
         return false;
@@ -236,28 +237,28 @@ NodeTools.recursionCopyAndReferenceNodes = function (pn) {
     let ref = NodeTools.lookup(pn);
     if (ref == null) {
         NapiLog.logError("reference not exist" + NodeTools.getPathByNode(pn) + ":" + pn.ref_);
-        if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标没找到")
-        else makeError(pn, "引用目标没找到")
+        if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标没找到:"+pn.lineno_)
+        else makeError(pn, "引用目标没找到:"+pn.lineno_)
         return false;
     } else if (ref.nodeType_ == NodeType.TEMPLETE) {
-        if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标不能为模板节点")
-        else makeError(pn, "引用目标不能为模板节点")
+        if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标不能为模板节点:"+pn.lineno_)
+        else makeError(pn, "引用目标不能为模板节点:"+pn.lineno_)
         return false;
     } else if (ref.nodeType_ == NodeType.DELETE) {
-        if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标不能为删除节点")
-        else makeError(pn, "引用目标不能为删除节点")
+        if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标不能为删除节点:"+pn.lineno_)
+        else makeError(pn, "引用目标不能为删除节点:"+pn.lineno_)
         return false;
     } else if (NodeTools.isElders(pn, ref)) {
         NapiLog.logError("circular reference" + NodeTools.getPathByNode(pn) + ":" + pn.ref_);
         if (pn.nodeType_ == NodeType.COPY) {
-            makeError(pn, "循环复制")
+            makeError(pn, "循环复制:"+pn.lineno_)
         } else {
-            makeError(pn, "循环引用")
+            makeError(pn, "循环引用:"+pn.lineno_)
         }
         return false;
     } else if (pn.nodeType_ == NodeType.COPY) {
         if (ref.nodeType_ == NodeType.COPY) {
-            pn.raw_.errMsg_ = "有Copy的嵌套";
+            pn.raw_.errMsg_ = "有Copy的嵌套:"+pn.raw_.lineno_;
         }
         pn.nodeType_ = NodeType.DATA;//Convert current node to data class node
         let tref = NodeTools.copyNode(ref, pn.parent_);//Copy a Ref
@@ -277,19 +278,19 @@ NodeTools.recursionCopyAndReferenceNodes = function (pn) {
 NodeTools.checkInheritNode = function (pn) {
     let ref = NodeTools.lookup(pn);
     if (ref == null) {
-        makeError(pn, "找不到继承目标")
+        makeError(pn, "找不到继承目标:"+pn.lineno_)
     } else if (ref.type_ != DataType.NODE) {
-        makeError(pn, "不能继承属性")
+        makeError(pn, "不能继承属性:"+pn.lineno_)
     } else if (ref.nodeType_ == NodeType.REFERENCE) {
-        makeError(pn, "不能继承引用类节点")
+        makeError(pn, "不能继承引用类节点:"+pn.lineno_)
     } else if (ref.nodeType_ == NodeType.DELETE) {
-        makeError(pn, "不能继承删除类节点")
+        makeError(pn, "不能继承删除类节点:"+pn.lineno_)
     } else if (ref.nodeType_ == NodeType.DATA) {
-        makeError(pn, "不能继承数据类节点")
+        makeError(pn, "不能继承数据类节点:"+pn.lineno_)
     } else if (ref.nodeType_ == NodeType.INHERIT) {
-        makeError(pn, "不能继承继承类节点")
+        makeError(pn, "不能继承继承类节点:"+pn.lineno_)
     } else if (ref.nodeType_ == NodeType.COPY) {
-        makeError(pn, "不能继承复制类节点")
+        makeError(pn, "不能继承复制类节点:"+pn.lineno_)
     }
 }
 
@@ -314,11 +315,11 @@ NodeTools.nodeExpand = function (node) {
                 if (ref == null || ref.type_ != DataType.NODE || ref.nodeType_ == NodeType.REFERENCE ||
                     ref.nodeType_ == NodeType.TEMPLETE || ref.nodeType_ == NodeType.DELETE) {
                     NapiLog.logError("reference invalid node" + NodeTools.getPathByNode(pn) + ":" + pn.value_.value_);
-                    if (ref == null) makeError(pn, "找不到引用目标")
-                    else if (ref.type_ != DataType.NODE) makeError(pn, "不能引用属性")
-                    else if (ref.nodeType_ == NodeType.REFERENCE) makeError(pn, "不能引用引用类节点")
-                    else if (ref.nodeType_ == NodeType.TEMPLETE) makeError(pn, "不能引用模板类节点")
-                    else if (ref.nodeType_ == NodeType.DELETE) makeError(pn, "不能引用删除类节点")
+                    if (ref == null) makeError(pn, "找不到引用目标:"+pn.lineno_)
+                    else if (ref.type_ != DataType.NODE) makeError(pn, "不能引用属性:"+pn.lineno_)
+                    else if (ref.nodeType_ == NodeType.REFERENCE) makeError(pn, "不能引用引用类节点:"+pn.lineno_)
+                    else if (ref.nodeType_ == NodeType.TEMPLETE) makeError(pn, "不能引用模板类节点:"+pn.lineno_)
+                    else if (ref.nodeType_ == NodeType.DELETE) makeError(pn, "不能引用删除类节点:"+pn.lineno_)
                 } else {
                     pn.refNode_ = ref;
                 }
@@ -332,14 +333,14 @@ NodeTools.inheritExpand = function (node) {
     NodeTools.recursionAll(node, (pn) => {
         let tt = re.match("^[a-zA-Z_]{1}[a-zA-Z_0-9]*$", pn.name_);
         if (tt == null) {
-            makeError(pn, "名字不合规范")
+            makeError(pn, "名字不合规范:"+pn.lineno_)
         }
         if (pn.type_ != DataType.NODE) return false;
         if (pn.nodeType_ != NodeType.INHERIT) return false;
         let inherit = NodeTools.lookup(pn);
         if (inherit == null) {
             NapiLog.logError("inherit invalid node: " + NodeTools.getPathByNode(pn) + ":" + pn.ref_);
-            makeError(pn, "找不到继承目标")
+            makeError(pn, "找不到继承目标:"+pn.lineno_)
             return false;
         }
         pn.nodeType_ = NodeType.DATA;
@@ -374,12 +375,13 @@ NodeTools.merge = function (node1, node2) {
                 child1 = {
                     type_: child2.type_,
                     name_: child2.name_,
+                    lineno_: child2.lineno_,
                     parent_: node1
                 }
                 node1.value_.push(child1)
             }
             else if (child1.type_ != child2.type_) {
-                child2.raw_.errMsg_ = "所修改的字节的类型和父节点类型不同";
+                child2.raw_.errMsg_ = "所修改的子节的类型和父节点类型不同:"+child2.raw_.lineno_;
                 return false;
             }
             NodeTools.merge(child1, child2);
@@ -388,7 +390,6 @@ NodeTools.merge = function (node1, node2) {
     else if (node1.type_ == DataType.ATTR) {
         node1.value_ = NodeTools.copyNode(node2.value_, node1)
     }
-
     return true;
 }
 NodeTools.jinZhi10ToX = function (num, jinzhi) {

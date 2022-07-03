@@ -48,8 +48,7 @@ static int32_t LinuxGpioRead(struct GpioCntlr *cntlr, uint16_t local, uint16_t *
         return HDF_ERR_INVALID_OBJECT;
     }
     if (val != NULL) {
-        *val = (gpio_get_value(cntlr->start + local) == 0) ?
-            GPIO_VAL_LOW : GPIO_VAL_HIGH;
+        *val = (gpio_get_value_cansleep(cntlr->start + local) == 0) ? GPIO_VAL_LOW : GPIO_VAL_HIGH;
         return HDF_SUCCESS;
     }
     HDF_LOGE("%s: val is NULL!\n", __func__);
@@ -72,7 +71,7 @@ static int32_t LinuxGpioSetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t
             }
             break;
         case GPIO_DIR_OUT:
-            val = gpio_get_value(cntlr->start + local);
+            val = gpio_get_value_cansleep(cntlr->start + local);
             if (val < 0) {
                 return HDF_ERR_BSP_PLT_API_ERR;
             }

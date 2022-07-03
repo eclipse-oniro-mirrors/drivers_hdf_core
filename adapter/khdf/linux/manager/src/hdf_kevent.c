@@ -349,7 +349,7 @@ static int32_t HdfKeventDriverOpen(struct HdfDeviceIoClient *client)
     keventModule->clientCount++;
     OsalMutexUnlock(&keventModule->clientMutex);
 
-    HDF_LOGI("%s:kevnet usecount=%d", __func__, keventModule->clientCount);
+    HDF_LOGI("%s:kevent usecount=%d", __func__, keventModule->clientCount);
     return 0;
 }
 

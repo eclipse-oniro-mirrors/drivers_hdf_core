@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,6 +20,7 @@ group("hdf_test_uhdf") {
     "unittest/manager:hdf_adapter_uhdf_test_manager",
     "unittest/manager:hdf_adapter_uhdf_test_pm",
     "unittest/manager:hdf_adapter_uhdf_test_sbuf",
+    "unittest/manager:hdf_adapter_uhdf_test_uevent",
     "unittest/osal:hdf_adapter_uhdf_test_osal",
     "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
     "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",

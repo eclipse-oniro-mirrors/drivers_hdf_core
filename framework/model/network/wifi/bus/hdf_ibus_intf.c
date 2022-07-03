@@ -30,7 +30,7 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
         return NULL;
     }
     if (busConfig->busType >= BUS_BUTT) {
-        HDF_LOGE("%s:bus type %u not support!", __func__, busConfig->busType);
+        HDF_LOGE("%s: Bus type %u not support!", __func__, busConfig->busType);
         return NULL;
     }
     
@@ -45,6 +45,7 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
         OsalMemFree(bus);
         return NULL;
     }
+    HDF_LOGD("%s: HdfWlanCreateBusManager finished!", __func__);
     return bus;
 }
 

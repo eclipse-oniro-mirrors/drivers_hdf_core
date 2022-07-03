@@ -284,6 +284,10 @@ int32_t I2cTestMultiThread(void)
 
     ret = OsalThreadStart(&thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
+        while (count1 == 0) {
+            HDF_LOGD("waitting testing thread finish...");
+            OsalMSleep(I2C_TEST_WAIT_TIMES);
+        }
         (void)OsalThreadDestroy(&thread1);
         (void)OsalThreadDestroy(&thread2);
         HDF_LOGE("start test thread2 fail:%d", ret);
@@ -291,7 +295,7 @@ int32_t I2cTestMultiThread(void)
     }
 
     while (count1 == 0 || count2 == 0) {
-        HDF_LOGE("waitting testing thread finish...");
+        HDF_LOGD("waitting testing thread finish...");
         OsalMSleep(I2C_TEST_WAIT_TIMES);
     }
 

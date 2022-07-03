@@ -56,11 +56,15 @@ template("hdi") {
   lib_client = "lib" + target_name + "_proxy" + "_" + files_info.version
   lib_server = "lib" + target_name + "_stub" + "_" + files_info.version
 
-  config("hdi_public_config") {
+  idl_headers_config = "$target_name" + "_idl_headers_config"
+  config("$idl_headers_config") {
     include_dirs = [
-      "$hdf_uhdf_path/include/host",
       "${files_info.root_package_dir}",
       "${files_info.version_dir}",
+      "$hdf_uhdf_path/include/hdi",
+      "$hdf_uhdf_path/osal/include",
+      "$hdf_uhdf_path/ipc/include",
+      "$hdf_framework_path/include/utils",
     ]
   }
 
@@ -125,15 +129,10 @@ template("hdi") {
                             get_source_args,
                             "list lines")
 
-      public_configs = [ ":hdi_public_config" ]
-
+      public_configs = [ ":$idl_headers_config" ]
       deps = [ "$hdi_gen" ]
 
-      public_deps = [
-        "$hdf_uhdf_path/hdi:libhdi",
-        "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
-        "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
-      ]
+      public_deps = [ "$hdf_uhdf_path/hdi:libhdi" ]
 
       if (defined(invoker.sequenceable)) {
         public_deps += invoker.sequenceable
@@ -141,6 +140,8 @@ template("hdi") {
 
       if (is_standard_system) {
         external_deps = [
+          "hdf_core:libhdf_ipc_adapter",
+          "hdf_core:libhdf_utils",
           "hiviewdfx_hilog_native:libhilog",
           "utils_base:utils",
         ]
@@ -178,15 +179,11 @@ template("hdi") {
                             get_source_args,
                             "list lines")
 
-      public_configs = [ ":hdi_public_config" ]
+      public_configs = [ ":$idl_headers_config" ]
 
       deps = [ "$hdi_gen" ]
 
-      public_deps = [
-        "$hdf_uhdf_path/hdi:libhdi",
-        "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
-        "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
-      ]
+      public_deps = [ "$hdf_uhdf_path/hdi:libhdi" ]
 
       if (defined(invoker.sequenceable)) {
         public_deps += invoker.sequenceable
@@ -194,6 +191,8 @@ template("hdi") {
 
       if (is_standard_system) {
         external_deps = [
+          "hdf_core:libhdf_ipc_adapter",
+          "hdf_core:libhdf_utils",
           "hiviewdfx_hilog_native:libhilog",
           "utils_base:utils",
         ]
@@ -209,21 +208,21 @@ template("hdi") {
 
       install_images = [ chipset_base_dir ]
       subsystem_name = invoker.subsystem_name
-      partname_list = string_split(invoker.part_name, "_")
-      if (partname_list[0] == "drivers") {
-        part_name = string_replace(invoker.part_name,
-                                   "drivers_interface",
-                                   "drivers_peripheral")
-      } else {
-        part_name = invoker.part_name
-      }
+      part_name = invoker.part_name
     }
   }
 
-  group("$target_name") {
+  # generate code and shared library
+  group("$target_name" + "_idl_target") {
     deps = [
       ":$lib_client",
       ":$lib_server",
     ]
+  }
+
+  # only generate code and provide header file path
+  group("$target_name" + "_idl_headers") {
+    public_configs = [ ":$idl_headers_config" ]
+    deps = [ ":hdi_gen" ]
   }
 }

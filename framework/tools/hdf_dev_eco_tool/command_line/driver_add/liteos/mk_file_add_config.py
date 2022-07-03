@@ -97,8 +97,10 @@ def makefile_file_operation(path, driver_file_path, head_path, module, driver, r
     first_line = "\nifeq ($(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}), y)\n"
     input_include_line = "LOCAL_INCLUDE += $(${model_name_upper}_ROOT_DIR)/${head_file_path}\n"
     input_second_line = "LOCAL_SRCS += $(${model_name_upper}_ROOT_DIR)/${source_file_path}\n"
-    sensor_include_line = "LOCAL_INCLUDE += $(FRAMEWORKS_${model_name_upper}_ROOT)/${head_file_path}\n"
-    sensor_second_line = "LOCAL_SRCS += $(FRAMEWORKS_${model_name_upper}_ROOT)/${source_file_path}\n"
+
+    sensor_include_line = "LOCAL_INCLUDE += $(PERIPHERAL_${model_name_upper}_ROOT)/${head_file_path}\n"
+    sensor_second_line = "LOCAL_SRCS += $(PERIPHERAL_${model_name_upper}_ROOT)/${source_file_path}\n"
+
     display_include_line = "LOCAL_INCLUDE += $(LITEOSTOPDIR)/../../${head_file_path}\n"
     display_second_line = "LOCAL_SRCS += $(LITEOSTOPDIR)/../../${source_file_path}\n"
     third_line = "endif\n"

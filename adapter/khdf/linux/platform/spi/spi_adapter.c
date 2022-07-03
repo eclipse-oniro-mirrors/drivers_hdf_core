@@ -16,8 +16,9 @@
  *
  */
 
-#include <linux/spi/spi.h>
 #include <linux/platform_device.h>
+#include <linux/spi/spi.h>
+#include <linux/version.h>
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_dlist.h"
@@ -401,7 +402,11 @@ static int SpiAdapterRegisterDummyController(void)
         return HDF_PLT_ERR_OS_API;
     }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 9, 11)
+    dummyCntlr = spi_alloc_master(&pdev.dev, 0);
+#else
     dummyCntlr = devm_spi_alloc_master(&pdev.dev, 0);
+#endif
     if (dummyCntlr == NULL) {
         HDF_LOGE("%s: alloc dummyCntlr fail", __func__);
         return HDF_ERR_MALLOC_FAIL;

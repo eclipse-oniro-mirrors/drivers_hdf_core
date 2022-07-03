@@ -100,8 +100,8 @@ static int32_t GetAddrStatus(struct I3cCntlr *cntlr, uint16_t addr)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    status = ADDR_STATUS_MASK & ((cntlr->addrSlot[addr / ADDRS_PER_UINT16])   \
-              >> ((addr % ADDRS_PER_UINT16) * ADDRS_STATUS_BITS));
+    status = ADDR_STATUS_MASK & ((cntlr->addrSlot[addr / ADDRS_PER_UINT16]) >>
+        ((addr % ADDRS_PER_UINT16) * ADDRS_STATUS_BITS));
 
     return status;
 }
@@ -345,7 +345,7 @@ static int32_t I3cManagerAddCntlr(struct I3cCntlr *cntlr)
     }
 
     if (manager->cntlrs[cntlr->busId] != NULL) {
-        HDF_LOGE("%s: cntlr of bus:%d already exits!", __func__, cntlr->busId);
+        HDF_LOGE("%s: cntlr of bus:%hd already exits!", __func__, cntlr->busId);
         ret = HDF_FAILURE;
     } else {
         manager->cntlrs[cntlr->busId] = cntlr;
@@ -361,7 +361,7 @@ static void I3cManagerRemoveCntlr(struct I3cCntlr *cntlr)
     struct I3cManager *manager = g_i3cManager;
 
     if (cntlr->busId < 0 || cntlr->busId >= I3C_CNTLR_MAX) {
-        HDF_LOGE("%s: invalid busId:%d!", __func__, cntlr->busId);
+        HDF_LOGE("%s: invalid busId:%hd!", __func__, cntlr->busId);
         return;
     }
 
@@ -375,7 +375,7 @@ static void I3cManagerRemoveCntlr(struct I3cCntlr *cntlr)
     }
 
     if (manager->cntlrs[cntlr->busId] != cntlr) {
-        HDF_LOGE("%s: cntlr(%d) not in manager!", __func__, cntlr->busId);
+        HDF_LOGE("%s: cntlr(%hd) not in manager!", __func__, cntlr->busId);
     } else {
         manager->cntlrs[cntlr->busId] = NULL;
     }
@@ -389,7 +389,7 @@ struct I3cCntlr *I3cCntlrGet(int16_t number)
     struct I3cManager *manager = g_i3cManager;
 
     if (number < 0 || number >= I3C_CNTLR_MAX) {
-        HDF_LOGE("%s: invalid busId:%d!", __func__, number);
+        HDF_LOGE("%s: invalid busId:%hd!", __func__, number);
         return NULL;
     }
 
@@ -418,6 +418,7 @@ int32_t I3cCntlrAdd(struct I3cCntlr *cntlr)
     int32_t ret;
 
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -574,6 +575,7 @@ int32_t I3cCntlrRequestIbi(struct I3cCntlr *cntlr, uint16_t addr, I3cIbiFunc fun
     int32_t ret;
 
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->requestIbi == NULL) {
@@ -627,6 +629,7 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
     uint16_t ptr;
 
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -636,17 +639,14 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
     }
 
     device = GetDeviceByAddr(cntlr, addr);
-    if (device == NULL) {
-        HDF_LOGE("%s: Get device failed!", __func__);
+    if (device == NULL || device->ibi == NULL) {
+        HDF_LOGE("%s: invaild device!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     for (ptr = 0; ptr < I3C_IBI_MAX; ptr++) {
-        if (cntlr->ibiSlot[ptr] == NULL || device->ibi == NULL) {
-            break;
-        }
-        if (cntlr->ibiSlot[ptr] != device->ibi) {
-            break;
+        if (cntlr->ibiSlot[ptr] == NULL || cntlr->ibiSlot[ptr] != device->ibi) {
+            continue;
         }
         cntlr->ibiSlot[ptr] = NULL;
         if (device->ibi->data != NULL) {
@@ -665,8 +665,8 @@ int32_t I3cCntlrIbiCallback(struct I3cDevice *device)
     struct I3cIbiData *ibiData = NULL;
 
     if (device == NULL) {
-            HDF_LOGW("%s: invalid device!", __func__);
-            return HDF_ERR_INVALID_PARAM;
+        HDF_LOGW("%s: invalid device!", __func__);
+        return HDF_ERR_INVALID_PARAM;
     }
 
     ibiData = (struct I3cIbiData *)OsalMemCalloc(sizeof(*ibiData));

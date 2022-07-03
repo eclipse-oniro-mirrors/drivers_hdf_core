@@ -51,6 +51,7 @@ class Generator {
             child = child.next_;
         }
         ret.nodeType_ = node.nodeType_
+        ret.isOpen_ = true
         this.astToObjConfigNodeType(node.nodeType_, ret, node);
    }
 
@@ -59,6 +60,7 @@ class Generator {
         let ret = new Object();
         ret.type_ = node.type_
         ret.name_ = node.name_;
+        ret.lineno_ = node.lineno_;
         ret.parent_ = parent;
         switch (node.type_) {
             case 1:// uint8

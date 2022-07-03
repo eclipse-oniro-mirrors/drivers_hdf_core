@@ -105,19 +105,32 @@ def linux_makefile_operation(path, driver_file_path, head_path, module, driver):
         return
     end_index, model_dir_name, model_dir_value = result_tuple
 
-    first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
-    second_line = "              $(${model_name_upper}_ROOT_DIR)/${source_file_path}\n"
-    third_line = "ccflags-y += -I$(srctree)/drivers/hdf/framework/model/${head_file_path}\n"
-    makefile_add_template = first_line + second_line + third_line
-    include_model_info = model_dir_value.split("model")[-1].strip('"')+"/"
-    makefile_path_config = source_file_path.split(include_model_info)
-    temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
-    temp_replace = {
-        'model_name_upper': module.upper(),
-        'driver_name_upper': driver.upper(),
-        'source_file_path': makefile_path_config[-1].replace(".c", ".o"),
-        'head_file_path': '/'.join(head_path.split("model")[-1].strip(os.path.sep).split(os.path.sep)[:-1])
-    }
+    if module == "sensor":
+        first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
+        second_line = "              $(SENSOR_ROOT_CHIPSET)/${source_file_path}\n"
+        third_line = "\n"
+        makefile_add_template = first_line + second_line + third_line
+        temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
+        str_start = source_file_path.find(module) + len(module) + 1
+        temp_replace = {
+            'model_name_upper': module.upper(),
+            'driver_name_upper': driver.upper(),
+            'source_file_path': source_file_path[str_start:].replace(".c", ".o")
+        }
+    else:
+        first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
+        second_line = "              $(${model_name_upper}_ROOT_DIR)/${source_file_path}\n"
+        third_line = "ccflags-y += -I$(srctree)/drivers/hdf/framework/model/${head_file_path}\n"
+        makefile_add_template = first_line + second_line + third_line
+        include_model_info = model_dir_value.split("model")[-1].strip('"')+"/"
+        makefile_path_config = source_file_path.split(include_model_info)
+        temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
+        temp_replace = {
+            'model_name_upper': module.upper(),
+            'driver_name_upper': driver.upper(),
+            'source_file_path': makefile_path_config[-1].replace(".c", ".o"),
+            'head_file_path': '/'.join(head_path.split("model")[-1].strip(os.path.sep).split(os.path.sep)[:-1])
+        }
     new_line = temp_handle.substitute(temp_replace).replace("temp_flag", "$(")
     endif_status = False
     for index, v in enumerate(date_lines[::-1]):

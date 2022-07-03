@@ -50,7 +50,7 @@ ModifyNode.modifyNodeType = function (files, root, node, type) {//节点类型�
         case NodeType.COPY:
         case NodeType.INHERIT:
         case NodeType.REFERENCE:
-            node.ref_ = "_unknow_";
+            node.ref_ = "unknow";
             break;
         case NodeType.DELETE:
             break;

@@ -46,6 +46,7 @@ static int32_t I3cTestGetTestConfig(struct I3cTestConfig *config)
 
     service = HdfIoServiceBind("I3C_TEST");
     if (service == NULL) {
+        HDF_LOGE("%s: service is NULL", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -58,6 +59,7 @@ static int32_t I3cTestGetTestConfig(struct I3cTestConfig *config)
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Remote dispatch failed", __func__);
+        HdfSbufRecycle(reply);
         return ret;
     }
 
@@ -99,7 +101,7 @@ struct I3cTester *I3cTesterGet(void)
     }
     tester.handle = I3cOpen(tester.config.busId);
     if (tester.handle == NULL) {
-        HDF_LOGE("%s: Open I3C controller: %u failed!", __func__, tester.config.busId);
+        HDF_LOGE("%s: Open I3C controller: %hu failed!", __func__, tester.config.busId);
         return NULL;
     }
     hasInit = true;
@@ -142,8 +144,8 @@ int32_t I3cTestSetUpAll(void *param)
 {
     struct I3cTester *tester = NULL;
     struct I3cTestConfig *cfg = NULL;
+    int32_t ret;
 
-    (void) param;
     HDF_LOGD("I3cTestSetUpAll: enter!");
     tester = I3cTesterGet();
     if (tester == NULL) {
@@ -156,11 +158,12 @@ int32_t I3cTestSetUpAll(void *param)
     cfg = &tester->config;
     HDF_LOGD("I3cTestSetUpAll: test on bus:0x%x, addr:0x%x, reg:0x%x, reglen:0x%x, size:0x%x",
         cfg->busId, cfg->devAddr, cfg->regAddr, cfg->regLen, cfg->bufSize);
-    if (I3cTestMallocBuf(tester) != HDF_SUCCESS) {
+    ret = I3cTestMallocBuf(tester);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("I3cTestSetUpAll: set up test case fail!");
+        return ret;
     }
     HDF_LOGD("I3cTestSetUpAll: exit!");
-    *((int32_t *)param) = 1;
 
     return HDF_SUCCESS;
 }
@@ -249,7 +252,7 @@ int32_t I3cTestSetConfig(void *param)
     config->curMaster = NULL;
     ret = I3cSetConfig(tester->handle, config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Set config failed!, busId = %d", __func__, tester->config.busId);
+        HDF_LOGE("%s: Set config failed!, busId = %hu", __func__, tester->config.busId);
         OsalMemFree(config);
         *((int32_t *)param) = 1;
         return HDF_FAILURE;
@@ -284,7 +287,7 @@ int32_t I3cTestGetConfig(void *param)
 
     ret = I3cGetConfig(tester->handle, config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Get config failed!, busId = %d", __func__, tester->config.busId);
+        HDF_LOGE("%s: Get config failed!, busId = %hu", __func__, tester->config.busId);
         OsalMemFree(config);
         *((int32_t *)param) = 1;
         return HDF_FAILURE;
@@ -322,7 +325,7 @@ int32_t I3cTestRequestIbi(void *param)
     ret = I3cRequestIbi(tester->handle, tester->config.devAddr, TestI3cIbiFunc, I3C_TEST_IBI_PAYLOAD);
     if (ret != HDF_SUCCESS) {
         *((int32_t *)param) = 1;
-        HDF_LOGE("%s: Requset IBI failed!, busId = %d", __func__, tester->config.busId);
+        HDF_LOGE("%s: Requset IBI failed!, busId = %hu", __func__, tester->config.busId);
         return HDF_FAILURE;
     }
     *((int32_t *)param) = 1;
@@ -339,14 +342,15 @@ int32_t I3cTestFreeIbi(void *param)
     tester = I3cTesterGet();
     if (tester == NULL) {
         HDF_LOGE("%s: Get tester failed!", __func__);
+        *((int32_t *)param) = 1;
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = I3cFreeIbi(tester->handle, tester->config.devAddr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Free IBI failed!, busId = %d", __func__, tester->config.busId);
+        HDF_LOGE("%s: Free IBI failed!, busId = %hu", __func__, tester->config.busId);
         *((int32_t *)param) = 1;
-        return HDF_FAILURE;
+        return ret;
     }
     *((int32_t *)param) = 1;
     HDF_LOGD("%s: done", __func__);
@@ -354,46 +358,40 @@ int32_t I3cTestFreeIbi(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestThreadFunc(OsalThreadEntry func)
+int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2, int *count1, int *count2)
 {
     int32_t ret;
     uint32_t time;
-    struct OsalThread thread1, thread2;
-    struct OsalThreadParam cfg1, cfg2;
-    int32_t count1, count2;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
 
-    count1 = count2 = 0;
     time = 0;
-    ret = OsalThreadCreate(&thread1, func, (void *)&count1);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
-    ret = OsalThreadCreate(&thread2, func, (void *)&count2);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
     cfg1.name = "I3cTestThread-1";
     cfg2.name = "I3cTestThread-2";
     cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
     cfg1.stackSize = cfg2.stackSize = I3C_TEST_STACK_SIZE;
 
-    ret = OsalThreadStart(&thread1, &cfg1);
+    ret = OsalThreadStart(thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("start test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
-    ret = OsalThreadStart(&thread2, &cfg2);
+    ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("start test thread2 fail:%d", ret);
-        return HDF_FAILURE;
+        while (*count1 == 0) {
+            HDF_LOGE("waitting testing thread1 finish...");
+            OsalMSleep(I3C_TEST_WAIT_TIMES);
+            time++;
+            if (time > I3C_TEST_WAIT_TIMEOUT) {
+                break;
+            }
+        }
+        return ret;
     }
 
-    while (count1 == 0 || count2 == 0) {
+    while (*count1 == 0 || *count2 == 0) {
         HDF_LOGE("waitting testing thread finish...");
         OsalMSleep(I3C_TEST_WAIT_TIMES);
         time++;
@@ -401,11 +399,39 @@ int32_t I3cTestThreadFunc(OsalThreadEntry func)
             break;
         }
     }
+    return HDF_SUCCESS;
+}
+
+int32_t I3cTestThreadFunc(OsalThreadEntry func)
+{
+    int32_t ret;
+    struct OsalThread thread1, thread2;
+    int32_t count1, count2;
+
+    count1 = count2 = 0;
+    ret = OsalThreadCreate(&thread1, func, (void *)&count1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("create test thread1 fail:%d", ret);
+        return ret;
+    }
+
+    ret = OsalThreadCreate(&thread2, func, (void *)&count2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("create test thread1 fail:%d", ret);
+        (void)OsalThreadDestroy(&thread1);
+        return ret;
+    }
+
+    ret = I3cTestStartThread(&thread1, &thread2, &count1, &count2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("test start thread fail:%d", ret);
+        (void)OsalThreadDestroy(&thread1);
+        (void)OsalThreadDestroy(&thread2);
+        return ret;
+    }
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    HDF_LOGD("%s: done", __func__);
-
     return HDF_SUCCESS;
 }
 
@@ -427,7 +453,7 @@ int32_t I3cTestMultiThread(void *param)
             HDF_LOGE("%s: func is NULL", __func__);
             return HDF_FAILURE;
         }
-        HDF_LOGI("%s: =================calling func %d =========================", __func__, i);
+        HDF_LOGI("%s: =================calling func %u =========================", __func__, i);
         ret = I3cTestThreadFunc((OsalThreadEntry)g_multiThreadEntry[i].func);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: Multithreading test failed: %u", __func__, i);
@@ -470,8 +496,6 @@ int32_t I3cTestReliability(void *param)
     (void)I3cRequestIbi(tester->handle, tester->config.devAddr, NULL, I3C_TEST_IBI_PAYLOAD);
     // Invalid number
     (void)I3cTransfer(tester->handle, g_msgs, -1, I3C_MODE);
-    (void)I3cRequestIbi(tester->handle, tester->config.devAddr, TestI3cIbiFunc, -1);
-    *((int32_t *)param) = 1;
     HDF_LOGD("%s: Done", __func__);
 
     return HDF_SUCCESS;

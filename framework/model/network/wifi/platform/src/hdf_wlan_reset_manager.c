@@ -66,7 +66,7 @@ int32_t HdfChipReset(struct ResetManager *resetManager)
         return ret;
     }
     OsalMSleep(resetMgrImpl->resetData.bootUpHoldTime);
-
+    HDF_LOGI("%s: HdfChipReset successful!", __func__);
     return HDF_SUCCESS;
 }
 /* to release reset manager resource */

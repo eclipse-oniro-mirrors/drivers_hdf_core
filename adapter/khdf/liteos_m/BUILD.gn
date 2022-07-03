@@ -32,6 +32,7 @@ import("//drivers/hdf_core/adapter/khdf/liteos_m/hdf.gni")
 hdf_driver("hdf_lite") {
   deps = [
     "core",
+    "model",
     "network",
     "osal",
     "platform",
@@ -43,6 +44,7 @@ hdf_driver("hdf_lite") {
 config("public") {
   configs = [
     "core:public",
+    "model:public",
     "network:public",
     "osal:public",
     "platform:public",
@@ -64,8 +66,11 @@ config("hdf_config") {
     "$HDF_FRAMEWORKS_PATH/include/net",
     "$HDF_FRAMEWORKS_PATH/include/wifi",
     "$HDF_FRAMEWORKS_PATH/model/network/common/netdevice",
+    "$HDF_FRAMEWORKS_PATH/model/storage/include",
+    "$HDF_FRAMEWORKS_PATH/model/storage/include/mmc",
     "$HDF_FRAMEWORKS_PATH/support/platform/include",
     "$HDF_FRAMEWORKS_PATH/support/platform/include/common",
+    "$HDF_FRAMEWORKS_PATH/support/platform/include/fwk",
     "$HDF_FRAMEWORKS_PATH/core/host/include",
     "$HDF_FRAMEWORKS_PATH/core/manager/include",
     "$HDF_FRAMEWORKS_PATH/core/shared/include",

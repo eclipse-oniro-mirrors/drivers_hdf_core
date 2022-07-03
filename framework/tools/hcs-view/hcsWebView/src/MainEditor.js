@@ -30,6 +30,7 @@ function rgba(r, g, b, a) {
 class MainEditor {
     constructor() {
         this.files_ = {}
+        this.nodeCount_ = {};
         this.filePoint_ = null;
         this.rootPoint_ = null;
         this.nodePoint_ = null;
@@ -43,7 +44,9 @@ class MainEditor {
             oldy: -1
         }
         this.nodeBtns = [];
+        this.nodeMoreBtns = [];
         this.nodeBtnPoint_ = 0;
+        this.nodeMoreBtnPoint_ = 0;
         XMessage.gi().registRecvCallback(this.onReceive);
         XMessage.gi().send("inited", "");
         AttrEditor.gi().freshEditor();
@@ -102,7 +105,7 @@ class MainEditor {
             case 11://bool
                 y += MainEditor.LINE_HEIGHT
                 break;
-            default:                
+            default:
                 NapiLog.logError("unknow" + data.type_);
                 break;
         }
@@ -148,10 +151,30 @@ class MainEditor {
     configNodeProc(w, pm2f, data, offx, offy, path) {
         this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
 
-        for (let i in data.value_) {
-          this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
-          pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-              data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+        if (data.value_.length > 0) {
+            this.setNodeMoreButton(pm2f, offx, offy + data.posY, w, 20, data);
+        }
+        if (data.type_ == 6) {
+            for (let i in data.value_) {
+                if (data.value_[i].parent_.type_ == 6 && data.value_[i].parent_.isOpen_) {
+                    this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                    pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                        data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+                } else if (data.value_[i].parent_.type_ == 7) {
+                    this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                    pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                        data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+                }
+                else {
+                    NapiLog.logInfo("Node collapse does not need to draw child node");
+                }
+            }
+        } else {
+            for (let i in data.value_) {
+                this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                    data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+            }
         }
     }
     drawObj(pm2f, data, offx, offy, path) {
@@ -165,14 +188,14 @@ class MainEditor {
             case 3://uint32
             case 4://uint64
                 w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_),
-                  18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
+                    18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
                 break;
             case 5://string
                 w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
                 break;
             case 6://ConfigNode
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
-                  0xffffffff, rgba(67, 95, 188));
+                    0xffffffff, rgba(67, 95, 188));
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
@@ -217,6 +240,22 @@ class MainEditor {
         pbtn.node_ = node;
         this.nodeBtnPoint_ += 1;
     }
+
+    setNodeMoreButton(pm2f, x, y, w, h, node) {
+        if (this.nodeMoreBtnPoint_ >= this.nodeMoreBtns.length) {
+            this.nodeMoreBtns.push(new XButton());
+        }
+        let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
+        pbtn.move(x + w + 3, y - 3, 15, h + 6);
+        pbtn.draw();
+        pm2f.drawLine(x + w + 3, y + 10, x + w + 13, y + 10, 0xffffffff, 2)
+        if(!node.isOpen_){
+            pm2f.drawLine(x + w + 8, y + 5, x + w + 8, y + 15, 0xffffffff, 2)
+        }
+        pbtn.node_ = node;
+        this.nodeMoreBtnPoint_ += 1;
+    }
+
     draw(pm2f) {
         pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, 0xff303030);
 
@@ -225,6 +264,7 @@ class MainEditor {
             this.calcPostionY(data, 0);
 
             this.nodeBtnPoint_ = 0;
+            this.nodeMoreBtnPoint_ = 0;
             this.drawObj(pm2f, data, this.offX_, this.offY_, "");
         }
         this.btnSelectTemp.move(Scr.logicw - 120, 20, 100, 25).draw();
@@ -237,12 +277,12 @@ class MainEditor {
             }
             else if (this.selectNode_.type == "copy_node") {
                 pm2f.drawText("已复制" + this.selectNode_.pnode.name_, 18, this.mousePos_.x, this.mousePos_.y, 1,
-                  1, 0, -3, -3, 0xff00ff00);
+                    1, 0, -3, -3, 0xff00ff00);
                 this.btnCancelSelect_.name_ = "取消复制";
             }
             else if (this.selectNode_.type == "cut_node") {
                 pm2f.drawText("已剪切" + this.selectNode_.pnode.name_, 18, this.mousePos_.x, this.mousePos_.y, 1,
-                  1, 0, -3, -3, 0xff00ff00);
+                    1, 0, -3, -3, 0xff00ff00);
                 this.btnCancelSelect_.name_ = "取消剪切";
             }
 
@@ -299,12 +339,11 @@ class MainEditor {
                     }
                 }
 
-                this.checkAllError();
                 this.selectNode_.type = null;
                 AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
                 this.onAttributeChange("writefile");
             }
-        }        
+        }
         return true
     }
 
@@ -342,14 +381,26 @@ class MainEditor {
         }
 
         for (let i = 0; i < this.nodeBtnPoint_; i++) {
-            if (this.nodeBtns[i].procTouch(msg, x, y)) {                  
-                let nodeBtns = this.nodeBtns[i]; 
+            if (this.nodeBtns[i].procTouch(msg, x, y)) {
+                let nodeBtns = this.nodeBtns[i];
                 if (nodeBtns.isClicked()) {
                     this.buttonClickedProc(nodeBtns);
                 }
                 return true;
             }
         }
+
+        for (let i = 0; i < this.nodeMoreBtnPoint_; i++) {
+            if (this.nodeMoreBtns[i].procTouch(msg, x, y)) {
+                let nodeMoreBtn = this.nodeMoreBtns[i];
+                if (nodeMoreBtn.isClicked()) {
+                    this.buttonClickedProc(nodeMoreBtn);
+                    this.nodeMoreBtns[i].node_.isOpen_ = !this.nodeMoreBtns[i].node_.isOpen_;
+                }
+                return true;
+            }
+        }
+        
         //Drag screen
         if (msg == 1 && !this.dropAll_.locked) {
             this.dropAll_.locked = true;
@@ -410,13 +461,70 @@ class MainEditor {
         MainEditor.gi().filePoint_ = sel;
         AttrEditor.gi().freshEditor();
     }
+
+    nodeCount(data) {
+        let ret = 1;
+        switch (data.type_) {
+            case 1://uint8
+            case 2://uint16
+            case 3://uint32
+            case 4://uint64
+            case 5://string
+                break;
+            case 6://ConfigNode
+                for (let i in data.value_) {
+                    ret += this.nodeCount(data.value_[i]);
+                }
+                break;
+            case 7://ConfigTerm
+                ret += this.nodeCount(data.value_);
+                break;
+            case 8://Array class attribute value
+            case 9://Attribute equal to leaf
+            case 10://Delete attribute
+            case 11://bool
+                break;
+            default:
+                NapiLog.logError("unknow" + data.type_);
+                break;
+        }
+        return ret;
+    }
+    isNodeCountChanged(fn) {
+        if (!(fn in this.nodeCount_)) {
+            this.nodeCount_[fn] = -1;
+        }
+        let newcount = this.nodeCount(this.files_[fn]);
+        if (this.nodeCount_[fn] != newcount) {
+            this.nodeCount_[fn] = newcount;
+            return true;
+        }
+        return false;
+    }
     onAttributeChange(type, value) {
         let pme = MainEditor.gi();
         if (type == "writefile") {
+            let data1 = Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_])
+            if (pme.isNodeCountChanged(pme.filePoint_)) {
+                let data2 = []
+                for (let j in data1) {
+                    data2.push(data1.charCodeAt(j))
+                }
+                Lexer.FILE_AND_DATA[pme.filePoint_] = data2;
+                pme.parse(pme.filePoint_)
+                let t=NodeTools.getPathByNode(pme.nodePoint_);
+                if(t){
+                    pme.nodePoint_=NodeTools.getNodeByPath(pme.files_[pme.filePoint_],t)
+                }
+                else pme.nodePoint_= null;
+                
+                // pme.nodePoint_ = null;
+                AttrEditor.gi().freshEditor(pme.filePoint_, pme.nodePoint_);
+            }
             pme.checkAllError();
             XMessage.gi().send("writefile", {
                 fn: pme.filePoint_,
-                data: Generator.gi().makeHcs(pme.filePoint_,pme.files_[pme.filePoint_])
+                data: data1
             })
         }
         else if (type.substring(0, 13) == "change_target") {
@@ -443,7 +551,7 @@ class MainEditor {
             Lexer.FILE_AND_DATA[data.fn] = data.data;
             me.parse(data.fn)
         }
-        else if (type == "freshfiledata"){
+        else if (type == "freshfiledata") {
             Lexer.FILE_AND_DATA[data.fn] = data.data;
         }
     }

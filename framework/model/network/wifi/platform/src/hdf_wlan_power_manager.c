@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -41,24 +41,25 @@ static int32_t HdfWlanSinglePowerActive(struct HdfConfigWlanPower* powerDate)
 {
     int32_t ret;
     if (powerDate == NULL) {
-        HDF_LOGE("%s:powerDate is NULL", __func__);
+        HDF_LOGE("%s: PowerDate is NULL", __func__);
         return HDF_FAILURE;
     }
     if (powerDate->powerType == POWER_NOT_MANAGED) {
-        HDF_LOGI("%s:power type is always on", __func__);
+        HDF_LOGI("%s: Power type is always on", __func__);
         return HDF_SUCCESS;
     }
     ret = GpioSetDir(powerDate->gpioId, 1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:set dir fail! ret=%d\n", __func__, ret);
+        HDF_LOGE("%s: Set dir fail! ret=%d\n", __func__, ret);
         return HDF_FAILURE;
     }
     OsalMSleep(powerDate->powerSeqDelay);
     ret = GpioWrite(powerDate->gpioId, powerDate->activeLevel);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:set power on fail! ret=%d\n", __func__, ret);
+        HDF_LOGE("%s: Set power on fail! ret=%d\n", __func__, ret);
         return HDF_FAILURE;
     }
+    HDF_LOGD("%s: HdfWlanSinglePowerActive successful!", __func__);
     return HDF_SUCCESS;
 }
 static int32_t HdfWlanSingleDeActive(struct HdfConfigWlanPower* powerDate)
@@ -81,6 +82,7 @@ static int32_t HdfWlanSingleDeActive(struct HdfConfigWlanPower* powerDate)
         return ret;
     }
     ret = GpioWrite(powerDate->gpioId, deActive);
+    HDF_LOGD("%s: HdfWlanSingleDeActive successful! ret=%d", __func__, ret);
     return HDF_SUCCESS;
 }
 
@@ -104,6 +106,7 @@ static int32_t HdfWlanChipPowerOn(struct PowerManager* powerMgr)
         HDF_LOGE("%s: HdfWlanPowerActive fail! ret:%d\n", __func__, ret);
         return HDF_FAILURE;
     }
+    HDF_LOGI("%s: HdfWlanChipPowerOn successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -126,6 +129,7 @@ static int32_t HdfWlanChipPowerOff(struct PowerManager* powerMgr)
         HDF_LOGE("%s: the standby power off fail", __func__);
         return ret;
     }
+    HDF_LOGI("%s: HdfWlanChipPowerOff successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -158,5 +162,6 @@ struct PowerManager* HdfWlanCreatePowerManager(const struct HdfConfWlanPowers *c
     powerMgrimpl->base.Release = HdfWlanPowerMgrRelease;
     powerMgrimpl->powerDatas.power0 = configPowers->power0;
     powerMgrimpl->powerDatas.power1 = configPowers->power1;
+    HDF_LOGD("%s: HdfWlanCreatePowerManager finished!", __func__);
     return (struct PowerManager *)powerMgrimpl;
 }

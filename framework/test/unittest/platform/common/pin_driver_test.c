@@ -6,11 +6,12 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "pin_test.h"
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_log.h"
+#include "pin_test.h"
+#include "securec.h"
 #include "string.h"
 
 #define HDF_LOG_TAG pin_driver_test_c
@@ -25,7 +26,7 @@ static int32_t PinTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("%s: write config failed", __func__);
             return HDF_ERR_IO;
         }
     } else {
@@ -68,7 +69,15 @@ static int32_t PinTestReadConfig(struct PinTestConfig *config, const struct Devi
         HDF_LOGE("%s: read funcName failed", __func__);
         return ret;
     }
-    stpcpy(config->funcNameBuf, funcName);
+    if (strcpy_s(config->funcNameBuf, NAME_SIZE_MAX, funcName) != EOK) {
+        HDF_LOGE("%s:copy funcNameBuf fail", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (strcpy_s(config->pinNameBuf, NAME_SIZE_MAX, config->pinName) != EOK) {
+        HDF_LOGE("%s:copy pinNameBuf fail", __func__);
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }
 
