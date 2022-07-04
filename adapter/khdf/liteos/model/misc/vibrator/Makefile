@@ -31,7 +31,7 @@ include $(LITEOSTOPDIR)/../../drivers/hdf_core/adapter/khdf/liteos/lite.mk
 MODULE_NAME := hdf_vibrator_driver
 
 FRAMEWORKS_VIBRATOR_ROOT = $(LITEOSTOPDIR)/../../drivers/hdf_core/framework/model/misc/vibrator/driver
-PERIPHERAL_VIBRATOR_ROOT = $(LITEOSTOPDIR)/../../drivers/peripheral/misc/vibrator
+PERIPHERAL_VIBRATOR_ROOT = $(LITEOSTOPDIR)/../../drivers/peripheral/vibrator
 
 LOCAL_INCLUDE := $(FRAMEWORKS_VIBRATOR_ROOT)/include \
                  $(PERIPHERAL_VIBRATOR_ROOT)/chipset/linear

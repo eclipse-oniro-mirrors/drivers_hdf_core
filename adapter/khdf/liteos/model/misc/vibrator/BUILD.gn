@@ -32,7 +32,7 @@ module_switch = defined(LOSCFG_DRIVERS_HDF_VIBRATOR)
 module_name = "hdf_vibrator_driver"
 hdf_driver(module_name) {
   FRAMEWORKS_VIBRATOR_ROOT = "$HDF_FRAMEWORKS_PATH/model/misc/vibrator/driver"
-  PERIPHERAL_VIBRATOR_ROOT = "$HDF_PERIPHERAL_PATH/misc/vibrator"
+  PERIPHERAL_VIBRATOR_ROOT = "$HDF_PERIPHERAL_PATH/vibrator"
 
   sources = [
     "$FRAMEWORKS_VIBRATOR_ROOT/src/vibrator_driver.c",
