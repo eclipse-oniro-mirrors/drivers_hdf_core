@@ -20,7 +20,7 @@ root {
             }
         }
     }
-    normal_privew :: pipeline_spec {
+    normal_preview:: pipeline_spec {
         name = "normal_preview";
         source :: node_spec {
             name = "source#0";
