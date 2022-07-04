@@ -16,7 +16,7 @@
 <configuration ver="2.0">
     <target name="hdf_adapter_uhdf_test_platform">
         <preparer>
-            <option name="push" value="hdf/hdf/libhdf_test_common.z.so -> /system/lib" src="out"/>
+            <option name="push" value="hdf/hdf_core/libhdf_test_common.z.so -> /system/lib" src="out"/>
         </preparer>
     </target>
 </configuration>
