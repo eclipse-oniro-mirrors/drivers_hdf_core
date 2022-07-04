@@ -12,12 +12,14 @@
 #include "osal_mutex.h"
 #include "hdf_device_desc.h"
 #include "hdf_workqueue.h"
+#include "vibrator_parser.h"
 #include "vibrator_driver_type.h"
 
 struct VibratorOps {
     int32_t (*Start)(void);
-    int32_t (*StartEffect)(uint32_t effectType);
     int32_t (*Stop)(void);
+    int32_t (*StartEffect)(uint32_t effectType);
+    int32_t (*SetParameter)(int32_t intensity, int32_t frequency);
 };
 
 typedef int32_t (*VibratorCmdHandle)(struct HdfSBuf *reqData, struct HdfSBuf *reply);
@@ -36,11 +38,13 @@ struct VibratorDriverData {
     enum VibratorConfigMode mode;
     enum VibratorState state;
     struct VibratorOps ops;
+    struct VibratorInfo vibratorInfo;
 };
 
-void StartTimeVibrator(void);
+void StartVibrator(void);
 void StopVibrator(void);
 void SetEffectVibrator(uint32_t type);
-int32_t RegisterVibrator(struct VibratorOps *ops);
+int32_t RegisterVibratorOps(struct VibratorOps *ops);
+int32_t RegisterVibratorInfo(struct VibratorInfo *vibratorInfo);
 
 #endif /* VIBRATOR_DRIVER_H */

@@ -37,10 +37,12 @@ hdf_driver(module_name) {
   sources = [
     "$FRAMEWORKS_VIBRATOR_ROOT/src/vibrator_driver.c",
     "$FRAMEWORKS_VIBRATOR_ROOT/src/vibrator_haptic.c",
+    "$FRAMEWORKS_VIBRATOR_ROOT/src/vibrator_parser.c",
   ]
 
   if (defined(LOSCFG_DRIVERS_HDF_VIBRATOR_LINEAR)) {
-    sources += [ "$PERIPHERAL_VIBRATOR_ROOT/chipset/vibrator_linear_driver.c" ]
+    sources +=
+        [ "$PERIPHERAL_VIBRATOR_ROOT/chipset/linear/vibrator_linear_driver.c" ]
   }
 
   include_dirs = [

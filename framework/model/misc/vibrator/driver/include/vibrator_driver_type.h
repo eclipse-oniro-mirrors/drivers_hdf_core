@@ -10,6 +10,7 @@
 #define VIBRATOR_DRIVER_TYPE_H
 
 #include "hdf_log.h"
+#include "i2c_if.h"
 
 #define CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(ptr, ret) do { \
     if ((ptr) == NULL) { \
@@ -20,7 +21,7 @@
 
 #define CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, str) do { \
     if ((ret) != HDF_SUCCESS) { \
-        HDF_LOGE("%s:line %d %s fail, ret = %d!", __func__, __LINE__, (str), (ret)); \
+        HDF_LOGE("%s:line %d %s fail, ret = %d!", __func__, __LINE__, str, ret); \
         return HDF_FAILURE; \
     } \
 } while (0)
@@ -33,8 +34,8 @@
 } while (0)
 
 enum VibratorBusType {
-    VIBRATOR_BUS_I2C   = 0,
-    VIBRATOR_BUS_GPIO  = 1,
+    VIBRATOR_BUS_I2C  = 0,
+    VIBRATOR_BUS_GPIO = 1,
 };
 
 enum VibratorState {
@@ -45,16 +46,56 @@ enum VibratorState {
 };
 
 enum VibratorConfigMode {
-    VIBRATOR_MODE_ONCE   = 0, // The mode of a one-shot vibration effect.
-    VIBRATOR_MODE_PRESET = 1, // The mode of a preset vibration effect.
+    VIBRATOR_MODE_ONCE   = 0,    // The mode of a one-shot vibration effect.
+    VIBRATOR_MODE_PRESET = 1,    // The mode of a preset vibration effect.
     VIBRATOR_MODE_BUTT   = 0XFF,
 };
 
 enum VibratorDrvIoCmd {
-    VIBRATOR_DRV_IO_START_ONCE    = 0,
-    VIBRATOR_DRV_IO_START_PRESET  = 1,
-    VIBRATOR_DRV_IO_STOP          = 2,
+    VIBRATOR_DRV_IO_START_ONCE                  = 0,
+    VIBRATOR_DRV_IO_START_PRESET                = 1,
+    VIBRATOR_DRV_IO_STOP                        = 2,
+    VIBRATOR_DRV_IO_GET_INFO                    = 3,
+    VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER = 4,
     VIBRATOR_DRV_IO_END,
+};
+
+struct VibratorI2cCfg {
+    DevHandle handle;
+    uint16_t busNum;
+    uint16_t devAddr;     // Address of the I2C device
+    uint16_t regWidth;    // length of the register address
+};
+
+struct VibratorAttr {
+    uint16_t chipIdReg;
+    uint16_t chipIdValue;
+    uint16_t defaultIntensity;
+    uint16_t defaultFrequency;
+};
+
+struct VibratorBus {
+    uint8_t busType;    // enum VibratorBusType
+    union {
+        struct VibratorI2cCfg i2cCfg;
+        uint32_t GpioNum;
+    };
+};
+
+struct VibratorInfo {
+    int32_t isSupportIntensity;     /**< setting intensity capability */
+    int32_t isSupportFrequency;     /**< setting frequency capability */
+    int32_t intensityMaxValue;      /**< Max intensity */
+    int32_t intensityMinValue;      /**< Min intensity */
+    int32_t frequencyMaxValue;      /**< Max frequency */
+    int32_t frequencyMinValue;      /**< Min frequency */
+};
+
+
+struct VibratorCfgData {
+    struct VibratorBus vibratorBus;
+    struct VibratorInfo vibratorInfo;
+    struct VibratorAttr vibratorAttr;
 };
 
 #endif /* VIBRATOR_DRIVER_TYPE_H */

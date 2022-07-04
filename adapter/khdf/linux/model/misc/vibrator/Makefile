@@ -17,13 +17,17 @@ VIBRATOR_ROOT_CHIPSET = ../../../../../../../peripheral/misc/vibrator
 
 obj-$(CONFIG_DRIVERS_HDF_VIBRATOR) += \
                $(VIBRATOR_ROOT_DIR)/src/vibrator_driver.o \
-               $(VIBRATOR_ROOT_DIR)/src/vibrator_haptic.o
+               $(VIBRATOR_ROOT_DIR)/src/vibrator_haptic.o \
+               $(VIBRATOR_ROOT_DIR)/src/vibrator_parser.o
 obj-$(CONFIG_DRIVERS_HDF_VIBRATOR_LINEAR) += \
-              $(VIBRATOR_ROOT_CHIPSET)/chipset/vibrator_linear_driver.o
+              $(VIBRATOR_ROOT_CHIPSET)/chipset/linear/vibrator_linear_driver.o
+obj-$(CONFIG_DRIVERS_HDF_VIBRATOR_DRV2605L) += \
+              $(VIBRATOR_ROOT_CHIPSET)/chipset/drv2605l/vibrator_drv2605l_driver.o
 
 
 ccflags-y +=-I$(srctree)/drivers/hdf/framework/model/misc/vibrator/driver/include \
-            -I$(srctree)/drivers/hdf/peripheral/misc/vibrator/chipset \
+            -I$(srctree)/drivers/hdf/peripheral/misc/vibrator/chipset/linear \
+            -I$(srctree)/drivers/hdf/peripheral/misc/vibrator/chipset/drv2605l \
             -I$(srctree)/drivers/hdf/framework/include/core \
             -I$(srctree)/drivers/hdf/framework/core/common/include/host \
             -I$(srctree)/drivers/hdf/framework/include/utils \

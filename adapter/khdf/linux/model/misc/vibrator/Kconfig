@@ -23,3 +23,9 @@ config DRIVERS_HDF_VIBRATOR_LINEAR
     help
       Answer Y to enable HDF linear vibrator driver.
 
+config DRIVERS_HDF_VIBRATOR_DRV2605L
+    bool "Enable HDF drv2605l vibrator driver"
+    default n
+    depends on DRIVERS_HDF_VIBRATOR
+    help
+      Answer Y to enable HDF drv2605l vibrator driver.

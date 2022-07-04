@@ -25,7 +25,7 @@ static struct VibratorDriverData *GetVibratorDrvData(void)
     return g_vibratorDrvData;
 }
 
-int32_t RegisterVibrator(struct VibratorOps *ops)
+int32_t RegisterVibratorOps(struct VibratorOps *ops)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
@@ -36,12 +36,31 @@ int32_t RegisterVibrator(struct VibratorOps *ops)
     drvData->ops.Start = ops->Start;
     drvData->ops.StartEffect = ops->StartEffect;
     drvData->ops.Stop = ops->Stop;
+    drvData->ops.SetParameter = ops->SetParameter;
     (void)OsalMutexUnlock(&drvData->mutex);
 
     return HDF_SUCCESS;
 }
 
-void StartTimeVibrator(void)
+int32_t RegisterVibratorInfo(struct VibratorInfo *vibratorInfo)
+{
+    struct VibratorDriverData *drvData = GetVibratorDrvData();
+
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(vibratorInfo, HDF_FAILURE);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_FAILURE);
+
+    (void)OsalMutexLock(&drvData->mutex);
+    if (memcpy_s(&drvData->vibratorInfo, sizeof(drvData->vibratorInfo), vibratorInfo, sizeof(*vibratorInfo)) != EOK) {
+        (void)OsalMutexUnlock(&drvData->mutex);
+        HDF_LOGE("%s: Memcpy vibrator config failed!", __func__);
+        return HDF_FAILURE;
+    }
+    (void)OsalMutexUnlock(&drvData->mutex);
+
+    return HDF_SUCCESS;
+}
+
+void StartVibrator(void)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
@@ -54,7 +73,6 @@ void StartTimeVibrator(void)
 void StopVibrator(void)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
-
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
 
     drvData->state = VIBRATOR_STATE_STOP;
@@ -71,7 +89,7 @@ void SetEffectVibrator(uint32_t type)
 
     ret = drvData->ops.StartEffect(type);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: start effect fail", __func__);
+        HDF_LOGE("%s: start effect failed!", __func__);
         return;
     }
 
@@ -89,14 +107,16 @@ static void VibratorWorkEntry(void *para)
 
     if (drvData->state == VIBRATOR_STATE_START_TIMER) {
         ret = drvData->ops.Start();
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: add vibrator work fail! device state[%d]!", __func__, drvData->state);
+        }
     }
 
     if (drvData->state == VIBRATOR_STATE_STOP) {
         ret = drvData->ops.Stop();
-    }
-
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: add vibrator work fail! device state[%d]!", __func__, drvData->state);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: add vibrator work fail! device state[%d]!", __func__, drvData->state);
+        }
     }
 }
 
@@ -112,12 +132,12 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_FAILURE);
 
     if (!HdfSbufReadUint32(data, &duration)) {
-        HDF_LOGE("%s: sbuf read duration failed", __func__);
+        HDF_LOGE("%s: sbuf read duration failed!", __func__);
         return HDF_FAILURE;
     }
 
     if (duration == 0) {
-        HDF_LOGE("%s: vibrator duration invalid para", __func__);
+        HDF_LOGE("%s: vibrator duration invalid para!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -137,7 +157,7 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     ret = StartHaptic(&config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: start haptic fail!", __func__);
+        HDF_LOGE("%s: start haptic failed!", __func__);
         return ret;
     }
 
@@ -174,7 +194,7 @@ static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     ret = StartHaptic(&config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: start haptic fail!", __func__);
+        HDF_LOGE("%s: start haptic failed!", __func__);
         return ret;
     }
 
@@ -192,23 +212,23 @@ static int32_t Stop(struct HdfSBuf *data, struct HdfSBuf *reply)
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_FAILURE);
 
     if (!HdfSbufReadInt32(data, &mode)) {
-        HDF_LOGE("%s: sbuf read mode failed", __func__);
+        HDF_LOGE("%s: sbuf read mode failed!", __func__);
         return HDF_FAILURE;
     }
 
     if ((mode != VIBRATOR_MODE_ONCE) && (mode != VIBRATOR_MODE_PRESET)) {
-        HDF_LOGE("%s: vibrator stop mode failed", __func__);
+        HDF_LOGE("%s: vibrator stop mode failed!", __func__);
         return HDF_FAILURE;
     }
 
     if (drvData->mode == VIBRATOR_MODE_BUTT) {
-        HDF_LOGD("%s: vibrater haptic had stopped", __func__);
+        HDF_LOGD("%s: vibrater haptic had stopped!", __func__);
         return HDF_SUCCESS;
     }
 
     ret = StopHaptic();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: stop haptic fail!", __func__);
+        HDF_LOGE("%s: stop haptic failed!", __func__);
         return ret;
     }
 
@@ -219,10 +239,86 @@ static int32_t Stop(struct HdfSBuf *data, struct HdfSBuf *reply)
     return HDF_SUCCESS;
 }
 
+static int32_t GetVibratorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    (void)data;
+    struct VibratorDriverData *drvData;
+
+    drvData = GetVibratorDrvData();
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
+
+    if (!HdfSbufWriteBuffer(reply, &drvData->vibratorInfo, sizeof(drvData->vibratorInfo))) {
+        HDF_LOGE("%s: write sbuf failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t EnableModulationParameter(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    (void)reply;
+    struct VibratorEffectCfg config;
+    struct VibratorDriverData *drvData;
+    uint32_t duration;
+    int32_t intensity;
+    int32_t frequency;
+    int32_t ret;
+
+    drvData = GetVibratorDrvData();
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData->ops.SetParameter, HDF_ERR_INVALID_PARAM);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(data, HDF_ERR_INVALID_PARAM);
+
+    if (drvData->mode != VIBRATOR_MODE_BUTT) {
+        HDF_LOGE("%s: vibrater is busy now, please stop first!", __func__);
+        return HDF_ERR_DEVICE_BUSY;
+    }
+
+    if (!HdfSbufReadUint32(data, &duration)) {
+        HDF_LOGE("%s: sbuf read vibration period failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadInt32(data, &intensity)) {
+        HDF_LOGE("%s: sbuf read intensity failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadInt32(data, &frequency)) {
+        HDF_LOGE("%s: sbuf read frequency failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    (void)OsalMutexLock(&drvData->mutex);
+    drvData->mode = VIBRATOR_MODE_ONCE;
+    (void)OsalMutexUnlock(&drvData->mutex);
+
+    ret = drvData->ops.SetParameter(intensity, frequency);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set parameter failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    config.cfgMode = VIBRATOR_MODE_ONCE;
+    config.duration = duration;
+    config.effect = NULL;
+
+    ret = StartHaptic(&config);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: start haptic failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
 static struct VibratorCmdHandleList g_vibratorCmdHandle[] = {
     {VIBRATOR_DRV_IO_START_ONCE, StartOnce},
     {VIBRATOR_DRV_IO_START_PRESET, StartEffect},
     {VIBRATOR_DRV_IO_STOP, Stop},
+    {VIBRATOR_DRV_IO_GET_INFO, GetVibratorInfo},
+    {VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER, EnableModulationParameter},
 };
 
 static int32_t DispatchVibrator(struct HdfDeviceIoClient *client,
@@ -268,22 +364,22 @@ int32_t InitVibratorDriver(struct HdfDeviceObject *device)
     drvData->state = VIBRATOR_STATE_IDLE;
 
     if (OsalMutexInit(&drvData->mutex) != HDF_SUCCESS) {
-        HDF_LOGE("%s: init mutex fail!", __func__);
+        HDF_LOGE("%s: init mutex failed!", __func__);
         return HDF_FAILURE;
     }
 
     if (HdfWorkQueueInit(&drvData->workQueue, VIBRATOR_WORK_QUEUE_NAME) != HDF_SUCCESS) {
-        HDF_LOGE("%s: init workQueue fail!", __func__);
+        HDF_LOGE("%s: init workQueue failed!", __func__);
         return HDF_FAILURE;
     }
 
     if (HdfWorkInit(&drvData->work, VibratorWorkEntry, (void*)drvData) != HDF_SUCCESS) {
-        HDF_LOGE("%s: init workQueue fail!", __func__);
+        HDF_LOGE("%s: init workQueue failed!", __func__);
         return HDF_FAILURE;
     }
 
     if (CreateVibratorHaptic(device) != HDF_SUCCESS) {
-        HDF_LOGE("%s: init workQueue fail!", __func__);
+        HDF_LOGE("%s: init workQueue failed!", __func__);
         return HDF_FAILURE;
     }
 
@@ -295,13 +391,13 @@ void ReleaseVibratorDriver(struct HdfDeviceObject *device)
     struct VibratorDriverData *drvData = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device is null", __func__);
+        HDF_LOGE("%s: device is null!", __func__);
         return;
     }
 
     drvData = (struct VibratorDriverData *)device->service;
     if (drvData == NULL) {
-        HDF_LOGE("%s: drvData is null", __func__);
+        HDF_LOGE("%s: drvData is null!", __func__);
         return;
     }
 
