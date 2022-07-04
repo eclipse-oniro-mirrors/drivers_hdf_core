@@ -33,7 +33,16 @@ struct SvcStatListenerHolderList {
     bool inited;
 };
 
-static struct SvcStatListenerHolderList g_holoderList = { 0 };
+static struct SvcStatListenerHolderList g_holoderList = {
+    .mutex = {
+        .realMutex = NULL,
+    },
+    .list = {
+        .prev = NULL,
+        .next = NULL,
+    },
+    .inited = false,
+};
 
 static void UServStatListenerHolderListInit(void)
 {
