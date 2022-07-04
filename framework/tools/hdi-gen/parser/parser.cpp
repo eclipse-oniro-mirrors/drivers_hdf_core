@@ -677,7 +677,8 @@ AutoPtr<ASTType> Parser::ParseType()
     if (!CheckType(token, type)) {
         return nullptr;
     }
-    if (lexer_.PeekToken().kind_ == TokenType::BRACKETS_LEFT) {
+
+    while (lexer_.PeekToken().kind_ == TokenType::BRACKETS_LEFT) {
         type = ParseArrayType(type);
     }
     return type;

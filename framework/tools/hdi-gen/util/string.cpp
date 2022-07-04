@@ -600,7 +600,7 @@ String String::Replace(int position, int len, const String &other) const
     return sb.ToString();
 }
 
-std::vector<String> String::Split(const char separator) const
+std::vector<String> String::Split(char separator) const
 {
     std::vector<String> result;
     if (IsEmpty()) {

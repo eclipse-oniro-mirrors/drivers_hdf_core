@@ -109,24 +109,29 @@ void Lexer::SkipCurrentLine()
         char c = file_->GetChar();
         if (c == '\n') {
             file_->GetChar();
-            return;
+            break;
         }
     }
+    havePeek_ = false;
 }
 
 bool Lexer::SkipCurrentLine(char untilChar)
 {
+    bool ret = true;
     while (!file_->IsEof()) {
         int c = file_->GetChar();
         if (c == untilChar) {
-            return true;
+            ret = true;
+            break;
         }
         if (c == '\n') {
             file_->GetChar();
-            return false;
+            ret = false;
+            break;
         }
     }
-    return true;
+    havePeek_ = false;
+    return ret;
 }
 
 void Lexer::Skip(char untilChar)
@@ -134,9 +139,10 @@ void Lexer::Skip(char untilChar)
     while (!file_->IsEof()) {
         int c = file_->GetChar();
         if (c == untilChar) {
-            return;
+            break;
         }
     }
+    havePeek_ = false;
 }
 
 void Lexer::SkipToken(TokenType tokenType)
@@ -158,6 +164,7 @@ void Lexer::SkipUntilToken(TokenType tokenType)
 void Lexer::SkipEof()
 {
     while (!file_->IsEof()) {}
+    havePeek_ = false;
 }
 
 void Lexer::ReadToken(Token &token, bool skipComment)
