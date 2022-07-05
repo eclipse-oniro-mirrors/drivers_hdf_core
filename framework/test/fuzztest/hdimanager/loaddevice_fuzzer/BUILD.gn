@@ -21,12 +21,6 @@ ohos_fuzztest("LoadDeviceFuzzTest") {
     "//drivers/hdf_core/framework/include/utils",
     "//utils/native/base/include",
   ]
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
   sources = [ "loaddevice_fuzzer.cpp" ]
 
   deps = [

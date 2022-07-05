@@ -48,14 +48,6 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
     ]
     public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-    cflags = [
-      "-Wall",
-      "-Wextra",
-      "-Werror",
-      "-fsigned-char",
-      "-fno-common",
-      "-fno-strict-aliasing",
-    ]
   }
 } else {
   ohos_shared_library("libhdf_test_common") {
@@ -68,14 +60,6 @@ if (defined(ohos_lite)) {
 
     deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
     defines = [ "__OHOS__USER__" ]
-    cflags = [
-      "-Wall",
-      "-Wextra",
-      "-Werror",
-      "-fsigned-char",
-      "-fno-common",
-      "-fno-strict-aliasing",
-    ]
     install_images = [ chipset_base_dir ]
     subsystem_name = "hdf"
     part_name = "hdf_core"

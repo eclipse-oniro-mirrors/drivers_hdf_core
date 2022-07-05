@@ -20,14 +20,6 @@ ohos_unittest("hdf_adapter_uhdf_test_config") {
   include_dirs = [ "//drivers/hdf_core/framework/test/unittest/include" ]
 
   sources = [ "//drivers/hdf_core/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   resource_config_file =
       "//drivers/hdf_core/adapter/uhdf2/test/resource/config/ohos_test.xml"
   deps = [

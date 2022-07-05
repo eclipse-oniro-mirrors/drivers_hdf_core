@@ -37,16 +37,6 @@ shared_library("hdf_posix_osal") {
   ]
   defines = [ "__USER__" ]
   ldflags = [ "-lpthread" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-    "-Wno-format",
-    "-Wno-format-extra-args",
-  ]
 }
 
 lite_component("hdf_posix") {

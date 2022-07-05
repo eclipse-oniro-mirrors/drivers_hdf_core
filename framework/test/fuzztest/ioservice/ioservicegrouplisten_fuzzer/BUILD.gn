@@ -17,12 +17,6 @@ ohos_fuzztest("IoserviceGroupListenFuzzTest") {
     "//drivers/hdf_core/framework/test/fuzztest/ioservice/ioservicegrouplisten_fuzzer.h",
     "//utils/native/base/include",
   ]
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",

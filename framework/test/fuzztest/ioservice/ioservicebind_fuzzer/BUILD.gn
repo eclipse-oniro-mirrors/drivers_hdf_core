@@ -17,12 +17,6 @@ ohos_fuzztest("IoserviceBindFuzzTest") {
     "//drivers/hdf_core/framework/test/fuzztest/ioservice/ioservicebind_fuzzer.h",
     "//utils/native/base/include",
   ]
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
   sources = [ "ioservicebind_fuzzer.cpp" ]
   external_deps = [
     "hdf_core:libhdf_utils",
