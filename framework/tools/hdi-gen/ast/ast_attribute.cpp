@@ -11,6 +11,22 @@
 
 namespace OHOS {
 namespace HDI {
+static void AttributesFormat(StringBuilder &sb, const std::vector<String> attrs)
+{
+    if (attrs.empty()) {
+        return;
+    }
+
+    sb.Append("[");
+    for (size_t i = 0; i < attrs.size(); i++) {
+        sb.Append(attrs[i]);
+        if (i + 1 < attrs.size()) {
+            sb.Append(", ");
+        }
+    }
+    sb.Append("]");
+}
+
 String ASTTypeAttr::ToString()
 {
     StringBuilder sb;
@@ -23,16 +39,7 @@ String ASTTypeAttr::ToString()
         attrVec.push_back("lite");
     }
 
-    if (attrVec.size() > 0) {
-        sb.Append("[");
-        for (size_t i = 0; i < attrVec.size(); i++) {
-            sb.Append(attrVec[i]);
-            if (i + 1 < attrVec.size()) {
-                sb.Append(", ");
-            }
-        }
-        sb.Append("]");
-    }
+    AttributesFormat(sb, attrVec);
     return sb.ToString();
 }
 
@@ -61,16 +68,7 @@ String ASTInfAttr::ToString()
         attrVec.push_back("oneway");
     }
 
-    if (attrVec.size() > 0) {
-        sb.Append("[");
-        for (size_t i = 0; i < attrVec.size(); i++) {
-            sb.Append(attrVec[i]);
-            if (i + 1 < attrVec.size()) {
-                sb.Append(", ");
-            }
-        }
-        sb.Append("]");
-    }
+    AttributesFormat(sb, attrVec);
     return sb.ToString();
 }
 
@@ -95,16 +93,7 @@ String ASTMethodAttr::ToString()
         attrVec.push_back("oneway");
     }
 
-    if (attrVec.size() > 0) {
-        sb.Append("[");
-        for (size_t i = 0; i < attrVec.size(); i++) {
-            sb.Append(attrVec[i]);
-            if (i + 1 < attrVec.size()) {
-                sb.Append(", ");
-            }
-        }
-        sb.Append("]");
-    }
+    AttributesFormat(sb, attrVec);
     return sb.ToString();
 }
 

@@ -101,7 +101,7 @@ public:
 
     String Replace(int position, int len, const String &other) const;
 
-    std::vector<String> Split(const char separator) const;
+    std::vector<String> Split(char separator) const;
 
     std::vector<String> Split(const String &separator) const;
 
