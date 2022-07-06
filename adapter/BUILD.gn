@@ -29,8 +29,6 @@ if (defined(ohos_lite)) {
 } else {
   group("uhdf_entry") {
     deps = [
-      "//drivers/hdf_core/adapter/uhdf2/hcs:hdf_default.hcb",
-      "//drivers/hdf_core/adapter/uhdf2/hcs:hdf_devhost.cfg",
       "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
       "//drivers/hdf_core/adapter/uhdf2/host:hdf_devhost",
       "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
@@ -43,6 +41,19 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/framework/tools/hdf_dbg:hdf_dbg",
       "//drivers/peripheral/base:hdf_peripheral.cfg",
     ]
+
+    import("//build/ohos.gni")
+    hcs_dir =
+        rebase_path("//vendor/$product_company/$product_name/hdf_config/uhdf/")
+    if (exec_script(
+        "//build/lite/run_shell_cmd.py",
+        [ "if [ -d ${hcs_dir} ]; then echo true; else echo false; fi" ],
+        "value")) {
+      deps += [
+        "//drivers/hdf_core/adapter/uhdf2/hcs:hdf_default.hcb",
+        "//drivers/hdf_core/adapter/uhdf2/hcs:hdf_devhost.cfg",
+      ]
+    }
   }
   group("uhdf_test_entry") {
     testonly = true
