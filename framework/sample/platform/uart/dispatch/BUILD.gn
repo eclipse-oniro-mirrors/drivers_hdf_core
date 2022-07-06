@@ -34,11 +34,4 @@ executable("hello_uart_dispatch") {
 
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   defines = [ "__USER__" ]
-
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Wno-format",
-    "-Wno-format-extra-args",
-  ]
 }

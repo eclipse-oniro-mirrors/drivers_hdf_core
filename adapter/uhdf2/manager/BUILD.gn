@@ -71,15 +71,9 @@ ohos_executable("hdf_devmgr") {
     "utils_base:utils",
   ]
 
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-  ]
-
   if (build_selinux) {
     external_deps += [ "selinux:libservice_checker" ]
-    cflags += [ "-DWITH_SELINUX" ]
+    cflags = [ "-DWITH_SELINUX" ]
   }
 
   install_enable = true

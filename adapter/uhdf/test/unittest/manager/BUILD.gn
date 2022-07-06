@@ -42,14 +42,6 @@ unittest("hdf_adapter_uhdf_test_manager") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }
 
 unittest("hdf_adapter_uhdf_test_ioservice") {
@@ -80,14 +72,6 @@ unittest("hdf_adapter_uhdf_test_ioservice") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }
 
 unittest("hdf_adapter_uhdf_test_sbuf") {
@@ -114,14 +98,6 @@ unittest("hdf_adapter_uhdf_test_sbuf") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }
 
 unittest("hdf_adapter_uhdf_test_door") {
@@ -156,14 +132,6 @@ unittest("hdf_adapter_uhdf_test_door") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }
 
 unittest("hdf_adapter_uhdf_test_pm") {
@@ -195,12 +163,4 @@ unittest("hdf_adapter_uhdf_test_pm") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }

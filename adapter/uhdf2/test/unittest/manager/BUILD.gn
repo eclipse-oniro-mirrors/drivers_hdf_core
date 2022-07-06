@@ -34,14 +34,6 @@ ohos_unittest("hdf_adapter_uhdf_test_manager") {
     "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
     "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
   ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",
@@ -70,14 +62,6 @@ ohos_unittest("hdf_adapter_uhdf_test_ioservice") {
   defines = [ "__USER__" ]
   sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_ioservice_test.cpp" ]
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",
@@ -103,14 +87,6 @@ ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
   resource_config_file =
       "//drivers/hdf_core/adapter/uhdf2/test/resource/manager/ohos_test.xml"
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",
@@ -132,14 +108,6 @@ ohos_unittest("hdf_adapter_uhdf_test_pm") {
   defines = [ "__USER__" ]
   sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_pm_test.cpp" ]
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",

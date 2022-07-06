@@ -39,14 +39,6 @@ unittest("hdf_adapter_uhdf_test_osal") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }
 
 unittest("hdf_adapter_uhdf_test_osal_posix") {
@@ -79,12 +71,4 @@ unittest("hdf_adapter_uhdf_test_osal_posix") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }

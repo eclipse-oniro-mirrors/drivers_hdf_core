@@ -37,12 +37,4 @@ unittest("hdf_adapter_uhdf_test_config") {
     "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
 }

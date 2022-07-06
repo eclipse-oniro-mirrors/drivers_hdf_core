@@ -91,12 +91,6 @@ if (defined(ohos_lite)) {
       ]
     }
 
-    cflags = [
-      "-Wall",
-      "-Wextra",
-      "-Werror",
-    ]
-
     install_images = [ chipset_base_dir ]
     subsystem_name = "hdf"
     part_name = "hdf_core"

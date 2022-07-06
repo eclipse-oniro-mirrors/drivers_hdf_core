@@ -36,14 +36,6 @@ ohos_unittest("hdf_adapter_uhdf_test_osal") {
   ]
   resource_config_file =
       "//drivers/hdf_core/adapter/uhdf2/test/resource/osal/ohos_test.xml"
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",
@@ -77,14 +69,6 @@ ohos_unittest("hdf_adapter_uhdf_test_osal_posix") {
   ]
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
 
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",

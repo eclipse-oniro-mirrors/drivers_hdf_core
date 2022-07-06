@@ -75,11 +75,6 @@ if (defined(ohos_lite)) {
 
     deps = [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
 
-    cflags = [
-      "-Wall",
-      "-Wextra",
-      "-Werror",
-    ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
   }
@@ -153,12 +148,6 @@ if (defined(ohos_lite)) {
     } else {
       external_deps = [ "hilog:libhilog" ]
     }
-
-    cflags = [
-      "-Wall",
-      "-Wextra",
-      "-Werror",
-    ]
 
     subsystem_name = "hdf"
     part_name = "hdf_core"
