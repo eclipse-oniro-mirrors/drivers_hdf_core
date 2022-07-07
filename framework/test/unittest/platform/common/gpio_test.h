@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -15,6 +15,8 @@
 extern "C" {
 #endif
 
+#define NAME_SIZE_MAX 100
+
 int32_t GpioTestExecute(int cmd);
 
 enum GpioTestCmd {
@@ -23,13 +25,17 @@ enum GpioTestCmd {
     GPIO_TEST_IRQ_LEVEL = 2,
     GPIO_TEST_IRQ_EDGE = 3,
     GPIO_TEST_IRQ_THREAD = 4,
-    GPIO_TEST_RELIABILITY = 5,
-    GPIO_TEST_PERFORMANCE = 6,
-    GPIO_TEST_MAX = 7,
+    GPIO_TEST_GET_NUM_BY_NAME = 5,
+    GPIO_TEST_RELIABILITY = 6,
+    GPIO_TEST_PERFORMANCE = 7,
+    GPIO_TEST_MAX = 8,
 };
 
 struct GpioTestConfig {
+    char testNameOne[NAME_SIZE_MAX];
+    char testNameTwo[NAME_SIZE_MAX];
     uint16_t gpio;
+    uint16_t gpioTestTwo;
     uint16_t gpioIrq;
     uint16_t testUserApi;
 };

@@ -204,6 +204,20 @@ int32_t GpioEnableIrq(uint16_t gpio);
  */
 int32_t GpioDisableIrq(uint16_t gpio);
 
+/**
+ * @brief Gets the GPIO global number.
+ *
+ * Before using a GPIO pin, you can pass in the GPIO name to get the GPIO global number instead of calculating
+ * it manually.
+ *
+ * @param gpioName Indicates the GPIO pin's name.
+ *
+ * @return Returns greater than or equal to <b>0</b> if gets the GPIO global number successfully ; returns a
+ * negative value otherwise.
+ * @since 1.0
+ */
+int32_t GpioGetByName(const char *gpioName);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

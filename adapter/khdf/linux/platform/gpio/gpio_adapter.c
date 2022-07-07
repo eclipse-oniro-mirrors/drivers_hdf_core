@@ -278,9 +278,7 @@ static int32_t LinuxGpioInit(struct HdfDeviceObject *device)
 
 static int LinuxGpioMatchRelease(struct gpio_chip *chip, void *data)
 {
-    int32_t ret;
     struct GpioCntlr *cntlr = NULL;
-    struct PlatformManager *manager = GpioManagerGet();
 
     if (chip == NULL) {
         return 0;
@@ -307,8 +305,6 @@ static int LinuxGpioMatchRelease(struct gpio_chip *chip, void *data)
 
 static void LinuxGpioRelease(struct HdfDeviceObject *device)
 {
-    struct GpioCntlr *cntlr = NULL;
-
     if (device == NULL) {
         HDF_LOGE("%s: device is null!", __func__);
         return;
