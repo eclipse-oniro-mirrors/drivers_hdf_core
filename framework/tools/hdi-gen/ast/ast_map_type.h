@@ -16,6 +16,8 @@ namespace OHOS {
 namespace HDI {
 class ASTMapType : public ASTType {
 public:
+    ASTMapType() : ASTType(TypeKind::TYPE_MAP, false), keyType_(), valueType_() {}
+
     inline void SetKeyType(const AutoPtr<ASTType> &keyType)
     {
         keyType_ = keyType;

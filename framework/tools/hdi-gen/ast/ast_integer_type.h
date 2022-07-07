@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTIntegerType : public ASTType {
 public:
+    ASTIntegerType() : ASTType(TypeKind::TYPE_INT, true) {}
+
     bool IsIntegerType() override;
 
     String ToString() override;

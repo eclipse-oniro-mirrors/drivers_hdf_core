@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTSmqType : public ASTType {
 public:
+    ASTSmqType() : ASTType(TypeKind::TYPE_SMQ, false), innerType_() {}
+
     inline void SetInnerType(const AutoPtr<ASTType> &innerType)
     {
         innerType_ = innerType;
@@ -40,6 +42,8 @@ private:
 
 class ASTAshmemType : public ASTType {
 public:
+    ASTAshmemType() : ASTType(TypeKind::TYPE_ASHMEM, false) {}
+
     bool IsAshmemType() override;
 
     String ToString() override;

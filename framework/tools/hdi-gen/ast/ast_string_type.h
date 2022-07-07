@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTStringType : public ASTType {
 public:
+    ASTStringType() : ASTType(TypeKind::TYPE_STRING, false) {}
+
     bool IsStringType() override;
 
     String ToString() override;

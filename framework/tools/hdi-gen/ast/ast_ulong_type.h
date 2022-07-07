@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTUlongType : public ASTType {
 public:
+    ASTUlongType() : ASTType(TypeKind::TYPE_ULONG, true) {}
+
     bool IsUlongType() override;
 
     String ToString() override;

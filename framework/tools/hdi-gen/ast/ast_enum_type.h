@@ -58,6 +58,8 @@ private:
 
 class ASTEnumType : public ASTType {
 public:
+    ASTEnumType() : ASTType(TypeKind::TYPE_ENUM, true), attr_(new ASTTypeAttr()), baseType_(), members_() {}
+
     inline void SetName(const String &name)
     {
         name_ = name;
@@ -154,8 +156,8 @@ public:
         bool emitType, unsigned int innerLevel = 0) const override;
 
 private:
-    AutoPtr<ASTTypeAttr> attr_ = new ASTTypeAttr();
-    AutoPtr<ASTType> baseType_ = nullptr;
+    AutoPtr<ASTTypeAttr> attr_;
+    AutoPtr<ASTType> baseType_;
     std::vector<AutoPtr<ASTEnumValue>> members_;
 };
 } // namespace HDI

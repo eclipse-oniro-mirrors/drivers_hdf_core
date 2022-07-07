@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTUshortType : public ASTType {
 public:
+    ASTUshortType() : ASTType(TypeKind::TYPE_USHORT, true) {}
+
     bool IsUshortType() override;
 
     String ToString() override;

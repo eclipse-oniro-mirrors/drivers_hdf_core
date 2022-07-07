@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTVoidType : public ASTType {
 public:
+    ASTVoidType() : ASTType(TypeKind::TYPE_VOID, false) {}
+
     bool IsVoidType() override;
 
     String ToString() override;

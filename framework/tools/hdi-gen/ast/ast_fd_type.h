@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTFdType : public ASTType {
 public:
+    ASTFdType() : ASTType(TypeKind::TYPE_FILEDESCRIPTOR, false) {}
+
     bool IsFdType() override;
 
     String ToString() override;

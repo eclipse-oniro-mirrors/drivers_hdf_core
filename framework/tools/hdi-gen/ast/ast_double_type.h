@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTDoubleType : public ASTType {
 public:
+    ASTDoubleType() : ASTType(TypeKind::TYPE_DOUBLE, true) {}
+
     bool IsDoubleType() override;
 
     String ToString() override;
