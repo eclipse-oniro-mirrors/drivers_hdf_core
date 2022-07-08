@@ -74,7 +74,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventTestAdd, TestSize.Level3)
     ASSERT_EQ(ret, HDF_SUCCESS);
 
     // prepare:waiting for service offline
-    int cnt = 0;
+    uint32_t cnt = 0;
     struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
     while (sampleService != nullptr && cnt < timeout) {
         OsalMSleep(waitTime);
@@ -121,7 +121,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventTestRemove, TestSize.Level3)
 
     // prepare:waiting for service online
     struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
-    int cnt = 0;
+    uint32_t cnt = 0;
     while (sampleService == nullptr && cnt < timeout) {
         OsalMSleep(waitTime);
         sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
@@ -166,7 +166,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
     ASSERT_EQ(ret, HDF_SUCCESS);
 
     // prepare:waiting for service offline
-    int cnt = 0;
+    uint32_t cnt = 0;
     struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
     while (sampleService != nullptr && cnt < timeout) {
         OsalMSleep(waitTime);
