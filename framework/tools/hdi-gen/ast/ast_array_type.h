@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTArrayType : public ASTType {
 public:
+    ASTArrayType() : ASTType(TypeKind::TYPE_ARRAY, false) {}
+
     inline void SetElementType(const AutoPtr<ASTType> &elementType)
     {
         elementType_ = elementType;
@@ -81,7 +83,6 @@ public:
 
     void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
         const String &prefix) const override;
-
 private:
     void EmitJavaWriteArrayVar(
         const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const;

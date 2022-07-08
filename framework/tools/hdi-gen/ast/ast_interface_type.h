@@ -21,6 +21,15 @@ namespace OHOS {
 namespace HDI {
 class ASTInterfaceType : public ASTType {
 public:
+    ASTInterfaceType()
+        : ASTType(TypeKind::TYPE_INTERFACE, false),
+        license_(),
+        attr_(new ASTInfAttr()),
+        isSerializable_(false),
+        methods_(),
+        getVerMethod_()
+    {}
+
     void SetNamespace(const AutoPtr<ASTNamespace> &nspace) override;
 
     inline void SetLicense(const String &license)
@@ -135,8 +144,8 @@ public:
 private:
     String license_;
 
-    AutoPtr<ASTInfAttr> attr_ = new ASTInfAttr();
-    bool isSerializable_ = false;
+    AutoPtr<ASTInfAttr> attr_;
+    bool isSerializable_;
     std::vector<AutoPtr<ASTMethod>> methods_;
     AutoPtr<ASTMethod> getVerMethod_;
 };

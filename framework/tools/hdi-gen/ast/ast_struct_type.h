@@ -21,6 +21,8 @@ namespace OHOS {
 namespace HDI {
 class ASTStructType : public ASTType {
 public:
+    ASTStructType() : ASTType(TypeKind::TYPE_STRUCT, true), attr_(new ASTTypeAttr()), members_() {}
+
     inline void SetName(const String &name)
     {
         name_ = name;
@@ -121,7 +123,7 @@ public:
         const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const override;
 
 private:
-    AutoPtr<ASTTypeAttr> attr_ = new ASTTypeAttr();
+    AutoPtr<ASTTypeAttr> attr_;
     std::vector<std::tuple<String, AutoPtr<ASTType>>> members_;
 };
 } // namespace HDI

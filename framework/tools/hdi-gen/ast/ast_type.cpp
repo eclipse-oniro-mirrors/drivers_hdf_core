@@ -152,6 +152,11 @@ bool ASTType::IsAshmemType()
     return false;
 }
 
+bool ASTType::IsPod() const
+{
+    return isPod_;
+}
+
 String ASTType::ToShortString()
 {
     return name_;

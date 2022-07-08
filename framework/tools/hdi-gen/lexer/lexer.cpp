@@ -72,7 +72,7 @@ Lexer::StrTokenTypeMap Lexer::symbols_ = {
     {"--", TokenType::MMINUS              },
 };
 
-Lexer::Lexer() : file_(nullptr), havePeek_(false), curToken_() {}
+Lexer::Lexer() : file_(nullptr), havePeek_(false), curToken_(), mode_(ParseMode::DECL_MODE) {}
 
 bool Lexer::Reset(const String &filePath)
 {
@@ -384,7 +384,7 @@ void Lexer::ReadShiftRightOp(Token &token)
 {
     char c = file_->GetChar();
     char next = file_->PeekChar();
-    if (next == '>') {
+    if (next == '>' && mode_ == ParseMode::EXPR_MODE) {
         file_->GetChar();
         token.kind_ = TokenType::RIGHT_SHIFT;
         token.value_ = ">>";

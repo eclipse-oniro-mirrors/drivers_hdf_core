@@ -59,6 +59,9 @@ enum class LanguageType {
 
 class ASTType : public ASTNode {
 public:
+    ASTType(TypeKind kind = TypeKind::TYPE_UNKNOWN, bool isPod = true)
+        : typeKind_(kind), isPod_(isPod), name_(), namespace_() {}
+
     virtual void SetName(const String &name);
 
     virtual String GetName();
@@ -114,6 +117,8 @@ public:
     virtual bool IsSmqType();
 
     virtual bool IsAshmemType();
+
+    bool IsPod() const;
 
     virtual String ToShortString();
 
@@ -174,11 +179,11 @@ public:
 
     virtual void EmitJavaReadInnerVar(
         const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const;
-
 protected:
+    TypeKind typeKind_;
+    bool isPod_;
     String name_;
     AutoPtr<ASTNamespace> namespace_;
-    TypeKind typeKind_;
 };
 } // namespace HDI
 } // namespace OHOS

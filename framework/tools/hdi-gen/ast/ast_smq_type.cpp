@@ -29,7 +29,7 @@ String ASTSmqType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("SharedMemQueue<%s>", innerType_->EmitCppType().string());
+            return String::Format("std::shared_ptr<SharedMemQueue<%s>>", innerType_->EmitCppType().string());
         case TypeMode::PARAM_IN:
             return String::Format("const std::shared_ptr<SharedMemQueue<%s>>&", innerType_->EmitCppType().string());
         case TypeMode::PARAM_OUT:

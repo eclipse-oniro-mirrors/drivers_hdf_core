@@ -22,6 +22,11 @@ namespace OHOS {
 namespace HDI {
 class Lexer {
 public:
+    enum class ParseMode {
+        DECL_MODE,
+        EXPR_MODE,
+    };
+
     Lexer();
 
     ~Lexer() = default;
@@ -48,6 +53,11 @@ public:
     void SkipUntilToken(TokenType tokenType);
 
     void SkipEof();
+
+    inline void SetParseMode(ParseMode mode)
+    {
+        mode_ = mode;
+    }
 
 private:
     void ReadToken(Token &token, bool skipComment = true);
@@ -87,6 +97,7 @@ private:
     String filePath_;
     std::unique_ptr<File> file_;
 
+    ParseMode mode_;
     bool havePeek_;
     Token curToken_;
 

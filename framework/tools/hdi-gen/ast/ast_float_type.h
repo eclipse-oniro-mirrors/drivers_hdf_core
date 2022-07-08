@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTFloatType : public ASTType {
 public:
+    ASTFloatType() : ASTType(TypeKind::TYPE_FLOAT, true) {}
+
     bool IsFloatType() override;
 
     String ToString() override;

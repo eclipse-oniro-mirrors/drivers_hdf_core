@@ -1156,8 +1156,8 @@ bool Parser::AddUnionMember(const AutoPtr<ASTUnionType> &unionType, const AutoPt
         }
     }
 
-    if ((type->GetTypeKind() < TypeKind::TYPE_BOOLEAN || type->GetTypeKind() > TypeKind::TYPE_ULONG) &&
-        (type->GetTypeKind() < TypeKind::TYPE_ENUM || type->GetTypeKind() > TypeKind::TYPE_UNION)) {
+    // Non pod type members are not allowed in the union
+    if (!type->IsPod()) {
         return false;
     }
 
@@ -1187,7 +1187,10 @@ AutoPtr<ASTTypeAttr> Parser::ParseUserDefTypeAttr(const AttrSet &attrs)
 
 AutoPtr<ASTExpr> Parser::ParseExpr()
 {
-    return ParseAndExpr();
+    lexer_.SetParseMode(Lexer::ParseMode::EXPR_MODE);
+    AutoPtr<ASTExpr> value = ParseAndExpr();
+    lexer_.SetParseMode(Lexer::ParseMode::DECL_MODE);
+    return value;
 }
 
 AutoPtr<ASTExpr> Parser::ParseAndExpr()

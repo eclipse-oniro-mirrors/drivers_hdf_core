@@ -15,6 +15,8 @@ namespace OHOS {
 namespace HDI {
 class ASTUintType : public ASTType {
 public:
+    ASTUintType() : ASTType(TypeKind::TYPE_UINT, true) {}
+
     bool IsUintType() override;
 
     String ToString() override;

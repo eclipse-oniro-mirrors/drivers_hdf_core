@@ -16,6 +16,8 @@ namespace OHOS {
 namespace HDI {
 class ASTListType : public ASTType {
 public:
+    ASTListType() : ASTType(TypeKind::TYPE_LIST, false), elementType_() {}
+
     inline void SetElementType(const AutoPtr<ASTType> &elementType)
     {
         elementType_ = elementType;
@@ -96,7 +98,7 @@ private:
     void EmitCStringElementUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
         const String &newPrefix, std::vector<String> &freeObjStatements) const;
 
-    AutoPtr<ASTType> elementType_ = nullptr;
+    AutoPtr<ASTType> elementType_;
 };
 } // namespace HDI
 } // namespace OHOS
