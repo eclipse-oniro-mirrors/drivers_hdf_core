@@ -272,6 +272,7 @@ static int32_t DevMgrUeventParseRule(char *line)
 
 FAIL:
     DevMgrUeventReleaseKeyList(&ruleCfg->matchKeyList);
+    OsalMemFree(ruleCfg->serviceName);
     OsalMemFree(ruleCfg);
     return HDF_FAILURE;
 }
@@ -342,10 +343,18 @@ static int32_t DevMgrUeventSocketInit(void)
     }
 
     int32_t buffSize = UEVENT_SOCKET_BUFF_SIZE;
-    setsockopt(sockfd, SOL_SOCKET, SO_RCVBUFFORCE, &buffSize, sizeof(buffSize));
+    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &buffSize, sizeof(buffSize)) != 0) {
+        HDF_LOGE("setsockopt: SO_RCVBUF failed err = %{public}d", errno);
+        close(sockfd);
+        return HDF_FAILURE;
+    }
 
     const int32_t on = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+    if (setsockopt(sockfd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) != 0) {
+        HDF_LOGE("setsockopt: SO_PASSCRED failed, err = %{public}d", errno);
+        close(sockfd);
+        return HDF_FAILURE;
+    }
 
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         HDF_LOGE("bind socket failed, err = %{public}d", errno);
@@ -407,8 +416,8 @@ static bool DevMgrUeventMatchRule(struct DListHead *keyList, struct DListHead *r
     DLIST_FOR_EACH_ENTRY(key, ruleKeyList, struct DevMgrMatchKey, entry) {
         match = false;
         DLIST_FOR_EACH_ENTRY(keyMsg, keyList, struct DevMgrMatchKey, entry) {
-            if (strncmp(key->key, keyMsg->key, strlen(key->key)) == 0) {
-                if (strncmp(key->value, keyMsg->value, strlen(key->value)) == 0) {
+            if (strcmp(key->key, keyMsg->key) == 0) {
+                if (strcmp(key->value, keyMsg->value) == 0) {
                     match = true;
                     break;
                 } else {
@@ -506,7 +515,7 @@ static int32_t DevMgrUeventThread(void *arg)
     }
 
     char msg[DEVMGR_UEVENT_MSG_SIZE + 1] = {0};
-    ssize_t msgLen = 0;
+    ssize_t msgLen;
     struct pollfd fd;
     (void)memset_s(&fd, sizeof(fd), 0, sizeof(fd));
     fd.fd = sfd;
@@ -530,6 +539,7 @@ static int32_t DevMgrUeventThread(void *arg)
     }
 
     DevMgrUeventReleaseRuleCfgList();
+    close(sfd);
     return HDF_SUCCESS;
 }
 
@@ -537,18 +547,18 @@ static int32_t DevMgrUeventThread(void *arg)
 
 int32_t DevMgrUeventReceiveStart(void)
 {
-    OSAL_DECLARE_THREAD(thread);
-    struct OsalThreadParam threadCfg;
-
-    (void)memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg));
     HDF_LOGI("DevMgrUeventReceiveStart");
     if (DevMgrUeventParseConfig() == HDF_FAILURE) {
         return HDF_FAILURE;
     }
 
+    struct OsalThreadParam threadCfg;
+    (void)memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg));
     threadCfg.name = "DevMgrUeventThread";
     threadCfg.priority = OSAL_THREAD_PRI_HIGH;
     threadCfg.stackSize = DEVMGR_UEVENT_STACK_SIZE;
+
+    OSAL_DECLARE_THREAD(thread);
     (void)OsalThreadCreate(&thread, (OsalThreadEntry)DevMgrUeventThread, NULL);
     (void)OsalThreadStart(&thread, &threadCfg);
 
