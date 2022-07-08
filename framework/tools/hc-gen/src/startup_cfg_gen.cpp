@@ -147,7 +147,8 @@ void StartupCfgGen::HostInfosOutput()
 {
     bool end = false;
     uint32_t cnt = 1;
-    uint32_t size = hostInfoMap_.size();
+    const uint32_t size = hostInfoMap_.size();
+
     std::vector<std::pair<std::string, HostInfo>> vect(hostInfoMap_.begin(), hostInfoMap_.end());
     sort(vect.begin(), vect.end(), compare());
     std::vector<std::pair<std::string, HostInfo>>::iterator it = vect.begin();
@@ -164,22 +165,24 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
     if (term == nullptr) {
         return;
     }
-    std::shared_ptr<AstObject> capsArray = term->Child();
-    if (capsArray == nullptr) {
+
+    std::shared_ptr<AstObject> arrayObj = term->Child();
+    if (arrayObj == nullptr) {
         return;
     }
-    uint16_t capArraySize = ConfigArray::CastFrom(capsArray)->ArraySize();
-    std::shared_ptr<AstObject> capsInfo = capsArray->Child();
-    while (capArraySize && capsInfo != nullptr) {
-        if (!capsInfo->StringValue().empty()) {
-            config.append("\"").append(capsInfo->StringValue()).append("\"");
-            if (capArraySize != 1) {
+
+    uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
+    std::shared_ptr<AstObject> object = arrayObj->Child();
+    while (arraySize && object != nullptr) {
+        if (!object->StringValue().empty()) {
+            config.append("\"").append(object->StringValue()).append("\"");
+            if (arraySize != 1) {
                 config.append(", ");
             }
         }
 
-        capsInfo = capsInfo->Next();
-        capArraySize--;
+        object = object->Next();
+        arraySize--;
     }
 }
 
@@ -209,6 +212,24 @@ void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, 
             devNodeInfo = devNodeInfo->Next();
         }
         devInfo = devInfo->Next();
+    }
+}
+
+void StartupCfgGen::GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name)
+{
+    // get array format configuration
+    GetConfigArray(term, config);
+
+    // if the array format is not available, get the string format configuration
+    if (config.empty()) {
+        if (term != nullptr && !term->Child()->StringValue().empty()) {
+            config.append("\"").append(term->Child()->StringValue()).append("\"");
+        }
+    }
+
+    // use the default name as gid
+    if (config.empty()) {
+        config.append("\"").append(name).append("\"");
     }
 }
 
@@ -247,10 +268,7 @@ bool StartupCfgGen::GetHostInfo()
         }
 
         object = hostInfo->Lookup("gid", PARSEROP_CONFTERM);
-        GetConfigArray(object, hostData.hostGID);
-        if (hostData.hostGID.empty()) {
-            hostData.hostGID.append("\"").append(serviceName).append("\"");
-        }
+        GetHostGID(object, hostData.hostGID, serviceName);
 
         object = hostInfo->Lookup("caps", PARSEROP_CONFTERM);
         GetConfigArray(object, hostData.hostCaps);
