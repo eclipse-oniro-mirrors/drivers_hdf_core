@@ -26,6 +26,7 @@ static struct HdfIoService *TimerManagerGetService(void)
     service = HdfIoServiceBind(TIMER_SERVICE_NAME);
     if (service == NULL) {
         HDF_LOGE("%s: fail to get timer manager!", __func__);
+        return NULL;
     }
 
     if (service->priv == NULL) {
