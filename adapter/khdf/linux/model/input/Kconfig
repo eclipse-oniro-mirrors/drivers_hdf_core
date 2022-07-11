@@ -18,3 +18,10 @@ config DRIVERS_HDF_TP_2P35_FT6236
     depends on DRIVERS_HDF_INPUT
     help
       Answer Y to enable HDF TP 2P35 FT6236 driver.
+
+config DRIVERS_HDF_INPUT_INFRARED
+    bool "Enable HDF infrared driver"
+    default n
+    depends on DRIVERS_HDF_INPUT
+    help
+      Answer Y to enable HDF infrared driver.
