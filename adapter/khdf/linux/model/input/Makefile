@@ -21,13 +21,14 @@ obj-$(CONFIG_DRIVERS_HDF_INPUT) += \
                $(INPUT_ROOT_DIR)/event_hub.o \
                $(INPUT_ROOT_DIR)/hdf_touch.o \
                $(INPUT_ROOT_DIR)/hdf_key.o \
-               $(INPUT_ROOT_DIR)/hdf_hid_adapter.o \
-               $(INPUT_ROOT_DIR)/hdf_infrared.o
+               $(INPUT_ROOT_DIR)/hdf_hid_adapter.o
 
 obj-$(CONFIG_DRIVERS_HDF_TP_5P5_GT911) += \
               $(INPUT_ROOT_DIR)/touchscreen/touch_gt911.o
 obj-$(CONFIG_DRIVERS_HDF_TP_2P35_FT6236) += \
               $(INPUT_ROOT_DIR)/touchscreen/touch_ft6336.o
+obj-$(CONFIG_DRIVERS_HDF_INPUT_INFRARED) += \
+              $(INPUT_ROOT_DIR)/hdf_infrared.o
 
 ccflags-y +=-I$(srctree)/drivers/hdf/framework/model/input/driver \
             -I$(srctree)/drivers/hdf/framework/model/input/driver/input_bus_ops \
