@@ -47,7 +47,7 @@ static bool DevmgrServiceDynamicDevInfoFound(
 }
 
 #define WAIT_HOST_SLEEP_TIME    1 // ms
-#define WAIT_HOST_SLEEP_CNT     300
+#define WAIT_HOST_SLEEP_CNT     1000
 static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bool sync, bool dynamic)
 {
     int waitCount = WAIT_HOST_SLEEP_CNT;
