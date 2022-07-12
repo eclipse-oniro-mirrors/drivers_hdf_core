@@ -22,8 +22,8 @@ class XButton {
         this.touchDown_ = false;
         this.clicked_ = false;
         this.disable_ = false;
-        this.nameColor_ = 0xff20f020;
-        this.backgroundColor_ = 0xff804050;
+        this.nameColor_ = 0xffffffff;
+        this.backgroundColor_ = 0xff0099B4;
     }
 
     move(x, y, w, h) {

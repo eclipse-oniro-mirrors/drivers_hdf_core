@@ -64,6 +64,12 @@ class AttributeArea {
         this.htmlStr += '<button id="' + searchId + text + "'button', " +
         "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
+    addButtonDelete(searchId, label) {
+        if (label.length > 13) label = label.substring(0, 10) + "..."
+        let text = '" class="button_click_delete" type="button" onclick="document.attrCallback.Event('
+        this.htmlStr += '<button id="' + searchId + text + "'button', " +
+        "'" + searchId + "'" + ')">' + label + '</button><br>';
+    }
     addSelect(searchId, label, selectList, default_, disable) {
         let ret = '<label class="input_text_readonly">' + label + '</label>'
         ret += '<select id="' + searchId + '"';

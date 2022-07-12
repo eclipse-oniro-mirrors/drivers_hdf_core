@@ -195,11 +195,11 @@ class MainEditor {
                 break;
             case 6://ConfigNode
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
-                    0xffffffff, rgba(67, 95, 188));
+                    0xE6000000, rgba(0, 153, 180));
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
-                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xffff0000, rgba(153, 217, 234));
+                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xffff0000, rgba(244,145,38));
                 this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
                 this.drawObj(pm2f, data.value_, offx + w, offy, path);
                 break;

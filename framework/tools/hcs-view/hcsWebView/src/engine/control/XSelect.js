@@ -19,8 +19,8 @@ class XSelect {
         this.pm2f_ = X2DFast.gi();
         this.resetList(list, default_)
         this.open_ = false;
-        this.nameColor_ = 0xff20f020;
-        this.backgroundColor_ = 0xff804050;
+        this.nameColor_ = 0xff000000;
+        this.backgroundColor_ = 0xffffffff;
         this.tmpSelect_ = -1;
         this.selectCallback = null;
     }

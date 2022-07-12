@@ -78,7 +78,7 @@ class AttrEditor {
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
         AttributeArea.gi().addGap(0);
-        AttributeArea.gi().addButton("delete", "删除");
+        AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changeDataNodeNotInherit(searchId, type, value) {
         if (searchId == "node_type") {
@@ -109,7 +109,7 @@ class AttrEditor {
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
         AttributeArea.gi().addGap(0);
-        AttributeArea.gi().addButton("delete", "删除");
+        AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changecopyNode(searchId, type, value) {
         if (searchId == "name" && this.node_.name_ != value) {
@@ -131,7 +131,7 @@ class AttrEditor {
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addInput("name", "名称", node.name_);
         AttributeArea.gi().addGap(0);
-        AttributeArea.gi().addButton("delete", "删除");
+        AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changedeleteNode(searchId, type, value) {
         if (searchId == "name" && this.node_.name_ != value) {
@@ -152,7 +152,7 @@ class AttrEditor {
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
         AttributeArea.gi().addGap(0);
-        AttributeArea.gi().addButton("delete", "删除");
+        AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changeTempletNode(searchId, type, value) {
         if (searchId == "name") {
@@ -211,7 +211,7 @@ class AttrEditor {
             AttributeArea.gi().addGap(0);
         }
 
-        AttributeArea.gi().addButton("delete", "删除");
+        AttributeArea.gi().addButtonDelete("delete", "删除");
     }
 
     getNodeValue(v, value) {
