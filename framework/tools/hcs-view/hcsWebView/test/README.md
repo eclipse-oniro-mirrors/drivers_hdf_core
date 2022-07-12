@@ -6,19 +6,20 @@
 
 ## 目录
 
-    drivers_framework  
-	└── tools
-			└── hcs-view   
-				    ├── ...                     # 其他文件             
-				    └── hcsWebView              # hcs可视化处理WebView源码，用于界面的绘制呈现等处理
+	drivers_hdf_core
+	└──framework 
+		└── tools                         
+			  └── hcs-view   
+				    ├── ...                   # 其他文件             
+				    └── hcsWebView            # hcs可视化处理WebView源码，用于界面的绘制呈现等处理
 					    ├── ...                 # 其他文件
 					    └── test                # 工具单元测试用例
 						    ├── figures         # 图片文件
 						    ├── public_moudle   # selenium二次封装文件
 						    ├── testsuits       # 工具单元测试用例文件
 						    ├── conftest.py     # selenium框架全局变量
-						    └── README.md       # 指导文档  
-	 
+						    └── README.md       # 指导文档    
+
 ## 软件环境准备
 
 依赖版本：python3.8
@@ -29,7 +30,7 @@
 
 2.在命令行中进入到hcsWebView\test目录下，安装selenium，此处默认安装版本为3.141.0，命令如下：
 
-		pip install selenium==3.141.0
+	pip install selenium==3.141.0
 
 3.查看谷歌浏览器版本，此处得到浏览器版本为101.0.4951.67，查询网址如下：
 
@@ -53,29 +54,29 @@
 
 ## 安装依赖
 
-1. 安装pytest。
+1.安装pytest。
 
-		pip install pytest
+	pip install pytest
 
-2. 安装EasyOCR，用于识别图像中的文字，并输出中文。
+2.安装EasyOCR，用于识别图像中的文字，并输出中文。
 
-		pip install easyocr
+	pip install easyocr
 
-3. 安装allure报告。
+3.安装allure报告。
 
-		pip install allure-pytest
+	pip install allure-pytest
 
 ## 使用说明
 
-进入test/testsuits/目录：
+进入test\testsuits\目录：
 
-1. 执行所有用例，命令为：
+1.执行所有用例，命令为：
 
-		pytest -s -W ignore test_index.py
+	pytest -s -W ignore test_index.py
 
-2. 执行单个用例,如test_rootselfattr，命令为：
+2.执行单个用例,如test_rootselfattr，命令为：
 
-		pytest -s -W ignore test_index.py::Test_HcsTool::test_rootselfattr
+	pytest -s -W ignore test_index.py::Test_HcsTool::test_rootselfattr
 
 
 ## 查看结果
