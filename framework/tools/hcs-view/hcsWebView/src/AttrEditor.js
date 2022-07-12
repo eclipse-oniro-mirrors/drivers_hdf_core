@@ -68,16 +68,13 @@ class AttrEditor {
     }
     // Node0 -- Data class nodes, not inherit
     freshDataNodeNotInheritEditor(node) {// Edit data class node
-        AttributeArea.gi().addSelect("node_type", "节点类型", AttrEditor.NODE_TYPE_STR, 
-          AttrEditor.NODE_TYPE_STR[node.nodeType_], this.root_ == this.node_);
-        AttributeArea.gi().addGap(0);
-
         AttributeArea.gi().addInput("name", "名称", node.name_, this.root_ == this.node_);
         AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addSelect("node_type", "节点类型", AttrEditor.NODE_TYPE_STR, 
+        AttrEditor.NODE_TYPE_STR[node.nodeType_], this.root_ == this.node_);
+        AttributeArea.gi().addDotLine();
         AttributeArea.gi().addButton("add_child_node", "添加子节点");
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changeDataNodeNotInherit(searchId, type, value) {
@@ -99,16 +96,14 @@ class AttrEditor {
     //Node2 -- Reference modification class nodes
     //Node5 -- Data class nodes, inherit
     freshcopyNodeEditor(node) {
-        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addInput("name", "名称", node.name_);
         AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
+        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("change_target", node.ref_);
-        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addDotLine();
         AttributeArea.gi().addButton("add_child_node", "添加子节点");
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changecopyNode(searchId, type, value) {
@@ -127,9 +122,9 @@ class AttrEditor {
     }
     //Node3 -- Deletion class nodes
     freshdeleteNodeEditor(node) {
-        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addInput("name", "名称", node.name_);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButtonDelete("delete", "删除");
     }
@@ -144,14 +139,12 @@ class AttrEditor {
     }
     //Node4 -- Templete Class nodes
     freshTempletNodeEditor(node) {
-        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addInput("name", "名称", node.name_);
         AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
+        AttributeArea.gi().addDotLine();
         AttributeArea.gi().addButton("add_child_node", "添加子节点");
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
-        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButtonDelete("delete", "删除");
     }
     changeTempletNode(searchId, type, value) {
