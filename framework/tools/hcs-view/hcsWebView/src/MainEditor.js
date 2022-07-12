@@ -51,7 +51,6 @@ class MainEditor {
         XMessage.gi().send("inited", "");
         AttrEditor.gi().freshEditor();
 
-        this.btnSelectTemp = new XButton(0, 0, 0, 0, "选择模板")
         this.sltInclude = new XSelect(["a", "b", "c"], "b");
         this.sltInclude.registCallback(this.onSelectInclude)
         NapiLog.registError(this.onError);
@@ -227,6 +226,7 @@ class MainEditor {
             pm2f.drawText(data.errMsg_, 18, offx + w - 5, offy + data.posY + 5, 1, 1, 0, -1, -3, 0xffff0000);
         }
     }
+    
     setNodeButton(pm2f, x, y, w, h, path, node) {
         if (this.nodePoint_ == node) {
             pm2f.drawRect(x - 3, y - 3, w + 6, h + 6, 0xff00ff00, 2);
@@ -267,7 +267,6 @@ class MainEditor {
             this.nodeMoreBtnPoint_ = 0;
             this.drawObj(pm2f, data, this.offX_, this.offY_, "");
         }
-        this.btnSelectTemp.move(Scr.logicw - 120, 20, 100, 25).draw();
         this.sltInclude.move(10, 10, 200, 20).draw();
 
         if (this.selectNode_.type != null) {
@@ -367,7 +366,7 @@ class MainEditor {
             return true;
         }
 
-        if (this.btnSelectTemp.procTouch(msg, x, y) || this.sltInclude.procTouch(msg, x, y)) {
+        if (this.sltInclude.procTouch(msg, x, y)) {
             return true;
         }
 
