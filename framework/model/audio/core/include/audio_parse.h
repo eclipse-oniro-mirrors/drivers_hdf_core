@@ -19,15 +19,17 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define AUDIO_CONFIG_MAX_ITEM 500
-#define AUDIO_CTRL_LIST_MAX 10
-#define AUDIO_SAPM_COMP_NAME_LIST_MAX 9
-#define AUDIO_SAPM_CFG_NAME_LIST_MAX 4
+#define AUDIO_CTRL_LIST_MAX 100
+#define AUDIO_SAPM_COMP_NAME_LIST_MAX 100
+#define AUDIO_SAPM_CFG_NAME_LIST_MAX 100
 
 enum AudioRegOpsType {
     AUDIO_RSET_GROUP = 0,
     AUDIO_INIT_GROUP,
     AUDIO_CTRL_PATAM_GROUP,
+    AUDIO_CTRL_PATAM_MUX_GROUP,
     AUDIO_CTRL_SAPM_PATAM_GROUP,
+    AUDIO_CTRL_SAPM_PATAM_MUX_GROUP,
     AUDIO_DAI_STARTUP_PATAM_GROUP,
     AUDIO_DAI_PATAM_GROUP,
     AUDIO_DAI_TRIGGER_GROUP,
@@ -37,6 +39,11 @@ enum AudioRegOpsType {
     AUDIO_GROUP_MAX
 };
 
+enum AudioControlType {
+    AUDIO_CONTROL_MIXER = 0,
+    AUDIO_CONTROL_MUX,
+};
+
 struct AudioIdInfo {
     const char *chipName;
     uint32_t chipIdRegister;
@@ -44,8 +51,9 @@ struct AudioIdInfo {
 };
 
 struct AudioControlConfig {
-    uint8_t arrayIndex;
-    uint8_t iface;
+    uint16_t arrayIndex;
+    uint16_t iface;
+    uint16_t type;
     uint8_t enable;
 };
 
@@ -56,21 +64,34 @@ struct AudioAddrConfig {
 
 struct AudioSapmCtrlConfig {
     uint8_t sapmType;
-    uint8_t compNameIndex;
-    uint8_t reg;
-    uint8_t mask;
+    uint16_t compNameIndex;
+    uint32_t reg;
+    uint32_t mask;
     uint8_t shift;
     uint8_t invert;
-    uint8_t kcontrolNews;
-    uint8_t kcontrolsNum;
+    uint32_t kcontrolNews;
+    uint32_t kcontrolsNum;
 };
 
+/* enumerated kcontrol */
+struct AudioEnumCtrlConfig {
+    uint32_t reg;
+    uint32_t reg2;
+    uint8_t shiftLeft;
+    uint8_t shiftRight;
+    uint32_t max;
+    uint32_t mask;
+    uint32_t texts;
+    uint32_t values;
+    uint32_t sapm;
+};
 
 struct AudioRegCfgGroupNode {
     uint8_t itemNum;
     enum AudioRegOpsType groupIndex;
     struct AudioAddrConfig *addrCfgItem;
     struct AudioMixerControl *regCfgItem;
+    struct AudioEnumCtrlConfig *regEnumCfgItem;
     struct AudioControlConfig *ctrlCfgItem;
     struct AudioSapmCtrlConfig *sapmCompItem;
 };

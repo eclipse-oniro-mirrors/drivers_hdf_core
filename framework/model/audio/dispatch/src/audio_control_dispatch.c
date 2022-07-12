@@ -9,8 +9,10 @@
 #include "audio_control_dispatch.h"
 #include "audio_control.h"
 #include "audio_driver_log.h"
+#include "osal_uaccess.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
+#define MAX_USER_SPACE_SIZE 0x4000
 
 static struct AudioKcontrol *AudioGetKctrlInstance(const struct AudioCtrlElemId *ctrlElemId)
 {
@@ -52,6 +54,7 @@ static int32_t ControlHostElemInfoSub(struct HdfSBuf *rspData, const struct Audi
         ADM_LOG_ERR("Input rspData is null.");
         return HDF_FAILURE;
     }
+    ADM_LOG_DEBUG("cardName: %s  iface: %d   itemName: %s  .", id.cardServiceName, id.iface, id.itemName);
     kctrl = AudioGetKctrlInstance(&id);
     if (kctrl == NULL || kctrl->Info == NULL) {
         ADM_LOG_ERR("Find kctrl or Info fail!");
@@ -226,8 +229,7 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
     }
 
     ADM_LOG_DEBUG("itemName: %s cardServiceName: %s iface: %d value: %d ", elemValue.id.itemName,
-        elemValue.id.cardServiceName,
-        elemValue.id.iface, elemValue.value[0]);
+        elemValue.id.cardServiceName, elemValue.id.iface, elemValue.value[0]);
 
     kctrl = AudioGetKctrlInstance(&elemValue.id);
     if (kctrl == NULL || kctrl->Set == NULL) {
@@ -243,16 +245,159 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
     return HDF_SUCCESS;
 }
 
+static int32_t CodecElemListReqDataDeserialization(struct HdfSBuf *reqData, struct AudioCtlElemList *list,
+    uint64_t *listAddress)
+{
+    if (reqData == NULL || list == NULL) {
+        ADM_LOG_ERR("Input params is NULL.");
+        return HDF_FAILURE;
+    }
+    (void)memset_s(list, sizeof(struct AudioCtlElemList), 0, sizeof(struct AudioCtlElemList));
+
+    list->cardServiceName = HdfSbufReadString(reqData);
+    if (list->cardServiceName == NULL) {
+        ADM_LOG_ERR("Read request cardServiceName failed!");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadInt32(reqData, &list->space)) {
+        ADM_LOG_ERR("Read request space failed!");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadInt64(reqData, listAddress)) {
+        ADM_LOG_ERR("Read request space failed!");
+        return HDF_FAILURE;
+    }
+
+    if (list->space > MAX_USER_SPACE_SIZE) {
+        ADM_LOG_ERR("list->space(%d) > MAX_USER_SPACE_SIZE!", list->space);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t CodecSetCtlElemListReportInfo(struct AudioCtlElemList *ctlEleList, struct AudioCtlElemListReport *dst)
+{
+    struct AudioCard *audioCard = NULL;
+    struct AudioKcontrol *kctrl = NULL;
+
+    if (ctlEleList == NULL || dst == NULL) {
+        ADM_LOG_ERR("Input params is NULL.");
+        return HDF_FAILURE;
+    }
+
+    audioCard = GetCardInstance(ctlEleList->cardServiceName);
+    if (audioCard == NULL) {
+        return HDF_FAILURE;
+    }
+
+    DLIST_FOR_EACH_ENTRY(kctrl, &audioCard->controls, struct AudioKcontrol, list) {
+        if (kctrl->name == NULL) {
+            continue;
+        }
+        if (ctlEleList->count >= ctlEleList->space) {
+            ADM_LOG_ERR("The memory requested by user is too small. user space: %d list count: %d",
+                ctlEleList->space, ctlEleList->count);
+            return HDF_FAILURE;
+        }
+        if (strncpy_s(dst->name, AUDIO_ELEMENT_NAME_LEN, kctrl->name, AUDIO_ELEMENT_NAME_LEN - 1)) {
+            ADM_LOG_ERR("strncpy_s fail!");
+            return HDF_FAILURE;
+        }
+        dst->iface = kctrl->iface;
+        dst++;
+        ctlEleList->count++;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t ControlElemListRspDataSerialize(struct HdfSBuf *rspData, struct AudioCtlElemList *ctlEleList)
+{
+    if (rspData == NULL || ctlEleList == NULL) {
+        ADM_LOG_ERR("Input params is NULL.");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteString(rspData, ctlEleList->cardServiceName)) {
+        ADM_LOG_ERR("Write response data cardServiceName=%s failed!", ctlEleList->cardServiceName);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(rspData, ctlEleList->count)) {
+        ADM_LOG_ERR("Write response data list.count=%d failed!", ctlEleList->count);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(rspData, ctlEleList->space)) {
+        ADM_LOG_ERR("Write response data list.space=%d failed!", ctlEleList->space);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t ControlHostElemList(const struct HdfDeviceIoClient *client,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    uint64_t listAddress = 0;
+    struct AudioCtlElemList ctlEleList;
+    struct AudioCtlElemListReport *dst = NULL;
+    int32_t ret;
+
+    if ((client == NULL) || (reqData == NULL) || (rspData == NULL)) {
+        ADM_LOG_ERR("Input params check error: client=%p, reqData=%p, rspData=%p.", client, reqData, rspData);
+        return HDF_FAILURE;
+    }
+
+    if (CodecElemListReqDataDeserialization(reqData, &ctlEleList, &listAddress) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    dst = (struct AudioCtlElemListReport *)OsalMemCalloc(ctlEleList.space * sizeof(struct AudioCtlElemListReport));
+    if (dst == NULL) {
+        ADM_LOG_ERR("Malloc dst fail!");
+        return HDF_ERR_MALLOC_FAIL;
+    }
+
+    ctlEleList.count = 0;
+    ret = CodecSetCtlElemListReportInfo(&ctlEleList, dst);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("CodecSetCtlElemListReportInfo fail!");
+        OsalMemFree(dst);
+        return HDF_FAILURE;
+    }
+
+    ret = ControlElemListRspDataSerialize(rspData, &ctlEleList);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("ControlElemListRspDataSerialize fail!");
+        OsalMemFree(dst);
+        return HDF_FAILURE;
+    }
+
+    if (CopyToUser((char *)listAddress, (char *)(dst), ctlEleList.count * sizeof(struct AudioCtlElemListReport)) != 0) {
+        AUDIO_DRIVER_LOG_ERR("CopyToUser failed.");
+        OsalMemFree(dst);
+        return HDF_FAILURE;
+    }
+
+    OsalMemFree(dst);
+    return HDF_SUCCESS;
+}
+
 static struct ControlDispCmdHandleList g_controlDispCmdHandle[] = {
     {AUDIODRV_CTRL_IOCTRL_ELEM_INFO, ControlHostElemInfo},
     {AUDIODRV_CTRL_IOCTRL_ELEM_READ, ControlHostElemRead},
     {AUDIODRV_CTRL_IOCTRL_ELEM_WRITE, ControlHostElemWrite},
+    {AUDIODRV_CTRL_IOCTRL_ELEM_LIST, ControlHostElemList},
 };
 
-static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int cmdId,
+static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int32_t cmdId,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    unsigned int i;
+    uint32_t i;
 
     if (client == NULL) {
         ADM_LOG_ERR("Input params check error: client is NULL.");
@@ -269,7 +414,7 @@ static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int cmdId,
     }
 
     for (i = 0; i < HDF_ARRAY_SIZE(g_controlDispCmdHandle); ++i) {
-        if ((cmdId == (int)(g_controlDispCmdHandle[i].cmd)) && (g_controlDispCmdHandle[i].func != NULL)) {
+        if ((cmdId == (int32_t)(g_controlDispCmdHandle[i].cmd)) && (g_controlDispCmdHandle[i].func != NULL)) {
             return g_controlDispCmdHandle[i].func(client, data, reply);
         }
     }

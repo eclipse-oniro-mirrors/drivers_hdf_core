@@ -67,11 +67,11 @@ int32_t CodecSetConfigInfoTest(void)
 
     (void)memset_s(&device, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
-    if (CodecSetConfigInfo(NULL, NULL) == HDF_SUCCESS) {
+    if (CodecSetConfigInfoOfControls(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    if (CodecSetConfigInfo(&codecData, &device) == HDF_SUCCESS) {
+    if (CodecSetConfigInfoOfControls(&codecData, &device) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
@@ -82,11 +82,11 @@ int32_t CodecSetCtlFuncTest(void)
 {
     struct CodecData codeData;
 
-    if (CodecSetCtlFunc(NULL, NULL, NULL) == HDF_SUCCESS) {
+    if (CodecSetCtlFunc(NULL, 0, NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    if (CodecSetCtlFunc(&codeData, NULL, NULL) == HDF_SUCCESS) {
+    if (CodecSetCtlFunc(&codeData, 0, NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 

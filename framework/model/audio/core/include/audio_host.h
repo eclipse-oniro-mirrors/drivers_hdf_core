@@ -111,9 +111,9 @@ struct AudioCard {
 };
 
 enum CriBuffStatus {
-    ENUM_CIR_BUFF_NORMAL = 1,
-    ENUM_CIR_BUFF_FULL,
-    ENUM_CIR_BUFF_EMPTY,
+    ENUM_CIR_BUFF_NORMAL    = -1,
+    ENUM_CIR_BUFF_FULL      = -2,
+    ENUM_CIR_BUFF_EMPTY     = -3,
 };
 
 enum AudioStreamType {
@@ -168,13 +168,13 @@ struct AudioHost {
 };
 
 struct AudioTxData {
-    enum CriBuffStatus status;
+    int32_t status;
     char *buf; /* buf address */
     unsigned long frames; /* frames number */
 };
 
 struct AudioRxData {
-    enum CriBuffStatus status;
+    int32_t status;
     char *buf;
     unsigned long bufSize;
     unsigned long frames; /* frames number */

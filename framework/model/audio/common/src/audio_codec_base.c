@@ -11,6 +11,7 @@
 #include "audio_driver_log.h"
 #include "audio_parse.h"
 #include "audio_sapm.h"
+#include "osal_time.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
@@ -25,18 +26,75 @@
 #define I2C_MSG_BUF_SIZE_2_BUTE    (2)
 
 static char *g_audioSapmCompNameList[AUDIO_SAPM_COMP_NAME_LIST_MAX] = {
-    "ADCL", "ADCR", "DACL", "DACR", "LPGA", "RPGA", "SPKL", "SPKR", "MIC"
+    "ADCL",         "ADCR",         "DACL",         "DACR",         // [0], [1] [2], [3]
+    "LPGA",         "RPGA",         "SPKL",         "SPKR",         // [4], [5] [6], [7]
+    "MIC",          "LOUT",         "HPL",          "HPR",          // [8], [9] [10], [11]
+    "Stereo Mixer", "Line Mix",     "Input Mixer",  "Speaker Mix",  // [12], [13] [14], [15]
+    "Input Mux",    "AuxOut Mux",   "SPKL Mux",     "SPKR Mux",     // [16], [17] [18], [19]
+    "AUXOUTL",      "AUXOUTR",      "LINEINL",      "LINEINR",      // [20], [21] [22], [23]
+    "AUXINL",       "AUXINR",       "I2S Mix",      "AuxI Mix",     // [24], [25] [26], [27]
+    "CaptureL Mix", "CaptureR Mix", "Mono1 Mixer",  "Mono2 Mixer",  // [28], [29] [30], [31]
+    "DAC1",         "DAC2",         "DAC3",         "DAC4",         // [32], [33] [34], [35]
+    "ADC1",         "ADC2",         "ADC3",         "ADC4",         // [36], [37] [38], [39]
+    "MIC1",         "MIC2",         "MIC3",         "MIC4",         // [40], [41],[42], [43],
+    "SPK1",         "SPK2",         "SPK3",         "SPK4",         // [44], [45],[46], [47],
+    "DAC Mix",      "DAC Mux",      "ADC Mix",      "ADC Mux",      // [48], [49],[50], [51],
+    "SPKL PGA",     "SPKR PGA",     "HPL PGA",      "HPR PGA",      // [52], [53],[54], [55],
 };
 
 static char *g_audioSapmCfgNameList[AUDIO_SAPM_CFG_NAME_LIST_MAX] = {
-    "LPGA MIC Switch", "RPGA MIC Switch", "Dacl enable", "Dacr enable"
+    "LPGA MIC Switch", "RPGA MIC Switch",                           // [0], [1]
+    "Dacl enable", "Dacr enable",                                   // [2], [3]
+    "Headphone Playback Switch",    "PCM Playback Switch",          // [4], [5]
+    "PCM Capture Switch",           "Mono Playback Switch",         // [6], [7]
+    "Phone Capture Switch",         "Mic Switch",                   // [8], [9]
+    "Stereo Mic Switch",            "Line HP Swap Switch",          // [10], [11]
+    "Surround Playback Switch",     "Center/LFE Playback Switch",   // [12], [13]
+    "Capture Source",               "Mic Boost Switch",             // [14], [15]
+    "DAC1 Switch",                  "DAC2 Switch",                  // [16], [17]
+    "DAC3 Switch",                  "DAC4 Switch",                  // [18], [19]
+    "ADC1 Switch",                  "ADC2 Switch",                  // [20], [21]
+    "ADC3 Switch",                  "ADC4 Switch",                  // [22], [23]
+    "Speaker1 Switch",              "Speaker2 Switch",              // [24], [25]
+    "Speaker3 Switch",              "Speaker4 Switch",              // [26], [27]
+    "Headphone1 Switch",            "Headphone2 Switch",            // [28], [29]
+    "Lineout1 Switch",              "Lineout2 Switch",              // [30], [31]
+    "Lineout3 Switch",              "Lineout4 Switch",              // [32], [33]
+    "Mixer1 Switch",                "Mixer2 Switch",                // [34], [35]
+    "Mixer3 Switch",                "Mixer4 Switch",                // [36], [37]
 };
 
 static const char *g_audioCodecControlsList[AUDIO_CTRL_LIST_MAX] = {
-    "Main Playback Volume", "Main Capture Volume",
-    "Playback Mute", "Capture Mute", "Mic Left Gain",
-    "Mic Right Gain", "External Codec Enable",
-    "Internally Codec Enable", "Render Channel Mode", "Captrue Channel Mode"
+    "Main Playback Volume",         "Main Capture Volume",          // [0], [1]
+    "Playback Mute",                "Capture Mute",                 // [2], [3]
+    "Mic Left Gain",                "Mic Right Gain",               // [4], [5]
+    "External Codec Enable",        "Internally Codec Enable",      // [6], [7]
+    "Render Channel Mode",          "Captrue Channel Mode",         // [8], [9]
+    "Headphone Playback Volume",    "PCM Playback Volume",          // [10], [11]
+    "PCM Capture Volume",           "Mono Playback Volume",         // [12], [13]
+    "Phone Capture Volume",         "Mic Volume",                   // [14], [15]
+    "Surround Playback Volume",     "Center/LFE Playback Volume",   // [16], [17]
+    "DAC1 Volume",                  "DAC2 Volume",                  // [18], [19]
+    "DAC3 Volume",                  "DAC4 Volume",                  // [20], [21]
+    "ADC1 Volume",                  "ADC2 Volume",                  // [22], [23]
+    "ADC3 Volume",                  "ADC4 Volume",                  // [24], [25]
+    "Speaker1 Volume",              "Speaker2 Volume",              // [26], [27]
+    "Speaker3 Volume",              "Speaker4 Volume",              // [28], [29]
+    "MIC1 Volume",                  "MIC2 Volume",                  // [30], [31]
+    "MIC3 Volume",                  "MIC4 Volume",                  // [32], [33]
+    "MIC1 Boost Volume",            "MIC2 Boost Volume",            // [34], [35]
+    "INA1 Volume",                  "INB1 Volume",                  // [36], [37]
+    "INA2 Volume",                  "INB2 Volume",                  // [38], [39]
+    "Lineout1 Volume",              "Lineout2 Volume",              // [40], [41]
+    "Lineout3 Volume",              "Lineout4 Volume",              // [42], [43]
+    "Headphone Volume",             "Receiver Volume",              // [44], [45]
+    "EQ1 Switch",                   "EQ2 Switch",                   // [46], [47]
+    "DAI1 Filter Mode",             "DAI2 Filter Mode",             // [48], [49]
+    "ADC High Pass Filter Switch",  "Playback Deemphasis",          // [50], [51]
+    "PGA1 Setting",                 "PGA2 Setting",                 // [52], [53]
+    "PGA3 Setting",                 "PGA3 Setting",                 // [54], [55]
+    "ADC1 Mute",                    "ADC2 Mute",                    // [56], [57]
+    "ADC3 Mute",                    "ADC4 Mute",                    // [58], [59]
 };
 
 int32_t CodecGetServiceName(const struct HdfDeviceObject *device, const char **drvCodecName)
@@ -149,32 +207,99 @@ static int32_t SapmCtrlToSapmComp(struct AudioSapmComponent *sapmComponents,
     return HDF_SUCCESS;
 }
 
-static int32_t CodecSetSapmComponentsInfo(struct CodecData *codeData, struct AudioRegCfgGroupNode **regCfgGroup,
-    struct AudioKcontrol *audioSapmControls)
+static int32_t CodecSetSapmKcontrolInfo(struct AudioKcontrol *audioSapmControls,
+    struct AudioRegCfgGroupNode **regCfgGroup)
 {
     uint16_t index;
-    struct AudioSapmCtrlConfig *sapmCompItem = NULL;
+    struct AudioControlConfig  *sapmCtrlItem = NULL;
+    struct AudioMixerControl   *ctlSapmRegCfgItem = NULL;
+    struct AudioEnumCtrlConfig *ctlRegEnumCfgItem = NULL;
 
-    if (codeData == NULL || regCfgGroup == NULL || regCfgGroup[AUDIO_SAPM_COMP_GROUP] == NULL) {
+    if (audioSapmControls == NULL || regCfgGroup == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
         return HDF_FAILURE;
     }
+    if (regCfgGroup[AUDIO_CTRL_SAPM_PATAM_GROUP] == NULL || regCfgGroup[AUDIO_SAPM_CFG_GROUP] == NULL) {
+        AUDIO_DRIVER_LOG_ERR("codec config hcs configuration file is no configuration information for sapm");
+        return HDF_SUCCESS;
+    }
 
+    sapmCtrlItem = regCfgGroup[AUDIO_SAPM_CFG_GROUP]->ctrlCfgItem;
+    ctlSapmRegCfgItem = regCfgGroup[AUDIO_CTRL_SAPM_PATAM_GROUP]->regCfgItem;
+    if (sapmCtrlItem == NULL || ctlSapmRegCfgItem == NULL) {
+        AUDIO_DRIVER_LOG_ERR("sapmCtrlItem, ctlSapmRegCfgItem is NULL.");
+        return HDF_FAILURE;
+    }
+
+    if (regCfgGroup[AUDIO_CTRL_SAPM_PATAM_MUX_GROUP] != NULL) {
+        ctlRegEnumCfgItem = regCfgGroup[AUDIO_CTRL_SAPM_PATAM_MUX_GROUP]->regEnumCfgItem;
+        if (ctlRegEnumCfgItem == NULL) {
+            AUDIO_DRIVER_LOG_ERR("ctlRegEnumCfgItem is NULL.");
+            return HDF_FAILURE;
+        }
+    }
+
+    for (index = 0; index < regCfgGroup[AUDIO_SAPM_CFG_GROUP]->itemNum; index++) {
+        if (sapmCtrlItem[index].type == AUDIO_CONTROL_MIXER) {
+            audioSapmControls[index].iface = sapmCtrlItem[index].iface;
+            audioSapmControls[index].name = g_audioSapmCfgNameList[sapmCtrlItem[index].arrayIndex];
+            audioSapmControls[index].privateValue = (unsigned long)(uintptr_t)(void*)(&ctlSapmRegCfgItem[index]);
+            audioSapmControls[index].Info = AudioInfoCtrlOps;
+            audioSapmControls[index].Get  = AudioCodecSapmGetCtrlOps;
+            audioSapmControls[index].Set  = AudioCodecSapmSetCtrlOps;
+        } else if (sapmCtrlItem[index].type == AUDIO_CONTROL_MUX) {
+            audioSapmControls[index].iface = sapmCtrlItem[index].iface;
+            audioSapmControls[index].name = g_audioSapmCfgNameList[sapmCtrlItem[index].arrayIndex];
+            audioSapmControls[index].privateValue = (unsigned long)(uintptr_t)(void*)(&ctlRegEnumCfgItem[index]);
+            audioSapmControls[index].Info = AudioInfoEnumCtrlOps;
+            audioSapmControls[index].Get  = AudioCodecSapmGetEnumCtrlOps;
+            audioSapmControls[index].Set  = AudioCodecSapmSetEnumCtrlOps;
+        }
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t CodecSetSapmConfigInfo(struct CodecData *codeData, struct AudioRegCfgGroupNode **regCfgGroup)
+{
+    uint16_t index;
+    struct AudioSapmCtrlConfig *sapmCompItem = NULL;
+    struct AudioKcontrol *audioSapmControls = NULL;
+    if (codeData == NULL || regCfgGroup == NULL) {
+        return HDF_FAILURE;
+    }
+    if (regCfgGroup[AUDIO_SAPM_COMP_GROUP] == NULL || regCfgGroup[AUDIO_SAPM_CFG_GROUP] == NULL) {
+        AUDIO_DRIVER_LOG_ERR("codec config hcs configuration file is no configuration information for sapm");
+        return HDF_SUCCESS;
+    }
     sapmCompItem = regCfgGroup[AUDIO_SAPM_COMP_GROUP]->sapmCompItem;
     if (sapmCompItem == NULL) {
         AUDIO_DRIVER_LOG_ERR("sapmCompItem is NULL.");
+        return HDF_FAILURE;
+    }
+    audioSapmControls = (struct AudioKcontrol *)OsalMemCalloc(
+        regCfgGroup[AUDIO_SAPM_CFG_GROUP]->itemNum * sizeof(struct AudioKcontrol));
+    if (audioSapmControls == NULL) {
+        AUDIO_DRIVER_LOG_ERR("OsalMemCalloc failed.");
+        return HDF_FAILURE;
+    }
+    if (CodecSetSapmKcontrolInfo(audioSapmControls, regCfgGroup) != HDF_SUCCESS) {
+        OsalMemFree(audioSapmControls);
         return HDF_FAILURE;
     }
     codeData->numSapmComponent = regCfgGroup[AUDIO_SAPM_COMP_GROUP]->itemNum;
     codeData->sapmComponents = (struct AudioSapmComponent *)
         OsalMemCalloc(codeData->numSapmComponent * sizeof(struct AudioSapmComponent));
     if (codeData->sapmComponents == NULL) {
+        OsalMemFree(audioSapmControls);
         AUDIO_DRIVER_LOG_ERR("OsalMemCalloc failed.");
         return HDF_FAILURE;
     }
-
     for (index = 0; index < codeData->numSapmComponent; index++) {
         if (SapmCtrlToSapmComp(codeData->sapmComponents, sapmCompItem, index)) {
+            OsalMemFree(audioSapmControls);
+            OsalMemFree(codeData->sapmComponents);
+            codeData->sapmComponents = NULL;
             return HDF_FAILURE;
         }
 
@@ -186,65 +311,63 @@ static int32_t CodecSetSapmComponentsInfo(struct CodecData *codeData, struct Aud
     return HDF_SUCCESS;
 }
 
-
-static int32_t CodecSetSapmConfigInfo(struct CodecData *codeData, struct AudioRegCfgGroupNode **regCfgGroup)
+static int32_t CodecSetKcontrolInfo(struct CodecData *codeData, struct AudioRegCfgGroupNode **regCfgGroup)
 {
-    uint16_t index;
-    struct AudioControlConfig  *sapmCtrlItem = NULL;
-    struct AudioMixerControl   *ctlSapmRegCfgItem = NULL;
-    struct AudioKcontrol *audioSapmControls = NULL;
-    int ret;
-    if (codeData == NULL || regCfgGroup == NULL) {
+    uint16_t index, enumIndex = 0;
+    struct AudioControlConfig  *compItem = NULL;
+    struct AudioMixerControl   *ctlRegCfgItem = NULL;
+    struct AudioEnumCtrlConfig *enumCtlRegCfgItem = NULL;
+
+    if (codeData == NULL || regCfgGroup == NULL || regCfgGroup[AUDIO_CTRL_CFG_GROUP] == NULL ||
+        regCfgGroup[AUDIO_CTRL_PATAM_GROUP] == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
         return HDF_FAILURE;
     }
 
-    if (regCfgGroup[AUDIO_SAPM_COMP_GROUP] == NULL || regCfgGroup[AUDIO_SAPM_CFG_GROUP] == NULL ||
-        regCfgGroup[AUDIO_CTRL_SAPM_PATAM_GROUP] == NULL) {
-        AUDIO_DRIVER_LOG_ERR("codec config hcs configuration file is no configuration information for sapm");
-        return HDF_SUCCESS;
-    }
-
-    sapmCtrlItem = regCfgGroup[AUDIO_SAPM_CFG_GROUP]->ctrlCfgItem;
-    ctlSapmRegCfgItem = regCfgGroup[AUDIO_CTRL_SAPM_PATAM_GROUP]->regCfgItem;
-
-    if (sapmCtrlItem == NULL || ctlSapmRegCfgItem == NULL) {
-        AUDIO_DRIVER_LOG_ERR("sapmCompItem, sapmCtrlItem, ctlSapmRegCfgItem is NULL.");
+    compItem = regCfgGroup[AUDIO_CTRL_CFG_GROUP]->ctrlCfgItem;
+    ctlRegCfgItem = regCfgGroup[AUDIO_CTRL_PATAM_GROUP]->regCfgItem;
+    if (compItem == NULL || ctlRegCfgItem == NULL) {
+        AUDIO_DRIVER_LOG_ERR("compItem or ctlRegCfgItem is NULL.");
         return HDF_FAILURE;
     }
 
-    audioSapmControls = (struct AudioKcontrol *)OsalMemCalloc(
-        regCfgGroup[AUDIO_SAPM_CFG_GROUP]->itemNum * sizeof(struct AudioKcontrol));
-    if (audioSapmControls == NULL) {
-        AUDIO_DRIVER_LOG_ERR("OsalMemCalloc failed.");
-        return HDF_FAILURE;
-    }
-    for (index = 0; index < regCfgGroup[AUDIO_SAPM_CFG_GROUP]->itemNum; index++) {
-        audioSapmControls[index].iface = sapmCtrlItem[index].iface;
-        audioSapmControls[index].name = g_audioSapmCfgNameList[sapmCtrlItem[index].arrayIndex];
-        audioSapmControls[index].privateValue = (unsigned long)(uintptr_t)(void*)(&ctlSapmRegCfgItem[index]);
-        audioSapmControls[index].Info = AudioInfoCtrlOps;
-        audioSapmControls[index].Get  = AudioCodecSapmGetCtrlOps;
-        audioSapmControls[index].Set  = AudioCodecSapmSetCtrlOps;
+    if (regCfgGroup[AUDIO_CTRL_PATAM_MUX_GROUP] != NULL) {
+        enumCtlRegCfgItem = regCfgGroup[AUDIO_CTRL_PATAM_MUX_GROUP]->regEnumCfgItem;
+        if (enumCtlRegCfgItem == NULL) {
+            AUDIO_DRIVER_LOG_ERR("enumCtlRegCfgItem is NULL.");
+            return HDF_FAILURE;
+        }
     }
 
-    ret = CodecSetSapmComponentsInfo(codeData, regCfgGroup, audioSapmControls);
-    if (ret != HDF_SUCCESS) {
-        OsalMemFree(audioSapmControls);
-        AUDIO_DRIVER_LOG_ERR("CodecSetSapmComponentsInfo failed.");
-        return HDF_FAILURE;
+    for (index = 0; index < codeData->numControls; index++) {
+        if (compItem[index].type == AUDIO_CONTROL_MIXER) {
+            codeData->controls[index].iface   = compItem[index].iface;
+            codeData->controls[index].name    = g_audioCodecControlsList[compItem[index].arrayIndex];
+            codeData->controls[index].Info    = AudioInfoCtrlOps;
+            codeData->controls[index].privateValue = (unsigned long)(uintptr_t)(void*)(&ctlRegCfgItem[index]);
+            if (compItem[index].enable) {
+                codeData->controls[index].Get = AudioCodecGetCtrlOps;
+                codeData->controls[index].Set = AudioCodecSetCtrlOps;
+            }
+        } else if (compItem[index].type == AUDIO_CONTROL_MUX) {
+            codeData->controls[index].iface   = compItem[index].iface;
+            codeData->controls[index].name    = g_audioCodecControlsList[compItem[index].arrayIndex];
+            codeData->controls[index].Info    = AudioInfoEnumCtrlOps;
+            codeData->controls[index].privateValue = (unsigned long)(uintptr_t)(void*)(&enumCtlRegCfgItem[enumIndex++]);
+            if (compItem[index].enable) {
+                codeData->controls[index].Get = AudioCodecGetEnumCtrlOps;
+                codeData->controls[index].Set = AudioCodecSetEnumCtrlOps;
+            }
+        }
     }
-
     return HDF_SUCCESS;
 }
 
-int32_t CodecSetConfigInfo(struct CodecData *codeData, struct DaiData *daiData)
+int32_t CodecSetConfigInfoOfControls(struct CodecData *codeData, struct DaiData *daiData)
 {
-    uint16_t index;
     struct AudioIdInfo   *audioIdInfo = NULL;
     struct AudioRegCfgGroupNode **regCfgGroup = NULL;
-    struct AudioControlConfig  *compItem = NULL;
-    struct AudioMixerControl   *ctlRegCfgItem = NULL;
+
     if (codeData == NULL || daiData == NULL || codeData->regConfig == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
         return HDF_FAILURE;
@@ -258,10 +381,9 @@ int32_t CodecSetConfigInfo(struct CodecData *codeData, struct DaiData *daiData)
     }
     daiData->regCfgGroup = regCfgGroup;
     codeData->regCfgGroup = regCfgGroup;
-    compItem = regCfgGroup[AUDIO_CTRL_CFG_GROUP]->ctrlCfgItem;
-    ctlRegCfgItem = regCfgGroup[AUDIO_CTRL_PATAM_GROUP]->regCfgItem;
-    if (compItem == NULL || ctlRegCfgItem == NULL) {
-        AUDIO_DRIVER_LOG_ERR("compItem or ctlRegCfgItem is NULL.");
+
+    if (regCfgGroup[AUDIO_CTRL_CFG_GROUP] == NULL) {
+        AUDIO_DRIVER_LOG_ERR("compItem is NULL.");
         return HDF_FAILURE;
     }
 
@@ -273,17 +395,11 @@ int32_t CodecSetConfigInfo(struct CodecData *codeData, struct DaiData *daiData)
         return HDF_FAILURE;
     }
 
-    for (index = 0; index < codeData->numControls; index++) {
-        codeData->controls[index].iface   = compItem[index].iface;
-        codeData->controls[index].name    = g_audioCodecControlsList[compItem[index].arrayIndex];
-        codeData->controls[index].Info    = AudioInfoCtrlOps;
-        codeData->controls[index].privateValue = (unsigned long)(uintptr_t)(void*)(&ctlRegCfgItem[index]);
-        if (compItem[index].enable) {
-            codeData->controls[index].Get = AudioCodecGetCtrlOps;
-            codeData->controls[index].Set = AudioCodecSetCtrlOps;
-        }
+    if (CodecSetKcontrolInfo(codeData, regCfgGroup) != HDF_SUCCESS) {
+        OsalMemFree(codeData->controls);
+        codeData->controls = NULL;
+        return HDF_FAILURE;
     }
-
     codeData->virtualAddress = (uintptr_t)OsalIoRemap(audioIdInfo->chipIdRegister, audioIdInfo->chipIdSize);
 
     if (CodecSetSapmConfigInfo(codeData, regCfgGroup) != HDF_SUCCESS) {
@@ -295,13 +411,14 @@ int32_t CodecSetConfigInfo(struct CodecData *codeData, struct DaiData *daiData)
     return HDF_SUCCESS;
 }
 
-int32_t CodecSetCtlFunc(struct CodecData *codeData, const void *aiaoGetCtrl, const void *aiaoSetCtrl)
+int32_t CodecSetCtlFunc(struct CodecData *codeData, enum AudioControlType controlType, const void *getCtrl,
+    const void *setCtrl)
 {
     uint32_t index;
     struct AudioRegCfgGroupNode **regCfgGroup;
     struct AudioControlConfig *compItem;
     if (codeData == NULL || codeData->regConfig == NULL ||
-        aiaoGetCtrl == NULL || aiaoSetCtrl == NULL) {
+        getCtrl == NULL || setCtrl == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
         return HDF_FAILURE;
     }
@@ -318,9 +435,11 @@ int32_t CodecSetCtlFunc(struct CodecData *codeData, const void *aiaoGetCtrl, con
     }
 
     for (index = 0; index < codeData->numControls; index++) {
-        if (!compItem[index].enable) {
-            codeData->controls[index].Get = aiaoGetCtrl;
-            codeData->controls[index].Set = aiaoSetCtrl;
+        if (compItem[index].type == controlType) {
+            if (!compItem[index].enable) {
+                codeData->controls[index].Get = getCtrl;
+                codeData->controls[index].Set = setCtrl;
+            }
         }
     }
 
@@ -456,7 +575,7 @@ static int32_t CodecI2cTransfer(struct I2cTransferParam *i2cTransferParam, struc
             AUDIO_DRIVER_LOG_ERR("i2cRegDataLen is invalid");
             return HDF_FAILURE;
         }
-        AUDIO_DRIVER_LOG_DEBUG("[read]: regAttr->regValue=0x%04x.\n", regAttr->value);
+        AUDIO_DRIVER_LOG_DEBUG("[read]: regAttr->regValue=0x%04x", regAttr->value);
     }
 
     CodecI2cRelease(msgs, transferMsgCount, i2cHandle);
@@ -596,6 +715,75 @@ int32_t CodecDeviceWriteReg(const struct CodecDevice *codec, uint32_t reg, uint3
     }
     virtualAddress = codec->devData->virtualAddress;
     OSAL_WRITEL(value, (void *)((uintptr_t)(virtualAddress + reg)));
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDeviceInitRegConfig(const struct CodecDevice *device)
+{
+    int32_t ret;
+    uint32_t index;
+    struct AudioAddrConfig *initCfg = NULL;
+    struct AudioRegCfgGroupNode **regCfgGroup = NULL;
+
+    if (device == NULL || device->devData == NULL || device->devData->Write == NULL) {
+        AUDIO_DRIVER_LOG_ERR("param val is null.");
+        return HDF_FAILURE;
+    }
+
+    regCfgGroup = device->devData->regCfgGroup;
+    if (regCfgGroup == NULL || regCfgGroup[AUDIO_INIT_GROUP] == NULL) {
+        AUDIO_DRIVER_LOG_ERR("regCfgGroup init group is null.");
+        return HDF_FAILURE;
+    }
+
+    initCfg = regCfgGroup[AUDIO_INIT_GROUP]->addrCfgItem;
+    if (initCfg == NULL) {
+        AUDIO_DRIVER_LOG_ERR("initCfg is NULL.");
+        return HDF_FAILURE;
+    }
+
+    for (index = 0; index < regCfgGroup[AUDIO_INIT_GROUP]->itemNum; index++) {
+        ret = device->devData->Write(device, initCfg[index].addr, initCfg[index].value);
+        if (ret != HDF_SUCCESS) {
+            AUDIO_DRIVER_LOG_ERR("Write err regAddr: 0x%x.\n", initCfg[index].addr);
+            return HDF_FAILURE;
+        }
+        OsalMSleep(COMM_WAIT_TIMES);
+    }
+    AUDIO_DRIVER_LOG_DEBUG("success.");
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDaiDeviceStartupRegConfig(const struct DaiDevice *device)
+{
+    int32_t ret;
+    uint16_t index;
+    struct AudioMixerControl *startupRegCfgItem = NULL;
+    uint16_t regCfgItemCount;
+    struct AudioRegCfgGroupNode **regCfgGroup = NULL;
+
+    if (device == NULL || device->devData == NULL) {
+        AUDIO_DRIVER_LOG_ERR("param val is null.");
+        return HDF_FAILURE;
+    }
+
+    regCfgGroup = device->devData->regCfgGroup;
+    if (regCfgGroup == NULL || regCfgGroup[AUDIO_DAI_STARTUP_PATAM_GROUP] == NULL ||
+        regCfgGroup[AUDIO_DAI_STARTUP_PATAM_GROUP]->regCfgItem == NULL) {
+        AUDIO_DEVICE_LOG_ERR("regCfgGroup is NULL.");
+        return HDF_FAILURE;
+    }
+    startupRegCfgItem = regCfgGroup[AUDIO_DAI_STARTUP_PATAM_GROUP]->regCfgItem;
+    regCfgItemCount = regCfgGroup[AUDIO_DAI_STARTUP_PATAM_GROUP]->itemNum;
+
+    for (index = 0; index < regCfgItemCount; index++) {
+        ret = AudioDaiRegUpdate(device, &startupRegCfgItem[index]);
+        if (ret != HDF_SUCCESS) {
+            AUDIO_DEVICE_LOG_ERR("CodecDaiRegBitsUpdate fail.");
+            return HDF_FAILURE;
+        }
+    }
+    AUDIO_DEVICE_LOG_DEBUG("success.");
     return HDF_SUCCESS;
 }
 

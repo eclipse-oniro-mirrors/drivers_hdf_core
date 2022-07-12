@@ -58,12 +58,12 @@ int32_t DaiCheckSampleRateTest(void)
 int32_t DaiSetConfigInfoTest(void)
 {
     struct DaiData data;
-    if (DaiSetConfigInfo(NULL) == HDF_SUCCESS) {
+    if (DaiSetConfigInfoOfControls(NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
     (void)memset_s(&data, sizeof(struct DaiData), 0, sizeof(struct DaiData));
-    if (DaiSetConfigInfo(&data) == HDF_SUCCESS) {
+    if (DaiSetConfigInfoOfControls(&data) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;

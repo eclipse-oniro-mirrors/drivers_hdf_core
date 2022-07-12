@@ -17,36 +17,39 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
+/* component has no sapm register bit */
+#define AUDIO_NO_SAPM_REG   0xFFFF
+
 /* sapm widget types */
 enum AudioSapmType {
-    AUDIO_SAPM_INPUT = 0,       /* input pin */
-    AUDIO_SAPM_OUTPUT,          /* output pin */
-    AUDIO_SAPM_MUX,             /* selects 1 analog signal from many inputs */
-    AUDIO_SAPM_DEMUX,           /* connects the input to one of multiple outputs */
-    AUDIO_SAPM_VIRT_MUX,        /* virtual version of snd_soc_dapm_mux */
-    AUDIO_SAPM_VALUE_MUX,       /* selects 1 analog signal from many inputs */
-    AUDIO_SAPM_MIXER,           /* mixes several analog signals together */
-    AUDIO_SAPM_MIXER_NAMED_CTRL, /* mixer with named controls */
-    AUDIO_SAPM_PGA,             /* programmable gain/attenuation (volume) */
-    AUDIO_SAPM_OUT_DRV,         /* output driver */
-    AUDIO_SAPM_ADC,             /* analog to digital converter */
-    AUDIO_SAPM_DAC,             /* digital to analog converter */
-    AUDIO_SAPM_MICBIAS,         /* microphone bias (power) */
-    AUDIO_SAPM_MIC,             /* microphone */
-    AUDIO_SAPM_HP,              /* headphones */
-    AUDIO_SAPM_SPK,             /* speaker */
-    AUDIO_SAPM_LINE,            /* line input/output */
-    AUDIO_SAPM_ANALOG_SWITCH,   /* analog switch */
-    AUDIO_SAPM_VMID,            /* codec bias/vmid - to minimise pops */
-    AUDIO_SAPM_PRE,             /* machine specific pre component - exec first */
-    AUDIO_SAPM_POST,            /* machine specific post component - exec last */
-    AUDIO_SAPM_SUPPLY,          /* power/clock supply */
-    AUDIO_SAPM_REGULATOR_SUPPLY, /* external regulator */
-    AUDIO_SAPM_CLOCK_SUPPLY,    /* external clock */
-    AUDIO_SAPM_AIF_IN,          /* audio interface input */
-    AUDIO_SAPM_AIF_OUT,         /* audio interface output */
-    AUDIO_SAPM_SIGGEN,          /* signal generator */
-    AUDIO_SAPM_SINK,
+    AUDIO_SAPM_INPUT = 0,       /* 0 input pin */
+    AUDIO_SAPM_OUTPUT,          /* 1 output pin */
+    AUDIO_SAPM_MUX,             /* 2 selects 1 analog signal from many inputs */
+    AUDIO_SAPM_DEMUX,           /* 3 connects the input to one of multiple outputs */
+    AUDIO_SAPM_VIRT_MUX,        /* 4 virtual version of snd_soc_dapm_mux */
+    AUDIO_SAPM_VALUE_MUX,       /* 5 selects 1 analog signal from many inputs */
+    AUDIO_SAPM_MIXER,           /* 6 mixes several analog signals together */
+    AUDIO_SAPM_MIXER_NAMED_CTRL, /* 7 mixer with named controls */
+    AUDIO_SAPM_PGA,             /* 8 programmable gain/attenuation (volume) */
+    AUDIO_SAPM_OUT_DRV,         /* 9 output driver */
+    AUDIO_SAPM_ADC,             /* 10 analog to digital converter */
+    AUDIO_SAPM_DAC,             /* 11 digital to analog converter */
+    AUDIO_SAPM_MICBIAS,         /* 12 microphone bias (power) */
+    AUDIO_SAPM_MIC,             /* 13 microphone */
+    AUDIO_SAPM_HP,              /* 14 headphones */
+    AUDIO_SAPM_SPK,             /* 15 speaker */
+    AUDIO_SAPM_LINE,            /* 16 line input/output */
+    AUDIO_SAPM_ANALOG_SWITCH,   /* 17 analog switch */
+    AUDIO_SAPM_VMID,            /* 18 codec bias/vmid - to minimise pops */
+    AUDIO_SAPM_PRE,             /* 19 machine specific pre component - exec first */
+    AUDIO_SAPM_POST,            /* 20 machine specific post component - exec last */
+    AUDIO_SAPM_SUPPLY,          /* 21 power/clock supply */
+    AUDIO_SAPM_REGULATOR_SUPPLY, /* 22 external regulator */
+    AUDIO_SAPM_CLOCK_SUPPLY,    /* 23 external clock */
+    AUDIO_SAPM_AIF_IN,          /* 24 audio interface input */
+    AUDIO_SAPM_AIF_OUT,         /* 25 audio interface output */
+    AUDIO_SAPM_SIGGEN,          /* 26 signal generator */
+    AUDIO_SAPM_SINK,            /* 27 */
 };
 
 enum AudioBiasLevel {
@@ -69,19 +72,6 @@ struct AudioSapmContext {
     /* used during SAPM updates */
     enum AudioBiasLevel targetBiasLevel;
     struct DListHead list;
-};
-
-/* enumerated kcontrol */
-struct AudioEnumKcontrol {
-    uint32_t reg;
-    uint32_t reg2;
-    uint8_t shiftLeft;
-    uint8_t shiftRight;
-    uint32_t max;
-    uint32_t mask;
-    const char * const *texts;
-    const uint32_t *values;
-    void *sapm;
 };
 
 /* sapm audio path between two components */
@@ -115,10 +105,10 @@ struct AudioSapmComponent {
     struct PlatformDevice *platform; /* parent platform */
 
     /* sapm control */
-    uint16_t reg; /* negative reg = no direct sapm */
+    uint32_t reg; /* negative reg = no direct sapm */
     uint8_t shift; /* bits to shift */
     uint8_t invert; /* invert the power bit */
-    uint8_t mask;
+    uint32_t mask;
     uint8_t connected; /* connected codec pin */
     uint8_t external; /* has external components */
     uint8_t active; /* active stream on DAC, ADC's */
@@ -173,6 +163,9 @@ int32_t AudioSampSetPowerMonitor(struct AudioCard *card, bool powerMonitorState)
 
 int32_t AudioCodecSapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct AudioCtrlElemValue *elemValue);
 int32_t AudioCodecSapmGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);
+int32_t AudioCodecSapmSetEnumCtrlOps(const struct AudioKcontrol *kcontrol,
+    const struct AudioCtrlElemValue *elemValue);
+int32_t AudioCodecSapmGetEnumCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);
 
 #ifdef __cplusplus
 #if __cplusplus

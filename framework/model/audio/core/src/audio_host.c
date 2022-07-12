@@ -200,7 +200,7 @@ static int32_t AudioDspDaiDevInit(struct AudioCard *audioCard)
 {
     struct AudioRuntimeDeivces *rtd = NULL;
     struct DaiDevice *dspDai = NULL;
-    int ret = HDF_SUCCESS;
+    int32_t ret;
 
     if (audioCard == NULL) {
         ADM_LOG_ERR("audioCard is NULL.");
