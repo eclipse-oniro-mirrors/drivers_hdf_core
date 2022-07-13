@@ -29,6 +29,8 @@ obj-$(CONFIG_DRIVERS_HDF_TP_2P35_FT6236) += \
               $(INPUT_ROOT_DIR)/touchscreen/touch_ft6336.o
 obj-$(CONFIG_DRIVERS_HDF_INPUT_INFRARED) += \
               $(INPUT_ROOT_DIR)/hdf_infrared.o
+obj-$(CONFIG_DRIVERS_HDF_TP_5P43_FT5406) += \
+              $(INPUT_ROOT_DIR)/touchscreen/touch_ft5406.o
 
 ccflags-y +=-I$(srctree)/drivers/hdf/framework/model/input/driver \
             -I$(srctree)/drivers/hdf/framework/model/input/driver/input_bus_ops \

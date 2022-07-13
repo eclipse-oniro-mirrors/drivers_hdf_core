@@ -19,6 +19,8 @@ KHDF_AUDIO_HI3516DV300_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/
 KHDF_AUDIO_HI3516DV300_INC_DIR = drivers/hdf/framework/../../../device/board/hisilicon/hispark_taurus/audio_drivers
 KHDF_AUDIO_RK3568_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/$(DEVICE_NAME)/audio_drivers
 KHDF_AUDIO_RK3568_INC_DIR = drivers/hdf/framework/../../../device/board/hihope/$(DEVICE_NAME)/audio_drivers
+KHDF_AUDIO_A311D_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
+KHDF_AUDIO_A311D_INC_DIR = drivers/hdf/framework/../../../device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_core.o \
@@ -46,6 +48,27 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC) += \
           $(KHDF_AUDIO_HI3516DV300_DIR)/soc/src/hi3516_aiao_impl.o \
           $(KHDF_AUDIO_HI3516DV300_DIR)/soc/src/hi3516_dma_ops.o \
           $(KHDF_AUDIO_HI3516DV300_DIR)/soc/src/hi3516_dma_adapter.o
+
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \
+          $(KHDF_AUDIO_A311D_DIR)/codec/soc_codec/a311d_codec_adapter.o \
+          $(KHDF_AUDIO_A311D_DIR)/codec/soc_codec/a311d_codec_ops.o \
+          $(KHDF_AUDIO_A311D_DIR)/dsp/a311d_dsp_adapter.o \
+          $(KHDF_AUDIO_A311D_DIR)/dsp/a311d_dsp_ops.o \
+          $(KHDF_AUDIO_A311D_DIR)/dai/a311d_dai_adapter.o \
+          $(KHDF_AUDIO_A311D_DIR)/dai/a311d_dai_ops.o \
+          $(KHDF_AUDIO_A311D_DIR)/soc/a311d_dma_adapter.o \
+          $(KHDF_AUDIO_A311D_DIR)/soc/a311d_dma_ops.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_fifo.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_fifo_drv.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_tdmin.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_tdmout.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_tdm_formatter.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_tdm_interface.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/g12a_toacodec.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/g12a_tohdmitx.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/meson_t9015.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/axg_snd_card.o \
+          $(KHDF_AUDIO_A311D_DIR)/linux_drv/src/nau8540.o
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_RK3568_DIR)/codec/rk809_codec/src/rk809_codec_adapter.o \
@@ -94,6 +117,9 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/dsp/include \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/codec/rk809_codec/include \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/include
+
+ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \
+             -I$(srctree)/$(KHDF_AUDIO_A311D_INC_DIR)/linux_drv/include
 
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/input/driver \
