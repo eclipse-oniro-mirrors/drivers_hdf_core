@@ -72,6 +72,7 @@ class AttrEditor {
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addSelect("node_type", "节点类型", AttrEditor.NODE_TYPE_STR, 
         AttrEditor.NODE_TYPE_STR[node.nodeType_], this.root_ == this.node_);
+        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addDotLine();
         AttributeArea.gi().addButton("add_child_node", "添加子节点");
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
@@ -101,6 +102,7 @@ class AttrEditor {
         AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addButton("change_target", node.ref_);
+        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addDotLine();
         AttributeArea.gi().addButton("add_child_node", "添加子节点");
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");
@@ -142,6 +144,7 @@ class AttrEditor {
         AttributeArea.gi().addInput("name", "名称", node.name_);
         AttributeArea.gi().addGap(0);
         AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
+        AttributeArea.gi().addGap(0);
         AttributeArea.gi().addDotLine();
         AttributeArea.gi().addButton("add_child_node", "添加子节点");
         AttributeArea.gi().addButton("add_child_attr", "添加子属性");

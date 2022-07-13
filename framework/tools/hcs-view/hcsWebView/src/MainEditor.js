@@ -134,7 +134,7 @@ class MainEditor {
     }
     drawNode(pm2f, s, size, x, y, color, bkcolor) {
         let w = pm2f.getTextWidth(s, size);
-        pm2f.fillRect(x - 3, y - 3, w + 6, 20 + 6, bkcolor);
+        pm2f.fillRect(x - 3, y - 3, w + 20, 20 + 6, bkcolor);
         pm2f.drawText(s, size, x, y, 1, 1, 0, -1, -1, color);
         return w;
     }
@@ -187,10 +187,10 @@ class MainEditor {
             case 3://uint32
             case 4://uint64
                 w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_),
-                    18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
+                    18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xE6000000);
                 break;
             case 5://string
-                w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
+                w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xE6000000);
                 break;
             case 6://ConfigNode
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
@@ -198,7 +198,7 @@ class MainEditor {
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
-                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xffff0000, rgba(244,145,38));
+                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xE6000000, rgba(244,145,38));
                 this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
                 this.drawObj(pm2f, data.value_, offx + w, offy, path);
                 break;
