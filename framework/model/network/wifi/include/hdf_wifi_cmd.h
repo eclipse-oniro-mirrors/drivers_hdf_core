@@ -210,11 +210,12 @@ typedef struct {
 } WifiOnChannel;
 
 typedef struct {
+    uint8_t ifName[IFNAMSIZ];
     uint8_t type;
 } WifiIfAdd;
 
 typedef struct {
-    uint8_t ifname[IFNAMSIZ];
+    uint8_t ifName[IFNAMSIZ];
 } WifiIfRemove;
 
 typedef struct {
