@@ -157,6 +157,11 @@ bool ASTType::IsPod() const
     return isPod_;
 }
 
+bool ASTType::HasInnerType(TypeKind innerType) const
+{
+    return false;
+}
+
 String ASTType::ToShortString()
 {
     return name_;

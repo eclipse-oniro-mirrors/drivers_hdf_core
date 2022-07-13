@@ -16,6 +16,11 @@ bool ASTListType::IsListType()
     return true;
 }
 
+bool ASTListType::HasInnerType(TypeKind innerTypeKind) const
+{
+    return elementType_ != nullptr ? (elementType_->GetTypeKind() == innerTypeKind) : false;
+}
+
 String ASTListType::ToString()
 {
     return String::Format("List<%s>", elementType_->ToString().string());

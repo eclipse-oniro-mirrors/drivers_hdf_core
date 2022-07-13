@@ -29,6 +29,8 @@ public:
 
     bool IsArrayType() override;
 
+    bool HasInnerType(TypeKind innerType) const override;
+
     String ToString() override;
 
     TypeKind GetTypeKind() override;

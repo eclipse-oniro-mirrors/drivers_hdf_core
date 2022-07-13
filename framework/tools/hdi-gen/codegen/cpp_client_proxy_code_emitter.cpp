@@ -207,11 +207,14 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
         AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
-            if (param->GetAttribute() == ParamAttr::PARAM_IN && param->GetType()->IsInterfaceType()) {
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_IN &&
+                (paramType->IsInterfaceType() || paramType->HasInnerType(TypeKind::TYPE_INTERFACE))) {
                 headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "object_collector");
             }
 
-            if (param->GetAttribute() == ParamAttr::PARAM_OUT && param->GetType()->IsInterfaceType()) {
+            if (param->GetAttribute() == ParamAttr::PARAM_OUT &&
+                (paramType->IsInterfaceType() || paramType->HasInnerType(TypeKind::TYPE_INTERFACE))) {
                 headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "iproxy_broker");
             }
         }

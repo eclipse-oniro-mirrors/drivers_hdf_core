@@ -15,6 +15,23 @@ bool ASTMapType::IsMapType()
     return true;
 }
 
+bool ASTMapType::HasInnerType(TypeKind innerTypeKind) const
+{
+    if (keyType_ != nullptr) {
+        if (keyType_->GetTypeKind() == innerTypeKind) {
+            return true;
+        }
+    }
+
+    if (valueType_ != nullptr) {
+        if (valueType_->GetTypeKind() == innerTypeKind) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 String ASTMapType::ToString()
 {
     return String::Format("Map<%s, %s>", keyType_->ToString().string(), valueType_->ToString().string());
@@ -113,11 +130,13 @@ void ASTMapType::EmitCppMarshalling(const String &parcelName, const String &name
 void ASTMapType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
     const String &prefix, bool emitType, unsigned int innerLevel) const
 {
+    int index = name.IndexOf('.', 0);
+    String memberName = name.Substring(index + 1);
     if (emitType) {
-        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), name.string());
+        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), memberName.string());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", name.string());
+    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.string());
 
     String KeyName = String::Format("key%d", innerLevel);
     String valueName = String::Format("value%d", innerLevel);

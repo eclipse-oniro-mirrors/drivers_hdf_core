@@ -15,6 +15,11 @@ bool ASTSmqType::IsSmqType()
     return true;
 }
 
+bool ASTSmqType::HasInnerType(TypeKind innerTypeKind) const
+{
+    return innerType_ != nullptr ? (innerType_->GetTypeKind() == innerTypeKind) : false;
+}
+
 String ASTSmqType::ToString()
 {
     return String::Format("SharedMemQueue<%s>", innerType_->ToString().string());
