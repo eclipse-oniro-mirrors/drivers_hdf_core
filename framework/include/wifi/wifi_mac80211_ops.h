@@ -643,6 +643,21 @@ struct HdfMac80211BaseOps {
      * @version 1.0
      */
     int32_t (*StartChannelMeas)(const char *ifName, const MeasParam *measParam);
+
+    /**
+     * @brief Set projection screen parameters.
+     *
+     * @param ifName Indicates the pointer to the network interface name.
+     * @param cmd Command of projection screen configuration.
+     * @param data Parameters data send to dirver.
+     * @param bufLen Indicates the length of parameters data.
+     *
+     * @return Returns <b>0</b> if set projection screen parameters successful; returns a negative value otherwise.
+     *
+     * @since 3.2
+     * @version 1.0
+     */
+    int32_t (*SetProjectionScreenParam)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
 };
 
 /**

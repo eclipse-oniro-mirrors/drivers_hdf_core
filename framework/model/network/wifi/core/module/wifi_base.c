@@ -1540,6 +1540,66 @@ static int32_t WifiCmdStartChannelMeas(const RequestContext *context, struct Hdf
     return ret;
 }
 
+static int32_t HdfWlanSetProjectionScreenParam(const char *ifName, int cmd, const int8_t *buf, uint32_t bufLen)
+{
+    struct NetDevice *netdev = NULL;
+    struct HdfChipDriver *chipDriver = NULL;
+    
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->ops == NULL) {
+        HDF_LOGE("%s: chipDriver->ops is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (chipDriver->ops->SetProjectionScreenParam == NULL) {
+        HDF_LOGE("%s: chipDriver->ops->SetProjectionScreenParam is null", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    return chipDriver->ops->SetProjectionScreenParam(ifName, cmd, buf, bufLen);
+}
+
+static int32_t WifiSetProjectionScreenParam(const RequestContext *context, struct HdfSBuf *reqData,
+    struct HdfSBuf *rspData)
+{
+    int32_t ret = HDF_FAILURE;
+    const char *ifName = NULL;
+    int32_t cmd;
+    int8_t *buf = NULL;
+    uint32_t bufLen;
+
+    (void)context;
+    if (reqData == NULL || rspData == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: read ifName failed!", __func__);
+        return ret;
+    }
+    if (!HdfSbufReadInt32(reqData, &cmd)) {
+        HDF_LOGE("%s: read cmd failed!", __func__);
+        return ret;
+    }
+    if (!HdfSbufReadBuffer(reqData, (const void **)&buf, &bufLen)) {
+        HDF_LOGE("%s: read buf failed!", __func__);
+        return ret;
+    }
+    ret = HdfWlanSetProjectionScreenParam(ifName, cmd, buf, bufLen);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: fail to config projection screen, %d", __func__, ret);
+    }
+    return ret;
+}
+
 static struct MessageDef g_wifiBaseFeatureCmds[] = {
     DUEMessage(CMD_BASE_NEW_KEY, WifiCmdNewKey, 0),
     DUEMessage(CMD_BASE_DEL_KEY, WifiCmdDelKey, 0),
@@ -1570,6 +1630,7 @@ static struct MessageDef g_wifiBaseFeatureCmds[] = {
     DUEMessage(CMD_BASE_GET_POWER_MODE, WifiCmdGetPowerMode, 0),
     DUEMessage(CMD_BASE_SET_POWER_MODE, WifiCmdSetPowerMode, 0),
     DUEMessage(CMD_BASE_START_CHANNEL_MEAS, WifiCmdStartChannelMeas, 0),
+    DUEMessage(CMD_BASE_SET_PROJECTION_SCREEN_PARAM, WifiSetProjectionScreenParam, 0),
 };
 ServiceDefine(BaseService, BASE_SERVICE_ID, g_wifiBaseFeatureCmds);
 
