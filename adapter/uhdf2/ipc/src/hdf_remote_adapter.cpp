@@ -25,7 +25,7 @@
 
 #define HDF_LOG_TAG hdf_remote_adapter
 
-static constexpr int32_t THREAD_POOL_BASE_THREAD_COUNT = 1;
+static constexpr int32_t THREAD_POOL_BASE_THREAD_COUNT = 5;
 static int32_t g_remoteThreadMax = THREAD_POOL_BASE_THREAD_COUNT;
 
 HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
