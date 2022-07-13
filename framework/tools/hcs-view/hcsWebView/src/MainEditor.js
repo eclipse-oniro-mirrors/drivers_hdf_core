@@ -229,7 +229,7 @@ class MainEditor {
     
     setNodeButton(pm2f, x, y, w, h, path, node) {
         if (this.nodePoint_ == node) {
-            pm2f.drawRect(x - 3, y - 3, w + 6, h + 6, 0xff00ff00, 2);
+            pm2f.drawRect(x - 3, y - 3, w + 20, h + 6, 0xff00ff00, 2);
         }
         if (this.nodeBtnPoint_ >= this.nodeBtns.length) {
             this.nodeBtns.push(new XButton());
@@ -246,11 +246,11 @@ class MainEditor {
             this.nodeMoreBtns.push(new XButton());
         }
         let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
-        pbtn.move(x + w + 3, y - 3, 15, h + 6);
+        pbtn.move(x + w + 17, y - 3, 15, h + 6);
         pbtn.draw();
-        pm2f.drawLine(x + w + 3, y + 10, x + w + 13, y + 10, 0xffffffff, 2)
+        pm2f.drawLine(x + w + 17, y + 10, x + w + 27, y + 10, 0xffffffff, 2)
         if(!node.isOpen_){
-            pm2f.drawLine(x + w + 8, y + 5, x + w + 8, y + 15, 0xffffffff, 2)
+            pm2f.drawLine(x + w + 22, y + 5, x + w + 22, y + 15, 0xffffffff, 2)
         }
         pbtn.node_ = node;
         this.nodeMoreBtnPoint_ += 1;
