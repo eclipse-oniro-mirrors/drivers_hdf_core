@@ -17,7 +17,10 @@ set -e
 
 OHOS_SOURCE_ROOT=$1
 KERNEL_BUILD_ROOT=$2
-HDF_PATCH_FILE=$3
+KERNEL_PATCH_PATH=$3
+DEVICE_NAME=$4
+HDF_COMMON_PATCH="common"
+HDF_PATCH_FILE=
 
 ln_list=(
     $OHOS_SOURCE_ROOT/drivers/hdf_core/adapter/khdf/linux    drivers/hdf/khdf
@@ -30,6 +33,11 @@ cp_list=(
     $OHOS_SOURCE_ROOT/device/soc/hisilicon/common/platform/wifi         drivers/hdf/
     $OHOS_SOURCE_ROOT/third_party/FreeBSD/sys/dev/evdev     drivers/hdf/
 )
+
+specify_device_list=(
+    rk3568
+)
+
 
 function copy_external_compents()
 {
@@ -49,9 +57,19 @@ function ln_hdf_repos()
     done
 }
 
+function get_hdf_patch_patch()
+{
+    if [[ "$specify_device_list" =~ "$DEVICE_NAME" ]]; then
+	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
+	else
+	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${HDF_COMMON_PATCH}_patch/hdf.patch
+	fi
+}
+
 function main()
 {
     cd $KERNEL_BUILD_ROOT
+    get_hdf_patch_patch
     patch -p1 < $HDF_PATCH_FILE
     ln_hdf_repos
     copy_external_compents
