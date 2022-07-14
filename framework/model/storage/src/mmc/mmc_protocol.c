@@ -18,6 +18,8 @@
 #define SEND_STATUS_CMD_RETRY_TIMES 100
 #define STOP_TRANSMISSION_CMD_RETRY_TIMES 5
 #define BITS_NUMBER_OF_4_BYTES 32
+#define SEND_OP_COND_DELAY     10
+#define SD_SEND_OP_COND_DELAY  20
 
 /* TRAN_SPEED: Frequency unit 0 = 100KHz, 1 = 1MHz, 2 = 10MHz, 3 = 100MHz, 4...7 = reserved */
 uint32_t g_tranSpeedUnit[] = { 10000, 100000, 1000000, 10000000, 0, 0, 0, 0 };
@@ -121,7 +123,7 @@ static void MmcGoIdleState(struct MmcCntlr *cntlr)
     /* Broadcast Commands (bc), no response. */
     cmd.respType = MMC_RESP_SPI_R1 | MMC_RESP_NONE | MMC_CMD_TYPE_BC;
     (void)MmcSendCmd(cntlr, &cmd, NULL, 1);
-    OsalMDelay(1);
+    MmcMDelay(1);
 }
 
 static int32_t MmcSendOpCond(struct MmcCntlr *cntlr, uint32_t arg, uint32_t *ocr)
@@ -153,7 +155,7 @@ static int32_t MmcSendOpCond(struct MmcCntlr *cntlr, uint32_t arg, uint32_t *ocr
         }
 
         err = HDF_ERR_TIMEOUT;
-        OsalMDelay(10);
+        MmcMDelay(SEND_OP_COND_DELAY);
     }
 
     if (ocr != NULL) {
@@ -1711,7 +1713,7 @@ static int32_t SdAcmdOpCond(struct MmcCntlr *cntlr, uint32_t arg, uint32_t *ocr)
             break;
         }
         err = HDF_ERR_TIMEOUT;
-        OsalMDelay(20);
+        MmcMDelay(SD_SEND_OP_COND_DELAY);
     }
     if (ocr != NULL) {
         *ocr = cmd.resp[0];
@@ -2736,7 +2738,7 @@ static int32_t SdioSendOpCond(struct MmcCntlr *cntlr, uint32_t arg, uint32_t *oc
         }
 
         err = HDF_ERR_TIMEOUT;
-        OsalMDelay(10);
+        MmcMDelay(SEND_OP_COND_DELAY);
     }
     if (ocr != NULL) {
         /*

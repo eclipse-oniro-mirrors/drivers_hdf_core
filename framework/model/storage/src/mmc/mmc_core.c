@@ -488,7 +488,7 @@ void MmcCntlrPowerUp(struct MmcCntlr *cntlr)
     if (cntlr->ops->setBusTiming != NULL) {
         cntlr->ops->setBusTiming(cntlr, BUS_TIMING_MMC_DS);
     }
-    OsalMDelay(MMC_POWER_ON_DELAY_TIME);
+    MmcMDelay(MMC_POWER_ON_DELAY_TIME);
 
     /* enable clock. */
     if (cntlr->ops->setClock != NULL) {
@@ -498,7 +498,7 @@ void MmcCntlrPowerUp(struct MmcCntlr *cntlr)
     if (cntlr->ops->setPowerMode != NULL) {
         cntlr->ops->setPowerMode(cntlr, MMC_POWER_MODE_POWER_ON);
     }
-    OsalMDelay(MMC_POWER_ON_DELAY_TIME);
+    MmcMDelay(MMC_POWER_ON_DELAY_TIME);
 
     if (cntlr->ops->hardwareReset != NULL && cntlr->caps.bits.hardwareReset > 0) {
         cntlr->ops->hardwareReset(cntlr);

@@ -144,6 +144,15 @@ static inline void MmcCntlrUnlock(struct MmcCntlr *cntlr)
     }
 }
 
+static inline void MmcMDelay(uint32_t ms)
+{
+#ifdef __LITEOS_M__
+    OsalMSleep(ms);
+#else
+    OsalMDelay(ms);
+#endif
+}
+
 /* controller common bussiness */
 int32_t MmcCntlrDoRequest(struct MmcCntlr *cntlr, struct MmcCmd *cmd);
 int32_t MmcCntlrAddMsgToQueue(struct MmcCntlr *cntlr, struct MmcCmd *cmd, int32_t code, bool block);
