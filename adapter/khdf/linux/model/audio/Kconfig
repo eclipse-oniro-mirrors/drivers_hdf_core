@@ -40,3 +40,10 @@ config DRIVERS_HDF_AUDIO_TEST
     depends on DRIVERS_HDF_AUDIO
     help
         Answer Y to choice HDF Audio driver Test.
+
+config DRIVERS_HDF_AUDIO_A311D
+    bool "Enable HDF Audio Codec driver"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice HDF Audio Codec driver.
