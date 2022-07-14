@@ -16,6 +16,11 @@ bool ASTArrayType::IsArrayType()
     return true;
 }
 
+bool ASTArrayType::HasInnerType(TypeKind innerTypeKind) const
+{
+    return elementType_ != nullptr ? (elementType_->GetTypeKind() == innerTypeKind) : false;
+}
+
 String ASTArrayType::ToString()
 {
     return String::Format("%s[]", elementType_->ToString().string());

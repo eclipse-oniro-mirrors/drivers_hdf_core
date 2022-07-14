@@ -120,6 +120,8 @@ public:
 
     bool IsPod() const;
 
+    virtual bool HasInnerType(TypeKind innerType) const;
+
     virtual String ToShortString();
 
     String ToString() override;
