@@ -51,7 +51,6 @@ class MainEditor {
         XMessage.gi().send("inited", "");
         AttrEditor.gi().freshEditor();
 
-        this.btnSelectTemp = new XButton(0, 0, 0, 0, "选择模板")
         this.sltInclude = new XSelect(["a", "b", "c"], "b");
         this.sltInclude.registCallback(this.onSelectInclude)
         NapiLog.registError(this.onError);
@@ -135,7 +134,7 @@ class MainEditor {
     }
     drawNode(pm2f, s, size, x, y, color, bkcolor) {
         let w = pm2f.getTextWidth(s, size);
-        pm2f.fillRect(x - 3, y - 3, w + 6, 20 + 6, bkcolor);
+        pm2f.fillRect(x - 3, y - 3, w + 20, 20 + 6, bkcolor);
         pm2f.drawText(s, size, x, y, 1, 1, 0, -1, -1, color);
         return w;
     }
@@ -188,18 +187,19 @@ class MainEditor {
             case 3://uint32
             case 4://uint64
                 w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_),
-                    18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
+                    18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xE6000000);
                 break;
             case 5://string
-                w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
+                w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xE6000000);
                 break;
             case 6://ConfigNode
+                var color = data.errMsg_ != null ? 0xE6FF0000 : 0xE6000000;
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
-                    0xffffffff, rgba(67, 95, 188));
+                color, rgba(0, 153, 180), data);
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
-                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xffff0000, rgba(153, 217, 234));
+                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xE6000000, rgba(244,145,38), data);
                 this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
                 this.drawObj(pm2f, data.value_, offx + w, offy, path);
                 break;
@@ -227,9 +227,10 @@ class MainEditor {
             pm2f.drawText(data.errMsg_, 18, offx + w - 5, offy + data.posY + 5, 1, 1, 0, -1, -3, 0xffff0000);
         }
     }
+    
     setNodeButton(pm2f, x, y, w, h, path, node) {
         if (this.nodePoint_ == node) {
-            pm2f.drawRect(x - 3, y - 3, w + 6, h + 6, 0xff00ff00, 2);
+            pm2f.drawRect(x - 3, y - 3, w + 20, h + 6, 0xff00ff00, 2);
         }
         if (this.nodeBtnPoint_ >= this.nodeBtns.length) {
             this.nodeBtns.push(new XButton());
@@ -246,11 +247,11 @@ class MainEditor {
             this.nodeMoreBtns.push(new XButton());
         }
         let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
-        pbtn.move(x + w + 3, y - 3, 15, h + 6);
+        pbtn.move(x + w + 17, y - 3, 15, h + 6);
         pbtn.draw();
-        pm2f.drawLine(x + w + 3, y + 10, x + w + 13, y + 10, 0xffffffff, 2)
+        pm2f.drawLine(x + w + 17, y + 10, x + w + 27, y + 10, 0xffffffff, 2)
         if(!node.isOpen_){
-            pm2f.drawLine(x + w + 8, y + 5, x + w + 8, y + 15, 0xffffffff, 2)
+            pm2f.drawLine(x + w + 22, y + 5, x + w + 22, y + 15, 0xffffffff, 2)
         }
         pbtn.node_ = node;
         this.nodeMoreBtnPoint_ += 1;
@@ -267,7 +268,6 @@ class MainEditor {
             this.nodeMoreBtnPoint_ = 0;
             this.drawObj(pm2f, data, this.offX_, this.offY_, "");
         }
-        this.btnSelectTemp.move(Scr.logicw - 120, 20, 100, 25).draw();
         this.sltInclude.move(10, 10, 200, 20).draw();
 
         if (this.selectNode_.type != null) {
@@ -286,7 +286,7 @@ class MainEditor {
                 this.btnCancelSelect_.name_ = "取消剪切";
             }
 
-            this.btnCancelSelect_.move(Scr.logicw - 120, Scr.logich - 30, 100, 20).draw();
+            this.btnCancelSelect_.move(Scr.logicw - 250, Scr.logich - 30, 100, 20).draw();
         }
 
         if (this.errorMsg_.length > 0) {
@@ -367,7 +367,7 @@ class MainEditor {
             return true;
         }
 
-        if (this.btnSelectTemp.procTouch(msg, x, y) || this.sltInclude.procTouch(msg, x, y)) {
+        if (this.sltInclude.procTouch(msg, x, y)) {
             return true;
         }
 

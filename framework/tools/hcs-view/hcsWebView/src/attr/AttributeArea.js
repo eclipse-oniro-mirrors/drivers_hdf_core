@@ -34,6 +34,12 @@ class AttributeArea {
     addTitle(name) {
         this.htmlStr += '<p class="att_title">' + name + '</p>';
     }
+    addImage(path) {
+        this.htmlStr += '<img src="' + path + '">' + '</img>';
+    }
+    addDotLine() {
+        this.htmlStr += '<p class="att_line">' + "----------------------" + '</p>';
+    }
     addInput(searchId, label, default_, disable) {
         let ret = '<label class="input_text_readonly">' + label + '</label>'
         ret += '<input id="' + searchId + '"';
@@ -62,7 +68,13 @@ class AttributeArea {
         if (label.length > 13) label = label.substring(0, 10) + "..."
         let text = '" class="button_click" type="button" onclick="document.attrCallback.Event('
         this.htmlStr += '<button id="' + searchId + text + "'button', " +
-        "'" + searchId + "'" + ')">' + label + '</button><br>';
+            "'" + searchId + "'" + ')">' + label + '</button><br>';
+    }
+    addButtonDelete(searchId, label) {
+        if (label.length > 13) label = label.substring(0, 10) + "..."
+        let text = '" class="button_click_delete" type="button" onclick="document.attrCallback.Event('
+        this.htmlStr += '<button id="' + searchId + text + "'button', " +
+            "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
     addSelect(searchId, label, selectList, default_, disable) {
         let ret = '<label class="input_text_readonly">' + label + '</label>'

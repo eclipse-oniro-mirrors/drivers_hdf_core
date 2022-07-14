@@ -19,8 +19,8 @@ class XSelect {
         this.pm2f_ = X2DFast.gi();
         this.resetList(list, default_)
         this.open_ = false;
-        this.nameColor_ = 0xff20f020;
-        this.backgroundColor_ = 0xff804050;
+        this.nameColor_ = 0xff000000;
+        this.backgroundColor_ = 0xffffffff;
         this.tmpSelect_ = -1;
         this.selectCallback = null;
     }
@@ -61,13 +61,13 @@ class XSelect {
         }
         this.pm2f_.drawText(name, 18, x, y, 1, 1, 0, -1, -1, this.nameColor_)
         if (this.open_) {
-            this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, 0xff202020)
+            this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, 0xffffffff)
             for (let i in this.list_) {
                 if (i == this.tmpSelect_) {
-                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0x80000080)
+                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0xff0099B4)
                 }
                 if (this.list_[i] == this.default_) {
-                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0x80008000)
+                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0xffffffff)
                 }
                 let name1 = "..."
                 if (this.list_[i].indexOf("\\") != -1) {
