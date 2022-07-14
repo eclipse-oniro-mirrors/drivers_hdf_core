@@ -193,12 +193,13 @@ class MainEditor {
                 w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xE6000000);
                 break;
             case 6://ConfigNode
+                var color = data.errMsg_ != null ? 0xE6FF0000 : 0xE6000000;
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
-                    0xE6000000, rgba(0, 153, 180));
+                color, rgba(0, 153, 180), data);
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
-                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xE6000000, rgba(244,145,38));
+                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xE6000000, rgba(244,145,38), data);
                 this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
                 this.drawObj(pm2f, data.value_, offx + w, offy, path);
                 break;
@@ -285,7 +286,7 @@ class MainEditor {
                 this.btnCancelSelect_.name_ = "取消剪切";
             }
 
-            this.btnCancelSelect_.move(Scr.logicw - 120, Scr.logich - 30, 100, 20).draw();
+            this.btnCancelSelect_.move(Scr.logicw - 250, Scr.logich - 30, 100, 20).draw();
         }
 
         if (this.errorMsg_.length > 0) {

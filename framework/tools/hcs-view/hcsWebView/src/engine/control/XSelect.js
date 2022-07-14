@@ -44,13 +44,13 @@ class XSelect {
         this.pm2f_.fillRect(x, y, w, h, this.backgroundColor_)
         this.pm2f_.drawText(this.default_, 18, x, y, 1, 1, 0, -1, -1, this.nameColor_)
         if (this.open_) {
-            this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, 0xff202020)
+            this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, 0xffffffff)
             for (let i in this.list_) {
                 if (i == this.tmpSelect_) {
-                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0x80000080)
+                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0xff0099B4)
                 }
                 if (this.list_[i] == this.default_) {
-                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0x80008000)
+                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0xffffffff)
                 }
                 this.pm2f_.drawText(this.list_[i], 18, x, y + h + i * 20, 1, 1, 0, -1, -1, this.nameColor_)
             }
