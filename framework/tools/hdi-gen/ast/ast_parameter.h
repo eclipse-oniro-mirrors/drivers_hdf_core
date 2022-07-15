@@ -73,8 +73,8 @@ public:
 
 private:
     String name_;
-    AutoPtr<ASTType> type_ = nullptr;
     AutoPtr<ASTParamAttr> attr_;
+    AutoPtr<ASTType> type_;
 };
 } // namespace HDI
 } // namespace OHOS

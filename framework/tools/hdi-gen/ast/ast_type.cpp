@@ -167,7 +167,7 @@ String ASTType::ToShortString()
     return name_;
 }
 
-String ASTType::ToString()
+String ASTType::ToString() const
 {
     return (namespace_ == nullptr) ? name_ : (namespace_->ToString() + name_);
 }
@@ -269,6 +269,11 @@ void ASTType::EmitMemoryRecycle(
     const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const
 {
     // only String, Array, List, struct and union type need recycle memory
+    (void)name;
+    (void)isClient;
+    (void)ownership;
+    (void)sb;
+    (void)prefix;
 }
 
 void ASTType::EmitJavaWriteVar(
@@ -287,6 +292,20 @@ void ASTType::EmitJavaReadInnerVar(
     const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
 {
     sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+}
+
+void ASTType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    // register methods that generate write util methods
+    (void)language;
+    (void)methods;
+}
+
+void ASTType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    // register methods that generate read util methods
+    (void)language;
+    (void)methods;
 }
 } // namespace HDI
 } // namespace OHOS

@@ -162,6 +162,7 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesSourceFile()
     sb.Append("\n");
     EmitBeginNamespace(sb);
     sb.Append("\n");
+    EmitUtilMethods(sb, "");
     EmitCustomTypeDataProcess(sb);
     sb.Append("\n");
     EmitEndNamespace(sb);
@@ -286,6 +287,20 @@ void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
     std::vector<String> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
     for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
         sb.AppendFormat("} // %s\n", nspaceIter->string());
+    }
+}
+
+void CppCustomTypesCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    UtilMethodMap methods;
+    for (const auto &typePair : ast_->GetTypes()) {
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+    }
+
+    for (const auto &methodPair : methods) {
+        sb.Append("\n");
+        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

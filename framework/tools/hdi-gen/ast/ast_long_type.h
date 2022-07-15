@@ -19,7 +19,7 @@ public:
 
     bool IsLongType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

@@ -83,10 +83,10 @@ AutoPtr<ASTSequenceableType> ASTNamespace::GetSequenceable(size_t index)
     return sequenceables_[index];
 }
 
-String ASTNamespace::ToString()
+String ASTNamespace::ToString() const
 {
     String nspaceStr;
-    ASTNamespace *nspace = this;
+    const ASTNamespace *nspace = this;
     while (nspace != nullptr) {
         nspaceStr = nspace->name_ + "." + nspaceStr;
         nspace = nspace->outerNamespace_;

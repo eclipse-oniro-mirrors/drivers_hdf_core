@@ -161,6 +161,7 @@ void CppClientProxyCodeEmitter::EmitProxySourceFile()
         EmitGetInstanceMethodImpl(sb, "");
         sb.Append("\n");
     }
+    EmitUtilMethods(sb, "");
     EmitProxyMethodImpls(sb, "");
     sb.Append("\n");
     EmitEndNamespace(sb);
@@ -401,6 +402,28 @@ void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(
         sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s:failed to write flag of memory setting!\", __func__);\n");
         sb.Append(prefix + TAB).AppendFormat("return HDF_ERR_INVALID_PARAM;\n");
         sb.Append(prefix).Append("}\n\n");
+    }
+}
+
+void CppClientProxyCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    UtilMethodMap methods;
+    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
+        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+        for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
+            AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_IN) {
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            } else {
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            }
+        }
+    }
+
+    for (const auto &methodPair : methods) {
+        sb.Append("\n");
+        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

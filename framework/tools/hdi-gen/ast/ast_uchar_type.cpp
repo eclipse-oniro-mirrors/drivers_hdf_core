@@ -15,7 +15,7 @@ bool ASTUcharType::IsUcharType()
     return true;
 }
 
-String ASTUcharType::ToString()
+String ASTUcharType::ToString() const
 {
     return "unsigned char";
 }

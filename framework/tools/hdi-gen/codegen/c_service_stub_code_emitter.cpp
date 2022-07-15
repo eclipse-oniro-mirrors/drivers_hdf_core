@@ -115,6 +115,7 @@ void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
     EmitLicense(sb);
     EmitStubSourceInclusions(sb);
     sb.Append("\n");
+    EmitUtilMethods(sb, "");
     EmitServiceStubMethodImpls(sb, "");
     sb.Append("\n");
     EmitStubOnRequestMethodImpl(sb, "");
@@ -207,7 +208,7 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
 
         sb.Append("\n");
         EmitReadFlagVariable(readFlag, sb, prefix + TAB);
-        for (int i = 0; i < method->GetParameterNumber(); i++) {
+        for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
                 EmitReadStubMethodParameter(param, dataParcelName_, finishedLabelName_, sb, prefix + TAB);
@@ -221,7 +222,7 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
     EmitStubCallMethod(method, finishedLabelName_, sb, prefix + TAB);
     sb.Append("\n");
 
-    for (int i = 0; i < method->GetParameterNumber(); i++) {
+    for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
         if (param->GetAttribute() == ParamAttr::PARAM_OUT) {
             param->EmitCWriteVar(replyParcelName_, errorCodeName_, finishedLabelName_, sb, prefix + TAB);
@@ -547,6 +548,28 @@ void CServiceStubCodeEmitter::EmitStubReleaseImpl(StringBuilder &sb)
     sb.Append(TAB).AppendFormat("HdfRemoteServiceRecycle(%s->remote);\n", objName.string());
     sb.Append(TAB).AppendFormat("%s->remote = NULL;\n", objName.string());
     sb.Append("}");
+}
+
+void CServiceStubCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    UtilMethodMap methods;
+    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
+        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+        for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
+            AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_IN) {
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            } else {
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            }
+        }
+    }
+
+    for (const auto &methodPair : methods) {
+        sb.Append("\n");
+        methodPair.second(sb, "", prefix, false);
+    }
 }
 } // namespace HDI
 } // namespace OHOS

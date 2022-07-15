@@ -15,7 +15,7 @@ bool ASTUlongType::IsUlongType()
     return true;
 }
 
-String ASTUlongType::ToString()
+String ASTUlongType::ToString() const
 {
     return "unsigned long";
 }

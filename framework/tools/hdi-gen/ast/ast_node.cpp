@@ -12,7 +12,7 @@ namespace OHOS {
 namespace HDI {
 ASTNode::~ASTNode() {}
 
-String ASTNode::ToString()
+String ASTNode::ToString() const
 {
     return "ASTNode";
 }

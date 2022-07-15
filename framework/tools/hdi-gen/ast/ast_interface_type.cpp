@@ -41,7 +41,7 @@ bool ASTInterfaceType::IsInterfaceType()
     return true;
 }
 
-String ASTInterfaceType::ToString()
+String ASTInterfaceType::ToString() const
 {
     return name_;
 }

@@ -69,6 +69,8 @@ private:
     void EmitStubGetMethodImpl(StringBuilder &sb);
 
     void EmitStubReleaseImpl(StringBuilder &sb);
+
+    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
 };
 } // namespace HDI
 } // namespace OHOS

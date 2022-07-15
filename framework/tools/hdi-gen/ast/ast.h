@@ -52,7 +52,7 @@ class AST : public ASTNode {
 public:
     using StrASTMap = std::unordered_map<String, AutoPtr<AST>, StringHashFunc, StringEqualFunc>;
 
-    AST();
+    using TypeStringMap = std::unordered_map<String, AutoPtr<ASTType>, StringHashFunc, StringEqualFunc>;
 
     virtual ~AST() = default;
 
@@ -125,8 +125,6 @@ public:
 
     AutoPtr<ASTType> FindType(const String &typeName);
 
-    using TypeStringMap = std::unordered_map<String, AutoPtr<ASTType>, StringHashFunc, StringEqualFunc>;
-
     inline const TypeStringMap &GetTypes() const
     {
         return types_;
@@ -191,6 +189,8 @@ private:
 
     StrASTMap imports_;
     TypeStringMap types_;
+
+    static TypeStringMap basicTypes_;
 
     String idlFilePath_;
 };

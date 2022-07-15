@@ -90,6 +90,8 @@ private:
 
     void EmitProxyReleaseMethodImpl(const String &remoteName, const String &recycleFuncName, StringBuilder &sb);
 
+    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
+
     std::vector<String> freeObjStatements_;
 };
 } // namespace HDI

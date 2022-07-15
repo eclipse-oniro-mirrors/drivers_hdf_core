@@ -15,7 +15,7 @@ bool ASTBooleanType::IsBooleanType()
     return true;
 }
 
-String ASTBooleanType::ToString()
+String ASTBooleanType::ToString() const
 {
     return "boolean";
 }

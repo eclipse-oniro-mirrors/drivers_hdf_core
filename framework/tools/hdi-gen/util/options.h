@@ -20,6 +20,12 @@ class Options {
 public:
     using PkgPathMap = std::unordered_map<String, String, StringHashFunc, StringEqualFunc>;
 
+    enum class Language {
+        C,
+        CPP,
+        JAVA,
+    };
+
     static Options &GetInstance();
 
     Options(const Options &other) = delete;
@@ -79,7 +85,7 @@ public:
         return packagePath_;
     }
 
-    inline String GetTargetLanguage() const
+    inline Language GetTargetLanguage() const
     {
         return targetLanguage_;
     }
@@ -119,7 +125,7 @@ private:
     Options()
         : program_(),
         sourceFiles_(0),
-        targetLanguage_(),
+        targetLanguage_(Language::C),
         codePart_("all"),
         generationDirectory_(),
         illegalOptions_(),
@@ -141,7 +147,7 @@ private:
 
     void AddPackagePath(const String &packagePath);
 
-    void SetLanguage(const String &language);
+    void SetLanguage(Language language);
 
     void SetCodePart(const String &part);
 
@@ -155,7 +161,7 @@ private:
 
     String program_;
     std::vector<String> sourceFiles_;
-    String targetLanguage_;
+    Language targetLanguage_;
     String codePart_;
     String moduleName_;
     String generationDirectory_;

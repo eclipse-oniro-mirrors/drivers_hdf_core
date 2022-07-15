@@ -27,9 +27,8 @@ private:
     void GenerateCppCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart);
     void GenerateJavaCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart);
 
-    String targetDirectory_;
-
     const StrAstMap &allAst_;
+    String targetDirectory_;
 
     static CodeEmitMap cCodeEmitters_;
     static CodeEmitMap cppCodeEmitters_;

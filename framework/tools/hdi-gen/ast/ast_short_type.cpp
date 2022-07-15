@@ -15,7 +15,7 @@ bool ASTShortType::IsShortType()
     return true;
 }
 
-String ASTShortType::ToString()
+String ASTShortType::ToString() const
 {
     return "short";
 }

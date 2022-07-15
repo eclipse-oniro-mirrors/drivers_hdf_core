@@ -237,5 +237,12 @@ String CodeEmitter::FileName(const String &name)
 
     return sb.ToString();
 }
+
+void CodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    // generator util methods
+    (void)sb;
+    (void)prefix;
+}
 } // namespace HDI
 } // namespace OHOS

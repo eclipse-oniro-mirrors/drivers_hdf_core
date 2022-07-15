@@ -19,6 +19,10 @@ void ASTStructType::AddMember(const AutoPtr<ASTType> &typeName, String name)
         }
     }
     members_.push_back(std::make_tuple(name, typeName));
+
+    if (!typeName->IsPod()) {
+        isPod_ = false;
+    }
 }
 
 bool ASTStructType::IsStructType()
@@ -26,7 +30,7 @@ bool ASTStructType::IsStructType()
     return true;
 }
 
-String ASTStructType::ToString()
+String ASTStructType::ToString() const
 {
     return "struct " + name_;
 }

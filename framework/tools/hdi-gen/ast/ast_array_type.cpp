@@ -18,10 +18,18 @@ bool ASTArrayType::IsArrayType()
 
 bool ASTArrayType::HasInnerType(TypeKind innerTypeKind) const
 {
-    return elementType_ != nullptr ? (elementType_->GetTypeKind() == innerTypeKind) : false;
+    if (elementType_ == nullptr) {
+        return false;
+    }
+
+    if (elementType_->GetTypeKind() == innerTypeKind) {
+        return true;
+    }
+
+    return elementType_->HasInnerType(innerTypeKind);
 }
 
-String ASTArrayType::ToString()
+String ASTArrayType::ToString() const
 {
     return String::Format("%s[]", elementType_->ToString().string());
 }
@@ -618,6 +626,16 @@ void ASTArrayType::EmitCStubReadStrElement(const String &parcelName, const Strin
     } else {
         sb.Append(newPrefix).AppendFormat("%s[i] = strdup(%sCp);\n", name.string(), name.string());
     }
+}
+
+void ASTArrayType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    elementType_->RegisterWriteMethod(language, methods);
+}
+
+void ASTArrayType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    elementType_->RegisterReadMethod(language, methods);
 }
 } // namespace HDI
 } // namespace OHOS

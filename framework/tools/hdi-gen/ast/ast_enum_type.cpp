@@ -29,7 +29,7 @@ bool ASTEnumType::IsEnumType()
     return true;
 }
 
-String ASTEnumType::ToString()
+String ASTEnumType::ToString() const
 {
     return "enum " + name_;
 }

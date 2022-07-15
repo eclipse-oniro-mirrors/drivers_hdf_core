@@ -69,6 +69,8 @@ private:
     void EmitCustomTypeMemoryRecycle(
         const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb, const String &prefix);
 
+    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
+
     std::vector<String> freeObjStatements_;
 };
 } // namespace HDI

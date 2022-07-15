@@ -15,7 +15,7 @@ bool ASTFloatType::IsFloatType()
     return true;
 }
 
-String ASTFloatType::ToString()
+String ASTFloatType::ToString() const
 {
     return "float";
 }

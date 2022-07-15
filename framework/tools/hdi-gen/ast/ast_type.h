@@ -9,9 +9,13 @@
 #ifndef OHOS_HDI_ASTTYPE_H
 #define OHOS_HDI_ASTTYPE_H
 
+#include <functional>
+#include <unordered_map>
+
 #include "ast/ast_namespace.h"
 #include "ast/ast_node.h"
 #include "util/autoptr.h"
+#include "util/options.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
@@ -51,14 +55,12 @@ enum class TypeMode {
     LOCAL_VAR, // type of the local variable
 };
 
-enum class LanguageType {
-    LANG_C,
-    LANG_CPP,
-    LANG_JAVA,
-};
+using UtilMethod = std::function<void(StringBuilder&, const String&, const String&, bool)>;
+using UtilMethodMap = std::unordered_map<String, UtilMethod, StringHashFunc, StringEqualFunc>;
 
 class ASTType : public ASTNode {
 public:
+
     ASTType(TypeKind kind = TypeKind::TYPE_UNKNOWN, bool isPod = true)
         : typeKind_(kind), isPod_(isPod), name_(), namespace_() {}
 
@@ -124,7 +126,7 @@ public:
 
     virtual String ToShortString();
 
-    String ToString() override;
+    String ToString() const override;
 
     virtual TypeKind GetTypeKind();
 
@@ -181,6 +183,10 @@ public:
 
     virtual void EmitJavaReadInnerVar(
         const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const;
+
+    virtual void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const;
+
+    virtual void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const;
 protected:
     TypeKind typeKind_;
     bool isPod_;

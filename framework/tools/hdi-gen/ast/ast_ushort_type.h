@@ -19,7 +19,7 @@ public:
 
     bool IsUshortType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

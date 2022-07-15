@@ -51,6 +51,7 @@ void CClientProxyCodeEmitter::EmitProxySourceFile()
     }
 
     sb.Append("\n");
+    EmitUtilMethods(sb, "");
     EmitProxyMethodImpls(sb);
     sb.Append("\n");
     EmitProxyConstruction(sb);
@@ -579,6 +580,28 @@ void CClientProxyCodeEmitter::EmitProxyReleaseMethodImpl(
     sb.Append(TAB).AppendFormat("%s(proxy->%s);\n", recycleFuncName.string(), remoteName.string());
     sb.Append(TAB).Append("OsalMemFree(proxy);\n");
     sb.Append("}\n");
+}
+
+void CClientProxyCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    UtilMethodMap methods;
+    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
+        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+        for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
+            AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_IN) {
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            } else {
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            }
+        }
+    }
+
+    for (const auto &methodPair : methods) {
+        sb.Append("\n");
+        methodPair.second(sb, "", prefix, false);
+    }
 }
 } // namespace HDI
 } // namespace OHOS

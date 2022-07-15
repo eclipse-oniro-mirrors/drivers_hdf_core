@@ -15,7 +15,7 @@ bool ASTLongType::IsLongType()
     return true;
 }
 
-String ASTLongType::ToString()
+String ASTLongType::ToString() const
 {
     return "long";
 }

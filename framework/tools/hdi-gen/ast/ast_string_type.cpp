@@ -15,7 +15,7 @@ bool ASTStringType::IsStringType()
     return true;
 }
 
-String ASTStringType::ToString()
+String ASTStringType::ToString() const
 {
     return "String";
 }

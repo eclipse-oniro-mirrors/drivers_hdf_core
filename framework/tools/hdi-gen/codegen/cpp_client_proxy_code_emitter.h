@@ -64,6 +64,8 @@ private:
 
     void EmitWriteFlagOfNeedSetMem(
         const AutoPtr<ASTMethod> &method, const String &dataBufName, StringBuilder &sb, const String &prefix);
+
+    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
 };
 } // namespace HDI
 } // namespace OHOS

@@ -19,7 +19,7 @@ public:
 
     bool IsFdType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 
@@ -63,6 +63,18 @@ public:
 
     void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
         const String &prefix) const override;
+
+    void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const override;
+
+    void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const override;
+
+    void EmitCWriteMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+
+    void EmitCReadMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+
+    void EmitCppWriteMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+
+    void EmitCppReadMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
 };
 } // namespace HDI
 } // namespace OHOS
