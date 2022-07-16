@@ -15,7 +15,7 @@ bool ASTByteType::IsByteType()
     return true;
 }
 
-String ASTByteType::ToString()
+String ASTByteType::ToString() const
 {
     return "byte";
 }

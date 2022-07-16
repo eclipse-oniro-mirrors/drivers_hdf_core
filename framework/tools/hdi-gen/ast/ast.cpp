@@ -14,24 +14,23 @@
 
 namespace OHOS {
 namespace HDI {
-AST::AST()
-{
-    types_["boolean"] = new ASTBooleanType();
-    types_["byte"] = new ASTByteType();
-    types_["short"] = new ASTShortType();
-    types_["int"] = new ASTIntegerType();
-    types_["long"] = new ASTLongType();
-    types_["float"] = new ASTFloatType();
-    types_["double"] = new ASTDoubleType();
-    types_["String"] = new ASTStringType();
-    types_["unsigned char"] = new ASTUcharType();
-    types_["unsigned short"] = new ASTUshortType();
-    types_["unsigned int"] = new ASTUintType();
-    types_["unsigned long"] = new ASTUlongType();
-    types_["void"] = new ASTVoidType();
-    types_["FileDescriptor"] = new ASTFdType();
-    types_["Ashmem"] = new ASTAshmemType();
-}
+AST::TypeStringMap AST::basicTypes_ = {
+    {"boolean", new ASTBooleanType()},
+    {"byte", new ASTByteType()},
+    {"short", new ASTShortType()},
+    {"int", new ASTIntegerType()},
+    {"long", new ASTLongType()},
+    {"float", new ASTFloatType()},
+    {"double", new ASTDoubleType()},
+    {"String", new ASTStringType()},
+    {"unsigned char", new ASTUcharType()},
+    {"unsigned short", new ASTUshortType()},
+    {"unsigned int", new ASTUintType()},
+    {"unsigned long", new ASTUlongType()},
+    {"void", new ASTVoidType()},
+    {"FileDescriptor", new ASTFdType()},
+    {"Ashmem", new ASTAshmemType()},
+};
 
 void AST::SetIdlFile(const String &idlFile)
 {
@@ -159,6 +158,11 @@ AutoPtr<ASTType> AST::FindType(const String &typeName)
     auto it = types_.find(typeName);
     if (it != types_.end()) {
         return it->second;
+    }
+
+    auto basicTypePair = basicTypes_.find(typeName);
+    if (basicTypePair != basicTypes_.end()) {
+        return basicTypePair->second;
     }
 
     AutoPtr<ASTType> type = nullptr;

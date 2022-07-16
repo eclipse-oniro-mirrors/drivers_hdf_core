@@ -159,6 +159,7 @@ void CppServiceStubCodeEmitter::EmitStubSourceFile()
     sb.Append("\n");
     EmitStubOnRequestMethodImpl(sb, "");
     sb.Append("\n");
+    EmitUtilMethods(sb, "");
     EmitStubMethodImpls(sb, "");
     EmitEndNamespace(sb);
 
@@ -405,6 +406,28 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(
         sb.Append(prefix + TAB)
             .AppendFormat("%s.reserve(%s.ReadUint32());\n", param->GetName().string(), parcelName.string());
         sb.Append(prefix).Append("}\n");
+    }
+}
+
+void CppServiceStubCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    UtilMethodMap methods;
+    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
+        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+        for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
+            AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_IN) {
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            } else {
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+            }
+        }
+    }
+
+    for (const auto &methodPair : methods) {
+        sb.Append("\n");
+        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

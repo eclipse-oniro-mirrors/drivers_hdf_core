@@ -27,7 +27,7 @@ bool ASTUnionType::IsUnionType()
     return true;
 }
 
-String ASTUnionType::ToString()
+String ASTUnionType::ToString() const
 {
     return "union " + name_;
 }

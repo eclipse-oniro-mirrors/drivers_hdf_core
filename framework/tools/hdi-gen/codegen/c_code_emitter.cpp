@@ -46,7 +46,7 @@ void CCodeEmitter::EmitErrorHandle(
 {
     if (!isClient) {
         sb.Append(prefix).AppendFormat("%s:\n", gotoLabel.string());
-        for (int i = 0; i < method->GetParameterNumber(); i++) {
+        for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             AutoPtr<ASTType> paramType = param->GetType();
             paramType->EmitMemoryRecycle(param->GetName(), isClient, true, sb, prefix + TAB);

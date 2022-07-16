@@ -19,7 +19,7 @@ public:
 
     bool IsBooleanType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

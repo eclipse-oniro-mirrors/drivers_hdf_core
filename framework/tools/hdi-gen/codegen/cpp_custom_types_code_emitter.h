@@ -57,6 +57,8 @@ private:
     void EmitBeginNamespace(StringBuilder &sb) override;
 
     void EmitEndNamespace(StringBuilder &sb) override;
+
+    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
 };
 } // namespace HDI
 } // namespace OHOS

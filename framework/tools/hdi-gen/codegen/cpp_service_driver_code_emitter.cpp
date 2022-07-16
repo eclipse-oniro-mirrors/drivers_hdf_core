@@ -125,7 +125,7 @@ void CppServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb)
 
 void CppServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb)
 {
-    sb.AppendFormat("int Hdf%sDriverInit(struct HdfDeviceObject *deviceObject)\n", baseName_.string());
+    sb.AppendFormat("static int Hdf%sDriverInit(struct HdfDeviceObject *deviceObject)\n", baseName_.string());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("HDF_LOGI(\"Hdf%sDriverInit enter\");\n", baseName_.string());
     sb.Append(TAB).Append("return HDF_SUCCESS;\n");
@@ -135,7 +135,7 @@ void CppServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb)
 void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
 {
     String objName = String::Format("hdf%sHost", baseName_.string());
-    sb.AppendFormat("int Hdf%sDriverBind(struct HdfDeviceObject *deviceObject)\n", baseName_.string());
+    sb.AppendFormat("static int Hdf%sDriverBind(struct HdfDeviceObject *deviceObject)\n", baseName_.string());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("HDF_LOGI(\"Hdf%sDriverBind enter\");\n\n", baseName_.string());
 
@@ -174,7 +174,7 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
 void CppServiceDriverCodeEmitter::EmitDriverRelease(StringBuilder &sb)
 {
     String objName = String::Format("hdf%sHost", baseName_.string());
-    sb.AppendFormat("void Hdf%sDriverRelease(struct HdfDeviceObject *deviceObject)", baseName_.string());
+    sb.AppendFormat("static void Hdf%sDriverRelease(struct HdfDeviceObject *deviceObject)", baseName_.string());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("HDF_LOGI(\"Hdf%sDriverRelease enter\");\n", baseName_.string());
     sb.Append(TAB).AppendFormat("if (deviceObject->service == nullptr) {\n");

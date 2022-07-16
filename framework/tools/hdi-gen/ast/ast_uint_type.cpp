@@ -15,7 +15,7 @@ bool ASTUintType::IsUintType()
     return true;
 }
 
-String ASTUintType::ToString()
+String ASTUintType::ToString() const
 {
     return "unsigned int";
 }

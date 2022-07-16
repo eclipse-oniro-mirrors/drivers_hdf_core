@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         for (const auto &sourceFile : options.GetSourceFiles()) {
             std::unique_ptr<File> idlFile = std::make_unique<File>(sourceFile, int(File::READ));
             if (!idlFile->IsValid()) {
-                Logger::E("hdi-gen", "open idl file failed!");
+                Logger::E("hdi-gen", "failed to open idl file");
                 return -1;
             }
             printf("%s:%lu\n", idlFile->GetPath().string(), idlFile->GetHashKey());
@@ -52,12 +52,12 @@ int main(int argc, char **argv)
     Preprocessor preprocessor;
     std::vector<String> sourceFiles;
     if (!preprocessor.Preprocess(sourceFiles)) {
-        Logger::E("MAIN", "preprocess failed");
+        Logger::E("MAIN", "failed to preprocess");
     }
 
     Parser parser;
     if (!parser.Parse(sourceFiles)) {
-        Logger::E("MAIN", "parse file failed");
+        Logger::E("MAIN", "failed to parse file");
         return -1;
     }
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     }
 
     if (!CodeGenerator(parser.GetAllAst()).Generate()) {
-        Logger::E("hdi-gen", "Generate \"%s\" codes failed.", options.GetTargetLanguage().string());
+        Logger::E("hdi-gen", "failed to generate code");
         return -1;
     }
     return 0;

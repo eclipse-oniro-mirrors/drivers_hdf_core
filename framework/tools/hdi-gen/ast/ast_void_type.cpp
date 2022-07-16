@@ -15,7 +15,7 @@ bool ASTVoidType::IsVoidType()
     return true;
 }
 
-String ASTVoidType::ToString()
+String ASTVoidType::ToString() const
 {
     return "void";
 }

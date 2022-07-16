@@ -16,7 +16,7 @@ namespace OHOS {
 namespace HDI {
 class ASTTypeAttr : public ASTNode {
 public:
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 
@@ -27,7 +27,7 @@ public:
 
 class ASTInfAttr : public ASTNode {
 public:
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 
@@ -40,7 +40,7 @@ public:
 
 class ASTMethodAttr : public ASTNode {
 public:
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 
@@ -59,7 +59,7 @@ class ASTParamAttr : public ASTNode {
 public:
     ASTParamAttr(ParamAttr value) : ASTNode(), value_(value) {}
 
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 

@@ -164,6 +164,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypesSourceFile()
     EmitLicense(sb);
     EmitSoucreInclusions(sb);
     sb.Append("\n");
+    EmitUtilMethods(sb, "");
     EmitCustomTypeDataProcess(sb);
 
     String data = sb.ToString();
@@ -433,6 +434,20 @@ void CCustomTypesCodeEmitter::EmitCustomTypeMemoryRecycle(
             default:
                 break;
         }
+    }
+}
+
+void CCustomTypesCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+{
+    UtilMethodMap methods;
+    for (const auto &typePair : ast_->GetTypes()) {
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+    }
+
+    for (const auto &methodPair : methods) {
+        sb.Append("\n");
+        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

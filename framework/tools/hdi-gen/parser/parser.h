@@ -100,6 +100,8 @@ private:
     // parse type
     AutoPtr<ASTType> ParseType();
 
+    AutoPtr<ASTType> ParseBasicType();
+
     AutoPtr<ASTType> ParseUnsignedType();
 
     AutoPtr<ASTType> ParseArrayType(const AutoPtr<ASTType> &elementType);

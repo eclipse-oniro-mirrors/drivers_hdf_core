@@ -83,13 +83,13 @@ void Options::SetOptionData(char op)
             moduleName_ = optarg;
             break;
         case 'C':
-            SetLanguage("c");
+            SetLanguage(Language::C);
             break;
         case 'P':
-            SetLanguage("cpp");
+            SetLanguage(Language::CPP);
             break;
         case 'J':
-            SetLanguage("java");
+            SetLanguage(Language::JAVA);
             break;
         case 'p':
             SetCodePart(optarg);
@@ -133,10 +133,10 @@ void Options::AddPackagePath(const String &packagePath)
     packagePath_[package] = path;
 }
 
-void Options::SetLanguage(const String &language)
+void Options::SetLanguage(Language kind)
 {
     doGenerateCode_ = true;
-    targetLanguage_ = language;
+    targetLanguage_ = kind;
 }
 
 void Options::SetCodePart(const String &part)

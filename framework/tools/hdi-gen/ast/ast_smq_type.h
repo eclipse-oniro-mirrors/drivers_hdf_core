@@ -26,7 +26,7 @@ public:
 
     bool HasInnerType(TypeKind innerType) const override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 
@@ -37,7 +37,6 @@ public:
 
     void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
         bool initVariable, unsigned int innerLevel = 0) const override;
-
 private:
     AutoPtr<ASTType> innerType_;
 };
@@ -48,7 +47,7 @@ public:
 
     bool IsAshmemType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

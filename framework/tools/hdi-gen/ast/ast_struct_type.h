@@ -75,7 +75,7 @@ public:
 
     bool IsStructType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 

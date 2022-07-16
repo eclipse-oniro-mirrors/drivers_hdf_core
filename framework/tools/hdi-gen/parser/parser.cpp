@@ -645,11 +645,9 @@ AutoPtr<ASTType> Parser::ParseType()
         case TokenType::FLOAT:
         case TokenType::DOUBLE:
         case TokenType::FD:
-            type = ast_->FindType(token.value_);
-            lexer_.GetToken();
-            break;
+        case TokenType::ASHMEM:
         case TokenType::UNSIGNED:
-            type = ParseUnsignedType();
+            type = ParseBasicType();
             break;
         case TokenType::LIST:
             type = ParseListType();
@@ -681,6 +679,21 @@ AutoPtr<ASTType> Parser::ParseType()
     while (lexer_.PeekToken().kind_ == TokenType::BRACKETS_LEFT) {
         type = ParseArrayType(type);
     }
+    return type;
+}
+
+AutoPtr<ASTType> Parser::ParseBasicType()
+{
+    AutoPtr<ASTType> type = nullptr;
+    Token token = lexer_.PeekToken();
+    if (token.kind_ == TokenType::UNSIGNED) {
+        type = ParseUnsignedType();
+    } else {
+        type = ast_->FindType(token.value_);
+        lexer_.GetToken();
+    }
+
+    ast_->AddType(type);
     return type;
 }
 
@@ -722,14 +735,13 @@ AutoPtr<ASTType> Parser::ParseArrayType(const AutoPtr<ASTType> &elementType)
 
     AutoPtr<ASTArrayType> arrayType = new ASTArrayType();
     arrayType->SetElementType(elementType);
-    AutoPtr<ASTType> type = ast_->FindType(arrayType->ToString());
-
-    if (type == nullptr) {
-        ast_->AddType(arrayType.Get());
-        type = arrayType.Get();
+    AutoPtr<ASTType> retType = ast_->FindType(arrayType->ToString());
+    if (retType == nullptr) {
+        retType = arrayType.Get();
     }
 
-    return type;
+    ast_->AddType(retType);
+    return retType;
 }
 
 AutoPtr<ASTType> Parser::ParseListType()
@@ -756,16 +768,15 @@ AutoPtr<ASTType> Parser::ParseListType()
         lexer_.GetToken(); // '>'
     }
 
-    AutoPtr<ASTListType> list = new ASTListType();
-    list->SetElementType(type);
-
-    AutoPtr<ASTType> ret = ast_->FindType(list->ToString());
-    if (ret == nullptr) {
-        ast_->AddType(list.Get());
-        ret = list.Get();
+    AutoPtr<ASTListType> listType = new ASTListType();
+    listType->SetElementType(type);
+    AutoPtr<ASTType> retType = ast_->FindType(listType->ToString());
+    if (retType == nullptr) {
+        retType = listType.Get();
     }
 
-    return ret;
+    ast_->AddType(retType);
+    return retType;
 }
 
 AutoPtr<ASTType> Parser::ParseMapType()
@@ -807,17 +818,16 @@ AutoPtr<ASTType> Parser::ParseMapType()
         lexer_.GetToken();
     }
 
-    AutoPtr<ASTMapType> map = new ASTMapType();
-    map->SetKeyType(keyType);
-    map->SetValueType(valueType);
-
-    AutoPtr<ASTType> ret = ast_->FindType(map->ToString());
-    if (ret == nullptr) {
-        ast_->AddType(map.Get());
-        ret = map.Get();
+    AutoPtr<ASTMapType> mapType = new ASTMapType();
+    mapType->SetKeyType(keyType);
+    mapType->SetValueType(valueType);
+    AutoPtr<ASTType> retType = ast_->FindType(mapType->ToString());
+    if (retType == nullptr) {
+        retType = mapType.Get();
     }
 
-    return ret;
+    ast_->AddType(retType);
+    return retType;
 }
 
 AutoPtr<ASTType> Parser::ParseSmqType()
@@ -844,15 +854,15 @@ AutoPtr<ASTType> Parser::ParseSmqType()
         lexer_.GetToken(); // '>'
     }
 
-    AutoPtr<ASTSmqType> type = new ASTSmqType();
-    type->SetInnerType(InnerType);
-    AutoPtr<ASTType> ret = ast_->FindType(type->ToString());
-    if (ret == nullptr) {
-        ast_->AddType(type.Get());
-        ret = type.Get();
+    AutoPtr<ASTSmqType> smqType = new ASTSmqType();
+    smqType->SetInnerType(InnerType);
+    AutoPtr<ASTType> retType = ast_->FindType(smqType->ToString());
+    if (retType == nullptr) {
+        retType = smqType.Get();
     }
 
-    return ret;
+    ast_->AddType(retType);
+    return retType;
 }
 
 AutoPtr<ASTType> Parser::ParseUserDefType()
@@ -874,9 +884,7 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
 
     String typeName = typePrefix + " " + token.value_;
     AutoPtr<ASTType> type = ast_->FindType(typeName);
-    if (type != nullptr) {
-        ast_->AddType(type);
-    }
+    ast_->AddType(type);
     return type;
 }
 
@@ -1041,7 +1049,6 @@ void Parser::ParseStructMember(const AutoPtr<ASTStructType> &structType)
             continue;
         }
 
-        String typeName = memberType->ToString();
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::ID) {
             LogError(token, String::Format("expected member name before '%s' token", token.value_.string()));
@@ -1118,7 +1125,6 @@ void Parser::ParseUnionMember(const AutoPtr<ASTUnionType> &unionType)
             continue;
         }
 
-        String typeName = memberType->ToString();
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::ID) {
             LogError(token, String::Format("expected member name before '%s' token", token.value_.string()));
@@ -1367,7 +1373,7 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
         return false;
     }
 
-    if (Options::GetInstance().GetTargetLanguage().Equals("c")) {
+    if (Options::GetInstance().GetTargetLanguage() == Options::Language::C) {
         if (type->IsSequenceableType()) {
             LogError(token, String::Format("The sequenceable type is not supported by c language."));
             return false;
@@ -1391,7 +1397,7 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
                     break;
             }
         }
-    } else if (Options::GetInstance().GetTargetLanguage().Equals("java")) {
+    } else if (Options::GetInstance().GetTargetLanguage() == Options::Language::JAVA) {
         switch (type->GetTypeKind()) {
             case TypeKind::TYPE_UCHAR:
             case TypeKind::TYPE_USHORT:

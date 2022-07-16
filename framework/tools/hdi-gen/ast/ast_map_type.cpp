@@ -21,10 +21,18 @@ bool ASTMapType::HasInnerType(TypeKind innerTypeKind) const
         if (keyType_->GetTypeKind() == innerTypeKind) {
             return true;
         }
+
+        if (keyType_->HasInnerType(innerTypeKind)) {
+            return true;
+        }
     }
 
     if (valueType_ != nullptr) {
         if (valueType_->GetTypeKind() == innerTypeKind) {
+            return true;
+        }
+
+        if (valueType_->HasInnerType(innerTypeKind)) {
             return true;
         }
     }
@@ -32,7 +40,7 @@ bool ASTMapType::HasInnerType(TypeKind innerTypeKind) const
     return false;
 }
 
-String ASTMapType::ToString()
+String ASTMapType::ToString() const
 {
     return String::Format("Map<%s, %s>", keyType_->ToString().string(), valueType_->ToString().string());
 }
@@ -184,6 +192,18 @@ void ASTMapType::EmitJavaReadInnerVar(
     valueType_->EmitJavaReadInnerVar(parcelName, "value", true, sb, prefix + TAB);
     sb.Append(prefix + TAB).AppendFormat("%s.put(key, value);\n", name.string());
     sb.Append(prefix).Append("}\n");
+}
+
+void ASTMapType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    keyType_->RegisterWriteMethod(language, methods);
+    valueType_->RegisterWriteMethod(language, methods);
+}
+
+void ASTMapType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    keyType_->RegisterReadMethod(language, methods);
+    valueType_->RegisterReadMethod(language, methods);
 }
 } // namespace HDI
 } // namespace OHOS

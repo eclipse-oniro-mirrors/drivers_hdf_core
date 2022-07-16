@@ -18,7 +18,7 @@ class ASTNode : public LightRefCountBase {
 public:
     virtual ~ASTNode();
 
-    virtual String ToString();
+    virtual String ToString() const;
 
     virtual String Dump(const String &prefix);
 protected:

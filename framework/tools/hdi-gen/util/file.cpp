@@ -216,7 +216,7 @@ String File::AdapterPath(const String &path)
     // "foo/v1_0//ifoo.h" -> "foo/v1_0/ifoo.h"
     StringBuilder adapterPath;
     bool hasSep = false;
-    for (size_t i = 0; i < newPath.GetLength(); i++) {
+    for (int i = 0; i < newPath.GetLength(); i++) {
         char c = newPath[i];
         if (c == File::separator) {
             if (hasSep) {

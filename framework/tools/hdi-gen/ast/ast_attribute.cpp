@@ -27,7 +27,7 @@ static void AttributesFormat(StringBuilder &sb, const std::vector<String> attrs)
     sb.Append("]");
 }
 
-String ASTTypeAttr::ToString()
+String ASTTypeAttr::ToString() const
 {
     StringBuilder sb;
     std::vector<String> attrVec;
@@ -48,7 +48,7 @@ String ASTTypeAttr::Dump(const String &prefix)
     return prefix + ToString();
 }
 
-String ASTInfAttr::ToString()
+String ASTInfAttr::ToString() const
 {
     StringBuilder sb;
     std::vector<String> attrVec;
@@ -77,7 +77,7 @@ String ASTInfAttr::Dump(const String &prefix)
     return prefix + ToString();
 }
 
-String ASTMethodAttr::ToString()
+String ASTMethodAttr::ToString() const
 {
     StringBuilder sb;
     std::vector<String> attrVec;
@@ -102,7 +102,7 @@ String ASTMethodAttr::Dump(const String &prefix)
     return prefix + ToString();
 }
 
-String ASTParamAttr::ToString()
+String ASTParamAttr::ToString() const
 {
     return String::Format("[%s]", (value_ == ParamAttr::PARAM_IN) ? "in" : "out");
 }

@@ -15,7 +15,7 @@ bool ASTIntegerType::IsIntegerType()
     return true;
 }
 
-String ASTIntegerType::ToString()
+String ASTIntegerType::ToString() const
 {
     return "int";
 }

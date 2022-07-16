@@ -24,7 +24,7 @@ bool ASTSequenceableType::IsSequenceableType()
     return true;
 }
 
-String ASTSequenceableType::ToString()
+String ASTSequenceableType::ToString() const
 {
     return name_;
 }

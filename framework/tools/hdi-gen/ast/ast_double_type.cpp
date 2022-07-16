@@ -15,7 +15,7 @@ bool ASTDoubleType::IsDoubleType()
     return true;
 }
 
-String ASTDoubleType::ToString()
+String ASTDoubleType::ToString() const
 {
     return "double";
 }

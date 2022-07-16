@@ -111,6 +111,8 @@ protected:
     // FileName -> file_name
     String FileName(const String &name);
 
+    virtual void EmitUtilMethods(StringBuilder &sb, const String &prefix);
+
 protected:
     static constexpr char *TAB = "    ";
     bool isKernelCode_ = false;

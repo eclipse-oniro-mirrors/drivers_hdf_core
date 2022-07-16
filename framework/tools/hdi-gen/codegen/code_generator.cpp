@@ -52,18 +52,24 @@ bool CodeGenerator::Generate()
 {
     const Options &options = Options::GetInstance();
     String dir = options.GetGenerationDirectory();
-    String language = options.GetTargetLanguage();
+    Options::Language language = options.GetTargetLanguage();
     bool isModeKernel = options.DoGenerateKernelCode();
     String codePart = options.GetCodePart();
 
     for (auto &astPair : allAst_) {
         AutoPtr<AST> ast = astPair.second;
-        if (language.Equals("c")) {
-            GenerateCCode(ast, dir, codePart, isModeKernel);
-        } else if (language.Equals("cpp")) {
-            GenerateCppCode(ast, dir, codePart);
-        } else if (language.Equals("java")) {
-            GenerateJavaCode(ast, dir, codePart);
+        switch (language) {
+            case Options::Language::C:
+                GenerateCCode(ast, dir, codePart, isModeKernel);
+                break;
+            case Options::Language::CPP:
+                GenerateCppCode(ast, dir, codePart);
+                break;
+            case Options::Language::JAVA:
+                GenerateJavaCode(ast, dir, codePart);
+                break;
+            default:
+                break;
         }
     }
 

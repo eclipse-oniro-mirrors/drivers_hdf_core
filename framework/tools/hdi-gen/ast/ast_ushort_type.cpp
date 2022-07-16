@@ -15,7 +15,7 @@ bool ASTUshortType::IsUshortType()
     return true;
 }
 
-String ASTUshortType::ToString()
+String ASTUshortType::ToString() const
 {
     return "unsigned short";
 }

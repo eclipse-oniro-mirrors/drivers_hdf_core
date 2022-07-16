@@ -64,7 +64,7 @@ public:
         return name_;
     }
 
-    String ToString() override;
+    String ToString() const override;
 
 private:
     String name_;
