@@ -361,6 +361,7 @@ static int32_t WifiCmdGetDriverFlag(const RequestContext *context, struct HdfSBu
     }
 
     HDF_LOGI("WifiCmdGetDriverFlag:%llx", params->drvFlags);
+    OsalMemFree(params);
     return ret;
 }
 

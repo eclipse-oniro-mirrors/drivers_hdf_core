@@ -776,6 +776,50 @@ static int32_t WifiSendMlme(const RequestContext *context, struct HdfSBuf *reqDa
     return HDF_SUCCESS;
 }
 
+static int32_t WifiFillActionData(struct HdfSBuf *reqData, WifiActionData *actionData)
+{
+    uint32_t dataSize = 0;
+
+    if (actionData == NULL) {
+        HDF_LOGE("%s:actionData is NULL", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData->bssid), &dataSize) || dataSize != ETH_ADDR_LEN) {
+        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "bssid", dataSize);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData->dst), &dataSize) || dataSize != ETH_ADDR_LEN) {
+        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "dst", dataSize);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData->src), &dataSize) || dataSize != ETH_ADDR_LEN) {
+        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "src", dataSize);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData->data), &(actionData->dataLen))) {
+        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "data", actionData->dataLen);
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(actionData->freq)) || actionData == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freq");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(actionData->wait)) || actionData == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "wait");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadInt32(reqData, &(actionData->noCck)) || actionData == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "noCck");
+        return HDF_FAILURE;
+    }
+    HDF_LOGD("%s: actionData->freq=%d, actionData->wait=%d, actionData->noCck=%d", __func__, actionData->freq,
+        actionData->wait, actionData->noCck);
+    return HDF_SUCCESS;
+}
+
 int32_t SendAction(struct NetDevice *netdev, WifiActionData *actionData)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
@@ -792,7 +836,6 @@ static int32_t WifiCmdSendAction(const RequestContext *context, struct HdfSBuf *
 {
     WifiActionData actionData = {0};
     const char *ifName = NULL;
-    uint32_t dataSize = 0;
     struct NetDevice *netdev = NULL;
     int ret;
     (void)context;
@@ -807,23 +850,8 @@ static int32_t WifiCmdSendAction(const RequestContext *context, struct HdfSBuf *
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.bssid), &dataSize) || dataSize != ETH_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "bssid", dataSize);
-        return HDF_FAILURE;
-    }
-
-    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.dst), &dataSize) || dataSize != ETH_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "dst", dataSize);
-        return HDF_FAILURE;
-    }
-
-    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.src), &dataSize) || dataSize != ETH_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "src", dataSize);
-        return HDF_FAILURE;
-    }
-
-    if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.data), &(actionData.dataLen))) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "data", actionData.dataLen);
+    if (WifiFillActionData(reqData, &actionData) != HDF_SUCCESS) {
+        HDF_LOGE("%s: fill action data fail", __func__);
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
