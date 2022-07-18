@@ -177,7 +177,8 @@ static int32_t WifiCmdAddIf(const RequestContext *context, struct HdfSBuf *reqDa
     int32_t ret;
     struct NetDevice *netdev = NULL;
     const char *ifName = NULL;
-    WifiIfAdd ifAdd = {0};
+    WifiIfAdd *ifAdd = NULL;
+    uint32_t dataSize = 0;
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
@@ -195,16 +196,16 @@ static int32_t WifiCmdAddIf(const RequestContext *context, struct HdfSBuf *reqDa
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadUint8(reqData, &(ifAdd.type))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(ifAdd), &dataSize) || dataSize != sizeof(WifiIfAdd)) {
+        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "ifAdd", dataSize);
         return HDF_FAILURE;
     }
 
-    ret = AddIf(netdev, &ifAdd);
+    ret = AddIf(netdev, ifAdd);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to add p2p device, ret=%d", __func__, ret);
     } else {
-        HDF_LOGI("%s: add p2p device success! ifAdd.type=%d", __func__, ifAdd.type);
+        HDF_LOGI("%s: add p2p device success! ifAdd->ifName=%s", __func__, ifAdd->ifName);
     }
     return ret;
 }
@@ -253,7 +254,7 @@ static int32_t WifiCmdRemoveIf(const RequestContext *context, struct HdfSBuf *re
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to remove interface,%d", __func__, ret);
     } else {
-        HDF_LOGI("%s: remove p2p device success! remove ifname=%s", __func__, ifRemove->ifname);
+        HDF_LOGI("%s: remove p2p device success! remove ifName=%s", __func__, ifRemove->ifName);
     }
     return ret;
 }
