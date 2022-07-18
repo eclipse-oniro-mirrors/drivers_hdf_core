@@ -10,7 +10,6 @@
 #define HDF_WLAN_SDIO_ADAPT_H
 
 #include "hdf_base.h"
-#include "hdf_wifi_product.h"
 #include "hdf_wlan_config.h"
 
 #ifdef __cplusplus

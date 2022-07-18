@@ -215,14 +215,6 @@ config DRIVERS_HIEDMAC
       Answer Y to enable LiteOS support hiedmac.
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/storage/Kconfig"
 source "../../drivers/hdf_core/adapter/khdf/liteos/test/Kconfig"
-
-config DRIVERS_HDF_WIFI
-    bool "Enable HDF WiFi Host driver"
-    default n
-    depends on DRIVERS_HDF && NET_LWIP_SACK && DRIVERS_HDF_PLATFORM_SDIO
-    help
-      Answer Y to enable HDF WiFi Host driver.
-
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/bus/usb/Kconfig"
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/display/Kconfig"
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/input/Kconfig"
@@ -233,4 +225,7 @@ source "../../drivers/hdf_core/adapter/khdf/liteos/model/misc/vibrator/Kconfig"
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/usb/device/Kconfig"
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/usb/host/Kconfig"
 source "../../drivers/hdf_core/adapter/khdf/liteos/model/audio/Kconfig"
+source "../../drivers/hdf_core/adapter/khdf/liteos/network/Kconfig"
+source "../../drivers/hdf_core/adapter/khdf/liteos/model/network/wifi/Kconfig"
+source "../../drivers/hdf_core/adapter/khdf/liteos/model/network/wifi/bus/Kconfig"
 endif

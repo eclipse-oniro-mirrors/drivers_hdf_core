@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -28,13 +28,13 @@
 
 import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
 
-module_switch = defined(LOSCFG_NET_LWIP_SACK)
+module_switch = defined(LOSCFG_DRIVERS_HDF_NETWORK)
 module_name = "hdf_network"
 hdf_driver(module_name) {
-  sources = [ "src/netbuf_adapter.c" ]
-  if (defined(LOSCFG_DRIVERS_HDF_WIFI)) {
-    sources += [ "src/net_device_adapter.c" ]
-  }
+  sources = [
+    "src/net_device_adapter.c",
+    "src/netbuf_adapter.c",
+  ]
 }
 
 config("public") {
