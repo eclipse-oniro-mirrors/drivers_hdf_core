@@ -166,6 +166,7 @@ static int32_t UartDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
                 break;
             }
             ret = UartHostSetBaud(host, arg);
+            break;
         case UART_CFG_RD_BLOCK:
             if (arg == UART_RD_BLOCK) {
                 ret = UartHostSetTransMode(host, UART_MODE_RD_BLOCK);
