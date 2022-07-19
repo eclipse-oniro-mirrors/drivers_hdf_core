@@ -162,7 +162,7 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
 static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regValue)
 {
 #if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || \
-    defined(CONFIG_ARCH_MESON)
+    defined(CONFIG_ARCH_MESON) || defined(CONFIG_ARCH_NXP_TOUCH)
     return HDF_SUCCESS;
 #endif
     uint8_t *base = NULL;
@@ -599,6 +599,8 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 
 #if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157)
     HDF_LOGI("%s: do not update firmware", __func__);
+#elif defined(CONFIG_ARCH_NXP_TOUCH)
+    HDF_LOGI("%s: NXP TOUCH do not update firmware", __func__);
 #else
     ret = chipDev->ops->UpdateFirmware(chipDev);
     CHECK_RETURN_VALUE(ret);

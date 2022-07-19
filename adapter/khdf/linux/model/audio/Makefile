@@ -19,6 +19,8 @@ KHDF_AUDIO_HI3516DV300_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/
 KHDF_AUDIO_HI3516DV300_INC_DIR = drivers/hdf/framework/../../../device/board/hisilicon/hispark_taurus/audio_drivers
 KHDF_AUDIO_RK3568_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/$(DEVICE_NAME)/audio_drivers
 KHDF_AUDIO_RK3568_INC_DIR = drivers/hdf/framework/../../../device/board/hihope/$(DEVICE_NAME)/audio_drivers
+KHDF_AUDIO_IMX8MM_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/osware/$(DEVICE_NAME)/drivers/audio
+KHDF_AUDIO_IMX8MM_INC_DIR = drivers/hdf/framework/../../../device/board/osware/$(DEVICE_NAME)/drivers/audio
 KHDF_AUDIO_A311D_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 KHDF_AUDIO_A311D_INC_DIR = drivers/hdf/framework/../../../device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 
@@ -88,6 +90,17 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
           $(KHDF_AUDIO_RK3568_DIR)/headset_monitor/src/analog_headset_gpio.o \
           $(KHDF_AUDIO_RK3568_DIR)/headset_monitor/src/analog_headset_adc.o
 
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_IMX8MM) += \
+          $(KHDF_AUDIO_IMX8MM_DIR)/soc/src/sai_driver.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/soc/src/dma_driver.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/soc/src/imx8mm_platform_ops.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/soc/src/imx8mm_dai_adapter.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/soc/src/imx8mm_platform_adapter.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/dsp/src/dsp_adapter.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/dsp/src/dsp_ops.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/codec/src/wm8904.o \
+          $(KHDF_AUDIO_IMX8MM_DIR)/codec/src/wm8904_impl.o
+
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -lm -lc -lgcc -std=gnu99 -Werror\
              -I$(srctree)/$(KHDF_AUDIO_KHDF_ROOT_DIR)/osal/include \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/core \
@@ -127,3 +140,9 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/headset_monitor/include
 
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_CAP_REPORT) += -DAUDIO_ENABLE_CAP_THRESHOLD
+
+ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_IMX8MM) += \
+             -I$(srctree)/$(KHDF_AUDIO_IMX8MM_INC_DIR)/codec/include \
+             -I$(srctree)/$(KHDF_AUDIO_IMX8MM_INC_DIR)/soc/include \
+             -I$(srctree)/$(KHDF_AUDIO_IMX8MM_INC_DIR)/dsp/include \
+             -I$(srctree)/$(KHDF_AUDIO_IMX8MM_INC_DIR)/include

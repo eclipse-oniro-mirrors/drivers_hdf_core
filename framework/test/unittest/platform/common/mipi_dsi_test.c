@@ -36,7 +36,9 @@ static int32_t MipiDsiTestSetUp(struct MipiDsiTest *test)
         HDF_LOGE("%s: fail!", __func__);
         return HDF_FAILURE;
     }
-
+#ifdef CONFIG_DRIVERS_HDF_PLATFORM_IMX8MM_MIPI_DSI
+    MipiDsiAttach(test->handle, "toshiba,panel-tc358775");
+#endif
     test->fails = 0;
     HDF_LOGD("%s: devNo:0x%x", __func__, test->devNo);
     return MipiDsiTestMallocBuf(test);

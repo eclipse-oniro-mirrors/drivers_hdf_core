@@ -20,12 +20,22 @@
 #include <linux/etherdevice.h>
 #include <linux/rtnetlink.h>
 #include <linux/version.h>
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+#include <linux/phy.h>
+#endif
 #include "net_device.h"
 #include "net_device_impl.h"
 #include "osal_mem.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG NetDeviceFull
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+extern struct phy_device *of_phy_connect(struct net_device *dev,
+    struct device_node *phy_np,
+    void (*hndlr)(struct net_device *),
+    u32 flags,
+    phy_interface_t iface);
+#endif
 
 static int32_t NetDevXmitCheck(struct sk_buff *skb, struct net_device *dev)
 {
@@ -230,6 +240,90 @@ static int32_t NetDevDelete(struct NetDeviceImpl *impl)
     return HDF_SUCCESS;
 }
 
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+#define NAPI_ADD_NUM   (64)
+void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
+    int (*poll)(struct napi_struct *, int), int weight)
+{
+    struct net_device *dev = GetDevFromDevImpl(impl);
+
+    netif_napi_add(dev, napi, poll, NAPI_ADD_NUM);
+}
+
+struct netdev_queue *NetDevGetTxQueue(struct NetDeviceImpl *impl, unsigned int queue)
+{
+    struct net_device *dev = GetDevFromDevImpl(impl);
+    struct netdev_queue *nq;
+
+    nq = netdev_get_tx_queue(dev, queue);
+
+    return nq;
+}
+
+__be16 NetDevTypeTrans(struct NetDeviceImpl *impl, struct sk_buff *skb)
+{
+    __be16 ret;
+    struct net_device *dev = GetDevFromDevImpl(impl);
+
+    ret = eth_type_trans(skb, dev);
+
+    return ret;
+}
+
+struct sk_buff *NetDevAllocBuf(struct NetDeviceImpl *impl, uint32_t length)
+{
+    struct sk_buff *skb = NULL;
+    struct net_device *dev = GetDevFromDevImpl(impl);
+
+    skb = netdev_alloc_skb(dev, length);
+    return skb;
+}
+
+void NetDevStartQueue(struct NetDeviceImpl *impl)
+{
+    struct net_device *dev = GetDevFromDevImpl(impl);
+    struct netdev_queue *nq;
+
+    nq = netdev_get_tx_queue(dev, 1);
+    netif_tx_start_queue(nq);
+}
+
+void NetDevDisableTx(struct NetDeviceImpl *impl)
+{
+    struct net_device *dev = GetDevFromDevImpl(impl);
+
+    netif_tx_disable(dev);
+}
+
+void NetDevSetDev(struct NetDeviceImpl *impl, struct device *dev)
+{
+    struct net_device *ndev = GetDevFromDevImpl(impl);
+
+    SET_NETDEV_DEV(ndev, dev);
+}
+
+void NetDevWakeQueue(struct NetDeviceImpl *impl)
+{
+    struct net_device *dev = GetDevFromDevImpl(impl);
+    struct netdev_queue *nq;
+
+    nq = netdev_get_tx_queue(dev, 1);
+    netif_tx_wake_queue(nq);
+}
+
+struct phy_device *NetDevOfPhyConnect(struct NetDeviceImpl *impl,
+                                      struct device_node *phy_np,
+                                      void (*hndlr)(struct net_device *),
+                                      u32 flags,
+                                      phy_interface_t iface)
+{
+    struct phy_device *phy = NULL;
+    struct net_device *ndev = GetDevFromDevImpl(impl);
+    phy = of_phy_connect(ndev, phy_np, hndlr, 0, iface);
+    return phy;
+}
+#endif
+
 static int32_t NetDevSetStatus(struct NetDeviceImpl *impl,
     NetIfStatus status)
 {
@@ -316,6 +410,17 @@ static struct NetDeviceImplOp g_ndImplOps = {
     .setStatus = NetDevSetStatus,
     .receive = NetDevReceive,
     .changeMacAddr = NetDevChangeMacAddr,
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+    .netif_napi_add = NetDevApiAdd,
+    .get_tx_queue = NetDevGetTxQueue,
+    .type_trans = NetDevTypeTrans,
+    .alloc_buf = NetDevAllocBuf,
+    .start_queue = NetDevStartQueue,
+    .disable_tx = NetDevDisableTx,
+    .set_dev = NetDevSetDev,
+    .wake_queue = NetDevWakeQueue,
+    .of_phyconnect = NetDevOfPhyConnect,
+#endif
 };
 
 int32_t RegisterNetDeviceImpl(struct NetDeviceImpl *ndImpl)

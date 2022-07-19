@@ -51,3 +51,17 @@ config AP6XXX_WIFI6_HDF
       This driver supports wifi6 for ap6xxx HDF chipset.
       This driver uses the kernel's wireless extensions subsystem.
       If you choose to build a module, it'll be called dhd. Say M if unsure.
+      
+config DRIVERS_AP6212
+    bool "Enable ap6212"
+    default n
+    depends on DRIVERS_HDF_WIFI
+    help
+      Answer Y to enable ap6212 wifi chip driver.
+
+config DRIVERS_HDF_IMX8MM_ETHERNET
+    bool "Enable imx8mm ethernet"
+    default n
+    depends on DRIVERS_HDF_WIFI
+    help
+      Answer Y to enable imx8mm ethernet driver.

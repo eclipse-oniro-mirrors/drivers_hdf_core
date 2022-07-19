@@ -37,6 +37,9 @@
 
 #ifndef HDF_NET_DEVICE_MODULE_H
 #define HDF_NET_DEVICE_MODULE_H
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+#include <linux/phy.h>
+#endif
 #include "hdf_base.h"
 #include "hdf_netbuf.h"
 #include "hdf_log.h"
@@ -804,6 +807,135 @@ int32_t NetIfDhcpStop(const struct NetDevice *netDevice);
  * @version 1.0
  */
 int32_t NetIfDhcpIsBound(const struct NetDevice *netDevice);
+
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+/**
+ * @brief Add napi of a specified network device.
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ * @param napi new napi struct.
+ * @param *poll poll pointer function
+ * @param weight int weight
+ *
+ * @return
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
+    int (*poll)(struct napi_struct *, int), int weight);
+
+/**
+ * @brief Get Tx Queue of a specified network device.
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ * @param index the index of queue
+ *
+ * @return Returns the network queue structure {@link netdev_queue} if the operation is successful; returns <b>NULL</b>
+ * if the operation fails.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct netdev_queue *NetIfGetTxQueue(struct NetDevice *netDevice, unsigned int index);
+
+/**
+ * @brief Netdevice Interface type trans
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ * @param skb skb buffer
+ *
+ * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+__be16 NetIfTypeTrans(struct NetDevice *netDevice, struct sk_buff *skb);
+
+/**
+ * @brief Netdevice allocate buffer
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ * @param length the size of buffer
+ *
+ * @return Returns the skb buffer structure {@link sk_buff} if the operation is successful; returns <b>NULL</b>
+ * if the operation fails.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct sk_buff *NetIfEnteAllocBuf(struct NetDevice *netDevice, uint32_t length);
+
+/**
+ * @brief Netdevice start queue
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ *
+ * @return
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+void NetIfStartQueue(struct NetDevice *netDevice);
+
+/**
+ * @brief Netdevice disable transmit of netdevice
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ *
+ * @return
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+void NetIfDisableTx(struct NetDevice *netDevice);
+
+/**
+ * @brief Set parent device to netdevice
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ * @param dev parent device
+ *
+ * @return
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+void NetIfSetDev(struct NetDevice *netDevice, struct device *dev);
+
+/**
+ * @brief Netdevice wakeup queue
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ *
+ * @return
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+void NetIfWakeQueue(struct NetDevice *netDevice);
+
+/**
+ * @brief Netdevice phy connect
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ * @param phy_np phy node pointer of netDevice
+ * @param hndlr call handler after phy connect
+ * @param flags phy connnect flags
+ * @param iface phy interface
+ *
+ * @return  Returns the phy device structure {@link phy_device} if the operation is successful; returns <b>NULL</b>
+ * if the operation fails.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
+                                     struct device_node *phy_np,
+                                     void (*hndlr)(struct net_device *),
+                                     u32 flags,
+                                     phy_interface_t iface);
+#endif
 
 #define GET_NET_DEV_FLAGS(dev) ((dev)->flags)
 #define GET_NET_DEV_HEAD_ROOM(dev) ((dev)->neededHeadRoom)

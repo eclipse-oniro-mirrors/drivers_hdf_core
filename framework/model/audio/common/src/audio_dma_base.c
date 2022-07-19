@@ -27,7 +27,7 @@ int32_t AudioDmaBufFree(struct PlatformData *data, enum AudioStreamType streamTy
 
 int32_t AudioDmaRequestChannel(struct PlatformData *data, enum AudioStreamType streamType)
 {
-    if (data != NULL && data->ops != NULL && data->ops->DmaConfigChannel != NULL) {
+    if (data != NULL && data->ops != NULL && data->ops->DmaRequestChannel != NULL) {
         return data->ops->DmaRequestChannel(data, streamType);
     }
     return HDF_FAILURE;
