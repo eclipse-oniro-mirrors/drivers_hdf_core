@@ -35,7 +35,8 @@ cp_list=(
 )
 
 specify_device_list=(
-    rk3568
+    rk3568,
+    imx8mm
 )
 
 

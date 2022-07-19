@@ -7,11 +7,15 @@
  */
 
 #include "eth_device.h"
-#include <string.h>
 #include "eth_chip_driver.h"
+#ifdef __LITEOS__
+#include <string.h>
+#endif
 #include "device_resource_if.h"
 #include "hdf_log.h"
+#ifdef __LITEOS__
 #include "los_vm_zone.h"
+#endif
 #include "osal_mem.h"
 #include "securec.h"
 

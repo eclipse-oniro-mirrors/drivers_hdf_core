@@ -312,7 +312,9 @@ static int32_t SpiMultiTransferTest(struct SpiTester *tester)
 #define DMA_TRANSFER_SIZE_TOTAL   (DMA_TRANSFER_SINGLE_MAX * 2 + 65532)
 #define DMA_TRANSFER_BUF_SEED     0x5A
 #define DMA_ALIGN_SIZE            64
-
+#ifdef CONFIG_IMX8MM_SPI_TEST
+#define DMA_TRANSFER_SIZE_TOTAL_NXP (60)
+#endif  // CONFIG_IMX8MM_SPI_TEST
 static int32_t SpiSetDmaIntMsg(struct SpiMsg *msg, uint32_t len)
 {
     uint32_t i;
@@ -399,8 +401,11 @@ static int32_t SpiIntTransferTest(struct SpiTester *tester)
 
     g_spiCfg.transferMode = SPI_INTERRUPT_TRANSFER;
     g_spiCfg.bitsPerWord = BITS_PER_WORD_8BITS;
-
+#ifdef CONFIG_IMX8MM_SPI_TEST
+    ret = SpiSetDmaIntMsg(&msg, DMA_TRANSFER_SIZE_TOTAL_NXP);
+#else  // CONFIG_IMX8MM_SPI_TEST
     ret = SpiSetDmaIntMsg(&msg, DMA_TRANSFER_SIZE_TOTAL);
+#endif  // CONFIG_IMX8MM_SPI_TEST
     if (ret != HDF_SUCCESS) {
         return ret;
     }

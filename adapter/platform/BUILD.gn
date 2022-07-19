@@ -16,5 +16,6 @@ module_group("platform") {
     "spi",
     "uart",
     "watchdog",
+    "mipi_dsi",
   ]
 }

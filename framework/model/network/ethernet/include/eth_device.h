@@ -11,7 +11,9 @@
 
 #include "net_device.h"
 #include "hdf_device_desc.h"
+#ifdef __LITEOS__
 #include <lwip/netif.h>
+#endif  // __LITEOS__
 
 #define MAX_NAME_LENGTH 16
 #define ETH_DEVICE_MAX 6

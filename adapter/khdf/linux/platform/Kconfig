@@ -113,3 +113,25 @@ config DRIVERS_HDF_PLATFORM_TRACE
     depends on DRIVERS_HDF_PLATFORM
     help
       Answer Y to enable HDF platform trace driver.
+
+config IMX8MM_EMMC
+    bool "Enable HDF imx8mm emmc driver"
+    default n
+    depends on DRIVERS_HDF
+    help
+      Answer Y to enable HDF imx8mm emmc driver.
+
+config IMX8MM_SDIO
+    bool "Enable HDF imx8mm sdio driver"
+    default n
+    depends on DRIVERS_HDF
+    help
+      Answer Y to enable HDF imx8mm sdio driver.
+
+config DRIVERS_HDF_PLATFORM_IMX8MM_MIPI_DSI
+    bool "Enable HDF platform imx8mm mipi_dsi driver"
+    default n
+    depends on DRIVERS_HDF_PLATFORM
+    help
+      Answer Y to enable HDF platform imx8mm mipi_dsi driver.
+

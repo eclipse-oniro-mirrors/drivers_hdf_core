@@ -47,3 +47,10 @@ config DRIVERS_HDF_AUDIO_A311D
     depends on DRIVERS_HDF_AUDIO
     help
         Answer Y to choice HDF Audio Codec driver.
+
+config DRIVERS_HDF_AUDIO_IMX8MM
+    bool "Enable HDF Audio Codec driver"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice HDF Audio Codec driver.

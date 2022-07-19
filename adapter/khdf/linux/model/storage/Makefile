@@ -46,6 +46,11 @@ ifeq ($(CONFIG_ARCH_HI3516DV300), y)
     obj-y  += \
 	        ./vendor_adapter/hi35xx_mmc_adapter.o
 else
+ifeq ($(CONFIG_IMX8MM_EMMC), y)
+    obj-y  += \
+	        ./vendor_adapter/imx8mm_mmc_adapter.o
+else
     obj-y  += \
 	        ./mmc_adapter.o
+endif
 endif

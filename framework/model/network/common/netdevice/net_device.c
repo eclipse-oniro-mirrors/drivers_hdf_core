@@ -408,6 +408,108 @@ int32_t NetIfSetStatus(const struct NetDevice *netDevice, NetIfStatus status)
     return HDF_ERR_INVALID_PARAM;
 }
 
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+#define NAPI_ADD_NUM   (64)
+void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
+    int (*poll)(struct napi_struct *, int), int weight)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->netif_napi_add != NULL) {
+        ndImpl->interFace->netif_napi_add(ndImpl, napi, poll, NAPI_ADD_NUM);
+    }
+    HDF_LOGE("%s: NetIfNapiAdd failed.", __func__);
+}
+
+struct netdev_queue *NetIfGetTxQueue(struct NetDevice *netDevice, unsigned int index)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->get_tx_queue != NULL) {
+        return ndImpl->interFace->get_tx_queue(ndImpl, index);
+    }
+    HDF_LOGE("%s: NetIfGetTxqueue failed.", __func__);
+    return NULL;
+}
+
+__be16 NetIfTypeTrans(struct NetDevice *netDevice, struct sk_buff *skb)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->type_trans != NULL) {
+        return ndImpl->interFace->type_trans(ndImpl, skb);
+    }
+    HDF_LOGE("%s: NetIfEnteRx failed.", __func__);
+    return NULL;
+}
+
+struct sk_buff *NetIfEnteAllocBuf(struct NetDevice *netDevice, uint32_t length)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->alloc_buf != NULL) {
+        return ndImpl->interFace->alloc_buf(ndImpl, length);
+    }
+    HDF_LOGE("%s: NetIfEnteAllocBuf failed.", __func__);
+    return NULL;
+}
+
+void NetIfStartQueue(struct NetDevice *netDevice)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->start_queue != NULL) {
+        ndImpl->interFace->start_queue(ndImpl);
+    }
+    HDF_LOGE("%s: NetIfStartAllqueue failed.", __func__);
+}
+
+void NetIfDisableTx(struct NetDevice *netDevice)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->disable_tx != NULL) {
+        ndImpl->interFace->disable_tx(ndImpl);
+    }
+    HDF_LOGE("%s: NetIfDisableTx failed.", __func__);
+}
+
+void NetIfSetDev(struct NetDevice *netDevice, struct device *dev)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->set_dev != NULL) {
+        ndImpl->interFace->set_dev(ndImpl, dev);
+    }
+    HDF_LOGE("%s: NetIfSetDev failed.", __func__);
+}
+
+void NetIfWakeQueue(struct NetDevice *netDevice)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->wake_queue != NULL) {
+        ndImpl->interFace->wake_queue(ndImpl);
+    }
+    HDF_LOGE("%s: NetIfWakequeue failed.", __func__);
+}
+
+struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
+                                     struct device_node *phy_np,
+                                     void (*hndlr)(struct net_device *),
+                                     u32 flags,
+                                     phy_interface_t iface)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->of_phyconnect != NULL) {
+        return ndImpl->interFace->of_phyconnect(ndImpl, phy_np, hndlr, 0, iface);
+    }
+    HDF_LOGE("%s: NetIfOfPhyConnect failed.", __func__);
+    return NULL;
+}
+#endif
+
 int32_t NetIfSetLinkStatus(const struct NetDevice *netDevice, NetIfLinkStatus status)
 {
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);

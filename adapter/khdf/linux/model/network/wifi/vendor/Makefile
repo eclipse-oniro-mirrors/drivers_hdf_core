@@ -20,6 +20,10 @@ include drivers/hdf/khdf/model/network/wifi/hdfwifi.mk
 
 obj-$(CONFIG_DRIVERS_HI3881) += hi3881/
 
+ifneq ($(CONFIG_DRIVERS_AP6212),)
+obj-$(CONFIG_DRIVERS_AP6212) += ap6212/
+endif
+
 ifneq ($(CONFIG_AP6XXX_WIFI6_HDF),)
 RKWIFI_PATH := $(HDF_VENDOR_PREFIX)/device/board/$(PRODUCT_COMPANY)/$(DEVICE_NAME)/wifi
 obj-$(CONFIG_AP6XXX_WIFI6_HDF) += $(RKWIFI_PATH)/

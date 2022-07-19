@@ -32,3 +32,10 @@ config DRIVERS_HDF_TP_5P43_FT5406
     depends on DRIVERS_HDF_INPUT
     help
       Answer Y to enable HDF TP 5P43 FT5406 driver.
+      
+config ARCH_NXP_TOUCH
+    bool "Enable HDF tp nxp ft5x06 touch"
+    default n
+    depends on DRIVERS_HDF_INPUT
+    help
+      Answer Y to enable HDF TP nxp ft5x06 touch.

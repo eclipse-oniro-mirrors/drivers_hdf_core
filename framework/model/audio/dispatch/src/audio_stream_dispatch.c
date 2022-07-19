@@ -158,13 +158,13 @@ static int32_t HwParamsDispatch(const struct AudioCard *audioCard, const struct 
         ADM_LOG_ERR("input param is NULL.");
         return HDF_FAILURE;
     }
-
+#ifndef CONFIG_DRIVERS_HDF_AUDIO_IMX8MM
     /* Traverse through each driver method; Enter if you have, if not, exectue in order */
     if (HwCodecDaiDispatch(audioCard, params) != HDF_SUCCESS) {
         ADM_LOG_ERR("codec dai hardware params failed.");
         return HDF_FAILURE;
     }
-
+#endif
     if (HwCpuDaiDispatch(audioCard, params) != HDF_SUCCESS) {
         ADM_LOG_ERR("cpu dai hardware params failed.");
         return HDF_FAILURE;
@@ -179,6 +179,13 @@ static int32_t HwParamsDispatch(const struct AudioCard *audioCard, const struct 
         ADM_LOG_ERR("dsp dai hardware params failed.");
         return HDF_FAILURE;
     }
+
+#ifdef CONFIG_DRIVERS_HDF_AUDIO_IMX8MM
+    if (HwCodecDaiDispatch(audioCard, params) != HDF_SUCCESS) {
+        ADM_LOG_ERR("codec dai hardware params failed.");
+        return HDF_FAILURE;
+    }
+#endif
 
     return HDF_SUCCESS;
 }
