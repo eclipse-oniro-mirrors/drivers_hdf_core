@@ -145,7 +145,7 @@ export class XTexture {
     }
     initTextImageData(s, size) {
         this.textCtx.clearRect(0, 0, 1024, 256)
-        this.textCtx.font = size + "px Microsoft YaHei"
+        this.textCtx.font = size + "px 'Consolas'"
         this.textCtx.fillStyle = "rgba(255,255,255,1)";
         this.textCtx.fillText(s, 1, 1)
         let imgd = this.textCtx.getImageData(0, 0, 1024, 256).data

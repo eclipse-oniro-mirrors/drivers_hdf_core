@@ -150,7 +150,7 @@ export class X2DFast {
         let tmat = X2DFast.tmpMat.mat;
         this.drawCut_(pcut, tmat[0][0], tmat[0][1], tmat[1][0], tmat[1][1], tmat[2][2], tmat[3][0], tmat[3][1], c)
     }
-    drawText(s, size = 24, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
+    drawText(s, size = 18, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
         if (s.length <= 0) return 0;
         let cid = XTexture.gi().getText(s, size)
         if (cid >= 0)
