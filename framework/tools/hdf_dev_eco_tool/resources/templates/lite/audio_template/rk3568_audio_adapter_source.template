@@ -114,9 +114,6 @@ static int32_t ${driver_upper_camel_case}DriverInit(struct HdfDeviceObject *devi
         ${driver_upper_case}ChipRelease();
         return ret;
     }
-    if (CodecSetConfigInfo(&(g_chip->codec),  &(g_chip->dai)) != HDF_SUCCESS) {
-        return HDF_FAILURE;
-    }
     ret = GetServiceName(device);
     if (ret !=  HDF_SUCCESS) {
         ${driver_upper_case}ChipRelease();

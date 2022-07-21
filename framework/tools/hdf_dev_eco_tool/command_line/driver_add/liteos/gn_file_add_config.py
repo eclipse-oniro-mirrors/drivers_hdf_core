@@ -15,10 +15,10 @@ from string import Template
 import hdf_utils
 
 
-def find_build_file_end_index(date_lines, model_name):
+def find_build_file_end_index(date_lines, model_name, pre_str='FRAMEWORKS'):
     state = False
     end_index = 0
-    frameworks_model_name = "FRAMEWORKS_%s_ROOT" % (model_name.upper())
+    frameworks_model_name = "%s_%s_ROOT" % (pre_str, model_name.upper())
     frameworks_model_value = ''
     for index, line in enumerate(date_lines):
         if line.startswith("#"):
@@ -157,34 +157,62 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
     build_gn_path = path
     date_lines = hdf_utils.read_file_lines(build_gn_path)
     source_file_path = driver_file_path.replace('\\', '/')
-    result_tuple = find_build_file_end_index(date_lines, model_name=module)
     judge_result = judge_driver_config_exists(date_lines, driver_name=driver)
     if judge_result:
         return
-    end_index, frameworks_name, frameworks_value = result_tuple
-    if build_gn_path.find("FRAMEWORKS".lower()) != -1:
-        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper})) {\n"
-        include_line = '    include_dirs += [ "$FRAMEWORKS_${model_name_upper}_ROOT/${head_file_path}" ]\n'
-        second_line = '    sources += [ "$FRAMEWORKS_${model_name_upper}_ROOT/${source_file_path}" ]\n'
+    if driver_file_path.find("FRAMEWORK".lower()) != -1:
+        result_tuple = find_build_file_end_index(date_lines, model_name=module)
+        end_index, frameworks_name, frameworks_value = result_tuple
+        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF" \
+                     "_${model_name_upper}_${driver_name_upper})) {\n"
+        include_line = '    include_dirs += [ "$FRAMEWORKS' \
+                       '_${model_name_upper}_ROOT/${head_file_path}" ]\n'
+        second_line = '    sources += [ "$FRAMEWORKS' \
+                      '_${model_name_upper}_ROOT/${source_file_path}" ]\n'
         third_line = "  }\n"
+        build_add_template = first_line+include_line+second_line+third_line
+        include_model_info = frameworks_value.split("model")[-1].strip('"')+"/"
+        build_gn_path_config = source_file_path.split(include_model_info)
+        temp_handle = Template(
+            build_add_template.replace("$FRAMEWORKS", "FRAMEWORKS"))
+        temp_replace = {
+            'model_name_upper': module.upper(),
+            'driver_name_upper': driver.upper(),
+            'source_file_path': build_gn_path_config[-1],
+            'head_file_path': '/'.join(
+                list(filter(lambda x: x, head_path.split("model")[-1].strip(
+                    os.path.sep).split(os.path.sep)[2:-1])))
+        }
+        new_line = temp_handle.substitute(
+            temp_replace).replace("FRAMEWORKS", "$FRAMEWORKS")
     else:
-        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper})) {\n"
-        include_line = '    include_dirs += [ "$PERIPHERAL_${model_name_upper}_ROOT/${head_file_path}" ]\n'
-        second_line = '    sources += [ "$PERIPHERAL_${model_name_upper}_ROOT/${source_file_path}" ]\n'
+        result_tuple = find_build_file_end_index(
+            date_lines, model_name=module, pre_str="PERIPHERAL")
+        end_index, frameworks_name, frameworks_value = result_tuple
+        first_line = "\n  if (defined(LOSCFG_DRIVERS_" \
+                     "HDF_${model_name_upper}_${driver_name_upper})) {\n"
+        include_line = '    include_dirs += [ "$PERIPHERAL' \
+                       '_${model_name_upper}_ROOT/${head_file_path}" ]\n'
+        second_line = '    sources += [ "$PERIPHERAL' \
+                      '_${model_name_upper}_ROOT/${source_file_path}" ]\n'
         third_line = "  }\n"
-    build_add_template = first_line + include_line + second_line + third_line
-    include_model_info = frameworks_value.split("model")[-1].strip('"') + "/"
-    build_gn_path_config = source_file_path.split(include_model_info)
-    temp_handle = Template(build_add_template.replace("$FRAMEWORKS", "FRAMEWORKS"))
-    temp_replace = {
-        'model_name_upper': module.upper(),
-        'driver_name_upper': driver.upper(),
-        'source_file_path': build_gn_path_config[-1],
-        'head_file_path': '/'.join(
-             list(filter(lambda x: x, head_path.split("model")[-1].strip(
-                 os.path.sep).split(os.path.sep)[2:-1])))
-         }
-    new_line = temp_handle.substitute(temp_replace).replace("FRAMEWORKS", "$FRAMEWORKS")
+        build_add_template = first_line+include_line+second_line+third_line
+        include_model_info = frameworks_value.split("/")[-1].strip("\"")
+        build_gn_path_config = source_file_path.split(include_model_info+"/", 1)
+        temp_handle = Template(
+            build_add_template.replace("$PERIPHERAL", "PERIPHERAL"))
 
-    date_lines = date_lines[:end_index] + [new_line] + date_lines[end_index:]
+        temp_replace = {
+            'model_name_upper': module.upper(),
+            'driver_name_upper': driver.upper(),
+            'source_file_path': build_gn_path_config[-1],
+            'head_file_path': '/'.join(list(
+                filter(lambda x: x,
+                       head_path.split(include_model_info, 1)[-1].
+                       strip(os.path.sep).split(os.path.sep)))[:-1])
+        }
+        new_line = temp_handle.substitute(
+            temp_replace).replace("PERIPHERAL", "$PERIPHERAL")
+
+    date_lines = date_lines[:end_index]+[new_line]+date_lines[end_index:]
     hdf_utils.write_file_lines(build_gn_path, date_lines)

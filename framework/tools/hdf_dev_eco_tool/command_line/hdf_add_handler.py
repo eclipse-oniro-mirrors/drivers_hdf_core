@@ -454,7 +454,6 @@ class HdfAddHandler(HdfCommandHandlerBase):
             elif board.endswith("linux"):
                 file_path = add_driver.add_linux(driver_file_list, driver_head_list)
             elif board.startswith("rk3568"):
-
                 file_path = add_driver.add_kernel(driver_file_list, driver_head_list)
             elif board.startswith("hispark_taurus_standard_kernel"):
                 file_path = add_driver.add_kernel(driver_file_list, driver_head_list)
