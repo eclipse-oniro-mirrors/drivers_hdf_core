@@ -15,12 +15,12 @@ ohos_fuzztest("IoserviceGroupListenFuzzTest") {
 
   include_dirs = [
     "//drivers/hdf_core/framework/test/fuzztest/ioservice/ioservicegrouplisten_fuzzer.h",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
   ]
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]

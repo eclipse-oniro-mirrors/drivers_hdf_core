@@ -18,7 +18,7 @@ ohos_fuzztest("RegisterServiceStatusListenerFuzzTest") {
     "//drivers/hdf_core/adapter/uhdf2/include/hdi",
     "//drivers/hdf_core/adapter/uhdf2/osal/include",
     "//drivers/hdf_core/framework/include/utils",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
   ]
   sources = [ "registerservicestatuslistener_fuzzer.cpp" ]
 
@@ -30,10 +30,10 @@ ohos_fuzztest("RegisterServiceStatusListenerFuzzTest") {
 
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_single",
       "samgr_standard:samgr_proxy",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [
