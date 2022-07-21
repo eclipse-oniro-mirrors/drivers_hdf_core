@@ -46,11 +46,6 @@ static int32_t ${driver_upper_camel_case}DriverInit(struct HdfDeviceObject *devi
         return ret;
     }
 
-    if (CodecSetConfigInfo(&g_${driver_lower_case}Data, &g_${driver_lower_case}DaiData) != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("set config info failed.");
-        return HDF_FAILURE;
-    }
-
     if (CodecGetServiceName(device, &g_${driver_lower_case}Data.drvCodecName) != HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("get codec service name failed.");
         return HDF_FAILURE;

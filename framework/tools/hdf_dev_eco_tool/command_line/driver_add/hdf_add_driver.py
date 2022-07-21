@@ -247,17 +247,32 @@ class HdfAddDriver(object):
         # find model template .c
         if module == "audio":
             if board.startswith("rk3568"):
-                source_file_template_list = list(filter(
-                    lambda file_name: "source" in file_name and file_name.startswith("rk"), templates_list))
+                source_file_template_list = list(
+                    filter(lambda file_name: "source" in file_name and
+                                             file_name.startswith("rk"),
+                           templates_list))
             else:
-                source_file_template_list = list(filter(
-                    lambda file_name: "source" in file_name and file_name.startswith("hi"), templates_list))
+                source_file_template_list = list(
+                    filter(lambda file_name: "source" in file_name and
+                                             file_name.startswith("hi"),
+                           templates_list))
+        elif module == "display":
+            if board.startswith("rk3568"):
+                source_file_template_list = list(
+                    filter(lambda file_name: "source" in file_name and
+                                             file_name.startswith("rk"),
+                           templates_list))
+            else:
+                source_file_template_list = list(
+                    filter(lambda file_name: "source" in file_name and
+                                             file_name.startswith("hi"),
+                           templates_list))
         else:
             source_file_template_list = list(filter(
                 lambda file_name: "source" in file_name, templates_list))
-        source_file_template = list(map(
-            lambda template_name: os.path.join(target_path, template_name),
-            source_file_template_list))
+        source_file_template = list(
+            map(lambda template_name: os.path.join(target_path, template_name),
+                source_file_template_list))
         path_list = list(os.path.split(source_file))
         temp_path = os.path.sep.join(path_list[:-1])
         if not os.path.exists(temp_path):
@@ -337,7 +352,6 @@ class HdfAddDriver(object):
             if module == "sensor":
                 relatively_path, _ = hdf_utils.ini_file_read_operation(
                     section_name=module, node_name='driver_path')
-                # new_mkdir_path = os.path.join(drv_src_dir, relatively_path, device)
                 new_mkdir_path = os.path.join(root, relatively_path, device)
             elif module == "audio":
                 relatively_path_dict, _ = hdf_utils.ini_file_read_operation(

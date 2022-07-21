@@ -124,6 +124,15 @@ def makefile_file_operation(path, driver_file_path, head_path, module, driver, r
                 list(filter(lambda x: x, head_path.split(root_path)[-1].
                             strip(os.path.sep).split(os.path.sep)))[:-1])
         }
+    elif module == "sensor":
+        temp_replace = {
+            'model_name_upper': module.upper(),
+            'driver_name_upper': driver.upper(),
+            'source_file_path': source_file_path.split(module, 1)[-1][1:],
+            'head_file_path': '/'.join(list(filter(
+                lambda x: x, head_path.split(module, 1)[-1][1:].
+                    split(os.path.sep)))[:-1]).strip(os.path.sep)
+        }
     else:
         temp_replace = {
             'model_name_upper': module.upper(),
