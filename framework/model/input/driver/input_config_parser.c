@@ -38,11 +38,15 @@ int32_t ParseInfraredConfig(const struct DeviceResourceNode *node, InfraredCfg *
         return HDF_FAILURE;
     }
 
-    const struct DeviceResourceNode *keyNode = node;
-    ret = parser->GetUint8(keyNode, "inputType", &config->devType, 0);
+    const struct DeviceResourceNode *infraredNode = node;
+    ret = parser->GetString(infraredNode, "infraredName", &config->infraredName, NULL);
+    CHECK_PARSER_RET(ret, "GetString");
+    ret = parser->GetUint8(infraredNode, "inputType", &config->devType, 0);
     CHECK_PARSER_RET(ret, "GetUint8");
-    ret = parser->GetUint16(keyNode, "gpioNum", &config->gpioNum, 0);
+    ret = parser->GetUint16(infraredNode, "gpioNum", &config->gpioNum, 0);
     CHECK_PARSER_RET(ret, "GetUint16");
+    ret = parser->GetUint16(infraredNode, "irqFlag", &config->irqFlag, 0);
+    CHECK_PARSER_RET(ret, "GetUint8");
 
     return HDF_SUCCESS;
 }
