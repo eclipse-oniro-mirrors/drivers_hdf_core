@@ -14,9 +14,9 @@
 
 using namespace testing::ext;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
-static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/HDF_TEST/uevent";
-static constexpr const char *GEN_ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/HDF_TEST/uevent";
-static constexpr const char *GEN_REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/HDF_TEST/uevent";
+static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/khdf_ut/uevent";
+static constexpr const char *GEN_ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/khdf_ut/uevent";
+static constexpr const char *GEN_REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/khdf_ut/uevent";
 
 class DevmgrUeventTest : public testing::Test {
 public:

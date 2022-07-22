@@ -275,7 +275,7 @@ int HdfTestDriverInit(struct HdfDeviceObject *device)
 
 struct HdfDriverEntry g_hdfTestDevice = {
     .moduleVersion = 1,
-    .moduleName    = "HDF_TEST",
+    .moduleName    = "khdf_ut",
     .Bind          = HdfTestDriverBind,
     .Init          = HdfTestDriverInit,
     .Release       = HdfTestDriverRelease,

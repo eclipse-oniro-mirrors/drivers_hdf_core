@@ -97,7 +97,7 @@ static const struct TestCaseType testCases[] = {
     { HDF_PM_TEST_END, HdfPmTestEnd },
 };
 
-static const char *serviceName[] = { "HDF_TEST", "sample_service", "pm_test_service" };
+static const char *serviceName[] = { "khdf_ut", "sample_service", "pm_ut_service" };
 
 struct PmTestType {
     const char *serviceName;

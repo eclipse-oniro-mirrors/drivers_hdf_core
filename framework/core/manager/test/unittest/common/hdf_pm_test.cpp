@@ -25,7 +25,7 @@ struct HdfIoService *HdfPmTest::ioService = NULL;
 
 void HdfPmTest::SetUpTestCase()
 {
-    ioService = HdfIoServiceBind("pm_test_service");
+    ioService = HdfIoServiceBind("pm_ut_service");
     ASSERT_TRUE(ioService != NULL);
     ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_BEGEN, NULL, NULL);
 }

@@ -51,7 +51,7 @@ void HdfManagerTest::TearDown() {}
  */
 HWTEST_F(HdfManagerTest, HdfIoServiceBind001, TestSize.Level0)
 {
-    const char *svcName = "HDF_TEST";
+    const char *svcName = "khdf_ut";
     struct HdfIoService *hdfSvc = HdfIoServiceBind(svcName);
     EXPECT_TRUE(hdfSvc != nullptr);
     HdfIoServiceRecycle(hdfSvc);
