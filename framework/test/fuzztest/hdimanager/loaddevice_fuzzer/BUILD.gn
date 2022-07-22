@@ -33,7 +33,7 @@ ohos_fuzztest("LoadDeviceFuzzTest") {
     external_deps = [
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_single",
-      "samgr_standard:samgr_proxy",
+      "samgr:samgr_proxy",
       "utils_base:utils",
     ]
   } else {
