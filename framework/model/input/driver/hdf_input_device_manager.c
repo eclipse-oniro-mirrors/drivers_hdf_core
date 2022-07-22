@@ -30,12 +30,12 @@ InputManager* GetInputManager(void)
     return g_inputManager;
 }
 
-static bool IsHidDevice(uint32_t devType)
+static bool IsHidDevice(InputDevice *inputDev)
 {
-    if ((devType > INDEV_TYPE_HID_BEGIN_POS) && (devType < INDEV_TYPE_UNKNOWN)) {
+    if ((inputDev->devType > INDEV_TYPE_HID_BEGIN_POS) && (inputDev->devType < INDEV_TYPE_UNKNOWN)) {
         return true;
 #ifdef CONFIG_ARCH_ROCKCHIP
-    } else if (devType == INDEV_TYPE_KEY) {
+    } else if (strncmp(inputDev->devName, "hid-powerkey", strlen("hid-powerkey")) == 0) {
         return true;
 #endif
     }
@@ -106,7 +106,7 @@ static void HotPlugNotify(const InputDevice *inputDev, uint32_t status)
 
 static int32_t CreateDeviceNode(InputDevice *inputDev)
 {
-    if (IsHidDevice(inputDev->devType)) {
+    if (IsHidDevice(inputDev)) {
         HDF_LOGI("%s: prepare to register hdf device", __func__);
         inputDev->hdfDevObj = HidRegisterHdfDevice(inputDev);
         if (inputDev->hdfDevObj == NULL) {
@@ -121,7 +121,7 @@ static int32_t CreateDeviceNode(InputDevice *inputDev)
 
 static void DeleteDeviceNode(InputDevice *inputDev)
 {
-    if (IsHidDevice(inputDev->devType)) {
+    if (IsHidDevice(inputDev)) {
         HDF_LOGI("remove input device: hdf_input_event%u", inputDev->devId);
         HdfDeviceObjectRelease(inputDev->hdfDevObj);
     }
