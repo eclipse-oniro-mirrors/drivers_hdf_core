@@ -15,7 +15,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define HDF_TEST_SERVICE_NAME "HDF_TEST"
+#define HDF_TEST_SERVICE_NAME "khdf_ut"
 #define CHECK_TEST_NULL_PTR_RETURN(ptr)               \
     do {                                              \
         if ((ptr) == NULL) {                          \
