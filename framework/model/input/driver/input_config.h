@@ -150,6 +150,7 @@ typedef struct {
 
 typedef struct {
     struct HdfDeviceObject *hdfInfraredDev;
+    const char *infraredName;
     uint8_t devType;
     uint16_t gpioNum;
     uint16_t irqFlag;
