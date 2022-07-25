@@ -14,9 +14,9 @@
 
 using namespace testing::ext;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
-static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/khdf_ut/uevent";
-static constexpr const char *GEN_ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/khdf_ut/uevent";
-static constexpr const char *GEN_REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/khdf_ut/uevent";
+static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
+static constexpr const char *ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
+static constexpr const char *REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 
 class DevmgrUeventTest : public testing::Test {
 public:
@@ -86,7 +86,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventTestAdd, TestSize.Level3)
     ASSERT_TRUE(sampleService == nullptr);
 
     // trigger add uevent
-    system(GEN_ADD_EVENT_CMD);
+    system(ADD_EVENT_CMD);
     cnt = 0;
     sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
     while (sampleService == nullptr && cnt < timeout) {
@@ -132,7 +132,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventTestRemove, TestSize.Level3)
     ASSERT_TRUE(sampleService != nullptr);
 
     // trigger remove uevent
-    system(GEN_REMOVE_EVENT_CMD);
+    system(REMOVE_EVENT_CMD);
     cnt = 0;
     sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
     while (sampleService != nullptr && cnt < timeout) {
@@ -179,7 +179,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
 
     for (uint32_t i = 0; i < stressTime; i++) {
         // trigger add uevent
-        system(GEN_ADD_EVENT_CMD);
+        system(ADD_EVENT_CMD);
         cnt = 0;
         sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
         while (sampleService == nullptr && cnt < timeout) {
@@ -192,7 +192,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
         ASSERT_TRUE(sampleService != nullptr);
 
         // trigger remove uevent
-        system(GEN_REMOVE_EVENT_CMD);
+        system(REMOVE_EVENT_CMD);
         cnt = 0;
         sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
         while (sampleService != nullptr && cnt < timeout) {
