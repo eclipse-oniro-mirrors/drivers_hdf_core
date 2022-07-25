@@ -160,7 +160,7 @@ class Parser {
                     child = this.parseNodeAndTerm();
                     break;
                 default:
-                    NapiLog.logError("syntax error, except '}' or TEMPLATE or LITERAL for node '" + name.strval + '\'')
+                    NapiLog.logError("syntax error, except '}' or TEMPLATE or LITERAL for node '" + name.strval + " at lineNo=" + child.lineno_ + '\'')
                     return null;
             }
             if (child == null) {
