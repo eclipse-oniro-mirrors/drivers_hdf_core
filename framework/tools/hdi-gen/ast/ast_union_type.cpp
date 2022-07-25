@@ -104,7 +104,7 @@ String ASTUnionType::EmitCTypeDecl() const
         }
     }
 
-    sb.Append("};");
+    sb.Append("}  __attribute__ ((aligned(8)));");
     return sb.ToString();
 }
 
@@ -119,7 +119,7 @@ String ASTUnionType::EmitCppTypeDecl() const
         sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType().string(), memberName.string());
     }
 
-    sb.Append("};");
+    sb.Append("}  __attribute__ ((aligned(8)));");
     return sb.ToString();
 }
 

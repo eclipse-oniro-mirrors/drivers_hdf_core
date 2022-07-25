@@ -180,7 +180,7 @@ void ASTFdType::EmitJavaReadInnerVar(
         "%s %s = %s.readInt();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(), parcelName.string());
 }
 
-void ASTFdType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTFdType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     String methodName = String::Format("Write%s", ToString().string());
@@ -196,7 +196,7 @@ void ASTFdType::RegisterWriteMethod(Options::Language language, UtilMethodMap &m
     }
 }
 
-void ASTFdType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTFdType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     String methodName = String::Format("Read%s", ToString().string());

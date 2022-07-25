@@ -238,11 +238,21 @@ String CodeEmitter::FileName(const String &name)
     return sb.ToString();
 }
 
-void CodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+void CodeEmitter::GetUtilMethods(UtilMethodMap &methods)
+{
+    // get util methods
+    (void)methods;
+}
+
+void CodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix, const UtilMethodMap &methods, bool isDecl)
 {
     // generator util methods
-    (void)sb;
-    (void)prefix;
+    for (const auto &methodPair : methods) {
+        if (!isDecl) {
+            sb.Append("\n");
+        }
+        methodPair.second(sb, "", prefix, isDecl);
+    }
 }
 } // namespace HDI
 } // namespace OHOS

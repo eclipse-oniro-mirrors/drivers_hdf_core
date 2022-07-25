@@ -8,7 +8,6 @@
 
 #include "ast/ast_parameter.h"
 #include "ast/ast_array_type.h"
-#include "ast/ast_list_type.h"
 #include "util/string_builder.h"
 
 namespace OHOS {

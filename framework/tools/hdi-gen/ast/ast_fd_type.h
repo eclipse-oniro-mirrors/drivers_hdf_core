@@ -64,9 +64,9 @@ public:
     void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
         const String &prefix) const override;
 
-    void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const override;
+    void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 
-    void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const override;
+    void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 
     void EmitCWriteMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
 

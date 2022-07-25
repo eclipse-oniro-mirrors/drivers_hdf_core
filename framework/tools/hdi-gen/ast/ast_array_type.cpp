@@ -25,7 +25,6 @@ bool ASTArrayType::HasInnerType(TypeKind innerTypeKind) const
     if (elementType_->GetTypeKind() == innerTypeKind) {
         return true;
     }
-
     return elementType_->HasInnerType(innerTypeKind);
 }
 
@@ -84,16 +83,45 @@ void ASTArrayType::EmitCWriteVar(const String &parcelName, const String &name, c
     const String &gotoLabel, StringBuilder &sb, const String &prefix) const
 {
     String lenName = String::Format("%sLen", name.string());
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUint32(%s, %s)) {\n", parcelName.string(), lenName.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
-    sb.Append(prefix).Append("}\n");
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!WritePodArray(%s, %s, sizeof(%s), %s)) {\n", parcelName.string(),
+            name.string(), elementType_->EmitCType().string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    } else if (elementType_->IsStringType()) {
+        sb.Append(prefix).AppendFormat(
+            "if (!WriteStringArray(%s, %s, %s)) {\n", parcelName.string(), name.string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
+    sb.Append(prefix).AppendFormat("if (%s == NULL || %s == 0) {\n", name.string(), lenName.string());
+    sb.Append(prefix + TAB).AppendFormat("if (!HdfSbufWriteUint32(%s, 0)) {\n", parcelName.string());
+    sb.Append(prefix + TAB + TAB)
+        .AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+    sb.Append(prefix + TAB + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix).Append("} else {\n");
+    sb.Append(prefix + TAB).AppendFormat("if (!HdfSbufWriteUint32(%s, %s)) {\n", parcelName.string(), lenName.string());
+    sb.Append(prefix + TAB + TAB)
+        .AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+    sb.Append(prefix + TAB + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).Append("}\n");
 
     if (Options::GetInstance().DoGenerateKernelCode()) {
-        sb.Append(prefix).AppendFormat("for (i = 0; i < %s; i++) {\n", lenName.string());
+        sb.Append(prefix + TAB).AppendFormat("for (i = 0; i < %s; i++) {\n", lenName.string());
     } else {
-        sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %s; i++) {\n", lenName.string());
+        sb.Append(prefix + TAB).AppendFormat("for (uint32_t i = 0; i < %s; i++) {\n", lenName.string());
     }
 
     String elementName = "";
@@ -102,8 +130,8 @@ void ASTArrayType::EmitCWriteVar(const String &parcelName, const String &name, c
     } else {
         elementName = String::Format("%s[i]", name.string());
     }
-
-    elementType_->EmitCWriteVar(parcelName, elementName, ecName, gotoLabel, sb, prefix + TAB);
+    elementType_->EmitCWriteVar(parcelName, elementName, ecName, gotoLabel, sb, prefix + TAB + TAB);
+    sb.Append(prefix + TAB).Append("}\n");
     sb.Append(prefix).Append("}\n");
 }
 
@@ -122,9 +150,28 @@ void ASTArrayType::EmitCProxyReadVar(const String &parcelName, const String &nam
     const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const
 {
     String lenName = String::Format("%sLen", name.string());
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!ReadPodArray(%s, %s, sizeof(%s), %s)) {\n", parcelName.string(),
+            name.string(), elementType_->EmitCType().string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    } else if (elementType_->IsStringType()) {
+        sb.Append(prefix).AppendFormat(
+            "if (!ReadStringArray(%s, %s, %s)) {\n", parcelName.string(), name.string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
     sb.Append(prefix).AppendFormat("if (!HdfSbufReadUint32(%s, %s)) {\n", parcelName.string(), lenName.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: read %s size failed!\", __func__);\n", name.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s size failed!\", __func__);\n", name.string());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
     sb.Append(prefix).Append("}\n\n");
@@ -135,17 +182,9 @@ void ASTArrayType::EmitCProxyReadVar(const String &parcelName, const String &nam
         sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < *%s; i++) {\n", lenName.string());
     }
 
-    if (elementType_->GetTypeKind() == TypeKind::TYPE_STRING) {
-        EmitCProxyReadStrElement(parcelName, name, ecName, gotoLabel, sb, prefix);
-    } else if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
+    if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         String element = String::Format("&%s[i]", name.string());
         elementType_->EmitCProxyReadVar(parcelName, element, true, ecName, gotoLabel, sb, prefix + TAB);
-    } else if (elementType_->GetTypeKind() == TypeKind::TYPE_UNION) {
-        String element = String::Format("&%s[i]", name.string());
-        String elementCp = String::Format("%sElementCp", name.string());
-        elementType_->EmitCProxyReadVar(parcelName, elementCp, true, ecName, gotoLabel, sb, prefix + TAB);
-        sb.Append(prefix + TAB).AppendFormat("(void)memcpy_s(%s, sizeof(%s), %s, sizeof(%s));\n", element.string(),
-            elementType_->EmitCType().string(), elementCp.string(), elementType_->EmitCType().string());
     } else if (elementType_->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR) {
         String element = String::Format("%s[i]", name.string());
         elementType_->EmitCProxyReadVar(parcelName, element, true, ecName, gotoLabel, sb, prefix + TAB);
@@ -160,9 +199,28 @@ void ASTArrayType::EmitCStubReadVar(const String &parcelName, const String &name
     const String &gotoLabel, StringBuilder &sb, const String &prefix) const
 {
     String lenName = String::Format("%sLen", name.string());
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!ReadPodArray(%s, (void **)&%s, sizeof(%s), &%s)) {\n", parcelName.string(),
+            name.string(), elementType_->EmitCType().string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    } else if (elementType_->IsStringType()) {
+        sb.Append(prefix).AppendFormat(
+            "if (!ReadStringArray(%s, &%s, &%s)) {\n", parcelName.string(), name.string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
     sb.Append(prefix).AppendFormat("if (!HdfSbufReadUint32(%s, &%s)) {\n", parcelName.string(), lenName.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: read %s size failed!\", __func__);\n", name.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s size failed!\", __func__);\n", name.string());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
     sb.Append(prefix).Append("}\n\n");
@@ -176,18 +234,9 @@ void ASTArrayType::EmitCStubReadVar(const String &parcelName, const String &name
     } else {
         sb.Append(prefix + TAB).AppendFormat("for (uint32_t i = 0; i < %s; i++) {\n", lenName.string());
     }
-    if (elementType_->GetTypeKind() == TypeKind::TYPE_STRING) {
-        EmitCStubReadStrElement(parcelName, name, ecName, gotoLabel, sb, prefix);
-    } else if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
+    if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         String element = String::Format("&%s[i]", name.string());
         elementType_->EmitCStubReadVar(parcelName, element, ecName, gotoLabel, sb, prefix + TAB + TAB);
-    } else if (elementType_->GetTypeKind() == TypeKind::TYPE_UNION) {
-        String element = String::Format("%s[i]", name.string());
-        String elementCp = String::Format("%sElementCp", name.string());
-        elementType_->EmitCStubReadVar(parcelName, elementCp, ecName, gotoLabel, sb, prefix + TAB + TAB);
-        sb.Append(prefix + TAB + TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n",
-            element.string(), elementType_->EmitCType().string(), elementCp.string(),
-            elementType_->EmitCType().string());
     } else if (elementType_->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR) {
         String element = String::Format("%s[i]", name.string());
         elementType_->EmitCStubReadVar(parcelName, element, ecName, gotoLabel, sb, prefix + TAB + TAB);
@@ -205,8 +254,7 @@ void ASTArrayType::EmitCStubReadOutVar(const String &buffSizeName, const String 
     String lenName = String::Format("%sLen", name.string());
 
     sb.Append(prefix).AppendFormat("if (%s) {\n", memFlagName.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("if (!HdfSbufReadUint32(%s, &%s)) {\n", parcelName.string(), lenName.string());
+    sb.Append(prefix + TAB).AppendFormat("if (!HdfSbufReadUint32(%s, &%s)) {\n", parcelName.string(), lenName.string());
     sb.Append(prefix + TAB + TAB)
         .AppendFormat("HDF_LOGE(\"%%{public}s: read %s size failed!\", __func__);\n", name.string());
     sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
@@ -217,7 +265,7 @@ void ASTArrayType::EmitCStubReadOutVar(const String &buffSizeName, const String 
     sb.Append(prefix + TAB).Append("}\n");
     sb.Append(prefix).Append("} else {\n");
     sb.Append(prefix + TAB).AppendFormat("%s = (%s*)OsalMemCalloc(%s);\n", name.string(),
-        elementType_->EmitCType(TypeMode::NO_MODE).string(), buffSizeName.string());
+        elementType_->EmitCType().string(), buffSizeName.string());
     sb.Append(prefix + TAB).AppendFormat("if (%s == NULL) {\n", name.string());
     sb.Append(prefix + TAB + TAB)
         .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", name.string());
@@ -226,23 +274,44 @@ void ASTArrayType::EmitCStubReadOutVar(const String &buffSizeName, const String 
     sb.Append(prefix + TAB).Append("}\n");
 
     sb.Append(prefix + TAB).AppendFormat("%sLen = (%s / sizeof(%s));\n", name.string(), buffSizeName.string(),
-        elementType_->EmitCType(TypeMode::NO_MODE).string());
+        elementType_->EmitCType().string());
     sb.Append(prefix).Append("}\n\n");
 }
 
 void ASTArrayType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb,
     const String &prefix, unsigned int innerLevel) const
 {
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!WritePodArray(%s, %s)) {\n", parcelName.string(), name.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
     sb.Append(prefix).AppendFormat("if (!%s.WriteUint32(%s.size())) {\n", parcelName.string(), name.string());
     sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: write %s.size() failed!\", __func__);\n", name.string());
+        .AppendFormat("HDF_LOGE(\"%%{public}s: write %s size failed!\", __func__);\n", name.string());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
-    String elementName = String::Format("it%d", innerLevel++);
-    sb.Append(prefix).AppendFormat("for (const auto& %s : %s) {\n", elementName.string(), name.string());
 
-    elementType_->EmitCppWriteVar(parcelName, elementName, sb, prefix + TAB, innerLevel);
-    sb.Append(prefix).Append("}\n");
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!%s.empty()) {\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("if (!%s.WriteUnpadBuffer(", parcelName.string());
+        sb.AppendFormat("(const void*)%s.data(), sizeof(%s) * %s.size())) {\n", name.string(),
+            elementType_->EmitCppType().string(), name.string());
+        sb.Append(prefix + TAB + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+        sb.Append(prefix + TAB).Append("}\n");
+        sb.Append(prefix).Append("}\n");
+    } else {
+        String elementName = String::Format("it%d", innerLevel++);
+        sb.Append(prefix).AppendFormat("for (const auto& %s : %s) {\n", elementName.string(), name.string());
+        elementType_->EmitCppWriteVar(parcelName, elementName, sb, prefix + TAB, innerLevel);
+        sb.Append(prefix).Append("}\n");
+    }
 }
 
 void ASTArrayType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
@@ -251,11 +320,21 @@ void ASTArrayType::EmitCppReadVar(const String &parcelName, const String &name, 
     if (initVariable) {
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), name.string());
     }
+
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!ReadPodArray(%s, %s)) {\n", parcelName.string(), name.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
     sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("%s.clear();\n", name.string());
     sb.Append(prefix).AppendFormat("%s.reserve(%sSize);\n", name.string(), name.string());
     sb.Append(prefix).AppendFormat(
         "for (uint32_t i%d = 0; i%d < %sSize; ++i%d) {\n", innerLevel, innerLevel, name.string(), innerLevel);
-
     String valueName = String::Format("value%d", innerLevel++);
     elementType_->EmitCppReadVar(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
     sb.Append(prefix + TAB).AppendFormat("%s.push_back(%s);\n", name.string(), valueName.string());
@@ -264,16 +343,33 @@ void ASTArrayType::EmitCppReadVar(const String &parcelName, const String &name, 
 
 void ASTArrayType::EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUint32(data, %sLen)) {\n", name.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: write %sLen failed!\", __func__);\n", name.string());
+    String lenName = String::Format("%sLen", name.string());
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!WritePodArray(data, %s, sizeof(%s), %s)) {\n", name.string(),
+            elementType_->EmitCType().string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).Append("return false;\n");
+        sb.Append(prefix).Append("}\n");
+        return;
+    } else if (elementType_->IsStringType()) {
+        sb.Append(prefix).AppendFormat("if (!WriteStringArray(data, %s, %s)) {\n", name.string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).Append("return false;\n");
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
+    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUint32(data, %s)) {\n", lenName.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", lenName.string());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 
     if (Options::GetInstance().DoGenerateKernelCode()) {
-        sb.Append(prefix).AppendFormat("for (i = 0; i < %sLen; i++) {\n", name.string());
+        sb.Append(prefix).AppendFormat("for (i = 0; i < %s; i++) {\n", lenName.string());
     } else {
-        sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sLen; i++) {\n", name.string());
+        sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %s; i++) {\n", lenName.string());
     }
 
     String elementName = String::Format("(%s)[i]", name.string());
@@ -285,6 +381,23 @@ void ASTArrayType::EmitCUnMarshalling(const String &name, const String &gotoLabe
     const String &prefix, std::vector<String> &freeObjStatements) const
 {
     String lenName = String::Format("%sLen", name.string());
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!ReadPodArray(data, (void**)&%s, sizeof(%s), &%s)) {\n", name.string(),
+            elementType_->EmitCType().string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    } else if (elementType_->IsStringType()) {
+        sb.Append(prefix).AppendFormat("if (!ReadStringArray(data, &%s, &%s)) {\n", name.string(), lenName.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
     sb.Append(prefix).AppendFormat("if (!HdfSbufReadUint32(data, &%s)) {\n", lenName.string());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", lenName.string());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
@@ -306,16 +419,10 @@ void ASTArrayType::EmitCUnMarshalling(const String &name, const String &gotoLabe
     }
 
     if (elementType_->GetTypeKind() == TypeKind::TYPE_STRING) {
-        EmitCStringElementUnMarshalling(name, gotoLabel, sb, newPrefix, freeObjStatements);
+        EmitCStringElementUnMarshalling(name, gotoLabel, sb, newPrefix + TAB, freeObjStatements);
     } else if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         String element = String::Format("&%s[i]", name.string());
         elementType_->EmitCUnMarshalling(element, gotoLabel, sb, newPrefix + TAB, freeObjStatements);
-    } else if (elementType_->GetTypeKind() == TypeKind::TYPE_UNION) {
-        String element = String::Format("%s[i]", name.string());
-        String elementCp = String::Format("%sElementCp", name.string());
-        elementType_->EmitCUnMarshalling(elementCp, gotoLabel, sb, newPrefix + TAB, freeObjStatements);
-        sb.Append(newPrefix + TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", element.string(),
-            elementType_->EmitCType().string(), elementCp.string(), elementType_->EmitCType().string());
     } else {
         String element = String::Format("%s[i]", name.string());
         elementType_->EmitCUnMarshalling(element, gotoLabel, sb, newPrefix + TAB, freeObjStatements);
@@ -329,16 +436,15 @@ void ASTArrayType::EmitCStringElementUnMarshalling(const String &name, const Str
     const String &newPrefix, std::vector<String> &freeObjStatements) const
 {
     String element = String::Format("%sElement", name.string());
-    elementType_->EmitCUnMarshalling(element, gotoLabel, sb, newPrefix + TAB, freeObjStatements);
+    elementType_->EmitCUnMarshalling(element, gotoLabel, sb, newPrefix, freeObjStatements);
     if (Options::GetInstance().DoGenerateKernelCode()) {
         sb.Append(newPrefix).AppendFormat(
             "%s[i] = (char*)OsalMemCalloc(strlen(%s) + 1);\n", name.string(), element.string());
         sb.Append(newPrefix).AppendFormat("if (%s[i] == NULL) {\n", name.string());
         sb.Append(newPrefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
         sb.Append(newPrefix).Append("}\n\n");
-
-        sb.Append(newPrefix).AppendFormat("if (strcpy_s((%s)[i], (strlen(%s) + 1), %s) != HDF_SUCCESS) {\n",
-            name.string(), element.string(), element.string());
+        sb.Append(newPrefix).AppendFormat("if (strcpy_s((%s)[i], (strlen(%s) + 1), %s) != EOK) {\n", name.string(),
+            element.string(), element.string());
         sb.Append(newPrefix + TAB)
             .AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", element.string());
         sb.Append(newPrefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
@@ -351,14 +457,21 @@ void ASTArrayType::EmitCStringElementUnMarshalling(const String &name, const Str
 void ASTArrayType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
     const String &prefix, unsigned int innerLevel) const
 {
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!WritePodArray(%s, %s)) {\n", parcelName.string(), name.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).Append("return false;\n");
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
     sb.Append(prefix).AppendFormat("if (!%s.WriteUint32(%s.size())) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: write %s.size failed!\", __func__);\n", name.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed write %s.size\", __func__);\n", name.string());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
     String elementName = String::Format("it%d", innerLevel++);
     sb.Append(prefix).AppendFormat("for (const auto& %s : %s) {\n", elementName.string(), name.string());
-
     elementType_->EmitCppMarshalling(parcelName, elementName, sb, prefix + TAB, innerLevel);
     sb.Append(prefix).Append("}\n");
 }
@@ -368,30 +481,32 @@ void ASTArrayType::EmitCppUnMarshalling(const String &parcelName, const String &
 {
     int index = name.IndexOf('.', 0);
     String memberName = name.Substring(index + 1);
+    String sizeName = String::Format("%sSize", memberName.string());
     if (emitType) {
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), memberName.string());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("%s.reserve(%sSize);\n", name.string(), memberName.string());
-    sb.Append(prefix).AppendFormat(
-        "for (uint32_t i%d = 0; i%d < %sSize; ++i%d) {\n", innerLevel, innerLevel, memberName.string(), innerLevel);
 
+    if (!elementType_->IsBooleanType() && elementType_->IsPod()) {
+        sb.Append(prefix).AppendFormat("if (!ReadPodArray(%s, %s)) {\n", parcelName.string(), name.string());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", name.string());
+        sb.Append(prefix + TAB).Append("return false;\n");
+        sb.Append(prefix).Append("}\n");
+        return;
+    }
+
+    sb.Append(prefix).AppendFormat("uint32_t %s = %s.ReadUint32();\n", sizeName.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("%s.clear();\n", name.string());
+    sb.Append(prefix).AppendFormat("%s.reserve(%s);\n", name.string(), sizeName.string());
+    sb.Append(prefix).AppendFormat(
+        "for (uint32_t i%d = 0; i%d < %s; ++i%d) {\n", innerLevel, innerLevel, sizeName.string(), innerLevel);
     String valueName = String::Format("value%d", innerLevel++);
     if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         sb.Append(prefix + TAB).AppendFormat("%s %s;\n", elementType_->EmitCppType().string(), valueName.string());
-        elementType_->EmitCppUnMarshalling(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
-        sb.Append(prefix + TAB).AppendFormat("%s.push_back(%s);\n", name.string(), valueName.string());
-    } else if (elementType_->GetTypeKind() == TypeKind::TYPE_UNION) {
-        sb.Append(prefix + TAB).AppendFormat("%s %s;\n", elementType_->EmitCppType().string(), valueName.string());
-        String cpName = String::Format("%sCp", valueName.string());
-        elementType_->EmitCppUnMarshalling(parcelName, cpName, sb, prefix + TAB, true, innerLevel);
-        sb.Append(prefix + TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", valueName.string(),
-            elementType_->EmitCppType().string(), cpName.string(), elementType_->EmitCppType().string());
-        sb.Append(prefix + TAB).AppendFormat("%s.push_back(%s);\n", name.string(), valueName.string());
-    } else {
-        elementType_->EmitCppUnMarshalling(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
-        sb.Append(prefix + TAB).AppendFormat("%s.push_back(%s);\n", name.string(), valueName.string());
     }
+    elementType_->EmitCppUnMarshalling(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
+    sb.Append(prefix + TAB).AppendFormat("%s.push_back(%s);\n", name.string(), valueName.string());
+
     sb.Append(prefix).Append("}\n");
 }
 
@@ -402,7 +517,14 @@ void ASTArrayType::EmitMemoryRecycle(
     String lenName = isClient ? String::Format("*%sLen", name.string()) : String::Format("%sLen", name.string());
 
     sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", varName.string());
-    if (elementType_->GetTypeKind() == TypeKind::TYPE_STRING || elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
+    auto elementTypeNeedFree = [this]() -> bool {
+        if (elementType_->IsPod()) {
+            return false;
+        }
+
+        return elementType_->IsStringType() ? true : false;
+    };
+    if (elementTypeNeedFree()) {
         if (Options::GetInstance().DoGenerateKernelCode()) {
             sb.Append(prefix + TAB).AppendFormat("for (i = 0; i < %s; i++) {\n", lenName.string());
         } else {
@@ -418,7 +540,6 @@ void ASTArrayType::EmitMemoryRecycle(
     if (isClient) {
         sb.Append(prefix + TAB).AppendFormat("%s = NULL;\n", varName.string());
     }
-
     sb.Append(prefix).Append("}\n");
 }
 
@@ -567,75 +688,559 @@ void ASTArrayType::EmitCMallocVar(const String &name, const String &lenName, boo
     sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s) * (%s));\n", varName.string(),
         elementType_->EmitCType().string(), elementType_->EmitCType().string(), lenVarName.string());
     sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", varName.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", varName.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", varName.string());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", ecName.string());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTArrayType::EmitCProxyReadStrElement(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTArrayType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
-    String cpName = String::Format("%sCp", name.string());
-    elementType_->EmitCProxyReadVar(parcelName, cpName, true, ecName, gotoLabel, sb, prefix + TAB);
-    sb.Append("\n");
+    elementType_->RegisterWriteMethod(language, mode, methods);
+    if (elementType_->IsPod()) {
+        RegisterWritePodArrayMethod(language, mode, methods);
+    } else if (elementType_->IsStringType()) {
+        RegisterWriteStringArrayMethod(language, mode, methods);
+    }
+}
+
+void ASTArrayType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    elementType_->RegisterReadMethod(language, mode, methods);
+    if (elementType_->IsPod()) {
+        RegisterReadPodArrayMethod(language, mode, methods);
+    } else if (elementType_->IsStringType()) {
+        RegisterReadStringArrayMethod(language, mode, methods);
+    }
+}
+
+void ASTArrayType::RegisterWritePodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    using namespace std::placeholders;
+    String methodName = "WritePodArray";
+    switch (language) {
+        case Options::Language::C:
+            methods.emplace(methodName, std::bind(&ASTArrayType::EmitCWriteMethods, this, _1, _2, _3, _4));
+            break;
+        case Options::Language::CPP:
+            methods.emplace(methodName, std::bind(&ASTArrayType::EmitCppWriteMethods, this, _1, _2, _3, _4));
+            break;
+        default:
+            break;
+    }
+}
+
+void ASTArrayType::RegisterWriteStringArrayMethod(
+    Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    using namespace std::placeholders;
+    if (language == Options::Language::C && elementType_->IsStringType()) {
+        methods.emplace("WriteStringArray", std::bind(&ASTArrayType::EmitCWriteStrArrayMethods, this, _1, _2, _3, _4));
+    }
+}
+
+void ASTArrayType::RegisterReadPodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    using namespace std::placeholders;
+    String methodName = "ReadPodArray";
+    switch (language) {
+        case Options::Language::C: {
+            auto readMethod = mode == SerMode::PROXY_SER ?
+                std::bind(&ASTArrayType::EmitCReadMethods, this, _1, _2, _3, _4) :
+                std::bind(&ASTArrayType::EmitCStubReadMethods, this, _1, _2, _3, _4);
+            methods.emplace(methodName, readMethod);
+            break;
+        }
+        case Options::Language::CPP:
+            methods.emplace(methodName, std::bind(&ASTArrayType::EmitCppReadMethods, this, _1, _2, _3, _4));
+            break;
+        default:
+            break;
+    }
+}
+
+void ASTArrayType::RegisterReadStringArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    using namespace std::placeholders;
+    if (language == Options::Language::C && elementType_->IsStringType()) {
+        auto readMethod = mode == SerMode::PROXY_SER ?
+            std::bind(&ASTArrayType::EmitCReadStrArrayMethods, this, _1, _2, _3, _4) :
+            std::bind(&ASTArrayType::EmitCStubReadStrArrayMethods, this, _1, _2, _3, _4);
+        methods.emplace("ReadStringArray", readMethod);
+    }
+}
+
+void ASTArrayType::EmitCWriteMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
+{
+    String methodName = String::Format("%sWritePodArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("static bool %s(", methodName.string());
+    sb.Append("struct HdfSBuf *parcel, const void *data, uint32_t elementSize, uint32_t count)");
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("if (!HdfSbufWriteUint32(parcel, count)) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to write array size\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).Append("if (data == NULL && count == 0) {\n");
+    sb.Append(prefix + TAB + TAB).Append("return true;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
     if (Options::GetInstance().DoGenerateKernelCode()) {
+        sb.Append(prefix + TAB).Append("if (!HdfSbufWriteBuffer(");
+        sb.Append("parcel, (const void *)data, elementSize * count)) {\n");
+    } else {
+        sb.Append(prefix + TAB).Append("if (!HdfSbufWriteUnpadBuffer(");
+        sb.Append("parcel, (const uint8_t *)data, elementSize * count)) {\n");
+    }
+
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to write array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTArrayType::EmitCReadMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
+{
+    String methodName = String::Format("%sReadPodArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("static bool %s(", methodName.string());
+    sb.Append("struct HdfSBuf *parcel, void *data, uint32_t elementSize, uint32_t *count)");
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+
+    sb.Append(prefix).Append("{\n");
+    if (Options::GetInstance().DoGenerateKernelCode()) {
+        sb.Append(prefix + TAB).Append("void *dataPtr = NULL;\n");
+        sb.Append(prefix + TAB).Append("uint32_t dataLen = 0;\n");
+    }
+    sb.Append(prefix + TAB).Append("uint32_t elementCount = 0;\n");
+    sb.Append(prefix + TAB).Append("if (!HdfSbufReadUint32(parcel, &elementCount)) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to read array size\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).Append("if (elementCount == 0) {\n");
+    sb.Append(prefix + TAB + TAB).Append("goto FINISHED;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    if (Options::GetInstance().DoGenerateKernelCode()) {
+        sb.Append(prefix + TAB).Append("if (!HdfSbufReadBuffer(parcel, (const void **)&dataPtr, &dataLen)) {\n");
+    } else {
         sb.Append(prefix + TAB)
-            .AppendFormat("%s[i] = (char*)OsalMemCalloc(strlen(%s) + 1);\n", name.string(), cpName.string());
-        sb.Append(prefix + TAB).AppendFormat("if (%s[i] == NULL) {\n", name.string());
-        sb.Append(prefix + TAB + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s[i] failed\", __func__);\n", name.string());
-        sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", ecName.string());
-        sb.Append(prefix + TAB + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
-        sb.Append(prefix + TAB).Append("}\n\n");
-        sb.Append(prefix + TAB).AppendFormat("if (strcpy_s(%s[i], (strlen(%s) + 1), %s) != HDF_SUCCESS) {\n",
-            name.string(), cpName.string(), cpName.string());
-        sb.Append(prefix + TAB + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", cpName.string());
-        sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-        sb.Append(prefix + TAB + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
-        sb.Append(prefix + TAB).Append("}\n");
-    } else {
-        sb.Append(prefix + TAB).AppendFormat("%s[i] = strdup(%sCp);\n", name.string(), name.string());
+            .Append("const void * dataPtr = HdfSbufReadUnpadBuffer(parcel, elementSize * elementCount);\n");
+        sb.Append(prefix + TAB).Append("if (dataPtr == NULL) {\n");
     }
+
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to read array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).Append("if (memcpy_s(");
+    sb.Append("data, elementSize * elementCount, dataPtr, elementSize * elementCount) != EOK) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to copy array data\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append("FINISHED:\n");
+    sb.Append(prefix + TAB).Append("*count = elementCount;\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
-void ASTArrayType::EmitCStubReadStrElement(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTArrayType::EmitCStubReadMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
 {
-    String element = String::Format("%sCp", name.string());
-    String newPrefix = prefix + TAB + TAB;
-    elementType_->EmitCStubReadVar(parcelName, element, ecName, gotoLabel, sb, newPrefix);
-    sb.Append("\n");
+    String methodName = String::Format("%sReadPodArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("static bool %s(", methodName.string());
+    sb.Append("struct HdfSBuf *parcel, void **data, uint32_t elementSize, uint32_t *count)");
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+    sb.Append(prefix).Append("{\n");
+    EmitCStubReadMethodBody(sb, prefix + TAB);
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTArrayType::EmitCStubReadMethodBody(StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).Append("const void * dataPtr = NULL;\n");
     if (Options::GetInstance().DoGenerateKernelCode()) {
-        sb.Append(newPrefix).AppendFormat(
-            "%s[i] = (char*)OsalMemCalloc(strlen(%s) + 1);\n", name.string(), element.string());
-        sb.Append(newPrefix).AppendFormat("if (%s[i] == NULL) {\n", name.string());
-        sb.Append(newPrefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", ecName.string());
-        sb.Append(newPrefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
-        sb.Append(newPrefix).Append("}\n\n");
-
-        sb.Append(newPrefix).AppendFormat("if (strcpy_s(%s[i], (strlen(%s) + 1), %s) != HDF_SUCCESS) {\n",
-            name.string(), element.string(), element.string());
-        sb.Append(newPrefix + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", element.string());
-        sb.Append(newPrefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-        sb.Append(newPrefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
-        sb.Append(newPrefix).Append("}\n");
-    } else {
-        sb.Append(newPrefix).AppendFormat("%s[i] = strdup(%sCp);\n", name.string(), name.string());
+        sb.Append(prefix).Append("uint32_t dataLen = 0;\n");
     }
+    sb.Append(prefix).Append("void *memPtr = NULL;\n");
+    sb.Append(prefix).Append("uint32_t elementCount = 0;\n");
+    sb.Append(prefix).Append("if (count == NULL || data == NULL || elementSize == 0) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid param\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("if (!HdfSbufReadUint32(parcel, &elementCount)) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read element count\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("if (elementCount == 0) {\n");
+    sb.Append(prefix + TAB).Append("*count = elementCount;\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n\n");
+    if (Options::GetInstance().DoGenerateKernelCode()) {
+        sb.Append(prefix).Append("if (!HdfSbufReadBuffer(parcel, (const void **)&dataPtr, &dataLen)) {\n");
+    } else {
+        sb.Append(prefix).Append("dataPtr = HdfSbufReadUnpadBuffer(parcel, elementSize * elementCount);\n");
+        sb.Append(prefix).Append("if (dataPtr == NULL) {\n");
+    }
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read buffer data\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("memPtr = OsalMemCalloc(elementSize * elementCount);\n");
+    sb.Append(prefix).Append("if (memPtr == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to malloc buffer\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix)
+        .Append("if (memcpy_s(memPtr, elementSize * elementCount, dataPtr, elementSize * elementCount) != EOK) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to memcpy buffer\", __func__);\n");
+    sb.Append(prefix + TAB).Append("OsalMemFree(memPtr);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("*data = memPtr;\n");
+    sb.Append(prefix).Append("*count = elementCount;\n");
+    sb.Append(prefix).Append("return true;\n");
 }
 
-void ASTArrayType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTArrayType::EmitCWriteStrArrayMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
 {
-    elementType_->RegisterWriteMethod(language, methods);
+    String methodName = String::Format("%sWriteStringArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("static bool %s(", methodName.string());
+    sb.Append("struct HdfSBuf *parcel, char **data, uint32_t count)");
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("uint32_t i = 0;\n");
+    sb.Append(prefix + TAB).Append("if (parcel == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("if (!HdfSbufWriteUint32(parcel, count)) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to write count of array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("if (count == 0) {\n");
+    sb.Append(prefix + TAB + TAB).Append("return true;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("if (data == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid array object\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("for (i = 0; i < count; i++) {\n");
+    sb.Append(prefix + TAB + TAB).Append("if (!HdfSbufWriteString(parcel, data[i])) {\n");
+    sb.Append(prefix + TAB + TAB + TAB)
+        .Append("HDF_LOGE(\"%{public}s: failed to write element of array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
-void ASTArrayType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTArrayType::EmitCReadStrArrayMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
 {
-    elementType_->RegisterReadMethod(language, methods);
+    String methodName = String::Format("%sReadStringArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("static bool %s(", methodName.string());
+    sb.Append("struct HdfSBuf *parcel, char **data, uint32_t *count)");
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+    sb.Append(prefix).Append("{\n");
+    EmitCReadStrArrayMethodBody(sb, prefix + TAB);
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTArrayType::EmitCReadStrArrayMethodBody(StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).Append("uint32_t i = 0;\n");
+    sb.Append(prefix).Append("uint32_t dataCount = 0;\n");
+    EmitCCheckParamOfReadStringArray(sb, prefix);
+    sb.Append(prefix).Append("if (!HdfSbufReadUint32(parcel, &dataCount)) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read count of array\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("if (dataCount == 0) {\n");
+    sb.Append(prefix + TAB).Append("*count = dataCount;\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("for (i = 0; i < dataCount; i++) {\n");
+    sb.Append(prefix + TAB).Append("char *elementStr = NULL;\n");
+    sb.Append(prefix + TAB).Append("uint32_t strLen = 0;\n");
+    sb.Append(prefix + TAB).Append("const char *str = HdfSbufReadString(parcel);\n");
+    sb.Append(prefix + TAB).Append("if (str == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to read string\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("goto ERROR;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("strLen = strlen(str);\n");
+    sb.Append(prefix + TAB).Append("elementStr = (char *)OsalMemCalloc(strLen + 1);\n");
+    sb.Append(prefix + TAB).Append("if (elementStr == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to malloc element of array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("goto ERROR;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("if (strcpy_s(elementStr, strLen + 1, str) != EOK) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed copy element of array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("OsalMemFree(elementStr);\n");
+    sb.Append(prefix + TAB + TAB).Append("goto ERROR;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("data[i] = elementStr;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("*count = dataCount;\n");
+    sb.Append(prefix).Append("return true;\n\n");
+    sb.Append("ERROR:\n");
+    sb.Append(prefix).Append("for (i = 0; i < dataCount; ++i) {\n");
+    sb.Append(prefix + TAB).Append("if (data[i] != NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("OsalMemFree(data[i]);\n");
+    sb.Append(prefix + TAB + TAB).Append("data[i] = NULL;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix).Append("}\n");
+    sb.Append(prefix).Append("*count = 0;\n");
+    sb.Append(prefix).Append("return false;\n");
+}
+
+void ASTArrayType::EmitCCheckParamOfReadStringArray(StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).Append("if (parcel == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("if (data == NULL || count == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid array object\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+}
+
+void ASTArrayType::EmitCStubReadStrArrayMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
+{
+    String methodName = String::Format("%sReadStringArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("static bool %s(", methodName.string());
+    sb.Append("struct HdfSBuf *parcel, char ***data, uint32_t *count)");
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+    sb.Append(prefix).Append("{\n");
+    EmitCStubReadStrArrayMethodBody(sb, prefix + TAB);
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTArrayType::EmitCStubReadStrArrayMethodBody(StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).Append("uint32_t i = 0;\n");
+    sb.Append(prefix).Append("char **dataPtr = NULL;\n");
+    sb.Append(prefix).Append("uint32_t dataCount = 0;\n");
+    EmitCCheckParamOfReadStringArray(sb, prefix);
+    sb.Append(prefix).Append("if (!HdfSbufReadUint32(parcel, &dataCount)) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read count of array\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("if (dataCount == 0) {\n");
+    sb.Append(prefix + TAB).Append("*count = dataCount;\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("dataPtr = (char **)OsalMemCalloc(sizeof(char *) * dataCount);\n");
+    sb.Append(prefix).Append("if (dataPtr == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to malloc array\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("for (i = 0; i < dataCount; i++) {\n");
+    sb.Append(prefix + TAB).Append("char *elementStr = NULL;\n");
+    sb.Append(prefix + TAB).Append("uint32_t strLen = 0;\n");
+    sb.Append(prefix + TAB).Append("const char *str = HdfSbufReadString(parcel);\n");
+    sb.Append(prefix + TAB).Append("if (str == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to malloc array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("goto ERROR;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("strLen = strlen(str);\n");
+    sb.Append(prefix + TAB).Append("elementStr = (char *)OsalMemCalloc(strLen + 1);\n");
+    sb.Append(prefix + TAB).Append("if (elementStr == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to malloc element of array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("goto ERROR;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("if (strcpy_s(elementStr, strLen + 1, str) != EOK) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed copy element of array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("OsalMemFree(elementStr);\n");
+    sb.Append(prefix + TAB + TAB).Append("goto ERROR;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("dataPtr[i] = elementStr;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("*count = dataCount;\n");
+    sb.Append(prefix).Append("*data = dataPtr;\n");
+    sb.Append(prefix).Append("return true;\n\n");
+    EmitCStubReadStrArrayFree(sb, prefix);
+}
+
+void ASTArrayType::EmitCStubReadStrArrayFree(StringBuilder &sb, const String &prefix) const
+{
+    sb.Append("ERROR:\n");
+    sb.Append(prefix).Append("if (dataPtr != NULL) {\n");
+    sb.Append(prefix + TAB).Append("for (i = 0; i < dataCount; i++) {\n");
+    sb.Append(prefix + TAB + TAB).Append("if (dataPtr[i] != NULL) {\n");
+    sb.Append(prefix + TAB + TAB + TAB).Append("OsalMemFree(dataPtr[i]);\n");
+    sb.Append(prefix + TAB + TAB + TAB).Append("dataPtr[i] = NULL;\n");
+    sb.Append(prefix + TAB + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("OsalMemFree(dataPtr);\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).Append("*count = 0;\n");
+    sb.Append(prefix).Append("return false;\n");
+}
+
+void ASTArrayType::EmitCppWriteMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
+{
+    String methodName = String::Format("%sWritePodArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("template<typename ElementType>\n");
+    sb.Append(prefix).AppendFormat(
+        "static bool %s(MessageParcel &parcel, const std::vector<ElementType> &data)", methodName.string());
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("if (!parcel.WriteUint32(data.size())) {\n");
+    sb.Append(prefix + TAB + TAB).AppendFormat("HDF_LOGE(\"%{public}s: failed to write data size\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    sb.Append(prefix + TAB).Append("if (data.empty()) {\n");
+    sb.Append(prefix + TAB + TAB).Append("return true;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    sb.Append(prefix + TAB).Append("if (!parcel.WriteUnpadBuffer(");
+    sb.Append("(const void*)data.data(), sizeof(ElementType) * data.size())) {\n");
+    sb.Append(prefix + TAB + TAB).AppendFormat("HDF_LOGE(\"%{public}s: failed to write array\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTArrayType::EmitCppReadMethods(
+    StringBuilder &sb, const String &prefix, const String &methodPrefix, bool isDecl) const
+{
+    String methodName = String::Format("%sReadPodArray", methodPrefix.string());
+    sb.Append(prefix).AppendFormat("template<typename ElementType>\n");
+    sb.Append(prefix).AppendFormat(
+        "static bool %s(MessageParcel &parcel, std::vector<ElementType> &data)", methodName.string());
+    if (isDecl) {
+        sb.Append(";\n");
+        return;
+    } else {
+        sb.Append("\n");
+    }
+
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("data.clear();\n");
+    sb.Append(prefix + TAB).Append("uint32_t size = parcel.ReadUint32();\n");
+    sb.Append(prefix + TAB).Append("if (size == 0) {\n");
+    sb.Append(prefix + TAB + TAB).Append("return true;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    sb.Append(prefix + TAB).Append("const ElementType *dataPtr = reinterpret_cast<const ElementType*>(");
+    sb.Append("parcel.ReadUnpadBuffer(sizeof(ElementType) * size));\n");
+    sb.Append(prefix + TAB).Append("if (dataPtr == nullptr) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGI(\"%{public}s: failed to read data\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    sb.Append(prefix + TAB).Append("data.assign(dataPtr, dataPtr + size);\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+bool ASTListType::IsArrayType()
+{
+    return false;
+}
+
+bool ASTListType::IsListType()
+{
+    return true;
+}
+
+String ASTListType::ToString() const
+{
+    return String::Format("List<%s>", elementType_->ToString().string());
+}
+
+TypeKind ASTListType::GetTypeKind()
+{
+    return TypeKind::TYPE_LIST;
+}
+
+String ASTListType::EmitJavaType(TypeMode mode, bool isInnerType) const
+{
+    return String::Format("List<%s>", elementType_->EmitJavaType(mode, true).string());
+}
+
+void ASTListType::EmitJavaWriteVar(
+    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).AppendFormat("%s.writeInt(%s.size());\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat(
+        "for (%s element : %s) {\n", elementType_->EmitJavaType(TypeMode::NO_MODE).string(), name.string());
+    elementType_->EmitJavaWriteVar(parcelName, "element", sb, prefix + TAB);
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTListType::EmitJavaReadVar(
+    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).AppendFormat("int %sSize = %s.readInt();\n", name.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("for (int i = 0; i < %sSize; ++i) {\n", name.string());
+
+    elementType_->EmitJavaReadInnerVar(parcelName, "value", false, sb, prefix + TAB);
+    sb.Append(prefix + TAB).AppendFormat("%s.add(value);\n", name.string());
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTListType::EmitJavaReadInnerVar(
+    const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
+{
+    sb.Append(prefix).AppendFormat("%s %s = new Array%s();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(),
+        EmitJavaType(TypeMode::NO_MODE).string());
+    sb.Append(prefix).AppendFormat("int %sSize = %s.readInt();\n", name.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("for (int i = 0; i < %sSize; ++i) {\n", name.string());
+    elementType_->EmitJavaReadInnerVar(parcelName, "value", true, sb, prefix + TAB);
+    sb.Append(prefix + TAB).AppendFormat("%s.add(value);\n", name.string());
+    sb.Append(prefix).Append("}\n");
 }
 } // namespace HDI
 } // namespace OHOS

@@ -73,9 +73,9 @@ public:
     void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
         const String &prefix) const override;
 
-    void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const override;
+    void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 
-    void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const override;
+    void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 private:
     AutoPtr<ASTType> keyType_;
     AutoPtr<ASTType> valueType_;

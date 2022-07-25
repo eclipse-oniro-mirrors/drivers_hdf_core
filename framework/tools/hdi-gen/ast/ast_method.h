@@ -33,7 +33,7 @@ public:
     inline void SetAttribute(const AutoPtr<ASTMethodAttr> &attr)
     {
         if (attr != nullptr) {
-            attr_ == attr;
+            attr_ = attr;
         }
     }
 

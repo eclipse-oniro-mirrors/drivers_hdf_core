@@ -44,14 +44,17 @@ void CClientProxyCodeEmitter::EmitProxySourceFile()
     sb.Append("\n");
     EmitProxyDefinition(sb);
     sb.Append("\n");
+    UtilMethodMap utilMethods;
+    GetUtilMethods(utilMethods);
+    EmitUtilMethods(sb, "", utilMethods, true);
+    sb.Append("\n");
     if (!isKernelCode_) {
         EmitProxyCallMethodImpl(sb);
     } else {
         EmitProxyKernelCallMethodImpl(sb);
     }
-
     sb.Append("\n");
-    EmitUtilMethods(sb, "");
+    EmitUtilMethods(sb, "", utilMethods, false);
     EmitProxyMethodImpls(sb);
     sb.Append("\n");
     EmitProxyConstruction(sb);
@@ -211,7 +214,7 @@ void CClientProxyCodeEmitter::EmitProxyMethodBody(
     sb.Append(prefix + TAB).AppendFormat("int32_t %s = HDF_FAILURE;\n", errorCodeName_.string());
 
     // Local variable definitions must precede all execution statements.
-    EmitInitLoopVar(method, sb, prefix + TAB);
+    EmitMethodNeedLoopVar(method, true, false, sb, prefix + TAB);
     sb.Append("\n");
     EmitCreateBuf(dataParcelName_, replyParcelName_, sb, prefix + TAB);
     sb.Append("\n");
@@ -582,25 +585,19 @@ void CClientProxyCodeEmitter::EmitProxyReleaseMethodImpl(
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+void CClientProxyCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    UtilMethodMap methods;
     for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
             } else {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
             }
         }
-    }
-
-    for (const auto &methodPair : methods) {
-        sb.Append("\n");
-        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI
