@@ -21,7 +21,8 @@ obj-y  += $(HDF_FRAMWORK_TEST_ROOT)/common/hdf_main_test.o \
           $(HDF_FRAMWORK_TEST_ROOT)/manager/sample_driver_test.o \
           $(HDF_FRAMWORK_TEST_ROOT)/utils/hcs_parser/unittest/hcs_config_test.o \
           $(HDF_FRAMWORK_TEST_ROOT)/utils/hcs_parser/unittest/hcs_parser_test.o \
-          $(HDF_FRAMWORK_TEST_ROOT)/pm/hdf_pm_driver_test.o
+          $(HDF_FRAMWORK_TEST_ROOT)/pm/hdf_pm_driver_test.o \
+          $(HDF_FRAMWORK_TEST_ROOT)/uevent/devmgr_uevent_test.o
 
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/platform_device_test.o \
                                       $(HDF_FRAMWORK_TEST_ROOT)/platform/common/platform_driver_test.o \
