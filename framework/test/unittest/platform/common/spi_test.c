@@ -38,63 +38,65 @@ static int32_t SpiTestGetConfig(struct SpiTestConfig *config)
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    reply = HdfSbufObtainDefaultSize();
-    if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
-        return HDF_ERR_MALLOC_FAIL;
-    }
+    do {
+        reply = HdfSbufObtainDefaultSize();
+        if (reply == NULL) {
+            HDF_LOGE("%s: failed to obtain reply", __func__);
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
 
-    ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: remote dispatch failed", __func__);
-        goto EXIT;
-    }
+        ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: remote dispatch failed", __func__);
+            break;
+        }
 
-    if (!HdfSbufReadBuffer(reply, (const void **)&cfg, &len)) {
-        HDF_LOGE("%s: read buf failed", __func__);
-        ret = HDF_ERR_IO;
-        goto EXIT;
-    }
+        if (!HdfSbufReadBuffer(reply, (const void **)&cfg, &len)) {
+            HDF_LOGE("%s: read buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (len != sizeof(*cfg)) {
-        HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
-        ret = HDF_ERR_IO;
-        goto EXIT;
-    }
+        if (len != sizeof(*cfg)) {
+            HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (memcpy_s(config, sizeof(*config), cfg, sizeof(*cfg)) != EOK) {
-        HDF_LOGE("%s: memcpy config failed", __func__);
-        ret = HDF_ERR_IO;
-        goto EXIT;
-    }
+        if (memcpy_s(config, sizeof(*config), cfg, sizeof(*cfg)) != EOK) {
+            HDF_LOGE("%s: memcpy config failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (!HdfSbufReadBuffer(reply, (const void **)&buf, &len)) {
-        HDF_LOGE("%s: read buf failed", __func__);
-        ret = HDF_ERR_IO;
-        goto EXIT;
-    }
+        if (!HdfSbufReadBuffer(reply, (const void **)&buf, &len)) {
+            HDF_LOGE("%s: read buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (len != config->len) {
-        HDF_LOGE("%s: buffer size:%zu, read size:%u", __func__, config->len, len);
-        ret = HDF_ERR_IO;
-        goto EXIT;
-    }
+        if (len != config->len) {
+            HDF_LOGE("%s: buffer size:%zu, read size:%u", __func__, config->len, len);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    config->wbuf = NULL;
-    config->wbuf = (uint8_t *)OsalMemCalloc(config->len);
-    if (config->wbuf == NULL) {
-        HDF_LOGE("%s: malloc wbuf failed", __func__);
-        ret = HDF_ERR_MALLOC_FAIL;
-        goto EXIT;
-    }
+        config->wbuf = NULL;
+        config->wbuf = (uint8_t *)OsalMemCalloc(config->len);
+        if (config->wbuf == NULL) {
+            HDF_LOGE("%s: malloc wbuf failed", __func__);
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
 
-    if (memcpy_s(config->wbuf, config->len, buf, len) != EOK) {
-        HDF_LOGE("%s: memcpy config failed", __func__);
-        ret = HDF_ERR_IO;
-        goto EXIT;
-    }
-    ret = HDF_SUCCESS;
-EXIT:
+        if (memcpy_s(config->wbuf, config->len, buf, len) != EOK) {
+            HDF_LOGE("%s: memcpy config failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
+        ret = HDF_SUCCESS;
+    } while (0);
     HdfSbufRecycle(reply);
     HdfIoServiceRecycle(service);
     return ret;
