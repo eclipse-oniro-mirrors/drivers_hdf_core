@@ -356,6 +356,10 @@ static int32_t ParseWlanBusConfig(const struct DeviceResourceNode *node, struct 
         HDF_LOGE("%s: timeout fail!", __func__);
         return HDF_FAILURE;
     }
+    if (drsOps->GetUint8(node, "busEnable", &busConfig->busEnable, 0) != HDF_SUCCESS) {
+        HDF_LOGE("%s: busEnable fail!", __func__);
+        return HDF_FAILURE;
+    }
     HDF_LOGD("%s: ParseWlanBusConfig successful!", __func__);
     return HDF_SUCCESS;
 }
