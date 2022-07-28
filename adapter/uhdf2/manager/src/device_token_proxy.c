@@ -38,6 +38,8 @@ void HdfDevTokenProxyRecycle(struct HdfDevTokenProxy *inst)
             HdfRemoteServiceRecycle(inst->remote);
             inst->remote = NULL;
         }
+        OsalMemFree((void *)inst->super.servName);
+        OsalMemFree((void *)inst->super.deviceName);
         OsalMemFree(inst);
     }
 }

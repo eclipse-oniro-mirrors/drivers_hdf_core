@@ -139,6 +139,7 @@ static bool GetDeviceNodeInfo(const struct HdfDeviceNodeType *deviceNode, struct
     deviceNodeInfo->deviceMatchAttr = deviceNode->deviceMatchAttr;
     deviceNodeInfo->moduleName = deviceNode->moduleName;
     deviceNodeInfo->svcName = deviceNode->svcName;
+    deviceNodeInfo->deviceName = deviceNode->deviceName;
 
     return CheckDeviceInfo(deviceNodeInfo);
 }

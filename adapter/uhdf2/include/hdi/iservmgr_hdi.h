@@ -29,6 +29,7 @@ namespace V1_0 {
 struct HdiServiceInfo {
     std::string serviceName;
     uint16_t devClass;
+    uint32_t devId;
 };
 
 class IServiceManager : public HdiBase {

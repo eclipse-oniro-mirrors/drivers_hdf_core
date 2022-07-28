@@ -73,13 +73,27 @@ static void PrintHelp()
     cout << HELP_COMMENT;
 }
 
-static void PrintAllServiceInfoUser(const std::vector<HdiServiceInfo> &serviceInfos)
+static const int32_t alignSize = 30;
+static void SetPadAlign(std::string &name, char padChar, int32_t size)
+{
+    int32_t padCnt = size - name.length();
+
+    padCnt = (padCnt <= 0) ? 0 : padCnt;
+    name.append(padCnt, padChar);
+}
+
+static void PrintAllServiceInfoUser(std::vector<HdiServiceInfo> &serviceInfos)
 {
     uint32_t cnt = 0;
+    std::string titleName = "serviceName";
+    SetPadAlign(titleName, ' ', alignSize);
+
     cout << "display service info in user space, format:" << endl;
-    cout << "servName:\t" << "devClass" << endl;
+    cout << titleName << ":devClass" << "\t:devId" << endl;
+
     for (auto &info : serviceInfos) {
-        cout << info.serviceName << ":\t0x" << std::hex << info.devClass << endl;
+        SetPadAlign(info.serviceName, ' ', alignSize);
+        cout << info.serviceName << ":0x" << std::hex << info.devClass << "\t:0x" << info.devId << endl;
         cnt++;
     }
 
@@ -89,35 +103,61 @@ static void PrintAllServiceInfoUser(const std::vector<HdiServiceInfo> &serviceIn
 static void PrintAllServiceInfoKernel(struct HdfSBuf *data, bool flag)
 {
     uint32_t cnt = 0;
+    std::string titleName = "serviceName";
+
+    SetPadAlign(titleName, ' ', alignSize);
     cout << "display service info in kernel space, format:" << endl;
-    cout << "servName:\t" << "devClass" << endl;
+    cout << titleName << ":devClass" << "\t:devId" << endl;
+
     while (flag) {
         const char *servName = HdfSbufReadString(data);
         if (servName == nullptr) {
             break;
         }
+
         uint16_t devClass;
         if (!HdfSbufReadUint16(data, &devClass)) {
             return;
         }
-        cout << servName << ":\t0x" << std::hex << devClass << endl;
+
+        uint32_t devId;
+        if (!HdfSbufReadUint32(data, &devId)) {
+            return;
+        }
+
+        std::string serviceName = servName;
+        SetPadAlign(serviceName, ' ', alignSize);
+        cout << serviceName << ":0x" << std::hex << devClass << "\t:0x" << devId << endl;
         cnt++;
     }
 
     cout << "total " << std::dec << cnt << " services in kernel space" << endl;
 }
 
-static void PrintALLDeviceInfoUser(const std::vector<HdiDevHostInfo> &deviceInfos)
+static void PrintALLDeviceInfoUser(std::vector<HdiDevHostInfo> &deviceInfos)
 {
     cout << "display device info in user space, format:" << endl;
-    cout << "hostName:\t" << "hostId" << endl;
-    cout << "deviceId" << endl;
+    std::string titleHostName = "hostName";
+    SetPadAlign(titleHostName, ' ', alignSize);
+
+    cout << titleHostName << ":hostId" << endl;
+
+    std::string titleDevName = "deviceName";
+    std::string titleSrvName = ":serviceName";
+    SetPadAlign(titleDevName, ' ', alignSize);
+    SetPadAlign(titleSrvName, ' ', alignSize);
+
+    cout << "\t" << titleDevName << ":deviceId  \t" << titleSrvName << endl;
     uint32_t hostCnt = 0;
     uint32_t devNodeCnt = 0;
+
     for (auto &info : deviceInfos) {
-        cout << info.hostName << ":\t0x" << std::hex << info.hostId << endl;
-        for (auto &id : info.devId) {
-            cout << "0x" << std::hex << id << endl;
+        SetPadAlign(info.hostName, ' ', alignSize);
+        cout << info.hostName << ":0x" << std::hex << info.hostId << endl;
+        for (auto &dev : info.devInfo) {
+            SetPadAlign(dev.deviceName, ' ', alignSize);
+            SetPadAlign(dev.servName, ' ', alignSize);
+            cout << "\t" << dev.deviceName << ":0x" << std::hex << dev.devId << "\t:" << dev.servName << endl;
             devNodeCnt++;
         }
         hostCnt++;
@@ -132,36 +172,58 @@ static int32_t PrintOneHostInfoKernel(struct HdfSBuf *data, uint32_t &devNodeCnt
     if (hostName == nullptr) {
         return HDF_FAILURE;
     }
+
     uint32_t hostId;
     if (!HdfSbufReadUint32(data, &hostId)) {
         cout << "PrintOneHostInfoKernel HdfSbufReadUint32 hostId failed" << endl;
         return HDF_FAILURE;
     }
 
-    cout << hostName << ":\t0x" << std::hex << hostId << endl;
+    std::string hostNameStr = hostName;
+    SetPadAlign(hostNameStr, ' ', alignSize);
+    cout << hostNameStr << ":0x" << std::hex << hostId << endl;
+
     uint32_t devCnt;
     if (!HdfSbufReadUint32(data, &devCnt)) {
         cout << "PrintOneHostInfoKernel HdfSbufReadUint32 devCnt failed" << endl;
         return HDF_FAILURE;
     }
+
     for (uint32_t i = 0; i < devCnt; i++) {
+        const char *str = HdfSbufReadString(data);
+        std::string deviceName = (str == nullptr) ? "" : str;
+        SetPadAlign(deviceName, ' ', alignSize);
+
         uint32_t devId;
         if (!HdfSbufReadUint32(data, &devId)) {
             cout << "PrintOneHostInfoKernel HdfSbufReadUint32 devId failed" << endl;
             return HDF_FAILURE;
         }
-        cout << "0x" << std::hex << devId << endl;
+
+        str = HdfSbufReadString(data);
+        std::string servName = (str == nullptr) ? "" : str;
+        SetPadAlign(servName, ' ', alignSize);
+        cout << "\t" << deviceName << ":0x" << std::hex << devId << "\t:" << servName << endl;
     }
     devNodeCnt += devCnt;
+
     return HDF_SUCCESS;
 }
 static void PrintAllDeviceInfoKernel(struct HdfSBuf *data, bool flag)
 {
     uint32_t hostCnt = 0;
     uint32_t devNodeCnt = 0;
+
+    std::string titleHostName = "hostName";
+    SetPadAlign(titleHostName, ' ', alignSize);
     cout << "display device info in kernel space, format:" << endl;
-    cout << "hostName:" << '\t' << "hostId" << endl;
-    cout << "deviceId" << endl;
+    cout << titleHostName << ":hostId" << endl;
+
+    std::string titleDevName = "deviceName";
+    std::string titleSrvName = "serviceName";
+    SetPadAlign(titleDevName, ' ', alignSize);
+    SetPadAlign(titleSrvName, ' ', alignSize);
+    cout << "\t" << titleDevName << ":deviceId  \t:" << titleSrvName << endl;
 
     while (flag) {
         if (PrintOneHostInfoKernel(data, devNodeCnt) == HDF_FAILURE) {
@@ -180,6 +242,7 @@ static int32_t ParseHdiParameter(int argc, char **argv, MessageParcel &data)
         cout << "parameter count error, input: " << paraCnt << " real: " << (argc - PARA_CNT_IDX - 1) << endl;
         return HDF_FAILURE;
     }
+
     int32_t paraTypeIdx = PARA_CNT_IDX + 1;
     for (int i = 0; i < paraCnt; i++) {
         int32_t paraValueIdx = paraTypeIdx + 1;
@@ -206,13 +269,16 @@ static int32_t InjectDebugHdi(int argc, char **argv)
     auto servmgr = IServiceManager::Get();
     auto devmgr = IDeviceManager::Get();
     int32_t loadFlag = atoi(argv[DBG_HDI_SERVICE_LOAD_IDX]);
+
     MessageParcel data;
     data.WriteInterfaceToken(OHOS::Str8ToStr16(argv[INTERFACE_DESC_IDX]));
+
     int32_t ret = ParseHdiParameter(argc, argv, data);
     if (ret != HDF_SUCCESS) {
         PrintHelp();
         return HDF_FAILURE;
     }
+
     if (loadFlag == 1) {
         devmgr->LoadDevice(argv[SERVER_NAME_IDX]);
         OsalMSleep(WAIT_TIME);
@@ -233,6 +299,7 @@ END:
     if (loadFlag == 1) {
         devmgr->UnloadDevice(argv[SERVER_NAME_IDX]);
     }
+
     return ret;
 }
 
@@ -243,6 +310,7 @@ static void GetAllServiceUserSpace()
         cout << "GetAllServiceUserSpace get ServiceManager failed" << endl;
         return;
     }
+
     std::vector<HdiServiceInfo> serviceInfos;
     (void)servmgr->ListAllService(serviceInfos);
 
@@ -256,6 +324,7 @@ static void GetAllServiceKernelSpace()
         cout << "GetAllServiceKernelSpace HdfSbufObtain failed" << endl;
         return;
     }
+
     int32_t ret = HdfListAllService(data);
     OsalMSleep(WAIT_TIME);
     if (ret == HDF_SUCCESS) {
@@ -274,6 +343,7 @@ static void GetAllDeviceUserSpace()
         cout << "GetAllDeviceUserSpace get DeviceManager failed" << endl;
         return;
     }
+
     std::vector<HdiDevHostInfo> deviceInfos;
     (void)devmgr->ListAllDevice(deviceInfos);
     PrintALLDeviceInfoUser(deviceInfos);
@@ -294,14 +364,18 @@ static void GetAllDeviceKernelSpace()
     } else {
         PrintAllDeviceInfoKernel(data, false);
     }
+
     HdfSbufRecycle(data);
 }
 
 static void GetAllInformation()
 {
     GetAllServiceUserSpace();
+    cout << endl;
     GetAllServiceKernelSpace();
+    cout << endl;
     GetAllDeviceUserSpace();
+    cout << endl;
     GetAllDeviceKernelSpace();
 }
 
@@ -314,11 +388,13 @@ int main(int argc, char **argv)
             PrintHelp();
             return HDF_FAILURE;
         }
+
         uint32_t funcCnt = sizeof(g_getInfoFuncs) / sizeof(g_getInfoFuncs[0]);
         if (argc == QUERY_INFO_PARA_CNT - 1) {
             g_getInfoFuncs[funcCnt - 1]();
             return HDF_SUCCESS;
         }
+
         uint32_t queryIdx = atoi(argv[QUERY_INFO_PARA_CNT - 1]);
         if (queryIdx < funcCnt - 1) {
             g_getInfoFuncs[queryIdx]();

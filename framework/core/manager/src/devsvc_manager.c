@@ -82,18 +82,18 @@ static void NotifyServiceStatusOnRegisterLocked(
     }
 }
 
-int DevSvcManagerAddService(struct IDevSvcManager *inst, const char *servName, uint16_t devClass,
-    struct HdfDeviceObject *service, const char *servInfo)
+int DevSvcManagerAddService(struct IDevSvcManager *inst,
+    struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *record = NULL;
-    if (devSvcManager == NULL || service == NULL || servName == NULL) {
+    if (devSvcManager == NULL || service == NULL || servInfo->servName == NULL) {
         HDF_LOGE("failed to add service, input param is null");
         return HDF_FAILURE;
     }
-    record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servName, 0));
+    record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servInfo->servName, 0));
     if (record != NULL) {
-        HDF_LOGI("%s:add service %s exist, only update value", __func__, servName);
+        HDF_LOGI("%s:add service %s exist, only update value", __func__, servInfo->servName);
         // on service died will release old service object
         record->value = service;
         return HDF_SUCCESS;
@@ -104,11 +104,12 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst, const char *servName, u
         return HDF_FAILURE;
     }
 
-    record->key = HdfStringMakeHashKey(servName, 0);
+    record->key = HdfStringMakeHashKey(servInfo->servName, 0);
     record->value = service;
-    record->devClass = devClass;
-    record->servName = HdfStringCopy(servName);
-    record->servInfo = HdfStringCopy(servInfo);
+    record->devClass = servInfo->devClass;
+    record->devId = servInfo->devId;
+    record->servName = HdfStringCopy(servInfo->servName);
+    record->servInfo = HdfStringCopy(servInfo->servInfo);
     if (record->servName == NULL) {
         DevSvcRecordFreeInstance(record);
         return HDF_ERR_MALLOC_FAIL;
@@ -120,24 +121,24 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst, const char *servName, u
     return HDF_SUCCESS;
 }
 
-int DevSvcManagerUpdateService(struct IDevSvcManager *inst, const char *servName, uint16_t devClass,
-    struct HdfDeviceObject *service, const char *servInfo)
+int DevSvcManagerUpdateService(struct IDevSvcManager *inst,
+    struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *record = NULL;
     char *servInfoStr = NULL;
-    if (devSvcManager == NULL || service == NULL || servName == NULL) {
+    if (devSvcManager == NULL || service == NULL || servInfo->servName == NULL) {
         HDF_LOGE("failed to update service, invalid param");
         return HDF_FAILURE;
     }
 
-    record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servName, 0));
+    record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servInfo->servName, 0));
     if (record == NULL) {
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
-    if (servInfo != NULL) {
-        servInfoStr = HdfStringCopy(servInfo);
+    if (servInfo->servInfo != NULL) {
+        servInfoStr = HdfStringCopy(servInfo->servInfo);
         if (servInfoStr == NULL) {
             return HDF_ERR_MALLOC_FAIL;
         }
@@ -146,7 +147,8 @@ int DevSvcManagerUpdateService(struct IDevSvcManager *inst, const char *servName
     }
 
     record->value = service;
-    record->devClass = devClass;
+    record->devClass = servInfo->devClass;
+    record->devId = servInfo->devId;
     OsalMutexLock(&devSvcManager->mutex);
     NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_CHANGE);
     OsalMutexUnlock(&devSvcManager->mutex);
@@ -248,7 +250,8 @@ void DevSvcManagerListAllService(struct IDevSvcManager *inst, struct HdfSBuf *re
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
         HdfSbufWriteString(reply, record->servName);
         HdfSbufWriteUint16(reply, record->devClass);
-        HDF_LOGD("%{public}s %{public}d", record->servName, record->devClass);
+        HdfSbufWriteUint32(reply, record->devId);
+        HDF_LOGD("%{public}s 0x%{public}x %{public}d", record->servName, record->devId, record->devClass);
     }
     OsalMutexUnlock(&devSvcManager->mutex);
     HDF_LOGI("%{public}s end ", __func__);

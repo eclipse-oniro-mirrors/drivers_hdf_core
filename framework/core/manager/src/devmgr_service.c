@@ -330,21 +330,28 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
     struct DevHostServiceClnt *hostClnt = NULL;
     struct HdfSListIterator iterator;
     struct HdfSListNode *node = NULL;
+    const char *name = NULL;
 
     if (devMgrSvc == NULL || reply == NULL) {
         HDF_LOGE("%{public}s failed, parameter is null", __func__);
         return HDF_FAILURE;
     }
+
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSbufWriteString(reply, hostClnt->hostName);
         HdfSbufWriteUint32(reply, hostClnt->hostId);
         HdfSbufWriteUint32(reply, HdfSListCount(&hostClnt->devices));
+
         HdfSListIteratorInit(&iterator, &hostClnt->devices);
         while (HdfSListIteratorHasNext(&iterator)) {
             node = HdfSListIteratorNext(&iterator);
             struct DeviceTokenClnt *tokenClnt = (struct DeviceTokenClnt *)node;
             if (tokenClnt != NULL && tokenClnt->tokenIf != NULL) {
+                name = (tokenClnt->tokenIf->deviceName == NULL) ? "" : tokenClnt->tokenIf->deviceName;
+                HdfSbufWriteString(reply, name);
                 HdfSbufWriteUint32(reply, tokenClnt->tokenIf->devid);
+                name = (tokenClnt->tokenIf->servName == NULL) ? "" : tokenClnt->tokenIf->servName;
+                HdfSbufWriteString(reply, name);
             } else {
                 HDF_LOGI("%{public}s host:%{public}s token null", __func__, hostClnt->hostName);
             }

@@ -22,10 +22,15 @@ namespace OHOS {
 namespace HDI {
 namespace DeviceManager {
 namespace V1_0 {
+struct DevInfo {
+    uint32_t devId;
+    std::string servName;
+    std::string deviceName;
+};
 struct HdiDevHostInfo {
     std::string hostName;
     uint32_t hostId;
-    std::vector<uint32_t> devId;
+    std::vector<DevInfo> devInfo;
 };
 
 class IDeviceManager : public HdiBase {

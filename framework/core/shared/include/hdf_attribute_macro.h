@@ -35,6 +35,7 @@ struct HdfDeviceNodeType {
     uint16_t permission;
     const char *moduleName;
     const char *svcName;
+    const char *deviceName;
     const char *deviceMatchAttr;
     struct DListHead deviceNodeEntry;
 };
@@ -53,6 +54,7 @@ struct HdfDeviceNodeType {
         deviceNode->moduleName = HCS_PROP(node, moduleName); \
         deviceNode->svcName = HCS_PROP(node, serviceName); \
         deviceNode->deviceMatchAttr = HCS_PROP(node, deviceMatchAttr); \
+        deviceNode->deviceName = HCS_PROP(node, nodeName); \
         DListInsertTail(&deviceNode->deviceNodeEntry, &(deviceNodes)); \
     } while (0)
 

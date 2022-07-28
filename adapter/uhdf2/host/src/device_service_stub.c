@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,9 +82,9 @@ int DeviceServiceStubPublishService(struct HdfDeviceNode *service)
             status = HDF_DEV_ERR_NO_DEVICE;
             break;
         }
-
-        status = DevSvcManagerClntAddService(service->servName, service->deviceObject.deviceClass,
-            &fullService->super.deviceObject, service->servInfo);
+        struct HdfServiceInfo servInfo;
+        HdfServiceInfoInit(&servInfo, service);
+        status = DevSvcManagerClntAddService(&fullService->super.deviceObject, &servInfo);
         if (status != HDF_SUCCESS) {
             break;
         }
