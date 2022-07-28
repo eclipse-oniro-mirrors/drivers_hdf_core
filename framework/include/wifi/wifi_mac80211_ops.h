@@ -658,6 +658,21 @@ struct HdfMac80211BaseOps {
      * @version 1.0
      */
     int32_t (*SetProjectionScreenParam)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
+
+    /**
+     * @brief Send ioctl command to driver.
+     *
+     * @param ifName Indicates the pointer to the network interface name.
+     * @param cmdId Indicates the command identity document.
+     * @param paramBuf Indicates the paramter send to driver.
+     * @param paramBufLen Indicates the length of parameter.
+     *
+     * @return Returns <b>0</b> if  Send ioctl command successful; returns a negative value otherwise.
+     *
+     * @since 3.2
+     * @version 1.0
+     */
+    int32_t (*SendCmdIoctl)(const char *ifName, int32_t cmdId, const int8_t *paramBuf, uint32_t paramBufLen);
 };
 
 /**
