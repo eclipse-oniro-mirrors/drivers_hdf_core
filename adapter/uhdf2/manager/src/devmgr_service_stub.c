@@ -24,6 +24,7 @@
 #include "device_token_proxy.h"
 #include "devmgr_query_device.h"
 #include "devsvc_manager.h"
+#include "hdf_cstring.h"
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
@@ -40,12 +41,15 @@ static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devm
         HDF_LOGE("%{public}s:failed to get host id and device id", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-
+    const char *servName = HdfSbufReadString(data);
+    const char *deviceName = HdfSbufReadString(data);
     struct HdfDevTokenProxy *tokenClnt = HdfDevTokenProxyObtain(NULL);
     if (tokenClnt == NULL) {
         return HDF_FAILURE;
     }
     tokenClnt->super.devid = deviceId;
+    tokenClnt->super.servName = HdfStringCopy(servName);
+    tokenClnt->super.deviceName = HdfStringCopy(deviceName);
     return devmgrSvc->AttachDevice(devmgrSvc, &tokenClnt->super);
 }
 
@@ -264,8 +268,12 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
         return HDF_ERR_MALLOC_FAIL;
     }
     deviceObject->service = (struct IDeviceIoService *)remoteService;
-    int status =
-        DevSvcManagerAddService(serviceManager, DEVICE_MANAGER_SERVICE, DEVICE_CLASS_DEFAULT, deviceObject, NULL);
+    struct HdfServiceInfo info;
+    info.devId = 0xffffffff;
+    info.servName = DEVICE_MANAGER_SERVICE;
+    info.servInfo = NULL;
+    info.devClass = DEVICE_CLASS_DEFAULT;
+    int status = DevSvcManagerAddService(serviceManager, deviceObject, &info);
     if (status != HDF_SUCCESS) {
         HdfRemoteServiceRecycle(remoteService);
         OsalMemFree(deviceObject);

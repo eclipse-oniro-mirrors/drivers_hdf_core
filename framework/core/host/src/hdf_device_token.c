@@ -29,6 +29,8 @@ void HdfDeviceTokenRelease(struct HdfObject *object)
 {
     struct HdfDeviceToken *deviceToken = (struct HdfDeviceToken *)object;
     if (deviceToken != NULL) {
+        OsalMemFree((void *)deviceToken->super.servName);
+        OsalMemFree((void *)deviceToken->super.deviceName);
         OsalMemFree(deviceToken);
     }
 }

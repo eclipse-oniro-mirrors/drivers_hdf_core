@@ -12,12 +12,13 @@
 #include "devsvc_listener_holder.h"
 #include "hdf_device_desc.h"
 #include "hdf_object.h"
+#include "hdf_service_info.h"
 
 struct IDevSvcManager {
     struct HdfObject object;
     int (*StartService)(struct IDevSvcManager *);
-    int (*AddService)(struct IDevSvcManager *, const char *, uint16_t, struct HdfDeviceObject *, const char *);
-    int (*UpdateService)(struct IDevSvcManager *, const char *, uint16_t, struct HdfDeviceObject *, const char *);
+    int (*AddService)(struct IDevSvcManager *, struct HdfDeviceObject *, const struct HdfServiceInfo *);
+    int (*UpdateService)(struct IDevSvcManager *, struct HdfDeviceObject *, const struct HdfServiceInfo *);
     int (*SubscribeService)(struct IDevSvcManager *, const char *, struct SubscriberCallback);
     int (*UnsubscribeService)(struct IDevSvcManager *, const char *);
     struct HdfObject *(*GetService)(struct IDevSvcManager *, const char *);

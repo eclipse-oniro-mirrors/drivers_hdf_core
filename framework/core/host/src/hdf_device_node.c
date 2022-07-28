@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -94,7 +94,7 @@ int HdfDeviceLaunchNode(struct HdfDeviceNode *devNode)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    HDF_LOGI("launch devnode %s", devNode->servName ? devNode->servName : "");
+    HDF_LOGI("launch devnode %{public}s", devNode->servName ? devNode->servName : "");
     driverEntry = devNode->driver->entry;
     if (driverEntry == NULL || driverEntry->Init == NULL) {
         HDF_LOGE("failed to launch service, deviceEntry invalid");
@@ -154,9 +154,9 @@ int HdfDeviceNodePublishPublicService(struct HdfDeviceNode *devNode)
         HDF_LOGE("failed to publish public service, devNode is NULL");
         return HDF_FAILURE;
     }
-
-    ret = DevSvcManagerClntAddService(devNode->servName,
-        devNode->deviceObject.deviceClass, &devNode->deviceObject, devNode->servInfo);
+    struct HdfServiceInfo servInfo;
+    HdfServiceInfoInit(&servInfo, devNode);
+    ret = DevSvcManagerClntAddService(&devNode->deviceObject, &servInfo);
     if (ret == HDF_SUCCESS) {
         devNode->servStatus = true;
     }
@@ -224,7 +224,7 @@ void HdfDeviceNodeDestruct(struct HdfDeviceNode *devNode)
     if (devNode == NULL) {
         return;
     }
-    HDF_LOGI("release devnode %s", devNode->servName);
+    HDF_LOGI("release devnode %{public}s", devNode->servName);
     switch (devNode->devStatus) {
         case DEVNODE_LAUNCHED: // fall-through
             HdfDeviceUnlaunchNode(devNode);
@@ -263,6 +263,9 @@ struct HdfDeviceNode *HdfDeviceNodeNewInstance(const struct HdfDeviceInfo *devic
     devNode->policy = deviceInfo->policy;
     devNode->token->devid = deviceInfo->deviceId;
     devNode->servName = HdfStringCopy(deviceInfo->svcName);
+    devNode->token->servName = HdfStringCopy(deviceInfo->svcName);
+    devNode->token->deviceName = HdfStringCopy(deviceInfo->deviceName);
+
     if (devNode->servName == NULL) {
         HdfDeviceNodeFreeInstance(devNode);
         return NULL;

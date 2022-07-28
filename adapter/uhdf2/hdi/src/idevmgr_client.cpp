@@ -90,24 +90,28 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
     return status;
 }
 
-static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &deviceInfos, MessageParcel &reply)
+static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
 {
     while (true) {
-        uint32_t devId;
+        struct DevInfo devInfo;
         uint32_t devCnt;
-        struct HdiDevHostInfo info;
-        const char *hostName = reply.ReadCString();
-        if (hostName == nullptr) {
+        struct HdiDevHostInfo hostInfo;
+        const char *name = reply.ReadCString();
+        if (name == nullptr) {
             break;
         }
-        info.hostName = hostName;
-        info.hostId = reply.ReadUint32();
+        hostInfo.hostName = name;
+        hostInfo.hostId = reply.ReadUint32();
         devCnt = reply.ReadUint32();
         for (uint32_t i = 0; i < devCnt; i++) {
-            devId = reply.ReadUint32();
-            info.devId.push_back(devId);
+            name = reply.ReadCString();
+            devInfo.deviceName = (name == nullptr) ? "" : name;
+            devInfo.devId = reply.ReadUint32();
+            name = reply.ReadCString();
+            devInfo.servName = (name == nullptr) ? "" : name;
+            hostInfo.devInfo.push_back(devInfo);
         }
-        deviceInfos.push_back(info);
+        hostInfos.push_back(hostInfo);
     }
     return;
 }
