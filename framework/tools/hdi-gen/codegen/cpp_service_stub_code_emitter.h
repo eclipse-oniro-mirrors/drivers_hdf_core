@@ -78,7 +78,7 @@ private:
     void EmitLocalVariable(
         const AutoPtr<ASTParameter> &param, const String &parcelName, StringBuilder &sb, const String &prefix);
 
-    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
+    void GetUtilMethods(UtilMethodMap &methods) override;
 };
 } // namespace HDI
 } // namespace OHOS

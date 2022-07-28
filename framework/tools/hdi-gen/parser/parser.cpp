@@ -10,7 +10,6 @@
 #include <regex>
 #include "ast/ast_array_type.h"
 #include "ast/ast_enum_type.h"
-#include "ast/ast_list_type.h"
 #include "ast/ast_map_type.h"
 #include "ast/ast_parameter.h"
 #include "ast/ast_sequenceable_type.h"

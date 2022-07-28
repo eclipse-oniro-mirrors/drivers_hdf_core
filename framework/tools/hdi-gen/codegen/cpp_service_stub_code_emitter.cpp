@@ -154,12 +154,18 @@ void CppServiceStubCodeEmitter::EmitStubSourceFile()
     EmitStubSourceInclusions(sb);
     sb.Append("\n");
     EmitBeginNamespace(sb);
+    UtilMethodMap utilMethods;
+    GetUtilMethods(utilMethods);
+    EmitUtilMethods(sb, "", utilMethods, true);
+    sb.Append("\n");
+    EmitUtilMethods(sb, "", utilMethods, false);
+    sb.Append("\n");
     EmitInterfaceGetMethodImpl(sb, "");
+    sb.Append("\n");
     EmitStubConstructorImpl(sb, "");
     sb.Append("\n");
     EmitStubOnRequestMethodImpl(sb, "");
     sb.Append("\n");
-    EmitUtilMethods(sb, "");
     EmitStubMethodImpls(sb, "");
     EmitEndNamespace(sb);
 
@@ -409,25 +415,19 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(
     }
 }
 
-void CppServiceStubCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+void CppServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    UtilMethodMap methods;
     for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
             } else {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
             }
         }
-    }
-
-    for (const auto &methodPair : methods) {
-        sb.Append("\n");
-        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

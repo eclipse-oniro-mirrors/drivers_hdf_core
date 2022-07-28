@@ -87,7 +87,9 @@ void CInterfaceCodeEmitter::EmitImportInclusions(StringBuilder &sb)
 
 void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
 {
-    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
+    if (!Options::GetInstance().DoGenerateKernelCode()) {
+        headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
+    }
 }
 
 void CInterfaceCodeEmitter::EmitPreDeclaration(StringBuilder &sb)

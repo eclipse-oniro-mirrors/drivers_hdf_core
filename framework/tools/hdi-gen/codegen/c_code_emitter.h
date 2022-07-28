@@ -26,7 +26,10 @@ protected:
 
     void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const String &prefix);
 
-    void EmitInitLoopVar(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitMethodNeedLoopVar(const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb,
+        const String &prefix);
+
+    bool EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree);
 
     void EmitErrorHandle(const AutoPtr<ASTMethod> &method, const String &gotoLabel, bool isClient, StringBuilder &sb,
         const String &prefix);

@@ -55,6 +55,12 @@ enum class TypeMode {
     LOCAL_VAR, // type of the local variable
 };
 
+enum class SerMode {
+    PROXY_SER,      // the flag of proxy serialized
+    STUB_SER,       // the flag of stub serialized
+    CUSTOM_SER,     // the flag of custom types serialized
+};
+
 using UtilMethod = std::function<void(StringBuilder&, const String&, const String&, bool)>;
 using UtilMethodMap = std::unordered_map<String, UtilMethod, StringHashFunc, StringEqualFunc>;
 
@@ -184,9 +190,10 @@ public:
     virtual void EmitJavaReadInnerVar(
         const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const;
 
-    virtual void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const;
+    virtual void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
 
-    virtual void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const;
+    virtual void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+
 protected:
     TypeKind typeKind_;
     bool isPod_;

@@ -107,7 +107,12 @@ String ASTStructType::EmitCTypeDecl() const
         }
     }
 
-    sb.Append("};");
+    sb.Append("}");
+    if (IsPod()) {
+        sb.Append(" __attribute__ ((aligned(8)))");
+    }
+    sb.Append(";");
+
     return sb.ToString();
 }
 
@@ -122,7 +127,11 @@ String ASTStructType::EmitCppTypeDecl() const
         sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType().string(), memberName.string());
     }
 
-    sb.Append("};");
+    sb.Append("}");
+    if (IsPod()) {
+        sb.Append(" __attribute__ ((aligned(8)))");
+    }
+    sb.Append(";");
     return sb.ToString();
 }
 

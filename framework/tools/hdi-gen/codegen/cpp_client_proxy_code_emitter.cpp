@@ -155,13 +155,17 @@ void CppClientProxyCodeEmitter::EmitProxySourceFile()
     sb.Append("\n");
     EmitBeginNamespace(sb);
     sb.Append("\n");
+    UtilMethodMap utilMethods;
+    GetUtilMethods(utilMethods);
+    EmitUtilMethods(sb, "", utilMethods, true);
+    sb.Append("\n");
     if (!interface_->IsSerializable()) {
         EmitGetMethodImpl(sb, "");
         sb.Append("\n");
         EmitGetInstanceMethodImpl(sb, "");
         sb.Append("\n");
     }
-    EmitUtilMethods(sb, "");
+    EmitUtilMethods(sb, "", utilMethods, false);
     EmitProxyMethodImpls(sb, "");
     sb.Append("\n");
     EmitEndNamespace(sb);
@@ -405,25 +409,19 @@ void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(
     }
 }
 
-void CppClientProxyCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+void CppClientProxyCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    UtilMethodMap methods;
     for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
             } else {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
             }
         }
-    }
-
-    for (const auto &methodPair : methods) {
-        sb.Append("\n");
-        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

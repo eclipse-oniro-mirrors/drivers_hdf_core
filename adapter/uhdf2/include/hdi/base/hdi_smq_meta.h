@@ -82,7 +82,7 @@ private:
 
 template <typename T>
 SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType type)
-    : ashmemFd_(fd), size_(0), elementCount_(elementCount), elementSize_(AlignToWord(sizeof(T))), type_(type)
+    : ashmemFd_(fd), size_(0), elementCount_(elementCount), elementSize_(sizeof(T)), type_(type)
 {
     // max size UIN32_MAX byte
     if (elementCount_ > UINT32_MAX / elementSize_) {

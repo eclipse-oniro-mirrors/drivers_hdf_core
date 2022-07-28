@@ -111,7 +111,9 @@ protected:
     // FileName -> file_name
     String FileName(const String &name);
 
-    virtual void EmitUtilMethods(StringBuilder &sb, const String &prefix);
+    virtual void GetUtilMethods(UtilMethodMap &methods);
+
+    virtual void EmitUtilMethods(StringBuilder &sb, const String &prefix, const UtilMethodMap &methods, bool isDecl);
 
 protected:
     static constexpr char *TAB = "    ";
