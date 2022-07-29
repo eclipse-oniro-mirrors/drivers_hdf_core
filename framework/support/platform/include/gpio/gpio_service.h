@@ -24,6 +24,7 @@ enum GpioIoCmd {
     GPIO_IO_UNSETIRQ = 5,
     GPIO_IO_ENABLEIRQ = 6,
     GPIO_IO_DISABLEIRQ = 7,
+    GPIO_IO_GET_NUM_BY_NAME = 8,
 };
 
 #ifdef __cplusplus

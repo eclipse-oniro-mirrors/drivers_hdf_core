@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -97,6 +97,28 @@ int32_t GpioDisableIrq(uint16_t gpio)
     struct GpioCntlr *cntlr = GpioCntlrGetByGpio(gpio);
 
     ret = GpioCntlrDisableIrq(cntlr, GpioCntlrGetLocal(cntlr, gpio));
+
+    GpioCntlrPut(cntlr);
+    return ret;
+}
+
+int32_t GpioGetByName(const char *gpioName)
+{
+    int32_t ret;
+    struct GpioCntlr *cntlr = NULL;
+
+    if (gpioName == NULL || strlen(gpioName) > GPIO_NAME_LEN) {
+        HDF_LOGE("%s: gpioName is NULL or gpioName len out of range!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    cntlr = GpioCntlrGetByGpioName(gpioName);
+    if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    ret = GpioCntlrGetNumByGpioName(cntlr, gpioName);
 
     GpioCntlrPut(cntlr);
     return ret;

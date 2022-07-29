@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -122,6 +122,22 @@ HWTEST_F(HdfLiteGpioTest, GpioTestIrqThread001, TestSize.Level1)
     printf("%s: kernel test done, then for user...\n", __func__);
 
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_IRQ_THREAD));
+    printf("%s: exit!\n", __func__);
+}
+
+/**
+  * @tc.name: GpioTestNumberGetByName
+  * @tc.desc: get gpio global number test
+  * @tc.type: FUNC
+  * @tc.require:
+  */
+HWTEST_F(HdfLiteGpioTest, GpioTestGetNumByName001, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_GET_NUM_BY_NAME, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_GET_NUM_BY_NAME));
     printf("%s: exit!\n", __func__);
 }
 

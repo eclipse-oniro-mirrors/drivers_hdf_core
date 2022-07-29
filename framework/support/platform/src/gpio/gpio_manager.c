@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -37,8 +37,8 @@ static int32_t GpioCntlrCheckStart(struct GpioCntlr *cntlr, struct DListHead *li
         }
 
         if (cntlr->start < freeStart) {
-            PLAT_LOGE("GpioCntlrCheckStart: start:%hu not available(freeStart:%hu, freeCount:%hu)",
-                cntlr->start, freeStart, freeCount);
+            HDF_LOGE("%s: start:%hu not available(freeStart:%hu, freeCount:%hu)",
+                __func__, cntlr->start, freeStart, freeCount);
             return HDF_PLT_RSC_NOT_AVL;
         }
 
@@ -53,8 +53,8 @@ static int32_t GpioCntlrCheckStart(struct GpioCntlr *cntlr, struct DListHead *li
     if (cntlr->start >= (cntlrLast->start + cntlrLast->count)) {
         return HDF_SUCCESS;
     }
-    PLAT_LOGE("GpioCntlrCheckStart: start:%hu(%hu) not available(lastStart:%hu, lastCount:%hu)",
-        cntlr->start, cntlr->count, cntlrLast->start, cntlrLast->count);
+    HDF_LOGE("%s: start:%hu(%hu) not available(lastStart:%hu, lastCount:%hu)",
+        __func__, cntlr->start, cntlr->count, cntlrLast->start, cntlrLast->count);
     return GPIO_NUM_MAX;
 }
 
@@ -65,12 +65,12 @@ static int32_t GpioManagerAdd(struct PlatformManager *manager, struct PlatformDe
 
     ret = GpioCntlrCheckStart(cntlr, &manager->devices);
     if (ret != HDF_SUCCESS) {
-        PLAT_LOGE("GpioManagerAdd: start:%hu(%hu) invalid:%d", cntlr->start, cntlr->count, ret);
+        HDF_LOGE("%s: start:%hu(%hu) invalid:%d", __func__, cntlr->start, cntlr->count, ret);
         return HDF_ERR_INVALID_PARAM;
     }
 
     DListInsertTail(&device->node, &manager->devices);
-    PLAT_LOGI("GpioManagerAdd: start:%hu count:%hu added success", cntlr->start, cntlr->count);
+    PLAT_LOGI("%s: start:%hu count:%hu added success", __func__, cntlr->start, cntlr->count);
     return HDF_SUCCESS;
 }
 
@@ -96,32 +96,53 @@ struct PlatformManager *GpioManagerGet(void)
     return manager;
 }
 
+static inline void GpioInfosFree(struct GpioCntlr *cntlr)
+{
+    if (cntlr->isAutoAlloced) {
+        OsalMemFree(cntlr->ginfos);
+        cntlr->ginfos = NULL;
+        cntlr->isAutoAlloced = false;
+    }
+}
+
 static int32_t GpioCntlrCreateGpioInfos(struct GpioCntlr *cntlr)
 {
     int32_t ret;
     uint16_t i;
+    static uint16_t groupNum = 0;
 
-    cntlr->ginfos = OsalMemCalloc(sizeof(*cntlr->ginfos) * cntlr->count);
     if (cntlr->ginfos == NULL) {
-        return HDF_ERR_MALLOC_FAIL;
+        cntlr->ginfos = OsalMemCalloc(sizeof(*cntlr->ginfos) * cntlr->count);
+        if (cntlr->ginfos == NULL) {
+            HDF_LOGE("%s: gpio ginfos is NULL", __func__);
+            return HDF_ERR_MALLOC_FAIL;
+        }
+        cntlr->isAutoAlloced = true;
     }
+
     for (i = 0; i < cntlr->count; i++) {
         cntlr->ginfos[i].cntlr = cntlr;
-        if (snprintf_s(cntlr->ginfos[i].name, GPIO_NAME_LEN, GPIO_NAME_LEN - 1,
-            "GPIO%hu+%hu", cntlr->start, i) < 0) {
-            PLAT_LOGE("GpioCntlrCreateGpioInfos: format gpio name fail");
-            ret = HDF_PLT_ERR_OS_API;
-            goto ERROR_EXIT;
+        if (strlen(cntlr->ginfos[i].name) == 0) {
+            if (snprintf_s(cntlr->ginfos[i].name, GPIO_NAME_LEN, GPIO_NAME_LEN - 1,
+                "GPIO%hu_%hu", groupNum, i) < 0) {
+                HDF_LOGE("%s:default format gpio name failed", __func__);
+                ret = HDF_PLT_ERR_OS_API;
+                goto ERROR_EXIT;
+            }
         }
         (void)OsalSpinInit(&cntlr->ginfos[i].spin);
     }
+    groupNum++;
     return HDF_SUCCESS;
 
 ERROR_EXIT:
     while (i-- > 0) {
         (void)OsalSpinDestroy(&cntlr->ginfos[i].spin);
     }
+
     OsalMemFree(cntlr->ginfos);
+    cntlr->ginfos = NULL;
+
     return ret;
 }
 
@@ -137,8 +158,7 @@ static void GpioCntlrDestroyGpioInfos(struct GpioCntlr *cntlr)
         }
         (void)OsalSpinDestroy(&cntlr->ginfos[i].spin);
     }
-    OsalMemFree(cntlr->ginfos);
-    cntlr->ginfos = NULL;
+    GpioInfosFree(cntlr);
 }
 
 int32_t GpioCntlrAdd(struct GpioCntlr *cntlr)
@@ -146,26 +166,29 @@ int32_t GpioCntlrAdd(struct GpioCntlr *cntlr)
     int32_t ret;
 
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->ops == NULL) {
-        PLAT_LOGE("GpioCntlrAdd: no ops supplied!");
+        HDF_LOGE("%s: no ops supplied!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->count == 0 || cntlr->count >= MAX_CNT_PER_CNTLR) {
-        PLAT_LOGE("GpioCntlrAdd: invalid gpio count:%hu", cntlr->count);
+        HDF_LOGE("%s: invalid gpio count:%hu", __func__, cntlr->count);
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = GpioCntlrCreateGpioInfos(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to creat gpio infos:%d", __func__, ret);
         return ret;
     }
     cntlr->device.manager = GpioManagerGet();
     ret = PlatformDeviceAdd(&cntlr->device);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to add device:%d", __func__, ret);
         GpioCntlrDestroyGpioInfos(cntlr);
         return ret;
     }
@@ -206,13 +229,52 @@ struct GpioCntlr *GpioCntlrGetByGpio(uint16_t gpio)
 
     gpioMgr = GpioManagerGet();
     if (gpioMgr == NULL) {
-        PLAT_LOGE("GpioCntlrGetByGpio: get gpio manager failed");
+        HDF_LOGE("%s: failed to get gpio manager", __func__);
         return NULL;
     }
 
     device = PlatformManagerFindDevice(gpioMgr, (void *)(uintptr_t)gpio, GpioCntlrFindMatch);
     if (device == NULL) {
-        PLAT_LOGE("GpioCntlrGetByGpio: gpio %hu not in any controllers!", gpio);
+        HDF_LOGE("%s: gpio %hu is not in any controllers!", __func__, gpio);
+        return NULL;
+    }
+    return CONTAINER_OF(device, struct GpioCntlr, device);
+}
+
+static bool GpioCntlrFindMatchByName(struct PlatformDevice *device, void *data)
+{
+    uint32_t index;
+    char *tmpName = (char *)data;
+    struct GpioCntlr *cntlr = NULL;
+
+    cntlr = CONTAINER_OF(device, struct GpioCntlr, device);
+    if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
+        return false;
+    }
+
+    for (index = 0; index < cntlr->count; index++) {
+        if (strcmp(cntlr->ginfos[index].name, tmpName) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+struct GpioCntlr *GpioCntlrGetByGpioName(const char *gpioName)
+{
+    struct PlatformManager *gpioMgr = NULL;
+    struct PlatformDevice *device = NULL;
+
+    gpioMgr = GpioManagerGet();
+    if (gpioMgr == NULL) {
+        HDF_LOGE("%s: failed to get gpio manager", __func__);
+        return NULL;
+    }
+
+    device = PlatformManagerFindDevice(gpioMgr, (void *)gpioName, GpioCntlrFindMatchByName);
+    if (device == NULL) {
+        HDF_LOGE("%s: gpio %s is not in any controllers!", __func__, gpioName);
         return NULL;
     }
     return CONTAINER_OF(device, struct GpioCntlr, device);
