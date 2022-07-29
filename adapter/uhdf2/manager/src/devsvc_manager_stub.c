@@ -132,7 +132,7 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
         return ret;
     }
     if (!HdfSbufReadUint32(data, &info.devId)) {
-        HDF_LOGE("%{public}s failed, devClass invalid", __func__);
+        HDF_LOGE("%{public}s failed, devId invalid", __func__);
         return ret;
     }
 
@@ -180,6 +180,11 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
     info.devClass = DEVICE_CLASS_DEFAULT;
     if (!HdfSbufReadUint16(data, &info.devClass)) {
         HDF_LOGE("%{public}s failed, devClass invalid", __func__);
+        return ret;
+    }
+
+    if (!HdfSbufReadUint32(data, &info.devId)) {
+        HDF_LOGE("%{public}s failed, devId invalid", __func__);
         return ret;
     }
 
