@@ -157,7 +157,7 @@ int32_t UartRead(DevHandle handle, uint8_t *buf, uint32_t len)
         ret = HDF_ERR_IO;
         goto EXIT;
     }
-    ret = tmpLen;
+    ret = (int32_t)tmpLen; // the return value is the length of the read data. max length 65535
 
 EXIT:
     HdfSbufRecycle(data);
