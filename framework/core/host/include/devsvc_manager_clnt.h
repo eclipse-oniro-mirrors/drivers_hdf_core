@@ -17,8 +17,8 @@ struct DevSvcManagerClnt {
 
 struct DevSvcManagerClnt *DevSvcManagerClntGetInstance(void);
 struct HdfDeviceObject *DevSvcManagerClntGetDeviceObject(const char *svcName);
-int DevSvcManagerClntAddService(struct HdfDeviceObject *service, struct HdfServiceInfo *servinfo);
-int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, struct HdfServiceInfo *servinfo);
+int DevSvcManagerClntAddService(struct HdfDeviceObject *service, const struct HdfServiceInfo *servinfo);
+int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, const struct HdfServiceInfo *servinfo);
 void DevSvcManagerClntRemoveService(const char *svcName);
 int DevSvcManagerClntSubscribeService(const char *svcName, struct SubscriberCallback callback);
 int DevSvcManagerClntUnsubscribeService(const char *svcName);

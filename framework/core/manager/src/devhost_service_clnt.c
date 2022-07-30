@@ -48,7 +48,7 @@ int DevHostServiceClntInstallDriver(struct DevHostServiceClnt *hostClnt)
         }
         ret = devHostSvcIf->AddDevice(devHostSvcIf, deviceInfo);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("failed to install driver %s, ret = %d", deviceInfo->svcName, ret);
+            HDF_LOGE("failed to AddDevice %{public}s, ret = %{public}d", deviceInfo->svcName, ret);
             continue;
         }
         deviceInfo->status = HDF_SERVICE_USABLE;

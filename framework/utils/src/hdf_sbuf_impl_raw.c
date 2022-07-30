@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -12,6 +12,7 @@
 #include "osal_mem.h"
 #include "securec.h"
 
+#define HDF_LOG_TAG hdf_sbuf_impl_raw
 #define HDF_SBUF_GROW_SIZE_DEFAULT 256
 #define HDF_SBUF_MAX_SIZE (512 * 1024) // 512KB
 #define HDF_SBUF_ALIGN 4
@@ -377,7 +378,7 @@ static bool SbufRawImplReadBuffer(struct HdfSBufImpl *impl, const uint8_t **data
     }
     alignSize = SbufRawImplGetAlignSize(buffSize);
     if (alignSize > SbufRawImplGetLeftReadSize(sbuf)) {
-        HDF_LOGE("%s:readBuff out of range", __func__);
+        HDF_LOGE("%{public}s:readBuff out of range", __func__);
         (void)SbufRawImplReadRollback(impl, sizeof(int32_t));
         return false;
     }

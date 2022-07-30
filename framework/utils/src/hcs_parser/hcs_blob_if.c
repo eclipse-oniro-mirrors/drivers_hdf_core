@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -51,7 +51,7 @@ static int32_t HcsGetArrayLength(const char *start)
     uint16_t count;
     uint16_t i;
     if (!HcsSwapToUint16(&count, start + HCS_PREFIX_LENGTH, CONFIG_WORD)) {
-        HDF_LOGE("%s failed", __func__);
+        HDF_LOGE("%{public}s failed", __func__);
         return HDF_FAILURE;
     }
     for (i = 0; i < count; i++) {
@@ -108,7 +108,7 @@ int32_t HcsGetNodeLength(const char *blob)
 {
     int32_t rootLen = HcsGetNodeOrAttrLength(blob);
     if (rootLen < 0) {
-        HDF_LOGE("%s failed, the rootLen is %d", __func__, rootLen);
+        HDF_LOGE("%{public}s failed, the rootLen is %{public}d", __func__, rootLen);
         return HDF_FAILURE;
     }
     rootLen += (int32_t)HcsByteCodeToUint32(blob + HCS_PREFIX_LENGTH + HCS_STRING_LENGTH(blob + HCS_PREFIX_LENGTH));
@@ -121,7 +121,7 @@ bool HcsSwapToUint8(uint8_t *value, const char *realValue, uint32_t type)
         *value = g_byteAlign ? (uint8_t)HcsByteCodeToUint32(realValue) : HcsByteCodeToUint8(realValue);
         return true;
     }
-    HDF_LOGE("%s failed, type: %u", __func__, type);
+    HDF_LOGE("%{public}s failed, type: %{public}u", __func__, type);
     return false;
 }
 
@@ -136,7 +136,7 @@ bool HcsSwapToUint16(uint16_t *value, const char *realValue, uint32_t type)
         *value = data;
         return true;
     }
-    HDF_LOGE("%s failed, type: %u", __func__, type);
+    HDF_LOGE("%{public}s failed, type: %{public}u", __func__, type);
     return false;
 }
 
@@ -151,7 +151,7 @@ bool HcsSwapToUint32(uint32_t *value, const char *realValue, uint32_t type)
         *value = data;
         return true;
     }
-    HDF_LOGE("%s failed, type: %u", __func__, type);
+    HDF_LOGE("%{public}s failed, type: %{public}u", __func__, type);
     return false;
 }
 
@@ -166,7 +166,7 @@ bool HcsSwapToUint64(uint64_t *value, const char *realValue, uint32_t type)
         *value = data;
         return true;
     }
-    HDF_LOGE("%s failed, type: %u", __func__, type);
+    HDF_LOGE("%{public}s failed, type: %{public}u", __func__, type);
     return false;
 }
 
@@ -178,14 +178,14 @@ static bool CheckHcsBlobLength(uint32_t length, struct HbcHeader *header)
     if (header->totalSize >= 0) {
         blobLength = (uint32_t)(HBC_HEADER_LENGTH + header->totalSize);
         g_byteAlign = false;
-        HDF_LOGI("%s: the blobLength: %u, byteAlign: %d", __func__, blobLength, g_byteAlign);
+        HDF_LOGI("%{public}s: the blobLength: %{public}u, byteAlign: %{public}d", __func__, blobLength, g_byteAlign);
     } else {
         blobLength = (uint32_t)(HBC_HEADER_LENGTH - header->totalSize);
         g_byteAlign = true;
-        HDF_LOGI("%s: the blobLength: %u, byteAlign: %d", __func__, blobLength, g_byteAlign);
+        HDF_LOGI("%{public}s: the blobLength: %{public}u, byteAlign: %{public}d", __func__, blobLength, g_byteAlign);
     }
     if ((length != blobLength) || (blobLength < minLength)) {
-        HDF_LOGE("%s failed, Hcsblob file length is %u,  but the calculated length is %u",
+        HDF_LOGE("%{public}s failed, Hcsblob file length is %{public}u,  but the calculated length is %u",
                  __func__, length, blobLength);
         return false;
     }
@@ -196,12 +196,12 @@ bool HcsCheckBlobFormat(const char *start, uint32_t length)
 {
     struct HbcHeader *header = NULL;
     if ((start == NULL) || (length < HBC_HEADER_LENGTH) || (length > HBC_BLOB_MAX_LENGTH)) {
-        HDF_LOGE("%s failed, Hcsblob file length is %u", __func__, length);
+        HDF_LOGE("%{public}s failed, Hcsblob file length is %{public}u", __func__, length);
         return false;
     }
     header = (struct HbcHeader *)start;
     if (header->magicNumber != HBC_MAGIC_NUMBER) {
-        HDF_LOGE("%s failed, the magic number of HBC is %x", __func__, header->magicNumber);
+        HDF_LOGE("%{public}s failed, the magic number of HBC is %{public}x", __func__, header->magicNumber);
         return false;
     }
     if (!CheckHcsBlobLength(length, header)) {

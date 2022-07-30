@@ -12,7 +12,7 @@
 
 #define HDF_LOG_TAG devsvc_manager_clnt
 
-int DevSvcManagerClntAddService(struct HdfDeviceObject *service, struct HdfServiceInfo *servinfo)
+int DevSvcManagerClntAddService(struct HdfDeviceObject *service, const struct HdfServiceInfo *servinfo)
 {
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;
@@ -33,7 +33,7 @@ int DevSvcManagerClntAddService(struct HdfDeviceObject *service, struct HdfServi
     return serviceManager->AddService(serviceManager, service, servinfo);
 }
 
-int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, struct HdfServiceInfo *servinfo)
+int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, const struct HdfServiceInfo *servinfo)
 {
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;

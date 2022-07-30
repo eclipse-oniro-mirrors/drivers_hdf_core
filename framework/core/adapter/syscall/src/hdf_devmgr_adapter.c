@@ -11,6 +11,8 @@
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
 
+#define HDF_LOG_TAG hdf_devmgr_adapter
+
 int32_t HdfLoadDriverByServiceName(const char *serviceName)
 {
     int32_t ret = HDF_FAILURE;
