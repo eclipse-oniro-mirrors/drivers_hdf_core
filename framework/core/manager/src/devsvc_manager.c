@@ -87,13 +87,13 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
 {
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *record = NULL;
-    if (devSvcManager == NULL || service == NULL || servInfo->servName == NULL) {
+    if (devSvcManager == NULL || service == NULL || servInfo == NULL || servInfo->servName == NULL) {
         HDF_LOGE("failed to add service, input param is null");
         return HDF_FAILURE;
     }
     record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servInfo->servName, 0));
     if (record != NULL) {
-        HDF_LOGI("%s:add service %s exist, only update value", __func__, servInfo->servName);
+        HDF_LOGI("%{public}s:add service %{public}s exist, only update value", __func__, servInfo->servName);
         // on service died will release old service object
         record->value = service;
         return HDF_SUCCESS;
@@ -127,7 +127,7 @@ int DevSvcManagerUpdateService(struct IDevSvcManager *inst,
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *record = NULL;
     char *servInfoStr = NULL;
-    if (devSvcManager == NULL || service == NULL || servInfo->servName == NULL) {
+    if (devSvcManager == NULL || service == NULL || servInfo == NULL || servInfo->servName == NULL) {
         HDF_LOGE("failed to update service, invalid param");
         return HDF_FAILURE;
     }

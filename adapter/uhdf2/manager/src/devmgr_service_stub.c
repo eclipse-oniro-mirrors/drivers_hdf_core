@@ -32,6 +32,8 @@
 
 #include "devmgr_service_stub.h"
 
+#define HDF_INVALID_DEV_ID 0xffffffff
+
 #define HDF_LOG_TAG devmgr_service_stub
 
 static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
@@ -269,7 +271,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     }
     deviceObject->service = (struct IDeviceIoService *)remoteService;
     struct HdfServiceInfo info;
-    info.devId = 0xffffffff;
+    info.devId = HDF_INVALID_DEV_ID;
     info.servName = DEVICE_MANAGER_SERVICE;
     info.servInfo = NULL;
     info.devClass = DEVICE_CLASS_DEFAULT;

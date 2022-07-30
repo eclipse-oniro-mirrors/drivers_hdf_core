@@ -22,6 +22,8 @@
 
 #include "iservmgr_hdi.h"
 
+#define HDF_LOG_TAG hdi_servmgr_client
+
 namespace OHOS {
 namespace HDI {
 namespace ServiceManager {

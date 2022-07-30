@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,10 @@
 #include <hdf_remote_service.h>
 #include <hdf_service_status.h>
 #include <osal_mem.h>
+
 #define SERVSTAT_LISTENER_INTERFACE_DESCRIPTOR "HDI.IServiceStatusListener.V1_0"
+#define HDF_LOG_TAG servstat_listener
+
 struct ServstatListenerStub {
     struct ServiceStatusListener listener;
     struct HdfRemoteService *remote;

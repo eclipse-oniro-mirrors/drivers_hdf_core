@@ -57,12 +57,12 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
 {
     const char *svcName = HdfSbufReadString(sbuf);
     if (svcName == NULL) {
-        HDF_LOGE("Read from parcel failed, svcName is null");
+        HDF_LOGE("Read from sbuf failed, svcName is null");
         return false;
     }
     attribute->svcName = strdup(svcName);
     if (attribute->svcName == NULL) {
-        HDF_LOGE("Read from parcel failed, strdup svcName fail");
+        HDF_LOGE("Read from sbuf failed, strdup svcName fail");
         return false;
     }
 
@@ -73,18 +73,18 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
     }
     attribute->moduleName = strdup(moduleName);
     if (attribute->moduleName == NULL) {
-        HDF_LOGE("Read from parcel failed, strdup moduleName fail");
+        HDF_LOGE("Read from sbuf failed, strdup moduleName fail");
         return false;
     }
 
     const char *deviceName = HdfSbufReadString(sbuf);
     if (deviceName == NULL) {
-        HDF_LOGE("Read from parcel failed, deviceName is null");
+        HDF_LOGE("Read from sbuf failed, deviceName is null");
         return false;
     }
     attribute->deviceName = strdup(deviceName);
     if (attribute->deviceName == NULL) {
-        HDF_LOGE("Read from parcel failed, strdup deviceName fail");
+        HDF_LOGE("Read from sbuf failed, strdup deviceName fail");
         return false;
     }
 
@@ -96,7 +96,7 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
     if (length == ATTRIBUTE_PRIVATE_DATA_LENGTH_NORMAL) {
         const char *deviceMatchAttr = HdfSbufReadString(sbuf);
         if (deviceMatchAttr == NULL) {
-            HDF_LOGE("%s: Read from parcel failed, deviceMatchAttr is null", __func__);
+            HDF_LOGE("%s: Read from sbuf failed, deviceMatchAttr is null", __func__);
             return false;
         }
         attribute->deviceMatchAttr = strdup(deviceMatchAttr);

@@ -275,7 +275,8 @@ struct HdfDeviceNode *HdfDeviceNodeNewInstance(const struct HdfDeviceInfo *devic
 #else
     devNode->deviceObject.property = HcsGetNodeByMatchAttr(HdfGetHcsRootNode(), deviceInfo->deviceMatchAttr);
     if (devNode->deviceObject.property == NULL) {
-        HDF_LOGD("node %s property empty, match attr: %s", deviceInfo->moduleName, deviceInfo->deviceMatchAttr);
+        HDF_LOGD("node %{public}s property empty, match attr: %{public}s",
+            deviceInfo->moduleName, deviceInfo->deviceMatchAttr);
     }
 #endif
 

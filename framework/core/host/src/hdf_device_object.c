@@ -188,7 +188,7 @@ struct HdfDeviceObject *HdfDeviceObjectAlloc(struct HdfDeviceObject *parent, con
     }
 
     if (parentDevNode->devStatus != DEVNODE_LAUNCHED) {
-        HDF_LOGE("failed to alloc device, parent status invalid %u", parentDevNode->devStatus);
+        HDF_LOGE("failed to alloc device, parent status invalid %{public}u", parentDevNode->devStatus);
         return NULL;
     }
 
