@@ -47,6 +47,7 @@ static int32_t I2cTestGetConfig(struct I2cTestConfig *config)
     reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("I2cTestGetConfig: failed to obtain reply!");
+        HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 

@@ -123,10 +123,12 @@ static int32_t SpiTestInit(struct HdfDeviceObject *device)
 
 static void SpiTestRelease(struct HdfDeviceObject *device)
 {
-    if (device != NULL && device != NULL) {
+    if (device != NULL) {
         OsalMemFree(device->service);
         device->service = NULL;
     }
+    OsalMemFree(g_config.wbuf);
+    g_config.wbuf = NULL;
     return;
 }
 

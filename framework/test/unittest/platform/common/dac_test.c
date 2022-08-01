@@ -32,39 +32,43 @@ static int32_t DacTestGetConfig(struct DacTestConfig *config)
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
-    if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
-        return HDF_ERR_MALLOC_FAIL;
-    }
+    do {
+        reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
+        if (reply == NULL) {
+            HDF_LOGE("%s: failed to obtain reply", __func__);
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
 
-    ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: remote dispatch failed", __func__);
-        HdfSbufRecycle(reply);
-        return ret;
-    }
+        ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: remote dispatch failed", __func__);
+            break;
+        }
 
-    if (!HdfSbufReadBuffer(reply, &buf, &len)) {
-        HDF_LOGE("%s: read buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (!HdfSbufReadBuffer(reply, &buf, &len)) {
+            HDF_LOGE("%s: read buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (len != sizeof(*config)) {
-        HDF_LOGE("%s: config size:%zu, read size:%u", __func__, sizeof(*config), len);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (len != sizeof(*config)) {
+            HDF_LOGE("%s: config size:%zu, read size:%u", __func__, sizeof(*config), len);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
-        HDF_LOGE("%s: memcpy buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
+            HDF_LOGE("%s: memcpy buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
+        HDF_LOGD("%s: exit", __func__);
+        ret = HDF_SUCCESS;
+    } while (0);
     HdfSbufRecycle(reply);
-    HDF_LOGD("%s: exit", __func__);
-    return HDF_SUCCESS;
+    HdfIoServiceRecycle(service);
+    return ret;
 }
 
 struct DacTester *DacTesterGet(void)

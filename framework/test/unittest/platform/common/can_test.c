@@ -87,42 +87,46 @@ static int32_t CanTestGetConfig(struct CanTestConfig *config)
     if (service == NULL) {
         return HDF_ERR_NOT_SUPPORT;
     }
+    do {
+        reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
+        if (reply == NULL) {
+            HDF_LOGE("CanTestGetConfig: failed to obtain reply!");
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
 
-    reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
-    if (reply == NULL) {
-        HDF_LOGE("CanTestGetConfig: failed to obtain reply!");
-        return HDF_ERR_MALLOC_FAIL;
-    }
+        ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("CanTestGetConfig: remote dispatch fail:%d", ret);
+            break;
+        }
 
-    ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("CanTestGetConfig: remote dispatch fail:%d", ret);
-    }
+        if (!HdfSbufReadBuffer(reply, &buf, &len)) {
+            HDF_LOGE("CanTestGetConfig: read buf fail!");
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (!HdfSbufReadBuffer(reply, &buf, &len)) {
-        HDF_LOGE("CanTestGetConfig: read buf fail!");
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (len != sizeof(*config)) {
+            HDF_LOGE("CanTestGetConfig: config size:%u, but read size:%u!", sizeof(*config), len);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (len != sizeof(*config)) {
-        HDF_LOGE("CanTestGetConfig: config size:%u, but read size:%u!", sizeof(*config), len);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
+            HDF_LOGE("CanTestGetConfig: memcpy buf fail!");
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
-        HDF_LOGE("CanTestGetConfig: memcpy buf fail!");
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
-
-    HDF_LOGE("CanTestGetConfig: test on bus:0x%x, bitRate:%u, workMode:0x%x", config->busNum, config->bitRate,
-        config->workMode);
+        HDF_LOGV("CanTestGetConfig: test on bus:0x%x, bitRate:%u, workMode:0x%x", config->busNum, config->bitRate,
+            config->workMode);
+        HDF_LOGD("CanTestGetConfig: exit!");
+        ret = HDF_SUCCESS;
+    } while (0);
     HdfSbufRecycle(reply);
-    HDF_LOGD("CanTestGetConfig: exit!");
     HdfIoServiceRecycle(service);
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t CanTestSetUpByConfig(struct CanTestConfig *config)

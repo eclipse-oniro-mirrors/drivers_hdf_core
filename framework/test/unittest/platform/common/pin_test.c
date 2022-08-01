@@ -48,12 +48,14 @@ static int32_t PinTestGetTestConfig(struct PinTestConfig *config)
     reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("%s: Failed to obtain reply", __func__);
+        HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Remote dispatch failed", __func__);
+        HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return ret;
     }
