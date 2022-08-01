@@ -20,7 +20,7 @@ KERNEL_BUILD_ROOT=$2
 KERNEL_PATCH_PATH=$3
 DEVICE_NAME=$4
 HDF_COMMON_PATCH="common"
-HDF_PATCH_FILE=
+HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
 
 ln_list=(
     $OHOS_SOURCE_ROOT/drivers/hdf_core/adapter/khdf/linux    drivers/hdf/khdf
@@ -32,13 +32,6 @@ cp_list=(
     $OHOS_SOURCE_ROOT/third_party/bounds_checking_function  ./
     $OHOS_SOURCE_ROOT/device/soc/hisilicon/common/platform/wifi         drivers/hdf/
     $OHOS_SOURCE_ROOT/third_party/FreeBSD/sys/dev/evdev     drivers/hdf/
-)
-
-specify_device_list=(
-    rk3568,
-    imx8mm,
-    rk3399,
-    t507
 )
 
 
@@ -62,11 +55,10 @@ function ln_hdf_repos()
 
 function get_hdf_patch_patch()
 {
-    if [[ "$specify_device_list" =~ "$DEVICE_NAME" ]]; then
-	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
-	else
+    if [ ! -e ${HDF_PATCH_FILE} ]
+    then
 	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${HDF_COMMON_PATCH}_patch/hdf.patch
-	fi
+    fi
 }
 
 function main()
