@@ -398,6 +398,7 @@ int32_t AudioUpdateCodecRegBits(struct CodecDevice *codec, uint32_t reg,
     int32_t ret;
     uint32_t curValue = 0;
     uint32_t controlMask;
+    uint32_t tempVal;
     if (codec == NULL || codec->devData == NULL) {
         ADM_LOG_ERR("Invalid input param.");
         return HDF_ERR_INVALID_OBJECT;
@@ -414,6 +415,12 @@ int32_t AudioUpdateCodecRegBits(struct CodecDevice *codec, uint32_t reg,
         return HDF_FAILURE;
     }
 
+    tempVal = curValue & controlMask;
+    if (tempVal == value) {
+        OsalMutexUnlock(&codec->devData->mutex);
+        ADM_LOG_DEBUG("Success.");
+        return HDF_SUCCESS;
+    }
     curValue = (curValue & ~controlMask) | (value & controlMask);
     ret = AudioCodecWriteReg(codec, reg, curValue);
     if (ret != HDF_SUCCESS) {
@@ -433,6 +440,7 @@ int32_t AudioUpdateDaiRegBits(const struct DaiDevice *dai, uint32_t reg,
     int32_t ret;
     uint32_t curValue = 0;
     uint32_t mixerControlMask;
+    uint32_t tempVal;
     struct DaiData *data = NULL;
 
     if (dai == NULL || dai->devData == NULL) {
@@ -451,6 +459,12 @@ int32_t AudioUpdateDaiRegBits(const struct DaiDevice *dai, uint32_t reg,
         return HDF_FAILURE;
     }
 
+    tempVal = curValue & mixerControlMask;
+    if (tempVal == value) {
+        OsalMutexUnlock(&data->mutex);
+        ADM_LOG_DEBUG("Success.");
+        return HDF_SUCCESS;
+    }
     curValue = (curValue & ~mixerControlMask) | (value & mixerControlMask);
     ret = AudioDaiWriteReg(dai, reg, curValue);
     if (ret != HDF_SUCCESS) {
