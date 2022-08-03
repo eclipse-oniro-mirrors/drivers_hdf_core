@@ -280,7 +280,7 @@ void ASTFdType::EmitCppWriteMethods(
 {
     String methodName = String::Format("%sWrite%s", methodPrefix.string(), ToString().string());
     if (isDecl) {
-        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int fd)\n", methodName.string());
+        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int fd);\n", methodName.string());
         return;
     }
     sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int fd)\n", methodName.string());
@@ -308,7 +308,7 @@ void ASTFdType::EmitCppReadMethods(
 {
     String methodName = String::Format("%sRead%s", methodPrefix.string(), ToString().string());
     if (isDecl) {
-        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd)\n", methodName.string());
+        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd);\n", methodName.string());
         return;
     }
     sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd)\n", methodName.string());
