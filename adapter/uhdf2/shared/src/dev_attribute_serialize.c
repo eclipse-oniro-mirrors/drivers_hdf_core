@@ -30,7 +30,6 @@ bool DeviceAttributeSerialize(const struct HdfDeviceInfo *attribute, struct HdfS
         return false;
     }
 
-    uint8_t ret = 1;
     if (!HdfSbufWriteUint32(sbuf, attribute->deviceId) ||
         !HdfSbufWriteUint16(sbuf, attribute->policy) ||
         !HdfSbufWriteString(sbuf, attribute->svcName) ||
@@ -40,16 +39,18 @@ bool DeviceAttributeSerialize(const struct HdfDeviceInfo *attribute, struct HdfS
     }
 
     if (attribute->deviceMatchAttr != NULL) {
-        ret &= HdfSbufWriteUint32(sbuf, ATTRIBUTE_PRIVATE_DATA_LENGTH_NORMAL);
-        ret &= HdfSbufWriteString(sbuf, attribute->deviceMatchAttr);
+        if (!HdfSbufWriteUint32(sbuf, ATTRIBUTE_PRIVATE_DATA_LENGTH_NORMAL) ||
+            !HdfSbufWriteString(sbuf, attribute->deviceMatchAttr)) {
+            HDF_LOGE("failed to serialize device attribute");
+            return false;
+        }
     } else {
-        ret &= HdfSbufWriteUint32(sbuf, ATTRIBUTE_PRIVATE_DATA_LENGTH_NULL);
+        if (!HdfSbufWriteUint32(sbuf, ATTRIBUTE_PRIVATE_DATA_LENGTH_NULL)) {
+            HDF_LOGE("failed to serialize device attribute");
+            return false;
+        }
     }
 
-    if (ret == 0) {
-        HDF_LOGE("failed to serialize device attribute");
-        return false;
-    }
     return true;
 }
 

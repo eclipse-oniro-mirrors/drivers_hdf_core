@@ -333,7 +333,7 @@ static int32_t DevMgrUeventSocketInit(void)
     struct sockaddr_nl addr;
     (void)memset_s(&addr, sizeof(addr), 0, sizeof(addr));
     addr.nl_family = AF_NETLINK;
-    addr.nl_pid = getpid();
+    addr.nl_pid = (__u32)getpid();
     addr.nl_groups = 0xffffffff;
 
     int32_t sockfd = socket(PF_NETLINK, SOCK_DGRAM | SOCK_CLOEXEC | SOCK_NONBLOCK, NETLINK_KOBJECT_UEVENT);
