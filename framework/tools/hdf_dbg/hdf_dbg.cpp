@@ -395,7 +395,7 @@ int main(int argc, char **argv)
             return HDF_SUCCESS;
         }
 
-        uint32_t queryIdx = atoi(argv[QUERY_INFO_PARA_CNT - 1]);
+        uint32_t queryIdx = static_cast<uint32_t>(atoi(argv[QUERY_INFO_PARA_CNT - 1]));
         if (queryIdx < funcCnt - 1) {
             g_getInfoFuncs[queryIdx]();
         } else {

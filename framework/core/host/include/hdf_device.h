@@ -33,7 +33,7 @@ typedef uint32_t devid_t;
 #define DEVNODEID(devid) (((uint32_t)(devid)) & DEVNODEID_MASK)
 
 #define MK_DEVID(hostId, deviceId, devnodeId) \
-    (((hostId) << (DEVICEID_BITS + DEVNODEID_BITS)) | ((deviceId) << DEVNODEID_BITS) | (devnodeId))
+    (((uint16_t)(hostId) << (DEVICEID_BITS + DEVNODEID_BITS)) | ((deviceId) << DEVNODEID_BITS) | (devnodeId))
 
 struct HdfDeviceNode;
 

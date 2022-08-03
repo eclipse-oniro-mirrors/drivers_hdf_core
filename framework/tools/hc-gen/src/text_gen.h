@@ -65,7 +65,7 @@ private:
 
     uint32_t ImplementCloseBraceGen(const std::shared_ptr<AstObject> &object, int32_t depth);
 
-    static const std::string &Indent(uint32_t times = 1);
+    static const std::string &Indent(int32_t times = 1);
 
     static bool IsInSubClassNode(const std::shared_ptr<AstObject> &object);
 

@@ -194,8 +194,8 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
         return reinterpret_cast<uintptr_t>(nullptr);
     }
 
-    int offset = (memzone->offset / PAGE_SIZE) * PAGE_SIZE;
-    int length = memzone->offset - offset + memzone->size;
+    int offset = (static_cast<int>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    int length = static_cast<int>(memzone->offset) - offset + static_cast<int>(memzone->size);
 
     void *ptr = mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, meta_->GetFd(), offset);
     if (ptr == MAP_FAILED) {
@@ -204,7 +204,7 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
             zoneType, length, offset, meta_->GetFd(), errno);
         return reinterpret_cast<uintptr_t>(nullptr);
     }
-    return (reinterpret_cast<uintptr_t>(ptr) + (memzone->offset - offset));
+    return (reinterpret_cast<uintptr_t>(ptr) + (static_cast<int>(memzone->offset) - offset));
 }
 
 template <typename T>
@@ -214,9 +214,9 @@ void SharedMemQueue<T>::UnMapMemZone(void *addr, uint32_t zoneType)
     if (memzone == nullptr) {
         return;
     }
-    int offset = (memzone->offset / PAGE_SIZE) * PAGE_SIZE;
-    int length = memzone->offset - offset + memzone->size;
-    uint8_t *ptr = reinterpret_cast<uint8_t *>(addr) - (memzone->offset - offset);
+    int offset = (static_cast<int>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    int length = static_cast<int>(memzone->offset) - offset + static_cast<int>(memzone->size);
+    uint8_t *ptr = reinterpret_cast<uint8_t *>(addr) - (static_cast<int>(memzone->offset) - offset);
     if (ptr == nullptr) {
         return;
     }

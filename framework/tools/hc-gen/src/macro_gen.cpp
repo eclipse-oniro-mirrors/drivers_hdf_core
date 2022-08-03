@@ -171,12 +171,12 @@ bool MacroGen::GenNodeForeach(int32_t depth, const std::shared_ptr<AstObject> &n
     std::string fullName = GenFullName(depth, node, "_");
     ofs_ << "#define " << fullName.append("_nodeName \"").append(node->Name()).append("\"") << std::endl;
     if (count) {
-        uint32_t index = count;
+        uint32_t index = 0;
         std::list<std::string>::iterator iter;
 
         ofs_ << "#define " << GenFullName(depth, node, "_").append("_foreach_child(func)") << " \\\n";
         for (iter = subList.begin(); iter != subList.end(); ++iter) {
-            if (--index) {
+            if (++index < count) {
                 ofs_ << TAB << "func(" << *iter << "); \\\n";
             } else {
                 ofs_ << TAB << "func(" << *iter << ");\n";
@@ -184,10 +184,10 @@ bool MacroGen::GenNodeForeach(int32_t depth, const std::shared_ptr<AstObject> &n
         }
         ofs_ << std::endl;
 
-        index = count;
+        index = 0;
         ofs_ << "#define " << GenFullName(depth, node, "_").append("_foreach_child_vargs(func, ...)") << " \\\n";
         for (iter = subList.begin(); iter != subList.end(); ++iter) {
-            if (--index) {
+            if (++index < count) {
                 ofs_ << TAB << "func(" << *iter << ", __VA_ARGS__); \\\n";
             } else {
                 ofs_ << TAB << "func(" << *iter << ", __VA_ARGS__);\n";
