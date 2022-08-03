@@ -17,7 +17,7 @@ import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 ohos_executable("hdf_devmgr") {
   defines = [ "__USER__" ]
   include_dirs = [
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "$hdf_framework_path/core/manager/include",
     "$hdf_framework_path/core/common/include/manager/",
     "$hdf_framework_path/core/host/include",
@@ -66,9 +66,9 @@ ohos_executable("hdf_devmgr") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
-    "utils_base:utils",
   ]
 
   if (build_selinux) {

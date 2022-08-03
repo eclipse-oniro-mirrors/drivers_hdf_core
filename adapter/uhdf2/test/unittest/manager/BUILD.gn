@@ -38,8 +38,8 @@ ohos_unittest("hdf_adapter_uhdf_test_manager") {
       "//drivers/hdf_core/adapter/uhdf2/test/resource/manager/ohos_test.xml"
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
@@ -66,8 +66,8 @@ ohos_unittest("hdf_adapter_uhdf_test_ioservice") {
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
@@ -89,8 +89,8 @@ ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
@@ -110,8 +110,8 @@ ohos_unittest("hdf_adapter_uhdf_test_pm") {
   deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
@@ -128,10 +128,10 @@ ohos_unittest("hdf_adapter_uhdf_test_uevent") {
 
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hdf_core:libhdf_utils",
       "hdf_core:libhdi",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
