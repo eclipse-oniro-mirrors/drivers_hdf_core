@@ -126,6 +126,7 @@ DevHandle PinGet(const char *pinName)
     copyName = AddNode(pinName);
     if (copyName == NULL) {
         HDF_LOGE("%s:copyName is NULL", __func__);
+        HdfSbufRecycle(data);
         return NULL;
     }
 

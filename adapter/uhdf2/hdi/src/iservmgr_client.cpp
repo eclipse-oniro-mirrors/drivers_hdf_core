@@ -22,6 +22,8 @@
 
 #include "iservmgr_hdi.h"
 
+#define HDF_LOG_TAG hdi_servmgr_client
+
 namespace OHOS {
 namespace HDI {
 namespace ServiceManager {
@@ -126,6 +128,7 @@ static void HdfDevMgrDbgFillServiceInfo(std::vector<HdiServiceInfo> &serviceInfo
         }
         info.serviceName = servName;
         info.devClass = reply.ReadUint16();
+        info.devId = reply.ReadUint32();
         serviceInfos.push_back(info);
     }
     return;

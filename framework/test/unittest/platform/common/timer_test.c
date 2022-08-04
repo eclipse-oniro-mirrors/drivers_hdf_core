@@ -279,6 +279,7 @@ static int32_t TimerTestGetConfig(struct TimerTestConfig *config)
     reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("%s: failed to obtain reply", __func__);
+        HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -286,6 +287,7 @@ static int32_t TimerTestGetConfig(struct TimerTestConfig *config)
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: remote dispatch failed", __func__);
         HdfSbufRecycle(reply);
+        HdfIoServiceRecycle(service);
         return ret;
     }
 

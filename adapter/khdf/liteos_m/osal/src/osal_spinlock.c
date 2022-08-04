@@ -88,7 +88,7 @@ int32_t OsalSpinLock(OsalSpinlock *spinlock)
 
     ret = LOS_MuxPend((uint32_t)(uintptr_t)spinlock->realSpinlock, LOS_MS2Tick(HDF_WAIT_FOREVER));
     if (ret != LOS_OK) {
-        HDF_LOGE("%s fail %u %d", __func__, ret, __LINE__);
+        HDF_LOGE("%s fail 0x%08x %d", __func__, ret, __LINE__);
         return HDF_FAILURE;
     }
 
@@ -106,7 +106,7 @@ int32_t OsalSpinUnlock(OsalSpinlock *spinlock)
 
     ret = LOS_MuxPost((uint32_t)(uintptr_t)spinlock->realSpinlock);
     if (ret != LOS_OK) {
-        HDF_LOGE("%s fail %u %d", __func__, ret, __LINE__);
+        HDF_LOGE("%s fail 0x%08x %d", __func__, ret, __LINE__);
         return HDF_FAILURE;
     }
 

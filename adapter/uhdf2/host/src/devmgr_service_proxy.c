@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -70,7 +70,10 @@ int DevmgrServiceProxyAttachDevice(struct IDevmgrService *inst, struct IHdfDevic
         goto FINISHED;
     }
     struct HdfRemoteService *remoteService = serviceProxy->remote;
-    if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) || !HdfSbufWriteInt32(data, token->devid)) {
+    const char *srvName = (token->servName == NULL) ? "" : token->servName;
+    const char *deviceName = (token->deviceName == NULL) ? "" : token->deviceName;
+    if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) || !HdfSbufWriteInt32(data, token->devid) ||
+        !HdfSbufWriteString(data, srvName) || !HdfSbufWriteString(data, deviceName)) {
         goto FINISHED;
     }
 

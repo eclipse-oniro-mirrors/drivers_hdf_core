@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -11,6 +11,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_log.h"
+#include "securec.h"
 
 static struct GpioTestConfig g_config;
 
@@ -24,11 +25,42 @@ static int32_t GpioTestDispatch(struct HdfDeviceIoClient *client, int cmd, struc
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("%s: failed to write reply!", __func__);
             return HDF_ERR_IO;
         }
     } else {
         return HDF_ERR_NOT_SUPPORT;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t GpioReadNameTestInfos(struct GpioTestConfig *config, const struct DeviceResourceNode *node,
+    struct DeviceResourceIface *drsOps)
+{
+    int32_t ret;
+    const char *tempName = NULL;
+
+    ret = drsOps->GetString(node, "testNameOne", &tempName, "NULL");
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to read testNameOne!", __func__);
+        return ret;
+    }
+
+    if (strcpy_s(config->testNameOne, NAME_SIZE_MAX, tempName) != EOK) {
+        HDF_LOGE("%s: failed to copy testNameOne!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = drsOps->GetString(node, "testNameTwo", &tempName, "NULL");
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to read testNameTwo!", __func__);
+        return ret;
+    }
+
+    if (strcpy_s(config->testNameTwo, NAME_SIZE_MAX, tempName) != EOK) {
+        HDF_LOGE("%s: failed to copy testNameTwo!", __func__);
+        return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
@@ -42,30 +74,43 @@ static int32_t GpioTestReadConfig(struct GpioTestConfig *config, const struct De
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint16 == NULL) {
-        HDF_LOGE("%s: invalid drs ops fail!", __func__);
+        HDF_LOGE("%s: invalid drs ops!", __func__);
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint16(node, "gpio", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read gpio fail!", __func__);
+        HDF_LOGE("%s: failed to read gpio!", __func__);
         return ret;
     }
     config->gpio = (uint16_t)tmp;
 
+    ret = drsOps->GetUint16(node, "gpioTestTwo", &tmp, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to read gpioTestTwo!", __func__);
+        return ret;
+    }
+    config->gpioTestTwo = (uint16_t)tmp;
+
     ret = drsOps->GetUint16(node, "gpioIrq", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read gpioIrq fail!", __func__);
+        HDF_LOGE("%s: failed to read gpioIrq!", __func__);
         return ret;
     }
     config->gpioIrq = (uint16_t)tmp;
 
     ret = drsOps->GetUint16(node, "testUserApi", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGW("%s: read gpioIrq fail, using 0 as default", __func__);
+        HDF_LOGW("%s: failed to read gpioIrq, using 0 as default!", __func__);
         config->testUserApi = 0;
     }
     config->testUserApi = (uint16_t)tmp;
+
+    ret = GpioReadNameTestInfos(config, node, drsOps);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to read name test infos!", __func__);
+        return ret;
+    }
 
     return HDF_SUCCESS;
 }
@@ -76,13 +121,13 @@ static int32_t GpioTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("%s: device or config is NULL!", __func__);
         return HDF_ERR_IO;
     }
 
     ret = GpioTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("%s: failed to read config!", __func__);
         return ret;
     }
 

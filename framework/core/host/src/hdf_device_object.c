@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -188,7 +188,7 @@ struct HdfDeviceObject *HdfDeviceObjectAlloc(struct HdfDeviceObject *parent, con
     }
 
     if (parentDevNode->devStatus != DEVNODE_LAUNCHED) {
-        HDF_LOGE("failed to alloc device, parent status invalid %u", parentDevNode->devStatus);
+        HDF_LOGE("failed to alloc device, parent status invalid %{public}u", parentDevNode->devStatus);
         return NULL;
     }
 
@@ -323,9 +323,9 @@ int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev)
     if (dev == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
-
-    return DevSvcManagerClntUpdateService(
-        devNode->servName, devNode->deviceObject.deviceClass, &devNode->deviceObject, devNode->servInfo);
+    struct HdfServiceInfo servInfo;
+    HdfServiceInfoInit(&servInfo, devNode);
+    return DevSvcManagerClntUpdateService(&devNode->deviceObject, &servInfo);
 }
 
 int HdfDeviceObjectSetInterfaceDesc(struct HdfDeviceObject *dev, const char *interfaceDesc)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -7,6 +7,9 @@
  */
 
 #include "gpio/gpio_core.h"
+#ifdef __LITEOS_M__
+#include "los_interrupt.h"
+#endif
 #include "osal_mem.h"
 #include "platform_core.h"
 
@@ -16,20 +19,30 @@
 
 static inline void GpioInfoLock(struct GpioInfo *ginfo)
 {
+#ifndef __LITEOS_M__
     (void)OsalSpinLockIrqSave(&ginfo->spin, &ginfo->irqSave);
+#else
+    ginfo->irqSave = LOS_IntLock();
+#endif
 }
 
 static inline void GpioInfoUnlock(struct GpioInfo *ginfo)
 {
+#ifndef __LITEOS_M__
     (void)OsalSpinUnlockIrqRestore(&ginfo->spin, &ginfo->irqSave);
+#else
+    LOS_IntRestore(ginfo->irqSave);
+#endif
 }
 
 int32_t GpioCntlrWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t val)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->write == NULL) {
+        HDF_LOGE("%s: ops or write is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -39,12 +52,15 @@ int32_t GpioCntlrWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t val)
 int32_t GpioCntlrRead(struct GpioCntlr *cntlr, uint16_t local, uint16_t *val)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->read == NULL) {
+        HDF_LOGE("%s: ops or read is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
     if (val == NULL) {
+        HDF_LOGE("%s: val is NULL!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -54,9 +70,11 @@ int32_t GpioCntlrRead(struct GpioCntlr *cntlr, uint16_t local, uint16_t *val)
 int32_t GpioCntlrSetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t dir)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->setDir == NULL) {
+        HDF_LOGE("%s: ops or setDir is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -66,12 +84,15 @@ int32_t GpioCntlrSetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t dir)
 int32_t GpioCntlrGetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t *dir)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->getDir == NULL) {
+        HDF_LOGE("%s: ops or getDir is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
     if (dir == NULL) {
+        HDF_LOGE("%s: dir is NULL!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -81,9 +102,11 @@ int32_t GpioCntlrGetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t *dir)
 int32_t GpioCntlrToIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t *irq)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->toIrq == NULL) {
+        HDF_LOGE("%s: ops or toIrq is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -96,12 +119,12 @@ void GpioCntlrIrqCallback(struct GpioCntlr *cntlr, uint16_t local)
     struct GpioIrqRecord *irqRecord = NULL;
 
     if (cntlr == NULL || cntlr->ginfos == NULL || local >= cntlr->count) {
-        PLAT_LOGW("GpioCntlrIrqCallback: invalid cntlr(ginfos) or loal num:%hu!", local);
+        HDF_LOGW("%s: invalid cntlr(ginfos) or loal num:%hu!", __func__, local);
         return;
     }
     ginfo = &cntlr->ginfos[local];
     if (ginfo == NULL) {
-        PLAT_LOGW("GpioCntlrIrqCallback: ginfo null(start:%hu, local:%hu)", cntlr->start, local);
+        HDF_LOGW("%s: ginfo null(start:%hu, local:%hu)", __func__, cntlr->start, local);
         return;
     }
 
@@ -109,7 +132,7 @@ void GpioCntlrIrqCallback(struct GpioCntlr *cntlr, uint16_t local)
     irqRecord = ginfo->irqRecord;
 
     if (irqRecord == NULL) {
-        PLAT_LOGW("GpioCntlrIrqCallback: irq not set (start:%hu, local:%hu)", cntlr->start, local);
+        HDF_LOGW("%s: irq not set (start:%hu, local:%hu)", __func__, cntlr->start, local);
         GpioInfoUnlock(ginfo);
         return;
     }
@@ -137,7 +160,7 @@ static int32_t GpioCntlrIrqThreadHandler(void *data)
     }
     (void)OsalSpinLockIrqSave(&irqRecord->spin, &irqSave);
     (void)OsalSpinUnlockIrqRestore(&irqRecord->spin, &irqSave); // last post done
-    PLAT_LOGI("GpioCntlrIrqThreadHandler: gpio(%hu) thread exit", irqRecord->global);
+    HDF_LOGI("%s: gpio(%hu) thread exit!", __func__, irqRecord->global);
     (void)OsalSemDestroy(&irqRecord->sem);
     (void)OsalSpinDestroy(&irqRecord->spin);
     (void)OsalThreadDestroy(&irqRecord->thread);
@@ -152,14 +175,14 @@ static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord
     struct GpioCntlr *cntlr = ginfo->cntlr;
 
     if (cntlr == NULL) {
-        PLAT_LOGE("GpioCntlrSetIrqInner: cntlr is NULL");
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     GpioInfoLock(ginfo);
 
     if (ginfo->irqRecord != NULL) {
         GpioInfoUnlock(ginfo);
-        PLAT_LOGE("GpioCntlrSetIrqInner: gpio(%hu+%hu) irq already set", cntlr->start, local);
+        HDF_LOGE("%s: gpio(%hu+%hu) irq already set!", __func__, cntlr->start, local);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -168,7 +191,7 @@ static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord
     ret = cntlr->ops->setIrq(cntlr, local, irqRecord->mode);
     if (ret != HDF_SUCCESS) {
         GpioInfoLock(ginfo);
-        PLAT_LOGE("GpioCntlrSetIrqInner: gpio setIrq fail");
+        HDF_LOGE("%s: gpio failed to setIrq!", __func__);
         ginfo->irqRecord = NULL;
         GpioInfoUnlock(ginfo);
     }
@@ -184,7 +207,7 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
 
     irqRecord = (struct GpioIrqRecord *)OsalMemCalloc(sizeof(*irqRecord));
     if (irqRecord == NULL) {
-        PLAT_LOGE("GpioIrqRecordCreate: alloc irq record failed");
+        HDF_LOGE("%s: failed to calloc for irqRecord!", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
     irqRecord->removed = false;
@@ -197,7 +220,7 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
         ret = OsalThreadCreate(&irqRecord->thread, GpioCntlrIrqThreadHandler, irqRecord);
         if (ret != HDF_SUCCESS) {
             OsalMemFree(irqRecord);
-            PLAT_LOGE("GpioIrqRecordCreate: create irq thread failed:%d", ret);
+            HDF_LOGE("%s: failed to create irq thread:%d!", __func__, ret);
             return ret;
         }
         (void)OsalSpinInit(&irqRecord->spin);
@@ -211,10 +234,10 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
             (void)OsalSpinDestroy(&irqRecord->spin);
             (void)OsalThreadDestroy(&irqRecord->thread);
             OsalMemFree(irqRecord);
-            PLAT_LOGE("GpioIrqRecordCreate: start irq thread failed:%d", ret);
+            HDF_LOGE("%s: failed to start irq thread:%d!", __func__, ret);
             return ret;
         }
-        PLAT_LOGI("GpioIrqRecordCreate: gpio(%hu) thread started", GpioInfoToGlobal(ginfo));
+        HDF_LOGI("%s: gpio(%hu) thread started!", __func__, GpioInfoToGlobal(ginfo));
     }
 
     *new = irqRecord;
@@ -228,24 +251,28 @@ int32_t GpioCntlrSetIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t mode, 
     struct GpioIrqRecord *irqRecord = NULL;
 
     if (cntlr == NULL || cntlr->ginfos == NULL) {
+        HDF_LOGE("%s: cntlr or ginfos is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (local >= cntlr->count || func == NULL) {
+        HDF_LOGE("%s: local is invalid or func is NULL!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->ops == NULL || cntlr->ops->setIrq == NULL) {
+        HDF_LOGE("%s: ops or setIrq is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ginfo = &cntlr->ginfos[local];
     ret = GpioIrqRecordCreate(ginfo, mode, func, arg, &irqRecord);
     if (ret != HDF_SUCCESS) {
-        PLAT_LOGE("GpioCntlrSetIrq: create irq record failed:%d", ret);
+        HDF_LOGE("%s: failed to create irq record:%d!", __func__, ret);
         return ret;
     }
 
     ret = GpioCntlrSetIrqInner(ginfo, irqRecord);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: failed to set irq inner:%d!", __func__, ret);
         GpioIrqRecordDestroy(irqRecord);
     }
     return ret;
@@ -258,12 +285,15 @@ int32_t GpioCntlrUnsetIrq(struct GpioCntlr *cntlr, uint16_t local, void *arg)
     struct GpioIrqRecord *irqRecord = NULL;
 
     if (cntlr == NULL || cntlr->ginfos == NULL) {
+        HDF_LOGE("%s: cntlr or ginfos is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (local >= cntlr->count) {
+        HDF_LOGE("%s: local is invalid!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->ops == NULL || cntlr->ops->unsetIrq == NULL) {
+        HDF_LOGE("%s: ops or unsetIrq is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -271,13 +301,13 @@ int32_t GpioCntlrUnsetIrq(struct GpioCntlr *cntlr, uint16_t local, void *arg)
     GpioInfoLock(ginfo);
     if (ginfo->irqRecord == NULL) {
         GpioInfoUnlock(ginfo);
-        PLAT_LOGE("GpioCntlrUnsetIrq: gpio(%hu+%hu) irq not set yet", cntlr->start, local);
+        HDF_LOGE("%s: gpio(%hu+%hu) irq not set yet!", __func__, cntlr->start, local);
         return HDF_ERR_NOT_SUPPORT;
     }
     irqRecord = ginfo->irqRecord;
     if (arg != irqRecord->irqData) {
         GpioInfoUnlock(ginfo);
-        PLAT_LOGE("GpioCntlrUnsetIrq: gpio(%hu+%hu) arg not match", cntlr->start, local);
+        HDF_LOGE("%s: gpio(%hu+%hu) arg not match!", __func__, cntlr->start, local);
         return HDF_ERR_INVALID_PARAM;
     }
     ret = cntlr->ops->unsetIrq(cntlr, local);
@@ -295,9 +325,11 @@ int32_t GpioCntlrUnsetIrq(struct GpioCntlr *cntlr, uint16_t local, void *arg)
 int32_t GpioCntlrEnableIrq(struct GpioCntlr *cntlr, uint16_t local)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->enableIrq == NULL) {
+        HDF_LOGE("%s: ops or enableIrq is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -307,11 +339,37 @@ int32_t GpioCntlrEnableIrq(struct GpioCntlr *cntlr, uint16_t local)
 int32_t GpioCntlrDisableIrq(struct GpioCntlr *cntlr, uint16_t local)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->disableIrq == NULL) {
+        HDF_LOGE("%s: ops or disableIrq is NULL!", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     return cntlr->ops->disableIrq(cntlr, local);
+}
+
+int32_t GpioCntlrGetNumByGpioName(struct GpioCntlr *cntlr, const char *gpioName)
+{
+    uint32_t index;
+
+    if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (gpioName == NULL || strlen(gpioName) > GPIO_NAME_LEN) {
+        HDF_LOGE("%s: gpioName is NULL or gpioName len out of range!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    for (index = 0; index < cntlr->count; index++) {
+        if (strcmp(cntlr->ginfos[index].name, gpioName) == 0) {
+            HDF_LOGD("%s: gpioName:%s get gpio number: %u success!", __func__, gpioName, index);
+            return cntlr->start + index;
+        }
+    }
+    HDF_LOGE("%s: gpioName:%s failed to get gpio number!", __func__, gpioName);
+    return HDF_FAILURE;
 }

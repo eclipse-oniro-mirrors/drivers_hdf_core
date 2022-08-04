@@ -273,7 +273,7 @@ void Lexer::LexHexAndBinaryNum(std::string &value, char &c, uint64_t &v)
                 value.push_back(c);
                 ConsumeChar();
             }
-            v = strtoll(value.data(), nullptr, HEX_NUM);
+            v = static_cast<uint64_t>(strtoll(value.data(), nullptr, HEX_NUM));
             break;
         case 'b': // binary number
             ConsumeChar();
@@ -281,7 +281,7 @@ void Lexer::LexHexAndBinaryNum(std::string &value, char &c, uint64_t &v)
                 value.push_back(c);
                 ConsumeChar();
             }
-            v = strtoll(value.data(), nullptr, BINARY_NUM);
+            v = static_cast<uint64_t>(strtoll(value.data(), nullptr, BINARY_NUM));
             break;
         default:; // fall-through
     }
@@ -319,7 +319,7 @@ bool Lexer::LexFromNumber(Token &token)
                 ConsumeChar();
                 value.push_back(c);
             }
-            v = strtoll(value.data(), nullptr, DECIMAL_NUM);
+            v = static_cast<uint64_t>(strtoll(value.data(), nullptr, DECIMAL_NUM));
             break;
     }
 

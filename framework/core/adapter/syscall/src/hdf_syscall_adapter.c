@@ -686,8 +686,9 @@ static int TrytoLoadIoService(const char *serviceName, char *devNodePath, char *
     }
 
     int waitCount = LOAD_IOSERVICE_WAIT_COUNT;
-    while (realpath(devNodePath, realPath) == NULL && waitCount-- > 0) {
+    while (realpath(devNodePath, realPath) == NULL && waitCount > 0) {
         OsalMSleep(LOAD_IOSERVICE_WAIT_TIME); // wait ueventd to crater dev
+        waitCount--;
     }
     if (waitCount <= 0) {
         HDF_LOGE("%s: char dev %{public}s is invalid", __func__, devNodePath);

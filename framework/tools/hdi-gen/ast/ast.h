@@ -21,7 +21,6 @@
 #include "ast/ast_float_type.h"
 #include "ast/ast_integer_type.h"
 #include "ast/ast_interface_type.h"
-#include "ast/ast_list_type.h"
 #include "ast/ast_long_type.h"
 #include "ast/ast_map_type.h"
 #include "ast/ast_namespace.h"

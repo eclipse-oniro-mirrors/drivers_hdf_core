@@ -129,6 +129,7 @@ HdfRemoteServiceHolder::HdfRemoteServiceHolder() : remote_(nullptr), deathRecipi
     service_.object_.objectId = HDF_OBJECT_ID_REMOTE_SERVICE;
     service_.dispatcher = nullptr;
     service_.target = nullptr;
+    service_.index = 0;
 }
 
 bool HdfRemoteServiceHolder::SetInterfaceDescriptor(const char *desc)
@@ -265,10 +266,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     const int32_t waitTimes = 50;
     const int32_t sleepInterval = 20000;
     int32_t timeout = waitTimes;
-    while (saManager == nullptr && (timeout-- > 0)) {
+    while (saManager == nullptr && (timeout > 0)) {
         HDF_LOGI("waiting for samgr...");
         usleep(sleepInterval);
         saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        timeout--;
     }
 
     if (saManager == nullptr) {
@@ -294,10 +296,11 @@ struct HdfRemoteService *HdfRemoteAdapterGetSa(int32_t saId)
     constexpr int32_t waitTimes = 50;
     constexpr int32_t sleepInterval = 20000;
     int32_t timeout = waitTimes;
-    while (remote == nullptr && (timeout-- > 0)) {
+    while (remote == nullptr && (timeout > 0)) {
         HDF_LOGD("waiting for saId %{public}d", saId);
         usleep(sleepInterval);
         remote = saManager->GetSystemAbility(saId);
+        timeout--;
     }
     if (remote != nullptr) {
         return HdfRemoteAdapterBind(remote);

@@ -180,7 +180,7 @@ void ASTFdType::EmitJavaReadInnerVar(
         "%s %s = %s.readInt();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(), parcelName.string());
 }
 
-void ASTFdType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTFdType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     String methodName = String::Format("Write%s", ToString().string());
@@ -196,7 +196,7 @@ void ASTFdType::RegisterWriteMethod(Options::Language language, UtilMethodMap &m
     }
 }
 
-void ASTFdType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTFdType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     String methodName = String::Format("Read%s", ToString().string());
@@ -280,7 +280,7 @@ void ASTFdType::EmitCppWriteMethods(
 {
     String methodName = String::Format("%sWrite%s", methodPrefix.string(), ToString().string());
     if (isDecl) {
-        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int fd)\n", methodName.string());
+        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int fd);\n", methodName.string());
         return;
     }
     sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int fd)\n", methodName.string());
@@ -308,7 +308,7 @@ void ASTFdType::EmitCppReadMethods(
 {
     String methodName = String::Format("%sRead%s", methodPrefix.string(), ToString().string());
     if (isDecl) {
-        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd)\n", methodName.string());
+        sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd);\n", methodName.string());
         return;
     }
     sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd)\n", methodName.string());

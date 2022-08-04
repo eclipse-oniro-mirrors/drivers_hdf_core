@@ -35,9 +35,9 @@ private:
 
     int32_t PrintArrayType(const std::shared_ptr<AstObject> &astObj);
 
-    int32_t OutPutWalk(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth);
+    uint32_t OutPutWalk(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth);
 
-    int32_t CloseBrace(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth);
+    uint32_t CloseBrace(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth);
 
     const std::string fileHeader_ = "/*\n * HDF decompile hcs file\n */\n\n";
     std::string outPutFileName_;

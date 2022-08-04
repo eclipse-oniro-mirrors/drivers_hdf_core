@@ -32,64 +32,82 @@ static int32_t UartTestGetConfig(struct UartTestConfig *config)
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    reply = HdfSbufObtainDefaultSize();
-    if (reply == NULL) {
-        HDF_LOGE("%s: Failed to obtain reply", __func__);
-        return HDF_ERR_MALLOC_FAIL;
-    }
+    do {
+        reply = HdfSbufObtainDefaultSize();
+        if (reply == NULL) {
+            HDF_LOGE("%s: Failed to obtain reply", __func__);
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
 
-    ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Remote dispatch failed", __func__);
-        HdfSbufRecycle(reply);
-        return ret;
-    }
+        ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: Remote dispatch failed", __func__);
+            break;
+        }
 
-    if (!HdfSbufReadBuffer(reply, (const void **)&cfg, &len)) {
-        HDF_LOGE("%s: Read buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
-    if (len != sizeof(*cfg)) {
-        HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
-    if (memcpy_s(config, sizeof(*config), cfg, sizeof(*cfg)) != EOK) {
-        HDF_LOGE("%s: Memcpy buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
-    
-    if (!HdfSbufReadBuffer(reply, (const void **)&buf, &len)) {
-        HDF_LOGE("%s: Read buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (!HdfSbufReadBuffer(reply, (const void **)&cfg, &len)) {
+            HDF_LOGE("%s: Read buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
+        if (len != sizeof(*cfg)) {
+            HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
+            ret = HDF_ERR_IO;
+            break;
+        }
+        if (memcpy_s(config, sizeof(*config), cfg, sizeof(*cfg)) != EOK) {
+            HDF_LOGE("%s: Memcpy buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (len != config->len) {
-        HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
-    config->wbuf = NULL;
-    config->wbuf = (uint8_t *)OsalMemCalloc(len);
-    if (config->wbuf == NULL) {
-        HDF_LOGE("%s: malloc wbuf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_MALLOC_FAIL;
-    }
+        if (!HdfSbufReadBuffer(reply, (const void **)&buf, &len)) {
+            HDF_LOGE("%s: Read buf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
 
-    if (memcpy_s(config->wbuf, config->len, buf, len) != EOK) {
-        HDF_LOGE("%s: Memcpy wbuf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
-    }
+        if (len != config->len) {
+            HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
+            ret = HDF_ERR_IO;
+            break;
+        }
+        config->wbuf = NULL;
+        config->wbuf = (uint8_t *)OsalMemCalloc(len);
+        if (config->wbuf == NULL) {
+            HDF_LOGE("%s: malloc wbuf failed", __func__);
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
+        config->rbuf = NULL;
+        config->rbuf = (uint8_t *)OsalMemCalloc(len);
+        if (config->rbuf == NULL) {
+            HDF_LOGE("%s: malloc rbuf failed", __func__);
+            ret = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
 
+        if (memcpy_s(config->wbuf, config->len, buf, len) != EOK) {
+            HDF_LOGE("%s: Memcpy wbuf failed", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
+
+        HDF_LOGD("%s: Done", __func__);
+        ret = HDF_SUCCESS;
+    } while (0);
     HdfSbufRecycle(reply);
-    HDF_LOGD("%s: Done", __func__);
     HdfIoServiceRecycle(service);
-    return HDF_SUCCESS;
+    return ret;
+}
+
+static inline void UartBufFree(struct UartTestConfig *config)
+{
+    OsalMemFree(config->wbuf);
+    config->wbuf = NULL;
+    OsalMemFree(config->rbuf);
+    config->rbuf = NULL;
 }
 
 struct UartTester *UartTesterGet(void)
@@ -100,11 +118,13 @@ struct UartTester *UartTesterGet(void)
     ret = UartTestGetConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read config failed:%d", __func__, ret);
+        UartBufFree(&tester.config);
         return NULL;
     }
     tester.handle = UartOpen(tester.config.port);
     if (tester.handle == NULL) {
         HDF_LOGE("%s: open uart port:%u fail!", __func__, tester.config.port);
+        UartBufFree(&tester.config);
         return NULL;
     }
     return &tester;
@@ -116,6 +136,7 @@ static void UartTesterPut(struct UartTester *tester)
         HDF_LOGE("%s: uart handle is null", __func__);
         return;
     }
+    UartBufFree(&tester->config);
     UartClose(tester->handle);
     tester->handle = NULL;
 }

@@ -82,12 +82,6 @@ static int32_t UartTestReadConfig(struct UartTestConfig *config, const struct De
         config->wbuf[i] = tmp[i];
     }
     OsalMemFree(tmp);
-    config->rbuf = (uint8_t *)OsalMemCalloc(config->len);
-    if (config->rbuf == NULL) {
-        HDF_LOGE("%s: rbuf OsalMemCalloc error\n", __func__);
-        OsalMemFree(config->wbuf);
-        return HDF_ERR_MALLOC_FAIL;
-    }
     return HDF_SUCCESS;
 }
 
@@ -124,6 +118,8 @@ static void UartTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
+    OsalMemFree(g_config.wbuf);
+    g_config.wbuf =  NULL;
     return;
 }
 

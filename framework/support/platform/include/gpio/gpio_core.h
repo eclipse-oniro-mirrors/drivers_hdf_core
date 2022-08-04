@@ -42,6 +42,7 @@ struct GpioCntlr {
     uint16_t start;
     uint16_t count;
     struct GpioInfo *ginfos;
+    bool isAutoAlloced;
     void *priv;
 };
 
@@ -190,6 +191,10 @@ int32_t GpioCntlrEnableIrq(struct GpioCntlr *cntlr, uint16_t local);
 int32_t GpioCntlrDisableIrq(struct GpioCntlr *cntlr, uint16_t local);
 
 void GpioCntlrIrqCallback(struct GpioCntlr *cntlr, uint16_t local);
+
+int32_t GpioCntlrGetNumByGpioName(struct GpioCntlr *cntlr, const char *gpioName);
+
+struct GpioCntlr *GpioCntlrGetByGpioName(const char *gpioName);
 
 struct PlatformManager *GpioManagerGet(void);
 

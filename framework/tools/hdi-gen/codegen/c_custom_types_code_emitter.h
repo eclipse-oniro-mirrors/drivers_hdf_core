@@ -56,7 +56,23 @@ private:
 
     void EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
 
+    void EmitMarshallingVarDecl(const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb,
+        const String &prefix);
+
+    void EmitUnmarshallingVarDecl(const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb,
+        const String &prefix);
+
+    void EmitMarshallingParamCheck(const String &name, StringBuilder &sb, const String &prefix);
+
+    void EmitUnmarshallingParamCheck(const String &name, StringBuilder &sb, const String &prefix);
+
+    void EmitPodTypeUnmarshalling(const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb,
+        const String &prefix);
+
     void EmitMemberUnmarshalling(const AutoPtr<ASTType> &type, const String &name, const String &memberName,
+        StringBuilder &sb, const String &prefix);
+
+    void EmitStringMemberUnmarshalling(const AutoPtr<ASTType> &type, const String &memberName, const String &varName,
         StringBuilder &sb, const String &prefix);
 
     void EmitArrayMemberUnmarshalling(const AutoPtr<ASTType> &type, const String &memberName, const String &varName,
@@ -64,12 +80,12 @@ private:
 
     void EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
 
-    bool NeedEmitInitVar(const AutoPtr<ASTType> &type);
+    bool NeedEmitInitVar(const AutoPtr<ASTType> &type, bool needFree);
 
     void EmitCustomTypeMemoryRecycle(
         const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb, const String &prefix);
 
-    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
+    void GetUtilMethods(UtilMethodMap &methods) override;
 
     std::vector<String> freeObjStatements_;
 };

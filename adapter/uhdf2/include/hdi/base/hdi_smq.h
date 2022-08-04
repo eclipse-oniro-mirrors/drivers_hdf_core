@@ -82,7 +82,6 @@ private:
     size_t Align(size_t num, size_t alignSize);
 
     int32_t status = HDF_FAILURE;
-    size_t alignedElmtSize_;
     uint8_t *queueBuffer_ = nullptr;
     std::atomic<uint64_t> *readOffset_ = nullptr;
     std::atomic<uint64_t> *writeOffset_ = nullptr;
@@ -92,7 +91,7 @@ private:
 };
 
 template <typename T>
-SharedMemQueue<T>::SharedMemQueue(uint32_t elementCount, SmqType type) : alignedElmtSize_(0)
+SharedMemQueue<T>::SharedMemQueue(uint32_t elementCount, SmqType type)
 {
     if (elementCount > UINT16_MAX) {
         return;
@@ -106,12 +105,11 @@ SharedMemQueue<T>::SharedMemQueue(uint32_t elementCount, SmqType type) : aligned
         return;
     }
     meta_->SetFd(ashmemFd);
-    alignedElmtSize_ = meta_->GetElemenetSize();
     Init(true);
 }
 
 template <typename T>
-SharedMemQueue<T>::SharedMemQueue(const SharedMemQueueMeta<T> &meta) : alignedElmtSize_(meta.GetElemenetSize())
+SharedMemQueue<T>::SharedMemQueue(const SharedMemQueueMeta<T> &meta)
 {
     meta_ = std::make_shared<SharedMemQueueMeta<T>>(meta);
     Init(false);
@@ -143,7 +141,7 @@ SharedMemQueue<T>::~SharedMemQueue()
 template <typename T>
 void SharedMemQueue<T>::Init(bool resetWriteOffset)
 {
-    if (meta_ == nullptr || meta_->GetElemenetSize() != sizeof(T)) {
+    if (meta_ == nullptr) {
         HDF_LOGE("invalid smq meta for init");
         return;
     }
@@ -196,8 +194,8 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
         return reinterpret_cast<uintptr_t>(nullptr);
     }
 
-    int offset = (memzone->offset / PAGE_SIZE) * PAGE_SIZE;
-    int length = memzone->offset - offset + memzone->size;
+    int offset = (static_cast<int>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    int length = static_cast<int>(memzone->offset) - offset + static_cast<int>(memzone->size);
 
     void *ptr = mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, meta_->GetFd(), offset);
     if (ptr == MAP_FAILED) {
@@ -206,7 +204,7 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
             zoneType, length, offset, meta_->GetFd(), errno);
         return reinterpret_cast<uintptr_t>(nullptr);
     }
-    return (reinterpret_cast<uintptr_t>(ptr) + (memzone->offset - offset));
+    return (reinterpret_cast<uintptr_t>(ptr) + (static_cast<int>(memzone->offset) - offset));
 }
 
 template <typename T>
@@ -216,9 +214,9 @@ void SharedMemQueue<T>::UnMapMemZone(void *addr, uint32_t zoneType)
     if (memzone == nullptr) {
         return;
     }
-    int offset = (memzone->offset / PAGE_SIZE) * PAGE_SIZE;
-    int length = memzone->offset - offset + memzone->size;
-    uint8_t *ptr = reinterpret_cast<uint8_t *>(addr) - (memzone->offset - offset);
+    int offset = (static_cast<int>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    int length = static_cast<int>(memzone->offset) - offset + static_cast<int>(memzone->size);
+    uint8_t *ptr = reinterpret_cast<uint8_t *>(addr) - (static_cast<int>(memzone->offset) - offset);
     if (ptr == nullptr) {
         return;
     }

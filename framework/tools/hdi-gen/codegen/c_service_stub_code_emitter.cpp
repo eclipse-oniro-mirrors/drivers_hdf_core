@@ -115,7 +115,11 @@ void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
     EmitLicense(sb);
     EmitStubSourceInclusions(sb);
     sb.Append("\n");
-    EmitUtilMethods(sb, "");
+    UtilMethodMap utilMethods;
+    GetUtilMethods(utilMethods);
+    EmitUtilMethods(sb, "", utilMethods, true);
+    sb.Append("\n");
+    EmitUtilMethods(sb, "", utilMethods, false);
     EmitServiceStubMethodImpls(sb, "");
     sb.Append("\n");
     EmitStubOnRequestMethodImpl(sb, "");
@@ -198,7 +202,7 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
     }
 
     // Local variable definitions must precede all execution statements.
-    EmitInitLoopVar(method, sb, prefix + TAB);
+    EmitMethodNeedLoopVar(method, true, true, sb, prefix + TAB);
 
     if (method->GetParameterNumber() > 0) {
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
@@ -550,25 +554,19 @@ void CServiceStubCodeEmitter::EmitStubReleaseImpl(StringBuilder &sb)
     sb.Append("}");
 }
 
-void CServiceStubCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    UtilMethodMap methods;
     for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
             } else {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
             }
         }
-    }
-
-    for (const auto &methodPair : methods) {
-        sb.Append("\n");
-        methodPair.second(sb, "", prefix, false);
     }
 }
 } // namespace HDI

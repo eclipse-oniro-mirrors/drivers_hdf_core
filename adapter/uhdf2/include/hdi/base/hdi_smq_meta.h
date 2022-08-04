@@ -20,6 +20,7 @@
 #include <memory>
 #include <message_parcel.h>
 #include <unistd.h>
+#include "securec.h"
 
 #ifndef HDF_LOG_TAG
 #define HDF_LOG_TAG smq
@@ -82,7 +83,7 @@ private:
 
 template <typename T>
 SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType type)
-    : ashmemFd_(fd), size_(0), elementCount_(elementCount), elementSize_(AlignToWord(sizeof(T))), type_(type)
+    : ashmemFd_(fd), size_(0), elementCount_(elementCount), elementSize_(sizeof(T)), type_(type)
 {
     // max size UIN32_MAX byte
     if (elementCount_ > UINT32_MAX / elementSize_) {
@@ -121,7 +122,9 @@ SharedMemQueueMeta<T>::SharedMemQueueMeta(const SharedMemQueueMeta<T> &other)
     elementSize_ = other.elementSize_;
     size_ = other.size_;
     type_ = other.type_;
-    memcpy(memzone_, other.memzone_, sizeof(memzone_));
+    if (memcpy_s(memzone_, sizeof(memzone_), other.memzone_, sizeof(other.memzone_)) != EOK) {
+        HDF_LOGW("failed to memcpy_s memzone_");
+    }
 }
 
 template <typename T>

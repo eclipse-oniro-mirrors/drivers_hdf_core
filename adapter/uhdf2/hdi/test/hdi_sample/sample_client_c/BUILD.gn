@@ -30,9 +30,9 @@ ohos_unittest("HdiSampleTestC") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 }

@@ -197,13 +197,9 @@ void CppServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb)
     sb.Append(TAB).AppendFormat(".Release = Hdf%sDriverRelease,\n", baseName_.string());
     sb.Append("};\n");
     sb.Append("\n");
-    sb.Append("#ifndef __cplusplus\n");
-    sb.Append("extern \"C\" {\n");
-    sb.Append("#endif\n");
+    EmitHeadExternC(sb);
     sb.AppendFormat("HDF_INIT(g_%sDriverEntry);\n", baseName_.ToLowerCase().string());
-    sb.Append("#ifndef __cplusplus\n");
-    sb.Append("}\n");
-    sb.Append("#endif\n");
+    EmitTailExternC(sb);
 }
 } // namespace HDI
 } // namespace OHOS

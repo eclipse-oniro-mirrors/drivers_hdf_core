@@ -120,7 +120,7 @@ int32_t DecompileGen::PrintBaseType(const std::shared_ptr<AstObject> &astObj)
     return NOERR;
 }
 
-int32_t DecompileGen::OutPutWalk(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth)
+uint32_t DecompileGen::OutPutWalk(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth)
 {
     if (astObj->Type() != PARSEROP_CONFNODE && astObj->Type() != PARSEROP_CONFTERM) {
         return NOERR;
@@ -155,7 +155,7 @@ int32_t DecompileGen::OutPutWalk(const std::shared_ptr<AstObject> &astObj, int32
     return 0;
 }
 
-int32_t DecompileGen::CloseBrace(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth)
+uint32_t DecompileGen::CloseBrace(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth)
 {
     if (astObj->Type() != PARSEROP_CONFNODE) {
         return NOERR;

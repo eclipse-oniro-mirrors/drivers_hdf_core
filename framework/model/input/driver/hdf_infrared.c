@@ -15,17 +15,18 @@
 #include "hdf_input_device_manager.h"
 #include "event_hub.h"
 
-#define AVERAGE_ERROR 15
-#define PILOT_CODE 225
-#define LOGIC_1 84
+#define AVERAGE_ERROR 20
+#define PILOT_CODE 180
+#define LOGIC_1 75
 #define LOGIC_0 28
 #define MAX_DATA_LEN 32
+#define MAX_TIME_LIMIT 250
 
 /* {key value, key input event} */
 static struct InfraredKey g_infraredKeyTable[] = {
-    {0xA2, KEY_CHANNELUP},
+    {0xA2, KEY_CHANNELDOWN},
     {0x62, KEY_CHANNEL},
-    {0xE2, KEY_CHANNELDOWN},
+    {0xE2, KEY_CHANNELUP},
     {0x22, KEY_PREVIOUSSONG},
     {0x02, KEY_NEXTSONG},
     {0xC2, KEY_PLAYPAUSE},
@@ -56,10 +57,10 @@ static uint16_t TimeCounter(uint16_t intGpioNum)
         return HDF_FAILURE;
     }
 
-    while (gpioValue == 1) {
+    while (gpioValue == GPIO_VAL_HIGH) {
         counter++;
         OsalUDelay(20); // delay 20us
-        if (counter >= PILOT_CODE) {
+        if (counter >= MAX_TIME_LIMIT) {
             return counter;
         }
         ret = GpioRead(intGpioNum, &gpioValue);
@@ -79,12 +80,11 @@ static void RecvDataHandle(InfraredDriver *infraredDrv, uint32_t data)
 
     uint32_t i;
     for (i = 0; i < (sizeof(g_infraredKeyTable) / sizeof(g_infraredKeyTable[0])); ++i) {
-        if (g_infraredKeyTable[i].value == (data & 0xFF00)) {
+        if (g_infraredKeyTable[i].value == ((data & 0xFF00) >> 8)) { // 8 bit
             input_report_key(infraredDrv->inputDev, g_infraredKeyTable[i].infraredCode, 1);
             break;
         }
     }
-
     input_report_key(infraredDrv->inputDev, g_infraredKeyTable[i].infraredCode, 0);
     input_sync(infraredDrv->inputDev);
 }
@@ -105,12 +105,12 @@ static void EventHandle(InfraredDriver *infraredDrv)
             return;
         }
 
-        if (gpioValue == 1) {
+        if (gpioValue == GPIO_VAL_HIGH) {
             counter = TimeCounter(infraredDrv->infraredCfg->gpioNum);
-            if (counter >= PILOT_CODE + AVERAGE_ERROR) {
+            if (counter >= MAX_TIME_LIMIT) {
                 break;
             }
-            if ((counter >=  PILOT_CODE - AVERAGE_ERROR) && (counter < PILOT_CODE + AVERAGE_ERROR)) {
+            if ((counter >=  PILOT_CODE - AVERAGE_ERROR) && (counter < MAX_TIME_LIMIT)) {
                 recvFlag = 1;
             } else if ((counter >= LOGIC_1 - AVERAGE_ERROR) && (counter < LOGIC_1 + AVERAGE_ERROR)) {
                 dataBit = 1;
@@ -157,7 +157,11 @@ int32_t InfraredIrqHandle(uint16_t intGpioNum, void *data)
 
     EventHandle(driver);
 
-    GpioEnableIrq(intGpioNum);
+    ret = GpioEnableIrq(intGpioNum);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: enable irq failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }
 
@@ -222,6 +226,12 @@ static InfraredDriver *InfraredDriverInstance(InfraredCfg *infraredCfg)
         HDF_LOGE("%s: malloc infrared driver failed", __func__);
         return NULL;
     }
+    ret = memset_s(infraredDrv, sizeof(InfraredDriver), 0, sizeof(InfraredDriver));
+    if (ret != 0) {
+        HDF_LOGE("%s: memset infrared driver failed", __func__);
+        OsalMemFree(infraredDrv);
+        return NULL;
+    }
 
     infraredDrv->devType = infraredCfg->devType;
     infraredDrv->infraredCfg = infraredCfg;
@@ -240,6 +250,7 @@ static InputDevice *InputDeviceInstance(InfraredDriver *infraredDrv)
 
     inputDev->pvtData = (void *)infraredDrv;
     inputDev->devType = infraredDrv->devType;
+    inputDev->devName = infraredDrv->infraredCfg->infraredName;
     inputDev->hdfDevObj = infraredDrv->infraredCfg->hdfInfraredDev;
     infraredDrv->inputDev = inputDev;
 
@@ -315,6 +326,24 @@ static int32_t HdfInfraredDispatch(struct HdfDeviceIoClient *client, int cmd, st
     return HDF_SUCCESS;
 }
 
+static void HdfInfraredDriverRelease(struct HdfDeviceObject *device)
+{
+    InfraredDriver *driver = NULL;
+    InputDevice *inputDev = NULL;
+
+    if (device == NULL || device->priv == NULL) {
+        HDF_LOGE("%s: param is null", __func__);
+        return;
+    }
+    driver = (InfraredDriver *)device->priv;
+    inputDev = driver->inputDev;
+    if (inputDev != NULL) {
+        UnregisterInputDevice(inputDev);
+        driver->inputDev = NULL;
+    }
+    OsalMemFree(driver);
+}
+
 static int32_t HdfInfraredDriverBind(struct HdfDeviceObject *device)
 {
     if (device == NULL) {
@@ -333,6 +362,7 @@ struct HdfDriverEntry g_hdfInfraredEntry = {
     .moduleName = "HDF_INFRARED",
     .Bind = HdfInfraredDriverBind,
     .Init = HdfInfraredDriverInit,
+    .Release = HdfInfraredDriverRelease,
 };
 
 HDF_INIT(g_hdfInfraredEntry);

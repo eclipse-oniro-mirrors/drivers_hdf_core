@@ -294,14 +294,14 @@ void ASTType::EmitJavaReadInnerVar(
     sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
 }
 
-void ASTType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
     // register methods that generate write util methods
     (void)language;
     (void)methods;
 }
 
-void ASTType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
     // register methods that generate read util methods
     (void)language;

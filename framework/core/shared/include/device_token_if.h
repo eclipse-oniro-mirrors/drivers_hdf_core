@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -15,6 +15,8 @@
 struct IHdfDeviceToken {
     struct HdfObject object;
     devid_t devid;
+    const char *servName;
+    const char *deviceName;
 };
 
 #endif /* DEVICE_TOKEN_IF_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,19 +26,22 @@
 #define HDF_LOG_TAG devsvc_manager_proxy
 
 static int WriteServiceInfo(
-    struct HdfSBuf *data, const char *svcName, uint16_t devClass, struct HdfDeviceObject *service, const char *servInfo)
+    struct HdfSBuf *data, struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     int ret = HDF_FAILURE;
-    if (!HdfSbufWriteString(data, svcName)) {
+    if (!HdfSbufWriteString(data, servInfo->servName)) {
         HDF_LOGE("Add service failed, failed to write service name");
         return ret;
     }
 
-    if (!HdfSbufWriteUint16(data, devClass)) {
+    if (!HdfSbufWriteUint16(data, servInfo->devClass)) {
         HDF_LOGE("Add service failed, failed to write devClass");
         return ret;
     }
-
+    if (!HdfSbufWriteUint32(data, servInfo->devId)) {
+        HDF_LOGE("Add service failed, failed to write devId");
+        return ret;
+    }
     struct HdfDeviceNode *devNode =
         HDF_SLIST_CONTAINER_OF(struct HdfDeviceObject, service, struct HdfDeviceNode, deviceObject);
     struct DeviceServiceStub *deviceFullService = (struct DeviceServiceStub *)devNode;
@@ -51,7 +54,7 @@ static int WriteServiceInfo(
         HDF_LOGE("Add service failed, failed to write remote object");
         return ret;
     }
-    const char *info = servInfo != NULL ? servInfo : "";
+    const char *info = servInfo->servInfo != NULL ? servInfo->servInfo : "";
     if (!HdfSbufWriteString(data, info)) {
         HDF_LOGE("Add service failed, failed to write serv info");
         return HDF_FAILURE;
@@ -60,11 +63,11 @@ static int WriteServiceInfo(
     return HDF_SUCCESS;
 }
 
-static int DevSvcManagerProxyAddService(struct IDevSvcManager *inst, const char *svcName, uint16_t devClass,
-    struct HdfDeviceObject *service, const char *servInfo)
+static int DevSvcManagerProxyAddService(
+    struct IDevSvcManager *inst, struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
-    if (service == NULL || svcName == NULL) {
+    if (service == NULL || servInfo->servName == NULL) {
         HDF_LOGE("%{public}s:service or name is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -73,7 +76,7 @@ static int DevSvcManagerProxyAddService(struct IDevSvcManager *inst, const char 
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (devClass >= DEVICE_CLASS_MAX) {
+    if (servInfo->devClass >= DEVICE_CLASS_MAX) {
         HDF_LOGE("Add service failed, devClass is invalid");
         return HDF_ERR_INVALID_PARAM;
     }
@@ -87,12 +90,12 @@ static int DevSvcManagerProxyAddService(struct IDevSvcManager *inst, const char 
             break;
         }
         if (!HdfRemoteServiceWriteInterfaceToken(serviceProxy->remote, data) ||
-            WriteServiceInfo(data, svcName, devClass, service, servInfo) != HDF_SUCCESS) {
+            WriteServiceInfo(data, service, servInfo) != HDF_SUCCESS) {
             break;
         }
         status =
             serviceProxy->remote->dispatcher->Dispatch(serviceProxy->remote, DEVSVC_MANAGER_ADD_SERVICE, data, reply);
-        HDF_LOGI("servmgr add service %{public}s, result is %{public}d", svcName, status);
+        HDF_LOGI("servmgr add service %{public}s, result is %{public}d", servInfo->servName, status);
     } while (0);
 
     if (reply != NULL) {
@@ -104,11 +107,11 @@ static int DevSvcManagerProxyAddService(struct IDevSvcManager *inst, const char 
     return status;
 }
 
-static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst, const char *svcName, uint16_t devClass,
-    struct HdfDeviceObject *service, const char *servInfo)
+static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
+    struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
-    if (service == NULL || svcName == NULL) {
+    if (service == NULL || servInfo->servName == NULL) {
         HDF_LOGE("%{public}s:service or name is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -117,7 +120,7 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst, const ch
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (devClass >= DEVICE_CLASS_MAX) {
+    if (servInfo->devClass >= DEVICE_CLASS_MAX) {
         HDF_LOGE("Add service failed, devClass is invalid");
         return HDF_ERR_INVALID_PARAM;
     }
@@ -131,12 +134,12 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst, const ch
             break;
         }
         if (!HdfRemoteServiceWriteInterfaceToken(serviceProxy->remote, data) ||
-            WriteServiceInfo(data, svcName, devClass, service, servInfo) != HDF_SUCCESS) {
+            WriteServiceInfo(data, service, servInfo) != HDF_SUCCESS) {
             break;
         }
         status = serviceProxy->remote->dispatcher->Dispatch(
             serviceProxy->remote, DEVSVC_MANAGER_UPDATE_SERVICE, data, reply);
-        HDF_LOGI("servmgr update service %{public}s, result is %{public}d", svcName, status);
+        HDF_LOGI("servmgr update service %{public}s, result is %{public}d", servInfo->servName, status);
     } while (0);
 
     if (reply != NULL) {

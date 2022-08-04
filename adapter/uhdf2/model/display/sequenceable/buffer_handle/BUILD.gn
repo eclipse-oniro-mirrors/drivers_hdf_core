@@ -27,9 +27,9 @@ ohos_shared_library("libbuffer_handle_sequenceable_1.0") {
   public_configs = [ ":buffer_handle_sequenceable_config" ]
 
   external_deps = [
+    "c_utils:utils",
     "graphic_chipsetsdk:buffer_handle",
     "ipc:ipc_single",
-    "utils_base:utils",
   ]
 
   install_images = [ chipset_base_dir ]

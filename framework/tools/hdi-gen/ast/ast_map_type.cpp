@@ -194,16 +194,16 @@ void ASTMapType::EmitJavaReadInnerVar(
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTMapType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
-    keyType_->RegisterWriteMethod(language, methods);
-    valueType_->RegisterWriteMethod(language, methods);
+    keyType_->RegisterWriteMethod(language, mode, methods);
+    valueType_->RegisterWriteMethod(language, mode, methods);
 }
 
-void ASTMapType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+void ASTMapType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
-    keyType_->RegisterReadMethod(language, methods);
-    valueType_->RegisterReadMethod(language, methods);
+    keyType_->RegisterReadMethod(language, mode, methods);
+    valueType_->RegisterReadMethod(language, mode, methods);
 }
 } // namespace HDI
 } // namespace OHOS

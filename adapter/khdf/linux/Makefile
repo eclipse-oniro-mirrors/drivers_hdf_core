@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd.
 #
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
@@ -14,7 +14,6 @@
 CURRENT_DIR := $(abspath $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 obj-$(CONFIG_DRIVERS_HDF) += osal/
-obj-$(CONFIG_DRIVERS_HDF) += network/
 obj-$(CONFIG_DRIVERS_HDF) += utils/
 
 $(warning PRODUCT_PATH=$(PRODUCT_PATH))
@@ -55,3 +54,4 @@ obj-$(CONFIG_DRIVERS_HDF_LIGHT) += model/misc/light/
 obj-$(CONFIG_DRIVERS_HDF_VIBRATOR) += model/misc/vibrator/
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += model/audio/
 obj-$(CONFIG_DRIVERS_HDF_DSOFTBUS) += model/misc/dsoftbus/
+obj-$(CONFIG_DRIVERS_HDF_NETWORK) += network/

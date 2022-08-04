@@ -27,18 +27,60 @@ void CCodeEmitter::EmitInterfaceMethodParameter(
     sb.Append(prefix).Append(parameter->EmitCParameter());
 }
 
-void CCodeEmitter::EmitInitLoopVar(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+void CCodeEmitter::EmitMethodNeedLoopVar(
+    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const String &prefix)
 {
-    if (isKernelCode_) {
-        for (size_t i = 0; i < method->GetParameterNumber(); i++) {
-            AutoPtr<ASTParameter> param = method->GetParameter(i);
-            AutoPtr<ASTType> type = param->GetType();
-            if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST) {
-                sb.Append(prefix).Append("uint32_t i = 0;\n");
-                break;
-            }
+    if (!isKernelCode_) {
+        return;
+    }
+
+    for (size_t i = 0; i < method->GetParameterNumber(); i++) {
+        AutoPtr<ASTParameter> param = method->GetParameter(i);
+        if (EmitNeedLoopVar(param->GetType(), needRW, needFree)) {
+            sb.Append(prefix).Append("uint32_t i = 0;\n");
+            break;
         }
     }
+}
+
+bool CCodeEmitter::EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree)
+{
+    if (type == nullptr) {
+        return false;
+    }
+
+    auto rwNeedLoopVar = [needRW](const AutoPtr<ASTType> &elementType) -> bool {
+        if (!needRW) {
+            return false;
+        }
+
+        if (elementType->IsPod()) {
+            return elementType->IsBooleanType() ? true : false;
+        }
+
+        return elementType->IsStringType() ? false : true;
+    };
+
+    auto freeNeedLoopVar = [needFree](const AutoPtr<ASTType> &elementType) -> bool {
+        if (!needFree) {
+            return false;
+        }
+        return elementType->IsPod() ? false : true;
+    };
+
+    if (type->IsArrayType()) {
+        AutoPtr<ASTArrayType> ArrType = dynamic_cast<ASTArrayType *>(type.Get());
+        if (rwNeedLoopVar(ArrType->GetElementType()) || freeNeedLoopVar(ArrType->GetElementType())) {
+            return true;
+        }
+    } else if (type->IsListType()) {
+        AutoPtr<ASTListType> ListType = dynamic_cast<ASTListType *>(type.Get());
+        if (rwNeedLoopVar(ListType->GetElementType()) || freeNeedLoopVar(ListType->GetElementType())) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void CCodeEmitter::EmitErrorHandle(

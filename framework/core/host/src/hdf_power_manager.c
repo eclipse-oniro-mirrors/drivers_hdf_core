@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -31,7 +31,7 @@ struct PmTaskQueue *HdfPmTaskQueueInit(HdfTaskFunc func)
     if (pmTaskQueue->taskQueue == NULL) {
         pmTaskQueue->taskQueue = HdfTaskQueueCreate(func, "pm_queue");
         if (pmTaskQueue->taskQueue != NULL) {
-            HDF_LOGI("%s HdfTaskQueueCreate success", __func__);
+            HDF_LOGI("%{public}s HdfTaskQueueCreate success", __func__);
         }
     }
 
@@ -81,7 +81,7 @@ void HdfPmTaskPut(struct PowerStateToken *powerToken, HDF_PM_REQUEST_TYPE type)
     pmTaskQueue = HdfPmTaskQueueInstance();
     pmRequest = (struct HdfPmRequest *)OsalMemCalloc(sizeof(*pmRequest));
     if (pmRequest == NULL) {
-        HDF_LOGI("%s OsalMemCalloc fail", __func__);
+        HDF_LOGI("%{public}s OsalMemCalloc fail", __func__);
         return;
     }
 

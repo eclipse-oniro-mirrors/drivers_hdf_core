@@ -59,7 +59,7 @@ static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bo
 
     hostClnt->hostPid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName, dynamic);
     if (hostClnt->hostPid == HDF_FAILURE) {
-        HDF_LOGW("failed to start device host(%s, %u)", hostClnt->hostName, hostClnt->hostId);
+        HDF_LOGW("failed to start device host(%{public}s, %{public}u)", hostClnt->hostName, hostClnt->hostId);
         return HDF_FAILURE;
     }
     hostClnt->stopFlag = false;
@@ -73,7 +73,7 @@ static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bo
     }
 
     if (waitCount <= 0) {
-        HDF_LOGE("wait host(%s, %d) attach timeout", hostClnt->hostName, hostClnt->hostId);
+        HDF_LOGE("wait host(%{public}s, %{public}d) attach timeout", hostClnt->hostName, hostClnt->hostId);
         hostClnt->hostPid = -1;
         return HDF_ERR_TIMEOUT;
     }
@@ -94,18 +94,18 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
     }
 
     if (!DevmgrServiceDynamicDevInfoFound(serviceName, &hostClnt, &deviceInfo)) {
-        HDF_LOGE("device %s not in configed device list", serviceName);
+        HDF_LOGE("device %{public}s not in configed device list", serviceName);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
     if (deviceInfo->preload != DEVICE_PRELOAD_DISABLE) {
-        HDF_LOGE("device %s not an dynamic load device", serviceName);
+        HDF_LOGE("device %{public}s not an dynamic load device", serviceName);
         return HDF_DEV_ERR_NORANGE;
     }
 
     dynamic = HdfSListIsEmpty(&hostClnt->unloadDevInfos) && !HdfSListIsEmpty(&hostClnt->dynamicDevInfos);
     if (hostClnt->hostPid < 0 && DevmgrServiceStartHostProcess(hostClnt, true, dynamic) != HDF_SUCCESS) {
-        HDF_LOGW("failed to start device host(%s, %u)", hostClnt->hostName, hostClnt->hostId);
+        HDF_LOGW("failed to start device host(%{public}s, %{public}u)", hostClnt->hostName, hostClnt->hostId);
         return HDF_FAILURE;
     }
     ret = hostClnt->hostService->AddDevice(hostClnt->hostService, deviceInfo);
@@ -140,7 +140,7 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
 
     if (!DevmgrServiceDynamicDevInfoFound(serviceName, &hostClnt, &deviceInfo) ||
         deviceInfo->preload != DEVICE_PRELOAD_DISABLE) {
-        HDF_LOGE("device %s not in configed dynamic device list", serviceName);
+        HDF_LOGE("device %{public}s not in configed dynamic device list", serviceName);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
@@ -177,7 +177,7 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
             if (deviceInfo->preload == DEVICE_PRELOAD_ENABLE_STEP2) {
                 ret = hostClnt->hostService->AddDevice(hostClnt->hostService, deviceInfo);
                 if (ret != HDF_SUCCESS) {
-                    HDF_LOGE("%s:failed to load driver %s", __func__, deviceInfo->moduleName);
+                    HDF_LOGE("%{public}s:failed to load driver %{public}s", __func__, deviceInfo->moduleName);
                     continue;
                 }
                 deviceInfo->status = HDF_SERVICE_USABLE;
@@ -202,7 +202,7 @@ static struct DevHostServiceClnt *DevmgrServiceFindDeviceHost(struct IDevmgrServ
             return hostClnt;
         }
     }
-    HDF_LOGE("cannot find host %u", hostId);
+    HDF_LOGE("cannot find host %{public}u", hostId);
     return NULL;
 }
 
@@ -245,7 +245,7 @@ static int DevmgrServiceDetachDevice(struct IDevmgrService *inst, devid_t devid)
     }
     tokenClntNode = HdfSListSearch(&hostClnt->devices, devid, HdfSListHostSearchDeviceTokenComparer);
     if (tokenClntNode == NULL) {
-        HDF_LOGE("devmgr detach device %x not found", devid);
+        HDF_LOGE("devmgr detach device %{public}x not found", devid);
         return HDF_DEV_ERR_NO_DEVICE;
     }
     tokenClnt = CONTAINER_OF(tokenClntNode, struct DeviceTokenClnt, node);
@@ -279,7 +279,7 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
     }
 
     if (HdfAttributeManagerGetDeviceList(hostClnt) != HDF_SUCCESS) {
-        HDF_LOGW("failed to get device list for host %s", hostClnt->hostName);
+        HDF_LOGW("failed to get device list for host %{public}s", hostClnt->hostName);
         return HDF_FAILURE;
     }
 
@@ -291,7 +291,7 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
     }
 
     if (DevmgrServiceStartHostProcess(hostClnt, false, false) != HDF_SUCCESS) {
-        HDF_LOGW("failed to start device host, host id is %u", hostAttr->hostId);
+        HDF_LOGW("failed to start device host, host id is %{public}u", hostAttr->hostId);
         DListRemove(&hostClnt->node);
         DevHostServiceClntFreeInstance(hostClnt);
         return HDF_FAILURE;
@@ -316,8 +316,8 @@ static int DevmgrServiceStartDeviceHosts(struct DevmgrService *inst)
         hostAttr = (struct HdfHostInfo *)HdfSListIteratorNext(&it);
         ret = DevmgrServiceStartDeviceHost(inst, hostAttr);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGW("%s failed to start device host, host id is %u, host name is '%s'", __func__, hostAttr->hostId,
-                hostAttr->hostName);
+            HDF_LOGW("%{public}s failed to start device host, host id is %{public}u, host name is '%{public}s'",
+                __func__, hostAttr->hostId, hostAttr->hostName);
         }
     }
     HdfSListFlush(&hostList, HdfHostInfoDelete);
@@ -330,21 +330,28 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
     struct DevHostServiceClnt *hostClnt = NULL;
     struct HdfSListIterator iterator;
     struct HdfSListNode *node = NULL;
+    const char *name = NULL;
 
     if (devMgrSvc == NULL || reply == NULL) {
         HDF_LOGE("%{public}s failed, parameter is null", __func__);
         return HDF_FAILURE;
     }
+
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSbufWriteString(reply, hostClnt->hostName);
         HdfSbufWriteUint32(reply, hostClnt->hostId);
         HdfSbufWriteUint32(reply, HdfSListCount(&hostClnt->devices));
+
         HdfSListIteratorInit(&iterator, &hostClnt->devices);
         while (HdfSListIteratorHasNext(&iterator)) {
             node = HdfSListIteratorNext(&iterator);
             struct DeviceTokenClnt *tokenClnt = (struct DeviceTokenClnt *)node;
             if (tokenClnt != NULL && tokenClnt->tokenIf != NULL) {
+                name = (tokenClnt->tokenIf->deviceName == NULL) ? "" : tokenClnt->tokenIf->deviceName;
+                HdfSbufWriteString(reply, name);
                 HdfSbufWriteUint32(reply, tokenClnt->tokenIf->devid);
+                name = (tokenClnt->tokenIf->servName == NULL) ? "" : tokenClnt->tokenIf->servName;
+                HdfSbufWriteString(reply, name);
             } else {
                 HDF_LOGI("%{public}s host:%{public}s token null", __func__, hostClnt->hostName);
             }
@@ -363,7 +370,7 @@ int DevmgrServiceStartService(struct IDevmgrService *inst)
     }
 
     ret = DevSvcManagerStartService();
-    HDF_LOGI("start svcmgr result %d", ret);
+    HDF_LOGI("start svcmgr result %{public}d", ret);
 
     return DevmgrServiceStartDeviceHosts(dmService);
 }
@@ -379,13 +386,13 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
     }
 
     if (!IsValidPowerState(powerState)) {
-        HDF_LOGE("%s:invalid power event %u", __func__, powerState);
+        HDF_LOGE("%{public}s:invalid power event %{public}u", __func__, powerState);
         return HDF_ERR_INVALID_PARAM;
     }
     devmgr = CONTAINER_OF(devmgrService, struct DevmgrService, super);
 
     if (IsPowerWakeState(powerState)) {
-        HDF_LOGI("%s:wake state %u", __func__, powerState);
+        HDF_LOGI("%{public}s:wake state %{public}u", __func__, powerState);
         DLIST_FOR_EACH_ENTRY(hostClient, &devmgr->hosts, struct DevHostServiceClnt, node) {
             if (hostClient->hostService != NULL) {
                 if (hostClient->hostService->PmNotify(hostClient->hostService, powerState) != HDF_SUCCESS) {
@@ -394,7 +401,7 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
             }
         }
     } else {
-        HDF_LOGI("%s:suspend state %u", __func__, powerState);
+        HDF_LOGI("%{public}s:suspend state %{public}u", __func__, powerState);
         DLIST_FOR_EACH_ENTRY_REVERSE(hostClient, &devmgr->hosts, struct DevHostServiceClnt, node) {
             if (hostClient->hostService != NULL) {
                 if (hostClient->hostService->PmNotify(hostClient->hostService, powerState) != HDF_SUCCESS) {

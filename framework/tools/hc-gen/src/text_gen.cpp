@@ -349,9 +349,9 @@ bool TextGen::OutputImplGlobalVariables()
     return ast_->WalkRound(forwardWalkFunc, backwardWalkFunc);
 }
 
-const std::string &TextGen::Indent(uint32_t times)
+const std::string &TextGen::Indent(int32_t times)
 {
-    static std::map<uint32_t, std::string> indentMap;
+    static std::map<int32_t, std::string> indentMap;
     auto indent = indentMap.find(times);
     if (indent == indentMap.end()) {
         auto str = std::string();

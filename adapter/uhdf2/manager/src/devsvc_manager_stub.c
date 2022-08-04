@@ -115,19 +115,24 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
         HDF_LOGE("%{public}s: invalid interface token", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    const char *name = HdfSbufReadString(data);
-    if (name == NULL) {
+    struct HdfServiceInfo info;
+    info.servName = HdfSbufReadString(data);
+    if (info.servName == NULL) {
         HDF_LOGE("%{public}s failed, name is null", __func__);
         return ret;
     }
-    ret = AddServicePermCheck(name);
+    ret = AddServicePermCheck(info.servName);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
 
-    uint16_t devClass = DEVICE_CLASS_DEFAULT;
-    if (!HdfSbufReadUint16(data, &devClass)) {
+    info.devClass = DEVICE_CLASS_DEFAULT;
+    if (!HdfSbufReadUint16(data, &info.devClass)) {
         HDF_LOGE("%{public}s failed, devClass invalid", __func__);
+        return ret;
+    }
+    if (!HdfSbufReadUint32(data, &info.devId)) {
+        HDF_LOGE("%{public}s failed, devId invalid", __func__);
         return ret;
     }
 
@@ -136,20 +141,20 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
         HDF_LOGE("%{public}s failed, service is null", __func__);
         return ret;
     }
-    const char *servInfo = HdfSbufReadString(data);
-    struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, name, service);
+    info.servInfo = HdfSbufReadString(data);
+    struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, info.servName, service);
     if (serviceObject == NULL) {
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    struct HdfDeviceObject *oldServiceObject = super->GetObject(super, name);
-    ret = super->AddService(super, name, devClass, serviceObject, servInfo);
+    struct HdfDeviceObject *oldServiceObject = super->GetObject(super, info.servName);
+    ret = super->AddService(super, serviceObject, &info);
     if (ret != HDF_SUCCESS) {
         ReleaseServiceObject(stub, serviceObject);
     } else {
         ReleaseServiceObject(stub, oldServiceObject);
     }
-    HDF_LOGI("add service %{public}s, %{public}d", name, ret);
+    HDF_LOGI("add service %{public}s, %{public}d", info.servName, ret);
     return ret;
 }
 
@@ -161,19 +166,25 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
         HDF_LOGE("%{public}s: invalid interface token", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    const char *name = HdfSbufReadString(data);
-    if (name == NULL) {
+    struct HdfServiceInfo info;
+    info.servName = HdfSbufReadString(data);
+    if (info.servName == NULL) {
         HDF_LOGE("%{public}s failed, name is null", __func__);
         return ret;
     }
-    ret = AddServicePermCheck(name);
+    ret = AddServicePermCheck(info.servName);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
 
-    uint16_t devClass = DEVICE_CLASS_DEFAULT;
-    if (!HdfSbufReadUint16(data, &devClass)) {
+    info.devClass = DEVICE_CLASS_DEFAULT;
+    if (!HdfSbufReadUint16(data, &info.devClass)) {
         HDF_LOGE("%{public}s failed, devClass invalid", __func__);
+        return ret;
+    }
+
+    if (!HdfSbufReadUint32(data, &info.devId)) {
+        HDF_LOGE("%{public}s failed, devId invalid", __func__);
         return ret;
     }
 
@@ -182,26 +193,26 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
         HDF_LOGE("%{public}s failed, remote service is null", __func__);
         return ret;
     }
-    const char *servInfo = HdfSbufReadString(data);
+    info.servInfo = HdfSbufReadString(data);
 
-    struct HdfDeviceObject *oldServiceObject = super->GetObject(super, name);
+    struct HdfDeviceObject *oldServiceObject = super->GetObject(super, info.servName);
     if (oldServiceObject == NULL) {
-        HDF_LOGE("update service %{public}s not exist", name);
+        HDF_LOGE("update service %{public}s not exist", info.servName);
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
     }
 
-    struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, name, service);
+    struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, info.servName, service);
     if (serviceObject == NULL) {
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    ret = super->UpdateService(super, name, devClass, serviceObject, servInfo);
+    ret = super->UpdateService(super, serviceObject, &info);
     if (ret != HDF_SUCCESS) {
         ReleaseServiceObject(stub, serviceObject);
     } else {
         ReleaseServiceObject(stub, oldServiceObject);
     }
-    HDF_LOGI("update service %{public}s, %{public}d", name, ret);
+    HDF_LOGI("update service %{public}s, %{public}d", info.servName, ret);
     return ret;
 }
 

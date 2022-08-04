@@ -13,7 +13,7 @@
     "deps": {
       "components": [
         "hiviewdfx_hilog_native",
-        "utils_base",
+        "c_utils",
         "init",
         "ipc",
         "samgr",

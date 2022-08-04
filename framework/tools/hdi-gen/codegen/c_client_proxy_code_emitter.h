@@ -90,7 +90,7 @@ private:
 
     void EmitProxyReleaseMethodImpl(const String &remoteName, const String &recycleFuncName, StringBuilder &sb);
 
-    void EmitUtilMethods(StringBuilder &sb, const String &prefix) override;
+    void GetUtilMethods(UtilMethodMap &methods) override;
 
     std::vector<String> freeObjStatements_;
 };

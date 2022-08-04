@@ -162,7 +162,12 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesSourceFile()
     sb.Append("\n");
     EmitBeginNamespace(sb);
     sb.Append("\n");
-    EmitUtilMethods(sb, "");
+    UtilMethodMap utilMethods;
+    GetUtilMethods(utilMethods);
+    EmitUtilMethods(sb, "", utilMethods, true);
+    sb.Append("\n");
+    EmitUtilMethods(sb, "", utilMethods, false);
+    sb.Append("\n");
     EmitCustomTypeDataProcess(sb);
     sb.Append("\n");
     EmitEndNamespace(sb);
@@ -188,14 +193,7 @@ void CppCustomTypesCodeEmitter::EmitSourceFileInclusions(StringBuilder &sb)
 void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
-    const AST::TypeStringMap &types = ast_->GetTypes();
-    for (const auto &pair : types) {
-        AutoPtr<ASTType> type = pair.second;
-        if (type->GetTypeKind() == TypeKind::TYPE_STRUCT || type->GetTypeKind() == TypeKind::TYPE_UNION) {
-            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
-            break;
-        }
-    }
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 }
 
 void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
@@ -221,14 +219,22 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb,
     sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel& data, const %s& %s)\n", type->EmitCppType().string(),
         type->EmitCppType().string(), objName.string());
     sb.Append("{\n");
-    for (size_t i = 0; i < type->GetMemberNumber(); i++) {
-        AutoPtr<ASTType> memberType = type->GetMemberType(i);
-        String memberName = type->GetMemberName(i);
 
-        String name = String::Format("%s.%s", objName.string(), memberName.string());
-        memberType->EmitCppMarshalling("data", name, sb, TAB);
-        if (i + 1 < type->GetMemberNumber()) {
-            sb.Append("\n");
+    if (type->IsPod()) {
+        sb.Append(TAB).AppendFormat("if (!data.WriteUnpadBuffer((const void*)&%s, sizeof(%s))) {\n",
+            objName.string(), type->EmitCppType().string());
+        sb.Append(TAB).Append(TAB).Append("return false;\n");
+        sb.Append(TAB).Append("}\n");
+    } else {
+        for (size_t i = 0; i < type->GetMemberNumber(); i++) {
+            AutoPtr<ASTType> memberType = type->GetMemberType(i);
+            String memberName = type->GetMemberName(i);
+
+            String name = String::Format("%s.%s", objName.string(), memberName.string());
+            memberType->EmitCppMarshalling("data", name, sb, TAB);
+            if (i + 1 < type->GetMemberNumber()) {
+                sb.Append("\n");
+            }
         }
     }
 
@@ -244,32 +250,45 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &s
         type->EmitCppType().string(), objName.string());
     sb.Append("{\n");
 
-    for (size_t i = 0; i < type->GetMemberNumber(); i++) {
-        AutoPtr<ASTType> memberType = type->GetMemberType(i);
-        String memberName = type->GetMemberName(i);
-        String name = String::Format("%s.%s", objName.string(), memberName.string());
+    if (type->IsPod()) {
+        String objPtrName = String::Format("%sPtr", objName.string());
+        sb.Append(TAB).AppendFormat("const %s *%s = reinterpret_cast<const %s*>(data.ReadUnpadBuffer(sizeof(%s)));\n",
+            type->EmitCppType().string(), objPtrName.string(), type->EmitCppType().string(),
+            type->EmitCppType().string());
+        sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objPtrName.string());
+        sb.Append(TAB).Append(TAB).Append("return false;\n");
+        sb.Append(TAB).Append("}\n\n");
+        sb.Append(TAB).AppendFormat("if (memcpy_s(&%s, sizeof(%s), %s, sizeof(%s)) != EOK) {\n",
+            objName.string(), type->EmitCppType().string(), objPtrName.string(), type->EmitCppType().string());
+        sb.Append(TAB).Append(TAB).Append("return false;\n");
+        sb.Append(TAB).Append("}\n");
+    } else {
+        for (size_t i = 0; i < type->GetMemberNumber(); i++) {
+            AutoPtr<ASTType> memberType = type->GetMemberType(i);
+            String memberName = type->GetMemberName(i);
+            String name = String::Format("%s.%s", objName.string(), memberName.string());
+            if (i > 0 &&
+                (memberType->GetTypeKind() == TypeKind::TYPE_STRUCT ||
+                 memberType->GetTypeKind() == TypeKind::TYPE_UNION ||
+                 memberType->GetTypeKind() == TypeKind::TYPE_ARRAY ||
+                 memberType->GetTypeKind() == TypeKind::TYPE_LIST)) {
+                sb.Append("\n");
+            }
 
-        if (i > 0 &&
-            (memberType->GetTypeKind() == TypeKind::TYPE_STRUCT || memberType->GetTypeKind() == TypeKind::TYPE_UNION ||
-                memberType->GetTypeKind() == TypeKind::TYPE_ARRAY ||
-                memberType->GetTypeKind() == TypeKind::TYPE_LIST)) {
-            sb.Append("\n");
-        }
-
-        if (memberType->GetTypeKind() == TypeKind::TYPE_UNION) {
-            String cpName = String::Format("%sCp", memberName.string());
-            memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
-            sb.Append(TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", name.string(),
-                memberType->EmitCppType().string(), cpName.string(), memberType->EmitCppType().string());
-        } else if (memberType->GetTypeKind() == TypeKind::TYPE_STRING) {
-            String cpName = String::Format("%sCp", memberName.string());
-            memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
-            sb.Append(TAB).AppendFormat("%s = %s;\n", name.string(), cpName.string());
-        } else {
-            memberType->EmitCppUnMarshalling("data", name, sb, TAB, false);
+            if (memberType->GetTypeKind() == TypeKind::TYPE_UNION) {
+                String cpName = String::Format("%sCp", memberName.string());
+                memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
+                sb.Append(TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", name.string(),
+                    memberType->EmitCppType().string(), cpName.string(), memberType->EmitCppType().string());
+            } else if (memberType->GetTypeKind() == TypeKind::TYPE_STRING) {
+                String cpName = String::Format("%sCp", memberName.string());
+                memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
+                sb.Append(TAB).AppendFormat("%s = %s;\n", name.string(), cpName.string());
+            } else {
+                memberType->EmitCppUnMarshalling("data", name, sb, TAB, false);
+            }
         }
     }
-
     sb.Append(TAB).AppendFormat("return true;\n", objName.string());
     sb.Append("}\n");
 }
@@ -290,17 +309,11 @@ void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix)
+void CppCustomTypesCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    UtilMethodMap methods;
     for (const auto &typePair : ast_->GetTypes()) {
-        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), methods);
-        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), methods);
-    }
-
-    for (const auto &methodPair : methods) {
-        sb.Append("\n");
-        methodPair.second(sb, "", prefix, false);
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
     }
 }
 } // namespace HDI

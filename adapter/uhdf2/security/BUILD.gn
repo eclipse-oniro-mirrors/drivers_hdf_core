@@ -19,7 +19,7 @@ group("uhdf_sec_pkg") {
 
 ohos_shared_library("libhdf_sec") {
   include_dirs = [
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//drivers/hdf_core/framework/include",
     "//drivers/hdf_core/framework/include/osal",
     "//drivers/hdf_core/framework/include/utils",
@@ -38,8 +38,8 @@ ohos_shared_library("libhdf_sec") {
 
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
