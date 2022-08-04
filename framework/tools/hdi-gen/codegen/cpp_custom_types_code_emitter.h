@@ -20,7 +20,7 @@ public:
     virtual ~CppCustomTypesCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 

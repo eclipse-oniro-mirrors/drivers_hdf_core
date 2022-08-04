@@ -12,12 +12,12 @@ namespace OHOS {
 namespace HDI {
 const char *TAB = TAB;
 
-void ASTType::SetName(const String &name)
+void ASTType::SetName(const std::string &name)
 {
     name_ = name;
 }
 
-String ASTType::GetName()
+std::string ASTType::GetName()
 {
     return name_;
 }
@@ -162,12 +162,12 @@ bool ASTType::HasInnerType(TypeKind innerType) const
     return false;
 }
 
-String ASTType::ToShortString()
+std::string ASTType::ToShortString()
 {
     return name_;
 }
 
-String ASTType::ToString() const
+std::string ASTType::ToString() const
 {
     return (namespace_ == nullptr) ? name_ : (namespace_->ToString() + name_);
 }
@@ -177,98 +177,99 @@ TypeKind ASTType::GetTypeKind()
     return TypeKind::TYPE_UNKNOWN;
 }
 
-String ASTType::EmitCType(TypeMode mode) const
+std::string ASTType::EmitCType(TypeMode mode) const
 {
     return "unknow";
 }
 
-String ASTType::EmitCppType(TypeMode mode) const
+std::string ASTType::EmitCppType(TypeMode mode) const
 {
     return "unknow";
 }
 
-String ASTType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
     return "unknow";
 }
 
-void ASTType::EmitCWriteVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-    StringBuilder &sb, const String &prefix) const
+void ASTType::EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCProxyWriteOutVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTType::EmitCProxyWriteOutVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+    const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTType::EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCStubReadOutVar(const String &buffSizeName, const String &memFlagName, const String &parcelName,
-    const String &name, const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTType::EmitCStubReadOutVar(const std::string &buffSizeName, const std::string &memFlagName,
+    const std::string &parcelName, const std::string &name, const std::string &ecName, const std::string &gotoLabel,
+    StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    unsigned int innerLevel) const
+void ASTType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    bool initVariable, unsigned int innerLevel) const
+void ASTType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const
+void ASTType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb, const String &prefix,
-    std::vector<String> &freeObjStatements) const
+void ASTType::EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+    const std::string &prefix, std::vector<std::string> &freeObjStatements) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
 void ASTType::EmitFreeStatements(
-    const std::vector<String> &freeObjStatements, StringBuilder &sb, const String &prefix) const
+    const std::vector<std::string> &freeObjStatements, StringBuilder &sb, const std::string &prefix) const
 {
     for (auto it = freeObjStatements.rbegin(); it != freeObjStatements.rend(); it++) {
         sb.Append(prefix).Append(*it);
     }
 }
 
-void ASTType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    unsigned int innerLevel) const
+void ASTType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool emitType, unsigned int innerLevel) const
+void ASTType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
 void ASTType::EmitMemoryRecycle(
-    const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const
+    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
-    // only String, Array, List, struct and union type need recycle memory
+    // only std::string, Array, List, struct and union type need recycle memory
     (void)name;
     (void)isClient;
     (void)ownership;
@@ -277,21 +278,21 @@ void ASTType::EmitMemoryRecycle(
 }
 
 void ASTType::EmitJavaWriteVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Writing \"%s\" type of data is not supported\n", name_.c_str());
 }
 
 void ASTType::EmitJavaReadVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::EmitJavaReadInnerVar(
-    const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
+void ASTType::EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+    StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.string());
+    sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
 void ASTType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const

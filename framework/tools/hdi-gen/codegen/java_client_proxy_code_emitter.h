@@ -21,7 +21,7 @@ public:
     virtual ~JavaClientProxyCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -37,34 +37,34 @@ private:
 
     void EmitProxyImpl(StringBuilder &sb);
 
-    void EmitProxyConstants(StringBuilder &sb, const String &prefix);
+    void EmitProxyConstants(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyConstructor(StringBuilder &sb, const String &prefix);
+    void EmitProxyConstructor(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodImpls(StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadMethodParameter(
-        const AutoPtr<ASTParameter> &param, const String &parcelName, StringBuilder &sb, const String &prefix);
+    void EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
+        const std::string &prefix);
 
-    void EmitReadVariable(const String &parcelName, const String &name, const AutoPtr<ASTType> &type,
-        ParamAttr attribute, StringBuilder &sb, const String &prefix);
+    void EmitReadVariable(const std::string &parcelName, const std::string &name, const AutoPtr<ASTType> &type,
+        ParamAttr attribute, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadArrayVariable(const String &parcelName, const String &name, const AutoPtr<ASTArrayType> &arrayType,
-        ParamAttr attribute, StringBuilder &sb, const String &prefix);
+    void EmitReadArrayVariable(const std::string &parcelName, const std::string &name,
+        const AutoPtr<ASTArrayType> &arrayType, ParamAttr attribute, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadOutArrayVariable(const String &parcelName, const String &name, const AutoPtr<ASTArrayType> &arrayType,
-        StringBuilder &sb, const String &prefix);
+    void EmitReadOutArrayVariable(const std::string &parcelName, const std::string &name,
+        const AutoPtr<ASTArrayType> &arrayType, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadOutVariable(const String &parcelName, const String &name, const AutoPtr<ASTType> &type,
-        StringBuilder &sb, const String &prefix);
+    void EmitReadOutVariable(const std::string &parcelName, const std::string &name, const AutoPtr<ASTType> &type,
+        StringBuilder &sb, const std::string &prefix);
 
-    void EmitLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix);
+    void EmitLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 };
 } // namespace HDI
 } // namespace OHOS

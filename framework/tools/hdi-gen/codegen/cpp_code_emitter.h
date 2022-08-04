@@ -12,7 +12,6 @@
 #include "ast/ast.h"
 #include "codegen/code_emitter.h"
 #include "util/autoptr.h"
-#include "util/string.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
@@ -21,30 +20,30 @@ class CppCodeEmitter : public CodeEmitter {
 public:
     virtual ~CppCodeEmitter() = default;
 
-    bool OutPut(const AutoPtr<AST> &ast, const String &targetDirectory);
+    bool OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory);
 
 protected:
     void GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
     void GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 
     void EmitLicense(StringBuilder &sb);
 
-    void EmitHeadMacro(StringBuilder &sb, const String &fullName);
+    void EmitHeadMacro(StringBuilder &sb, const std::string &fullName);
 
-    void EmitTailMacro(StringBuilder &sb, const String &fullName);
+    void EmitTailMacro(StringBuilder &sb, const std::string &fullName);
 
     void EmitHeadExternC(StringBuilder &sb);
 
     void EmitTailExternC(StringBuilder &sb);
 
-    bool isVersion(const String &name);
+    bool isVersion(const std::string &name);
 
-    std::vector<String> EmitCppNameSpaceVec(const String &namespaceStr);
+    std::vector<std::string> EmitCppNameSpaceVec(const std::string &namespaceStr);
 
-    String EmitPackageToNameSpace(const String &packageName);
+    std::string EmitPackageToNameSpace(const std::string &packageName);
 
     virtual void EmitBeginNamespace(StringBuilder &sb);
 
@@ -52,21 +51,21 @@ protected:
 
     virtual void EmitUsingNamespace(StringBuilder &sb);
 
-    String EmitNamespace(const String &packageName);
+    std::string EmitNamespace(const std::string &packageName);
 
     void EmitImportUsingNamespace(StringBuilder &sb);
 
-    void EmitWriteMethodParameter(
-        const AutoPtr<ASTParameter> &param, const String &parcelName, StringBuilder &sb, const String &prefix);
+    void EmitWriteMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
+        const std::string &prefix);
 
-    void EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const String &parcelName, bool initVariable,
-        StringBuilder &sb, const String &prefix);
+    void EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, bool initVariable,
+        StringBuilder &sb, const std::string &prefix);
 
-    String MacroName(const String &name);
+    std::string MacroName(const std::string &name);
 
-    String ConstantName(const String &name);
+    std::string ConstantName(const std::string &name);
 
-    String SpecificationParam(StringBuilder &sb, const String &prefix);
+    std::string SpecificationParam(StringBuilder &sb, const std::string &prefix);
 };
 } // namespace HDI
 } // namespace OHOS

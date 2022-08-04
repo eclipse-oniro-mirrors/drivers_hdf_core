@@ -20,7 +20,7 @@ public:
     virtual ~CServiceImplCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -38,9 +38,9 @@ private:
 
     void EmitServiceImplDef(StringBuilder &sb);
 
-    void EmitServiceImplMethodImpls(StringBuilder &sb, const String &prefix);
+    void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
     void EmitServiceImplGetMethod(StringBuilder &sb);
 

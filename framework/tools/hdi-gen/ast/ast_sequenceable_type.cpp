@@ -24,7 +24,7 @@ bool ASTSequenceableType::IsSequenceableType()
     return true;
 }
 
-String ASTSequenceableType::ToString() const
+std::string ASTSequenceableType::ToString() const
 {
     return name_;
 }
@@ -34,7 +34,7 @@ TypeKind ASTSequenceableType::GetTypeKind()
     return TypeKind::TYPE_SEQUENCEABLE;
 }
 
-String ASTSequenceableType::Dump(const String &prefix)
+std::string ASTSequenceableType::Dump(const std::string &prefix)
 {
     StringBuilder sb;
 
@@ -48,113 +48,112 @@ String ASTSequenceableType::Dump(const String &prefix)
     return sb.ToString();
 }
 
-String ASTSequenceableType::GetFullName() const
+std::string ASTSequenceableType::GetFullName() const
 {
     return namespace_->ToString() + name_;
 }
 
-String ASTSequenceableType::EmitCType(TypeMode mode) const
+std::string ASTSequenceableType::EmitCType(TypeMode mode) const
 {
     // c language has no Sequenceable type
     return "/";
 }
 
-String ASTSequenceableType::EmitCppType(TypeMode mode) const
+std::string ASTSequenceableType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("sptr<%s>", name_.string());
+            return StringHelper::Format("sptr<%s>", name_.c_str());
         case TypeMode::PARAM_IN:
-            return String::Format("const sptr<%s>&", name_.string());
+            return StringHelper::Format("const sptr<%s>&", name_.c_str());
         case TypeMode::PARAM_OUT:
-            return String::Format("sptr<%s>&", name_.string());
+            return StringHelper::Format("sptr<%s>&", name_.c_str());
         case TypeMode::LOCAL_VAR:
-            return String::Format("sptr<%s>", name_.string());
+            return StringHelper::Format("sptr<%s>", name_.c_str());
         default:
             return "unknow type";
     }
 }
 
-String ASTSequenceableType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTSequenceableType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
     return name_;
 }
 
-void ASTSequenceableType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTSequenceableType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteStrongParcelable(%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteStrongParcelable(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTSequenceableType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool initVariable, unsigned int innerLevel) const
+void ASTSequenceableType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("sptr<%s> %s = %s.ReadStrongParcelable<%s>();\n", name_.string(), name.string(),
-            parcelName.string(), name_.string());
+        sb.Append(prefix).AppendFormat("sptr<%s> %s = %s.ReadStrongParcelable<%s>();\n", name_.c_str(), name.c_str(),
+            parcelName.c_str(), name_.c_str());
     } else {
         sb.Append(prefix).AppendFormat(
-            "%s = %s.ReadStrongParcelable<%s>();\n", name.string(), parcelName.string(), name_.string());
+            "%s = %s.ReadStrongParcelable<%s>();\n", name.c_str(), parcelName.c_str(), name_.c_str());
     }
 }
 
-void ASTSequenceableType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTSequenceableType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteStrongParcelable(%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteStrongParcelable(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTSequenceableType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool emitType, unsigned int innerLevel) const
+void ASTSequenceableType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name,
+    StringBuilder &sb, const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     if (emitType) {
-        sb.Append(prefix).AppendFormat("%s %s = %s.ReadStrongParcelable<%s>();\n", EmitCppType().string(),
-            name.string(), parcelName.string(), name_.string());
+        sb.Append(prefix).AppendFormat("%s %s = %s.ReadStrongParcelable<%s>();\n", EmitCppType().c_str(), name.c_str(),
+            parcelName.c_str(), name_.c_str());
     } else {
         sb.Append(prefix).AppendFormat(
-            "%s = %s.ReadStrongParcelable<%s>();\n", name.string(), parcelName.string(), name_.string());
+            "%s = %s.ReadStrongParcelable<%s>();\n", name.c_str(), parcelName.c_str(), name_.c_str());
     }
 }
 
 void ASTSequenceableType::EmitJavaWriteVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    if (EmitJavaType(TypeMode::NO_MODE).Equals("IRemoteObject")) {
-        sb.Append(prefix).AppendFormat("%s.writeRemoteObject(%s);\n", parcelName.string(), name.string());
+    if (EmitJavaType(TypeMode::NO_MODE) == "IRemoteObject") {
+        sb.Append(prefix).AppendFormat("%s.writeRemoteObject(%s);\n", parcelName.c_str(), name.c_str());
         return;
     }
-    sb.Append(prefix).AppendFormat("%s.writeSequenceable(%s);\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat("%s.writeSequenceable(%s);\n", parcelName.c_str(), name.c_str());
 }
 
 void ASTSequenceableType::EmitJavaReadVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    if (EmitJavaType(TypeMode::NO_MODE).Equals("IRemoteObject")) {
-        sb.Append(prefix).AppendFormat("%s = %s.readRemoteObject();\n", name.string(), parcelName.string());
+    if (EmitJavaType(TypeMode::NO_MODE) == "IRemoteObject") {
+        sb.Append(prefix).AppendFormat("%s = %s.readRemoteObject();\n", name.c_str(), parcelName.c_str());
         return;
     }
-    sb.Append(prefix).AppendFormat("%s.readSequenceable(%s);\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat("%s.readSequenceable(%s);\n", parcelName.c_str(), name.c_str());
 }
 
-void ASTSequenceableType::EmitJavaReadInnerVar(
-    const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
+void ASTSequenceableType::EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+    StringBuilder &sb, const std::string &prefix) const
 {
-    if (!isInner && EmitJavaType(TypeMode::NO_MODE).Equals("IRemoteObject")) {
-        sb.Append(prefix).AppendFormat(
-            "IRemoteObject %s = %s.readRemoteObject();\n", name.string(), parcelName.string());
+    if (!isInner && EmitJavaType(TypeMode::NO_MODE) == "IRemoteObject") {
+        sb.Append(prefix).AppendFormat("IRemoteObject %s = %s.readRemoteObject();\n", name.c_str(), parcelName.c_str());
         return;
     }
     if (!isInner) {
-        sb.Append(prefix).AppendFormat("%s %s = new %s();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(),
-            EmitJavaType(TypeMode::NO_MODE).string());
+        sb.Append(prefix).AppendFormat("%s %s = new %s();\n", EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(),
+            EmitJavaType(TypeMode::NO_MODE).c_str());
     }
-    sb.Append(prefix).AppendFormat("%s.readSequenceable(%s);\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat("%s.readSequenceable(%s);\n", parcelName.c_str(), name.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

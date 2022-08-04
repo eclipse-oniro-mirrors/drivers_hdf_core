@@ -7,7 +7,9 @@
  */
 
 #include "parser/parser.h"
+
 #include <regex>
+
 #include "ast/ast_array_type.h"
 #include "ast/ast_enum_type.h"
 #include "ast/ast_map_type.h"
@@ -34,7 +36,7 @@ static const std::regex rePackage(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|
 static const std::regex reImport(
     RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]" RE_DIGIT "_" RE_DIGIT "." RE_IDENTIFIER);
 
-bool Parser::Parse(const std::vector<String> &sourceFiles)
+bool Parser::Parse(const std::vector<std::string> &sourceFiles)
 {
     for (const auto &file : sourceFiles) {
         if (!ParseOne(file)) {
@@ -45,7 +47,7 @@ bool Parser::Parse(const std::vector<String> &sourceFiles)
     return true;
 }
 
-bool Parser::ParseOne(const String &sourceFile)
+bool Parser::ParseOne(const std::string &sourceFile)
 {
     if (!Reset(sourceFile)) {
         return false;
@@ -62,11 +64,11 @@ bool Parser::ParseOne(const String &sourceFile)
     return true;
 }
 
-bool Parser::Reset(const String &sourceFile)
+bool Parser::Reset(const std::string &sourceFile)
 {
     bool ret = lexer_.Reset(sourceFile);
     if (!ret) {
-        Logger::E(TAG, "Fail to open file '%s'.", sourceFile.string());
+        Logger::E(TAG, "Fail to open file '%s'.", sourceFile.c_str());
         return false;
     }
 
@@ -97,7 +99,7 @@ bool Parser::ParseFile()
     return true;
 }
 
-String Parser::ParseLicense()
+std::string Parser::ParseLicense()
 {
     Token token = lexer_.PeekToken(false);
     if (token.kind_ == TokenType::COMMENT_BLOCK) {
@@ -105,55 +107,55 @@ String Parser::ParseLicense()
         return token.value_;
     }
 
-    return String("");
+    return std::string("");
 }
 
 bool Parser::ParsePackage()
 {
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::PACKAGE) {
-        LogError(token, String::Format("expected 'package' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected 'package' before '%s' token", token.value_.c_str()));
         return false;
     }
     lexer_.GetToken();
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected name of package before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected name of package before '%s' token", token.value_.c_str()));
         lexer_.SkipToken(TokenType::SEMICOLON);
         return false;
     }
-    String packageName = token.value_;
+    std::string packageName = token.value_;
     lexer_.GetToken();
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::SEMICOLON) {
-        LogError(token, String::Format("expected ';' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ';' before '%s' token", token.value_.c_str()));
         return false;
     }
     lexer_.GetToken();
 
-    if (packageName.IsEmpty()) {
-        LogError(String("package name is not expected."));
+    if (packageName.empty()) {
+        LogError(std::string("package name is not expected."));
         return false;
     } else if (!CheckPackageName(lexer_.GetFilePath(), packageName)) {
-        LogError(String::Format(
-            "package name '%s' does not match file apth '%s'.", packageName.string(), lexer_.GetFilePath().string()));
+        LogError(StringHelper::Format(
+            "package name '%s' does not match file apth '%s'.", packageName.c_str(), lexer_.GetFilePath().c_str()));
         return false;
     }
 
     if (!ParserPackageInfo(packageName)) {
-        LogError(String::Format("parse package '%s' infomation failed.", packageName.string()));
+        LogError(StringHelper::Format("parse package '%s' infomation failed.", packageName.c_str()));
         return false;
     }
 
     return true;
 }
 
-bool Parser::ParserPackageInfo(const String &packageName)
+bool Parser::ParserPackageInfo(const std::string &packageName)
 {
     std::cmatch result;
-    if (!std::regex_match(packageName.string(), result, rePackage)) {
+    if (!std::regex_match(packageName.c_str(), result, rePackage)) {
         return false;
     }
 
@@ -162,8 +164,8 @@ bool Parser::ParserPackageInfo(const String &packageName)
     }
 
     ast_->SetPackageName(result.str(RE_PACKAGE_INDEX).c_str());
-    size_t majorVersion = std::atoi(result.str(RE_PACKAGE_MAJOR_VER_INDEX).c_str());
-    size_t minorVersion = std::atoi(result.str(RE_PACKAGE_MINOR_VER_INDEX).c_str());
+    size_t majorVersion = std::stoul(result.str(RE_PACKAGE_MAJOR_VER_INDEX));
+    size_t minorVersion = std::stoul(result.str(RE_PACKAGE_MINOR_VER_INDEX));
     ast_->SetVersion(majorVersion, minorVersion);
     return true;
 }
@@ -177,7 +179,7 @@ bool Parser::ParseImports()
 
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::ID) {
-            LogError(token, String::Format("expected identifier before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected identifier before '%s' token", token.value_.c_str()));
             lexer_.SkipToken(TokenType::SEMICOLON);
             token = lexer_.PeekToken();
             continue;
@@ -192,7 +194,7 @@ bool Parser::ParseImports()
 
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::SEMICOLON) {
-            LogError(token, String::Format("expected ';' before '%s'.", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ';' before '%s'.", token.value_.c_str()));
             return false;
         }
         lexer_.GetToken();
@@ -206,21 +208,21 @@ bool Parser::ParseImports()
 void Parser::ParseImportInfo()
 {
     Token token = lexer_.PeekToken();
-    String importName = token.value_;
-    if (importName.IsEmpty()) {
-        LogError(token, String::Format("import name is empty"));
+    std::string importName = token.value_;
+    if (importName.empty()) {
+        LogError(token, StringHelper::Format("import name is empty"));
         return;
     }
 
     if (!CheckImport(importName)) {
-        LogError(token, String::Format("import name is illegal"));
+        LogError(token, StringHelper::Format("import name is illegal"));
         return;
     }
 
     auto iter = allAsts_.find(importName);
     AutoPtr<AST> importAst = (iter != allAsts_.end()) ? iter->second : nullptr;
     if (importAst == nullptr) {
-        LogError(token, String::Format("can not find idl file from import name '%s'", importName.string()));
+        LogError(token, StringHelper::Format("can not find idl file from import name '%s'", importName.c_str()));
         return;
     }
 
@@ -230,7 +232,7 @@ void Parser::ParseImportInfo()
     }
 
     if (!ast_->AddImport(importAst)) {
-        LogError(token, String::Format("multiple import of '%s'", importName.string()));
+        LogError(token, StringHelper::Format("multiple import of '%s'", importName.c_str()));
         return;
     }
 }
@@ -238,17 +240,17 @@ void Parser::ParseImportInfo()
 void Parser::ParseSequenceableInfo()
 {
     Token token = lexer_.PeekToken();
-    String seqName = token.value_;
-    if (seqName.IsEmpty()) {
-        LogError(token, String::Format("sequenceable name is empty"));
+    std::string seqName = token.value_;
+    if (seqName.empty()) {
+        LogError(token, StringHelper::Format("sequenceable name is empty"));
         return;
     }
 
     AutoPtr<ASTSequenceableType> seqType = new ASTSequenceableType();
-    int index = seqName.LastIndexOf('.');
-    if (index != -1) {
-        seqType->SetName(seqName.Substring(index + 1));
-        seqType->SetNamespace(ast_->ParseNamespace(seqName.Substring(0, index + 1)));
+    size_t index = seqName.rfind('.');
+    if (index != std::string::npos) {
+        seqType->SetName(seqName.substr(index + 1));
+        seqType->SetNamespace(ast_->ParseNamespace(seqName.substr(0, index)));
     } else {
         seqType->SetName(seqName);
     }
@@ -282,7 +284,7 @@ bool Parser::ParseTypeDecls()
                 ParseUnionDeclaration();
                 break;
             default:
-                LogError(token, String::Format("'%s' is not expected", token.value_.string()));
+                LogError(token, StringHelper::Format("'%s' is not expected", token.value_.c_str()));
                 lexer_.SkipToken(TokenType::SEMICOLON);
                 break;
         }
@@ -309,7 +311,7 @@ void Parser::ParseAttribute()
             ParseUnionDeclaration(attrs);
             break;
         default:
-            LogError(token, String::Format("'%s' is not expected", token.value_.string()));
+            LogError(token, StringHelper::Format("'%s' is not expected", token.value_.c_str()));
             lexer_.SkipToken(token.kind_);
             break;
     }
@@ -320,7 +322,7 @@ AttrSet Parser::ParseAttributeInfo()
     AttrSet attrs;
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACKETS_LEFT) {
-        LogError(token, String::Format("expected '[' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '[' before '%s' token", token.value_.c_str()));
         lexer_.SkipToken(token.kind_);
         return attrs;
     }
@@ -342,7 +344,7 @@ AttrSet Parser::ParseAttributeInfo()
             lexer_.GetToken();
             break;
         } else {
-            LogError(token, String::Format("expected ',' or ']' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ',' or ']' before '%s' token", token.value_.c_str()));
             lexer_.SkipToken(TokenType::BRACKETS_RIGHT);
             break;
         }
@@ -360,7 +362,7 @@ bool Parser::AprseAttrUnit(AttrSet &attrs)
         case TokenType::CALLBACK:
         case TokenType::ONEWAY: {
             if (attrs.find(token) != attrs.end()) {
-                LogError(token, String::Format("Duplicate declared attributes '%s'", token.value_.string()));
+                LogError(token, StringHelper::Format("Duplicate declared attributes '%s'", token.value_.c_str()));
             } else {
                 attrs.insert(token);
             }
@@ -368,7 +370,7 @@ bool Parser::AprseAttrUnit(AttrSet &attrs)
             break;
         }
         default:
-            LogError(token, String::Format("'%s' is a illegal attribute", token.value_.string()));
+            LogError(token, StringHelper::Format("'%s' is a illegal attribute", token.value_.c_str()));
             lexer_.SkipToken(TokenType::BRACKETS_RIGHT);
             return false;
     }
@@ -384,13 +386,14 @@ void Parser::ParseInterface(const AttrSet &attrs)
     lexer_.GetToken();
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected interface name before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected interface name before '%s' token", token.value_.c_str()));
     } else {
         interfaceType->SetName(token.value_);
         interfaceType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
         interfaceType->SetLicense(ast_->GetLicense());
-        if (!token.value_.Equals(ast_->GetName())) {
-            LogError(token, String::Format("interface name '%s' is not equal idl file name", token.value_.string()));
+        if (token.value_ != ast_->GetName()) {
+            LogError(
+                token, StringHelper::Format("interface name '%s' is not equal idl file name", token.value_.c_str()));
         }
         lexer_.GetToken();
     }
@@ -418,7 +421,7 @@ AutoPtr<ASTInfAttr> Parser::ParseInfAttrInfo(const AttrSet &attrs)
                 infAttr->isOneWay_ = true;
                 break;
             default:
-                LogError(attr, String::Format("illegal attribute of interface"));
+                LogError(attr, StringHelper::Format("illegal attribute of interface"));
                 break;
         }
     }
@@ -430,7 +433,7 @@ void Parser::ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface)
 {
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_LEFT) {
-        LogError(token, String::Format("expected '{' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -443,7 +446,7 @@ void Parser::ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface)
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_RIGHT) {
-        LogError(token, String::Format("expected '{' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -458,7 +461,7 @@ AutoPtr<ASTMethod> Parser::ParseMethod()
 
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected method name before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected method name before '%s' token", token.value_.c_str()));
     } else {
         method->SetName(token.value_);
         lexer_.GetToken();
@@ -468,7 +471,7 @@ AutoPtr<ASTMethod> Parser::ParseMethod()
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::SEMICOLON) {
-        LogError(token, String::Format("expected ';' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ';' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -485,7 +488,7 @@ AutoPtr<ASTMethodAttr> Parser::ParseMethodAttr()
     }
 
     if (token.kind_ != TokenType::BRACKETS_LEFT) {
-        LogError(token, String::Format("expected '[' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '[' before '%s' token", token.value_.c_str()));
         lexer_.SkipUntilToken(TokenType::ID);
         return attr;
     }
@@ -504,7 +507,7 @@ AutoPtr<ASTMethodAttr> Parser::ParseMethodAttr()
                 attr->isOneWay_ = true;
                 break;
             default:
-                LogError(token, String::Format("expected attribute before '%s' token", token.value_.string()));
+                LogError(token, StringHelper::Format("expected attribute before '%s' token", token.value_.c_str()));
                 lexer_.SkipUntilToken(TokenType::BRACKETS_RIGHT);
                 return attr;
         }
@@ -517,7 +520,7 @@ AutoPtr<ASTMethodAttr> Parser::ParseMethodAttr()
         }
 
         if (token.kind_ != TokenType::COMMA) {
-            LogError(token, String::Format("expected ',' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ',' before '%s' token", token.value_.c_str()));
             lexer_.SkipUntilToken(TokenType::BRACKETS_RIGHT);
             return attr;
         }
@@ -548,7 +551,7 @@ void Parser::ParseMethodParamList(const AutoPtr<ASTMethod> &method)
 {
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::PARENTHESES_LEFT) {
-        LogError(token, String::Format("expected '(' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '(' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -566,7 +569,7 @@ void Parser::ParseMethodParamList(const AutoPtr<ASTMethod> &method)
             lexer_.GetToken();
             token = lexer_.PeekToken();
             if (token.kind_ == TokenType::PARENTHESES_RIGHT) {
-                LogError(token, String::Format(""));
+                LogError(token, StringHelper::Format(""));
             }
             continue;
         }
@@ -575,7 +578,7 @@ void Parser::ParseMethodParamList(const AutoPtr<ASTMethod> &method)
             lexer_.GetToken();
             break;
         } else {
-            LogError(token, String::Format("expected ',' or ')' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ',' or ')' before '%s' token", token.value_.c_str()));
             lexer_.SkipToken(TokenType::PARENTHESES_RIGHT);
             break;
         }
@@ -586,11 +589,11 @@ AutoPtr<ASTParameter> Parser::ParseParam()
 {
     AutoPtr<ASTParamAttr> paramAttr = ParseParamAttr();
     AutoPtr<ASTType> paramType = ParseType();
-    String paramName = "";
+    std::string paramName = "";
 
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected param name before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected param name before '%s' token", token.value_.c_str()));
     } else {
         paramName = token.value_;
         lexer_.GetToken();
@@ -604,7 +607,7 @@ AutoPtr<ASTParamAttr> Parser::ParseParamAttr()
     AutoPtr<ASTParamAttr> attr = new ASTParamAttr(ParamAttr::PARAM_IN);
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACKETS_LEFT) {
-        LogError(token, String::Format("expected '[' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '[' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -617,12 +620,13 @@ AutoPtr<ASTParamAttr> Parser::ParseParamAttr()
         attr->value_ = ParamAttr::PARAM_OUT;
         lexer_.GetToken();
     } else {
-        LogError(token, String::Format("expected 'in' or 'out' attribute before '%s' token", token.value_.string()));
+        LogError(
+            token, StringHelper::Format("expected 'in' or 'out' attribute before '%s' token", token.value_.c_str()));
     }
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACKETS_RIGHT) {
-        LogError(token, String::Format("expected ']' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ']' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -665,11 +669,11 @@ AutoPtr<ASTType> Parser::ParseType()
             type = ParseUserDefType();
             break;
         default:
-            LogError(token, String::Format("'%s' of type is illegal", token.value_.string()));
+            LogError(token, StringHelper::Format("'%s' of type is illegal", token.value_.c_str()));
             return nullptr;
     }
     if (type == nullptr) {
-        LogError(token, String::Format("this type was not declared in this scope"));
+        LogError(token, StringHelper::Format("this type was not declared in this scope"));
     }
     if (!CheckType(token, type)) {
         return nullptr;
@@ -699,7 +703,7 @@ AutoPtr<ASTType> Parser::ParseBasicType()
 AutoPtr<ASTType> Parser::ParseUnsignedType()
 {
     AutoPtr<ASTType> type = nullptr;
-    String namePrefix = lexer_.GetToken().value_;
+    std::string namePrefix = lexer_.GetToken().value_;
     Token token = lexer_.PeekToken();
     switch (token.kind_) {
         case TokenType::CHAR:
@@ -710,7 +714,8 @@ AutoPtr<ASTType> Parser::ParseUnsignedType()
             lexer_.GetToken();
             break;
         default:
-            LogError(token, String::Format("'unsigned %s' was not declared in the idl file", token.value_.string()));
+            LogError(
+                token, StringHelper::Format("'unsigned %s' was not declared in the idl file", token.value_.c_str()));
             break;
     }
 
@@ -723,7 +728,7 @@ AutoPtr<ASTType> Parser::ParseArrayType(const AutoPtr<ASTType> &elementType)
 
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACKETS_RIGHT) {
-        LogError(token, String::Format("expected ']' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ']' before '%s' token", token.value_.c_str()));
         return nullptr;
     }
     lexer_.GetToken(); // ']'
@@ -749,7 +754,7 @@ AutoPtr<ASTType> Parser::ParseListType()
 
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ANGLE_BRACKETS_LEFT) {
-        LogError(token, String::Format("expected '<' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '<' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken(); // '<'
     }
@@ -762,7 +767,7 @@ AutoPtr<ASTType> Parser::ParseListType()
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ANGLE_BRACKETS_RIGHT) {
-        LogError(token, String::Format("expected '>' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '>' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken(); // '>'
     }
@@ -784,35 +789,35 @@ AutoPtr<ASTType> Parser::ParseMapType()
 
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ANGLE_BRACKETS_LEFT) {
-        LogError(token, String::Format("expected '<' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '<' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken(); // '<'
     }
 
     AutoPtr<ASTType> keyType = ParseType(); // key type
     if (keyType == nullptr) {
-        LogError(token, String::Format("key type '%s' is illegal", token.value_.string()));
+        LogError(token, StringHelper::Format("key type '%s' is illegal", token.value_.c_str()));
         lexer_.SkipToken(TokenType::ANGLE_BRACKETS_RIGHT);
         return nullptr;
     }
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::COMMA) {
-        LogError(token, String::Format("expected ',' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ',' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken(); // ','
     }
 
     AutoPtr<ASTType> valueType = ParseType();
     if (valueType == nullptr) {
-        LogError(token, String::Format("key type '%s' is illegal", token.value_.string()));
+        LogError(token, StringHelper::Format("key type '%s' is illegal", token.value_.c_str()));
         lexer_.SkipToken(TokenType::ANGLE_BRACKETS_RIGHT);
         return nullptr;
     }
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ANGLE_BRACKETS_RIGHT) {
-        LogError(token, String::Format("expected '>' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '>' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -835,7 +840,7 @@ AutoPtr<ASTType> Parser::ParseSmqType()
 
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ANGLE_BRACKETS_LEFT) {
-        LogError(token, String::Format("expected '<' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '<' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken(); // '<'
     }
@@ -848,7 +853,7 @@ AutoPtr<ASTType> Parser::ParseSmqType()
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ANGLE_BRACKETS_RIGHT) {
-        LogError(token, String::Format("expected '>' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '>' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken(); // '>'
     }
@@ -871,17 +876,17 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
         return ast_->FindType(token.value_);
     }
 
-    String typePrefix = token.value_;
+    std::string typePrefix = token.value_;
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected identifier before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected identifier before '%s' token", token.value_.c_str()));
         return nullptr;
     } else {
         lexer_.GetToken();
     }
 
-    String typeName = typePrefix + " " + token.value_;
+    std::string typeName = typePrefix + " " + token.value_;
     AutoPtr<ASTType> type = ast_->FindType(typeName);
     ast_->AddType(type);
     return type;
@@ -895,7 +900,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
     lexer_.GetToken();
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected enum type name before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected enum type name before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
         enumType->SetName(token.value_);
@@ -905,13 +910,13 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
     if (token.kind_ == TokenType::COLON || token.kind_ == TokenType::BRACES_LEFT) {
         enumType->SetBaseType(ParseEnumBaseType());
     } else {
-        LogError(token, String::Format("expected ':' or '{' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ':' or '{' before '%s' token", token.value_.c_str()));
     }
 
     ParserEnumMember(enumType);
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_RIGHT) {
-        LogError(token, String::Format("expected '}' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '}' before '%s' token", token.value_.c_str()));
         return;
     } else {
         lexer_.GetToken();
@@ -919,7 +924,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::SEMICOLON) {
-        LogError(token, String::Format("expected ';' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ';' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -951,13 +956,13 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
             case TypeKind::TYPE_ULONG:
                 break;
             default:
-                LogError(token, String::Format("illegal base type of enum", baseType->ToString().string()));
+                LogError(token, StringHelper::Format("illegal base type of enum", baseType->ToString().c_str()));
                 return nullptr;
         }
 
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::BRACES_LEFT) {
-            LogError(token, String::Format("expected '{' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
         }
         lexer_.GetToken();
     } else {
@@ -992,7 +997,7 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         }
 
         if (token.kind_ != TokenType::BRACES_RIGHT) {
-            LogError(token, String::Format("expected ',' or '}' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ',' or '}' before '%s' token", token.value_.c_str()));
         }
     }
 }
@@ -1005,7 +1010,7 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
     lexer_.GetToken();
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected struct name before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected struct name before '%s' token", token.value_.c_str()));
     } else {
         structType->SetName(token.value_);
         lexer_.GetToken();
@@ -1013,7 +1018,7 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_LEFT) {
-        LogError(token, String::Format("expected '{' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -1022,14 +1027,14 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_RIGHT) {
-        LogError(token, String::Format("expected '}' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '}' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::SEMICOLON) {
-        LogError(token, String::Format("expected ';' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ';' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -1050,14 +1055,14 @@ void Parser::ParseStructMember(const AutoPtr<ASTStructType> &structType)
 
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::ID) {
-            LogError(token, String::Format("expected member name before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected member name before '%s' token", token.value_.c_str()));
             lexer_.SkipToken(TokenType::SEMICOLON);
             token = lexer_.PeekToken();
             continue;
         }
 
         lexer_.GetToken();
-        String memberName = token.value_;
+        std::string memberName = token.value_;
         structType->AddMember(memberType, memberName);
 
         token = lexer_.PeekToken();
@@ -1068,7 +1073,7 @@ void Parser::ParseStructMember(const AutoPtr<ASTStructType> &structType)
         }
 
         if (token.kind_ != TokenType::BRACES_RIGHT) {
-            LogError(token, String::Format("expected ',' or '}' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ',' or '}' before '%s' token", token.value_.c_str()));
         }
     }
 }
@@ -1081,7 +1086,7 @@ void Parser::ParseUnionDeclaration(const AttrSet &attrs)
     lexer_.GetToken();
     Token token = lexer_.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        LogError(token, String::Format("expected struct name before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected struct name before '%s' token", token.value_.c_str()));
     } else {
         unionType->SetName(token.value_);
         lexer_.GetToken();
@@ -1089,7 +1094,7 @@ void Parser::ParseUnionDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_LEFT) {
-        LogError(token, String::Format("expected '{' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -1098,14 +1103,14 @@ void Parser::ParseUnionDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::BRACES_RIGHT) {
-        LogError(token, String::Format("expected '}' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected '}' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
 
     token = lexer_.PeekToken();
     if (token.kind_ != TokenType::SEMICOLON) {
-        LogError(token, String::Format("expected ';' before '%s' token", token.value_.string()));
+        LogError(token, StringHelper::Format("expected ';' before '%s' token", token.value_.c_str()));
     } else {
         lexer_.GetToken();
     }
@@ -1126,17 +1131,18 @@ void Parser::ParseUnionMember(const AutoPtr<ASTUnionType> &unionType)
 
         token = lexer_.PeekToken();
         if (token.kind_ != TokenType::ID) {
-            LogError(token, String::Format("expected member name before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected member name before '%s' token", token.value_.c_str()));
             lexer_.SkipToken(TokenType::SEMICOLON);
             token = lexer_.PeekToken();
             continue;
         }
         lexer_.GetToken();
 
-        String memberName = token.value_;
+        std::string memberName = token.value_;
         if (!AddUnionMember(unionType, memberType, memberName)) {
             LogError(token,
-                String::Format("union not support this type or name of member duplicate '%s'", token.value_.string()));
+                StringHelper::Format(
+                    "union not support this type or name of member duplicate '%s'", token.value_.c_str()));
         }
 
         token = lexer_.PeekToken();
@@ -1147,16 +1153,17 @@ void Parser::ParseUnionMember(const AutoPtr<ASTUnionType> &unionType)
         }
 
         if (token.kind_ != TokenType::BRACES_RIGHT) {
-            LogError(token, String::Format("expected ',' or '}' before '%s' token", token.value_.string()));
+            LogError(token, StringHelper::Format("expected ',' or '}' before '%s' token", token.value_.c_str()));
         }
     }
 }
 
-bool Parser::AddUnionMember(const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const String &name)
+bool Parser::AddUnionMember(
+    const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name)
 {
     for (size_t i = 0; i < unionType->GetMemberNumber(); i++) {
-        String memberName = unionType->GetMemberName(i);
-        if (name.Equals(memberName)) {
+        std::string memberName = unionType->GetMemberName(i);
+        if (name == memberName) {
             return false;
         }
     }
@@ -1182,7 +1189,7 @@ AutoPtr<ASTTypeAttr> Parser::ParseUserDefTypeAttr(const AttrSet &attrs)
                 attribute->isLite_ = true;
                 break;
             default:
-                LogError(token, String::Format("invalid attribute '%s' for type decl", token.value_.string()));
+                LogError(token, StringHelper::Format("invalid attribute '%s' for type decl", token.value_.c_str()));
                 break;
         }
     }
@@ -1342,7 +1349,7 @@ AutoPtr<ASTExpr> Parser::ParsePrimaryExpr()
             AutoPtr<ASTExpr> expr = ParseExpr();
             token = lexer_.PeekToken();
             if (token.kind_ != TokenType::PARENTHESES_RIGHT) {
-                LogError(token, String::Format("expected ')' before %s token", token.value_.string()));
+                LogError(token, StringHelper::Format("expected ')' before %s token", token.value_.c_str()));
             } else {
                 lexer_.GetToken();
                 expr->isParenExpr = true;
@@ -1352,7 +1359,7 @@ AutoPtr<ASTExpr> Parser::ParsePrimaryExpr()
         case TokenType::NUM:
             return ParseNumExpr();
         default:
-            LogError(token, String::Format("this expression is not supported"));
+            LogError(token, StringHelper::Format("this expression is not supported"));
             lexer_.SkipUntilToken(TokenType::COMMA);
             return nullptr;
     }
@@ -1374,12 +1381,12 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
 
     if (Options::GetInstance().GetTargetLanguage() == Options::Language::C) {
         if (type->IsSequenceableType()) {
-            LogError(token, String::Format("The sequenceable type is not supported by c language."));
+            LogError(token, StringHelper::Format("The sequenceable type is not supported by c language."));
             return false;
         }
 
         if (type->IsSmqType()) {
-            LogError(token, String::Format("The smq type is not supported by c language."));
+            LogError(token, StringHelper::Format("The smq type is not supported by c language."));
             return false;
         }
 
@@ -1390,7 +1397,8 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
                 case TypeKind::TYPE_FILEDESCRIPTOR:
                 case TypeKind::TYPE_INTERFACE:
                     LogError(token,
-                        String::Format("The '%s' type is not supported by c language.", type->ToString().string()));
+                        StringHelper::Format(
+                            "The '%s' type is not supported by c language.", type->ToString().c_str()));
                     break;
                 default:
                     break;
@@ -1408,7 +1416,7 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
             case TypeKind::TYPE_SMQ:
             case TypeKind::TYPE_UNKNOWN:
                 LogError(token,
-                    String::Format("The '%s' type is not supported by java language.", type->ToString().string()));
+                    StringHelper::Format("The '%s' type is not supported by java language.", type->ToString().c_str()));
                 return false;
             default:
                 break;
@@ -1434,17 +1442,17 @@ void Parser::SetAstFileType()
 bool Parser::CheckIntegrity()
 {
     if (ast_ == nullptr) {
-        LogError(String("ast is nullptr."));
+        LogError(std::string("ast is nullptr."));
         return false;
     }
 
-    if (ast_->GetName().IsEmpty()) {
-        LogError(String("ast's name is empty."));
+    if (ast_->GetName().empty()) {
+        LogError(std::string("ast's name is empty."));
         return false;
     }
 
-    if (ast_->GetPackageName().IsEmpty()) {
-        LogError(String("ast's package name is empty."));
+    if (ast_->GetPackageName().empty()) {
+        LogError(std::string("ast's package name is empty."));
         return false;
     }
 
@@ -1456,12 +1464,12 @@ bool Parser::CheckIntegrity()
             return CheckCallbackAst();
         }
         case ASTFileType::AST_SEQUENCEABLE: {
-            LogError(String("it's impossible that ast is sequenceable."));
+            LogError(std::string("it's impossible that ast is sequenceable."));
             return false;
         }
         case ASTFileType::AST_TYPES: {
             if (ast_->GetInterfaceDef() != nullptr) {
-                LogError(String("custom ast cannot has interface."));
+                LogError(std::string("custom ast cannot has interface."));
                 return false;
             }
             break;
@@ -1477,17 +1485,17 @@ bool Parser::CheckInterfaceAst()
 {
     AutoPtr<ASTInterfaceType> interface = ast_->GetInterfaceDef();
     if (interface == nullptr) {
-        LogError(String("ast's interface is empty."));
+        LogError(std::string("ast's interface is empty."));
         return false;
     }
 
     if (ast_->GetTypeDefinitionNumber() > 0) {
-        LogError(String("interface ast cannot has custom types."));
+        LogError(std::string("interface ast cannot has custom types."));
         return false;
     }
 
     if (interface->GetMethodNumber() == 0) {
-        LogError(String("interface ast has no method."));
+        LogError(std::string("interface ast has no method."));
         return false;
     }
     return true;
@@ -1497,12 +1505,12 @@ bool Parser::CheckCallbackAst()
 {
     AutoPtr<ASTInterfaceType> interface = ast_->GetInterfaceDef();
     if (interface == nullptr) {
-        LogError(String("ast's interface is empty."));
+        LogError(std::string("ast's interface is empty."));
         return false;
     }
 
     if (!interface->IsCallback()) {
-        LogError(String("ast is callback, but ast's interface is not callback."));
+        LogError(std::string("ast is callback, but ast's interface is not callback."));
         return false;
     }
     return true;
@@ -1513,29 +1521,29 @@ bool Parser::CheckCallbackAst()
  * filePath: ./ohos/interface/foo/v1_0/IFoo.idl
  * package OHOS.Hdi.foo.v1_0;
  */
-bool Parser::CheckPackageName(const String &filePath, const String &packageName)
+bool Parser::CheckPackageName(const std::string &filePath, const std::string &packageName)
 {
-    String pkgToPath = Options::GetInstance().GetPackagePath(packageName);
+    std::string pkgToPath = Options::GetInstance().GetPackagePath(packageName);
 
-    int index = filePath.LastIndexOf(File::separator);
-    if (index == -1) {
+    size_t index = filePath.rfind(File::separator);
+    if (index == std::string::npos) {
         return false;
     }
 
-    String parentDir = filePath.Substring(0, index);
-    return parentDir.Equals(pkgToPath);
+    std::string parentDir = filePath.substr(0, index);
+    return parentDir == pkgToPath;
 }
 
-bool Parser::CheckImport(const String &importName)
+bool Parser::CheckImport(const std::string &importName)
 {
-    if (!std::regex_match(importName.string(), reImport)) {
-        LogError(String::Format("invalid impirt name '%s'", importName.string()));
+    if (!std::regex_match(importName.c_str(), reImport)) {
+        LogError(StringHelper::Format("invalid impirt name '%s'", importName.c_str()));
         return false;
     }
 
-    String idlFilePath = Options::GetInstance().GetImportFilePath(importName);
+    std::string idlFilePath = Options::GetInstance().GetImportFilePath(importName);
     if (!File::CheckValid(idlFilePath)) {
-        LogError(String::Format("can not import '%s'", idlFilePath.string()));
+        LogError(StringHelper::Format("can not import '%s'", idlFilePath.c_str()));
         return false;
     }
     return true;
@@ -1544,7 +1552,7 @@ bool Parser::CheckImport(const String &importName)
 bool Parser::AddAst(const AutoPtr<AST> &ast)
 {
     if (ast == nullptr) {
-        LogError(String("ast is nullptr."));
+        LogError(std::string("ast is nullptr."));
         return false;
     }
 
@@ -1552,20 +1560,20 @@ bool Parser::AddAst(const AutoPtr<AST> &ast)
     return true;
 }
 
-void Parser::LogError(const String &message)
+void Parser::LogError(const std::string &message)
 {
     errors_.push_back(message);
 }
 
-void Parser::LogError(const Token &token, const String &message)
+void Parser::LogError(const Token &token, const std::string &message)
 {
-    errors_.push_back(String::Format("[%s] error:%s", LocInfo(token).string(), message.string()));
+    errors_.push_back(StringHelper::Format("[%s] error:%s", LocInfo(token).c_str(), message.c_str()));
 }
 
 void Parser::ShowError()
 {
     for (const auto &errMsg : errors_) {
-        Logger::E(TAG, "%s", errMsg.string());
+        Logger::E(TAG, "%s", errMsg.c_str());
     }
 }
 } // namespace HDI

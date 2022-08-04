@@ -26,17 +26,18 @@ public:
 
     bool HasInnerType(TypeKind innerType) const override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
     TypeKind GetTypeKind() override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    void EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool initVariable, unsigned int innerLevel = 0) const override;
+    void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
+
 private:
     AutoPtr<ASTType> innerType_;
 };
@@ -47,17 +48,17 @@ public:
 
     bool IsAshmemType() override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
     TypeKind GetTypeKind() override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    void EmitCppWriteVar(const String& parcelName, const String& name, StringBuilder& sb,
-        const String& prefix, unsigned int innerLevel = 0) const override;
+    void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppReadVar(const String& parcelName, const String& name, StringBuilder& sb,
-        const String& prefix, bool initVariable, unsigned int innerLevel = 0) const override;
+    void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 };
 } // namespace HDI
 } // namespace OHOS

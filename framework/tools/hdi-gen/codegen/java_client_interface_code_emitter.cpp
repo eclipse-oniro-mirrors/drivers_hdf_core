@@ -12,7 +12,7 @@
 
 namespace OHOS {
 namespace HDI {
-bool JavaClientInterfaceCodeEmitter::ResolveDirectory(const String &targetDirectory)
+bool JavaClientInterfaceCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
 {
     if (ast_->GetASTFileType() == ASTFileType::AST_IFACE || ast_->GetASTFileType() == ASTFileType::AST_ICALLBACK) {
         directory_ = GetFileParentPath(targetDirectory);
@@ -21,7 +21,7 @@ bool JavaClientInterfaceCodeEmitter::ResolveDirectory(const String &targetDirect
     }
 
     if (!File::CreateParentDir(directory_)) {
-        Logger::E("JavaClientInterfaceCodeEmitter", "Create '%s' failed!", directory_.string());
+        Logger::E("JavaClientInterfaceCodeEmitter", "Create '%s' failed!", directory_.c_str());
         return false;
     }
 
@@ -35,8 +35,8 @@ void JavaClientInterfaceCodeEmitter::EmitCode()
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.java", directory_.string(),
-        FileName(interfaceName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.java", directory_.c_str(), FileName(interfaceName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -47,8 +47,8 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceFile()
     sb.Append("\n");
     EmitInterfaceDefinition(sb);
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -100,18 +100,18 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceSelfDefinedTypeImports(StringB
 {
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> import = importPair.second;
-        sb.AppendFormat("import %s;\n", import->GetFullName().string());
+        sb.AppendFormat("import %s;\n", import->GetFullName().c_str());
     }
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
 {
-    sb.AppendFormat("public interface %s extends IRemoteBroker {\n", interface_->GetName().string());
+    sb.AppendFormat("public interface %s extends IRemoteBroker {\n", interface_->GetName().c_str());
     EmitInterfaceMethods(sb, TAB);
     sb.Append("}");
 }
 
-void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const String &prefix)
+void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix)
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -123,13 +123,13 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, con
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceMethod(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     if (method->GetParameterNumber() == 0) {
-        sb.Append(prefix).AppendFormat("int %s() throws RemoteException;\n", MethodName(method->GetName()).string());
+        sb.Append(prefix).AppendFormat("int %s() throws RemoteException;\n", MethodName(method->GetName()).c_str());
     } else {
         StringBuilder paramStr;
-        paramStr.Append(prefix).AppendFormat("int %s(", MethodName(method->GetName()).string());
+        paramStr.Append(prefix).AppendFormat("int %s(", MethodName(method->GetName()).c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             EmitInterfaceMethodParameter(param, paramStr, "");
@@ -145,7 +145,7 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceMethod(
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).Append(param->EmitJavaParameter());
 }

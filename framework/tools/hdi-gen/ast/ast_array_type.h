@@ -32,60 +32,61 @@ public:
 
     bool HasInnerType(TypeKind innerType) const override;
 
-    virtual String ToString() const;
+    virtual std::string ToString() const;
 
     virtual TypeKind GetTypeKind();
 
-    String EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    virtual String EmitJavaType(TypeMode mode, bool isInnerType = false) const;
+    virtual std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const;
 
-    void EmitCWriteVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const override;
+    void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCProxyWriteOutVar(const String &parcelName, const String &name, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const override;
+    void EmitCProxyWriteOutVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const override;
+    void EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const override;
+    void EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCStubReadOutVar(const String &buffSizeName, const String &memFlagName, const String &parcelName,
-        const String &name, const String &ecName, const String &gotoLabel, StringBuilder &sb,
-        const String &prefix) const override;
+    void EmitCStubReadOutVar(const std::string &buffSizeName, const std::string &memFlagName,
+        const std::string &parcelName, const std::string &name, const std::string &ecName, const std::string &gotoLabel,
+        StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool initVariable, unsigned int innerLevel = 0) const override;
+    void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
-    void EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb, const String &prefix,
-        std::vector<String> &freeObjStatements) const override;
+    void EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix, std::vector<std::string> &freeObjStatements) const override;
 
-    void EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool emitType, unsigned int innerLevel = 0) const override;
+    void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 
-    void EmitMemoryRecycle(
-        const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const override;
+    void EmitMemoryRecycle(const std::string &name, bool isClient, bool ownership, StringBuilder &sb,
+        const std::string &prefix) const override;
 
     virtual void EmitJavaWriteVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const;
+        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     virtual void EmitJavaReadVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const;
+        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
-        const String &prefix) const;
+    virtual void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+        StringBuilder &sb, const std::string &prefix) const;
 
     void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 
@@ -101,48 +102,53 @@ public:
 
     // c methods about reading and writing array with pod element
 
-    void EmitCWriteMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+    void EmitCWriteMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCReadMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+    void EmitCReadMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCStubReadMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+    void EmitCStubReadMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCStubReadMethodBody(StringBuilder &sb, const String &prefix) const;
+    void EmitCStubReadMethodBody(StringBuilder &sb, const std::string &prefix) const;
 
     // c methods about reading and writing string array
 
-    void EmitCWriteStrArrayMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix,
-        bool isDecl) const;
+    void EmitCWriteStrArrayMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCReadStrArrayMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix,
-        bool isDecl) const;
+    void EmitCReadStrArrayMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCReadStrArrayMethodBody(StringBuilder &sb, const String& prefix) const;
+    void EmitCReadStrArrayMethodBody(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitCCheckParamOfReadStringArray(StringBuilder &sb, const String& prefix) const;
+    void EmitCCheckParamOfReadStringArray(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitCStubReadStrArrayMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix,
-        bool isDecl) const;
+    void EmitCStubReadStrArrayMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCStubReadStrArrayMethodBody(StringBuilder &sb, const String& prefix) const;
+    void EmitCStubReadStrArrayMethodBody(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitCStubReadStrArrayFree(StringBuilder &sb, const String& prefix) const;
+    void EmitCStubReadStrArrayFree(StringBuilder &sb, const std::string &prefix) const;
 
     // cpp methods about reading and writing array with pod element
 
-    void EmitCppWriteMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+    void EmitCppWriteMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
-    void EmitCppReadMethods(StringBuilder &sb, const String& prefix, const String& methodPrefix, bool isDecl) const;
+    void EmitCppReadMethods(
+        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 
 protected:
     void EmitJavaWriteArrayVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const;
+        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitCMallocVar(const String &name, const String &lenName, bool isClient, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
+    void EmitCMallocVar(const std::string &name, const std::string &lenName, bool isClient, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitCStringElementUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
-        const String &newPrefix, std::vector<String> &freeObjStatements) const;
+    void EmitCStringElementUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &newPrefix, std::vector<std::string> &freeObjStatements) const;
 
     AutoPtr<ASTType> elementType_;
 };
@@ -159,20 +165,20 @@ public:
 
     bool IsListType() override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
     TypeKind GetTypeKind() override;
 
-    String EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
+    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 
-    void EmitJavaWriteVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitJavaWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitJavaReadVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitJavaReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
-        const String &prefix) const override;
+    void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner, StringBuilder &sb,
+        const std::string &prefix) const override;
 };
 } // namespace HDI
 } // namespace OHOS

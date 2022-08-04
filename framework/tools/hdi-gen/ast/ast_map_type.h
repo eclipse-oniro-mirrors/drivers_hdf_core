@@ -42,40 +42,41 @@ public:
 
     bool HasInnerType(TypeKind innerType) const override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
     TypeKind GetTypeKind() override;
 
-    String EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
+    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 
-    void EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool initVariable, unsigned int innerLevel = 0) const override;
+    void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
-    void EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool emitType, unsigned int innerLevel = 0) const override;
+    void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 
-    void EmitJavaWriteVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitJavaWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitJavaReadVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitJavaReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
-        const String &prefix) const override;
+    void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner, StringBuilder &sb,
+        const std::string &prefix) const override;
 
     void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 
     void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
+
 private:
     AutoPtr<ASTType> keyType_;
     AutoPtr<ASTType> valueType_;

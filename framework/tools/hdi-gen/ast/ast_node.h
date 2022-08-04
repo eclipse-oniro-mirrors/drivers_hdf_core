@@ -9,8 +9,10 @@
 #ifndef OHOS_HDI_ASTNODE_H
 #define OHOS_HDI_ASTNODE_H
 
+#include <string>
+
 #include "util/light_refcount_base.h"
-#include "util/string.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
@@ -18,11 +20,12 @@ class ASTNode : public LightRefCountBase {
 public:
     virtual ~ASTNode();
 
-    virtual String ToString() const;
+    virtual std::string ToString() const;
 
-    virtual String Dump(const String &prefix);
+    virtual std::string Dump(const std::string &prefix);
+
 protected:
-    static constexpr char* TAB = "    ";
+    static constexpr char *TAB = "    ";
 };
 } // namespace HDI
 } // namespace OHOS

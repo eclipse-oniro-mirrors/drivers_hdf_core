@@ -28,16 +28,17 @@ public:
         isSerializable_(false),
         methods_(),
         getVerMethod_()
-    {}
+    {
+    }
 
     void SetNamespace(const AutoPtr<ASTNamespace> &nspace) override;
 
-    inline void SetLicense(const String &license)
+    inline void SetLicense(const std::string &license)
     {
         license_ = license;
     }
 
-    inline String GetLicense() const
+    inline std::string GetLicense() const
     {
         return license_;
     }
@@ -103,46 +104,47 @@ public:
 
     bool IsInterfaceType() override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
     TypeKind GetTypeKind() override;
 
-    String GetFullName() const;
+    std::string GetFullName() const;
 
-    String EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
+    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 
-    void EmitCWriteVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const override;
+    void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const override;
+    void EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const override;
+    void EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool initVariable, unsigned int innerLevel = 0) const override;
+    void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
-    void EmitJavaWriteVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitJavaWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitJavaReadVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitJavaReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
-        const String &prefix) const override;
+    void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner, StringBuilder &sb,
+        const std::string &prefix) const override;
 
 private:
-    String license_;
+    std::string license_;
 
     AutoPtr<ASTInfAttr> attr_;
     bool isSerializable_;

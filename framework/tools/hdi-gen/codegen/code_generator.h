@@ -13,22 +13,21 @@
 
 namespace OHOS {
 namespace HDI {
-using CodeEmitMap = std::unordered_map<String, AutoPtr<CodeEmitter>, StringHashFunc, StringEqualFunc>;
-
+using CodeEmitMap = std::unordered_map<std::string, AutoPtr<CodeEmitter>>;
 class CodeGenerator : public LightRefCountBase {
 public:
-    using StrAstMap = std::unordered_map<String, AutoPtr<AST>, StringHashFunc, StringEqualFunc>;
+    using StrAstMap = std::unordered_map<std::string, AutoPtr<AST>>;
     explicit CodeGenerator(const StrAstMap &allAst) : LightRefCountBase(), allAst_(allAst), targetDirectory_() {}
 
     bool Generate();
 
 private:
-    void GenerateCCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart, bool isKernel);
-    void GenerateCppCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart);
-    void GenerateJavaCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart);
+    void GenerateCCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel);
+    void GenerateCppCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart);
+    void GenerateJavaCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart);
 
     const StrAstMap &allAst_;
-    String targetDirectory_;
+    std::string targetDirectory_;
 
     static CodeEmitMap cCodeEmitters_;
     static CodeEmitMap cppCodeEmitters_;

@@ -14,39 +14,39 @@
 #include <vector>
 
 #include "lexer/lexer.h"
-#include "util/string.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
 struct FileDetail {
 public:
-    inline String GetFullName() const
+    inline std::string GetFullName() const
     {
-        return String::Format("%s.%s", packageName_.string(), fileName_.string());
+        return StringHelper::Format("%s.%s", packageName_.c_str(), fileName_.c_str());
     }
 
-    String Dump() const;
+    std::string Dump() const;
 
 public:
-    String filePath_;
-    String fileName_;
-    String packageName_;
-    std::unordered_set<String, StringHashFunc, StringEqualFunc> imports_;
+    std::string filePath_;
+    std::string fileName_;
+    std::string packageName_;
+    std::unordered_set<std::string> imports_;
 };
 
 class Preprocessor {
 public:
-    using FileDetailMap = std::unordered_map<String, FileDetail, StringHashFunc, StringEqualFunc>;
+    using FileDetailMap = std::unordered_map<std::string, FileDetail>;
 
     // analyze idl files and return sorted ids files
-    bool Preprocess(std::vector<String> &compileSourceFiles);
+    bool Preprocess(std::vector<std::string> &compileSourceFiles);
 
 private:
-    bool CheckAllFilesPath(const std::vector<String> &sourceFiles);
+    bool CheckAllFilesPath(const std::vector<std::string> &sourceFiles);
 
-    bool AnalyseImportInfo(const std::vector<String> &sourceFiles, FileDetailMap &allFileDetails);
+    bool AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails);
 
-    bool ParseFileDetail(const String &sourceFile, FileDetail &info);
+    bool ParseFileDetail(const std::string &sourceFile, FileDetail &info);
 
     bool ParsePackage(Lexer &lexer, FileDetail &info);
 
@@ -54,11 +54,11 @@ private:
 
     bool LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails);
 
-    bool CheckCircularReference(FileDetailMap &allFileDetails, std::vector<String> &compileSourceFiles);
+    bool CheckCircularReference(FileDetailMap &allFileDetails, std::vector<std::string> &compileSourceFiles);
 
     void PrintCyclefInfo(FileDetailMap &allFileDetails);
 
-    void FindCycle(const String &curNode, FileDetailMap &allFiles, std::vector<String> &trace);
+    void FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace);
 
 private:
     static constexpr char *TAG = "Preprocessor";

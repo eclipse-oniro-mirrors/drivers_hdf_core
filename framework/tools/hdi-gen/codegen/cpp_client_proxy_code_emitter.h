@@ -20,7 +20,7 @@ public:
     virtual ~CppClientProxyCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -30,17 +30,17 @@ private:
 
     void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
-    void EmitProxyDecl(StringBuilder &sb, const String &prefix);
+    void EmitProxyDecl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyConstructor(StringBuilder &sb, const String &prefix);
+    void EmitProxyConstructor(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodDecls(StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodDecls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyConstants(StringBuilder &sb, const String &prefix);
+    void EmitProxyConstants(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 
     void EmitProxySourceFile();
 
@@ -48,22 +48,22 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
-    void EmitGetMethodImpl(StringBuilder &sb, const String &prefix);
+    void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitGetInstanceMethodImpl(StringBuilder &sb, const String &prefix);
+    void EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const String &prefix);
+    void EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodImpls(StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitWriteInterfaceToken(const String &parcelName, StringBuilder &sb, const String &prefix);
+    void EmitWriteInterfaceToken(const std::string &parcelName, StringBuilder &sb, const std::string &prefix);
 
     void EmitWriteFlagOfNeedSetMem(
-        const AutoPtr<ASTMethod> &method, const String &dataBufName, StringBuilder &sb, const String &prefix);
+        const AutoPtr<ASTMethod> &method, const std::string &dataBufName, StringBuilder &sb, const std::string &prefix);
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 };

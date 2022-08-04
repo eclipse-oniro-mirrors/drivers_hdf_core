@@ -22,7 +22,7 @@ public:
     virtual ~CCustomTypesCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -56,38 +56,38 @@ private:
 
     void EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
 
-    void EmitMarshallingVarDecl(const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb,
-        const String &prefix);
+    void EmitMarshallingVarDecl(
+        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitUnmarshallingVarDecl(const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb,
-        const String &prefix);
+    void EmitUnmarshallingVarDecl(
+        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitMarshallingParamCheck(const String &name, StringBuilder &sb, const String &prefix);
+    void EmitMarshallingParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitUnmarshallingParamCheck(const String &name, StringBuilder &sb, const String &prefix);
+    void EmitUnmarshallingParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitPodTypeUnmarshalling(const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb,
-        const String &prefix);
+    void EmitPodTypeUnmarshalling(
+        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitMemberUnmarshalling(const AutoPtr<ASTType> &type, const String &name, const String &memberName,
-        StringBuilder &sb, const String &prefix);
+    void EmitMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &name, const std::string &memberName,
+        StringBuilder &sb, const std::string &prefix);
 
-    void EmitStringMemberUnmarshalling(const AutoPtr<ASTType> &type, const String &memberName, const String &varName,
-        StringBuilder &sb, const String &prefix);
+    void EmitStringMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &memberName,
+        const std::string &varName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitArrayMemberUnmarshalling(const AutoPtr<ASTType> &type, const String &memberName, const String &varName,
-        StringBuilder &sb, const String &prefix);
+    void EmitArrayMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &memberName,
+        const std::string &varName, StringBuilder &sb, const std::string &prefix);
 
     void EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
 
     bool NeedEmitInitVar(const AutoPtr<ASTType> &type, bool needFree);
 
     void EmitCustomTypeMemoryRecycle(
-        const AutoPtr<ASTStructType> &type, const String &name, StringBuilder &sb, const String &prefix);
+        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 
-    std::vector<String> freeObjStatements_;
+    std::vector<std::string> freeObjStatements_;
 };
 } // namespace HDI
 } // namespace OHOS

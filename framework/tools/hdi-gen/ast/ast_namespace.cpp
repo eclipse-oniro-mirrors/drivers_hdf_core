@@ -12,7 +12,7 @@
 
 namespace OHOS {
 namespace HDI {
-ASTNamespace::ASTNamespace(const String &nspaceStr) : name_(nspaceStr), outerNamespace_(nullptr) {}
+ASTNamespace::ASTNamespace(const std::string &nspaceStr) : name_(nspaceStr), outerNamespace_(nullptr) {}
 
 void ASTNamespace::AddNamespace(const AutoPtr<ASTNamespace> &innerNspace)
 {
@@ -24,14 +24,14 @@ void ASTNamespace::AddNamespace(const AutoPtr<ASTNamespace> &innerNspace)
     innerNspace->outerNamespace_ = this;
 }
 
-AutoPtr<ASTNamespace> ASTNamespace::FindNamespace(const String &nspaceStr)
+AutoPtr<ASTNamespace> ASTNamespace::FindNamespace(const std::string &nspaceStr)
 {
-    if (nspaceStr.IsEmpty()) {
+    if (nspaceStr.empty()) {
         return nullptr;
     }
 
     for (auto nspace : innerNamespaces_) {
-        if (nspace->name_.Equals(nspaceStr)) {
+        if (nspace->name_ == nspaceStr) {
             return nspace;
         }
     }
@@ -83,9 +83,9 @@ AutoPtr<ASTSequenceableType> ASTNamespace::GetSequenceable(size_t index)
     return sequenceables_[index];
 }
 
-String ASTNamespace::ToString() const
+std::string ASTNamespace::ToString() const
 {
-    String nspaceStr;
+    std::string nspaceStr;
     const ASTNamespace *nspace = this;
     while (nspace != nullptr) {
         nspaceStr = nspace->name_ + "." + nspaceStr;

@@ -14,7 +14,6 @@
 #include "ast/ast.h"
 #include "util/autoptr.h"
 #include "util/light_refcount_base.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
@@ -28,12 +27,12 @@ enum class HeaderFileType {
 };
 
 struct HeaderFile {
-    HeaderFile(HeaderFileType type, String fileName) : type_(type), fileName_(fileName) {}
+    HeaderFile(HeaderFileType type, std::string fileName) : type_(type), fileName_(fileName) {}
 
     struct compare {
         bool operator()(const HeaderFile &lhs, const HeaderFile &rhs)
         {
-            int compareRet = lhs.fileName_.Compare(rhs.fileName_);
+            int compareRet = lhs.fileName_.compare(rhs.fileName_);
             if (compareRet == 0) {
                 return false;
             }
@@ -46,53 +45,53 @@ struct HeaderFile {
         }
     };
 
-    String ToString() const
+    std::string ToString() const
     {
         switch (type_) {
             case HeaderFileType::OWN_HEADER_FILE:
             case HeaderFileType::OWN_MODULE_HEADER_FILE:
-                return String::Format("#include \"%s.h\"", fileName_.string());
+                return StringHelper::Format("#include \"%s.h\"", fileName_.c_str());
             case HeaderFileType::SYSTEM_HEADER_FILE:
             case HeaderFileType::C_STD_HEADER_FILE:
             case HeaderFileType::OTHER_MODULES_HEADER_FILE:
-                return String::Format("#include <%s.h>", fileName_.string());
+                return StringHelper::Format("#include <%s.h>", fileName_.c_str());
             case HeaderFileType::CPP_STD_HEADER_FILE:
-                return String::Format("#include <%s>", fileName_.string());
+                return StringHelper::Format("#include <%s>", fileName_.c_str());
             default:
-                return String::Format("//");
+                return StringHelper::Format("//");
         }
     }
 
     using HeaderFileSet = std::set<HeaderFile, HeaderFile::compare>;
 
     HeaderFileType type_;
-    String fileName_;
+    std::string fileName_;
 };
 
 class CodeEmitter : public LightRefCountBase {
 public:
     virtual ~CodeEmitter() = default;
 
-    bool OutPut(const AutoPtr<AST> &ast, const String &targetDirectory, bool isKernelCode = false);
+    bool OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode = false);
 
 protected:
-    bool Reset(const AutoPtr<AST> &ast, const String &targetDirectory, bool isKernelCode);
+    bool Reset(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode);
 
     void CleanData();
 
-    virtual bool ResolveDirectory(const String &targetDirectory) = 0;
+    virtual bool ResolveDirectory(const std::string &targetDirectory) = 0;
 
     virtual void EmitCode() = 0;
 
     bool NeedFlag(const AutoPtr<ASTMethod> &method);
 
-    String GetFileParentPath(const String &outDir);
+    std::string GetFileParentPath(const std::string &outDir);
 
-    String PackageToFilePath(const String &packageName);
+    std::string PackageToFilePath(const std::string &packageName);
 
-    String EmitMethodCmdID(const AutoPtr<ASTMethod> &method);
+    std::string EmitMethodCmdID(const AutoPtr<ASTMethod> &method);
 
-    void EmitInterfaceMethodCommands(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
 
     /* ForExample:
      * MajorVersion: 1
@@ -100,46 +99,47 @@ protected:
      * name: IFoo
      * result: v1_0/ifoo.h
      */
-    String EmitVersionHeaderName(const String &name);
+    std::string EmitVersionHeaderName(const std::string &name);
 
     // file_name -> FILE_NAME
-    String ConstantName(const String &name);
+    std::string ConstantName(const std::string &name);
 
     // file_name -> FileName
-    String PascalName(const String &name);
+    std::string PascalName(const std::string &name);
 
     // FileName -> file_name
-    String FileName(const String &name);
+    std::string FileName(const std::string &name);
 
     virtual void GetUtilMethods(UtilMethodMap &methods);
 
-    virtual void EmitUtilMethods(StringBuilder &sb, const String &prefix, const UtilMethodMap &methods, bool isDecl);
+    virtual void EmitUtilMethods(
+        StringBuilder &sb, const std::string &prefix, const UtilMethodMap &methods, bool isDecl);
 
 protected:
     static constexpr char *TAB = "    ";
     bool isKernelCode_ = false;
     AutoPtr<AST> ast_ = nullptr;
     AutoPtr<ASTInterfaceType> interface_ = nullptr;
-    String directory_;
+    std::string directory_;
 
-    String interfaceName_;
-    String interfaceFullName_;
-    String baseName_;
-    String proxyName_;
-    String proxyFullName_;
-    String stubName_;
-    String stubFullName_;
-    String implName_;
-    String implFullName_;
-    String majorVerName_;
-    String minorVerName_;
-    String bufferSizeMacroName_;
+    std::string interfaceName_;
+    std::string interfaceFullName_;
+    std::string baseName_;
+    std::string proxyName_;
+    std::string proxyFullName_;
+    std::string stubName_;
+    std::string stubFullName_;
+    std::string implName_;
+    std::string implFullName_;
+    std::string majorVerName_;
+    std::string minorVerName_;
+    std::string bufferSizeMacroName_;
 
-    String dataParcelName_;
-    String replyParcelName_;
-    String optionName_;
-    String errorCodeName_;
-    String flagOfSetMemName_;
+    std::string dataParcelName_;
+    std::string replyParcelName_;
+    std::string optionName_;
+    std::string errorCodeName_;
+    std::string flagOfSetMemName_;
 };
 } // namespace HDI
 } // namespace OHOS

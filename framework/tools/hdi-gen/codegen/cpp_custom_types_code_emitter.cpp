@@ -12,7 +12,7 @@
 
 namespace OHOS {
 namespace HDI {
-bool CppCustomTypesCodeEmitter::ResolveDirectory(const String &targetDirectory)
+bool CppCustomTypesCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
 {
     if (ast_->GetASTFileType() != ASTFileType::AST_TYPES) {
         return false;
@@ -20,7 +20,7 @@ bool CppCustomTypesCodeEmitter::ResolveDirectory(const String &targetDirectory)
 
     directory_ = GetFileParentPath(targetDirectory);
     if (!File::CreateParentDir(directory_)) {
-        Logger::E("CppCustomTypesCodeEmitter", "Create '%s' failed!", directory_.string());
+        Logger::E("CppCustomTypesCodeEmitter", "Create '%s' failed!", directory_.c_str());
         return false;
     }
 
@@ -35,9 +35,10 @@ void CppCustomTypesCodeEmitter::EmitCode()
 
 void CppCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.h", directory_.string(), FileName(baseName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(baseName_).c_str()));
     File file(filePath, File::WRITE);
-    String marcoName = String::Format("%s.%s", ast_->GetPackageName().string(), baseName_.string());
+    std::string marcoName = StringHelper::Format("%s.%s", ast_->GetPackageName().c_str(), baseName_.c_str());
     StringBuilder sb;
 
     EmitLicense(sb);
@@ -57,8 +58,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
     sb.Append("\n");
     EmitTailMacro(sb, marcoName);
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -72,7 +73,7 @@ void CppCustomTypesCodeEmitter::EmitHeaderFileInclusions(StringBuilder &sb)
     GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
-        sb.AppendFormat("%s\n", file.ToString().string());
+        sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
@@ -139,21 +140,22 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
 
 void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
 {
-    String objName("dataBlock");
-    sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel &data, const %s& %s);\n", type->GetName().string(),
-        type->EmitCppType().string(), objName.string());
+    std::string objName("dataBlock");
+    sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel &data, const %s& %s);\n", type->GetName().c_str(),
+        type->EmitCppType().c_str(), objName.c_str());
 }
 
 void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
 {
-    String objName("dataBlock");
-    sb.AppendFormat("bool %sBlockUnmarshalling(OHOS::MessageParcel &data, %s& %s);\n", type->GetName().string(),
-        type->EmitCppType().string(), objName.string());
+    std::string objName("dataBlock");
+    sb.AppendFormat("bool %sBlockUnmarshalling(OHOS::MessageParcel &data, %s& %s);\n", type->GetName().c_str(),
+        type->EmitCppType().c_str(), objName.c_str());
 }
 
 void CppCustomTypesCodeEmitter::EmitCustomTypesSourceFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.cpp", directory_.string(), FileName(baseName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.cpp", directory_.c_str(), FileName(baseName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -172,8 +174,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesSourceFile()
     sb.Append("\n");
     EmitEndNamespace(sb);
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -186,7 +188,7 @@ void CppCustomTypesCodeEmitter::EmitSourceFileInclusions(StringBuilder &sb)
     GetSourceOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
-        sb.AppendFormat("%s\n", file.ToString().string());
+        sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
@@ -214,23 +216,23 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
 
 void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
 {
-    String objName("dataBlock");
+    std::string objName("dataBlock");
 
-    sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel& data, const %s& %s)\n", type->EmitCppType().string(),
-        type->EmitCppType().string(), objName.string());
+    sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel& data, const %s& %s)\n", type->EmitCppType().c_str(),
+        type->EmitCppType().c_str(), objName.c_str());
     sb.Append("{\n");
 
     if (type->IsPod()) {
-        sb.Append(TAB).AppendFormat("if (!data.WriteUnpadBuffer((const void*)&%s, sizeof(%s))) {\n",
-            objName.string(), type->EmitCppType().string());
+        sb.Append(TAB).AppendFormat("if (!data.WriteUnpadBuffer((const void*)&%s, sizeof(%s))) {\n", objName.c_str(),
+            type->EmitCppType().c_str());
         sb.Append(TAB).Append(TAB).Append("return false;\n");
         sb.Append(TAB).Append("}\n");
     } else {
         for (size_t i = 0; i < type->GetMemberNumber(); i++) {
             AutoPtr<ASTType> memberType = type->GetMemberType(i);
-            String memberName = type->GetMemberName(i);
+            std::string memberName = type->GetMemberName(i);
 
-            String name = String::Format("%s.%s", objName.string(), memberName.string());
+            std::string name = StringHelper::Format("%s.%s", objName.c_str(), memberName.c_str());
             memberType->EmitCppMarshalling("data", name, sb, TAB);
             if (i + 1 < type->GetMemberNumber()) {
                 sb.Append("\n");
@@ -244,68 +246,67 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb,
 
 void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
 {
-    String objName("dataBlock");
+    std::string objName("dataBlock");
 
-    sb.AppendFormat("bool %sBlockUnmarshalling(OHOS::MessageParcel& data, %s& %s)\n", type->GetName().string(),
-        type->EmitCppType().string(), objName.string());
+    sb.AppendFormat("bool %sBlockUnmarshalling(OHOS::MessageParcel& data, %s& %s)\n", type->GetName().c_str(),
+        type->EmitCppType().c_str(), objName.c_str());
     sb.Append("{\n");
 
     if (type->IsPod()) {
-        String objPtrName = String::Format("%sPtr", objName.string());
+        std::string objPtrName = StringHelper::Format("%sPtr", objName.c_str());
         sb.Append(TAB).AppendFormat("const %s *%s = reinterpret_cast<const %s*>(data.ReadUnpadBuffer(sizeof(%s)));\n",
-            type->EmitCppType().string(), objPtrName.string(), type->EmitCppType().string(),
-            type->EmitCppType().string());
-        sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objPtrName.string());
+            type->EmitCppType().c_str(), objPtrName.c_str(), type->EmitCppType().c_str(), type->EmitCppType().c_str());
+        sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objPtrName.c_str());
         sb.Append(TAB).Append(TAB).Append("return false;\n");
         sb.Append(TAB).Append("}\n\n");
-        sb.Append(TAB).AppendFormat("if (memcpy_s(&%s, sizeof(%s), %s, sizeof(%s)) != EOK) {\n",
-            objName.string(), type->EmitCppType().string(), objPtrName.string(), type->EmitCppType().string());
+        sb.Append(TAB).AppendFormat("if (memcpy_s(&%s, sizeof(%s), %s, sizeof(%s)) != EOK) {\n", objName.c_str(),
+            type->EmitCppType().c_str(), objPtrName.c_str(), type->EmitCppType().c_str());
         sb.Append(TAB).Append(TAB).Append("return false;\n");
         sb.Append(TAB).Append("}\n");
     } else {
         for (size_t i = 0; i < type->GetMemberNumber(); i++) {
             AutoPtr<ASTType> memberType = type->GetMemberType(i);
-            String memberName = type->GetMemberName(i);
-            String name = String::Format("%s.%s", objName.string(), memberName.string());
+            std::string memberName = type->GetMemberName(i);
+            std::string name = StringHelper::Format("%s.%s", objName.c_str(), memberName.c_str());
             if (i > 0 &&
                 (memberType->GetTypeKind() == TypeKind::TYPE_STRUCT ||
-                 memberType->GetTypeKind() == TypeKind::TYPE_UNION ||
-                 memberType->GetTypeKind() == TypeKind::TYPE_ARRAY ||
-                 memberType->GetTypeKind() == TypeKind::TYPE_LIST)) {
+                    memberType->GetTypeKind() == TypeKind::TYPE_UNION ||
+                    memberType->GetTypeKind() == TypeKind::TYPE_ARRAY ||
+                    memberType->GetTypeKind() == TypeKind::TYPE_LIST)) {
                 sb.Append("\n");
             }
 
             if (memberType->GetTypeKind() == TypeKind::TYPE_UNION) {
-                String cpName = String::Format("%sCp", memberName.string());
+                std::string cpName = StringHelper::Format("%sCp", memberName.c_str());
                 memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
-                sb.Append(TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", name.string(),
-                    memberType->EmitCppType().string(), cpName.string(), memberType->EmitCppType().string());
+                sb.Append(TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", name.c_str(),
+                    memberType->EmitCppType().c_str(), cpName.c_str(), memberType->EmitCppType().c_str());
             } else if (memberType->GetTypeKind() == TypeKind::TYPE_STRING) {
-                String cpName = String::Format("%sCp", memberName.string());
+                std::string cpName = StringHelper::Format("%sCp", memberName.c_str());
                 memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
-                sb.Append(TAB).AppendFormat("%s = %s;\n", name.string(), cpName.string());
+                sb.Append(TAB).AppendFormat("%s = %s;\n", name.c_str(), cpName.c_str());
             } else {
                 memberType->EmitCppUnMarshalling("data", name, sb, TAB, false);
             }
         }
     }
-    sb.Append(TAB).AppendFormat("return true;\n", objName.string());
+    sb.Append(TAB).AppendFormat("return true;\n", objName.c_str());
     sb.Append("}\n");
 }
 
 void CppCustomTypesCodeEmitter::EmitBeginNamespace(StringBuilder &sb)
 {
-    std::vector<String> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
+    std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
     for (const auto &nspace : cppNamespaceVec) {
-        sb.AppendFormat("namespace %s {\n", nspace.string());
+        sb.AppendFormat("namespace %s {\n", nspace.c_str());
     }
 }
 
 void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
-    std::vector<String> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
+    std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
     for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
-        sb.AppendFormat("} // %s\n", nspaceIter->string());
+        sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }
 

@@ -10,23 +10,24 @@
 #define OHOS_HDI_FILE_H
 
 #include <cstdio>
-
-#include "util/string.h"
+#include <string>
 
 namespace OHOS {
 namespace HDI {
 class File {
 public:
-    File(const String &path, unsigned int mode);
+    File(const std::string &path, unsigned int mode);
 
     ~File();
+
+    void OpenByRead(const std::string &path);
 
     inline bool IsValid() const
     {
         return fd_ != nullptr;
     }
 
-    inline String GetPath() const
+    inline std::string GetPath() const
     {
         return path_;
     }
@@ -37,12 +38,12 @@ public:
 
     bool IsEof() const;
 
-    inline int GetCharLineNumber() const
+    inline size_t GetCharLineNumber() const
     {
         return lineNo_;
     }
 
-    inline int GetCharColumnNumber() const
+    inline size_t GetCharColumnNumber() const
     {
         return columnNo_;
     }
@@ -59,16 +60,18 @@ public:
 
     void Close();
 
-    static bool CreateParentDir(const String &path);
+    static bool CreateParentDir(const std::string &path);
 
-    static String AdapterPath(const String &path);
+    static std::string AdapterPath(const std::string &path);
 
-    static String RealPath(const String &path);
+    static std::string AdapterRealPath(const std::string &path);
 
-    static bool CheckValid(const String &path);
+    static std::string RealPath(const std::string &path);
+
+    static bool CheckValid(const std::string &path);
 
     // "FileName" -> "file_name"
-    static String Pascal2UnderScoreCase(const String &name);
+    static std::string Pascal2UnderScoreCase(const std::string &name);
 
     size_t GetHashKey();
 
@@ -83,9 +86,10 @@ public:
 #endif
 
 private:
-    int Read();
+    size_t Read();
 
     static constexpr int BUFFER_SIZE = 1024;
+    static const char *TAG;
 
     char buffer_[BUFFER_SIZE] = {0};
     size_t size_ = 0;
@@ -96,7 +100,7 @@ private:
     bool isError_ = false;
 
     FILE *fd_ = nullptr;
-    String path_;
+    std::string path_;
     unsigned int mode_ = 0;
 };
 } // namespace HDI

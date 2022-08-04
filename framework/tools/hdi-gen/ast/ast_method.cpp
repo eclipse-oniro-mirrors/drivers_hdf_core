@@ -28,7 +28,7 @@ AutoPtr<ASTParameter> ASTMethod::GetParameter(size_t index)
     return parameters_[index];
 }
 
-String ASTMethod::Dump(const String &prefix)
+std::string ASTMethod::Dump(const std::string &prefix)
 {
     StringBuilder sb;
 
@@ -37,7 +37,7 @@ String ASTMethod::Dump(const String &prefix)
     if (parameters_.size() != 0) {
         sb.Append('\n');
         for (auto parameter : parameters_) {
-            String info = parameter->Dump(prefix + TAB);
+            std::string info = parameter->Dump(prefix + TAB);
             sb.Append(info);
             if (parameter != parameters_[parameters_.size() - 1]) {
                 sb.Append(",\n");

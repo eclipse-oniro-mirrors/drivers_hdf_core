@@ -49,9 +49,8 @@ enum class ASTFileType {
 
 class AST : public ASTNode {
 public:
-    using StrASTMap = std::unordered_map<String, AutoPtr<AST>, StringHashFunc, StringEqualFunc>;
-
-    using TypeStringMap = std::unordered_map<String, AutoPtr<ASTType>, StringHashFunc, StringEqualFunc>;
+    using StrASTMap = std::unordered_map<std::string, AutoPtr<AST>>;
+    using TypeStringMap = std::unordered_map<std::string, AutoPtr<ASTType>>;
 
     virtual ~AST() = default;
 
@@ -65,39 +64,39 @@ public:
         return astFileType_;
     }
 
-    void SetIdlFile(const String &idlFile);
+    void SetIdlFile(const std::string &idlFile);
 
-    inline String GetName()
+    inline std::string GetName()
     {
         return name_;
     }
 
-    void SetFullName(const String &fullName);
+    void SetFullName(const std::string &fullName);
 
-    inline String GetFullName()
+    inline std::string GetFullName()
     {
         return packageName_ + "." + name_;
     }
 
-    inline void SetLicense(const String &license)
+    inline void SetLicense(const std::string &license)
     {
         license_ = license;
     }
 
-    inline String GetLicense()
+    inline std::string GetLicense()
     {
         return license_;
     }
 
-    void SetPackageName(const String &packageName);
+    void SetPackageName(const std::string &packageName);
 
-    String GetPackageName();
+    std::string GetPackageName();
 
-    AutoPtr<ASTNamespace> ParseNamespace(const String &nspaceStr);
+    AutoPtr<ASTNamespace> ParseNamespace(const std::string &nspaceStr);
 
     void AddNamespace(const AutoPtr<ASTNamespace> &nspace);
 
-    AutoPtr<ASTNamespace> FindNamespace(const String &nspaceStr);
+    AutoPtr<ASTNamespace> FindNamespace(const std::string &nspaceStr);
 
     AutoPtr<ASTNamespace> GetNamespace(size_t index);
 
@@ -122,7 +121,7 @@ public:
 
     void AddType(const AutoPtr<ASTType> &type);
 
-    AutoPtr<ASTType> FindType(const String &typeName);
+    AutoPtr<ASTType> FindType(const std::string &typeName);
 
     inline const TypeStringMap &GetTypes() const
     {
@@ -143,7 +142,7 @@ public:
 
     AutoPtr<ASTType> GetTypeDefintion(size_t index);
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
     bool AddImport(const AutoPtr<AST> &importAst);
 
@@ -164,21 +163,21 @@ public:
         return minorVersion_;
     }
 
-    String GetVersion()
+    std::string GetVersion()
     {
-        return String::Format("%u.%u", majorVersion_, minorVersion_);
+        return StringHelper::Format("%u.%u", majorVersion_, minorVersion_);
     }
 
-    inline String GetIdlFilePath()
+    inline std::string GetIdlFilePath()
     {
         return idlFilePath_;
     }
 
 private:
     ASTFileType astFileType_ = ASTFileType::AST_IFACE;
-    String name_;
-    String license_;
-    String packageName_;
+    std::string name_;
+    std::string license_;
+    std::string packageName_;
     size_t majorVersion_;
     size_t minorVersion_;
     std::vector<AutoPtr<ASTNamespace>> namespaces_;
@@ -191,7 +190,7 @@ private:
 
     static TypeStringMap basicTypes_;
 
-    String idlFilePath_;
+    std::string idlFilePath_;
 };
 } // namespace HDI
 } // namespace OHOS

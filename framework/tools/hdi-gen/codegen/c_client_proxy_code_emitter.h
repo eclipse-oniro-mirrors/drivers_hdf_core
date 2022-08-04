@@ -20,7 +20,7 @@ public:
     virtual ~CClientProxyCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -40,24 +40,25 @@ private:
 
     void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb);
 
-    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitCreateBuf(const String &dataBufName, const String &replyBufName, StringBuilder &sb, const String &prefix);
+    void EmitCreateBuf(
+        const std::string &dataBufName, const std::string &replyBufName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitCheckThisPointer(StringBuilder &sb, const String &prefix);
+    void EmitCheckThisPointer(StringBuilder &sb, const std::string &prefix);
 
-    void EmitWriteInterfaceToken(const String &dataBufName, StringBuilder &sb, const String &prefix);
+    void EmitWriteInterfaceToken(const std::string &dataBufName, StringBuilder &sb, const std::string &prefix);
 
     void EmitWriteFlagOfNeedSetMem(
-        const AutoPtr<ASTMethod> &method, const String &dataBufName, StringBuilder &sb, const String &prefix);
+        const AutoPtr<ASTMethod> &method, const std::string &dataBufName, StringBuilder &sb, const std::string &prefix);
 
     void EmitReleaseBuf(
-        const String &dataBufName, const String &replyBufName, StringBuilder &sb, const String &prefix);
+        const std::string &dataBufName, const std::string &replyBufName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadProxyMethodParameter(const AutoPtr<ASTParameter> &param, const String &parcelName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix);
+    void EmitReadProxyMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubCallMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitStubCallMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
     void EmitProxyAsObjectMethodImpl(StringBuilder &sb);
 
@@ -67,32 +68,35 @@ private:
 
     void EmitProxyGetMethodImpl(StringBuilder &sb);
 
-    void EmitProxyGetInstanceMethodImpl(const String &objName, const String &serMajorName, const String &serMinorName,
-        const String &remoteName, const String &serviceName, StringBuilder &sb);
+    void EmitProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
+        const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
+        StringBuilder &sb);
 
-    void EmitKernelProxyGetInstanceMethodImpl(const String &objName, const String &serMajorName,
-        const String &serMinorName, const String &remoteName, const String &serviceName, StringBuilder &sb);
+    void EmitKernelProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
+        const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
+        StringBuilder &sb);
 
-    void EmitCbProxyGetMethodImpl(const String &objName, const String &serMajorName, const String &serMinorName,
-        const String &remoteName, StringBuilder &sb);
+    void EmitCbProxyGetMethodImpl(const std::string &objName, const std::string &serMajorName,
+        const std::string &serMinorName, const std::string &remoteName, StringBuilder &sb);
 
     void EmitProxyGetRemoteService(
-        const String &remoteName, const String &serviceName, StringBuilder &sb, const String &prefix);
+        const std::string &remoteName, const std::string &serviceName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxySetInterfaceDesc(
-        const String &remoteName, const String &recycleFuncName, StringBuilder &sb, const String &prefix);
+    void EmitProxySetInterfaceDesc(const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb,
+        const std::string &prefix);
 
-    void EmitProxyCreateProxyObject(const String &clientObjName, const String &remoteName,
-        const String &recycleFuncName, StringBuilder &sb, const String &prefix);
+    void EmitProxyCreateProxyObject(const std::string &clientObjName, const std::string &remoteName,
+        const std::string &recycleFuncName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyCheckVersion(const String &clientObjName, const String &serMajorName, const String &serMinorName,
-        StringBuilder &sb, const String &prefix);
+    void EmitProxyCheckVersion(const std::string &clientObjName, const std::string &serMajorName,
+        const std::string &serMinorName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyReleaseMethodImpl(const String &remoteName, const String &recycleFuncName, StringBuilder &sb);
+    void EmitProxyReleaseMethodImpl(
+        const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb);
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 
-    std::vector<String> freeObjStatements_;
+    std::vector<std::string> freeObjStatements_;
 };
 } // namespace HDI
 } // namespace OHOS

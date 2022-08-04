@@ -20,7 +20,7 @@ public:
     virtual ~CServiceStubCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -38,33 +38,34 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
-    void EmitServiceStubMethodImpls(StringBuilder &sb, const String &prefix);
+    void EmitServiceStubMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitServiceStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const String &prefix);
+    void EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix);
+    void EmitStubLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param, const String &parcelName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix);
+    void EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadCStringStubMethodParameter(const AutoPtr<ASTParameter> &param, const String &parcelName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix, AutoPtr<ASTType> &type);
+    void EmitReadCStringStubMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix, AutoPtr<ASTType> &type);
 
-    void EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const String &parcelName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix);
+    void EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
 
     void EmitStubCallMethod(
-        const AutoPtr<ASTMethod> &method, const String &gotoLabel, StringBuilder &sb, const String &prefix);
+        const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
 
-    void EmitCallParameter(StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const String &name);
+    void EmitCallParameter(
+        StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name);
 
-    void EmitStubGetVerMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitStubGetVerMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubAsObjectMethodImpl(StringBuilder &sb, const String &prefix);
+    void EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubOnRequestMethodImpl(StringBuilder &sb, const String &prefix);
+    void EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
 
     void EmitStubGetMethodImpl(StringBuilder &sb);
 

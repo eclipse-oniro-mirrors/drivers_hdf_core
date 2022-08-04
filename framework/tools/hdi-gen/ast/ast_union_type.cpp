@@ -12,10 +12,10 @@
 
 namespace OHOS {
 namespace HDI {
-void ASTUnionType::AddMember(const AutoPtr<ASTType> &typeName, String name)
+void ASTUnionType::AddMember(const AutoPtr<ASTType> &typeName, std::string name)
 {
     for (auto it : members_) {
-        if (std::get<0>(it).Equals(name)) {
+        if (std::get<0>(it) == name) {
             return;
         }
     }
@@ -27,20 +27,20 @@ bool ASTUnionType::IsUnionType()
     return true;
 }
 
-String ASTUnionType::ToString() const
+std::string ASTUnionType::ToString() const
 {
     return "union " + name_;
 }
 
-String ASTUnionType::Dump(const String &prefix)
+std::string ASTUnionType::Dump(const std::string &prefix)
 {
     StringBuilder sb;
     sb.Append(prefix).Append(attr_->Dump(prefix)).Append(" ");
-    sb.AppendFormat("union %s {\n", name_.string());
+    sb.AppendFormat("union %s {\n", name_.c_str());
     if (members_.size() > 0) {
         for (auto it : members_) {
             sb.Append(prefix + "  ");
-            sb.AppendFormat("%s %s;\n", std::get<1>(it)->ToString().string(), std::get<0>(it).string());
+            sb.AppendFormat("%s %s;\n", std::get<1>(it)->ToString().c_str(), std::get<0>(it).c_str());
         }
     }
     sb.Append(prefix).Append("};\n");
@@ -52,55 +52,55 @@ TypeKind ASTUnionType::GetTypeKind()
     return TypeKind::TYPE_UNION;
 }
 
-String ASTUnionType::EmitCType(TypeMode mode) const
+std::string ASTUnionType::EmitCType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("union %s", name_.string());
+            return StringHelper::Format("union %s", name_.c_str());
         case TypeMode::PARAM_IN:
-            return String::Format("const union %s*", name_.string());
+            return StringHelper::Format("const union %s*", name_.c_str());
         case TypeMode::PARAM_OUT:
-            return String::Format("union %s*", name_.string());
+            return StringHelper::Format("union %s*", name_.c_str());
         case TypeMode::LOCAL_VAR:
-            return String::Format("union %s*", name_.string());
+            return StringHelper::Format("union %s*", name_.c_str());
         default:
             return "unknow type";
     }
 }
 
-String ASTUnionType::EmitCppType(TypeMode mode) const
+std::string ASTUnionType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("%s", name_.string());
+            return StringHelper::Format("%s", name_.c_str());
         case TypeMode::PARAM_IN:
-            return String::Format("const %s&", name_.string());
+            return StringHelper::Format("const %s&", name_.c_str());
         case TypeMode::PARAM_OUT:
-            return String::Format("%s&", name_.string());
+            return StringHelper::Format("%s&", name_.c_str());
         case TypeMode::LOCAL_VAR:
-            return String::Format("%s", name_.string());
+            return StringHelper::Format("%s", name_.c_str());
         default:
             return "unknow type";
     }
 }
 
-String ASTUnionType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTUnionType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
     // unsupported type
     return "/";
 }
 
-String ASTUnionType::EmitCTypeDecl() const
+std::string ASTUnionType::EmitCTypeDecl() const
 {
     StringBuilder sb;
-    sb.AppendFormat("union %s {\n", name_.string());
+    sb.AppendFormat("union %s {\n", name_.c_str());
 
     for (auto it : members_) {
         AutoPtr<ASTType> member = std::get<1>(it);
-        String memberName = std::get<0>(it);
-        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCType().string(), memberName.string());
+        std::string memberName = std::get<0>(it);
+        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCType().c_str(), memberName.c_str());
         if (member->GetTypeKind() == TypeKind::TYPE_ARRAY || member->GetTypeKind() == TypeKind::TYPE_LIST) {
-            sb.Append(TAB).AppendFormat("uint32_t %sLen;\n", memberName.string());
+            sb.Append(TAB).AppendFormat("uint32_t %sLen;\n", memberName.c_str());
         }
     }
 
@@ -108,185 +108,185 @@ String ASTUnionType::EmitCTypeDecl() const
     return sb.ToString();
 }
 
-String ASTUnionType::EmitCppTypeDecl() const
+std::string ASTUnionType::EmitCppTypeDecl() const
 {
     StringBuilder sb;
-    sb.AppendFormat("union %s {\n", name_.string());
+    sb.AppendFormat("union %s {\n", name_.c_str());
 
     for (auto it : members_) {
         AutoPtr<ASTType> member = std::get<1>(it);
-        String memberName = std::get<0>(it);
-        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType().string(), memberName.string());
+        std::string memberName = std::get<0>(it);
+        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType().c_str(), memberName.c_str());
     }
 
     sb.Append("}  __attribute__ ((aligned(8)));");
     return sb.ToString();
 }
 
-String ASTUnionType::EmitJavaTypeDecl() const
+std::string ASTUnionType::EmitJavaTypeDecl() const
 {
     StringBuilder sb;
 
     return sb.ToString();
 }
 
-void ASTUnionType::EmitCWriteVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTUnionType::EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     if (Options::GetInstance().DoGenerateKernelCode()) {
         sb.Append(prefix).AppendFormat("if (!HdfSbufWriteBuffer(%s, (const void *)%s, sizeof(%s))) {\n",
-            parcelName.string(), name.string(), EmitCType().string());
+            parcelName.c_str(), name.c_str(), EmitCType().c_str());
     } else {
         sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUnpadBuffer(%s, (const uint8_t *)%s, sizeof(%s))) {\n",
-            parcelName.string(), name.string(), EmitCType().string());
+            parcelName.c_str(), name.c_str(), EmitCType().c_str());
     }
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType,
-    const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTUnionType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+    const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     if (Options::GetInstance().DoGenerateKernelCode()) {
-        sb.Append(prefix).AppendFormat("%s *%s = NULL;\n", EmitCType().string(), name.string());
+        sb.Append(prefix).AppendFormat("%s *%s = NULL;\n", EmitCType().c_str(), name.c_str());
         sb.Append(prefix).Append("uint32_t len = 0;\n");
         sb.Append(prefix).AppendFormat(
-            "if (!HdfSbufReadBuffer(%s, (const void **)&%s, &len)) {\n", parcelName.string(), name.string());
-        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+            "if (!HdfSbufReadBuffer(%s, (const void **)&%s, &len)) {\n", parcelName.c_str(), name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
         sb.Append(prefix).Append("}\n\n");
-        sb.Append(prefix).AppendFormat("if (%s == NULL || sizeof(%s) != len) {\n", name.string(), EmitCType().string());
+        sb.Append(prefix).AppendFormat("if (%s == NULL || sizeof(%s) != len) {\n", name.c_str(), EmitCType().c_str());
     } else {
         sb.Append(prefix).AppendFormat("const %s *%s = (%s *)HdfSbufReadUnpadBuffer(%s, sizeof(%s));\n",
-            EmitCType().string(), name.string(), EmitCType().string(), parcelName.string(), EmitCType().string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.string());
+            EmitCType().c_str(), name.c_str(), EmitCType().c_str(), parcelName.c_str(), EmitCType().c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.c_str());
     }
 
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTUnionType::EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     if (Options::GetInstance().DoGenerateKernelCode()) {
-        sb.Append(prefix).AppendFormat("%s *%s = NULL;\n", EmitCType().string(), name.string());
+        sb.Append(prefix).AppendFormat("%s *%s = NULL;\n", EmitCType().c_str(), name.c_str());
         sb.Append(prefix).Append("uint32_t len = 0;\n");
         sb.Append(prefix).AppendFormat(
-            "if (!HdfSbufReadBuffer(%s, (const void **)&%s, &len)) {\n", parcelName.string(), name.string());
-        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+            "if (!HdfSbufReadBuffer(%s, (const void **)&%s, &len)) {\n", parcelName.c_str(), name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
         sb.Append(prefix).Append("}\n\n");
-        sb.Append(prefix).AppendFormat("if (%s == NULL || sizeof(%s) != len) {\n", name.string(), EmitCType().string());
+        sb.Append(prefix).AppendFormat("if (%s == NULL || sizeof(%s) != len) {\n", name.c_str(), EmitCType().c_str());
     } else {
         sb.Append(prefix).AppendFormat("const %s *%s = (%s *)HdfSbufReadUnpadBuffer(%s, sizeof(%s));\n",
-            EmitCType().string(), name.string(), EmitCType().string(), parcelName.string(), EmitCType().string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.string());
+            EmitCType().c_str(), name.c_str(), EmitCType().c_str(), parcelName.c_str(), EmitCType().c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.c_str());
     }
 
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTUnionType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
     sb.Append(prefix).AppendFormat("if (!%s.WriteUnpadBuffer((const uint8_t *)&%s, sizeof(%s))) {\n",
-        parcelName.string(), name.string(), EmitCppType().string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+        parcelName.c_str(), name.c_str(), EmitCppType().c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    bool initVariable, unsigned int innerLevel) const
+void ASTUnionType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), name.string());
+        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), name.c_str());
     }
     sb.Append(prefix).AppendFormat("const %s *%sCp = reinterpret_cast<const %s *>(%s.ReadUnpadBuffer(sizeof(%s)));\n",
-        EmitCppType().string(), name.string(), EmitCppType().string(), parcelName.string(), EmitCppType().string());
-    sb.Append(prefix).AppendFormat("if (%sCp == nullptr) {\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
+        EmitCppType().c_str(), name.c_str(), EmitCppType().c_str(), parcelName.c_str(), EmitCppType().c_str());
+    sb.Append(prefix).AppendFormat("if (%sCp == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
-    sb.Append(prefix).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %sCp, sizeof(%s));\n", name.string(),
-        EmitCppType().string(), name.string(), EmitCppType().string());
+    sb.Append(prefix).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %sCp, sizeof(%s));\n", name.c_str(),
+        EmitCppType().c_str(), name.c_str(), EmitCppType().c_str());
 }
 
-void ASTUnionType::EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const
+void ASTUnionType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     if (Options::GetInstance().DoGenerateKernelCode()) {
         sb.Append(prefix).AppendFormat(
-            "if (!HdfSbufWriteBuffer(data, (const void *)&%s, sizeof(%s))) {\n", name.string(), EmitCType().string());
+            "if (!HdfSbufWriteBuffer(data, (const void *)&%s, sizeof(%s))) {\n", name.c_str(), EmitCType().c_str());
     } else {
         sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUnpadBuffer(data, (const uint8_t *)&%s, sizeof(%s))) {\n",
-            name.string(), EmitCType().string());
+            name.c_str(), EmitCType().c_str());
     }
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
-    const String &prefix, std::vector<String> &freeObjStatements) const
+void ASTUnionType::EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+    const std::string &prefix, std::vector<std::string> &freeObjStatements) const
 {
     if (Options::GetInstance().DoGenerateKernelCode()) {
-        sb.Append(prefix).AppendFormat("%s *%s = NULL;\n", EmitCType().string(), name.string());
+        sb.Append(prefix).AppendFormat("%s *%s = NULL;\n", EmitCType().c_str(), name.c_str());
         sb.Append(prefix).Append("uint32_t len = 0;\n");
-        sb.Append(prefix).AppendFormat("if (!HdfSbufReadBuffer(data, (const void **)&%s, &len)) {\n", name.string());
-        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        sb.Append(prefix).AppendFormat("if (!HdfSbufReadBuffer(data, (const void **)&%s, &len)) {\n", name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
         sb.Append(prefix).Append("}\n\n");
-        sb.Append(prefix).AppendFormat("if (%s == NULL || sizeof(%s) != len) {\n", name.string(), EmitCType().string());
+        sb.Append(prefix).AppendFormat("if (%s == NULL || sizeof(%s) != len) {\n", name.c_str(), EmitCType().c_str());
     } else {
         sb.Append(prefix).AppendFormat("const %s *%s = (const %s *)HdfSbufReadUnpadBuffer(data, sizeof(%s));\n",
-            EmitCType().string(), name.string(), EmitCType().string(), EmitCType().string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.string());
+            EmitCType().c_str(), name.c_str(), EmitCType().c_str(), EmitCType().c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.c_str());
     }
 
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTUnionType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteUnpadBuffer((const void*)&%s, sizeof(%s))) {\n", parcelName.string(),
-        name.string(), EmitCppType().string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteUnpadBuffer((const void*)&%s, sizeof(%s))) {\n", parcelName.c_str(),
+        name.c_str(), EmitCppType().c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTUnionType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool emitType, unsigned int innerLevel) const
+void ASTUnionType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     sb.Append(prefix).AppendFormat("const %s *%s = reinterpret_cast<const %s*>(%s.ReadUnpadBuffer(sizeof(%s)));\n",
-        EmitCppType().string(), name.string(), EmitCppType().string(), parcelName.string(), EmitCppType().string());
-    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
+        EmitCppType().c_str(), name.c_str(), EmitCppType().c_str(), parcelName.c_str(), EmitCppType().c_str());
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
 void ASTUnionType::EmitMemoryRecycle(
-    const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const
+    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     if (ownership) {
-        String varName = isClient ? String::Format("*%s", name.string()) : name;
-        sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", varName.string());
-        sb.Append(prefix + TAB).AppendFormat("OsalMemFree(%s);\n", varName.string());
-        sb.Append(prefix + TAB).AppendFormat("%s = NULL;\n", varName.string());
+        std::string varName = isClient ? StringHelper::Format("*%s", name.c_str()) : name;
+        sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", varName.c_str());
+        sb.Append(prefix + TAB).AppendFormat("OsalMemFree(%s);\n", varName.c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = NULL;\n", varName.c_str());
         sb.Append(prefix).Append("}\n");
     }
 }

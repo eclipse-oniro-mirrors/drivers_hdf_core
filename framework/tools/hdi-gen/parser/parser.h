@@ -22,7 +22,6 @@
 #include "util/autoptr.h"
 #include "util/light_refcount_base.h"
 #include "util/options.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
@@ -34,9 +33,9 @@ public:
 
     ~Parser() = default;
 
-    bool Parse(const std::vector<String> &sourceFiles);
+    bool Parse(const std::vector<std::string> &sourceFiles);
 
-    using StrAstMap = std::unordered_map<String, AutoPtr<AST>, StringHashFunc, StringEqualFunc>;
+    using StrAstMap = std::unordered_map<std::string, AutoPtr<AST>>;
     inline const StrAstMap &GetAllAst() const
     {
         return allAsts_;
@@ -51,17 +50,17 @@ private:
         bool isLite = false;
     };
 
-    bool ParseOne(const String &sourceFile);
+    bool ParseOne(const std::string &sourceFile);
 
-    bool Reset(const String &sourceFile);
+    bool Reset(const std::string &sourceFile);
 
     bool ParseFile();
 
-    String ParseLicense();
+    std::string ParseLicense();
 
     bool ParsePackage();
 
-    bool ParserPackageInfo(const String &packageFullName);
+    bool ParserPackageInfo(const std::string &packageFullName);
 
     bool ParseImports();
 
@@ -131,7 +130,7 @@ private:
 
     void ParseUnionMember(const AutoPtr<ASTUnionType> &unionType);
 
-    bool AddUnionMember(const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const String &name);
+    bool AddUnionMember(const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name);
 
     AutoPtr<ASTTypeAttr> ParseUserDefTypeAttr(const AttrSet &attrs);
 
@@ -166,9 +165,9 @@ private:
 
     bool CheckCallbackAst();
 
-    bool CheckPackageName(const String &filePath, const String &packageName);
+    bool CheckPackageName(const std::string &filePath, const std::string &packageName);
 
-    bool CheckImport(const String &importName);
+    bool CheckImport(const std::string &importName);
 
     inline static bool IsPrimitiveType(Token token)
     {
@@ -177,16 +176,16 @@ private:
 
     bool AddAst(const AutoPtr<AST> &ast);
 
-    void LogError(const String &message);
+    void LogError(const std::string &message);
 
-    void LogError(const Token &token, const String &message);
+    void LogError(const Token &token, const std::string &message);
 
     void ShowError();
 
     static constexpr char *TAG = "Parser";
 
     Lexer lexer_;
-    std::vector<String> errors_;
+    std::vector<std::string> errors_;
     AutoPtr<AST> ast_;
     StrAstMap allAsts_;
 };

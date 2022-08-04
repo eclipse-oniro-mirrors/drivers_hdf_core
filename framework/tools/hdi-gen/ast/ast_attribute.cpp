@@ -11,7 +11,7 @@
 
 namespace OHOS {
 namespace HDI {
-static void AttributesFormat(StringBuilder &sb, const std::vector<String> attrs)
+static void AttributesFormat(StringBuilder &sb, const std::vector<std::string> attrs)
 {
     if (attrs.empty()) {
         return;
@@ -27,10 +27,10 @@ static void AttributesFormat(StringBuilder &sb, const std::vector<String> attrs)
     sb.Append("]");
 }
 
-String ASTTypeAttr::ToString() const
+std::string ASTTypeAttr::ToString() const
 {
     StringBuilder sb;
-    std::vector<String> attrVec;
+    std::vector<std::string> attrVec;
     if (isFull_) {
         attrVec.push_back("full");
     }
@@ -43,15 +43,15 @@ String ASTTypeAttr::ToString() const
     return sb.ToString();
 }
 
-String ASTTypeAttr::Dump(const String &prefix)
+std::string ASTTypeAttr::Dump(const std::string &prefix)
 {
     return prefix + ToString();
 }
 
-String ASTInfAttr::ToString() const
+std::string ASTInfAttr::ToString() const
 {
     StringBuilder sb;
-    std::vector<String> attrVec;
+    std::vector<std::string> attrVec;
     if (isFull_) {
         attrVec.push_back("full");
     }
@@ -72,15 +72,15 @@ String ASTInfAttr::ToString() const
     return sb.ToString();
 }
 
-String ASTInfAttr::Dump(const String &prefix)
+std::string ASTInfAttr::Dump(const std::string &prefix)
 {
     return prefix + ToString();
 }
 
-String ASTMethodAttr::ToString() const
+std::string ASTMethodAttr::ToString() const
 {
     StringBuilder sb;
-    std::vector<String> attrVec;
+    std::vector<std::string> attrVec;
     if (isFull_) {
         attrVec.push_back("full");
     }
@@ -97,17 +97,17 @@ String ASTMethodAttr::ToString() const
     return sb.ToString();
 }
 
-String ASTMethodAttr::Dump(const String &prefix)
+std::string ASTMethodAttr::Dump(const std::string &prefix)
 {
     return prefix + ToString();
 }
 
-String ASTParamAttr::ToString() const
+std::string ASTParamAttr::ToString() const
 {
-    return String::Format("[%s]", (value_ == ParamAttr::PARAM_IN) ? "in" : "out");
+    return StringHelper::Format("[%s]", (value_ == ParamAttr::PARAM_IN) ? "in" : "out");
 }
 
-String ASTParamAttr::Dump(const String &prefix)
+std::string ASTParamAttr::Dump(const std::string &prefix)
 {
     return prefix + ToString();
 }

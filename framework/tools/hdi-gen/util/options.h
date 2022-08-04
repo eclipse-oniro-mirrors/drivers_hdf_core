@@ -9,16 +9,15 @@
 #ifndef OHOS_HDI_OPTION_H
 #define OHOS_HDI_OPTION_H
 
+#include <string>
 #include <unordered_map>
 #include <vector>
-
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
 class Options {
 public:
-    using PkgPathMap = std::unordered_map<String, String, StringHashFunc, StringEqualFunc>;
+    using PkgPathMap = std::unordered_map<std::string, std::string>;
 
     enum class Language {
         C,
@@ -75,7 +74,7 @@ public:
         return !errors_.empty();
     }
 
-    inline std::vector<String> GetSourceFiles() const
+    inline std::vector<std::string> GetSourceFiles() const
     {
         return sourceFiles_;
     }
@@ -90,17 +89,17 @@ public:
         return targetLanguage_;
     }
 
-    inline String GetCodePart() const
+    inline std::string GetCodePart() const
     {
         return codePart_;
     }
 
-    inline String GetModuleName() const
+    inline std::string GetModuleName() const
     {
         return doSetModuleName_ ? moduleName_ : "sample";
     }
 
-    inline String GetGenerationDirectory() const
+    inline std::string GetGenerationDirectory() const
     {
         return generationDirectory_;
     }
@@ -111,15 +110,15 @@ public:
 
     void ShowUsage() const;
 
-    String GetRootPackage(const String &package);
+    std::string GetRootPackage(const std::string &package);
 
-    String GetRootPath(const String &package);
+    std::string GetRootPath(const std::string &package);
 
-    String GetSubPackage(const String &package);
+    std::string GetSubPackage(const std::string &package);
 
-    String GetPackagePath(const String &package);
+    std::string GetPackagePath(const std::string &package);
 
-    String GetImportFilePath(const String &import);
+    std::string GetImportFilePath(const std::string &import);
 
 private:
     Options()
@@ -145,11 +144,11 @@ private:
 
     void SetOptionData(char op);
 
-    void AddPackagePath(const String &packagePath);
+    void AddPackagePath(const std::string &packagePath);
 
     void SetLanguage(Language language);
 
-    void SetCodePart(const String &part);
+    void SetCodePart(const std::string &part);
 
     void CheckOptions();
 
@@ -159,14 +158,14 @@ private:
     static constexpr int VERSION_MAJOR = 0;
     static constexpr int VERSION_MINOR = 1;
 
-    String program_;
-    std::vector<String> sourceFiles_;
+    std::string program_;
+    std::vector<std::string> sourceFiles_;
     Language targetLanguage_;
-    String codePart_;
-    String moduleName_;
-    String generationDirectory_;
-    String illegalOptions_;
-    std::vector<String> errors_;
+    std::string codePart_;
+    std::string moduleName_;
+    std::string generationDirectory_;
+    std::string illegalOptions_;
+    std::vector<std::string> errors_;
     PkgPathMap packagePath_;
 
     bool doShowUsage_;

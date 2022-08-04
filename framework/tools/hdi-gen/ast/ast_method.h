@@ -14,18 +14,17 @@
 #include "ast/ast_node.h"
 #include "ast/ast_parameter.h"
 #include "util/autoptr.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
 class ASTMethod : public ASTNode {
 public:
-    inline void SetName(const String &name)
+    inline void SetName(const std::string &name)
     {
         name_ = name;
     }
 
-    inline String GetName()
+    inline std::string GetName()
     {
         return name_;
     }
@@ -61,10 +60,10 @@ public:
         return parameters_.size();
     }
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
 private:
-    String name_;
+    std::string name_;
     AutoPtr<ASTMethodAttr> attr_ = new ASTMethodAttr();
     std::vector<AutoPtr<ASTParameter>> parameters_;
 };

@@ -12,7 +12,7 @@
 
 namespace OHOS {
 namespace HDI {
-bool CInterfaceCodeEmitter::ResolveDirectory(const String &targetDirectory)
+bool CInterfaceCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
 {
     if (ast_->GetASTFileType() == ASTFileType::AST_IFACE || ast_->GetASTFileType() == ASTFileType::AST_ICALLBACK) {
         directory_ = GetFileParentPath(targetDirectory);
@@ -21,7 +21,7 @@ bool CInterfaceCodeEmitter::ResolveDirectory(const String &targetDirectory)
     }
 
     if (!File::CreateParentDir(directory_)) {
-        Logger::E("CInterfaceCodeEmitter", "Create '%s' failed!", directory_.string());
+        Logger::E("CInterfaceCodeEmitter", "Create '%s' failed!", directory_.c_str());
         return false;
     }
 
@@ -35,8 +35,8 @@ void CInterfaceCodeEmitter::EmitCode()
 
 void CInterfaceCodeEmitter::EmitInterfaceHeaderFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.h", directory_.string(),
-        FileName(interfaceName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(interfaceName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -67,8 +67,8 @@ void CInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     sb.Append("\n");
     EmitTailMacro(sb, interfaceFullName_);
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -81,7 +81,7 @@ void CInterfaceCodeEmitter::EmitImportInclusions(StringBuilder &sb)
     GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
-        sb.AppendFormat("%s\n", file.ToString().string());
+        sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
@@ -99,28 +99,28 @@ void CInterfaceCodeEmitter::EmitPreDeclaration(StringBuilder &sb)
 
 void CInterfaceCodeEmitter::EmitInterfaceDesc(StringBuilder &sb)
 {
-    sb.AppendFormat("#define %s \"%s\"\n", EmitDescMacroName().string(), interfaceFullName_.string());
+    sb.AppendFormat("#define %s \"%s\"\n", EmitDescMacroName().c_str(), interfaceFullName_.c_str());
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb)
 {
-    sb.AppendFormat("#define %s %u\n", majorVerName_.string(), ast_->GetMajorVer());
-    sb.AppendFormat("#define %s %u\n", minorVerName_.string(), ast_->GetMinorVer());
+    sb.AppendFormat("#define %s %u\n", majorVerName_.c_str(), ast_->GetMajorVer());
+    sb.AppendFormat("#define %s %u\n", minorVerName_.c_str(), ast_->GetMinorVer());
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
 {
-    sb.AppendFormat("#define %s    (4 * 1024) // 4KB\n", bufferSizeMacroName_.string());
+    sb.AppendFormat("#define %s    (4 * 1024) // 4KB\n", bufferSizeMacroName_.c_str());
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
 {
-    sb.AppendFormat("struct %s {\n", interfaceName_.string());
+    sb.AppendFormat("struct %s {\n", interfaceName_.c_str());
     EmitInterfaceMethods(sb, TAB);
     sb.Append("};\n");
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const String &prefix)
+void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix)
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -137,15 +137,15 @@ void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const String
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceMethod(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
-            "int32_t (*%s)(struct %s *self);\n", method->GetName().string(), interfaceName_.string());
+            "int32_t (*%s)(struct %s *self);\n", method->GetName().c_str(), interfaceName_.c_str());
     } else {
         StringBuilder paramStr;
         paramStr.Append(prefix).AppendFormat(
-            "int32_t (*%s)(struct %s *self, ", method->GetName().string(), interfaceName_.string());
+            "int32_t (*%s)(struct %s *self, ", method->GetName().c_str(), interfaceName_.c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             EmitInterfaceMethodParameter(param, paramStr, "");
@@ -160,27 +160,27 @@ void CInterfaceCodeEmitter::EmitInterfaceMethod(
     }
 }
 
-void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const String &prefix)
+void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.string());
+    sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.c_str());
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb)
 {
     if (interface_->IsSerializable()) {
         sb.AppendFormat(
-            "struct %s *%sGet(struct HdfRemoteService *remote);\n", interfaceName_.string(), baseName_.string());
+            "struct %s *%sGet(struct HdfRemoteService *remote);\n", interfaceName_.c_str(), baseName_.c_str());
     } else {
-        sb.AppendFormat("struct %s *%sGet(void);\n", interfaceName_.string(), baseName_.string());
+        sb.AppendFormat("struct %s *%sGet(void);\n", interfaceName_.c_str(), baseName_.c_str());
         sb.Append("\n");
         sb.AppendFormat(
-            "struct %s *%sGetInstance(const char *instanceName);\n", interfaceName_.string(), baseName_.string());
+            "struct %s *%sGetInstance(const char *instanceName);\n", interfaceName_.c_str(), baseName_.c_str());
     }
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceReleaseMethodDecl(StringBuilder &sb)
 {
-    sb.AppendFormat("void %sRelease(struct %s *instance);\n", baseName_.string(), interfaceName_.string());
+    sb.AppendFormat("void %sRelease(struct %s *instance);\n", baseName_.c_str(), interfaceName_.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

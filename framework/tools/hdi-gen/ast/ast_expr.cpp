@@ -11,7 +11,7 @@
 
 namespace OHOS {
 namespace HDI {
-String ASTUnaryExpr::Dump(const String &prefix)
+std::string ASTUnaryExpr::Dump(const std::string &prefix)
 {
     StringBuilder sb;
     sb.Append(prefix);
@@ -19,7 +19,7 @@ String ASTUnaryExpr::Dump(const String &prefix)
         sb.Append("(");
     }
 
-    sb.AppendFormat("%s%s", UnaryOpToString(op_).string(), expr_->Dump("").string());
+    sb.AppendFormat("%s%s", UnaryOpToString(op_).c_str(), expr_->Dump("").c_str());
 
     if (isParenExpr) {
         sb.Append(")");
@@ -28,7 +28,7 @@ String ASTUnaryExpr::Dump(const String &prefix)
     return sb.ToString();
 }
 
-String ASTUnaryExpr::UnaryOpToString(UnaryOpKind op)
+std::string ASTUnaryExpr::UnaryOpToString(UnaryOpKind op)
 {
     switch (op) {
         case UnaryOpKind::PLUS:
@@ -42,7 +42,7 @@ String ASTUnaryExpr::UnaryOpToString(UnaryOpKind op)
     }
 }
 
-String ASTBinaryExpr::Dump(const String &prefix)
+std::string ASTBinaryExpr::Dump(const std::string &prefix)
 {
     StringBuilder sb;
     sb.Append(prefix);
@@ -50,7 +50,7 @@ String ASTBinaryExpr::Dump(const String &prefix)
         sb.Append("(");
     }
 
-    sb.AppendFormat("%s %s %s", lExpr_->Dump("").string(), BinaryOpToString(op_).string(), rExpr_->Dump("").string());
+    sb.AppendFormat("%s %s %s", lExpr_->Dump("").c_str(), BinaryOpToString(op_).c_str(), rExpr_->Dump("").c_str());
 
     if (isParenExpr) {
         sb.Append(")");
@@ -59,7 +59,7 @@ String ASTBinaryExpr::Dump(const String &prefix)
     return sb.ToString();
 }
 
-String ASTBinaryExpr::BinaryOpToString(BinaryOpKind op)
+std::string ASTBinaryExpr::BinaryOpToString(BinaryOpKind op)
 {
     switch (op) {
         case BinaryOpKind::MUL:
@@ -87,7 +87,7 @@ String ASTBinaryExpr::BinaryOpToString(BinaryOpKind op)
     }
 }
 
-String ASTNumExpr::Dump(const String &prefix)
+std::string ASTNumExpr::Dump(const std::string &prefix)
 {
     StringBuilder sb;
     sb.Append(prefix);
@@ -95,7 +95,7 @@ String ASTNumExpr::Dump(const String &prefix)
         sb.Append("(");
     }
 
-    sb.AppendFormat("%s", value_.string());
+    sb.AppendFormat("%s", value_.c_str());
 
     if (isParenExpr) {
         sb.Append("(");
