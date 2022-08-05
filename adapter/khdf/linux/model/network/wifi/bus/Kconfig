@@ -20,7 +20,7 @@ if DRIVERS_HDF_WIFI_BUS
 choice
   prompt "Select wlan sdio or usb source"
   default DRIVERS_HDF_WLAN_SDIO
-  
+
   config DRIVERS_HDF_WLAN_SDIO
     bool "Enable HDF wlan sdio bus"
     default n
