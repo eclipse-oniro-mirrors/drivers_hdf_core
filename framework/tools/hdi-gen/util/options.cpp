@@ -16,6 +16,9 @@
 #include <unistd.h>
 
 #include "util/file.h"
+#include "util/string_helper.h"
+
+#include "util/logger.h"
 
 namespace OHOS {
 namespace HDI {
@@ -107,27 +110,27 @@ void Options::SetOptionData(char op)
     }
 }
 
-void Options::AddPackagePath(const String &packagePath)
+void Options::AddPackagePath(const std::string &packagePath)
 {
-    int index = packagePath.IndexOf(":");
-    if (index == -1 || index == packagePath.GetLength() - 1) {
+    size_t index = packagePath.find(":");
+    if (index == std::string::npos || index == packagePath.size() - 1) {
         errors_.push_back(
-            String::Format("%s: invalid option parameters '%s'.", program_.string(), packagePath.string()));
+            StringHelper::Format("%s: invalid option parameters '%s'.", program_.c_str(), packagePath.c_str()));
         return;
     }
 
-    String package = packagePath.Substring(0, index);
-    String path = File::RealPath(packagePath.Substring(index + 1));
-    if (path.IsEmpty() || path.IsNull()) {
+    std::string package = packagePath.substr(0, index);
+    std::string path = File::AdapterRealPath(packagePath.substr(index + 1));
+    if (path.empty()) {
         errors_.push_back(
-            String::Format("%s: invalid path '%s'.", program_.string(), packagePath.Substring(index + 1).string()));
+            StringHelper::Format("%s: invalid path '%s'.", program_.c_str(), packagePath.substr(index + 1).c_str()));
         return;
     }
 
     auto it = packagePath_.find(package);
     if (it != packagePath_.end()) {
         errors_.push_back(
-            String::Format("%s: The '%s:%s' has been set.", program_.string(), package.string(), path.string()));
+            StringHelper::Format("%s: The '%s:%s' has been set.", program_.c_str(), package.c_str(), path.c_str()));
     }
 
     packagePath_[package] = path;
@@ -139,7 +142,7 @@ void Options::SetLanguage(Language kind)
     targetLanguage_ = kind;
 }
 
-void Options::SetCodePart(const String &part)
+void Options::SetCodePart(const std::string &part)
 {
     // The default parameter is 'all', and the optional parameters is 'client' or 'server'
     doGeneratePart_ = true;
@@ -154,27 +157,27 @@ void Options::CheckOptions()
 
     if (doCompile_) {
         if (!doGetHashKey_ && !doDumpAST_ && !doGenerateCode_ && !doOutDir_) {
-            errors_.push_back(String::Format("%s: nothing to do.", program_.string()));
+            errors_.push_back(StringHelper::Format("%s: nothing to do.", program_.c_str()));
             return;
         }
 
         if (!doGenerateCode_ && doOutDir_) {
-            errors_.push_back(String::Format("%s: no target language.", program_.string()));
+            errors_.push_back(StringHelper::Format("%s: no target language.", program_.c_str()));
             return;
         }
 
         if (doGenerateCode_ && !doOutDir_) {
-            errors_.push_back(String::Format("%s: no out directory.", program_.string()));
+            errors_.push_back(StringHelper::Format("%s: no out directory.", program_.c_str()));
             return;
         }
 
-        if (doGeneratePart_ && !codePart_.Equals("all") && !codePart_.Equals("client") && !codePart_.Equals("server")) {
-            String errorLog = "The '--build-target' option parameter must be 'client' 'server' or 'all'.";
-            errors_.push_back(String::Format("%s: %s", program_.string(), errorLog.string()));
+        if (doGeneratePart_ && codePart_ != "all" && codePart_ != "client" && codePart_ != "server") {
+            std::string errorLog = "The '--build-target' option parameter must be 'client' 'server' or 'all'.";
+            errors_.push_back(StringHelper::Format("%s: %s", program_.c_str(), errorLog.c_str()));
         }
     } else {
         if (doGetHashKey_ || doDumpAST_ || doGenerateCode_ || doOutDir_) {
-            errors_.push_back(String::Format("%s: no '-c' option.", program_.string()));
+            errors_.push_back(StringHelper::Format("%s: no '-c' option.", program_.c_str()));
             return;
         }
     }
@@ -183,7 +186,7 @@ void Options::CheckOptions()
 void Options::ShowErrors() const
 {
     for (auto error : errors_) {
-        printf("%s\n", error.string());
+        printf("%s\n", error.c_str());
     }
     printf("Use \"--help\" to show usage.\n");
 }
@@ -222,11 +225,11 @@ void Options::ShowUsage() const
  * package:ohos.hdi.foo.v1_0
  * rootPackage:ohos.hdi
  */
-String Options::GetRootPackage(const String &package)
+std::string Options::GetRootPackage(const std::string &package)
 {
     const auto &packagePaths = GetPackagePathMap();
     for (const auto &packageRoot : packagePaths) {
-        if (package.StartsWith(packageRoot.first)) {
+        if (StringHelper::StartWith(package, packageRoot.first)) {
             return packageRoot.first;
         }
     }
@@ -240,11 +243,11 @@ String Options::GetRootPackage(const String &package)
  * package:ohos.hdi.foo.v1_0
  * rootPath:./drivers/interface
  */
-String Options::GetRootPath(const String &package)
+std::string Options::GetRootPath(const std::string &package)
 {
     const auto &packagePaths = GetPackagePathMap();
     for (const auto &packageRoot : packagePaths) {
-        if (package.StartsWith(packageRoot.first)) {
+        if (StringHelper::StartWith(package, packageRoot.first)) {
             return packageRoot.second;
         }
     }
@@ -258,14 +261,14 @@ String Options::GetRootPath(const String &package)
  * package:ohos.hdi.foo.v1_0
  * subPackage:foo.v1_0
  */
-String Options::GetSubPackage(const String &package)
+std::string Options::GetSubPackage(const std::string &package)
 {
-    String rootPackage = GetRootPackage(package);
-    if (rootPackage.IsEmpty()) {
+    std::string rootPackage = GetRootPackage(package);
+    if (rootPackage.empty()) {
         return package;
     }
 
-    return package.Substring(rootPackage.GetLength() + 1);
+    return package.substr(rootPackage.size() + 1);
 }
 
 /*
@@ -274,29 +277,29 @@ String Options::GetSubPackage(const String &package)
  * package:ohos.hdi.foo.v1_0
  * packagePath:./drivers/interface/foo/v1_0
  */
-String Options::GetPackagePath(const String &package)
+std::string Options::GetPackagePath(const std::string &package)
 {
-    String rootPackage = "";
-    String rootPath = "";
+    std::string rootPackage = "";
+    std::string rootPath = "";
     const auto &packagePaths = GetPackagePathMap();
     for (const auto &packageRoot : packagePaths) {
-        if (package.StartsWith(packageRoot.first)) {
+        if (StringHelper::StartWith(package, packageRoot.first)) {
             rootPackage = packageRoot.first;
             rootPath = packageRoot.second;
         }
     }
 
-    if (rootPackage.IsEmpty()) {
+    if (rootPackage.empty()) {
         // The current path is the root path
-        String curPath = File::AdapterPath(package.Replace('.', File::separator));
-        return File::RealPath(curPath);
+        std::string curPath = File::AdapterPath(StringHelper::Replace(package, '.', File::separator));
+        return File::AdapterRealPath(curPath);
     }
 
-    if (rootPath.EndsWith(File::separator)) {
-        rootPath = rootPath.Substring(0, rootPath.GetLength() - 1);
+    if (StringHelper::EndWith(rootPath, File::separator)) {
+        rootPath = rootPath.substr(0, rootPath.size() - 1);
     }
 
-    String subPath = package.Substring(rootPackage.GetLength() + 1).Replace('.', File::separator);
+    std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', File::separator);
     return File::AdapterPath(rootPath + "/" + subPath);
 }
 
@@ -306,17 +309,16 @@ String Options::GetPackagePath(const String &package)
  * import: ohos.hdi.foo.v1_0.MyTypes
  * packagePath:./drivers/interface/foo/v1_0/MyTypes.idl
  */
-String Options::GetImportFilePath(const String &import)
+std::string Options::GetImportFilePath(const std::string &import)
 {
-    int index = import.LastIndexOf('.');
-    if (index <= 0) {
+    size_t index = import.rfind('.');
+    if (index == std::string::npos) {
         return import;
     }
 
-    String dir = GetPackagePath(import.Substring(0, index));
-    String ClassName = import.Substring(index + 1);
-
-    return String::Format("%s%c%s.idl", dir.string(), File::separator, ClassName.string());
+    std::string dir = GetPackagePath(StringHelper::SubStr(import, 0, index));
+    std::string ClassName = import.substr(index + 1);
+    return StringHelper::Format("%s%c%s.idl", dir.c_str(), File::separator, ClassName.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

@@ -21,18 +21,18 @@ class ASTSequenceableType;
 
 class ASTNamespace : public ASTNode {
 public:
-    explicit ASTNamespace(const String &nspaceStr);
+    explicit ASTNamespace(const std::string &nspaceStr);
 
     virtual ~ASTNamespace() = default;
 
-    inline String GetName()
+    inline std::string GetName()
     {
         return name_;
     }
 
     void AddNamespace(const AutoPtr<ASTNamespace> &innerNspace);
 
-    AutoPtr<ASTNamespace> FindNamespace(const String &nspaceStr);
+    AutoPtr<ASTNamespace> FindNamespace(const std::string &nspaceStr);
 
     AutoPtr<ASTNamespace> GetNamespace(size_t index);
 
@@ -59,15 +59,15 @@ public:
         return sequenceables_.size();
     }
 
-    inline String ToShortString()
+    inline std::string ToShortString()
     {
         return name_;
     }
 
-    String ToString() const override;
+    std::string ToString() const override;
 
 private:
-    String name_;
+    std::string name_;
     ASTNamespace *outerNamespace_;
     std::vector<AutoPtr<ASTNamespace>> innerNamespaces_;
     std::vector<AutoPtr<ASTSequenceableType>> sequenceables_;

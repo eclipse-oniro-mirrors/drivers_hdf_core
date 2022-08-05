@@ -8,60 +8,73 @@
 
 #include "util/file.h"
 
+#include <climits>
 #include <cstdlib>
 #include <cstring>
 #include <functional>
 #include <string>
+#include <algorithm>
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "util/logger.h"
+#include "util/string_helper.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
 namespace HDI {
-#ifdef __MINGW32__
-constexpr unsigned int File::READ;
-constexpr unsigned int File::WRITE;
-constexpr unsigned int File::APPEND;
-#endif
+const char *File::TAG = "File";
 
-File::File(const String &path, unsigned int mode) : mode_(mode)
+File::File(const std::string &path, unsigned int mode) : mode_(mode)
 {
-    if (path.IsEmpty()) {
+    if (path.empty()) {
         return;
     }
 
     if (mode_ & READ) {
-        if (!CheckValid(path)) {
-            return;
-        }
-        fd_ = fopen(path.string(), "r");
-    } else if (mode_ & WRITE) {
-        fd_ = fopen(path.string(), "w+");
-    } else if (mode_ & APPEND) {
-        fd_ = fopen(path.string(), "a+");
+        OpenByRead(path);
+        return;
     }
 
-    if (fd_ != nullptr) {
-#ifndef __MINGW32__
-        char *absolutePath = realpath(path.string(), nullptr);
-        if (absolutePath != nullptr) {
-            path_ = absolutePath;
-            free(absolutePath);
-        } else {
-            path_ = path;
-        }
-#else
-        char absolutePath[_MAX_PATH];
-        _fullpath(absolutePath, path.string(), _MAX_PATH);
-        path_ = absolutePath;
-#endif
+    if (mode_ & WRITE) {
+        fd_ = fopen(path.c_str(), "w+");
+    } else if (mode_ & APPEND) {
+        fd_ = fopen(path.c_str(), "a+");
     }
+
+    if (fd_ == nullptr) {
+        Logger::E(TAG, "can't open '%s'", path.c_str());
+        return;
+    }
+
+    path_ = RealPath(path);
 }
 
 File::~File()
 {
     Close();
+}
+
+void File::OpenByRead(const std::string &path)
+{
+    if (!CheckValid(path)) {
+        Logger::E(TAG, "failed to check path '%s'", path.c_str());
+        return;
+    }
+
+    std::string realPath = RealPath(path);
+    if (realPath.empty()) {
+        Logger::E(TAG, "invalid path '%s'", path.c_str());
+        return;
+    }
+
+    fd_ = fopen(realPath.c_str(), "r");
+    if (fd_ == nullptr) {
+        Logger::E(TAG, "can't open '%s'", realPath.c_str());
+        return;
+    }
+
+    path_ = realPath;
 }
 
 char File::GetChar()
@@ -84,8 +97,8 @@ char File::GetChar()
 char File::PeekChar()
 {
     if (position_ + 1 > size_) {
-        int ret = Read();
-        if (ret == -1) {
+        size_t size = Read();
+        if (size == 0) {
             isEof_ = true;
         }
     }
@@ -98,13 +111,13 @@ bool File::IsEof() const
     return isEof_ || buffer_[position_] == -1;
 }
 
-int File::Read()
+size_t File::Read()
 {
     if (isEof_ || isError_) {
         return -1;
     }
 
-    (void)memset(buffer_, 0, BUFFER_SIZE);
+    std::fill(buffer_, buffer_ + BUFFER_SIZE, 0);
     size_t count = fread(buffer_, 1, BUFFER_SIZE - 1, fd_);
     if (count < BUFFER_SIZE - 1) {
         isError_ = ferror(fd_) != 0;
@@ -112,7 +125,7 @@ int File::Read()
     }
     size_ = count;
     position_ = 0;
-    return (count != 0) ? count : -1;
+    return count;
 }
 
 size_t File::ReadData(void *data, size_t size) const
@@ -175,25 +188,25 @@ void File::Close()
     }
 }
 
-bool File::CreateParentDir(const String &path)
+bool File::CreateParentDir(const std::string &path)
 {
-    if (!access(path.string(), F_OK | R_OK | W_OK)) {
+    if (!access(path.c_str(), F_OK | R_OK | W_OK)) {
         return true;
     }
 
-    int pos = 1;
-    while ((pos = path.IndexOf(File::separator, pos)) != -1) {
-        String partPath = path.Substring(0, pos);
+    size_t pos = 1;
+    while ((pos = path.find(File::separator, pos)) != std::string::npos) {
+        std::string partPath = StringHelper::SubStr(path, 0, pos);
         struct stat st;
-        if (stat(partPath.string(), &st) < 0) {
+        if (stat(partPath.c_str(), &st) < 0) {
             if (errno != ENOENT) {
                 return false;
             }
 
 #ifndef __MINGW32__
-            if (mkdir(partPath.string(), S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+            if (mkdir(partPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 #else
-            if (mkdir(partPath.string()) < 0) {
+            if (mkdir(partPath.c_str()) < 0) {
 #endif
                 return false;
             }
@@ -205,18 +218,18 @@ bool File::CreateParentDir(const String &path)
     return true;
 }
 
-String File::AdapterPath(const String &path)
+std::string File::AdapterPath(const std::string &path)
 {
 #ifndef __MINGW32__
-    String newPath = path.Replace('\\', '/');
+    std::string newPath = StringHelper::Replace(path, '\\', '/');
 #else
-    String newPath = path.Replace('/', '\\');
+    std::string newPath = StringHelper::Replace(path, '/', '\\');
 #endif
 
     // "foo/v1_0//ifoo.h" -> "foo/v1_0/ifoo.h"
     StringBuilder adapterPath;
     bool hasSep = false;
-    for (int i = 0; i < newPath.GetLength(); i++) {
+    for (size_t i = 0; i < newPath.size(); i++) {
         char c = newPath[i];
         if (c == File::separator) {
             if (hasSep) {
@@ -231,36 +244,37 @@ String File::AdapterPath(const String &path)
     return adapterPath.ToString();
 }
 
-String File::RealPath(const String &path)
+std::string File::AdapterRealPath(const std::string &path)
 {
-    if (path.IsEmpty()) {
+    if (path.empty()) {
+        return "";
+    }
+    return RealPath(File::AdapterPath(path));
+}
+
+std::string File::RealPath(const std::string &path)
+{
+    if (path.empty()) {
         return "";
     }
 
-    String absPath;
-    String adapterPath = File::AdapterPath(path);
+    char realPath[PATH_MAX + 1];
 #ifdef __MINGW32__
-    char absolutePath[_MAX_PATH];
-    _fullpath(absolutePath, adapterPath.string(), _MAX_PATH);
-    absPath = absolutePath;
+    char *absPath = _fullpath(realPath, path.c_str(), PATH_MAX);
 #else
-    char *absolutePath = realpath(adapterPath.string(), nullptr);
-    if (absolutePath != nullptr) {
-        absPath = absolutePath;
-        free(absolutePath);
-    }
+    char *absPath = realpath(path.c_str(), realPath);
 #endif
-    return absPath;
+    return absPath == nullptr ? "" : absPath;
 }
 
-bool File::CheckValid(const String &path)
+bool File::CheckValid(const std::string &path)
 {
-    if (access(path.string(), F_OK | R_OK | W_OK)) {
+    if (access(path.c_str(), F_OK | R_OK | W_OK)) {
         return false;
     }
 
     struct stat st;
-    if (stat(path.string(), &st) < 0) {
+    if (stat(path.c_str(), &st) < 0) {
         return false;
     }
 
@@ -271,14 +285,14 @@ bool File::CheckValid(const String &path)
     return true;
 }
 
-String File::Pascal2UnderScoreCase(const String &name)
+std::string File::Pascal2UnderScoreCase(const std::string &name)
 {
-    if (name.IsNull() || name.IsEmpty()) {
+    if (name.empty()) {
         return name;
     }
 
     StringBuilder sb;
-    for (int i = 0; i < name.GetLength(); i++) {
+    for (size_t i = 0; i < name.size(); i++) {
         char c = name[i];
         if (isupper(c) != 0) {
             // 2->Index of the last char array.
@@ -301,7 +315,7 @@ size_t File::GetHashKey()
         fileStr.Append(GetChar());
     }
 
-    return std::hash<std::string>()(fileStr.ToString().string());
+    return std::hash<std::string>()(fileStr.ToString());
 }
 } // namespace HDI
 } // namespace OHOS

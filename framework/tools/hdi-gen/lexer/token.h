@@ -9,7 +9,7 @@
 #ifndef OHOS_HDI_TOKEN_H
 #define OHOS_HDI_TOKEN_H
 
-#include <util/string.h>
+#include <string>
 
 namespace OHOS {
 namespace HDI {
@@ -22,7 +22,7 @@ enum class TokenType {
     SHORT,   // "short"
     INT,     // "int"
     LONG,    // "long"
-    STRING,  // "String"
+    STRING,  // "std::string"
     FLOAT,   // "float"
     DOUBLE,  // "double"
     FD,      // "FileDescriptor"
@@ -85,7 +85,7 @@ enum class TokenType {
 };
 
 struct Location {
-    String filePath_;
+    std::string filePath_;
     size_t row_;
     size_t col_;
 };
@@ -93,9 +93,9 @@ struct Location {
 struct Token {
     TokenType kind_;
     Location location_;
-    String value_;
+    std::string value_;
 
-    String Dump();
+    std::string Dump();
 };
 
 struct TokenTypeCompare {
@@ -105,9 +105,9 @@ struct TokenTypeCompare {
     }
 };
 
-String LocInfo(const Token &token);
+std::string LocInfo(const Token &token);
 
-String TokenTypeToString(TokenType type);
+std::string TokenTypeToString(TokenType type);
 
 int TokenTypeToChar(TokenType type);
 } // namespace HDI

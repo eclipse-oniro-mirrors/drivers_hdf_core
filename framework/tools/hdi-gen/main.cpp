@@ -15,6 +15,19 @@
 
 using namespace OHOS::HDI;
 
+static bool GetHashKey()
+{
+    Options &options = Options::GetInstance();
+    for (const auto &sourceFile : options.GetSourceFiles()) {
+        std::unique_ptr<File> idlFile = std::make_unique<File>(sourceFile, int(File::READ));
+        if (!idlFile->IsValid()) {
+            Logger::E("hdi-gen", "failed to open idl file");
+            return -1;
+        }
+        printf("%s:%lu\n", idlFile->GetPath().c_str(), idlFile->GetHashKey());
+    }
+    return 0;
+}
 int main(int argc, char **argv)
 {
     Options &options = Options::GetInstance().Parse(argc, argv);
@@ -22,37 +35,26 @@ int main(int argc, char **argv)
         options.ShowErrors();
         return 0;
     }
-
     if (options.DoShowUsage()) {
         options.ShowUsage();
         return 0;
     }
-
     if (options.DoShowVersion()) {
         options.ShowVersion();
         return 0;
     }
-
     if (!options.DoCompile()) {
         return 0;
     }
-
     if (options.DoGetHashKey()) {
-        for (const auto &sourceFile : options.GetSourceFiles()) {
-            std::unique_ptr<File> idlFile = std::make_unique<File>(sourceFile, int(File::READ));
-            if (!idlFile->IsValid()) {
-                Logger::E("hdi-gen", "failed to open idl file");
-                return -1;
-            }
-            printf("%s:%lu\n", idlFile->GetPath().string(), idlFile->GetHashKey());
-        }
-        return 0;
+        return GetHashKey();
     }
 
     Preprocessor preprocessor;
-    std::vector<String> sourceFiles;
+    std::vector<std::string> sourceFiles;
     if (!preprocessor.Preprocess(sourceFiles)) {
         Logger::E("MAIN", "failed to preprocess");
+        return -1;
     }
 
     Parser parser;
@@ -63,14 +65,13 @@ int main(int argc, char **argv)
 
     if (options.DoDumpAST()) {
         for (const auto &astPair : parser.GetAllAst()) {
-            printf("%s\n", astPair.second->Dump("").string());
+            printf("%s\n", astPair.second->Dump("").c_str());
         }
     }
 
     if (!options.DoGenerateCode()) {
         return 0;
     }
-
     if (!CodeGenerator(parser.GetAllAst()).Generate()) {
         Logger::E("hdi-gen", "failed to generate code");
         return -1;

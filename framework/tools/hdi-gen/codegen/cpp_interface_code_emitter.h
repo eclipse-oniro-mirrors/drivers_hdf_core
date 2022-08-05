@@ -20,7 +20,7 @@ public:
     virtual ~CppInterfaceCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -34,19 +34,19 @@ private:
 
     void EmitInterfaceDefinition(StringBuilder &sb);
 
-    void EmitInterfaceDescriptor(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceDescriptor(StringBuilder &sb, const std::string &prefix);
 
-    void EmitGetMethodDecl(StringBuilder &sb, const String &prefix);
+    void EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceDestruction(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceDestruction(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodsDecl(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodsDecl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceGetVersionMethod(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 };
 } // namespace HDI
 } // namespace OHOS

@@ -15,20 +15,20 @@ void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 {
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> importAst = importPair.second;
-        String fileName = PackageToFilePath(importAst->GetFullName());
+        std::string fileName = PackageToFilePath(importAst->GetFullName());
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, fileName);
     }
 }
 
 void CCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = parameter->GetType();
     sb.Append(prefix).Append(parameter->EmitCParameter());
 }
 
 void CCodeEmitter::EmitMethodNeedLoopVar(
-    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix)
 {
     if (!isKernelCode_) {
         return;
@@ -83,11 +83,11 @@ bool CCodeEmitter::EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bo
     return false;
 }
 
-void CCodeEmitter::EmitErrorHandle(
-    const AutoPtr<ASTMethod> &method, const String &gotoLabel, bool isClient, StringBuilder &sb, const String &prefix)
+void CCodeEmitter::EmitErrorHandle(const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, bool isClient,
+    StringBuilder &sb, const std::string &prefix)
 {
     if (!isClient) {
-        sb.Append(prefix).AppendFormat("%s:\n", gotoLabel.string());
+        sb.Append(prefix).AppendFormat("%s:\n", gotoLabel.c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             AutoPtr<ASTType> paramType = param->GetType();
@@ -99,22 +99,22 @@ void CCodeEmitter::EmitErrorHandle(
 
 void CCodeEmitter::EmitLicense(StringBuilder &sb)
 {
-    if (ast_->GetLicense().IsEmpty()) {
+    if (ast_->GetLicense().empty()) {
         return;
     }
     sb.Append(ast_->GetLicense()).Append("\n\n");
 }
 
-void CCodeEmitter::EmitHeadMacro(StringBuilder &sb, const String &fullName)
+void CCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
 {
-    String macroName = MacroName(fullName);
+    std::string macroName = MacroName(fullName);
     sb.Append("#ifndef ").Append(macroName).Append("\n");
     sb.Append("#define ").Append(macroName).Append("\n");
 }
 
-void CCodeEmitter::EmitTailMacro(StringBuilder &sb, const String &fullName)
+void CCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName)
 {
-    String macroName = MacroName(fullName);
+    std::string macroName = MacroName(fullName);
     sb.Append("#endif // ").Append(macroName);
 }
 
@@ -132,33 +132,33 @@ void CCodeEmitter::EmitTailExternC(StringBuilder &sb)
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-String CCodeEmitter::EmitDescMacroName()
+std::string CCodeEmitter::EmitDescMacroName()
 {
-    return String::Format("%s_INTERFACE_DESC", interfaceName_.ToUpperCase().string());
+    return StringHelper::Format("%s_INTERFACE_DESC", StringHelper::StrToUpper(interfaceName_).c_str());
 }
 
-String CCodeEmitter::MacroName(const String &name)
+std::string CCodeEmitter::MacroName(const std::string &name)
 {
-    if (name.IsEmpty()) {
+    if (name.empty()) {
         return name;
     }
 
-    String macro = name.Replace('.', '_').ToUpperCase() + "_H";
+    std::string macro = StringHelper::StrToUpper(StringHelper::Replace(name, '.', '_')) + "_H";
     return macro;
 }
 
-String CCodeEmitter::SpecificationParam(StringBuilder &paramSb, const String &prefix)
+std::string CCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix)
 {
-    int maxLineLen = 120;
-    int replaceLen = 2;
-    String paramStr = paramSb.ToString();
-    int preIndex = 0;
-    int curIndex = 0;
+    size_t maxLineLen = 120;
+    size_t replaceLen = 2;
+    std::string paramStr = paramSb.ToString();
+    size_t preIndex = 0;
+    size_t curIndex = 0;
 
-    String insertStr = String::Format("\n%s", prefix.string());
-    for (; curIndex < paramStr.GetLength(); curIndex++) {
+    std::string insertStr = StringHelper::Format("\n%s", prefix.c_str());
+    for (; curIndex < paramStr.size(); curIndex++) {
         if (curIndex == maxLineLen && preIndex > 0) {
-            paramStr.Replace(preIndex, replaceLen, ",");
+            StringHelper::Replace(paramStr, preIndex, replaceLen, ",");
             paramStr.insert(preIndex + 1, insertStr);
         } else {
             if (paramStr[curIndex] == ',') {

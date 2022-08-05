@@ -9,6 +9,7 @@
 #include "lexer/lexer.h"
 #include "util/logger.h"
 #include "util/string_builder.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
@@ -74,7 +75,7 @@ Lexer::StrTokenTypeMap Lexer::symbols_ = {
 
 Lexer::Lexer() : file_(nullptr), havePeek_(false), curToken_(), mode_(ParseMode::DECL_MODE) {}
 
-bool Lexer::Reset(const String &filePath)
+bool Lexer::Reset(const std::string &filePath)
 {
     file_ = std::make_unique<File>(filePath, int(File::READ));
     if (file_ == nullptr || !file_->IsValid()) {
@@ -241,7 +242,7 @@ void Lexer::ReadId(Token &token)
         break;
     }
 
-    String key = sb.ToString();
+    std::string key = sb.ToString();
     auto it = keyWords_.find(key);
     token.kind_ = (it == keyWords_.end()) ? TokenType::ID : it->second;
     token.value_ = sb.ToString();
@@ -374,7 +375,7 @@ void Lexer::ReadShiftLeftOp(Token &token)
         return;
     }
 
-    String symbol = String::Format("%c", c);
+    std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
     token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
     token.value_ = symbol;
@@ -391,7 +392,7 @@ void Lexer::ReadShiftRightOp(Token &token)
         return;
     }
 
-    String symbol = String::Format("%c", c);
+    std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
     token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
     token.value_ = symbol;
@@ -408,7 +409,7 @@ void Lexer::ReadPPlusOp(Token &token)
         return;
     }
 
-    String symbol = String::Format("%c", c);
+    std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
     token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
     token.value_ = symbol;
@@ -425,7 +426,7 @@ void Lexer::ReadMMinusOp(Token &token)
         return;
     }
 
-    String symbol = String::Format("%c", c);
+    std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
     token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
     token.value_ = symbol;
@@ -443,7 +444,7 @@ void Lexer::ReadComment(Token &token)
         return;
     }
 
-    String symbol = String::Format("%c", c);
+    std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
     token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
     token.value_ = symbol;
@@ -491,7 +492,7 @@ void Lexer::ReadBlockComment(Token &token)
 void Lexer::ReadSymbolToken(Token &token)
 {
     char c = file_->GetChar();
-    String symbol = String::Format("%c", c);
+    std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
     token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
     token.value_ = symbol;

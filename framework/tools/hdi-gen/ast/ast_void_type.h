@@ -19,15 +19,15 @@ public:
 
     bool IsVoidType() override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
     TypeKind GetTypeKind() override;
 
-    String EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
+    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 };
 } // namespace HDI
 } // namespace OHOS

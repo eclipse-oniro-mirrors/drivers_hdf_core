@@ -18,27 +18,27 @@
 
 namespace OHOS {
 namespace HDI {
-String FileDetail::Dump() const
+std::string FileDetail::Dump() const
 {
     StringBuilder sb;
-    sb.AppendFormat("filePath:%s\n", filePath_.string());
-    sb.AppendFormat("fileName:%s\n", fileName_.string());
-    sb.AppendFormat("packageName:%s\n", packageName_.string());
+    sb.AppendFormat("filePath:%s\n", filePath_.c_str());
+    sb.AppendFormat("fileName:%s\n", fileName_.c_str());
+    sb.AppendFormat("packageName:%s\n", packageName_.c_str());
     if (imports_.size() == 0) {
         sb.Append("import:[]\n");
     } else {
         sb.Append("import:[\n");
         for (const auto &importStr : imports_) {
-            sb.AppendFormat("%s,\n", importStr.string());
+            sb.AppendFormat("%s,\n", importStr.c_str());
         }
         sb.Append("]\n");
     }
     return sb.ToString();
 }
 
-bool Preprocessor::Preprocess(std::vector<String> &compileSourceFiles)
+bool Preprocessor::Preprocess(std::vector<std::string> &compileSourceFiles)
 {
-    std::vector<String> sourceFiles = Options::GetInstance().GetSourceFiles();
+    std::vector<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
 
     // check all path of idl files
     if (!CheckAllFilesPath(sourceFiles)) {
@@ -55,11 +55,10 @@ bool Preprocessor::Preprocess(std::vector<String> &compileSourceFiles)
     if (!CheckCircularReference(allFileDetails, compileSourceFiles)) {
         return false;
     }
-
     return true;
 }
 
-bool Preprocessor::CheckAllFilesPath(const std::vector<String> &sourceFiles)
+bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles)
 {
     if (sourceFiles.empty()) {
         Logger::E(TAG, "no source files");
@@ -69,7 +68,7 @@ bool Preprocessor::CheckAllFilesPath(const std::vector<String> &sourceFiles)
     bool ret = true;
     for (const auto &filePath : sourceFiles) {
         if (!File::CheckValid(filePath)) {
-            Logger::E(TAG, "invailed file path '%s'.", filePath.string());
+            Logger::E(TAG, "invailed file path '%s'.", filePath.c_str());
             ret = false;
         }
     }
@@ -77,14 +76,13 @@ bool Preprocessor::CheckAllFilesPath(const std::vector<String> &sourceFiles)
     return ret;
 }
 
-bool Preprocessor::AnalyseImportInfo(const std::vector<String> &sourceFiles, FileDetailMap &allFileDetails)
+bool Preprocessor::AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails)
 {
     if (sourceFiles.size() == 1) {
         FileDetail info;
         if (!ParseFileDetail(sourceFiles[0], info)) {
             return false;
         }
-
         allFileDetails[info.GetFullName()] = info;
         if (!LoadOtherIdlFiles(info, allFileDetails)) {
             return false;
@@ -101,22 +99,22 @@ bool Preprocessor::AnalyseImportInfo(const std::vector<String> &sourceFiles, Fil
     return true;
 }
 
-bool Preprocessor::ParseFileDetail(const String &sourceFile, FileDetail &info)
+bool Preprocessor::ParseFileDetail(const std::string &sourceFile, FileDetail &info)
 {
     Lexer lexer;
     if (!lexer.Reset(sourceFile)) {
-        Logger::E(TAG, "failed to open file '%s'.", sourceFile.string());
+        Logger::E(TAG, "failed to open file '%s'.", sourceFile.c_str());
         return false;
     }
 
     info.filePath_ = lexer.GetFilePath();
-    int startIndex = info.filePath_.LastIndexOf(File::separator);
-    int endIndex = info.filePath_.LastIndexOf(".idl");
-    if (startIndex == -1 || endIndex == -1 || (startIndex >= endIndex)) {
-        Logger::E(TAG, "failed to get file name from '%s'.", info.filePath_.string());
+    size_t startIndex = info.filePath_.rfind(File::separator);
+    size_t endIndex = info.filePath_.rfind(".idl");
+    if (startIndex == std::string::npos || endIndex == std::string::npos || (startIndex >= endIndex)) {
+        Logger::E(TAG, "failed to get file name from '%s'.", info.filePath_.c_str());
         return false;
     }
-    info.fileName_ = info.filePath_.Substring(startIndex + 1, endIndex);
+    info.fileName_ = StringHelper::SubStr(info.filePath_, startIndex + 1, endIndex);
 
     if (!ParsePackage(lexer, info)) {
         return false;
@@ -132,14 +130,14 @@ bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
 {
     Token token = lexer.PeekToken();
     if (token.kind_ != TokenType::PACKAGE) {
-        Logger::E(TAG, "%s: expected 'package' before '%s' token", LocInfo(token).string(), token.value_.string());
+        Logger::E(TAG, "%s: expected 'package' before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
         return false;
     }
     lexer.GetToken();
 
     token = lexer.PeekToken();
     if (token.kind_ != TokenType::ID) {
-        Logger::E(TAG, "%s: expected package name before '%s' token", LocInfo(token).string(), token.value_.string());
+        Logger::E(TAG, "%s: expected package name before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
         return false;
     }
     info.packageName_ = token.value_;
@@ -147,7 +145,7 @@ bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
 
     token = lexer.PeekToken();
     if (token.kind_ != TokenType::SEMICOLON) {
-        Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).string(), token.value_.string());
+        Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
         return false;
     }
     lexer.GetToken();
@@ -167,8 +165,7 @@ bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
         lexer.GetToken();
         token = lexer.PeekToken();
         if (token.kind_ != TokenType::ID) {
-            Logger::E(
-                TAG, "%s: expected import name before '%s' token", LocInfo(token).string(), token.value_.string());
+            Logger::E(TAG, "%s: expected import name before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
             return false;
         }
 
@@ -177,7 +174,7 @@ bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
 
         token = lexer.PeekToken();
         if (token.kind_ != TokenType::SEMICOLON) {
-            Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).string(), token.value_.string());
+            Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
             return false;
         }
         lexer.GetToken();
@@ -194,7 +191,7 @@ bool Preprocessor::LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDeta
             continue;
         }
 
-        String otherFilePath = Options::GetInstance().GetImportFilePath(importName);
+        std::string otherFilePath = Options::GetInstance().GetImportFilePath(importName);
         FileDetail otherFileDetail;
         if (!ParseFileDetail(otherFilePath, otherFileDetail)) {
             return false;
@@ -202,15 +199,14 @@ bool Preprocessor::LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDeta
 
         allFileDetails[otherFileDetail.GetFullName()] = otherFileDetail;
         if (!LoadOtherIdlFiles(otherFileDetail, allFileDetails)) {
-            Logger::E(TAG, "failed to load file detail by import '%s'", otherFileDetail.filePath_.string());
+            Logger::E(TAG, "failed to load file detail by import '%s'", otherFileDetail.filePath_.c_str());
             return false;
         }
     }
-
     return true;
 }
 
-bool Preprocessor::CheckCircularReference(FileDetailMap &allFileDetails, std::vector<String> &compileSourceFiles)
+bool Preprocessor::CheckCircularReference(FileDetailMap &allFileDetails, std::vector<std::string> &compileSourceFiles)
 {
     std::queue<FileDetail> fileQueue;
     for (const auto &filePair : allFileDetails) {
@@ -262,25 +258,25 @@ void Preprocessor::PrintCyclefInfo(FileDetailMap &allFileDetails)
     }
 
     for (const auto &filePair : allFileDetails) {
-        std::vector<String> traceNodes;
+        std::vector<std::string> traceNodes;
         FindCycle(filePair.second.GetFullName(), allFileDetails, traceNodes);
     }
 }
 
-void Preprocessor::FindCycle(const String &curNode, FileDetailMap &allFiles, std::vector<String> &trace)
+void Preprocessor::FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace)
 {
-    auto iter = std::find_if(trace.begin(), trace.end(), [curNode](String name) {
-        return name.Equals(curNode);
+    auto iter = std::find_if(trace.begin(), trace.end(), [curNode](std::string name) {
+        return name == curNode;
     });
     if (iter != trace.end()) {
         if (iter == trace.begin()) {
             // print circular reference infomation
             StringBuilder sb;
             for (const auto &nodeName : trace) {
-                sb.AppendFormat("%s -> ", nodeName.string());
+                sb.AppendFormat("%s -> ", nodeName.c_str());
             }
-            sb.AppendFormat("%s", curNode.string());
-            Logger::E(TAG, "error: there are circular reference:\n%s", sb.ToString().string());
+            sb.AppendFormat("%s", curNode.c_str());
+            Logger::E(TAG, "error: there are circular reference:\n%s", sb.ToString().c_str());
         }
         return;
     }

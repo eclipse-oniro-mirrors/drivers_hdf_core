@@ -12,26 +12,29 @@
 
 #include "util/file.h"
 #include "util/string_builder.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
-String Token::Dump()
+std::string Token::Dump()
 {
     StringBuilder sb;
     sb.AppendFormat(
-        "{kind_:%u, row_:%u, col_:%u, value_:%s}", (size_t)kind_, location_.row_, location_.col_, value_.string());
+        "{kind_:%u, row_:%u, col_:%u, value_:%s}", (size_t)kind_, location_.row_, location_.col_, value_.c_str());
     return sb.ToString();
 }
 
-String LocInfo(const Token &token)
+std::string LocInfo(const Token &token)
 {
-    String fileName = token.location_.filePath_.Substring(token.location_.filePath_.LastIndexOf(File::separator) + 1);
-    return String::Format("%s:%u:%u", fileName.string(), token.location_.row_, token.location_.col_);
+    size_t index = token.location_.filePath_.rfind(File::separator);
+    std::string fileName =
+        (index == std::string::npos) ? token.location_.filePath_ : token.location_.filePath_.substr(index + 1);
+    return StringHelper::Format("%s:%u:%u", fileName.c_str(), token.location_.row_, token.location_.col_);
 }
 
-String TokenTypeToString(TokenType type)
+std::string TokenTypeToString(TokenType type)
 {
-    static std::unordered_map<TokenType, String> tokenStrMap = {
+    static std::unordered_map<TokenType, std::string> tokenStrMap = {
         {TokenType::BOOLEAN,              "boolean"       },
         {TokenType::BYTE,                 "byte"          },
         {TokenType::SHORT,                "short"         },

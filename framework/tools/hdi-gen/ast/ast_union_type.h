@@ -15,7 +15,6 @@
 #include "ast/ast_attribute.h"
 #include "ast/ast_type.h"
 #include "util/autoptr.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
@@ -23,12 +22,12 @@ class ASTUnionType : public ASTType {
 public:
     ASTUnionType() : ASTType(TypeKind::TYPE_UNION, true), attr_(new ASTTypeAttr()), members_() {}
 
-    inline void SetName(const String &name)
+    inline void SetName(const std::string &name)
     {
         name_ = name;
     }
 
-    inline String GetName()
+    inline std::string GetName()
     {
         return name_;
     }
@@ -50,17 +49,17 @@ public:
         return attr_ != nullptr ? attr_->isLite_ : false;
     }
 
-    void AddMember(const AutoPtr<ASTType> &typeName, String name);
+    void AddMember(const AutoPtr<ASTType> &typeName, std::string name);
 
     inline size_t GetMemberNumber()
     {
         return members_.size();
     }
 
-    inline String GetMemberName(size_t index)
+    inline std::string GetMemberName(size_t index)
     {
         if (index >= members_.size()) {
-            return String("");
+            return std::string("");
         }
         return std::get<0>(members_[index]);
     }
@@ -75,56 +74,57 @@ public:
 
     bool IsUnionType() override;
 
-    String ToString() const override;
+    std::string ToString() const override;
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
     TypeKind GetTypeKind() override;
 
-    String EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    String EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
+    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 
-    String EmitCTypeDecl() const;
+    std::string EmitCTypeDecl() const;
 
-    String EmitCppTypeDecl() const;
+    std::string EmitCppTypeDecl() const;
 
-    String EmitJavaTypeDecl() const;
+    std::string EmitJavaTypeDecl() const;
 
-    void EmitCWriteVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const override;
+    void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const override;
+    void EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix) const override;
 
-    void EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const override;
+    void EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool initVariable, unsigned int innerLevel = 0) const override;
+    void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
-    void EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const override;
+    void EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
 
-    void EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb, const String &prefix,
-        std::vector<String> &freeObjStatements) const override;
+    void EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix, std::vector<std::string> &freeObjStatements) const override;
 
-    void EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const override;
+    void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
 
-    void EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool emitType, unsigned int innerLevel = 0) const override;
+    void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 
-    void EmitMemoryRecycle(
-        const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const override;
+    void EmitMemoryRecycle(const std::string &name, bool isClient, bool ownership, StringBuilder &sb,
+        const std::string &prefix) const override;
 
 private:
     AutoPtr<ASTTypeAttr> attr_ = new ASTTypeAttr();
-    std::vector<std::tuple<String, AutoPtr<ASTType>>> members_;
+    std::vector<std::tuple<std::string, AutoPtr<ASTType>>> members_;
 };
 } // namespace HDI
 } // namespace OHOS

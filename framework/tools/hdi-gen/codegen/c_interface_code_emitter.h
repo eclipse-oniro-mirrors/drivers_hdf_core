@@ -20,7 +20,7 @@ public:
     virtual ~CInterfaceCodeEmitter() = default;
 
 private:
-    bool ResolveDirectory(const String &targetDirectory) override;
+    bool ResolveDirectory(const std::string &targetDirectory) override;
 
     void EmitCode() override;
 
@@ -40,11 +40,11 @@ private:
 
     void EmitInterfaceDefinition(StringBuilder &sb);
 
-    void EmitInterfaceMethods(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitAsObjectMethod(StringBuilder &sb, const String &prefix);
+    void EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix);
 
     void EmitInterfaceGetMethodDecl(StringBuilder &sb);
 

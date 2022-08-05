@@ -9,7 +9,7 @@
 #ifndef OHOS_HDI_STRINGBUILDER_H
 #define OHOS_HDI_STRINGBUILDER_H
 
-#include "util/string.h"
+#include <string>
 
 namespace OHOS {
 namespace HDI {
@@ -17,21 +17,21 @@ class StringBuilder {
 public:
     ~StringBuilder();
 
-    StringBuilder &Append(char c);
+    StringBuilder& Append(char c);
 
-    StringBuilder &Append(const char *string);
+    StringBuilder& Append(const char* string);
 
-    StringBuilder &Append(const String &string);
+    StringBuilder& Append(const std::string& string);
 
-    StringBuilder &AppendFormat(const char *format, ...);
+    StringBuilder& AppendFormat(const char* format, ...);
 
-    String ToString() const;
+    std::string ToString() const;
 
 private:
     bool Grow(size_t size);
 
-    static const char *TAG;
-    char *buffer_ = nullptr;
+    static const char* TAG;
+    char* buffer_ = nullptr;
     size_t position_ = 0;
     size_t capacity_ = 0;
 };

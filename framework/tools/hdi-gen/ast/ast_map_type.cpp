@@ -40,9 +40,9 @@ bool ASTMapType::HasInnerType(TypeKind innerTypeKind) const
     return false;
 }
 
-String ASTMapType::ToString() const
+std::string ASTMapType::ToString() const
 {
-    return String::Format("Map<%s, %s>", keyType_->ToString().string(), valueType_->ToString().string());
+    return StringHelper::Format("Map<%s, %s>", keyType_->ToString().c_str(), valueType_->ToString().c_str());
 }
 
 TypeKind ASTMapType::GetTypeKind()
@@ -50,147 +50,146 @@ TypeKind ASTMapType::GetTypeKind()
     return TypeKind::TYPE_MAP;
 }
 
-String ASTMapType::EmitCType(TypeMode mode) const
+std::string ASTMapType::EmitCType(TypeMode mode) const
 {
     // c language has no map type
     return "/";
 }
 
-String ASTMapType::EmitCppType(TypeMode mode) const
+std::string ASTMapType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format(
-                "std::map<%s, %s>", keyType_->EmitCppType().string(), valueType_->EmitCppType().string());
+            return StringHelper::Format(
+                "std::map<%s, %s>", keyType_->EmitCppType().c_str(), valueType_->EmitCppType().c_str());
         case TypeMode::PARAM_IN:
-            return String::Format(
-                "const std::map<%s, %s>&", keyType_->EmitCppType().string(), valueType_->EmitCppType().string());
+            return StringHelper::Format(
+                "const std::map<%s, %s>&", keyType_->EmitCppType().c_str(), valueType_->EmitCppType().c_str());
         case TypeMode::PARAM_OUT:
-            return String::Format(
-                "std::map<%s, %s>&", keyType_->EmitCppType().string(), valueType_->EmitCppType().string());
+            return StringHelper::Format(
+                "std::map<%s, %s>&", keyType_->EmitCppType().c_str(), valueType_->EmitCppType().c_str());
         case TypeMode::LOCAL_VAR:
-            return String::Format(
-                "std::map<%s, %s>", keyType_->EmitCppType().string(), valueType_->EmitCppType().string());
+            return StringHelper::Format(
+                "std::map<%s, %s>", keyType_->EmitCppType().c_str(), valueType_->EmitCppType().c_str());
         default:
             return "unknow type";
     }
 }
 
-String ASTMapType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTMapType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
-    return String::Format(
-        "HashMap<%s, %s>", keyType_->EmitJavaType(mode, true).string(), valueType_->EmitJavaType(mode, true).string());
+    return StringHelper::Format(
+        "HashMap<%s, %s>", keyType_->EmitJavaType(mode, true).c_str(), valueType_->EmitJavaType(mode, true).c_str());
 }
 
-void ASTMapType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    unsigned int innerLevel) const
+void ASTMapType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteUint32(%s.size())) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteUint32(%s.size())) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
-    String elementName = String::Format("it%d", innerLevel++);
-    sb.Append(prefix).AppendFormat("for (auto %s : %s) {\n", elementName.string(), name.string());
+    std::string elementName = StringHelper::Format("it%d", innerLevel++);
+    sb.Append(prefix).AppendFormat("for (auto %s : %s) {\n", elementName.c_str(), name.c_str());
 
-    String keyName = String::Format("(%s.first)", elementName.string());
-    String valueName = String::Format("(%s.second)", elementName.string());
+    std::string keyName = StringHelper::Format("(%s.first)", elementName.c_str());
+    std::string valueName = StringHelper::Format("(%s.second)", elementName.c_str());
     keyType_->EmitCppWriteVar(parcelName, keyName, sb, prefix + TAB, innerLevel);
     valueType_->EmitCppWriteVar(parcelName, valueName, sb, prefix + TAB, innerLevel);
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    bool initVariable, unsigned int innerLevel) const
+void ASTMapType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), name.string());
+        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), name.c_str());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", name.string());
+    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", name.c_str());
 
-    String KeyName = String::Format("key%d", innerLevel);
-    String valueName = String::Format("value%d", innerLevel);
+    std::string KeyName = StringHelper::Format("key%d", innerLevel);
+    std::string valueName = StringHelper::Format("value%d", innerLevel);
     innerLevel++;
     keyType_->EmitCppReadVar(parcelName, KeyName, sb, prefix + TAB, true, innerLevel);
     valueType_->EmitCppReadVar(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
-    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.string(), KeyName.string(), valueName.string());
+    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.c_str(), KeyName.c_str(), valueName.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTMapType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteUint32(%s.size())) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: write %s.size failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteUint32(%s.size())) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s.size failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
-    String elementName = String::Format("it%d", innerLevel++);
-    sb.Append(prefix).AppendFormat("for (const auto& %s : %s) {\n", elementName.string(), name.string());
+    std::string elementName = StringHelper::Format("it%d", innerLevel++);
+    sb.Append(prefix).AppendFormat("for (const auto& %s : %s) {\n", elementName.c_str(), name.c_str());
 
-    String keyName = String::Format("(%s.first)", elementName.string());
-    String valName = String::Format("(%s.second)", elementName.string());
+    std::string keyName = StringHelper::Format("(%s.first)", elementName.c_str());
+    std::string valName = StringHelper::Format("(%s.second)", elementName.c_str());
     keyType_->EmitCppMarshalling(parcelName, keyName, sb, prefix + TAB, innerLevel);
     valueType_->EmitCppMarshalling(parcelName, valName, sb, prefix + TAB, innerLevel);
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool emitType, unsigned int innerLevel) const
+void ASTMapType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
-    int index = name.IndexOf('.', 0);
-    String memberName = name.Substring(index + 1);
+    size_t index = name.find('.', 0);
+    std::string memberName = (index == std::string::npos) ? name : StringHelper::SubStr(name, index + 1);
     if (emitType) {
-        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().string(), memberName.string());
+        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), memberName.c_str());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.string());
+    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.c_str());
 
-    String KeyName = String::Format("key%d", innerLevel);
-    String valueName = String::Format("value%d", innerLevel);
+    std::string KeyName = StringHelper::Format("key%d", innerLevel);
+    std::string valueName = StringHelper::Format("value%d", innerLevel);
     innerLevel++;
     keyType_->EmitCppUnMarshalling(parcelName, KeyName, sb, prefix + TAB, true, innerLevel);
     valueType_->EmitCppUnMarshalling(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
-    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.string(), KeyName.string(), valueName.string());
+    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.c_str(), KeyName.c_str(), valueName.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
 void ASTMapType::EmitJavaWriteVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("%s.writeInt(%s.size());\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat("%s.writeInt(%s.size());\n", parcelName.c_str(), name.c_str());
     sb.Append(prefix).AppendFormat("for (Map.Entry<%s, %s> entry : %s.entrySet()) {\n",
-        keyType_->EmitJavaType(TypeMode::NO_MODE, true).string(),
-        valueType_->EmitJavaType(TypeMode::NO_MODE, true).string(), name.string());
+        keyType_->EmitJavaType(TypeMode::NO_MODE, true).c_str(),
+        valueType_->EmitJavaType(TypeMode::NO_MODE, true).c_str(), name.c_str());
     keyType_->EmitJavaWriteVar(parcelName, "entry.getKey()", sb, prefix + TAB);
     valueType_->EmitJavaWriteVar(parcelName, "entry.getValue()", sb, prefix + TAB);
     sb.Append(prefix).Append("}\n");
 }
 
 void ASTMapType::EmitJavaReadVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("int %sSize = %s.readInt();\n", name.string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("for (int i = 0; i < %sSize; ++i) {\n", name.string());
+    sb.Append(prefix).AppendFormat("int %sSize = %s.readInt();\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("for (int i = 0; i < %sSize; ++i) {\n", name.c_str());
 
     keyType_->EmitJavaReadInnerVar(parcelName, "key", false, sb, prefix + TAB);
     valueType_->EmitJavaReadInnerVar(parcelName, "value", false, sb, prefix + TAB);
 
-    sb.Append(prefix + TAB).AppendFormat("%s.put(key, value);\n", name.string());
+    sb.Append(prefix + TAB).AppendFormat("%s.put(key, value);\n", name.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::EmitJavaReadInnerVar(
-    const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
+void ASTMapType::EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+    StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("%s %s = new Hash%s();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(),
-        EmitJavaType(TypeMode::NO_MODE).string());
-    sb.Append(prefix).AppendFormat("int %sSize = %s.readInt();\n", name.string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("for (int i = 0; i < %sSize; ++i) {\n", name.string());
+    sb.Append(prefix).AppendFormat("%s %s = new Hash%s();\n", EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(),
+        EmitJavaType(TypeMode::NO_MODE).c_str());
+    sb.Append(prefix).AppendFormat("int %sSize = %s.readInt();\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("for (int i = 0; i < %sSize; ++i) {\n", name.c_str());
 
     keyType_->EmitJavaReadInnerVar(parcelName, "key", true, sb, prefix + TAB);
     valueType_->EmitJavaReadInnerVar(parcelName, "value", true, sb, prefix + TAB);
-    sb.Append(prefix + TAB).AppendFormat("%s.put(key, value);\n", name.string());
+    sb.Append(prefix + TAB).AppendFormat("%s.put(key, value);\n", name.c_str());
     sb.Append(prefix).Append("}\n");
 }
 

@@ -15,7 +15,7 @@
 
 namespace OHOS {
 namespace HDI {
-bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const String &targetDirectory, bool isKernelCode)
+bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode)
 {
     if (!Reset(ast, targetDirectory, isKernelCode)) {
         return false;
@@ -25,9 +25,9 @@ bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const String &targetDirectory,
     return true;
 }
 
-bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const String &targetDirectory, bool isKernelCode)
+bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode)
 {
-    if (ast == nullptr || targetDirectory.Equals("")) {
+    if (ast == nullptr || targetDirectory.empty()) {
         return false;
     }
 
@@ -39,7 +39,7 @@ bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const String &targetDirectory, 
         interface_ = ast_->GetInterfaceDef();
         interfaceName_ = interface_->GetName();
         interfaceFullName_ = interface_->GetNamespace()->ToString() + interfaceName_;
-        baseName_ = interfaceName_.StartsWith("I") ? interfaceName_.Substring(1) : interfaceName_;
+        baseName_ = StringHelper::StartWith(interfaceName_, "I") ? interfaceName_.substr(1) : interfaceName_;
         proxyName_ = baseName_ + "Proxy";
         proxyFullName_ = interface_->GetNamespace()->ToString() + proxyName_;
 
@@ -54,11 +54,11 @@ bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const String &targetDirectory, 
         baseName_ = ast_->GetName();
     }
 
-    majorVerName_ = String::Format("%s_MAJOR_VERSION", ConstantName(interfaceName_).string());
-    minorVerName_ = String::Format("%s_MINOR_VERSION", ConstantName(interfaceName_).string());
-    bufferSizeMacroName_ = String::Format("%s_BUFF_MAX_SIZE", ConstantName(baseName_).string());
+    majorVerName_ = StringHelper::Format("%s_MAJOR_VERSION", ConstantName(interfaceName_).c_str());
+    minorVerName_ = StringHelper::Format("%s_MINOR_VERSION", ConstantName(interfaceName_).c_str());
+    bufferSizeMacroName_ = StringHelper::Format("%s_BUFF_MAX_SIZE", ConstantName(baseName_).c_str());
 
-    String prefix = String::Format("%c%s", tolower(baseName_[0]), baseName_.Substring(1).string());
+    std::string prefix = StringHelper::Format("%c%s", tolower(baseName_[0]), baseName_.substr(1).c_str());
     dataParcelName_ = prefix + "Data";
     replyParcelName_ = prefix + "Reply";
     optionName_ = prefix + "Option";
@@ -115,21 +115,21 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
  * subPath: foo/v1_0
  * GenPath: ./out/foo/v1_0/
  */
-String CodeEmitter::GetFileParentPath(const String &outDir)
+std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
 {
-    String outPath = outDir.EndsWith(File::separator) ? outDir.Substring(0, outDir.GetLength() - 1) : outDir;
-    String subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());
-    String subPath = subPackage.Replace('.', File::separator);
-    if (subPath.IsEmpty()) {
-        return File::AdapterPath(String::Format("%s/", outPath.string(), subPath.string()));
+    std::string outPath = StringHelper::EndWith(outDir, File::separator) ? outDir.substr(0, outDir.size() - 1) : outDir;
+    std::string subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());
+    std::string subPath = StringHelper::Replace(subPackage, '.', File::separator);
+    if (subPath.empty()) {
+        return File::AdapterPath(StringHelper::Format("%s/", outPath.c_str(), subPath.c_str()));
     } else {
-        return File::AdapterPath(String::Format("%s/%s/", outPath.string(), subPath.string()));
+        return File::AdapterPath(StringHelper::Format("%s/%s/", outPath.c_str(), subPath.c_str()));
     }
 }
 
-String CodeEmitter::PackageToFilePath(const String &packageName)
+std::string CodeEmitter::PackageToFilePath(const std::string &packageName)
 {
-    std::vector<String> packageVec = Options::GetInstance().GetSubPackage(packageName).Split(".");
+    std::vector<std::string> packageVec = StringHelper::Split(Options::GetInstance().GetSubPackage(packageName), ".");
     StringBuilder filePath;
     for (auto iter = packageVec.begin(); iter != packageVec.end(); iter++) {
         filePath.Append(FileName(*iter));
@@ -141,12 +141,12 @@ String CodeEmitter::PackageToFilePath(const String &packageName)
     return filePath.ToString();
 }
 
-String CodeEmitter::EmitMethodCmdID(const AutoPtr<ASTMethod> &method)
+std::string CodeEmitter::EmitMethodCmdID(const AutoPtr<ASTMethod> &method)
 {
-    return String::Format("CMD_%s_%s", ConstantName(baseName_).string(), ConstantName(method->GetName()).string());
+    return StringHelper::Format("CMD_%s_%s", ConstantName(baseName_).c_str(), ConstantName(method->GetName()).c_str());
 }
 
-void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const String &prefix)
+void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat("enum {\n");
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
@@ -158,20 +158,20 @@ void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const String &p
     sb.Append(prefix).Append("};\n");
 }
 
-String CodeEmitter::EmitVersionHeaderName(const String &name)
+std::string CodeEmitter::EmitVersionHeaderName(const std::string &name)
 {
-    return String::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).string());
+    return StringHelper::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).c_str());
 }
 
-String CodeEmitter::ConstantName(const String &name)
+std::string CodeEmitter::ConstantName(const std::string &name)
 {
-    if (name.IsEmpty()) {
+    if (name.empty()) {
         return name;
     }
 
     StringBuilder sb;
 
-    for (int i = 0; i < name.GetLength(); i++) {
+    for (size_t i = 0; i < name.size(); i++) {
         char c = name[i];
         if (isupper(c) != 0) {
             if (i > 1) {
@@ -186,14 +186,14 @@ String CodeEmitter::ConstantName(const String &name)
     return sb.ToString();
 }
 
-String CodeEmitter::PascalName(const String &name)
+std::string CodeEmitter::PascalName(const std::string &name)
 {
-    if (name.IsEmpty()) {
+    if (name.empty()) {
         return name;
     }
 
     StringBuilder sb;
-    for (int i = 0; i < name.GetLength(); i++) {
+    for (size_t i = 0; i < name.size(); i++) {
         char c = name[i];
         if (i == 0) {
             if (islower(c)) {
@@ -215,14 +215,14 @@ String CodeEmitter::PascalName(const String &name)
     return sb.ToString();
 }
 
-String CodeEmitter::FileName(const String &name)
+std::string CodeEmitter::FileName(const std::string &name)
 {
-    if (name.IsEmpty()) {
+    if (name.empty()) {
         return name;
     }
 
     StringBuilder sb;
-    for (int i = 0; i < name.GetLength(); i++) {
+    for (size_t i = 0; i < name.size(); i++) {
         char c = name[i];
         if (isupper(c) != 0) {
             // 2->Index of the last char array.
@@ -244,7 +244,8 @@ void CodeEmitter::GetUtilMethods(UtilMethodMap &methods)
     (void)methods;
 }
 
-void CodeEmitter::EmitUtilMethods(StringBuilder &sb, const String &prefix, const UtilMethodMap &methods, bool isDecl)
+void CodeEmitter::EmitUtilMethods(
+    StringBuilder &sb, const std::string &prefix, const UtilMethodMap &methods, bool isDecl)
 {
     // generator util methods
     for (const auto &methodPair : methods) {

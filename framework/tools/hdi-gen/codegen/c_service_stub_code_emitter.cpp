@@ -13,7 +13,7 @@
 
 namespace OHOS {
 namespace HDI {
-bool CServiceStubCodeEmitter::ResolveDirectory(const String &targetDirectory)
+bool CServiceStubCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
 {
     if (ast_->GetASTFileType() == ASTFileType::AST_IFACE || ast_->GetASTFileType() == ASTFileType::AST_ICALLBACK) {
         directory_ = GetFileParentPath(targetDirectory);
@@ -22,7 +22,7 @@ bool CServiceStubCodeEmitter::ResolveDirectory(const String &targetDirectory)
     }
 
     if (!File::CreateParentDir(directory_)) {
-        Logger::E("CServiceStubCodeEmitter", "Create '%s' failed!", directory_.string());
+        Logger::E("CServiceStubCodeEmitter", "Create '%s' failed!", directory_.c_str());
         return false;
     }
 
@@ -37,8 +37,8 @@ void CServiceStubCodeEmitter::EmitCode()
 
 void CServiceStubCodeEmitter::EmitServiceStubHeaderFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.h", directory_.string(),
-        FileName(stubName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(stubName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -57,8 +57,8 @@ void CServiceStubCodeEmitter::EmitServiceStubHeaderFile()
     sb.Append("\n");
     EmitTailMacro(sb, stubFullName_);
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -75,21 +75,21 @@ void CServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
     }
 
     for (const auto &file : headerFiles) {
-        sb.AppendFormat("%s\n", file.ToString().string());
+        sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
 void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb)
 {
-    sb.AppendFormat("struct %sStub\n", baseName_.string());
+    sb.AppendFormat("struct %sStub\n", baseName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("struct %s interface;\n", interfaceName_.string());
+    sb.Append(TAB).AppendFormat("struct %s interface;\n", interfaceName_.c_str());
 
     if (interface_->IsSerializable()) {
         sb.Append(TAB).Append("struct HdfRemoteService *remote;\n");
         sb.Append(TAB).Append("struct HdfRemoteDispatcher dispatcher;\n");
     } else {
-        sb.Append(TAB).AppendFormat("int32_t (*OnRemoteRequest)(struct %s *serviceImpl, ", interfaceName_.string());
+        sb.Append(TAB).AppendFormat("int32_t (*OnRemoteRequest)(struct %s *serviceImpl, ", interfaceName_.c_str());
         sb.Append("int code, struct HdfSBuf *data, struct HdfSBuf *reply);\n");
     }
 
@@ -98,17 +98,17 @@ void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb)
 
 void CServiceStubCodeEmitter::EmitCbServiceStubMethodsDcl(StringBuilder &sb)
 {
-    sb.AppendFormat("bool %sStubConstruct(struct %sStub *stub);\n", baseName_.string(), baseName_.string());
+    sb.AppendFormat("bool %sStubConstruct(struct %sStub *stub);\n", baseName_.c_str(), baseName_.c_str());
 
     if (interface_->IsSerializable()) {
-        sb.AppendFormat("void %sStubRelease(struct %sStub *stub);\n", baseName_.string(), baseName_.string());
+        sb.AppendFormat("void %sStubRelease(struct %sStub *stub);\n", baseName_.c_str(), baseName_.c_str());
     }
 }
 
 void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.c", directory_.string(),
-        FileName(stubName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.c", directory_.c_str(), FileName(stubName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -131,8 +131,8 @@ void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
         EmitStubReleaseImpl(sb);
     }
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -145,7 +145,7 @@ void CServiceStubCodeEmitter::EmitStubSourceInclusions(StringBuilder &sb)
     GetSourceOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
-        sb.AppendFormat("%s\n", file.ToString().string());
+        sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
@@ -173,7 +173,7 @@ void CServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFile
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
 }
 
-void CServiceStubCodeEmitter::EmitServiceStubMethodImpls(StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::EmitServiceStubMethodImpls(StringBuilder &sb, const std::string &prefix)
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -189,16 +189,16 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpls(StringBuilder &sb, cons
 }
 
 void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat(
         "static int32_t SerStub%s(struct %s *serviceImpl, struct HdfSBuf *%s, struct HdfSBuf *%s)\n",
-        method->GetName().string(), interfaceName_.string(), dataParcelName_.string(), replyParcelName_.string());
+        method->GetName().c_str(), interfaceName_.c_str(), dataParcelName_.c_str(), replyParcelName_.c_str());
     sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB).AppendFormat("int32_t %s = HDF_FAILURE;\n", errorCodeName_.string());
+    sb.Append(prefix + TAB).AppendFormat("int32_t %s = HDF_FAILURE;\n", errorCodeName_.c_str());
     bool readFlag = NeedFlag(method);
     if (readFlag) {
-        sb.Append(prefix + TAB).AppendFormat("bool %s = false;\n", flagOfSetMemName_.string());
+        sb.Append(prefix + TAB).AppendFormat("bool %s = false;\n", flagOfSetMemName_.c_str());
     }
 
     // Local variable definitions must precede all execution statements.
@@ -235,37 +235,37 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
     }
 
     EmitErrorHandle(method, finishedLabelName_, false, sb, prefix);
-    sb.Append(prefix + TAB).AppendFormat("return %s;\n", errorCodeName_.string());
+    sb.Append(prefix + TAB).AppendFormat("return %s;\n", errorCodeName_.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const std::string &prefix)
 {
     if (!readFlag) {
         return;
     }
 
     sb.Append(prefix).AppendFormat(
-        "if (!HdfSbufReadUint8(%s, (uint8_t *)&%s)) {\n", dataParcelName_.string(), flagOfSetMemName_.string());
+        "if (!HdfSbufReadUint8(%s, (uint8_t *)&%s)) {\n", dataParcelName_.c_str(), flagOfSetMemName_.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: read flag of memory setting failed!\", __func__);\n");
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", errorCodeName_.string());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", errorCodeName_.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", finishedLabelName_);
     sb.Append(prefix).Append("}\n\n");
 }
 
 void CServiceStubCodeEmitter::EmitStubLocalVariable(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = param->GetType();
     sb.Append(prefix).Append(param->EmitCLocalVar()).Append("\n");
     if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST ||
         (type->GetTypeKind() == TypeKind::TYPE_STRING && param->GetAttribute() == ParamAttr::PARAM_OUT)) {
-        sb.Append(prefix).AppendFormat("uint32_t %sLen = 0;\n", param->GetName().string());
+        sb.Append(prefix).AppendFormat("uint32_t %sLen = 0;\n", param->GetName().c_str());
     }
 }
 
-void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param, const String &parcelName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param,
+    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = param->GetType();
 
@@ -274,77 +274,78 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
     } else if (type->GetTypeKind() == TypeKind::TYPE_INTERFACE) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_STRUCT) {
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().string(),
-            type->EmitCType(TypeMode::NO_MODE).string(), type->EmitCType(TypeMode::NO_MODE).string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().string());
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().c_str(),
+            type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.string());
+            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.c_str());
         sb.Append(prefix + TAB).AppendFormat("goto %s;\n", finishedLabelName_);
         sb.Append(prefix).Append("}\n");
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_UNION) {
-        String cpName = String::Format("%sCp", param->GetName().string());
+        std::string cpName = StringHelper::Format("%sCp", param->GetName().c_str());
         type->EmitCStubReadVar(parcelName, cpName, errorCodeName_, gotoLabel, sb, prefix);
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().string(),
-            type->EmitCType(TypeMode::NO_MODE).string(), type->EmitCType(TypeMode::NO_MODE).string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().string());
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().c_str(),
+            type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.string());
+            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.c_str());
         sb.Append(prefix + TAB).AppendFormat("goto %s;\n", finishedLabelName_);
         sb.Append(prefix).Append("}\n");
-        sb.Append(prefix).AppendFormat("(void)memcpy_s(%s, sizeof(%s), %s, sizeof(%s));\n", param->GetName().string(),
-            type->EmitCType(TypeMode::NO_MODE).string(), cpName.string(), type->EmitCType(TypeMode::NO_MODE).string());
+        sb.Append(prefix).AppendFormat("(void)memcpy_s(%s, sizeof(%s), %s, sizeof(%s));\n", param->GetName().c_str(),
+            type->EmitCType(TypeMode::NO_MODE).c_str(), cpName.c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
     } else if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else {
-        String name = String::Format("&%s", param->GetName().string());
+        std::string name = StringHelper::Format("&%s", param->GetName().c_str());
         type->EmitCStubReadVar(parcelName, name, errorCodeName_, gotoLabel, sb, prefix);
     }
 }
 
 void CServiceStubCodeEmitter::EmitReadCStringStubMethodParameter(const AutoPtr<ASTParameter> &param,
-    const String &parcelName, const String &gotoLabel, StringBuilder &sb, const String &prefix, AutoPtr<ASTType> &type)
+    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix,
+    AutoPtr<ASTType> &type)
 {
-    String cloneName = String::Format("%sCp", param->GetName().string());
+    std::string cloneName = StringHelper::Format("%sCp", param->GetName().c_str());
     type->EmitCStubReadVar(parcelName, cloneName, errorCodeName_, gotoLabel, sb, prefix);
     if (isKernelCode_) {
         sb.Append("\n");
         sb.Append(prefix).AppendFormat(
-            "%s = (char*)OsalMemCalloc(strlen(%s) + 1);\n", param->GetName().string(), cloneName.string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.string());
+            "%s = (char*)OsalMemCalloc(strlen(%s) + 1);\n", param->GetName().c_str(), cloneName.c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.c_str());
         sb.Append(prefix + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().string());
-        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().c_str());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
         sb.Append(prefix).Append("}\n\n");
         sb.Append(prefix).AppendFormat("if (strcpy_s(%s, (strlen(%s) + 1), %s) != HDF_SUCCESS) {\n",
-            param->GetName().string(), cloneName.string(), cloneName.string());
+            param->GetName().c_str(), cloneName.c_str(), cloneName.c_str());
         sb.Append(prefix + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", param->GetName().string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", errorCodeName_.string());
-        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+            .AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", param->GetName().c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", errorCodeName_.c_str());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
         sb.Append(prefix).Append("}\n");
     } else {
-        sb.Append(prefix).AppendFormat("%s = strdup(%s);\n", param->GetName().string(), cloneName.string());
+        sb.Append(prefix).AppendFormat("%s = strdup(%s);\n", param->GetName().c_str(), cloneName.c_str());
     }
 }
 
-void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const String &parcelName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = param->GetType();
     if (type->IsStructType() || type->IsUnionType()) {
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().string(),
-            type->EmitCType(TypeMode::NO_MODE).string(), type->EmitCType(TypeMode::NO_MODE).string());
-        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().string());
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().c_str(),
+            type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
+        sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
-            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().string());
-        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.string());
-        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+            .AppendFormat("HDF_LOGE(\"%%{public}s: malloc %s failed\", __func__);\n", param->GetName().c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.c_str());
+        sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
         sb.Append(prefix).Append("}\n\n");
     } else if (type->IsStringType() || type->IsArrayType() || type->IsListType()) {
         param->EmitCStubReadOutVar(
@@ -354,14 +355,14 @@ void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter
 }
 
 void CServiceStubCodeEmitter::EmitStubCallMethod(
-    const AutoPtr<ASTMethod> &method, const String &gotoLabel, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
-            "%s = serviceImpl->%s(serviceImpl);\n", errorCodeName_.string(), method->GetName().string());
+            "%s = serviceImpl->%s(serviceImpl);\n", errorCodeName_.c_str(), method->GetName().c_str());
     } else {
         sb.Append(prefix).AppendFormat(
-            "%s = serviceImpl->%s(serviceImpl, ", errorCodeName_.string(), method->GetName().string());
+            "%s = serviceImpl->%s(serviceImpl, ", errorCodeName_.c_str(), method->GetName().c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             EmitCallParameter(sb, param->GetType(), param->GetAttribute(), param->GetName());
@@ -369,49 +370,49 @@ void CServiceStubCodeEmitter::EmitStubCallMethod(
                 sb.Append(", ");
             }
         }
-        sb.AppendFormat(");\n", method->GetName().string());
+        sb.AppendFormat(");\n", method->GetName().c_str());
     }
 
-    sb.Append(prefix).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.string());
+    sb.Append(prefix).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
     sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: call %s function failed!\", __func__);\n", method->GetName().string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+        .AppendFormat("HDF_LOGE(\"%%{public}s: call %s function failed!\", __func__);\n", method->GetName().c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
 void CServiceStubCodeEmitter::EmitCallParameter(
-    StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const String &name)
+    StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name)
 {
     if (attribute == ParamAttr::PARAM_OUT) {
         if (type->GetTypeKind() == TypeKind::TYPE_STRING || type->GetTypeKind() == TypeKind::TYPE_ARRAY ||
             type->GetTypeKind() == TypeKind::TYPE_LIST || type->GetTypeKind() == TypeKind::TYPE_STRUCT ||
             type->GetTypeKind() == TypeKind::TYPE_UNION) {
-            sb.AppendFormat("%s", name.string());
+            sb.AppendFormat("%s", name.c_str());
         } else {
-            sb.AppendFormat("&%s", name.string());
+            sb.AppendFormat("&%s", name.c_str());
         }
 
         if (type->GetTypeKind() == TypeKind::TYPE_STRING) {
-            sb.AppendFormat(", %sLen", name.string());
+            sb.AppendFormat(", %sLen", name.c_str());
         } else if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST) {
-            sb.AppendFormat(", &%sLen", name.string());
+            sb.AppendFormat(", &%sLen", name.c_str());
         }
     } else {
-        sb.AppendFormat("%s", name.string());
+        sb.AppendFormat("%s", name.c_str());
         if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST) {
-            sb.AppendFormat(", %sLen", name.string());
+            sb.AppendFormat(", %sLen", name.c_str());
         }
     }
 }
 
 void CServiceStubCodeEmitter::EmitStubGetVerMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat(
         "static int32_t SerStub%s(struct %s *serviceImpl, struct HdfSBuf *%s, struct HdfSBuf *%s)\n",
-        method->GetName().string(), interfaceName_.string(), dataParcelName_.string(), replyParcelName_.string());
+        method->GetName().c_str(), interfaceName_.c_str(), dataParcelName_.c_str(), replyParcelName_.c_str());
     sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB).AppendFormat("int32_t %s = HDF_SUCCESS;\n", errorCodeName_.string());
+    sb.Append(prefix + TAB).AppendFormat("int32_t %s = HDF_SUCCESS;\n", errorCodeName_.c_str());
 
     AutoPtr<ASTType> type = new ASTUintType();
     type->EmitCWriteVar(replyParcelName_, majorVerName_, errorCodeName_, finishedLabelName_, sb, prefix + TAB);
@@ -420,24 +421,24 @@ void CServiceStubCodeEmitter::EmitStubGetVerMethodImpl(
     sb.Append("\n");
 
     sb.Append(finishedLabelName_).Append(":\n");
-    sb.Append(prefix + TAB).AppendFormat("return %s;\n", errorCodeName_.string());
+    sb.Append(prefix + TAB).AppendFormat("return %s;\n", errorCodeName_.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
-    String objName = "self";
-    sb.Append(prefix).AppendFormat("static struct HdfRemoteService *%sStubAsObject(struct %s *%s)\n",
-        baseName_.string(), interfaceName_.string(), objName.string());
+    std::string objName = "self";
+    sb.Append(prefix).AppendFormat("static struct HdfRemoteService *%sStubAsObject(struct %s *%s)\n", baseName_.c_str(),
+        interfaceName_.c_str(), objName.c_str());
     sb.Append(prefix).Append("{\n");
 
     if (interface_->IsSerializable()) {
-        sb.Append(prefix + TAB).AppendFormat("if (%s == NULL) {\n", objName.string());
+        sb.Append(prefix + TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
         sb.Append(prefix + TAB + TAB).Append("return NULL;\n");
         sb.Append(prefix + TAB).Append("}\n");
-
-        sb.Append(prefix + TAB).AppendFormat("struct %sStub *stub = CONTAINER_OF(%s, struct %sStub, interface);\n",
-            baseName_.string(), objName.string(), baseName_.string());
+        sb.Append(prefix + TAB).AppendFormat(
+            "struct %sStub *stub = CONTAINER_OF(%s, struct %sStub, interface);\n", baseName_.c_str(),
+            objName.c_str(), baseName_.c_str());
         sb.Append(prefix + TAB).Append("return stub->remote;\n");
     } else {
         sb.Append(prefix + TAB).Append("return NULL;\n");
@@ -446,49 +447,48 @@ void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, cons
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const String &prefix)
+void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
-    String remoteName = "remote";
-    String implName = "serviceImpl";
-    String codeName = "code";
-    String funcName = String::Format("%sOnRemoteRquest", baseName_.string());
+    std::string remoteName = "remote";
+    std::string implName = "serviceImpl";
+    std::string codeName = "code";
+    std::string funcName = StringHelper::Format("%sOnRemoteRquest", baseName_.c_str());
     if (interface_->IsSerializable()) {
         sb.Append(prefix).AppendFormat(
-            "static int32_t %s(struct HdfRemoteService *%s, ", funcName.string(), remoteName.string());
+            "static int32_t %s(struct HdfRemoteService *%s, ", funcName.c_str(), remoteName.c_str());
     } else {
         sb.Append(prefix).AppendFormat(
-            "static int32_t %s(struct %s *%s, ", funcName.string(), interfaceName_.string(), implName.string());
+            "static int32_t %s(struct %s *%s, ", funcName.c_str(), interfaceName_.c_str(), implName.c_str());
     }
-    sb.AppendFormat("int %s, struct HdfSBuf *data, struct HdfSBuf *reply)\n", codeName.string());
+    sb.AppendFormat("int %s, struct HdfSBuf *data, struct HdfSBuf *reply)\n", codeName.c_str());
     sb.Append(prefix).Append("{\n");
 
     if (interface_->IsSerializable()) {
-        sb.Append(prefix + TAB).AppendFormat("struct %s *%s = (struct %s*)%s;\n", interfaceName_.string(),
-            implName.string(), interfaceName_.string(), remoteName.string());
-
+        sb.Append(prefix + TAB).AppendFormat("struct %s *%s = (struct %s*)%s;\n", interfaceName_.c_str(),
+            implName.c_str(), interfaceName_.c_str(), remoteName.c_str());
         sb.Append(prefix + TAB).AppendFormat("if (!HdfRemoteServiceCheckInterfaceToken(%s->AsObject(%s), data)) {\n",
-            implName.string(), implName.string());
+            implName.c_str(), implName.c_str());
         sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: interface token check failed\", __func__);\n");
         sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
         sb.Append(prefix + TAB).Append("}\n\n");
     }
 
-    sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.string());
+    sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.c_str());
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
-        sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).string());
+        sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
         sb.Append(prefix + TAB + TAB + TAB)
-            .AppendFormat("return SerStub%s(%s, data, reply);\n", method->GetName().string(), implName.string());
+            .AppendFormat("return SerStub%s(%s, data, reply);\n", method->GetName().c_str(), implName.c_str());
     }
 
     AutoPtr<ASTMethod> getVerMethod = interface_->GetVersionMethod();
-    sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).string());
+    sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).c_str());
     sb.Append(prefix + TAB + TAB + TAB)
-        .AppendFormat("return SerStub%s(%s, data, reply);\n", getVerMethod->GetName().string(), implName.string());
+        .AppendFormat("return SerStub%s(%s, data, reply);\n", getVerMethod->GetName().c_str(), implName.c_str());
 
     sb.Append(prefix + TAB + TAB).Append("default: {\n");
     sb.Append(prefix + TAB + TAB + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: not support cmd %%{public}d\", __func__, %s);\n", codeName.string());
+        .AppendFormat("HDF_LOGE(\"%%{public}s: not support cmd %%{public}d\", __func__, %s);\n", codeName.c_str());
     sb.Append(prefix + TAB + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix + TAB + TAB).Append("}\n");
     sb.Append(prefix + TAB).Append("}\n");
@@ -497,43 +497,40 @@ void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, con
 
 void CServiceStubCodeEmitter::EmitStubGetMethodImpl(StringBuilder &sb)
 {
-    String stubTypeName = String::Format("%sStub", baseName_.string());
-    String objName = "stub";
-    String funcName = String::Format("%sOnRemoteRquest", baseName_.string());
+    std::string stubTypeName = StringHelper::Format("%sStub", baseName_.c_str());
+    std::string objName = "stub";
+    std::string funcName = StringHelper::Format("%sOnRemoteRquest", baseName_.c_str());
 
-    sb.AppendFormat(
-        "bool %sConstruct(struct %s *%s)\n", stubTypeName.string(), stubTypeName.string(), objName.string());
+    sb.AppendFormat("bool %sConstruct(struct %s *%s)\n", stubTypeName.c_str(), stubTypeName.c_str(), objName.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.string());
+    sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: stub is null!\", __func__);\n");
     sb.Append(TAB).Append(TAB).Append("return false;\n");
     sb.Append(TAB).Append("}\n\n");
 
     if (interface_->IsSerializable()) {
-        sb.Append(TAB).AppendFormat("%s->dispatcher.Dispatch = %s;\n", objName.string(), funcName.string());
-        sb.Append(TAB).AppendFormat(
-            "%s->remote = HdfRemoteServiceObtain((struct HdfObject*)%s, &(%s->dispatcher));\n", objName.string(),
-            objName.string(), objName.string());
-        sb.Append(TAB).AppendFormat("if (%s->remote == NULL) {\n", objName.string());
+        sb.Append(TAB).AppendFormat("%s->dispatcher.Dispatch = %s;\n", objName.c_str(), funcName.c_str());
+        sb.Append(TAB).AppendFormat("%s->remote = HdfRemoteServiceObtain((struct HdfObject*)%s, &(%s->dispatcher));\n",
+            objName.c_str(), objName.c_str(), objName.c_str());
+        sb.Append(TAB).AppendFormat("if (%s->remote == NULL) {\n", objName.c_str());
         sb.Append(TAB).Append(TAB).AppendFormat(
-            "HDF_LOGE(\"%%{public}s: %s->remote is null\", __func__);\n", objName.string());
+            "HDF_LOGE(\"%%{public}s: %s->remote is null\", __func__);\n", objName.c_str());
         sb.Append(TAB).Append(TAB).Append("return false;\n");
         sb.Append(TAB).Append("}\n\n");
 
-        sb.Append(TAB).AppendFormat("if (!HdfRemoteServiceSetInterfaceDesc(%s->remote, %s)) {\n", objName.string(),
-            EmitDescMacroName().string());
+        sb.Append(TAB).AppendFormat(
+            "if (!HdfRemoteServiceSetInterfaceDesc(%s->remote, %s)) {\n", objName.c_str(), EmitDescMacroName().c_str());
         sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: ");
         sb.Append("failed to set remote service interface descriptor\", __func__);\n");
-        sb.Append(TAB).Append(TAB).AppendFormat("%sRelease(%s);\n", stubTypeName.string(), objName.string());
+        sb.Append(TAB).Append(TAB).AppendFormat("%sRelease(%s);\n", stubTypeName.c_str(), objName.c_str());
         sb.Append(TAB).Append(TAB).Append("return false;\n");
         sb.Append(TAB).Append("}\n\n");
     } else {
-        sb.Append(TAB).AppendFormat("%s->OnRemoteRequest = %s;\n", objName.string(), funcName.string());
+        sb.Append(TAB).AppendFormat("%s->OnRemoteRequest = %s;\n", objName.c_str(), funcName.c_str());
     }
 
     if (!isKernelCode_) {
-        sb.Append(TAB).AppendFormat(
-            "%s->interface.AsObject = %sAsObject;\n", objName.string(), stubTypeName.string());
+        sb.Append(TAB).AppendFormat("%s->interface.AsObject = %sAsObject;\n", objName.c_str(), stubTypeName.c_str());
     }
     sb.Append(TAB).Append("return true;\n");
     sb.Append("}\n");
@@ -541,16 +538,16 @@ void CServiceStubCodeEmitter::EmitStubGetMethodImpl(StringBuilder &sb)
 
 void CServiceStubCodeEmitter::EmitStubReleaseImpl(StringBuilder &sb)
 {
-    String objName = "stub";
-    String stubTypeName = String::Format("%sStub", baseName_.string());
-    sb.AppendFormat("void %sRelease(struct %s *%s)\n", stubTypeName.string(), stubTypeName.string(), objName.string());
+    std::string objName = "stub";
+    std::string stubTypeName = StringHelper::Format("%sStub", baseName_.c_str());
+    sb.AppendFormat("void %sRelease(struct %s *%s)\n", stubTypeName.c_str(), stubTypeName.c_str(), objName.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.string());
+    sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).Append("return;\n");
     sb.Append(TAB).Append("}\n\n");
 
-    sb.Append(TAB).AppendFormat("HdfRemoteServiceRecycle(%s->remote);\n", objName.string());
-    sb.Append(TAB).AppendFormat("%s->remote = NULL;\n", objName.string());
+    sb.Append(TAB).AppendFormat("HdfRemoteServiceRecycle(%s->remote);\n", objName.c_str());
+    sb.Append(TAB).AppendFormat("%s->remote = NULL;\n", objName.c_str());
     sb.Append("}");
 }
 

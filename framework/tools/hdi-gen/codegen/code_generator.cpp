@@ -51,10 +51,10 @@ CodeEmitMap CodeGenerator::javaCodeEmitters_ = {
 bool CodeGenerator::Generate()
 {
     const Options &options = Options::GetInstance();
-    String dir = options.GetGenerationDirectory();
+    std::string dir = options.GetGenerationDirectory();
     Options::Language language = options.GetTargetLanguage();
     bool isModeKernel = options.DoGenerateKernelCode();
-    String codePart = options.GetCodePart();
+    std::string codePart = options.GetCodePart();
 
     for (auto &astPair : allAst_) {
         AutoPtr<AST> ast = astPair.second;
@@ -76,7 +76,8 @@ bool CodeGenerator::Generate()
     return true;
 }
 
-void CodeGenerator::GenerateCCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart, bool isKernel)
+void CodeGenerator::GenerateCCode(
+    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel)
 {
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_TYPES: {
@@ -84,11 +85,11 @@ void CodeGenerator::GenerateCCode(const AutoPtr<AST> &ast, const String &outDir,
             break;
         }
         case ASTFileType::AST_IFACE: {
-            if (codePart.Equals("client")) {
+            if (codePart == "client") {
                 cCodeEmitters_["interface"]->OutPut(ast, outDir, isKernel);
                 cCodeEmitters_["proxy"]->OutPut(ast, outDir, isKernel);
                 break;
-            } else if (codePart.Equals("server")) {
+            } else if (codePart == "server") {
                 cCodeEmitters_["interface"]->OutPut(ast, outDir, isKernel);
                 cCodeEmitters_["driver"]->OutPut(ast, outDir, isKernel);
                 cCodeEmitters_["stub"]->OutPut(ast, outDir, isKernel);
@@ -116,17 +117,17 @@ void CodeGenerator::GenerateCCode(const AutoPtr<AST> &ast, const String &outDir,
     }
 }
 
-void CodeGenerator::GenerateCppCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart)
+void CodeGenerator::GenerateCppCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart)
 {
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_TYPES:
             cppCodeEmitters_["types"]->OutPut(ast, outDir);
             break;
         case ASTFileType::AST_IFACE: {
-            if (codePart.Equals("client")) {
+            if (codePart == "client") {
                 cppCodeEmitters_["interface"]->OutPut(ast, outDir);
                 cppCodeEmitters_["proxy"]->OutPut(ast, outDir);
-            } else if (codePart.Equals("server")) {
+            } else if (codePart == "server") {
                 cppCodeEmitters_["interface"]->OutPut(ast, outDir);
                 cppCodeEmitters_["driver"]->OutPut(ast, outDir);
                 cppCodeEmitters_["stub"]->OutPut(ast, outDir);
@@ -152,7 +153,7 @@ void CodeGenerator::GenerateCppCode(const AutoPtr<AST> &ast, const String &outDi
     }
 }
 
-void CodeGenerator::GenerateJavaCode(const AutoPtr<AST> &ast, const String &outDir, const String &codePart)
+void CodeGenerator::GenerateJavaCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart)
 {
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_IFACE:

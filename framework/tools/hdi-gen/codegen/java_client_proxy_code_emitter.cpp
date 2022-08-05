@@ -11,7 +11,7 @@
 
 namespace OHOS {
 namespace HDI {
-bool JavaClientProxyCodeEmitter::ResolveDirectory(const String &targetDirectory)
+bool JavaClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
 {
     if (ast_->GetASTFileType() == ASTFileType::AST_IFACE || ast_->GetASTFileType() == ASTFileType::AST_ICALLBACK) {
         directory_ = GetFileParentPath(targetDirectory);
@@ -20,7 +20,7 @@ bool JavaClientProxyCodeEmitter::ResolveDirectory(const String &targetDirectory)
     }
 
     if (!File::CreateParentDir(directory_)) {
-        Logger::E("CppClientInterfaceCodeEmitter", "Create '%s' failed!", directory_.string());
+        Logger::E("CppClientInterfaceCodeEmitter", "Create '%s' failed!", directory_.c_str());
         return false;
     }
 
@@ -34,8 +34,8 @@ void JavaClientProxyCodeEmitter::EmitCode()
 
 void JavaClientProxyCodeEmitter::EmitProxyFile()
 {
-    String filePath = File::AdapterPath(String::Format("%s/%s.java", directory_.string(),
-        FileName(proxyName_).string()));
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.java", directory_.c_str(), FileName(proxyName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -46,8 +46,8 @@ void JavaClientProxyCodeEmitter::EmitProxyFile()
     sb.Append("\n");
     EmitProxyImpl(sb);
 
-    String data = sb.ToString();
-    file.WriteData(data.string(), data.GetLength());
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
     file.Flush();
     file.Close();
 }
@@ -92,7 +92,7 @@ void JavaClientProxyCodeEmitter::EmitProxySelfDefinedTypeImports(StringBuilder &
 {
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> import = importPair.second;
-        sb.AppendFormat("import %s;\n", import->GetFullName().string());
+        sb.AppendFormat("import %s;\n", import->GetFullName().c_str());
     }
 }
 
@@ -108,12 +108,12 @@ void JavaClientProxyCodeEmitter::EmitProxyDBinderImports(StringBuilder &sb)
 
 void JavaClientProxyCodeEmitter::EmitProxyImpl(StringBuilder &sb)
 {
-    sb.AppendFormat("public class %s implements %s {\n", proxyName_.string(), interfaceName_.string());
+    sb.AppendFormat("public class %s implements %s {\n", proxyName_.c_str(), interfaceName_.c_str());
     EmitProxyConstants(sb, TAB);
     sb.Append("\n");
     sb.Append(TAB).AppendFormat(
         "private static final HiLogLabel TAG = new HiLogLabel(HiLog.LOG_CORE, 0xD001510, \"%s\");\n",
-        interfaceFullName_.string());
+        interfaceFullName_.c_str());
     sb.Append(TAB).Append("private final IRemoteObject remote;\n");
     sb.Append(TAB).Append("private static final int ERR_OK = 0;\n");
     sb.Append("\n");
@@ -123,15 +123,16 @@ void JavaClientProxyCodeEmitter::EmitProxyImpl(StringBuilder &sb)
     sb.Append("};");
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const String &prefix)
+void JavaClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat("private static final String DESCRIPTOR = \"%s\";\n\n", interfaceFullName_.string());
+    sb.Append(prefix).AppendFormat(
+        "private static final std::string DESCRIPTOR = \"%s\";\n\n", interfaceFullName_.c_str());
     EmitInterfaceMethodCommands(sb, prefix);
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const String &prefix)
+void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat("public %s(IRemoteObject remote) {\n", proxyName_.string());
+    sb.Append(prefix).AppendFormat("public %s(IRemoteObject remote) {\n", proxyName_.c_str());
     sb.Append(prefix + TAB).Append("this.remote = remote;\n");
     sb.Append(prefix).Append("}\n");
     sb.Append("\n");
@@ -141,7 +142,7 @@ void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const S
     sb.Append(prefix).Append("}\n");
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const String &prefix)
+void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix)
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -153,15 +154,15 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const S
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).Append("@Override\n");
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
-            "public int %s() throws RemoteException ", MethodName(method->GetName()).string());
+            "public int %s() throws RemoteException ", MethodName(method->GetName()).c_str());
     } else {
         StringBuilder paramStr;
-        paramStr.Append(prefix).AppendFormat("public int %s(", MethodName(method->GetName()).string());
+        paramStr.Append(prefix).AppendFormat("public int %s(", MethodName(method->GetName()).c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             EmitInterfaceMethodParameter(param, paramStr, "");
@@ -178,13 +179,13 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodImpl(
 }
 
 void JavaClientProxyCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).Append(param->EmitJavaParameter());
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyMethodBody(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB).Append("MessageParcel data = MessageParcel.obtain();\n");
@@ -201,7 +202,7 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodBody(
 
     sb.Append(prefix + TAB).Append("try {\n");
     sb.Append(prefix + TAB + TAB).AppendFormat("if (remote.sendRequest(COMMAND_%s, data, reply, option)) {\n",
-        ConstantName(method->GetName()).string());
+        ConstantName(method->GetName()).c_str());
     sb.Append(prefix + TAB + TAB + TAB).Append("return 1;\n");
     sb.Append(prefix + TAB + TAB).Append("}\n");
     sb.Append(prefix + TAB).Append("    reply.readException();\n");
@@ -219,21 +220,21 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodBody(
 }
 
 void JavaClientProxyCodeEmitter::EmitLocalVariable(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = param->GetType();
     if (type->GetTypeKind() == TypeKind::TYPE_SEQUENCEABLE) {
-        sb.Append(prefix).AppendFormat("%s %s = new %s();\n", type->EmitJavaType(TypeMode::NO_MODE).string(),
-            param->GetName().string(), type->EmitJavaType(TypeMode::NO_MODE).string());
+        sb.Append(prefix).AppendFormat("%s %s = new %s();\n", type->EmitJavaType(TypeMode::NO_MODE).c_str(),
+            param->GetName().c_str(), type->EmitJavaType(TypeMode::NO_MODE).c_str());
     } else if (type->GetTypeKind() == TypeKind::TYPE_LIST) {
-        sb.Append(prefix).AppendFormat("%s %s = new Array%s();\n", type->EmitJavaType(TypeMode::NO_MODE).string(),
-            param->GetName().string(), type->EmitJavaType(TypeMode::NO_MODE).string());
+        sb.Append(prefix).AppendFormat("%s %s = new Array%s();\n", type->EmitJavaType(TypeMode::NO_MODE).c_str(),
+            param->GetName().c_str(), type->EmitJavaType(TypeMode::NO_MODE).c_str());
     } else if (type->GetTypeKind() == TypeKind::TYPE_MAP) {
-        sb.Append(prefix).AppendFormat("%s %s = new Hash%s();\n", type->EmitJavaType(TypeMode::NO_MODE).string(),
-            param->GetName().string(), type->EmitJavaType(TypeMode::NO_MODE).string());
+        sb.Append(prefix).AppendFormat("%s %s = new Hash%s();\n", type->EmitJavaType(TypeMode::NO_MODE).c_str(),
+            param->GetName().c_str(), type->EmitJavaType(TypeMode::NO_MODE).c_str());
     } else {
         sb.Append(prefix).AppendFormat(
-            "%s %s;\n", type->EmitJavaType(TypeMode::NO_MODE).string(), param->GetName().string());
+            "%s %s;\n", type->EmitJavaType(TypeMode::NO_MODE).c_str(), param->GetName().c_str());
     }
 }
 } // namespace HDI

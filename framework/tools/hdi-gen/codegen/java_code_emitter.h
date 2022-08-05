@@ -10,11 +10,11 @@
 #define OHOS_HDI_JAVA_CODE_EMITTER_H
 
 #include <ctype.h>
+
 #include "ast/ast.h"
 #include "codegen/code_emitter.h"
 #include "util/autoptr.h"
 #include "util/light_refcount_base.h"
-#include "util/string.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
@@ -30,11 +30,11 @@ protected:
 
     void EmitPackage(StringBuilder &sb);
 
-    void EmitInterfaceMethodCommands(StringBuilder &sb, const String &prefix);
+    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
 
-    String MethodName(const String &name);
+    std::string MethodName(const std::string &name);
 
-    String SpecificationParam(StringBuilder &paramSb, const String &prefix);
+    std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix);
 };
 } // namespace HDI
 } // namespace OHOS

@@ -15,7 +15,7 @@ bool ASTLongType::IsLongType()
     return true;
 }
 
-String ASTLongType::ToString() const
+std::string ASTLongType::ToString() const
 {
     return "long";
 }
@@ -25,7 +25,7 @@ TypeKind ASTLongType::GetTypeKind()
     return TypeKind::TYPE_LONG;
 }
 
-String ASTLongType::EmitCType(TypeMode mode) const
+std::string ASTLongType::EmitCType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -41,7 +41,7 @@ String ASTLongType::EmitCType(TypeMode mode) const
     }
 }
 
-String ASTLongType::EmitCppType(TypeMode mode) const
+std::string ASTLongType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -57,116 +57,116 @@ String ASTLongType::EmitCppType(TypeMode mode) const
     }
 }
 
-String ASTLongType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTLongType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
     return isInnerType ? "Long" : "long";
 }
 
-void ASTLongType::EmitCWriteVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTLongType::EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt64(%s, %s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt64(%s, %s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType,
-    const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTLongType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+    const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt64(%s, %s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt64(%s, %s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTLongType::EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt64(%s, %s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt64(%s, %s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    unsigned int innerLevel) const
+void ASTLongType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteInt64(%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteInt64(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    bool initVariable, unsigned int innerLevel) const
+void ASTLongType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
         sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadInt64();\n", EmitCppType().string(), name.string(), parcelName.string());
+            "%s %s = %s.ReadInt64();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
     } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadInt64();\n", name.string(), parcelName.string());
+        sb.Append(prefix).AppendFormat("%s = %s.ReadInt64();\n", name.c_str(), parcelName.c_str());
     }
 }
 
-void ASTLongType::EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const
+void ASTLongType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt64(data, %s)) {\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt64(data, %s)) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
-    const String &prefix, std::vector<String> &freeObjStatements) const
+void ASTLongType::EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+    const std::string &prefix, std::vector<std::string> &freeObjStatements) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt64(data, &%s)) {\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt64(data, &%s)) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     EmitFreeStatements(freeObjStatements, sb, prefix + TAB);
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTLongType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteInt64(%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteInt64(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTLongType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool emitType, unsigned int innerLevel) const
+void ASTLongType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     if (emitType) {
         sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadInt64();\n", EmitCppType().string(), name.string(), parcelName.string());
+            "%s %s = %s.ReadInt64();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
     } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadInt64();\n", name.string(), parcelName.string());
+        sb.Append(prefix).AppendFormat("%s = %s.ReadInt64();\n", name.c_str(), parcelName.c_str());
     }
 }
 
 void ASTLongType::EmitJavaWriteVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("%s.writeLong(%s);\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat("%s.writeLong(%s);\n", parcelName.c_str(), name.c_str());
 }
 
 void ASTLongType::EmitJavaReadVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("%s = %s.readLong();\n", name.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("%s = %s.readLong();\n", name.c_str(), parcelName.c_str());
 }
 
-void ASTLongType::EmitJavaReadInnerVar(
-    const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
+void ASTLongType::EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+    StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
-        "%s %s = %s.readLong();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(), parcelName.string());
+        "%s %s = %s.readLong();\n", EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(), parcelName.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

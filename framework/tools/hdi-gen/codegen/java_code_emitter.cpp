@@ -12,7 +12,7 @@ namespace OHOS {
 namespace HDI {
 void JavaCodeEmitter::EmitLicense(StringBuilder &sb)
 {
-    if (ast_->GetLicense().IsEmpty()) {
+    if (ast_->GetLicense().empty()) {
         return;
     }
     sb.Append(ast_->GetLicense()).Append("\n\n");
@@ -20,38 +20,38 @@ void JavaCodeEmitter::EmitLicense(StringBuilder &sb)
 
 void JavaCodeEmitter::EmitPackage(StringBuilder &sb)
 {
-    sb.AppendFormat("package %s;\n", ast_->GetPackageName().string());
+    sb.AppendFormat("package %s;\n", ast_->GetPackageName().c_str());
 }
 
-void JavaCodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const String &prefix)
+void JavaCodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix)
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
         sb.Append(prefix).AppendFormat("private static final int COMMAND_%s = IRemoteObject.MIN_TRANSACTION_ID + %d;\n",
-            ConstantName(method->GetName()).string(), i);
+            ConstantName(method->GetName()).c_str(), i);
     }
 }
 
-String JavaCodeEmitter::MethodName(const String &name)
+std::string JavaCodeEmitter::MethodName(const std::string &name)
 {
-    if (name.IsEmpty() || islower(name[0])) {
+    if (name.empty() || islower(name[0])) {
         return name;
     }
-    return String::Format("%c%s", tolower(name[0]), name.Substring(1).string());
+    return StringHelper::Format("%c%s", tolower(name[0]), name.substr(1).c_str());
 }
 
-String JavaCodeEmitter::SpecificationParam(StringBuilder &paramSb, const String &prefix)
+std::string JavaCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix)
 {
-    int maxLineLen = 120;
-    int replaceLen = 2;
-    String paramStr = paramSb.ToString();
-    int preIndex = 0;
-    int curIndex = 0;
+    size_t maxLineLen = 120;
+    size_t replaceLen = 2;
+    std::string paramStr = paramSb.ToString();
+    size_t preIndex = 0;
+    size_t curIndex = 0;
 
-    String insertStr = String::Format("\n%s", prefix.string());
-    for (; curIndex < paramStr.GetLength(); curIndex++) {
+    std::string insertStr = StringHelper::Format("\n%s", prefix.c_str());
+    for (; curIndex < paramStr.size(); curIndex++) {
         if (curIndex == maxLineLen && preIndex > 0) {
-            paramStr.Replace(preIndex, replaceLen, ",");
+            StringHelper::Replace(paramStr, preIndex, replaceLen, ",");
             paramStr.insert(preIndex + 1, insertStr);
         } else {
             if (paramStr[curIndex] == ',') {

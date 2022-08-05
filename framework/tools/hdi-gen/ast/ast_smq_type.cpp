@@ -28,9 +28,9 @@ bool ASTSmqType::HasInnerType(TypeKind innerTypeKind) const
     return innerType_->HasInnerType(innerTypeKind);
 }
 
-String ASTSmqType::ToString() const
+std::string ASTSmqType::ToString() const
 {
-    return String::Format("SharedMemQueue<%s>", innerType_->ToString().string());
+    return StringHelper::Format("SharedMemQueue<%s>", innerType_->ToString().c_str());
 }
 
 TypeKind ASTSmqType::GetTypeKind()
@@ -38,54 +38,55 @@ TypeKind ASTSmqType::GetTypeKind()
     return TypeKind::TYPE_SMQ;
 }
 
-String ASTSmqType::EmitCppType(TypeMode mode) const
+std::string ASTSmqType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("std::shared_ptr<SharedMemQueue<%s>>", innerType_->EmitCppType().string());
+            return StringHelper::Format("std::shared_ptr<SharedMemQueue<%s>>", innerType_->EmitCppType().c_str());
         case TypeMode::PARAM_IN:
-            return String::Format("const std::shared_ptr<SharedMemQueue<%s>>&", innerType_->EmitCppType().string());
+            return StringHelper::Format(
+                "const std::shared_ptr<SharedMemQueue<%s>>&", innerType_->EmitCppType().c_str());
         case TypeMode::PARAM_OUT:
-            return String::Format("std::shared_ptr<SharedMemQueue<%s>>&", innerType_->EmitCppType().string());
+            return StringHelper::Format("std::shared_ptr<SharedMemQueue<%s>>&", innerType_->EmitCppType().c_str());
         case TypeMode::LOCAL_VAR:
-            return String::Format("std::shared_ptr<SharedMemQueue<%s>>", innerType_->EmitCppType().string());
+            return StringHelper::Format("std::shared_ptr<SharedMemQueue<%s>>", innerType_->EmitCppType().c_str());
         default:
             return "unknow type";
     }
 }
 
-void ASTSmqType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    unsigned int innerLevel) const
+void ASTSmqType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (%s == nullptr || !%s->IsGood() || %s->GetMeta() == nullptr || ", name.string(),
-        name.string(), name.string());
-    sb.AppendFormat("!%s->GetMeta()->Marshalling(%s)) {\n", name.string(), parcelName.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat(
+        "if (%s == nullptr || !%s->IsGood() || %s->GetMeta() == nullptr || ", name.c_str(), name.c_str(), name.c_str());
+    sb.AppendFormat("!%s->GetMeta()->Marshalling(%s)) {\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTSmqType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-    bool initVariable, unsigned int innerLevel) const
+void ASTSmqType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
-    String metaVarName = String::Format("%sMeta_", name.string());
+    std::string metaVarName = StringHelper::Format("%sMeta_", name.c_str());
     sb.Append(prefix).AppendFormat(
-        "std::shared_ptr<SharedMemQueueMeta<%s>> %s = ", innerType_->EmitCppType().string(), metaVarName.string());
+        "std::shared_ptr<SharedMemQueueMeta<%s>> %s = ", innerType_->EmitCppType().c_str(), metaVarName.c_str());
     sb.AppendFormat(
-        "SharedMemQueueMeta<%s>::UnMarshalling(%s);\n", innerType_->EmitCppType().string(), parcelName.string());
-    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", metaVarName.string());
+        "SharedMemQueueMeta<%s>::UnMarshalling(%s);\n", innerType_->EmitCppType().c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", metaVarName.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: SharedMemQueueMeta is nullptr\", __func__);\n");
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n\n");
 
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("%s %s = ", EmitCppType(TypeMode::LOCAL_VAR).string(), name.string());
+        sb.Append(prefix).AppendFormat("%s %s = ", EmitCppType(TypeMode::LOCAL_VAR).c_str(), name.c_str());
     } else {
-        sb.Append(prefix).AppendFormat("%s = ", name.string());
+        sb.Append(prefix).AppendFormat("%s = ", name.c_str());
     }
 
-    sb.AppendFormat("std::make_shared<SharedMemQueue<%s>>(*%s);\n", innerType_->EmitCppType().string(),
-        metaVarName.string());
+    sb.AppendFormat(
+        "std::make_shared<SharedMemQueue<%s>>(*%s);\n", innerType_->EmitCppType().c_str(), metaVarName.c_str());
 }
 
 bool ASTAshmemType::IsAshmemType()
@@ -93,7 +94,7 @@ bool ASTAshmemType::IsAshmemType()
     return true;
 }
 
-String ASTAshmemType::ToString() const
+std::string ASTAshmemType::ToString() const
 {
     return "Ashmem";
 }
@@ -103,40 +104,40 @@ TypeKind ASTAshmemType::GetTypeKind()
     return TypeKind::TYPE_ASHMEM;
 }
 
-String ASTAshmemType::EmitCppType(TypeMode mode) const
+std::string ASTAshmemType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("sptr<Ashmem>");
+            return StringHelper::Format("sptr<Ashmem>");
         case TypeMode::PARAM_IN:
-            return String::Format("const sptr<Ashmem>&");
+            return StringHelper::Format("const sptr<Ashmem>&");
         case TypeMode::PARAM_OUT:
-            return String::Format("sptr<Ashmem>&");
+            return StringHelper::Format("sptr<Ashmem>&");
         case TypeMode::LOCAL_VAR:
-            return String::Format("sptr<Ashmem>");
+            return StringHelper::Format("sptr<Ashmem>");
         default:
             return "unknow type";
     }
 }
 
-void ASTAshmemType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTAshmemType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (%s == nullptr || !%s.WriteAshmem(%s)) {\n", name.string(), parcelName.string(),
-        name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat(
+        "if (%s == nullptr || !%s.WriteAshmem(%s)) {\n", name.c_str(), parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTAshmemType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool initVariable, unsigned int innerLevel) const
+void ASTAshmemType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
         sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadAshmem();\n", EmitCppType().string(), name.string(), parcelName.string());
+            "%s %s = %s.ReadAshmem();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
     } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadAshmem();\n", name.string(), parcelName.string());
+        sb.Append(prefix).AppendFormat("%s = %s.ReadAshmem();\n", name.c_str(), parcelName.c_str());
     }
 }
 } // namespace HDI

@@ -10,15 +10,14 @@
 #define OHOS_HDI_AST_ATTRIBUTE_H
 
 #include "ast/ast_node.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
 class ASTTypeAttr : public ASTNode {
 public:
-    String ToString() const override;
+    std::string ToString() const override;
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
 public:
     bool isFull_ = false;
@@ -27,9 +26,9 @@ public:
 
 class ASTInfAttr : public ASTNode {
 public:
-    String ToString() const override;
+    std::string ToString() const override;
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
 public:
     bool isFull_ = false;
@@ -40,9 +39,9 @@ public:
 
 class ASTMethodAttr : public ASTNode {
 public:
-    String ToString() const override;
+    std::string ToString() const override;
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
 public:
     bool isFull_ = false;
@@ -59,9 +58,9 @@ class ASTParamAttr : public ASTNode {
 public:
     ASTParamAttr(ParamAttr value) : ASTNode(), value_(value) {}
 
-    String ToString() const override;
+    std::string ToString() const override;
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
 public:
     ParamAttr value_;

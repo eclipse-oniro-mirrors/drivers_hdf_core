@@ -15,64 +15,69 @@
 namespace OHOS {
 namespace HDI {
 AST::TypeStringMap AST::basicTypes_ = {
-    {"boolean", new ASTBooleanType()},
-    {"byte", new ASTByteType()},
-    {"short", new ASTShortType()},
-    {"int", new ASTIntegerType()},
-    {"long", new ASTLongType()},
-    {"float", new ASTFloatType()},
-    {"double", new ASTDoubleType()},
-    {"String", new ASTStringType()},
-    {"unsigned char", new ASTUcharType()},
-    {"unsigned short", new ASTUshortType()},
-    {"unsigned int", new ASTUintType()},
-    {"unsigned long", new ASTUlongType()},
-    {"void", new ASTVoidType()},
-    {"FileDescriptor", new ASTFdType()},
-    {"Ashmem", new ASTAshmemType()},
+    {"boolean",        new ASTBooleanType()},
+    {"byte",           new ASTByteType()   },
+    {"short",          new ASTShortType()  },
+    {"int",            new ASTIntegerType()},
+    {"long",           new ASTLongType()   },
+    {"float",          new ASTFloatType()  },
+    {"double",         new ASTDoubleType() },
+    {"String",         new ASTStringType() },
+    {"unsigned char",  new ASTUcharType()  },
+    {"unsigned short", new ASTUshortType() },
+    {"unsigned int",   new ASTUintType()   },
+    {"unsigned long",  new ASTUlongType()  },
+    {"void",           new ASTVoidType()   },
+    {"FileDescriptor", new ASTFdType()     },
+    {"Ashmem",         new ASTAshmemType() },
 };
 
-void AST::SetIdlFile(const String &idlFile)
+void AST::SetIdlFile(const std::string &idlFile)
 {
     idlFilePath_ = idlFile;
 #ifdef __MINGW32__
-    int index = idlFilePath_.LastIndexOf('\\');
+    size_t index = idlFilePath_.rfind('\\');
 #else
-    int index = idlFilePath_.LastIndexOf('/');
+    size_t index = idlFilePath_.rfind('/');
 #endif
-    int end = idlFilePath_.LastIndexOf(".idl");
-    name_ = idlFilePath_.Substring((index == -1) ? 0 : (index + 1), end);
+
+    size_t end = idlFilePath_.rfind(".idl");
+    if (end == std::string::npos) {
+        end = idlFile.size();
+    }
+
+    name_ = StringHelper::SubStr(idlFilePath_, (index == std::string::npos) ? 0 : (index + 1), end);
 }
 
-void AST::SetFullName(const String &fullName)
+void AST::SetFullName(const std::string &fullName)
 {
-    int index = fullName.LastIndexOf('.');
-    if (index != -1) {
-        packageName_ = fullName.Substring(0, index);
-        name_ = fullName.Substring(index + 1);
+    size_t index = fullName.rfind('.');
+    if (index != std::string::npos) {
+        packageName_ = StringHelper::SubStr(fullName, 0, index);
+        name_ = StringHelper::SubStr(fullName, index + 1);
     } else {
         packageName_ = "";
         name_ = fullName;
     }
 }
 
-void AST::SetPackageName(const String &packageName)
+void AST::SetPackageName(const std::string &packageName)
 {
     packageName_ = packageName;
 }
 
-String AST::GetPackageName()
+std::string AST::GetPackageName()
 {
     return packageName_;
 }
 
-AutoPtr<ASTNamespace> AST::ParseNamespace(const String &nspaceStr)
+AutoPtr<ASTNamespace> AST::ParseNamespace(const std::string &nspaceStr)
 {
     AutoPtr<ASTNamespace> currNspace;
     int begin = 0;
     int index = 0;
-    while ((index = nspaceStr.IndexOf('.', begin)) != -1) {
-        String ns = nspaceStr.Substring(begin, index);
+    while ((index = nspaceStr.find('.', begin)) != std::string::npos) {
+        std::string ns = StringHelper::SubStr(nspaceStr, begin, index);
         AutoPtr<ASTNamespace> nspace;
         if (currNspace == nullptr) {
             nspace = FindNamespace(ns);
@@ -101,10 +106,10 @@ void AST::AddNamespace(const AutoPtr<ASTNamespace> &nspace)
     namespaces_.push_back(nspace);
 }
 
-AutoPtr<ASTNamespace> AST::FindNamespace(const String &nspaceStr)
+AutoPtr<ASTNamespace> AST::FindNamespace(const std::string &nspaceStr)
 {
     for (auto nspace : namespaces_) {
-        if (nspace->ToShortString().Equals(nspaceStr)) {
+        if (nspace->ToShortString() == nspaceStr) {
             return nspace;
         }
     }
@@ -149,9 +154,9 @@ void AST::AddType(const AutoPtr<ASTType> &type)
     types_[type->ToString()] = type;
 }
 
-AutoPtr<ASTType> AST::FindType(const String &typeName)
+AutoPtr<ASTType> AST::FindType(const std::string &typeName)
 {
-    if (typeName.IsEmpty()) {
+    if (typeName.empty()) {
         return nullptr;
     }
 
@@ -193,7 +198,7 @@ AutoPtr<ASTType> AST::GetTypeDefintion(size_t index)
     return typeDefinitions_[index];
 }
 
-String AST::Dump(const String &prefix)
+std::string AST::Dump(const std::string &prefix)
 {
     StringBuilder sb;
 
@@ -209,20 +214,20 @@ String AST::Dump(const String &prefix)
 
     if (imports_.size() > 0) {
         for (const auto &import : imports_) {
-            sb.AppendFormat("import %s;\n", import.first.string());
+            sb.AppendFormat("import %s;\n", import.first.c_str());
         }
         sb.Append("\n");
     }
 
     if (typeDefinitions_.size() > 0) {
         for (auto type : typeDefinitions_) {
-            String info = type->Dump("");
+            std::string info = type->Dump("");
             sb.Append(info).Append("\n");
         }
     }
 
     if (interfaceDef_ != nullptr) {
-        String info = interfaceDef_->Dump("");
+        std::string info = interfaceDef_->Dump("");
         sb.Append(info).Append("\n");
     }
 

@@ -15,7 +15,7 @@ bool ASTVoidType::IsVoidType()
     return true;
 }
 
-String ASTVoidType::ToString() const
+std::string ASTVoidType::ToString() const
 {
     return "void";
 }
@@ -25,17 +25,17 @@ TypeKind ASTVoidType::GetTypeKind()
     return TypeKind::TYPE_VOID;
 }
 
-String ASTVoidType::EmitCType(TypeMode mode) const
+std::string ASTVoidType::EmitCType(TypeMode mode) const
 {
     return "void";
 }
 
-String ASTVoidType::EmitCppType(TypeMode mode) const
+std::string ASTVoidType::EmitCppType(TypeMode mode) const
 {
     return "void";
 }
 
-String ASTVoidType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTVoidType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
     return "void";
 }

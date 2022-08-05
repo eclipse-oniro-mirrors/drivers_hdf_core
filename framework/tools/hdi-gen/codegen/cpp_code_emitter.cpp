@@ -13,6 +13,8 @@
 
 #include "util/options.h"
 
+#include "util/logger.h"
+
 namespace OHOS {
 namespace HDI {
 void CppCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
@@ -52,7 +54,7 @@ void CppCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 {
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> importAst = importPair.second;
-        String fileName = (importAst->GetASTFileType() == ASTFileType::AST_SEQUENCEABLE) ?
+        std::string fileName = (importAst->GetASTFileType() == ASTFileType::AST_SEQUENCEABLE) ?
             PackageToFilePath(importAst->GetName()) :
             PackageToFilePath(importAst->GetFullName());
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, fileName);
@@ -60,29 +62,29 @@ void CppCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 }
 
 void CppCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat(param->EmitCppParameter());
+    sb.Append(prefix).Append(param->EmitCppParameter());
 }
 
 void CppCodeEmitter::EmitLicense(StringBuilder &sb)
 {
-    if (ast_->GetLicense().IsEmpty()) {
+    if (ast_->GetLicense().empty()) {
         return;
     }
     sb.Append(ast_->GetLicense()).Append("\n\n");
 }
 
-void CppCodeEmitter::EmitHeadMacro(StringBuilder &sb, const String &fullName)
+void CppCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
 {
-    String macroName = MacroName(fullName);
+    std::string macroName = MacroName(fullName);
     sb.Append("#ifndef ").Append(macroName).Append("\n");
     sb.Append("#define ").Append(macroName).Append("\n");
 }
 
-void CppCodeEmitter::EmitTailMacro(StringBuilder &sb, const String &fullName)
+void CppCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName)
 {
-    String macroName = MacroName(fullName);
+    std::string macroName = MacroName(fullName);
     sb.Append("#endif // ").Append(macroName);
 }
 
@@ -100,27 +102,27 @@ void CppCodeEmitter::EmitTailExternC(StringBuilder &sb)
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-bool CppCodeEmitter::isVersion(const String &name)
+bool CppCodeEmitter::isVersion(const std::string &name)
 {
     std::regex rVer("[V|v][0-9]+_[0-9]+");
-    return std::regex_match(name.string(), rVer);
+    return std::regex_match(name.c_str(), rVer);
 }
 
-std::vector<String> CppCodeEmitter::EmitCppNameSpaceVec(const String &namespaceStr)
+std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &namespaceStr)
 {
-    std::vector<String> result;
-    std::vector<String> namespaceVec = namespaceStr.Split(".");
+    std::vector<std::string> result;
+    std::vector<std::string> namespaceVec = StringHelper::Split(namespaceStr, ".");
     bool findVersion = false;
 
-    String rootPackage = Options::GetInstance().GetRootPackage(namespaceStr);
-    size_t rootPackageNum = rootPackage.Split(".").size();
+    std::string rootPackage = Options::GetInstance().GetRootPackage(namespaceStr);
+    size_t rootPackageNum = StringHelper::Split(rootPackage, ".").size();
 
     for (size_t i = 0; i < namespaceVec.size(); i++) {
-        String name;
+        std::string name;
         if (i < rootPackageNum) {
-            name = namespaceVec[i].ToUpperCase();
+            name = StringHelper::StrToUpper(namespaceVec[i]);
         } else if (!findVersion && isVersion(namespaceVec[i])) {
-            name = namespaceVec[i].Replace('v', 'V');
+            name = StringHelper::Replace(namespaceVec[i], 'v', 'V');
             findVersion = true;
         } else {
             if (findVersion) {
@@ -135,14 +137,14 @@ std::vector<String> CppCodeEmitter::EmitCppNameSpaceVec(const String &namespaceS
     return result;
 }
 
-String CppCodeEmitter::EmitPackageToNameSpace(const String &packageName)
+std::string CppCodeEmitter::EmitPackageToNameSpace(const std::string &packageName)
 {
-    if (packageName.IsEmpty()) {
+    if (packageName.empty()) {
         return packageName;
     }
 
     StringBuilder nameSpaceStr;
-    std::vector<String> namespaceVec = EmitCppNameSpaceVec(packageName);
+    std::vector<std::string> namespaceVec = EmitCppNameSpaceVec(packageName);
     for (auto nameIter = namespaceVec.begin(); nameIter != namespaceVec.end(); nameIter++) {
         nameSpaceStr.Append(*nameIter);
         if (nameIter != namespaceVec.end() - 1) {
@@ -155,18 +157,18 @@ String CppCodeEmitter::EmitPackageToNameSpace(const String &packageName)
 
 void CppCodeEmitter::EmitBeginNamespace(StringBuilder &sb)
 {
-    std::vector<String> cppNamespaceVec = EmitCppNameSpaceVec(interface_->GetNamespace()->ToString());
+    std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(interface_->GetNamespace()->ToString());
     for (const auto &nspace : cppNamespaceVec) {
-        sb.AppendFormat("namespace %s {\n", nspace.string());
+        sb.AppendFormat("namespace %s {\n", nspace.c_str());
     }
 }
 
 void CppCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
-    std::vector<String> cppNamespaceVec = EmitCppNameSpaceVec(interface_->GetNamespace()->ToString());
+    std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(interface_->GetNamespace()->ToString());
 
     for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
-        sb.AppendFormat("} // %s\n", nspaceIter->string());
+        sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }
 
@@ -177,26 +179,26 @@ void CppCodeEmitter::EmitUsingNamespace(StringBuilder &sb)
     EmitImportUsingNamespace(sb);
 }
 
-String CppCodeEmitter::EmitNamespace(const String &packageName)
+std::string CppCodeEmitter::EmitNamespace(const std::string &packageName)
 {
-    if (packageName.IsEmpty()) {
+    if (packageName.empty()) {
         return packageName;
     }
 
-    int index = packageName.LastIndexOf('.');
-    return index > 0 ? packageName.Substring(0, index) : packageName;
+    size_t index = packageName.rfind('.');
+    return index != std::string::npos ? StringHelper::SubStr(packageName, 0, index) : packageName;
 }
 
 void CppCodeEmitter::EmitImportUsingNamespace(StringBuilder &sb)
 {
-    using StringSet = std::unordered_set<String, StringHashFunc, StringEqualFunc>;
+    using StringSet = std::unordered_set<std::string>;
     StringSet namespaceSet;
-    String selfNameSpace = EmitPackageToNameSpace(EmitNamespace(ast_->GetFullName()));
+    std::string selfNameSpace = EmitPackageToNameSpace(EmitNamespace(ast_->GetFullName()));
 
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> import = importPair.second;
-        String nameSpace = EmitPackageToNameSpace(EmitNamespace(import->GetFullName()));
-        if (nameSpace.Equals(selfNameSpace)) {
+        std::string nameSpace = EmitPackageToNameSpace(EmitNamespace(import->GetFullName()));
+        if (nameSpace == selfNameSpace) {
             continue;
         }
         namespaceSet.emplace(nameSpace);
@@ -212,46 +214,46 @@ void CppCodeEmitter::EmitImportUsingNamespace(StringBuilder &sb)
     }
 
     for (const auto &nspace : namespaceSet) {
-        sb.Append("using namespace ").AppendFormat("%s;\n", nspace.string());
+        sb.Append("using namespace ").AppendFormat("%s;\n", nspace.c_str());
     }
 }
 
 void CppCodeEmitter::EmitWriteMethodParameter(
-    const AutoPtr<ASTParameter> &param, const String &parcelName, StringBuilder &sb, const String &prefix)
+    const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = param->GetType();
     type->EmitCppWriteVar(parcelName, param->GetName(), sb, prefix);
 }
 
-void CppCodeEmitter::EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const String &parcelName,
-    bool initVariable, StringBuilder &sb, const String &prefix)
+void CppCodeEmitter::EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
+    bool initVariable, StringBuilder &sb, const std::string &prefix)
 {
     AutoPtr<ASTType> type = param->GetType();
     type->EmitCppReadVar(parcelName, param->GetName(), sb, prefix, initVariable);
 }
 
-String CppCodeEmitter::MacroName(const String &name)
+std::string CppCodeEmitter::MacroName(const std::string &name)
 {
-    if (name.IsEmpty()) {
+    if (name.empty()) {
         return name;
     }
 
-    String macro = name.Replace('.', '_').ToUpperCase() + "_H";
+    std::string macro = StringHelper::StrToUpper(StringHelper::Replace(name, '.', '_')) + "_H";
     return macro;
 }
 
-String CppCodeEmitter::SpecificationParam(StringBuilder &paramSb, const String &prefix)
+std::string CppCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix)
 {
-    int maxLineLen = 120;
-    int replaceLen = 2;
-    String paramStr = paramSb.ToString();
-    int preIndex = 0;
-    int curIndex = 0;
+    size_t maxLineLen = 120;
+    size_t replaceLen = 2;
+    std::string paramStr = paramSb.ToString();
+    size_t preIndex = 0;
+    size_t curIndex = 0;
 
-    String insertStr = String::Format("\n%s", prefix.string());
-    for (; curIndex < paramStr.GetLength(); curIndex++) {
+    std::string insertStr = StringHelper::Format("\n%s", prefix.c_str());
+    for (; curIndex < paramStr.size(); curIndex++) {
         if (curIndex == maxLineLen && preIndex > 0) {
-            paramStr.Replace(preIndex, replaceLen, ",");
+            StringHelper::Replace(paramStr, preIndex, replaceLen, ",");
             paramStr.insert(preIndex + 1, insertStr);
         } else {
             if (paramStr[curIndex] == ',') {

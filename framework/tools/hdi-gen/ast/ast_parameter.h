@@ -13,23 +13,22 @@
 #include "ast/ast_node.h"
 #include "ast/ast_type.h"
 #include "util/autoptr.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
 class ASTParameter : public ASTNode {
 public:
-    ASTParameter(const String &name, ParamAttr attribute, const AutoPtr<ASTType> &type)
+    ASTParameter(const std::string &name, ParamAttr attribute, const AutoPtr<ASTType> &type)
         : ASTNode(), name_(name), attr_(new ASTParamAttr(attribute)), type_(type)
     {
     }
 
-    ASTParameter(const String &name, const AutoPtr<ASTParamAttr> &attribute, const AutoPtr<ASTType> &type)
+    ASTParameter(const std::string &name, const AutoPtr<ASTParamAttr> &attribute, const AutoPtr<ASTType> &type)
         : ASTNode(), name_(name), attr_(attribute), type_(type)
     {
     }
 
-    inline String GetName()
+    inline std::string GetName()
     {
         return name_;
     }
@@ -44,35 +43,36 @@ public:
         return attr_->value_;
     }
 
-    String Dump(const String &prefix) override;
+    std::string Dump(const std::string &prefix) override;
 
-    String EmitCParameter();
+    std::string EmitCParameter();
 
-    String EmitCppParameter();
+    std::string EmitCppParameter();
 
-    String EmitJavaParameter();
+    std::string EmitJavaParameter();
 
-    String EmitCLocalVar();
+    std::string EmitCLocalVar();
 
-    String EmitCppLocalVar();
+    std::string EmitCppLocalVar();
 
-    String EmitJavaLocalVar();
+    std::string EmitJavaLocalVar();
 
-    void EmitCWriteVar(const String &parcelName, const String &ecName, const String &gotoLabel, StringBuilder &sb,
-        const String &prefix) const;
+    void EmitCWriteVar(const std::string &parcelName, const std::string &ecName, const std::string &gotoLabel,
+        StringBuilder &sb, const std::string &prefix) const;
 
-    bool EmitCProxyWriteOutVar(const String &parcelName, const String &ecName, const String &gotoLabel,
-        StringBuilder &sb, const String &prefix) const;
+    bool EmitCProxyWriteOutVar(const std::string &parcelName, const std::string &ecName, const std::string &gotoLabel,
+        StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitCStubReadOutVar(const String &buffSizeName, const String &memFlagName, const String &parcelName,
-        const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
+    void EmitCStubReadOutVar(const std::string &buffSizeName, const std::string &memFlagName,
+        const std::string &parcelName, const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix) const;
 
-    void EmitJavaWriteVar(const String &parcelName, StringBuilder &sb, const String &prefix) const;
+    void EmitJavaWriteVar(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitJavaReadVar(const String &parcelName, StringBuilder &sb, const String &prefix) const;
+    void EmitJavaReadVar(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
 private:
-    String name_;
+    std::string name_;
     AutoPtr<ASTParamAttr> attr_;
     AutoPtr<ASTType> type_;
 };

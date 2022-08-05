@@ -12,7 +12,7 @@
 
 namespace OHOS {
 namespace HDI {
-String ASTParameter::Dump(const String &prefix)
+std::string ASTParameter::Dump(const std::string &prefix)
 {
     StringBuilder sb;
 
@@ -32,7 +32,7 @@ String ASTParameter::Dump(const String &prefix)
     return sb.ToString();
 }
 
-String ASTParameter::EmitCParameter()
+std::string ASTParameter::EmitCParameter()
 {
     StringBuilder sb;
     switch (type_->GetTypeKind()) {
@@ -56,12 +56,12 @@ String ASTParameter::EmitCParameter()
         case TypeKind::TYPE_VOID: {
             StringBuilder paramStr;
             if (attr_->value_ == ParamAttr::PARAM_IN) {
-                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_IN).string(), name_.string());
+                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_IN).c_str(), name_.c_str());
             } else {
-                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_OUT).string(), name_.string());
+                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_OUT).c_str(), name_.c_str());
             }
             if (type_->GetTypeKind() == TypeKind::TYPE_STRING && attr_->value_ == ParamAttr::PARAM_OUT) {
-                paramStr.AppendFormat(", uint32_t %sLen", name_.string());
+                paramStr.AppendFormat(", uint32_t %sLen", name_.c_str());
             }
             return paramStr.ToString();
         }
@@ -69,30 +69,30 @@ String ASTParameter::EmitCParameter()
         case TypeKind::TYPE_LIST: {
             StringBuilder paramStr;
             if (attr_->value_ == ParamAttr::PARAM_IN) {
-                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_IN).string(), name_.string());
+                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_IN).c_str(), name_.c_str());
             } else {
-                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_OUT).string(), name_.string());
+                paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_OUT).c_str(), name_.c_str());
             }
             paramStr.AppendFormat(
-                ", uint32_t%s %sLen", (attr_->value_ == ParamAttr::PARAM_IN) ? "" : "*", name_.string());
+                ", uint32_t%s %sLen", (attr_->value_ == ParamAttr::PARAM_IN) ? "" : "*", name_.c_str());
             return paramStr.ToString();
         }
         default:
-            return String::Format("unknow type %s", name_.string());
+            return StringHelper::Format("unknow type %s", name_.c_str());
     }
     return sb.ToString();
 }
 
-String ASTParameter::EmitCppParameter()
+std::string ASTParameter::EmitCppParameter()
 {
     if (attr_->value_ == ParamAttr::PARAM_IN) {
-        return String::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_IN).string(), name_.string());
+        return StringHelper::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_IN).c_str(), name_.c_str());
     } else {
-        return String::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_OUT).string(), name_.string());
+        return StringHelper::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_OUT).c_str(), name_.c_str());
     }
 }
 
-String ASTParameter::EmitJavaParameter()
+std::string ASTParameter::EmitJavaParameter()
 {
     StringBuilder sb;
     switch (type_->GetTypeKind()) {
@@ -118,19 +118,19 @@ String ASTParameter::EmitJavaParameter()
         case TypeKind::TYPE_ARRAY:
         case TypeKind::TYPE_LIST:
         case TypeKind::TYPE_MAP: {
-            return String::Format("%s %s", type_->EmitJavaType(TypeMode::NO_MODE, false).string(), name_.string());
+            return StringHelper::Format("%s %s", type_->EmitJavaType(TypeMode::NO_MODE, false).c_str(), name_.c_str());
         }
         default:
-            return String::Format("unknow type %s", name_.string());
+            return StringHelper::Format("unknow type %s", name_.c_str());
     }
 
     return sb.ToString();
 }
 
-String ASTParameter::EmitCLocalVar()
+std::string ASTParameter::EmitCLocalVar()
 {
     StringBuilder sb;
-    sb.AppendFormat("%s %s", type_->EmitCType(TypeMode::LOCAL_VAR).string(), name_.string());
+    sb.AppendFormat("%s %s", type_->EmitCType(TypeMode::LOCAL_VAR).c_str(), name_.c_str());
     switch (type_->GetTypeKind()) {
         case TypeKind::TYPE_BOOLEAN:
             sb.Append(" = false");
@@ -165,10 +165,10 @@ String ASTParameter::EmitCLocalVar()
     return sb.ToString();
 }
 
-String ASTParameter::EmitCppLocalVar()
+std::string ASTParameter::EmitCppLocalVar()
 {
     StringBuilder sb;
-    sb.AppendFormat("%s %s", type_->EmitCppType(TypeMode::LOCAL_VAR).string(), name_.string());
+    sb.AppendFormat("%s %s", type_->EmitCppType(TypeMode::LOCAL_VAR).c_str(), name_.c_str());
     switch (type_->GetTypeKind()) {
         case TypeKind::TYPE_BOOLEAN:
             sb.Append(" = false");
@@ -198,13 +198,13 @@ String ASTParameter::EmitCppLocalVar()
     return sb.ToString();
 }
 
-String ASTParameter::EmitJavaLocalVar()
+std::string ASTParameter::EmitJavaLocalVar()
 {
     return "";
 }
 
-void ASTParameter::EmitCWriteVar(const String &parcelName, const String &ecName, const String &gotoLabel,
-    StringBuilder &sb, const String &prefix) const
+void ASTParameter::EmitCWriteVar(const std::string &parcelName, const std::string &ecName, const std::string &gotoLabel,
+    StringBuilder &sb, const std::string &prefix) const
 {
     if (type_ == nullptr) {
         return;
@@ -213,8 +213,8 @@ void ASTParameter::EmitCWriteVar(const String &parcelName, const String &ecName,
     type_->EmitCWriteVar(parcelName, name_, ecName, gotoLabel, sb, prefix);
 }
 
-bool ASTParameter::EmitCProxyWriteOutVar(const String &parcelName, const String &ecName, const String &gotoLabel,
-    StringBuilder &sb, const String &prefix) const
+bool ASTParameter::EmitCProxyWriteOutVar(const std::string &parcelName, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     if (type_ == nullptr) {
         return false;
@@ -228,8 +228,9 @@ bool ASTParameter::EmitCProxyWriteOutVar(const String &parcelName, const String 
     return false;
 }
 
-void ASTParameter::EmitCStubReadOutVar(const String &buffSizeName, const String &memFlagName, const String &parcelName,
-    const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTParameter::EmitCStubReadOutVar(const std::string &buffSizeName, const std::string &memFlagName,
+    const std::string &parcelName, const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+    const std::string &prefix) const
 {
     if (type_ == nullptr) {
         return;
@@ -240,22 +241,22 @@ void ASTParameter::EmitCStubReadOutVar(const String &buffSizeName, const String 
     }
 }
 
-void ASTParameter::EmitJavaWriteVar(const String &parcelName, StringBuilder &sb, const String &prefix) const
+void ASTParameter::EmitJavaWriteVar(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     if (attr_->value_ == ParamAttr::PARAM_IN) {
         type_->EmitJavaWriteVar(parcelName, name_, sb, prefix);
     } else {
         if (type_->GetTypeKind() == TypeKind::TYPE_ARRAY) {
-            sb.Append(prefix).AppendFormat("if (%s == null) {\n", name_.string());
-            sb.Append(prefix + TAB).AppendFormat("%s.writeInt(-1);\n", parcelName.string());
+            sb.Append(prefix).AppendFormat("if (%s == null) {\n", name_.c_str());
+            sb.Append(prefix + TAB).AppendFormat("%s.writeInt(-1);\n", parcelName.c_str());
             sb.Append(prefix).Append("} else {\n");
-            sb.Append(prefix + TAB).AppendFormat("%s.writeInt(%s.length);\n", parcelName.string(), name_.string());
+            sb.Append(prefix + TAB).AppendFormat("%s.writeInt(%s.length);\n", parcelName.c_str(), name_.c_str());
             sb.Append(prefix).Append("}\n");
         }
     }
 }
 
-void ASTParameter::EmitJavaReadVar(const String &parcelName, StringBuilder &sb, const String &prefix) const
+void ASTParameter::EmitJavaReadVar(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     if (attr_->value_ == ParamAttr::PARAM_OUT) {
         type_->EmitJavaReadVar(parcelName, name_, sb, prefix);

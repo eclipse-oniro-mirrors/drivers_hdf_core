@@ -16,7 +16,7 @@ namespace OHOS {
 namespace HDI {
 class ASTExpr : public ASTNode {
 public:
-    inline String EmitCode()
+    inline std::string EmitCode()
     {
         return Dump("");
     }
@@ -32,8 +32,9 @@ enum class UnaryOpKind {
 
 class ASTUnaryExpr : public ASTExpr {
 public:
-    String Dump(const String &prefix) override;
-    String UnaryOpToString(UnaryOpKind op);
+    std::string Dump(const std::string &prefix) override;
+    std::string UnaryOpToString(UnaryOpKind op);
+
 public:
     UnaryOpKind op_;
     AutoPtr<ASTExpr> expr_;
@@ -54,8 +55,9 @@ enum class BinaryOpKind {
 
 class ASTBinaryExpr : public ASTExpr {
 public:
-    String Dump(const String &prefix) override;
-    String BinaryOpToString(BinaryOpKind op);
+    std::string Dump(const std::string &prefix) override;
+    std::string BinaryOpToString(BinaryOpKind op);
+
 public:
     BinaryOpKind op_;
     AutoPtr<ASTExpr> lExpr_;
@@ -64,8 +66,8 @@ public:
 
 class ASTNumExpr : public ASTExpr {
 public:
-    String Dump(const String &prefix) override;
-    String value_;
+    std::string Dump(const std::string &prefix) override;
+    std::string value_;
 };
 } // namespace HDI
 } // namespace OHOS

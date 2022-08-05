@@ -56,23 +56,24 @@ enum class TypeMode {
 };
 
 enum class SerMode {
-    PROXY_SER,      // the flag of proxy serialized
-    STUB_SER,       // the flag of stub serialized
-    CUSTOM_SER,     // the flag of custom types serialized
+    PROXY_SER,  // the flag of proxy serialized
+    STUB_SER,   // the flag of stub serialized
+    CUSTOM_SER, // the flag of custom types serialized
 };
 
-using UtilMethod = std::function<void(StringBuilder&, const String&, const String&, bool)>;
-using UtilMethodMap = std::unordered_map<String, UtilMethod, StringHashFunc, StringEqualFunc>;
+using UtilMethod = std::function<void(StringBuilder &, const std::string &, const std::string &, bool)>;
+using UtilMethodMap = std::unordered_map<std::string, UtilMethod>;
 
 class ASTType : public ASTNode {
 public:
-
     ASTType(TypeKind kind = TypeKind::TYPE_UNKNOWN, bool isPod = true)
-        : typeKind_(kind), isPod_(isPod), name_(), namespace_() {}
+        :typeKind_(kind), isPod_(isPod), name_(), namespace_()
+    {
+    }
 
-    virtual void SetName(const String &name);
+    virtual void SetName(const std::string &name);
 
-    virtual String GetName();
+    virtual std::string GetName();
 
     virtual void SetNamespace(const AutoPtr<ASTNamespace> &nspace);
 
@@ -130,65 +131,65 @@ public:
 
     virtual bool HasInnerType(TypeKind innerType) const;
 
-    virtual String ToShortString();
+    virtual std::string ToShortString();
 
-    String ToString() const override;
+    std::string ToString() const override;
 
     virtual TypeKind GetTypeKind();
 
-    virtual String EmitCType(TypeMode mode = TypeMode::NO_MODE) const;
+    virtual std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const;
 
-    virtual String EmitCppType(TypeMode mode = TypeMode::NO_MODE) const;
+    virtual std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const;
 
-    virtual String EmitJavaType(TypeMode mode, bool isInnerType = false) const;
+    virtual std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const;
 
-    virtual void EmitCWriteVar(const String &parcelName, const String &name, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
+    virtual void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCProxyWriteOutVar(const String &parcelName, const String &name, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
+    virtual void EmitCProxyWriteOutVar(const std::string &parcelName, const std::string &name,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
+    virtual void EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName,
-        const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
+    virtual void EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCStubReadOutVar(const String &buffSizeName, const String &memFlagName, const String &parcelName,
-        const String &name, const String &ecName, const String &gotoLabel, StringBuilder &sb,
-        const String &prefix) const;
+    virtual void EmitCStubReadOutVar(const std::string &buffSizeName, const std::string &memFlagName,
+        const std::string &parcelName, const std::string &name, const std::string &ecName, const std::string &gotoLabel,
+        StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        unsigned int innerLevel = 0) const;
+    virtual void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const;
 
-    virtual void EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb, const String &prefix,
-        bool initVariable, unsigned int innerLevel = 0) const;
+    virtual void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const;
 
-    virtual void EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const;
+    virtual void EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
-        const String &prefix, std::vector<String> &freeObjStatements) const;
+    virtual void EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix, std::vector<std::string> &freeObjStatements) const;
 
     void EmitFreeStatements(
-        const std::vector<String> &freeObjStatements, StringBuilder &sb, const String &prefix) const;
+        const std::vector<std::string> &freeObjStatements, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-        const String &prefix, unsigned int innerLevel = 0) const;
+    virtual void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const;
 
-    virtual void EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-        const String &prefix, bool emitType, unsigned int innerLevel = 0) const;
+    virtual void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const;
 
     virtual void EmitMemoryRecycle(
-        const String &name, bool isClient, bool ownership, StringBuilder &sb, const String &prefix) const;
+        const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const;
 
     virtual void EmitJavaWriteVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const;
+        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     virtual void EmitJavaReadVar(
-        const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const;
+        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void EmitJavaReadInnerVar(
-        const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const;
+    virtual void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+        StringBuilder &sb, const std::string &prefix) const;
 
     virtual void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
 
@@ -197,7 +198,7 @@ public:
 protected:
     TypeKind typeKind_;
     bool isPod_;
-    String name_;
+    std::string name_;
     AutoPtr<ASTNamespace> namespace_;
 };
 } // namespace HDI

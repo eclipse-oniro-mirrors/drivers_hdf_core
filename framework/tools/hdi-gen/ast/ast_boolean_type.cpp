@@ -15,7 +15,7 @@ bool ASTBooleanType::IsBooleanType()
     return true;
 }
 
-String ASTBooleanType::ToString() const
+std::string ASTBooleanType::ToString() const
 {
     return "boolean";
 }
@@ -25,7 +25,7 @@ TypeKind ASTBooleanType::GetTypeKind()
     return TypeKind::TYPE_BOOLEAN;
 }
 
-String ASTBooleanType::EmitCType(TypeMode mode) const
+std::string ASTBooleanType::EmitCType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -41,7 +41,7 @@ String ASTBooleanType::EmitCType(TypeMode mode) const
     }
 }
 
-String ASTBooleanType::EmitCppType(TypeMode mode) const
+std::string ASTBooleanType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -57,116 +57,116 @@ String ASTBooleanType::EmitCppType(TypeMode mode) const
     }
 }
 
-String ASTBooleanType::EmitJavaType(TypeMode mode, bool isInnerType) const
+std::string ASTBooleanType::EmitJavaType(TypeMode mode, bool isInnerType) const
 {
     return isInnerType ? "Boolean" : "boolean";
 }
 
-void ASTBooleanType::EmitCWriteVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTBooleanType::EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt8(%s, %s ? 1 : 0)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt8(%s, %s ? 1 : 0)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCProxyReadVar(const String &parcelName, const String &name, bool isInnerType,
-    const String &ecName, const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTBooleanType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+    const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt8(%s, (int8_t *)%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt8(%s, (int8_t *)%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCStubReadVar(const String &parcelName, const String &name, const String &ecName,
-    const String &gotoLabel, StringBuilder &sb, const String &prefix) const
+void ASTBooleanType::EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt8(%s, (int8_t *)%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.string());
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt8(%s, (int8_t *)%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCppWriteVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTBooleanType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteBool(%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteBool(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCppReadVar(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool initVariable, unsigned int innerLevel) const
+void ASTBooleanType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
         sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadBool();\n", EmitCppType().string(), name.string(), parcelName.string());
+            "%s %s = %s.ReadBool();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
     } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadBool();\n", name.string(), parcelName.string());
+        sb.Append(prefix).AppendFormat("%s = %s.ReadBool();\n", name.c_str(), parcelName.c_str());
     }
 }
 
-void ASTBooleanType::EmitCMarshalling(const String &name, StringBuilder &sb, const String &prefix) const
+void ASTBooleanType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt8(data, %s ? 1 : 0)) {\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteInt8(data, %s ? 1 : 0)) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
-    const String &prefix, std::vector<String> &freeObjStatements) const
+void ASTBooleanType::EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+    const std::string &prefix, std::vector<std::string> &freeObjStatements) const
 {
-    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt8(data, (int8_t *)&%s)) {\n", name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufReadInt8(data, (int8_t *)&%s)) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     EmitFreeStatements(freeObjStatements, sb, prefix + TAB);
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.string());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCppMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, unsigned int innerLevel) const
+void ASTBooleanType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
 {
-    sb.Append(prefix).AppendFormat("if (!%s.WriteBool(%s)) {\n", parcelName.string(), name.string());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.string());
+    sb.Append(prefix).AppendFormat("if (!%s.WriteBool(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBooleanType::EmitCppUnMarshalling(const String &parcelName, const String &name, StringBuilder &sb,
-    const String &prefix, bool emitType, unsigned int innerLevel) const
+void ASTBooleanType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     if (emitType) {
         sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadBool();\n", EmitCppType().string(), name.string(), parcelName.string());
+            "%s %s = %s.ReadBool();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
     } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadBool();\n", name.string(), parcelName.string());
+        sb.Append(prefix).AppendFormat("%s = %s.ReadBool();\n", name.c_str(), parcelName.c_str());
     }
 }
 
 void ASTBooleanType::EmitJavaWriteVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("%s.writeBoolean(%s);\n", parcelName.string(), name.string());
+    sb.Append(prefix).AppendFormat("%s.writeBoolean(%s);\n", parcelName.c_str(), name.c_str());
 }
 
 void ASTBooleanType::EmitJavaReadVar(
-    const String &parcelName, const String &name, StringBuilder &sb, const String &prefix) const
+    const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("%s = %s.readBoolean();\n", name.string(), parcelName.string());
+    sb.Append(prefix).AppendFormat("%s = %s.readBoolean();\n", name.c_str(), parcelName.c_str());
 }
 
-void ASTBooleanType::EmitJavaReadInnerVar(
-    const String &parcelName, const String &name, bool isInner, StringBuilder &sb, const String &prefix) const
+void ASTBooleanType::EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+    StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
-        "%s %s = %s.readBoolean();\n", EmitJavaType(TypeMode::NO_MODE).string(), name.string(), parcelName.string());
+        "%s %s = %s.readBoolean();\n", EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(), parcelName.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

@@ -16,7 +16,6 @@
 
 #include "lexer/token.h"
 #include "util/file.h"
-#include "util/string.h"
 
 namespace OHOS {
 namespace HDI {
@@ -31,9 +30,9 @@ public:
 
     ~Lexer() = default;
 
-    bool Reset(const String &filePath);
+    bool Reset(const std::string &filePath);
 
-    inline String GetFilePath() const
+    inline std::string GetFilePath() const
     {
         return (file_ != nullptr) ? file_->GetPath() : "";
     }
@@ -94,7 +93,7 @@ private:
 
 private:
     static constexpr char *TAG = "Lexer";
-    String filePath_;
+    std::string filePath_;
     std::unique_ptr<File> file_;
 
     ParseMode mode_;
@@ -102,7 +101,7 @@ private:
     Token curToken_;
 
 private:
-    using StrTokenTypeMap = std::unordered_map<String, TokenType, StringHashFunc, StringEqualFunc>;
+    using StrTokenTypeMap = std::unordered_map<std::string, TokenType>;
     static StrTokenTypeMap keyWords_;
     static StrTokenTypeMap symbols_;
 };

@@ -8,14 +8,16 @@
 
 #include "util/string_builder.h"
 
-#include <cstdio>
+#include <cstdlib>
 #include <cstring>
+
+#include "securec.h"
 #include "util/logger.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
 const char *StringBuilder::TAG = "StringBuilder";
-constexpr int LINE_MAX_SIZE = 1024;
 
 StringBuilder::~StringBuilder()
 {
@@ -50,25 +52,25 @@ StringBuilder &StringBuilder::Append(const char *string)
         }
     }
 
-    (void)memcpy(buffer_ + position_, string, len);
+    (void)memcpy_s(buffer_ + position_, capacity_ - position_, string, len);
     position_ += len;
     return *this;
 }
 
-StringBuilder &StringBuilder::Append(const String &string)
+StringBuilder &StringBuilder::Append(const std::string &string)
 {
-    if (string.IsEmpty()) {
+    if (string.empty()) {
         return *this;
     }
 
-    size_t len = string.GetLength();
+    size_t len = string.size();
     if (position_ + len >= capacity_) {
         if (!Grow(len)) {
             return *this;
         }
     }
 
-    (void)memcpy(buffer_ + position_, string.string(), len);
+    (void)memcpy_s(buffer_ + position_, capacity_ - position_, string.c_str(), len);
     position_ += len;
     return *this;
 }
@@ -80,28 +82,29 @@ StringBuilder &StringBuilder::AppendFormat(const char *format, ...)
     va_start(args, format);
     va_copy(argsCopy, args);
 
-    char buf[LINE_MAX_SIZE] = {0};
-    int len = vsnprintf(buf, LINE_MAX_SIZE, format, args);
+    char buf[StringHelper::LINE_MAX_SIZE] = {0};
+    int len = vsnprintf_s(buf, StringHelper::LINE_MAX_SIZE, StringHelper::LINE_MAX_SIZE - 1, format, args);
     if (len <= 0) {
         va_end(args);
         va_end(argsCopy);
         return *this;
     }
 
-    if (position_ + len >= capacity_) {
-        if (!Grow(len)) {
+    size_t writeSize = static_cast<size_t>(len);
+    if (position_ + writeSize >= capacity_) {
+        if (!Grow(writeSize)) {
             va_end(args);
             va_end(argsCopy);
             return *this;
         }
     }
 
-    if (vsnprintf(buffer_ + position_, len + 1, format, argsCopy) < 0) {
+    if (vsnprintf_s(buffer_ + position_, writeSize + 1, writeSize, format, argsCopy) < 0) {
         va_end(args);
         va_end(argsCopy);
         return *this;
     }
-    position_ += len;
+    position_ += writeSize;
 
     va_end(args);
     va_end(argsCopy);
@@ -111,7 +114,7 @@ StringBuilder &StringBuilder::AppendFormat(const char *format, ...)
 
 bool StringBuilder::Grow(size_t size)
 {
-    if (capacity_ > String::MAX_SIZE) {
+    if (capacity_ > StringHelper::MAX_SIZE) {
         Logger::E(TAG, "The StringBuilder is full.");
         return false;
     }
@@ -120,8 +123,8 @@ bool StringBuilder::Grow(size_t size)
     if (newSize < capacity_ + size) {
         newSize = capacity_ + size;
     }
-    if (newSize > String::MAX_SIZE) {
-        newSize = String::MAX_SIZE;
+    if (newSize > StringHelper::MAX_SIZE) {
+        newSize = StringHelper::MAX_SIZE;
     }
     if (newSize <= capacity_) {
         return false;
@@ -134,7 +137,7 @@ bool StringBuilder::Grow(size_t size)
     }
 
     if (buffer_ != nullptr) {
-        (void)memcpy(newBuffer, buffer_, capacity_);
+        (void)memcpy_s(newBuffer, newSize, buffer_, capacity_);
         free(buffer_);
     }
     buffer_ = newBuffer;
@@ -142,9 +145,9 @@ bool StringBuilder::Grow(size_t size)
     return true;
 }
 
-String StringBuilder::ToString() const
+std::string StringBuilder::ToString() const
 {
-    return String(buffer_, position_);
+    return std::string(buffer_, position_);
 }
 } // namespace HDI
 } // namespace OHOS
