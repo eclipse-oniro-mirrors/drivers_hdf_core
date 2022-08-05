@@ -152,18 +152,21 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
     HdiImpl hdiImpl;
     hdiImpl.handler = dlopen(libpath.c_str(), RTLD_LAZY);
     if (hdiImpl.handler == nullptr) {
-        HDF_LOGE("%{public}s dlopen failed %{public}s", __func__, dlerror());
+        HDF_LOGE("%{public}s failed to dlopen, %{public}s", __func__, dlerror());
         return nullptr;
     }
     std::string symName = interfaceName + "ImplGetInstance";
     hdiImpl.constructor = (HdiImplInstanceFunc)dlsym(hdiImpl.handler, symName.data());
     if (hdiImpl.constructor == nullptr) {
-        HDF_LOGE("%{public}s dlsym failed %{public}s", __func__, dlerror());
+        HDF_LOGE("%{public}s failed to get symbol of '%s', %{public}s", __func__, symName.c_str(), dlerror());
         hdiImpl.Unload();
         return nullptr;
     }
     std::string desSymName = interfaceName + "ImplRelease";
     hdiImpl.destructor = (HdiImplReleaseFunc)dlsym(hdiImpl.handler, desSymName.data());
+    if (hdiImpl.destructor == nullptr) {
+        HDF_LOGE("%{public}s failed to get symbol of '%s', %{public}s", __func__, desSymName.c_str(), dlerror());
+    }
 
     void *implInstance = hdiImpl.constructor();
     if (implInstance == nullptr) {
