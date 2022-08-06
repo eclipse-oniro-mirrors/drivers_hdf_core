@@ -16,7 +16,7 @@
         "c_utils",
         "init",
         "ipc",
-        "samgr_standard",
+        "samgr",
         "selinux"
       ],
       "third_part": [
