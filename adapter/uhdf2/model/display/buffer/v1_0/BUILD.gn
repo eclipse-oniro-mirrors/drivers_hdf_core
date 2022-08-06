@@ -23,15 +23,6 @@ ohos_shared_library("libdisplay_buffer_hdi_impl") {
     "//drivers/hdf_core/adapter/uhdf2/model/display/base/buffer_parcelable",
   ]
 
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
-
   deps = [
     "//drivers/hdf_core/adapter/uhdf2/model/display/base/buffer_parcelable:libbufferhandle_parcelable",
     "//drivers/interface/display/buffer/v1_0:libdisplay_buffer_proxy_1.0",
@@ -40,7 +31,7 @@ ohos_shared_library("libdisplay_buffer_hdi_impl") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "utils_base:utils",
   ]
 

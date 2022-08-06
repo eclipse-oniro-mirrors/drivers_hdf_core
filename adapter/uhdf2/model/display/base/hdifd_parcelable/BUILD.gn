@@ -28,20 +28,9 @@ ohos_shared_library("libhdifd_parcelable") {
 
   public_configs = [ ":hdifd_parcelable_config" ]
 
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
-
-  deps = []
-
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "utils_base:utils",
   ]
 

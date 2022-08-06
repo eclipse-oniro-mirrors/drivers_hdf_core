@@ -37,9 +37,9 @@ public:
      * @version 1.0
      */
     template <typename Impl>
-    static IDisplayBuffer* Get()
+    static IDisplayBuffer *Get()
     {
-        IDisplayBuffer* instance = new Impl();
+        IDisplayBuffer *instance = new Impl();
         if (instance == nullptr) {
             return nullptr;
         }
@@ -151,8 +151,8 @@ public:
      * @since 1.0
      * @version 1.0
      */
-    virtual int32_t IsSupportedAlloc(const std::vector<VerifyAllocInfo> &infos,
-                                     std::vector<bool> &supporteds) const = 0;
+    virtual int32_t IsSupportedAlloc(
+        const std::vector<VerifyAllocInfo> &infos, std::vector<bool> &supporteds) const = 0;
 };
 } // namespace V1_0
 } // namespace Buffer

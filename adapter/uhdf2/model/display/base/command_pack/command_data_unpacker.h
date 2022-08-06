@@ -16,41 +16,34 @@
 #ifndef DISPLAY_COMMAND_DATA_UNPACKER_H_
 #define DISPLAY_COMMAND_DATA_UNPACKER_H_
 
-#include <memory>
 #include "hdf_log.h"
+#include <memory>
 
 namespace OHOS {
 namespace HDI {
 namespace Display {
 class CommandDataUnpacker {
 public:
-    CommandDataUnpacker()
-        : packSize_(0),
-        readPos_(0),
-        curSecOffset_(0),
-        curSecLen_(0),
-        data_(nullptr)
-    {
-    }
+    CommandDataUnpacker() : packSize_(0), readPos_(0), curSecOffset_(0), curSecLen_(0), data_(nullptr) {}
 
-    void Init(char* unpackData, size_t size)
+    void Init(char *unpackData, size_t size)
     {
         packSize_ = size;
         data_ = unpackData;
         return;
     }
 
-    bool ReadUint64(uint64_t& value)
+    bool ReadUint64(uint64_t &value)
     {
         return Read<uint64_t>(value);
     }
 
-    bool ReadUint32(uint32_t& value)
+    bool ReadUint32(uint32_t &value)
     {
         return Read<uint32_t>(value);
     }
 
-    bool ReadUint8(uint8_t& value)
+    bool ReadUint8(uint8_t &value)
     {
         int32_t intVal = 0;
         bool ret = Read<int32_t>(intVal);
@@ -61,12 +54,12 @@ public:
         return ret;
     }
 
-    bool ReadInt32(int32_t& value)
+    bool ReadInt32(int32_t &value)
     {
         return Read<int32_t>(value);
     }
 
-    bool ReadBool(bool& value)
+    bool ReadBool(bool &value)
     {
         int32_t intVal = 0;
         bool ret = Read<int32_t>(intVal);
@@ -77,12 +70,12 @@ public:
         return ret;
     }
 
-    char* GetDataPtr()
+    char *GetDataPtr()
     {
         return data_;
     }
 
-    bool PackBegin(int32_t& beginCmd)
+    bool PackBegin(int32_t &beginCmd)
     {
         readPos_ = 0;
         curSecLen_ = sizeof(int32_t);
@@ -91,7 +84,7 @@ public:
         return ReadInt32(beginCmd);
     }
 
-    bool BeginSection(int32_t& cmdId)
+    bool BeginSection(int32_t &cmdId)
     {
         uint32_t magic;
         curSecOffset_ = readPos_;
@@ -101,8 +94,7 @@ public:
             ret = (magic == SECTION_END_MAGIC ? true : false);
         }
         if (ret == true && !(ReadInt32(cmdId) && ReadUint32(curSecLen_))) {
-            HDF_LOGE("error: cmdId=%{public}d or curSecLen_=%{public}d error.",
-                cmdId, curSecLen_);
+            HDF_LOGE("error: cmdId=%{public}d or curSecLen_=%{public}d error.", cmdId, curSecLen_);
             ret = false;
         }
         return ret;
@@ -115,14 +107,13 @@ public:
         return ret;
     }
 
-    bool PackEnd(int32_t& endCmd)
+    bool PackEnd(int32_t &endCmd)
     {
         bool ret = ReadInt32(endCmd);
         if ((ret == true) && (readPos_ == packSize_)) {
             ret = true;
         } else {
-            HDF_LOGE("error: readPos_(%{public}zu) > packSize_(%{public}zu), read overflow.",
-                readPos_, curSecOffset_);
+            HDF_LOGE("error: readPos_(%{public}zu) > packSize_(%{public}zu), read overflow.", readPos_, curSecOffset_);
             ret = false;
         }
         return ret;
@@ -146,20 +137,21 @@ public:
                 HDF_LOGI("\n");
             } else if (i % SECTION_LEN_ALIGN == 0) {
                 HDF_LOGI(" ");
-            } else {}
+            } else {
+            }
         }
         HDF_LOGI("\n");
     }
 
 private:
     template <typename T>
-    bool Read(T& value)
+    bool Read(T &value)
     {
         size_t dataSize = sizeof(T);
 
         if (readPos_ + dataSize > packSize_) {
-            HDF_LOGE("Read overflow, readPos=%{public}zu + %{public}zu}, packSize=%{public}zu.",
-                readPos_, dataSize, packSize_);
+            HDF_LOGE("Read overflow, readPos=%{public}zu + %{public}zu}, packSize=%{public}zu.", readPos_, dataSize,
+                packSize_);
             return false;
         }
 
@@ -181,9 +173,9 @@ private:
     size_t readPos_;
     size_t curSecOffset_;
     uint32_t curSecLen_;
-    char* data_;
+    char *data_;
 };
-} // Display
-} // HDI
-} // OHOS
+} // namespace Display
+} // namespace HDI
+} // namespace OHOS
 #endif // DISPLAY_COMMAND_DATA_UNPACKER_H_

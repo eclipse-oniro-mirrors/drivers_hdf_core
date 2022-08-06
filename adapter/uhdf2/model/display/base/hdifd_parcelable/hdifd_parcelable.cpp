@@ -36,7 +36,7 @@ HdifdParcelable::HdifdParcelable(int32_t fd)
 
 HdifdParcelable::~HdifdParcelable()
 {
-    if ((init_ != false) && (hdiFd_ != -1)) {
+    if ((init_ != false) && (hdiFd_ < 0)) {
         close(hdiFd_);
     }
 }

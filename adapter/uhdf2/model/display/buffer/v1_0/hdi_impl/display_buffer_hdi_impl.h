@@ -17,9 +17,9 @@
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_BUFFER_HDI_IMPL_H
 
 #include "buffer_handle.h"
+#include "v1_0/display_buffer_type.h"
 #include "v1_0/iallocator_interface.h"
 #include "v1_0/imapper_interface.h"
-#include "v1_0/display_buffer_type.h"
 #include "v1_0/include/idisplay_buffer.h"
 
 namespace OHOS {
@@ -32,16 +32,17 @@ public:
     DisplayBufferHdiImpl(bool isAllocLocal = false);
     virtual ~DisplayBufferHdiImpl() = default;
 
-    virtual int32_t AllocMem(const AllocInfo& info, BufferHandle*& handle) const override;
-    virtual void FreeMem(const BufferHandle& handle) const override;
-    virtual void *Mmap(const BufferHandle& handle) const override;
-    virtual void *MmapCache(const BufferHandle& handle) const override;
-    virtual int32_t Unmap(const BufferHandle& handle) const override;
-    virtual int32_t FlushCache(const BufferHandle& handle) const override;
-    virtual int32_t FlushMCache(const BufferHandle& handle) const override;
-    virtual int32_t InvalidateCache(const BufferHandle& handle) const override;
-    virtual int32_t IsSupportedAlloc(const std::vector<VerifyAllocInfo> &infos,
-                                     std::vector<bool> &supporteds) const override;
+    virtual int32_t AllocMem(const AllocInfo &info, BufferHandle *&handle) const override;
+    virtual void FreeMem(const BufferHandle &handle) const override;
+    virtual void *Mmap(const BufferHandle &handle) const override;
+    virtual void *MmapCache(const BufferHandle &handle) const override;
+    virtual int32_t Unmap(const BufferHandle &handle) const override;
+    virtual int32_t FlushCache(const BufferHandle &handle) const override;
+    virtual int32_t FlushMCache(const BufferHandle &handle) const override;
+    virtual int32_t InvalidateCache(const BufferHandle &handle) const override;
+    virtual int32_t IsSupportedAlloc(
+        const std::vector<VerifyAllocInfo> &infos, std::vector<bool> &supporteds) const override;
+
 private:
     sptr<IAllocatorInterface> allocator_;
     sptr<IMapperInterface> mapper_;

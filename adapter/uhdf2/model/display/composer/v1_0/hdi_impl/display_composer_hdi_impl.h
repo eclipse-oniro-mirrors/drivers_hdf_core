@@ -18,9 +18,9 @@
 
 #include "hdf_log.h"
 #include "v1_0/display_command/display_cmd_requester.h"
-#include "v1_0/include/idisplay_composer_interface.h"
-#include "v1_0/idisplay_composer.h"
 #include "v1_0/display_composer_type.h"
+#include "v1_0/idisplay_composer.h"
+#include "v1_0/include/idisplay_composer_interface.h"
 
 namespace OHOS {
 namespace HDI {
@@ -29,28 +29,22 @@ namespace Composer {
 namespace V1_0 {
 using namespace OHOS::HDI::Display::Composer::V1_0;
 
-template <typename Interface, typename Hdi, typename CmdReq>
-class DisplayComposerHdiImpl :
-    public Interface,
-    public IHotPlugCallback,
-    public IVBlankCallback {
+template <typename Interface, typename CompHdi, typename CmdReq>
+class DisplayComposerHdiImpl : public Interface, public IHotPlugCallback, public IVBlankCallback {
 public:
     static std::unique_ptr<IDisplayComposerInterface> create()
     {
-        sptr<Hdi> hdi = Hdi::Get();
+        sptr<CompHdi> hdi = CompHdi::Get();
         std::shared_ptr<CmdReq> req = CmdReq::Create(hdi);
         return std::make_unique<DisplayComposerHdiImpl>(hdi, req);
     }
 
-    DisplayComposerHdiImpl(sptr<Hdi> hdi, std::shared_ptr<CmdReq> req)
-        : hdi_(hdi), req_(req), hotPlugCb_(nullptr), vBlankCb_(nullptr),
-        hotPlugCbData_(nullptr), vBlankCbData_(nullptr)
+    DisplayComposerHdiImpl(sptr<CompHdi> hdi, std::shared_ptr<CmdReq> req) :
+        hdi_(hdi), req_(req), hotPlugCb_(nullptr), vBlankCb_(nullptr), hotPlugCbData_(nullptr), vBlankCbData_(nullptr)
     {
     }
 
-    virtual ~DisplayComposerHdiImpl()
-    {
-    }
+    virtual ~DisplayComposerHdiImpl() {}
 
     // device func
     virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void *data) override
@@ -60,18 +54,17 @@ public:
         return hdi_->RegHotPlugCallback(this);
     }
 
-    virtual int32_t GetDisplayCapability(uint32_t devId, DisplayCapability& info) override
+    virtual int32_t GetDisplayCapability(uint32_t devId, DisplayCapability &info) override
     {
         return hdi_->GetDisplayCapability(devId, info);
     }
 
-    virtual int32_t GetDisplaySupportedModes(uint32_t devId,
-        std::vector<DisplayModeInfo>& modes) override
+    virtual int32_t GetDisplaySupportedModes(uint32_t devId, std::vector<DisplayModeInfo> &modes) override
     {
         return hdi_->GetDisplaySupportedModes(devId, modes);
     }
 
-    virtual int32_t GetDisplayMode(uint32_t devId, uint32_t& modeId) override
+    virtual int32_t GetDisplayMode(uint32_t devId, uint32_t &modeId) override
     {
         return hdi_->GetDisplayMode(devId, modeId);
     }
@@ -81,7 +74,7 @@ public:
         return hdi_->SetDisplayMode(devId, modeId);
     }
 
-    virtual int32_t GetDisplayPowerStatus(uint32_t devId, DispPowerStatus& status) override
+    virtual int32_t GetDisplayPowerStatus(uint32_t devId, DispPowerStatus &status) override
     {
         return hdi_->GetDisplayPowerStatus(devId, status);
     }
@@ -91,7 +84,7 @@ public:
         return hdi_->SetDisplayPowerStatus(devId, status);
     }
 
-    virtual int32_t GetDisplayBacklight(uint32_t devId, uint32_t& level) override
+    virtual int32_t GetDisplayBacklight(uint32_t devId, uint32_t &level) override
     {
         return hdi_->GetDisplayBacklight(devId, level);
     }
@@ -101,34 +94,33 @@ public:
         return hdi_->SetDisplayBacklight(devId, level);
     }
 
-    virtual int32_t GetDisplayProperty(uint32_t devId, uint32_t id, uint64_t& value) override
+    virtual int32_t GetDisplayProperty(uint32_t devId, uint32_t id, uint64_t &value) override
     {
         return hdi_->GetDisplayProperty(devId, id, value);
     }
 
-    virtual int32_t GetDisplayCompChange(uint32_t devId, std::vector<uint32_t>& layers,
-        std::vector<int32_t>& types) override
+    virtual int32_t GetDisplayCompChange(
+        uint32_t devId, std::vector<uint32_t> &layers, std::vector<int32_t> &types) override
     {
         return hdi_->GetDisplayCompChange(devId, layers, types);
     }
 
-    virtual int32_t SetDisplayClientCrop(uint32_t devId, const IRect& rect) override
+    virtual int32_t SetDisplayClientCrop(uint32_t devId, const IRect &rect) override
     {
         return hdi_->SetDisplayClientCrop(devId, rect);
     }
 
-    virtual int32_t SetDisplayClientDestRect(uint32_t devId, const IRect& rect) override
+    virtual int32_t SetDisplayClientDestRect(uint32_t devId, const IRect &rect) override
     {
         return hdi_->SetDisplayClientDestRect(devId, rect);
     }
 
-    virtual int32_t SetDisplayClientBuffer(uint32_t devId,
-        const BufferHandle& buffer, int32_t fence) override
+    virtual int32_t SetDisplayClientBuffer(uint32_t devId, const BufferHandle &buffer, int32_t fence) override
     {
         return req_->SetDisplayClientBuffer(devId, buffer, fence);
     }
 
-    virtual int32_t SetDisplayClientDamage(uint32_t devId, std::vector<IRect>& rects) override
+    virtual int32_t SetDisplayClientDamage(uint32_t devId, std::vector<IRect> &rects) override
     {
         return req_->SetDisplayClientDamage(devId, rects);
     }
@@ -138,15 +130,15 @@ public:
         return hdi_->SetDisplayVsyncEnabled(devId, enabled);
     }
 
-    virtual int32_t RegDisplayVBlankCallback(uint32_t devId, VBlankCallback cb, void* data) override
+    virtual int32_t RegDisplayVBlankCallback(uint32_t devId, VBlankCallback cb, void *data) override
     {
         vBlankCb_ = cb;
         vBlankCbData_ = data;
         return hdi_->RegDisplayVBlankCallback(devId, this);
     }
 
-    virtual int32_t GetDisplayReleaseFence(uint32_t devId, std::vector<uint32_t>& layers,
-        std::vector<int32_t>& fences) override
+    virtual int32_t GetDisplayReleaseFence(
+        uint32_t devId, std::vector<uint32_t> &layers, std::vector<int32_t> &fences) override
     {
         std::vector<sptr<HdifdParcelable>> hdiFences;
         int32_t ret = hdi_->GetDisplayReleaseFence(devId, layers, hdiFences);
@@ -158,8 +150,7 @@ public:
         return ret;
     }
 
-    virtual int32_t CreateVirtualDisplay(uint32_t width, uint32_t height, int32_t& format,
-        uint32_t& devId) override
+    virtual int32_t CreateVirtualDisplay(uint32_t width, uint32_t height, int32_t &format, uint32_t &devId) override
     {
         return hdi_->CreateVirtualDisplay(width, height, format, devId);
     }
@@ -169,8 +160,7 @@ public:
         return hdi_->DestroyVirtualDisplay(devId);
     }
 
-    virtual int32_t SetVirtualDisplayBuffer(uint32_t devId,
-        const BufferHandle& buffer, const int32_t fence) override
+    virtual int32_t SetVirtualDisplayBuffer(uint32_t devId, const BufferHandle &buffer, const int32_t fence) override
     {
         int32_t ret = HDF_SUCCESS;
 
@@ -192,14 +182,13 @@ public:
         return hdi_->SetDisplayProperty(devId, id, value);
     }
 
-    virtual int32_t Commit(uint32_t devId, int32_t& fence) override
+    virtual int32_t Commit(uint32_t devId, int32_t &fence) override
     {
         return req_->Commit(devId, fence);
     }
 
     // layer func
-    virtual int32_t CreateLayer(uint32_t devId, const LayerInfo& layerInfo,
-        uint32_t& layerId) override
+    virtual int32_t CreateLayer(uint32_t devId, const LayerInfo &layerInfo, uint32_t &layerId) override
     {
         return hdi_->CreateLayer(devId, layerInfo, layerId);
     }
@@ -209,22 +198,22 @@ public:
         return hdi_->DestroyLayer(devId, layerId);
     }
 
-    virtual int32_t PrepareDisplayLayers(uint32_t devId, bool& needFlushFb) override
+    virtual int32_t PrepareDisplayLayers(uint32_t devId, bool &needFlushFb) override
     {
         return req_->PrepareDisplayLayers(devId, needFlushFb);
     }
 
-    virtual int32_t SetLayerAlpha(uint32_t devId, uint32_t layerId, const LayerAlpha& alpha) override
+    virtual int32_t SetLayerAlpha(uint32_t devId, uint32_t layerId, const LayerAlpha &alpha) override
     {
         return req_->SetLayerAlpha(devId, layerId, alpha);
     }
 
-    virtual int32_t SetLayerPosition(uint32_t devId, uint32_t layerId, const IRect& rect) override
+    virtual int32_t SetLayerPosition(uint32_t devId, uint32_t layerId, const IRect &rect) override
     {
         return req_->SetLayerPosition(devId, layerId, rect);
     }
 
-    virtual int32_t SetLayerCrop(uint32_t devId, uint32_t layerId, const IRect& rect) override
+    virtual int32_t SetLayerCrop(uint32_t devId, uint32_t layerId, const IRect &rect) override
     {
         return req_->SetLayerCrop(devId, layerId, rect);
     }
@@ -244,26 +233,22 @@ public:
         return req_->SetTransformMode(devId, layerId, type);
     }
 
-    virtual int32_t SetLayerDirtyRegion(uint32_t devId, uint32_t layerId,
-        const IRect& region) override
+    virtual int32_t SetLayerDirtyRegion(uint32_t devId, uint32_t layerId, const IRect &region) override
     {
         return req_->SetLayerDirtyRegion(devId, layerId, region);
     }
 
-    virtual int32_t SetLayerVisibleRegion(uint32_t devId, uint32_t layerId,
-        std::vector<IRect>& rects) override
+    virtual int32_t SetLayerVisibleRegion(uint32_t devId, uint32_t layerId, std::vector<IRect> &rects) override
     {
         return req_->SetLayerVisibleRegion(devId, layerId, rects);
     }
 
-    virtual int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId,
-        BufferHandle& buffer, int32_t fence) override
+    virtual int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, BufferHandle &buffer, int32_t fence) override
     {
         return req_->SetLayerBuffer(devId, layerId, buffer, fence);
     }
 
-    virtual int32_t SetLayerCompositionType(uint32_t devId, uint32_t layerId,
-        CompositionType type) override
+    virtual int32_t SetLayerCompositionType(uint32_t devId, uint32_t layerId, CompositionType type) override
     {
         return req_->SetLayerCompositionType(devId, layerId, type);
     }
@@ -306,18 +291,17 @@ public:
     }
 
 private:
-    sptr<Hdi> hdi_;
+    sptr<CompHdi> hdi_;
     std::shared_ptr<CmdReq> req_;
     HotPlugCallback hotPlugCb_;
     VBlankCallback vBlankCb_;
-    void* hotPlugCbData_;
-    void* vBlankCbData_;
+    void *hotPlugCbData_;
+    void *vBlankCbData_;
 };
-using HdiDisplayComposer =
-    DisplayComposerHdiImpl<IDisplayComposerInterface, IDisplayComposer, HdiDisplayCmdRequester>;
-} // V1_0
-} // Composer
-} // Display
-} // HDI
-} // OHOS
+using HdiDisplayComposer = DisplayComposerHdiImpl<IDisplayComposerInterface, IDisplayComposer, HdiDisplayCmdRequester>;
+} // namespace V1_0
+} // namespace Composer
+} // namespace Display
+} // namespace HDI
+} // namespace OHOS
 #endif // OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H

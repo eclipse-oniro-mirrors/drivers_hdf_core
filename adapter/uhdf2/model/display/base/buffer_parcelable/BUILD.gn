@@ -16,7 +16,6 @@ import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 config("bufferhandle_parcelable_config") {
   include_dirs = [
-    "//drivers/hdf_core/adapter/uhdf2/model/display/base/buffer_parcelable",
     "//drivers/hdf_core/framework/include/utils",
     "//drivers/hdf_core/adapter/uhdf2/osal/include",
     "//drivers/peripheral/base",
@@ -28,20 +27,9 @@ ohos_shared_library("libbufferhandle_parcelable") {
 
   public_configs = [ ":bufferhandle_parcelable_config" ]
 
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
-
-  deps = []
-
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "utils_base:utils",
   ]
 

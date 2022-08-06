@@ -25,8 +25,8 @@ namespace HDI {
 namespace Display {
 class CommandDataPacker {
 public:
-    CommandDataPacker() : packSize_(0), writePos_(0), curSecOffset_(0),
-        settingSecLen_(0), curSecLenPos_(0), data_(nullptr)
+    CommandDataPacker() :
+        packSize_(0), writePos_(0), curSecOffset_(0), settingSecLen_(0), curSecLenPos_(0), data_(nullptr)
     {
     }
 
@@ -41,7 +41,7 @@ public:
     {
         bool ret = true;
         packSize_ = size;
-        uint32_t alignedSize = (packSize_ + ALLOC_PAGE_SIZE -1) & (~(ALLOC_PAGE_SIZE - 1));
+        uint32_t alignedSize = (packSize_ + ALLOC_PAGE_SIZE - 1) & (~(ALLOC_PAGE_SIZE - 1));
         data_ = new char[alignedSize]();
         if (data_ == nullptr) {
             HDF_LOGE("%{public}s: alloc memory failed", __func__);
@@ -87,7 +87,7 @@ public:
         return packSize_;
     }
 
-    char* GetDataPtr()
+    char *GetDataPtr()
     {
         return data_;
     }
@@ -137,8 +137,8 @@ public:
             *reinterpret_cast<uint32_t *>(data_ + curSecLenPos_) = updatedLen;
             writePos_ = curSecOffset_ + updatedLen;
         } else {
-            HDF_LOGE("%{public}s: writePos_(%{public}zu) before curSecOffset_(%{public}zu)",
-                __func__, writePos_, curSecOffset_);
+            HDF_LOGE("%{public}s: writePos_(%{public}zu) before curSecOffset_(%{public}zu)", __func__, writePos_,
+                curSecOffset_);
             return false;
         }
         return (writePos_ >= packSize_ ? false : true);
@@ -148,8 +148,8 @@ public:
     {
         bool ret = WriteInt32(endCmd);
         if (writePos_ >= packSize_) {
-            HDF_LOGE("%{public}s: writePos_(%{public}zu) > packSize_(%{public}zu), write overflow.",
-                __func__, writePos_, curSecOffset_);
+            HDF_LOGE("%{public}s: writePos_(%{public}zu) > packSize_(%{public}zu), write overflow.", __func__,
+                writePos_, curSecOffset_);
             ret = false;
         }
         return ret;
@@ -175,7 +175,8 @@ public:
                 HDF_LOGI("\n");
             } else if ((i % DUMP_HALF_LINE_SPACE) == 0) {
                 HDF_LOGI(" ");
-            } else {}
+            } else {
+            }
         }
         HDF_LOGI("\n");
     }
@@ -189,7 +190,7 @@ private:
         if (newSize > packSize_) {
             newSize = (newSize + ALLOC_PAGE_SIZE - 1) & (~(ALLOC_PAGE_SIZE - 1));
 
-            char* newData = new char[newSize];
+            char *newData = new char[newSize];
             if (memcpy_s(newData, newSize, data_, packSize_) != EOK) {
                 HDF_LOGE("%{public}s: memcpy_s failed", __func__);
                 return false;
@@ -219,9 +220,9 @@ private:
     size_t curSecOffset_;
     uint32_t settingSecLen_;
     size_t curSecLenPos_;
-    char* data_;
+    char *data_;
 };
-} // Display
-} // HDI
-} // OHOS
+} // namespace Display
+} // namespace HDI
+} // namespace OHOS
 #endif // DISPLAY_COMMAND_DATA_PACKER_H_

@@ -25,18 +25,22 @@ DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
 {
     allocator_ = IAllocatorInterface::Get(isAllocLocal);
     if (allocator_ == nullptr) {
-        HDF_LOGE("error: get IAllocatorInterface failure");
+        HDF_LOGE("%{public}s: get IAllocatorInterface failure", __func__);
         return;
     }
     mapper_ = IMapperInterface::Get(true);
     if (mapper_ == nullptr) {
-        HDF_LOGE("error: get IMapperInterface failure");
+        HDF_LOGE("%{public}s: get IMapperInterface failure", __func__);
     }
 }
 
-int32_t DisplayBufferHdiImpl::AllocMem(const AllocInfo& info, BufferHandle*& handle) const
+int32_t DisplayBufferHdiImpl::AllocMem(const AllocInfo &info, BufferHandle *&handle) const
 {
     sptr<BufferHandleParcelable> hdiBuffer;
+    if (allocator_ == nullptr) {
+        HDF_LOGE("%{public}s: allocator_ is nullptr", __func__);
+        return -1;
+    }
     int32_t ret = allocator_->AllocMem(info, hdiBuffer);
     if (ret == HDF_SUCCESS) {
         handle = hdiBuffer->Move();
@@ -46,71 +50,92 @@ int32_t DisplayBufferHdiImpl::AllocMem(const AllocInfo& info, BufferHandle*& han
     return ret;
 }
 
-void DisplayBufferHdiImpl::FreeMem(const BufferHandle& handle) const
+void DisplayBufferHdiImpl::FreeMem(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return -1;
+    }
     mapper_->FreeMem(hdiBuffer);
 }
 
-void* DisplayBufferHdiImpl::Mmap(const BufferHandle& handle) const
+void *DisplayBufferHdiImpl::Mmap(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return nullptr;
+    }
     int32_t ret = mapper_->Mmap(hdiBuffer);
     (void)hdiBuffer->Move();
     void *virAddr = (ret == HDF_SUCCESS ? handle.virAddr : nullptr);
     return virAddr;
 }
 
-void* DisplayBufferHdiImpl::MmapCache(const BufferHandle& handle) const
+void *DisplayBufferHdiImpl::MmapCache(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return nullptr;
+    }
     int32_t ret = mapper_->MmapCache(hdiBuffer);
     (void)hdiBuffer->Move();
     void *virAddr = (ret == HDF_SUCCESS ? handle.virAddr : nullptr);
     return virAddr;
 }
 
-int32_t DisplayBufferHdiImpl::Unmap(const BufferHandle& handle) const
+int32_t DisplayBufferHdiImpl::Unmap(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return nullptr;
+    }
     int32_t ret = mapper_->Unmap(hdiBuffer);
     (void)hdiBuffer->Move();
     return ret;
 }
 
-int32_t DisplayBufferHdiImpl::FlushCache(const BufferHandle& handle) const
+int32_t DisplayBufferHdiImpl::FlushCache(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return nullptr;
+    }
     int32_t ret = mapper_->FlushCache(hdiBuffer);
     (void)hdiBuffer->Move();
     return ret;
 }
 
-int32_t DisplayBufferHdiImpl::FlushMCache(const BufferHandle& handle) const
+int32_t DisplayBufferHdiImpl::FlushMCache(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return nullptr;
+    }
     int32_t ret = mapper_->FlushMCache(hdiBuffer);
     (void)hdiBuffer->Move();
     return ret;
 }
 
-int32_t DisplayBufferHdiImpl::InvalidateCache(const BufferHandle& handle) const
+int32_t DisplayBufferHdiImpl::InvalidateCache(const BufferHandle &handle) const
 {
-    sptr<BufferHandleParcelable> hdiBuffer =
-        new BufferHandleParcelable(const_cast<BufferHandle&>(handle));
+    sptr<BufferHandleParcelable> hdiBuffer = new BufferHandleParcelable(const_cast<BufferHandle &>(handle));
+    if (mapper_ == nullptr) {
+        HDF_LOGE("%{public}s: mapper_ is nullptr", __func__);
+        return nullptr;
+    }
     int32_t ret = mapper_->InvalidateCache(hdiBuffer);
     (void)hdiBuffer->Move();
     return ret;
 }
 
-int32_t DisplayBufferHdiImpl::IsSupportedAlloc(const std::vector<VerifyAllocInfo> &infos,
-    std::vector<bool> &supporteds) const
+int32_t DisplayBufferHdiImpl::IsSupportedAlloc(
+    const std::vector<VerifyAllocInfo> &infos, std::vector<bool> &supporteds) const
 {
     (void)infos;
     (void)supporteds;

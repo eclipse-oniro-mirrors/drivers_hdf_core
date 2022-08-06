@@ -23,8 +23,8 @@ namespace OHOS {
 namespace HDI {
 namespace Sequenceable {
 namespace V1_0 {
-using OHOS::Parcelable;
 using OHOS::Parcel;
+using OHOS::Parcelable;
 using OHOS::sptr;
 
 class BufferHandleSequenceable : public Parcelable {
@@ -32,7 +32,7 @@ public:
     BufferHandleSequenceable();
     explicit BufferHandleSequenceable(BufferHandle *bufferHandle);
     virtual ~BufferHandleSequenceable();
-    
+
     bool Marshalling(Parcel &parcel) const override;
     static sptr<BufferHandleSequenceable> Unmarshalling(Parcel &parcel);
 

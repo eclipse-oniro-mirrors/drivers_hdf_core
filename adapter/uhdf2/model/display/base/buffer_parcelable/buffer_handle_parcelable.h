@@ -16,10 +16,10 @@
 #ifndef OHOS_HDI_BUFFER_HANDLE_PARCELABLE_H
 #define OHOS_HDI_BUFFER_HANDLE_PARCELABLE_H
 
-#include <message_parcel.h>
 #include <string>
 #include <vector>
 #include "buffer_handle.h"
+#include <message_parcel.h>
 
 namespace OHOS {
 namespace HDI {
@@ -29,27 +29,27 @@ using namespace OHOS;
 class BufferHandleParcelable : public Parcelable {
 public:
     BufferHandleParcelable();
-    explicit BufferHandleParcelable(BufferHandle& handle);
+    explicit BufferHandleParcelable(BufferHandle &handle);
     virtual ~BufferHandleParcelable();
 
-    bool Init(const BufferHandle& handle);
-    bool ExtractFromParcel(Parcel& parcel);
-    bool Marshalling(Parcel& parcel) const override;
-    static sptr<BufferHandleParcelable> Unmarshalling(Parcel& parcel);
-    BufferHandle* GetBufferHandle();
-    BufferHandle* Move();
+    bool Init(const BufferHandle &handle);
+    bool ExtractFromParcel(Parcel &parcel);
+    bool Marshalling(Parcel &parcel) const override;
+    static sptr<BufferHandleParcelable> Unmarshalling(Parcel &parcel);
+    BufferHandle *GetBufferHandle();
+    BufferHandle *Move();
     std::string Dump() const;
 
 private:
-    static bool WriteFileDescriptor(const int fd, Parcel& parcel);
-    static int ReadFileDescriptor(Parcel& parcel);
-    static void FreeBufferHandle(BufferHandle* handle);
+    static bool WriteFileDescriptor(const int fd, Parcel &parcel);
+    static int ReadFileDescriptor(Parcel &parcel);
+    static void FreeBufferHandle(BufferHandle *handle);
 
 private:
     bool init_;
-    BufferHandle* handle_;
+    BufferHandle *handle_;
 };
-} // Display
-} // HDI
-} // OHOS
+} // namespace Display
+} // namespace HDI
+} // namespace OHOS
 #endif // OHOS_HDI_BUFFER_HANDLE_PARCELABLE_H

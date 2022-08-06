@@ -16,22 +16,16 @@
 #include "buffer_handle_parcelable.h"
 #include <memory>
 #include <sstream>
-#include "securec.h"
 #include "hdf_log.h"
 #include "ipc_file_descriptor.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace HDI {
 namespace Display {
-BufferHandleParcelable::BufferHandleParcelable()
-    : init_(false), handle_(nullptr)
-{
-}
+BufferHandleParcelable::BufferHandleParcelable() : init_(false), handle_(nullptr) {}
 
-BufferHandleParcelable::BufferHandleParcelable(BufferHandle& handle)
-    : init_(true), handle_(&handle)
-{
-}
+BufferHandleParcelable::BufferHandleParcelable(BufferHandle &handle) : init_(true), handle_(&handle) {}
 
 BufferHandleParcelable::~BufferHandleParcelable()
 {
@@ -41,23 +35,22 @@ BufferHandleParcelable::~BufferHandleParcelable()
     FreeBufferHandle(handle_);
 }
 
-bool BufferHandleParcelable::Init(const BufferHandle& handle)
+bool BufferHandleParcelable::Init(const BufferHandle &handle)
 {
     if (init_ == true) {
-        HDF_LOGE("bufferhandle parcel have been initialized.");
+        HDF_LOGW("%{public}s: bufferhandle parcel have been initialized", __func__);
         return false;
     }
 
-    size_t handleSize = sizeof(BufferHandle) + (sizeof(int32_t) *
-        (handle.reserveFds + handle.reserveInts));
+    size_t handleSize = sizeof(BufferHandle) + (sizeof(int32_t) * (handle.reserveFds + handle.reserveInts));
     handle_ = static_cast<BufferHandle *>(malloc(handleSize));
     if (handle_ == nullptr) {
-        HDF_LOGE("InitBufferHandle malloc %zu failed", handleSize);
+        HDF_LOGE("%{public}s: InitBufferHandle malloc %zu failed", __func__, handleSize);
         return false;
     }
 
     if (memcpy_s(handle_, handleSize, &handle, handleSize) != EOK) {
-        HDF_LOGE("clone bufferhandle failed");
+        HDF_LOGE("%{public}s: clone bufferhandle failed", __func__);
         return false;
     }
 
@@ -66,7 +59,7 @@ bool BufferHandleParcelable::Init(const BufferHandle& handle)
     } else {
         handle_->fd = dup(handle.fd);
         if (handle_->fd == -1) {
-            HDF_LOGE("bufferhandle dup fd failed");
+            HDF_LOGE("%{public}s: bufferhandle dup fd failed", __func__);
             free(handle_);
             handle_ = nullptr;
             return false;
@@ -86,7 +79,7 @@ bool BufferHandleParcelable::Init(const BufferHandle& handle)
     return true;
 }
 
-bool BufferHandleParcelable::Marshalling(Parcel& parcel) const
+bool BufferHandleParcelable::Marshalling(Parcel &parcel) const
 {
     if (handle_ == nullptr) {
         parcel.WriteBool(false);
@@ -97,7 +90,7 @@ bool BufferHandleParcelable::Marshalling(Parcel& parcel) const
         !parcel.WriteInt32(handle_->height) || !parcel.WriteInt32(handle_->size) ||
         !parcel.WriteInt32(handle_->format) || !parcel.WriteInt64(handle_->usage) ||
         !parcel.WriteUint64(handle_->phyAddr) || !parcel.WriteInt32(handle_->key)) {
-        HDF_LOGE("%{public}s a lot failed", __func__);
+        HDF_LOGE("%{public}s: a lot failed", __func__);
         return false;
     }
     bool validFd = (handle_->fd >= 0);
@@ -125,7 +118,7 @@ bool BufferHandleParcelable::Marshalling(Parcel& parcel) const
     return true;
 }
 
-bool BufferHandleParcelable::ExtractFromParcel(Parcel& parcel)
+bool BufferHandleParcelable::ExtractFromParcel(Parcel &parcel)
 {
     if (init_ == true) {
         HDF_LOGI("%{public}s: bufferhandle parcel have been initialized", __func__);
@@ -151,9 +144,8 @@ bool BufferHandleParcelable::ExtractFromParcel(Parcel& parcel)
     handle_->reserveFds = reserveFds;
     handle_->reserveInts = reserveInts;
     bool validFd = false;
-    if (!parcel.ReadInt32(handle_->width) || !parcel.ReadInt32(handle_->stride) ||
-        !parcel.ReadInt32(handle_->height) || !parcel.ReadInt32(handle_->size) ||
-        !parcel.ReadInt32(handle_->format) || !parcel.ReadUint64(handle_->usage) ||
+    if (!parcel.ReadInt32(handle_->width) || !parcel.ReadInt32(handle_->stride) || !parcel.ReadInt32(handle_->height) ||
+        !parcel.ReadInt32(handle_->size) || !parcel.ReadInt32(handle_->format) || !parcel.ReadUint64(handle_->usage) ||
         !parcel.ReadUint64(handle_->phyAddr) || !parcel.ReadInt32(handle_->key) || !parcel.ReadBool(validFd)) {
         HDF_LOGE("%{public}s: parcel read failed", __func__);
         return false;
@@ -184,7 +176,7 @@ bool BufferHandleParcelable::ExtractFromParcel(Parcel& parcel)
     return true;
 }
 
-sptr<BufferHandleParcelable> BufferHandleParcelable::Unmarshalling(Parcel& parcel)
+sptr<BufferHandleParcelable> BufferHandleParcelable::Unmarshalling(Parcel &parcel)
 {
     sptr<BufferHandleParcelable> newParcelable = new BufferHandleParcelable();
     bool ret = newParcelable->ExtractFromParcel(parcel);
@@ -196,20 +188,20 @@ sptr<BufferHandleParcelable> BufferHandleParcelable::Unmarshalling(Parcel& parce
     return newParcelable;
 }
 
-BufferHandle* BufferHandleParcelable::GetBufferHandle()
+BufferHandle *BufferHandleParcelable::GetBufferHandle()
 {
     return handle_;
 }
 
-BufferHandle* BufferHandleParcelable::Move()
+BufferHandle *BufferHandleParcelable::Move()
 {
-    BufferHandle* handlePtr = handle_;
+    BufferHandle *handlePtr = handle_;
     handle_ = nullptr;
     init_ = false;
     return handlePtr;
 }
 
-bool BufferHandleParcelable::WriteFileDescriptor(const int fd, Parcel& parcel)
+bool BufferHandleParcelable::WriteFileDescriptor(const int fd, Parcel &parcel)
 {
     if (fd < 0) {
         return false;
@@ -226,7 +218,7 @@ bool BufferHandleParcelable::WriteFileDescriptor(const int fd, Parcel& parcel)
     return parcel.WriteObject<IPCFileDescriptor>(descriptor);
 }
 
-int BufferHandleParcelable::ReadFileDescriptor(Parcel& parcel)
+int BufferHandleParcelable::ReadFileDescriptor(Parcel &parcel)
 {
     sptr<IPCFileDescriptor> descriptor = parcel.ReadObject<IPCFileDescriptor>();
     if (descriptor == nullptr) {
@@ -239,7 +231,7 @@ int BufferHandleParcelable::ReadFileDescriptor(Parcel& parcel)
     return dup(fd);
 }
 
-void BufferHandleParcelable::FreeBufferHandle(BufferHandle* handle)
+void BufferHandleParcelable::FreeBufferHandle(BufferHandle *handle)
 {
     if (handle->fd != -1) {
         close(handle->fd);
@@ -282,6 +274,6 @@ std::string BufferHandleParcelable::Dump() const
     os << "}\n";
     return os.str();
 }
-} // Display
-} // HDI
-} // OHOS
+} // namespace Display
+} // namespace HDI
+} // namespace OHOS
