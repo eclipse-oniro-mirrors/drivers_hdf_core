@@ -14,7 +14,6 @@
  */
 
 #include "hdifd_parcelable.h"
-
 #include <memory>
 #include <sstream>
 #include <unistd.h>
@@ -47,7 +46,7 @@ bool HdifdParcelable::Init(int32_t fd)
     bool ret = true;
 
     if (init_ == true) {
-        HDF_LOGE("fd parcelable have been initialized.");
+        HDF_LOGI("%{public}s: fd parcelable have been initialized", __func__);
         ret = false;
     } else {
         if (fd < 0) {
@@ -56,13 +55,11 @@ bool HdifdParcelable::Init(int32_t fd)
             hdiFd_ = dup(fd);
             ret = (hdiFd_ < 0) ? false : true;
         }
-        if (ret == false)
-        {
+        if (ret == false) {
             return ret;
         }
         init_ = true;
     }
-
     return ret;
 }
 
@@ -78,7 +75,7 @@ bool HdifdParcelable::WriteFileDescriptor(const int fd, Parcel& parcel)
 
     sptr<IPCFileDescriptor> descriptor = new (std::nothrow) IPCFileDescriptor(dupFd);
     if (descriptor == nullptr) {
-        HDF_LOGE("create IPCFileDescriptor object failed");
+        HDF_LOGE("%{public}s: create IPCFileDescriptor object failed", __func__);
         return false;
     }
     return parcel.WriteObject<IPCFileDescriptor>(descriptor);
@@ -101,11 +98,11 @@ bool HdifdParcelable::Marshalling(Parcel& parcel) const
 {
     bool validFlag = (hdiFd_ >= 0);
     if (!parcel.WriteBool(validFlag)) {
-        HDF_LOGE("%{public}s parcel.WriteBool failed", __func__);
+        HDF_LOGE("%{public}s: parcel.WriteBool failed", __func__);
         return false;
     }
     if (validFlag && !WriteFileDescriptor(hdiFd_, parcel)) {
-        HDF_LOGE("%{public}s parcel.WriteFileDescriptor fd failed", __func__);
+        HDF_LOGE("%{public}s: parcel.WriteFileDescriptor fd failed", __func__);
         return false;
     }
     return true;
@@ -115,14 +112,14 @@ sptr<HdifdParcelable> HdifdParcelable::Unmarshalling(Parcel& parcel)
 {
     bool validFlag = false;
     if (!parcel.ReadBool(validFlag)) {
-        HDF_LOGE("%{public}s ReadBool validFlag failed", __func__);
+        HDF_LOGE("%{public}s: ReadBool validFlag failed", __func__);
         return nullptr;
     }
     int32_t fd = -1;
     if (validFlag) {
         fd = ReadFileDescriptor(parcel);
         if (fd < 0) {
-            HDF_LOGE("%{public}s ReadFileDescriptor fd failed", __func__);
+            HDF_LOGE("%{public}s: ReadFileDescriptor fd failed", __func__);
             return nullptr;
         }
     }
@@ -145,9 +142,7 @@ int32_t HdifdParcelable::Move()
 std::string HdifdParcelable::Dump() const
 {
     std::stringstream os;
-
     os << "fd: {" << hdiFd_ << "}\n";
-
     return os.str();
 }
 } // Display

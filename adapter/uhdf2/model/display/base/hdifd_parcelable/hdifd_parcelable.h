@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_HDIFD_PARCELABLE
-#define OHOS_HDI_HDIFD_PARCELABLE
+#ifndef OHOS_HDI_HDIFD_PARCELABLE_H
+#define OHOS_HDI_HDIFD_PARCELABLE_H
 
 #include <string>
 #include <vector>
@@ -50,4 +50,4 @@ private:
 } // Display
 } // HDI
 } // OHOS
-#endif // OHOS_HDI_HDIFD_PARCELABLE
+#endif // OHOS_HDI_HDIFD_PARCELABLE_H

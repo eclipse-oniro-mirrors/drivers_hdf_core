@@ -14,10 +14,8 @@
  */
 
 #include "buffer_handle_parcelable.h"
-
 #include <memory>
 #include <sstream>
-#include <unistd.h>
 #include "securec.h"
 #include "hdf_log.h"
 #include "ipc_file_descriptor.h"
@@ -130,7 +128,7 @@ bool BufferHandleParcelable::Marshalling(Parcel& parcel) const
 bool BufferHandleParcelable::ExtractFromParcel(Parcel& parcel)
 {
     if (init_ == true) {
-        HDF_LOGE("bufferhandle parcel have been initialized.");
+        HDF_LOGI("%{public}s: bufferhandle parcel have been initialized", __func__);
         return false;
     }
     auto hasVal = parcel.ReadBool();
@@ -141,29 +139,30 @@ bool BufferHandleParcelable::ExtractFromParcel(Parcel& parcel)
     uint32_t reserveFds = 0;
     uint32_t reserveInts = 0;
     if (!parcel.ReadUint32(reserveFds) || !parcel.ReadUint32(reserveInts)) {
-        HDF_LOGE("%{public}s parcel.ReadUint32 reserveFds failed", __func__);
+        HDF_LOGE("%{public}s: parcel.ReadUint32 reserveFds failed", __func__);
         return false;
     }
     size_t handleSize = sizeof(BufferHandle) + (sizeof(int32_t) * (reserveFds + reserveInts));
     handle_ = static_cast<BufferHandle *>(malloc(handleSize));
     if (handle_ == nullptr) {
-        HDF_LOGE("BufferHandle malloc %zu failed", handleSize);
+        HDF_LOGE("%{public}s: BufferHandle malloc %zu failed", __func__, handleSize);
         return false;
     }
     handle_->reserveFds = reserveFds;
     handle_->reserveInts = reserveInts;
     bool validFd = false;
-    if (!parcel.ReadInt32(handle_->width) || !parcel.ReadInt32(handle_->stride) || !parcel.ReadInt32(handle_->height) ||
-        !parcel.ReadInt32(handle_->size) || !parcel.ReadInt32(handle_->format) || !parcel.ReadUint64(handle_->usage) ||
+    if (!parcel.ReadInt32(handle_->width) || !parcel.ReadInt32(handle_->stride) ||
+        !parcel.ReadInt32(handle_->height) || !parcel.ReadInt32(handle_->size) ||
+        !parcel.ReadInt32(handle_->format) || !parcel.ReadUint64(handle_->usage) ||
         !parcel.ReadUint64(handle_->phyAddr) || !parcel.ReadInt32(handle_->key) || !parcel.ReadBool(validFd)) {
-        HDF_LOGE("%{public}s parcel read failed", __func__);
+        HDF_LOGE("%{public}s: parcel read failed", __func__);
         return false;
     }
     handle_->virAddr = 0;
     if (validFd) {
         handle_->fd = ReadFileDescriptor(parcel);
         if (handle_->fd == -1) {
-            HDF_LOGE("%{public}s ReadFileDescriptor fd failed", __func__);
+            HDF_LOGE("%{public}s: ReadFileDescriptor fd failed", __func__);
             return false;
         }
     }
@@ -171,14 +170,14 @@ bool BufferHandleParcelable::ExtractFromParcel(Parcel& parcel)
         handle_->reserve[i] = ReadFileDescriptor(parcel);
         if (handle_->reserve[i] == -1) {
             FreeBufferHandle(handle_);
-            HDF_LOGE("%{public}s ReadFileDescriptor reserve failed", __func__);
+            HDF_LOGE("%{public}s: ReadFileDescriptor reserve failed", __func__);
             return false;
         }
     }
     for (uint32_t j = 0; j < handle_->reserveInts; j++) {
         if (!parcel.ReadInt32(handle_->reserve[reserveFds + j])) {
             FreeBufferHandle(handle_);
-            HDF_LOGE("%{public}s ReadInt32 reserve failed", __func__);
+            HDF_LOGE("%{public}s: ReadInt32 reserve failed", __func__);
             return false;
         }
     }
@@ -221,7 +220,7 @@ bool BufferHandleParcelable::WriteFileDescriptor(const int fd, Parcel& parcel)
     }
     sptr<IPCFileDescriptor> descriptor = new (std::nothrow) IPCFileDescriptor(dupFd);
     if (descriptor == nullptr) {
-        HDF_LOGE("create IPCFileDescriptor object failed");
+        HDF_LOGE("%{public}s: create IPCFileDescriptor object failed", __func__);
         return false;
     }
     return parcel.WriteObject<IPCFileDescriptor>(descriptor);
@@ -281,7 +280,6 @@ std::string BufferHandleParcelable::Dump() const
     }
 
     os << "}\n";
-
     return os.str();
 }
 } // Display

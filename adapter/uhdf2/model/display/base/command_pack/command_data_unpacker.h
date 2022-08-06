@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef _COMMAND_DATA_UNPACKER_H_
-#define _COMMAND_DATA_UNPACKER_H_
+#ifndef DISPLAY_COMMAND_DATA_UNPACKER_H_
+#define DISPLAY_COMMAND_DATA_UNPACKER_H_
 
 #include <memory>
-
 #include "hdf_log.h"
 
 namespace OHOS {
@@ -187,4 +186,4 @@ private:
 } // Display
 } // HDI
 } // OHOS
-#endif
+#endif // DISPLAY_COMMAND_DATA_UNPACKER_H_

@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_BUFFER_HANDLE_PARCELABLE
-#define OHOS_HDI_BUFFER_HANDLE_PARCELABLE
+#ifndef OHOS_HDI_BUFFER_HANDLE_PARCELABLE_H
+#define OHOS_HDI_BUFFER_HANDLE_PARCELABLE_H
 
 #include <message_parcel.h>
 #include <string>
 #include <vector>
-
 #include "buffer_handle.h"
 
 namespace OHOS {
@@ -53,4 +52,4 @@ private:
 } // Display
 } // HDI
 } // OHOS
-#endif // OHOS_HDI_BUFFER_HANDLE_PARCELABLE
+#endif // OHOS_HDI_BUFFER_HANDLE_PARCELABLE_H

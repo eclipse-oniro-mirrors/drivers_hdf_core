@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef _DISPLAY_DATA_PACKER_H_
-#define _DISPLAY_DATA_PACKER_H_
+#ifndef DISPLAY_COMMAND_DATA_PACKER_H_
+#define DISPLAY_COMMAND_DATA_PACKER_H_
 
 #include <memory>
 #include <securec.h>
@@ -25,13 +25,8 @@ namespace HDI {
 namespace Display {
 class CommandDataPacker {
 public:
-    CommandDataPacker()
-        : packSize_(0),
-        writePos_(0),
-        curSecOffset_(0),
-        settingSecLen_(0),
-        curSecLenPos_(0),
-        data_(nullptr)
+    CommandDataPacker() : packSize_(0), writePos_(0), curSecOffset_(0),
+        settingSecLen_(0), curSecLenPos_(0), data_(nullptr)
     {
     }
 
@@ -49,7 +44,7 @@ public:
         uint32_t alignedSize = (packSize_ + ALLOC_PAGE_SIZE -1) & (~(ALLOC_PAGE_SIZE - 1));
         data_ = new char[alignedSize]();
         if (data_ == nullptr) {
-            HDF_LOGE("memory alloc failed.");
+            HDF_LOGE("%{public}s: alloc memory failed", __func__);
             ret = false;
         } else {
             packSize_ = alignedSize;
@@ -111,7 +106,7 @@ public:
         bool ret = false;
         // len must be 4 byte alignment.
         if ((len & SECTION_LEN_ALIGN - 1) != 0) {
-            HDF_LOGE("error: length is not aligned by 4 bytes.");
+            HDF_LOGE("%{public}s: length is not aligned by 4 bytes", __func__);
         } else {
             ret = true;
         }
@@ -123,7 +118,7 @@ public:
             } else if (WriteInt32(cmdId) == true) {
                 curSecLenPos_ = writePos_;
                 settingSecLen_ = len;
-                // Now we don't write Section len here,
+                // Now we don't write section len here,
                 // but write it on EndSection.
                 writePos_ += sizeof(uint32_t);
             } else {
@@ -142,8 +137,8 @@ public:
             *reinterpret_cast<uint32_t *>(data_ + curSecLenPos_) = updatedLen;
             writePos_ = curSecOffset_ + updatedLen;
         } else {
-            HDF_LOGE("error: writePos_(%{public}zu) before curSecOffset_(%{public}zu).",
-                writePos_, curSecOffset_);
+            HDF_LOGE("%{public}s: writePos_(%{public}zu) before curSecOffset_(%{public}zu)",
+                __func__, writePos_, curSecOffset_);
             return false;
         }
         return (writePos_ >= packSize_ ? false : true);
@@ -153,11 +148,10 @@ public:
     {
         bool ret = WriteInt32(endCmd);
         if (writePos_ >= packSize_) {
-            HDF_LOGE("error: writePos_(%{public}zu) > packSize_(%{public}zu), write overflow.",
-                writePos_, curSecOffset_);
+            HDF_LOGE("%{public}s: writePos_(%{public}zu) > packSize_(%{public}zu), write overflow.",
+                __func__, writePos_, curSecOffset_);
             ret = false;
         }
-
         return ret;
     }
 
@@ -177,27 +171,27 @@ public:
         for (; sizeof(int32_t) * i < writePos_;) {
             HDF_LOGI("%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));
             i++;
-            if (i % DUMP_LINE_LEN == 0) {
+            if ((i % DUMP_LINE_LEN) == 0) {
                 HDF_LOGI("\n");
-            } else if (i % DUMP_HALF_LINE_SPACE  == 0) {
+            } else if ((i % DUMP_HALF_LINE_SPACE) == 0) {
                 HDF_LOGI(" ");
             } else {}
         }
         HDF_LOGI("\n");
     }
+
 private:
     template <typename T>
     bool Write(T value)
     {
         size_t writeSize = sizeof(T);
-
         size_t newSize = writePos_ + writeSize;
         if (newSize > packSize_) {
             newSize = (newSize + ALLOC_PAGE_SIZE - 1) & (~(ALLOC_PAGE_SIZE - 1));
 
             char* newData = new char[newSize];
             if (memcpy_s(newData, newSize, data_, packSize_) != EOK) {
-                HDF_LOGE("memcpy_s failed.");
+                HDF_LOGE("%{public}s: memcpy_s failed", __func__);
                 return false;
             }
             data_ = newData;
@@ -230,4 +224,4 @@ private:
 } // Display
 } // HDI
 } // OHOS
-#endif
+#endif // DISPLAY_COMMAND_DATA_PACKER_H_

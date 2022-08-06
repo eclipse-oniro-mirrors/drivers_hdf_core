@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_BUFFER_HANDLE_SEQUENCE_H
-#define OHOS_HDI_BUFFER_HANDLE_SEQUENCE_H
+#ifndef OHOS_HDI_BUFFER_HANDLE_SEQUENCEABLE_H
+#define OHOS_HDI_BUFFER_HANDLE_SEQUENCEABLE_H
 
 #include <parcel.h>
-
 #include "buffer_handle.h"
 
 namespace OHOS {
@@ -47,4 +46,4 @@ private:
 } // namespace Sequenceable
 } // namespace HDI
 } // namespace OHOS
-#endif
+#endif // OHOS_HDI_BUFFER_HANDLE_SEQUENCEABLE_H

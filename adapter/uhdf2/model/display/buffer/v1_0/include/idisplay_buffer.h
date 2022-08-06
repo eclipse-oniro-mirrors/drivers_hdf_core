@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_DISPLAY_V1_0_IDISPLAYBUFFER_H
-#define OHOS_HDI_DISPLAY_V1_0_IDISPLAYBUFFER_H
+#ifndef OHOS_HDI_DISPLAY_V1_0_IDISPLAY_BUFFER_H
+#define OHOS_HDI_DISPLAY_V1_0_IDISPLAY_BUFFER_H
 
 #include <vector>
 #include "buffer_handle.h"
@@ -160,4 +160,4 @@ public:
 } // namespace HDI
 } // namespace OHOS
 
-#endif // OHOS_HDI_DISPLAY_V1_0_IDISPLAYBUFFER_H
+#endif // OHOS_HDI_DISPLAY_V1_0_IDISPLAY_BUFFER_H

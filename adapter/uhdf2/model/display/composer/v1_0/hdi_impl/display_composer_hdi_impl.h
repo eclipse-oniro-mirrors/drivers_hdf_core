@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_DISPLAY_V1_0_DISPLAYCOMPOSERHDIIMPL_H
-#define OHOS_HDI_DISPLAY_V1_0_DISPLAYCOMPOSERHDIIMPL_H
+#ifndef OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
+#define OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
 
 #include "hdf_log.h"
 #include "v1_0/display_command/display_cmd_requester.h"
@@ -27,9 +27,6 @@ namespace HDI {
 namespace Display {
 namespace Composer {
 namespace V1_0 {
-#define CHECK_AND_RETURN(x, code) \
-    if (x) { return code; } else { return HDF_FAILURE; }
-
 using namespace OHOS::HDI::Display::Composer::V1_0;
 
 template <typename Interface, typename Hdi, typename CmdReq>
@@ -46,12 +43,8 @@ public:
     }
 
     DisplayComposerHdiImpl(sptr<Hdi> hdi, std::shared_ptr<CmdReq> req)
-        : hdi_(hdi),
-        req_(req),
-        hotPlugCb_(nullptr),
-        vBlankCb_(nullptr),
-        hotPlugCbData_(nullptr),
-        vBlankCbData_(nullptr)
+        : hdi_(hdi), req_(req), hotPlugCb_(nullptr), vBlankCb_(nullptr),
+        hotPlugCbData_(nullptr), vBlankCbData_(nullptr)
     {
     }
 
@@ -59,7 +52,7 @@ public:
     {
     }
 
-    // *** device func
+    // device func
     virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void *data) override
     {
         hotPlugCb_ = cb;
@@ -204,7 +197,7 @@ public:
         return req_->Commit(devId, fence);
     }
 
-    // *** layer func
+    // layer func
     virtual int32_t CreateLayer(uint32_t devId, const LayerInfo& layerInfo,
         uint32_t& layerId) override
     {
@@ -327,4 +320,4 @@ using HdiDisplayComposer =
 } // Display
 } // HDI
 } // OHOS
-#endif // OHOS_HDI_DISPLAY_V1_0_DISPLAYCOMPOSERHDIIMPL_H
+#endif // OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H

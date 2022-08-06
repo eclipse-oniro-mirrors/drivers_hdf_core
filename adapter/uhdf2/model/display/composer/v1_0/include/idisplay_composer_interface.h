@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_DISPLAY_V1_0_IDISPLAYCOMPOSERINTERFACE_H
-#define OHOS_HDI_DISPLAY_V1_0_IDISPLAYCOMPOSERINTERFACE_H
+#ifndef OHOS_HDI_DISPLAY_V1_0_IDISPLAY_COMPOSER_INTERFACE_H
+#define OHOS_HDI_DISPLAY_V1_0_IDISPLAY_COMPOSER_INTERFACE_H
 
 #include <vector>
 #include "display_common.h"
@@ -30,7 +30,7 @@ using namespace OHOS::HDI::Display::Composer::V1_0;
 class IDisplayComposerInterface {
 public:
     virtual ~IDisplayComposerInterface() = default;
-    // *** device func
+    // device func
     virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void *data) = 0;
     virtual int32_t GetDisplayCapability(uint32_t devId, DisplayCapability& info) = 0;
     virtual int32_t GetDisplaySupportedModes(uint32_t devId,
@@ -61,7 +61,7 @@ public:
         const BufferHandle& buffer, const int32_t fence) = 0;
     virtual int32_t SetDisplayProperty(uint32_t devId, uint32_t id, uint64_t value) = 0;
     virtual int32_t Commit(uint32_t devId, int32_t& fence) = 0;
-    // *** layer func
+    // layer func
     virtual int32_t CreateLayer(uint32_t devId, const LayerInfo& layerInfo,
         uint32_t& layerId) = 0;
     virtual int32_t DestroyLayer(uint32_t devId, uint32_t layerId) = 0;
@@ -88,5 +88,4 @@ public:
 } // Display
 } // HDI
 } // OHOS
-
-#endif // OHOS_HDI_DISPLAY_V1_0_IDISPLAYCOMPOSERINTERFACE_H
+#endif // OHOS_HDI_DISPLAY_V1_0_IDISPLAY_COMPOSER_INTERFACE_H
