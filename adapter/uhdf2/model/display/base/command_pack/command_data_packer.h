@@ -25,8 +25,13 @@ namespace HDI {
 namespace Display {
 class CommandDataPacker {
 public:
-    CommandDataPacker() :
-        packSize_(0), writePos_(0), curSecOffset_(0), settingSecLen_(0), curSecLenPos_(0), data_(nullptr)
+    CommandDataPacker()
+        : packSize_(0),
+        writePos_(0),
+        curSecOffset_(0),
+        settingSecLen_(0),
+        curSecLenPos_(0),
+        data_(nullptr)
     {
     }
 

@@ -16,8 +16,8 @@
 #ifndef DISPLAY_COMMAND_DATA_UNPACKER_H_
 #define DISPLAY_COMMAND_DATA_UNPACKER_H_
 
-#include "hdf_log.h"
 #include <memory>
+#include "hdf_log.h"
 
 namespace OHOS {
 namespace HDI {

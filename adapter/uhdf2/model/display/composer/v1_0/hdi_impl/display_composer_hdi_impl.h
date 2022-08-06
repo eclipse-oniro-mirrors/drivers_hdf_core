@@ -39,8 +39,13 @@ public:
         return std::make_unique<DisplayComposerHdiImpl>(hdi, req);
     }
 
-    DisplayComposerHdiImpl(sptr<CompHdi> hdi, std::shared_ptr<CmdReq> req) :
-        hdi_(hdi), req_(req), hotPlugCb_(nullptr), vBlankCb_(nullptr), hotPlugCbData_(nullptr), vBlankCbData_(nullptr)
+    DisplayComposerHdiImpl(sptr<Hdi> hdi, std::shared_ptr<CmdReq> req)
+        : hdi_(hdi),
+        req_(req),
+        hotPlugCb_(nullptr),
+        vBlankCb_(nullptr),
+        hotPlugCbData_(nullptr),
+        vBlankCbData_(nullptr)
     {
     }
 

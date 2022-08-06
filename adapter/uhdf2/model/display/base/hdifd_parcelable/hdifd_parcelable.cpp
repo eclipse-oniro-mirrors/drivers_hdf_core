@@ -14,9 +14,7 @@
  */
 
 #include "hdifd_parcelable.h"
-#include <memory>
 #include <sstream>
-#include <unistd.h>
 #include "securec.h"
 #include "hdf_log.h"
 #include "ipc_file_descriptor.h"
