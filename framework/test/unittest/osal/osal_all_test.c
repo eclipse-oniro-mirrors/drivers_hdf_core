@@ -52,13 +52,17 @@ static int g_threadMuxLockFlag;
 static int32_t g_test1Para = 120;
 static int32_t g_test2Para = 123;
 #define TIME_RANGE 200000
+#define NUMERATOR 15
+#define DENOMINATOR 100
 static bool OsalCheckTime(OsalTimespec *time, uint32_t ms)
 {
     uint64_t t1 = time->sec * HDF_KILO_UNIT * HDF_KILO_UNIT + time->usec;
     uint64_t t2 = (uint64_t)ms * HDF_KILO_UNIT;
     uint64_t diff = (t1 < t2) ? (t2 - t1) : (t1 - t2);
+    uint64_t timeRange = t2 / DENOMINATOR * NUMERATOR;
+    timeRange = (timeRange < TIME_RANGE) ? TIME_RANGE: timeRange;
 
-    return diff < TIME_RANGE;
+    return diff < timeRange;
 }
 
 static int ThreadTest1(void *arg)
