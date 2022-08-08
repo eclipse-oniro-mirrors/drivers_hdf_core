@@ -37,12 +37,23 @@ public:
     static constexpr uint32_t INIT_ELEMENT_COUNT = 32 * 1024;
 
     #define SWITCHCASE(x) case (x): {return #x;}
-    #define PARCEL_WRITE_RET_CHECK(ret, fn, arg)                                              \
-    ret = fn(arg);                                                                            \
-    if (ret == false) {                                                                       \
-        HDF_LOG("%{public}s: parcel write failed, line = %{public}d", __func__, __LINE__);    \
-        return HDF_FAILURE;                                                                   \
-    }
+    #define PARCEL_OPS_CHECK_RET(fn, arg)                                                        \
+    do {                                                                                         \
+        bool ret = fn(arg);                                                                      \
+        if (ret == false) {                                                                      \
+            HDF_LOG("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
+            return HDF_FAILURE;                                                                  \
+        }                                                                                        \
+    } while (0)
+
+    #define PARCEL_OPS_CHECK_WITHOUT_RET(fn, arg, ret)                                           \
+    do {                                                                                         \
+        if (ret) {                                                                               \
+            ret = fn(arg);                                                                       \
+        } else {                                                                                 \
+            HDF_LOG("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
+        }                                                                                        \
+    } while (0)
 
     static const char *CommandToString(int32_t cmdId)
     {
@@ -180,36 +191,34 @@ public:
     static int32_t BufferHandlePack(const BufferHandle &buffer, std::shared_ptr<CommandDataPacker> packer,
         std::vector<HdifdInfo> &hdiFds)
     {
-        int32_t ec = HDF_SUCCESS;
-        bool retVal = true;
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint32, buffer.reserveFds);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint32, buffer.reserveInts);
-        ec = FileDescriptorPack(buffer.fd, packer, hdiFds);
+        PARCEL_OPS_CHECK_RET(packer->WriteUint32, buffer.reserveFds);
+        PARCEL_OPS_CHECK_RET(packer->WriteUint32, buffer.reserveInts);
+        int32_t ec = FileDescriptorPack(buffer.fd, packer, hdiFds);
         if (ec != HDF_SUCCESS) {
             return ec;
         }
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.width);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.stride);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.height);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.size);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.format);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint64, buffer.usage);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint64, buffer.phyAddr);
-        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.key);
-        if (retVal) {
-            int32_t i = 0;
-            for (i = 0; i < buffer.reserveFds; i++) {
-                ec = FileDescriptorPack(buffer.reserve[i], packer, hdiFds);
-                if (ec != HDF_SUCCESS) {
-                    retVal = false;
-                    break;
-                }
+        PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.width);
+        PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.stride);
+        PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.height);
+        PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.size);
+        PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.format);
+        PARCEL_OPS_CHECK_RET(packer->WriteUint64, buffer.usage);
+        PARCEL_OPS_CHECK_RET(packer->WriteUint64, buffer.phyAddr);
+        PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.key);
+
+        bool retVal = true;
+        int32_t i = 0;
+        for (i = 0; i < buffer.reserveFds; i++) {
+            ec = FileDescriptorPack(buffer.reserve[i], packer, hdiFds);
+            if (ec != HDF_SUCCESS) {
+                retVal = false;
+                break;
             }
-            for (int32_t j = 0; j < buffer.reserveInts; j++) {
-                retVal = packer->WriteInt32(buffer.reserve[i++]);
-                if (!retVal) {
-                    break;
-                }
+        }
+        for (int32_t j = 0; j < buffer.reserveInts; j++) {
+            retVal = packer->WriteInt32(buffer.reserve[i++]);
+            if (!retVal) {
+                break;
             }
         }
         return retVal ? HDF_SUCCESS : HDF_FAILURE;
@@ -259,45 +268,23 @@ public:
     {
         uint32_t fdsNum = 0;
         uint32_t intsNum = 0;
-        bool retVal = unpacker->ReadUint32(fdsNum);
-        if (retVal) {
-            retVal = unpacker->ReadUint32(intsNum);
-        }
+        PARCEL_OPS_CHECK_RET(unpacker->ReadUint32, fdsNum);
+        PARCEL_OPS_CHECK_RET(unpacker->ReadUint32, intsNum);
         BufferHandle *handle = AllocateBufferHandle(fdsNum, intsNum);
-        retVal = (handle == nullptr ? false : true);
-        if (retVal) {
-            handle->reserveFds = fdsNum;
-            handle->reserveInts = intsNum;
+        if (handle == nullptr) {
+            return HDF_FAILURE;
         }
-        int32_t ec = HDF_SUCCESS;
-        if (retVal) {
-            ec = FileDescriptorUnpack(unpacker, hdiFds, handle->fd);
-            retVal = (ec == HDF_SUCCESS ? true : false);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadInt32(handle->width);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadInt32(handle->stride);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadInt32(handle->height);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadInt32(handle->size);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadInt32(handle->format);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadUint64(handle->usage);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadUint64(handle->phyAddr);
-        }
-        if (retVal) {
-            retVal = unpacker->ReadInt32(handle->key);
-        }
+        handle->reserveFds = fdsNum;
+        handle->reserveInts = intsNum;
+        int32_t ec = FileDescriptorUnpack(unpacker, hdiFds, handle->fd);
+        bool retVal = (ec == HDF_SUCCESS ? true : false);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->width, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->stride, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->height, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->size, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadUint64, handle->usage, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadUint64, handle->phyAddr, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->key, retVal);
         if (retVal) {
             int32_t i = 0;
             for (i = 0; i < handle->reserveFds; i++) {
@@ -313,6 +300,13 @@ public:
                     break;
                 }
             }
+        }
+        if (!retVal) {
+            if (handle != nullptr) {
+                FreeBufferHandle(handle);
+                handle = nullptr;
+            }
+            HDF_LOGE("%{public}s: buffer handle unpack failed", __func__);
         }
         buffer = handle;
         return retVal ? HDF_SUCCESS : HDF_FAILURE;

@@ -35,10 +35,10 @@ namespace V1_0 {
 using namespace OHOS::HDI::Base;
 using namespace OHOS::HDI::Display::Composer::V1_0;
 
-template <typename Transfer, typename Hdi>
+template <typename Transfer, typename CompHdi>
 class DisplayCmdRequester {
 public:
-    DisplayCmdRequester(sptr<Hdi> hdi)
+    DisplayCmdRequester(sptr<CompHdi> hdi)
         : initFlag_(false),
         hdi_(hdi),
         request_(nullptr),
@@ -47,7 +47,7 @@ public:
     {
     }
 
-    static std::unique_ptr<DisplayCmdRequester> Create(sptr<Hdi> hdi)
+    static std::unique_ptr<DisplayCmdRequester> Create(sptr<CompHdi> hdi)
     {
         auto requester = std::make_unique<DisplayCmdRequester>(hdi);
         auto ret = requester->Init(CmdUtils::INIT_ELEMENT_COUNT);
@@ -564,7 +564,7 @@ private:
 
 private:
     bool initFlag_;
-    sptr<Hdi> hdi_;
+    sptr<CompHdi> hdi_;
     std::shared_ptr<Transfer> request_;
     std::shared_ptr<Transfer> reply_;
     /* Period data */
