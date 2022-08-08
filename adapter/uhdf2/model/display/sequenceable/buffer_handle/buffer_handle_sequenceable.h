@@ -13,19 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HDI_BUFFER_HANDLE_SEQUENCE_H
-#define OHOS_HDI_BUFFER_HANDLE_SEQUENCE_H
+#ifndef OHOS_HDI_BUFFER_HANDLE_SEQUENCEABLE_H
+#define OHOS_HDI_BUFFER_HANDLE_SEQUENCEABLE_H
 
 #include <parcel.h>
-
 #include "buffer_handle.h"
 
 namespace OHOS {
 namespace HDI {
 namespace Sequenceable {
 namespace V1_0 {
-using OHOS::Parcelable;
 using OHOS::Parcel;
+using OHOS::Parcelable;
 using OHOS::sptr;
 
 class BufferHandleSequenceable : public Parcelable {
@@ -33,7 +32,7 @@ public:
     BufferHandleSequenceable();
     explicit BufferHandleSequenceable(BufferHandle *bufferHandle);
     virtual ~BufferHandleSequenceable();
-    
+
     bool Marshalling(Parcel &parcel) const override;
     static sptr<BufferHandleSequenceable> Unmarshalling(Parcel &parcel);
 
@@ -47,4 +46,4 @@ private:
 } // namespace Sequenceable
 } // namespace HDI
 } // namespace OHOS
-#endif
+#endif // OHOS_HDI_BUFFER_HANDLE_SEQUENCEABLE_H

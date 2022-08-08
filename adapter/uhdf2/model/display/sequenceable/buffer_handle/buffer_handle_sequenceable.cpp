@@ -14,7 +14,6 @@
  */
 
 #include "buffer_handle_sequenceable.h"
-
 #include <message_parcel.h>
 #include "buffer_handle_parcel.h"
 
@@ -22,18 +21,11 @@ namespace OHOS {
 namespace HDI {
 namespace Sequenceable {
 namespace V1_0 {
-BufferHandleSequenceable::BufferHandleSequenceable() : bufferHandle_(nullptr)
-{
-}
+BufferHandleSequenceable::BufferHandleSequenceable() : bufferHandle_(nullptr) {}
 
-BufferHandleSequenceable::BufferHandleSequenceable(BufferHandle *bufferHandle)
-    : bufferHandle_(bufferHandle)
-{
-}
+BufferHandleSequenceable::BufferHandleSequenceable(BufferHandle *bufferHandle) : bufferHandle_(bufferHandle) {}
 
-BufferHandleSequenceable::~BufferHandleSequenceable()
-{
-}
+BufferHandleSequenceable::~BufferHandleSequenceable() {}
 
 bool BufferHandleSequenceable::Marshalling(Parcel &parcel) const
 {
@@ -41,13 +33,13 @@ bool BufferHandleSequenceable::Marshalling(Parcel &parcel) const
         return false;
     }
 
-    MessageParcel &reply = static_cast<MessageParcel&>(parcel);
+    MessageParcel &reply = static_cast<MessageParcel &>(parcel);
     return WriteBufferHandle(reply, *bufferHandle_);
 }
 
 sptr<BufferHandleSequenceable> BufferHandleSequenceable::Unmarshalling(Parcel &parcel)
 {
-    MessageParcel &data = static_cast<MessageParcel&>(parcel);
+    MessageParcel &data = static_cast<MessageParcel &>(parcel);
     BufferHandle *bufferHandle = ReadBufferHandle(data);
     if (bufferHandle == nullptr) {
         return nullptr;
