@@ -148,14 +148,12 @@ static int DacTestThreadFunc(void *param)
 int32_t DacTestMultiThread(void)
 {
     int32_t ret;
-    uint32_t time;
+    uint32_t time = 0;
     struct OsalThread thread1, thread2;
     struct OsalThreadParam cfg1, cfg2;
-    int32_t count1, count2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
-    count1 = 0;
-    count2 = 0;
-    time = 0;
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)DacTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
@@ -164,6 +162,7 @@ int32_t DacTestMultiThread(void)
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)DacTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
+        (void)OsalThreadDestroy(&thread1);
         HDF_LOGE("create test thread1 fail:%d", ret);
         return HDF_FAILURE;
     }
@@ -175,12 +174,16 @@ int32_t DacTestMultiThread(void)
 
     ret = OsalThreadStart(&thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
+        (void)OsalThreadDestroy(&thread1);
+        (void)OsalThreadDestroy(&thread2);
         HDF_LOGE("start test thread1 fail:%d", ret);
         return HDF_FAILURE;
     }
 
     ret = OsalThreadStart(&thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
+        (void)OsalThreadDestroy(&thread1);
+        (void)OsalThreadDestroy(&thread2);
         HDF_LOGE("start test thread2 fail:%d", ret);
         return HDF_FAILURE;
     }
@@ -247,7 +250,7 @@ static int32_t DacIfPerformanceTest(void)
     endMs = OsalGetSysTimeMs();
 
     useTime = endMs - startMs;
-    HDF_LOGI("----->interface performance test:[start:%lld(ms) - end:%lld(ms) = %lld (ms)] < 1ms[%d]\r\n",
+    HDF_LOGI("----->interface performance test:[start:%llu(ms) - end:%llu(ms) = %llu (ms)] < 1ms[%d]\r\n",
         startMs, endMs, useTime, useTime < 1 ? true : false);
     return HDF_SUCCESS;
 }
