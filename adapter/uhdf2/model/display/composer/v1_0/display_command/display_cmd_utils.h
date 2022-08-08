@@ -37,6 +37,13 @@ public:
     static constexpr uint32_t INIT_ELEMENT_COUNT = 32 * 1024;
 
     #define SWITCHCASE(x) case (x): {return #x;}
+    #define PARCEL_WRITE_RET_CHECK(ret, fn, arg)                                              \
+    ret = fn(arg);                                                                            \
+    if (ret == false) {                                                                       \
+        HDF_LOG("%{public}s: parcel write failed, line = %{public}d", __func__, __LINE__);    \
+        return HDF_FAILURE;                                                                   \
+    }
+
     static const char *CommandToString(int32_t cmdId)
     {
         switch (cmdId) {
@@ -147,7 +154,7 @@ public:
         hdifdInfo.id = GenerateHdifdSeqid();
         hdifdInfo.hdiFd = new HdifdParcelable();
         if (hdifdInfo.hdiFd == nullptr) {
-            HDF_LOGE("error: new HdifdParcelable failed");
+            HDF_LOGE("%{public}s: new HdifdParcelable failed", __func__);
             ec = HDF_FAILURE;
         } else {
             if (fd >= 0) {
@@ -156,54 +163,39 @@ public:
                     hdiFds.push_back(hdifdInfo);
                     ec = packer->WriteInt32(hdifdInfo.id) ? HDF_SUCCESS : HDF_FAILURE;
                 } else {
-                    HDF_LOGE("error: PackHdifd failed");
+                    HDF_LOGE("%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
                     ec = HDF_FAILURE;
                 }
             } else {
                 // A illegal fd is transfered by smq directly.
-                ec = packer->WriteInt32(fd) ? HDF_SUCCESS : HDF_FAILURE;
+                ec = packer->WriteInt32(fd);
+                if (ec != HDF_SUCCESS {
+                    HDF_LOGE("%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
+                }
             }
         }
-
         return ec;
     }
 
-    static int32_t BufferHandlePack(
-        const BufferHandle &buffer, std::shared_ptr<CommandDataPacker> packer, std::vector<HdifdInfo> &hdiFds)
+    static int32_t BufferHandlePack(const BufferHandle &buffer, std::shared_ptr<CommandDataPacker> packer,
+        std::vector<HdifdInfo> &hdiFds)
     {
-        bool retVal = packer->WriteUint32(buffer.reserveFds);
-        if (retVal) {
-            retVal = packer->WriteUint32(buffer.reserveInts);
-        }
         int32_t ec = HDF_SUCCESS;
-        if (retVal) {
-            ec = FileDescriptorPack(buffer.fd, packer, hdiFds);
-            retVal = (ec == HDF_SUCCESS ? true : false);
+        bool retVal = true;
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint32, buffer.reserveFds);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint32, buffer.reserveInts);
+        ec = FileDescriptorPack(buffer.fd, packer, hdiFds);
+        if (ec != HDF_SUCCESS) {
+            return ec;
         }
-        if (retVal) {
-            retVal = packer->WriteInt32(buffer.width);
-        }
-        if (retVal) {
-            retVal = packer->WriteInt32(buffer.stride);
-        }
-        if (retVal) {
-            retVal = packer->WriteInt32(buffer.height);
-        }
-        if (retVal) {
-            retVal = packer->WriteInt32(buffer.size);
-        }
-        if (retVal) {
-            retVal = packer->WriteInt32(buffer.format);
-        }
-        if (retVal) {
-            retVal = packer->WriteUint64(buffer.usage);
-        }
-        if (retVal) {
-            retVal = packer->WriteUint64(buffer.phyAddr);
-        }
-        if (retVal) {
-            retVal = packer->WriteInt32(buffer.key);
-        }
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.width);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.stride);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.height);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.size);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.format);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint64, buffer.usage);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteUint64, buffer.phyAddr);
+        PARCEL_WRITE_RET_CHECK(retVal, packer->WriteInt32, buffer.key);
         if (retVal) {
             int32_t i = 0;
             for (i = 0; i < buffer.reserveFds; i++) {
@@ -262,8 +254,8 @@ public:
         return ec;
     }
 
-    static int32_t BufferHandleUnpack(
-        std::shared_ptr<CommandDataUnpacker> unpacker, const std::vector<HdifdInfo> &hdiFds, BufferHandle *&buffer)
+    static int32_t BufferHandleUnpack(std::shared_ptr<CommandDataUnpacker> unpacker,
+        const std::vector<HdifdInfo> &hdiFds, BufferHandle *&buffer)
     {
         uint32_t fdsNum = 0;
         uint32_t intsNum = 0;
@@ -323,7 +315,6 @@ public:
             }
         }
         buffer = handle;
-
         return retVal ? HDF_SUCCESS : HDF_FAILURE;
     }
 };

@@ -17,14 +17,14 @@
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_CMD_REQUESTER_H
 
 #include <unordered_map>
+#include "hdf_base.h"
+#include "hdf_log.h"
+#include "hdi_smq.h"
 #include "buffer_handle_parcelable.h"
 #include "buffer_handle_utils.h"
 #include "command_data_packer.h"
 #include "command_data_unpacker.h"
 #include "display_cmd_utils.h"
-#include "hdf_base.h"
-#include "hdf_log.h"
-#include "hdi_smq.h"
 #include "hdifd_parcelable.h"
 #include "idisplay_composer_hwi.h"
 #include "v1_0/display_composer_type.h"
@@ -88,12 +88,75 @@ public:
         return ec;
     }
 
+    void ProcessRequestCmd(std::shared_ptr<CommandDataUnpacker> unpacker, int32_t cmd,
+        const std::vector<HdifdInfo> &inFds, std::vector<HdifdInfo> &outFds)
+    {
+        HDF_LOGD("PackSection, cmd-[%{public}d] = %{public}s", cmd, CmdUtils::CommandToString(cmd));
+        switch (cmd) {
+            case REQUEST_CMD_PREPAREDISPLAYLAYERS:
+                OnPrepareDisplayLayers(unpacker);
+                break;
+            case REQUEST_CMD_SETDISPLAYCLIENTBUFFER:
+                OnSetDisplayClientBuffer(unpacker, inFds);
+                break;
+            case REQUEST_CMD_SETDISPLAYCLIENTDAMAGE:
+                OnSetDisplayClientDamage(unpacker);
+                break;
+            case REQUEST_CMD_COMMIT:
+                OnCommit(unpacker, outFds);
+                break;
+            case REQUEST_CMD_SETLAYERALPHA:
+                OnSetLayerAlpha(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERPOSITION:
+                OnSetLayerPosition(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERCROP:
+                OnSetLayerCrop(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERZORDER:
+                OnSetLayerZorder(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERPREMULTI:
+                OnSetLayerPreMulti(unpacker);
+                break;
+            case REQUEST_CMD_SETTRANSFORMMODE:
+                OnSetTransformMode(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERDIRTYREGION:
+                OnSetLayerDirtyRegion(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERVISIBLEREGION:
+                OnSetLayerVisibleRegion(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERBUFFER:
+                OnSetLayerBuffer(unpacker, inFds);
+                break;
+            case REQUEST_CMD_SETLAYERCOMPOSITIONTYPE:
+                OnSetLayerCompositionType(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERBLENDTYPE:
+                OnSetLayerBlendType(unpacker);
+                break;
+            case REQUEST_CMD_SETLAYERVISIBLE:
+                OnSetLayerVisible(unpacker);
+                break;
+            case CONTROL_CMD_REQUEST_END:
+                OnRequestEnd(unpacker);
+                break;
+            default:
+                HDF_LOGE("error: not support display command, unpacked cmd = %{public}d", cmd);
+                ec = HDF_FAILURE;
+                break;
+        }
+    }
+
     int32_t CmdRequest(uint32_t inEleCnt, const std::vector<HdifdInfo> &inFds, uint32_t &outEleCnt,
         std::vector<HdifdInfo> &outFds)
     {
         std::shared_ptr<char[]> requestData(new char[inEleCnt * CmdUtils::ELEMENT_SIZE], std::default_delete<char[]>());
-        int32_t ec =
-            request_->Read(reinterpret_cast<int32_t *>(requestData.get()), inEleCnt, CmdUtils::TRANSFER_WAIT_TIME);
+        int32_t ec = request_->Read(reinterpret_cast<int32_t *>(requestData.get()), inEleCnt,
+            CmdUtils::TRANSFER_WAIT_TIME);
 
         std::shared_ptr<CommandDataUnpacker> unpacker = std::make_shared<CommandDataUnpacker>();
         if (ec == HDF_SUCCESS) {
@@ -118,65 +181,7 @@ public:
                 HDF_LOGE("error: PackSection failed, unpackCmd=%{public}s.", CmdUtils::CommandToString(unpackCmd));
                 ec = HDF_FAILURE;
             }
-            HDF_LOGD("PackSection, unpackCmd-[%{public}d]=%{public}s.", unpackCmd,
-                CmdUtils::CommandToString(unpackCmd));
-            switch (unpackCmd) {
-                case REQUEST_CMD_PREPAREDISPLAYLAYERS:
-                    OnPrepareDisplayLayers(unpacker);
-                    break;
-                case REQUEST_CMD_SETDISPLAYCLIENTBUFFER:
-                    OnSetDisplayClientBuffer(unpacker, inFds);
-                    break;
-                case REQUEST_CMD_SETDISPLAYCLIENTDAMAGE:
-                    OnSetDisplayClientDamage(unpacker);
-                    break;
-                case REQUEST_CMD_COMMIT:
-                    OnCommit(unpacker, outFds);
-                    break;
-                case REQUEST_CMD_SETLAYERALPHA:
-                    OnSetLayerAlpha(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERPOSITION:
-                    OnSetLayerPosition(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERCROP:
-                    OnSetLayerCrop(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERZORDER:
-                    OnSetLayerZorder(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERPREMULTI:
-                    OnSetLayerPreMulti(unpacker);
-                    break;
-                case REQUEST_CMD_SETTRANSFORMMODE:
-                    OnSetTransformMode(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERDIRTYREGION:
-                    OnSetLayerDirtyRegion(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERVISIBLEREGION:
-                    OnSetLayerVisibleRegion(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERBUFFER:
-                    OnSetLayerBuffer(unpacker, inFds);
-                    break;
-                case REQUEST_CMD_SETLAYERCOMPOSITIONTYPE:
-                    OnSetLayerCompositionType(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERBLENDTYPE:
-                    OnSetLayerBlendType(unpacker);
-                    break;
-                case REQUEST_CMD_SETLAYERVISIBLE:
-                    OnSetLayerVisible(unpacker);
-                    break;
-                case CONTROL_CMD_REQUEST_END:
-                    OnRequestEnd(unpacker);
-                    break;
-                default:
-                    HDF_LOGE("error: not support display command, unpacked Cmd=%{public}d.", unpackCmd);
-                    ec = HDF_FAILURE;
-                    break;
-            }
+            ProcessRequestCmd(unpacker, unpackCmd, inFds, outFds);
         }
         /* pack request end commands */
         replyPacker_->PackEnd(CONTROL_CMD_REPLY_END);
@@ -184,14 +189,13 @@ public:
         /*  Write reply pack */
         replyPacker_->Dump();
         outEleCnt = replyPacker_->ValidSize() / CmdUtils::ELEMENT_SIZE;
-        ec = reply_->Write(
-            reinterpret_cast<int32_t *>(replyPacker_->GetDataPtr()), outEleCnt, CmdUtils::TRANSFER_WAIT_TIME);
+        ec = reply_->Write(reinterpret_cast<int32_t *>(replyPacker_->GetDataPtr()), outEleCnt,
+            CmdUtils::TRANSFER_WAIT_TIME);
         if (ec != HDF_SUCCESS) {
             HDF_LOGE("Reply write failure, ec=%{public}d", ec);
             outEleCnt = 0;
         }
         int32_t ec2 = PeriodDataReset();
-
         return (ec == HDF_SUCCESS ? ec2 : ec);
     }
 

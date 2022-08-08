@@ -17,13 +17,13 @@
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_CMD_REQUESTER_H
 
 #include <unordered_map>
+#include "hdf_log.h"
+#include "hdi_smq.h"
+#include "hdifd_parcelable.h"
 #include "buffer_handle_parcelable.h"
 #include "command_data_packer.h"
 #include "command_data_unpacker.h"
 #include "display_cmd_utils.h"
-#include "hdf_log.h"
-#include "hdi_smq.h"
-#include "hdifd_parcelable.h"
 #include "v1_0/display_composer_type.h"
 #include "v1_0/idisplay_composer.h"
 
@@ -481,39 +481,37 @@ private:
                 ec = HDF_FAILURE;
             }
             switch (unpackCmd) {
-                case REPLY_CMD_PREPAREDISPLAYLAYERS: {
+                case REPLY_CMD_PREPAREDISPLAYLAYERS:
                     bool needFlushFb;
                     ec = OnReplyPrepareDisplayLayers(replyUnpacker, needFlushFb);
                     if (ec == HDF_SUCCESS) {
                         ec = fn(&needFlushFb);
                     }
                     if (ec != HDF_SUCCESS) {
-                        HDF_LOGI("ReadBool failed, unpackCmd=%{public}s.", CmdUtils::CommandToString(unpackCmd));
-                    }
-                } break;
-                case REPLY_CMD_SETERROR:
-                    if (ec == HDF_SUCCESS) {
-                        std::unordered_map<int32_t, int32_t> errMaps;
-                        ec = OnReplySetError(replyUnpacker, errMaps);
-                        if (ec == HDF_SUCCESS && errMaps.size() > 0) {
-                            HDF_LOGI("error: server return errs, size=%{public}d", errMaps.size());
-                            ec = HDF_FAILURE;
-                        }
+                        HDF_LOGI("ReadBool failed, unpackCmd=%{public}s", CmdUtils::CommandToString(unpackCmd));
                     }
                     break;
-                case REPLY_CMD_COMMIT: {
+                case REPLY_CMD_COMMIT:
                     int32_t fenceFd = -1;
                     ec = OnReplyCommit(replyUnpacker, replyFds, fenceFd);
                     if (ec == HDF_SUCCESS) {
                         ec = fn(&fenceFd);
                     }
                     if (ec != HDF_SUCCESS) {
-                        HDF_LOGI("error: return fence fd error, unpackCmd=%{public}s.",
+                        HDF_LOGI("error: return fence fd error, unpackCmd=%{public}s",
                             CmdUtils::CommandToString(unpackCmd));
                     }
-                } break;
+                    break;
+                case REPLY_CMD_SETERROR:
+                    std::unordered_map<int32_t, int32_t> errMaps;
+                    ec = OnReplySetError(replyUnpacker, errMaps);
+                    if (ec == HDF_SUCCESS && errMaps.size() > 0) {
+                        HDF_LOGI("error: server return errs, size=%{public}d", errMaps.size());
+                        ec = HDF_FAILURE;
+                    }
+                    break;
                 default:
-                    HDF_LOGE("Unpack command failure.");
+                    HDF_LOGE("Unpack command failure");
                     ec = HDF_FAILURE;
                     break;
             }
@@ -524,7 +522,6 @@ private:
         if (unpackCmd != CONTROL_CMD_REPLY_END) {
             HDF_LOGE("error: PackEnd failed, endCmd = %{public}s", CmdUtils::CommandToString(unpackCmd));
         }
-
         return ec;
     }
 
@@ -536,19 +533,18 @@ private:
             reinterpret_cast<int32_t *>(requestPacker_->GetDataPtr()), eleCnt, CmdUtils::TRANSFER_WAIT_TIME);
         if (ec != HDF_SUCCESS) {
             HDF_LOGE("CmdRequest write failure, ec=%{public}d", ec);
-        } else {
-            ec = hdi_->CmdRequest(eleCnt, requestHdiFds_, replyEleCnt, outFds);
+            return ec;
+        }
+        ec = hdi_->CmdRequest(eleCnt, requestHdiFds_, replyEleCnt, outFds);
+        if (ec != HDF_SUCCESS) {
+            HDF_LOGE("CmdRequest failure, ec=%{public}d", ec);
+            return ec;
+        }
+        if (replyEleCnt != 0) {
+            replyData.reset(new char[replyEleCnt * CmdUtils::ELEMENT_SIZE], std::default_delete<char[]>());
+            ec = reply_->Read(reinterpret_cast<int32_t *>(replyData.get()), replyEleCnt, CmdUtils::TRANSFER_WAIT_TIME);
             if (ec != HDF_SUCCESS) {
-                HDF_LOGE("CmdRequest failure, ec=%{public}d", ec);
-            } else {
-                if (replyEleCnt != 0) {
-                    replyData.reset(new char[replyEleCnt * CmdUtils::ELEMENT_SIZE], std::default_delete<char[]>());
-                    ec = reply_->Read(
-                        reinterpret_cast<int32_t *>(replyData.get()), replyEleCnt, CmdUtils::TRANSFER_WAIT_TIME);
-                    if (ec != HDF_SUCCESS) {
-                        HDF_LOGE("reply read data failure, ec=%{public}d", ec);
-                    }
-                }
+                HDF_LOGE("reply read data failure, ec=%{public}d", ec);
             }
         }
         return ec;
