@@ -23,7 +23,7 @@ class XButton {
         this.clicked_ = false;
         this.disable_ = false;
         this.nameColor_ = 0xffffffff;
-        this.backgroundColor_ = 0xff0099B4;
+        this.backgroundColor_ = 0xff487EB8;
     }
 
     move(x, y, w, h) {

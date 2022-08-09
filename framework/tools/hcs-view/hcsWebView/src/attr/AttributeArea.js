@@ -70,6 +70,13 @@ class AttributeArea {
         this.htmlStr += '<button id="' + searchId + text + "'button', " +
             "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
+    addLabelButton(searchId, label, title) {
+        if (label.length > 13) label = label.substring(0, 10) + "..."
+        let text = '" class="label_button_click" type="button" onclick="document.attrCallback.Event('
+        this.htmlStr += '<label class="input_text_readonly">' + title + '</label><button id="' + searchId + text + "'button', " +
+            "'" + searchId + "'" + ')">' + label + '</button><br>';
+    }
+
     addButtonDelete(searchId, label) {
         if (label.length > 13) label = label.substring(0, 10) + "..."
         let text = '" class="button_click_delete" type="button" onclick="document.attrCallback.Event('
