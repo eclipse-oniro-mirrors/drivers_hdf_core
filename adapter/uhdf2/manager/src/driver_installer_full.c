@@ -14,15 +14,10 @@
  */
 
 #include "driver_installer_full.h"
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include "hdf_base.h"
 #include "hdf_driver_installer.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
-#include "securec.h"
 #include "service_control.h"
 
 #define HDF_LOG_TAG driver_installer_full

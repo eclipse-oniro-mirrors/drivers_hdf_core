@@ -8,7 +8,6 @@
 
 #include "devhost_service.h"
 #include "devmgr_service_clnt.h"
-#include "devsvc_manager_clnt.h"
 #include "hdf_base.h"
 #include "hdf_driver.h"
 #include "hdf_driver_loader.h"

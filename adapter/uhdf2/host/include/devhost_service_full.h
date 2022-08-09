@@ -15,10 +15,10 @@
 
 #ifndef DEVHOST_SERVICE_FULL_H
 #define DEVHOST_SERVICE_FULL_H
+
 #include "devhost_service.h"
-#include "hdf_message_task.h"
 #include "hdf_message_looper.h"
-#include "hdf_device_info.h"
+#include "hdf_message_task.h"
 #include "osal_sysevent.h"
 
 struct DevHostServiceFull {

@@ -14,7 +14,6 @@
  */
 
 #include "devhost_service_full.h"
-#include "dev_attribute_serialize.h"
 #include "devmgr_service_clnt.h"
 #include "hdf_base.h"
 #include "hdf_device_info.h"
@@ -203,9 +202,7 @@ int DevHostServiceFullPmNotify(struct IDevHostService *service, uint32_t state)
 void DevHostServiceFullConstruct(struct DevHostServiceFull *inst)
 {
     struct IDevHostService *hostServiceIf = &inst->super.super;
-    static struct IHdfMessageHandler handler = {
-        .Dispatch = DevHostServiceFullDispatchMessage
-    };
+    static struct IHdfMessageHandler handler = {.Dispatch = DevHostServiceFullDispatchMessage};
     DevHostServiceConstruct(&inst->super);
     hostServiceIf->AddDevice = DevHostServiceFullAddDevice;
     hostServiceIf->DelDevice = DevHostServiceFullDelDevice;

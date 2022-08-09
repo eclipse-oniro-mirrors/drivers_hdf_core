@@ -14,15 +14,13 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
 #include <linux/netlink.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <sys/un.h>
 #include <unistd.h>
 
-#include "devmgr_service_full.h"
+#include "devmgr_service.h"
 #include "hdf_dlist.h"
 #include "hdf_log.h"
 #include "osal_mem.h"

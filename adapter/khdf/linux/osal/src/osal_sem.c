@@ -17,7 +17,6 @@
  */
 
 #include "osal_sem.h"
-#include <linux/errno.h>
 #include <linux/export.h>
 #include <linux/semaphore.h>
 #include <linux/timer.h>

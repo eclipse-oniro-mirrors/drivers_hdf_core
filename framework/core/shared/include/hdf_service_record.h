@@ -11,7 +11,6 @@
 
 #include "hdf_device.h"
 #include "hdf_dlist.h"
-#include "hdf_object.h"
 
 struct DevSvcRecord {
     struct DListHead entry;

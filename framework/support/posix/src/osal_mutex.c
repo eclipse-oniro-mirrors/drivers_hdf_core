@@ -7,7 +7,6 @@
  */
 
 #include "osal_mutex.h"
-#include <errno.h>
 #include <pthread.h>
 #include "securec.h"
 #include "hdf_log.h"

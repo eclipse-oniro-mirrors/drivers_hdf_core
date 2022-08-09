@@ -10,6 +10,7 @@
 #define HDF_DEVICE_TOKEN_H
 
 #include "device_token_if.h"
+#include "hdf_object.h"
 #include "hdf_slist.h"
 
 struct HdfDeviceToken {

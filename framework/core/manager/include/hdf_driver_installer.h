@@ -10,7 +10,6 @@
 #define HDF_DRIVER_INSTALLER_H
 
 #include "hdf_object.h"
-#include "hdf_slist.h"
 
 struct IDriverInstaller {
     struct HdfObject object;

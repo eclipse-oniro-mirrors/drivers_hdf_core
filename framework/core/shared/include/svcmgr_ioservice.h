@@ -9,7 +9,6 @@
 #ifndef DEVSVC_SVCMGR_IOSERVICE_H
 #define DEVSVC_SVCMGR_IOSERVICE_H
 
-#include "hdf_base.h"
 #include "hdf_service_status.h"
 
 #ifdef __cplusplus

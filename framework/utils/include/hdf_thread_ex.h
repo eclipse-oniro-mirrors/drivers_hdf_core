@@ -9,7 +9,6 @@
 #ifndef HDF_THREAD_H
 #define HDF_THREAD_H
 
-#include <stdint.h>
 #include "osal_thread.h"
 
 #ifdef __cplusplus

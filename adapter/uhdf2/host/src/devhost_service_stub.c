@@ -14,20 +14,18 @@
  */
 
 #include "devhost_service_stub.h"
-#include "devhost_service_proxy.h"
 #include "dev_attribute_serialize.h"
+#include "devhost_service_proxy.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
-#include "hdf_security.h"
 #include "osal_mem.h"
-#include "unistd.h"
 
 #define HDF_LOG_TAG devhost_service_stub
 
 static void DevHostSetCurrentSecurec(const char *hostName)
 {
-    (void) hostName;
+    (void)hostName;
 }
 
 static int DispatchAddDevice(struct IDevHostService *serviceIf, struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -101,12 +99,9 @@ static int DevHostServiceStubDispatch(
     return ret;
 }
 
-
 static void DevHostServiceStubConstruct(struct DevHostServiceStub *inst)
 {
-    static struct HdfRemoteDispatcher dispatcher = {
-        .Dispatch = DevHostServiceStubDispatch
-    };
+    static struct HdfRemoteDispatcher dispatcher = {.Dispatch = DevHostServiceStubDispatch};
 
     DevHostServiceFullConstruct(&inst->super);
     inst->remote = HdfRemoteServiceObtain((struct HdfObject *)inst, &dispatcher);
@@ -128,7 +123,6 @@ struct HdfObject *DevHostServiceStubCreate(void)
     return NULL;
 }
 
-
 void DevHostServiceStubRelease(struct HdfObject *object)
 {
     struct DevHostServiceStub *instance = (struct DevHostServiceStub *)object;
@@ -142,4 +136,3 @@ void DevHostServiceStubRelease(struct HdfObject *object)
         OsalMemFree(instance);
     }
 }
-

@@ -9,7 +9,6 @@
 #ifndef HDF_DEVICE_INFO_H
 #define HDF_DEVICE_INFO_H
 
-#include "hdf_device_desc.h"
 #include "hdf_slist.h"
 
 enum {

@@ -9,7 +9,9 @@
 #ifndef HDF_SERVICE_OBSERVER_H
 #define HDF_SERVICE_OBSERVER_H
 
-#include "hdf_service_subscriber.h"
+#include "hdf_device.h"
+#include "hdf_device_desc.h"
+#include "hdf_slist.h"
 #include "osal_mutex.h"
 
 struct HdfServiceObserver {

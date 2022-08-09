@@ -15,19 +15,20 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <stdlib.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <sys/prctl.h>
-#include "hdf_base.h"
-#include "devhost_service.h"
-#include "devhost_service_full.h"
-#include "hdf_cstring.h"
-#include "hdf_log.h"
-#include "hdf_power_manager.h"
+
 #include "securec.h"
 
-#define HDF_LOG_TAG hdf_device_host
-#define DEVHOST_INPUT_PARAM_NUM 3
+#include "devhost_service.h"
+#include "devhost_service_full.h"
+#include "hdf_base.h"
+#include "hdf_log.h"
+#include "hdf_power_manager.h"
+
+#define HDF_LOG_TAG                    hdf_device_host
+#define DEVHOST_INPUT_PARAM_NUM        3
 #define DEVHOST_INPUT_PARAM_HOSTID_POS 1
 
 bool HdfStringToInt(const char *str, int *value)
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
         return status;
     }
     HdfPowerManagerInit();
-    struct DevHostServiceFull *fullService = (struct DevHostServiceFull*)instance;
+    struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {
         looper->Start(looper);
@@ -104,4 +105,3 @@ int main(int argc, char **argv)
     HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
     return status;
 }
-

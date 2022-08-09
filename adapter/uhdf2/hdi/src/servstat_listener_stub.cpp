@@ -13,17 +13,18 @@
  * limitations under the License.
  */
 
-#include <hdf_service_status.h>
 #include "hdf_base.h"
 #include "hdf_log.h"
-#include "iservmgr_hdi.h"
+#include "hdf_service_status.h"
+#include "iservstat_listener_hdi.h"
+
 #define HDF_LOG_TAG servstat_listener
 namespace OHOS {
 namespace HDI {
 namespace ServiceManager {
 namespace V1_0 {
-int ServStatListenerStub::OnRemoteRequest(uint32_t code,
-    OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
+int ServStatListenerStub::OnRemoteRequest(
+    uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
     switch (code) {
         case SERVIE_STATUS_LISTENER_NOTIFY:
@@ -35,8 +36,8 @@ int ServStatListenerStub::OnRemoteRequest(uint32_t code,
     return HDF_ERR_NOT_SUPPORT;
 }
 
-int32_t ServStatListenerStub::ServStatListenerStubOnReceive(MessageParcel& data,
-    MessageParcel& reply, MessageOption& option)
+int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     ServiceStatus status;
     if (data.ReadInterfaceToken() != GetDescriptor()) {
@@ -44,20 +45,19 @@ int32_t ServStatListenerStub::ServStatListenerStubOnReceive(MessageParcel& data,
         return HDF_FAILURE;
     }
 
-    const char* name = data.ReadCString();
+    const char *name = data.ReadCString();
     status.serviceName = (name == nullptr) ? "" : name;
     if (status.serviceName.empty()) {
         HDF_LOGI("failed to read serviceName in ServiceStatus");
         return HDF_FAILURE;
     }
 
-    if (!data.ReadUint16(status.deviceClass) ||
-        !data.ReadUint16(status.status)) {
+    if (!data.ReadUint16(status.deviceClass) || !data.ReadUint16(status.status)) {
         HDF_LOGI("failed to read deviceClass or status in ServiceStatus");
         return HDF_FAILURE;
     }
 
-    const char* info = data.ReadCString();
+    const char *info = data.ReadCString();
     status.info = (info == nullptr) ? "" : info;
 
     OnReceive(status);
