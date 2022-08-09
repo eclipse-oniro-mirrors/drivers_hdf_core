@@ -20,7 +20,7 @@ const { XButton } = require("./engine/control/XButton");
 const { AttrEditor } = require("./AttrEditor");
 const { NapiLog } = require("./hcs/NapiLog");
 const { XSelect } = require("./engine/control/XSelect");
-const { NodeTools, DataType, NodeType } = require("./hcs/NodeTools");
+const { NodeTools, DataType } = require("./hcs/NodeTools");
 const { ModifyNode } = require("./hcs/ModifyNode");
 
 function rgba(r, g, b, a) {
@@ -130,10 +130,11 @@ class MainEditor {
             default:
                 return "unknow node type";
         }
-        return "unknow node type";
     }
-    drawNode(pm2f, s, size, x, y, color, bkcolor) {
+
+    drawNode(pm2f, s, size, x, y, color, borderColor, bkcolor) {
         let w = pm2f.getTextWidth(s, size);
+        pm2f.drawRect(x - 3, y - 3, w + 20, 20 + 6, borderColor, 2);
         pm2f.fillRect(x - 3, y - 3, w + 20, 20 + 6, bkcolor);
         pm2f.drawText(s, size, x, y, 1, 1, 0, -1, -1, color);
         return w;
@@ -195,11 +196,11 @@ class MainEditor {
             case 6://ConfigNode
                 var color = data.errMsg_ != null ? 0xE6FF0000 : 0xE6000000;
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
-                color, rgba(0, 153, 180), data);
+                color, rgba(196, 196, 196), 0xffffffff);
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
-                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xE6000000, rgba(244,145,38), data);
+                w = this.drawNode(pm2f, data.name_ + "=", 18, offx, offy + data.posY, 0xE6000000, rgba(244,145,38), 0xffffffff);
                 this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
                 this.drawObj(pm2f, data.value_, offx + w, offy, path);
                 break;
@@ -230,7 +231,7 @@ class MainEditor {
     
     setNodeButton(pm2f, x, y, w, h, path, node) {
         if (this.nodePoint_ == node) {
-            pm2f.drawRect(x - 3, y - 3, w + 20, h + 6, 0xff00ff00, 2);
+            pm2f.drawRect(x - 3, y - 3, w + 20, h + 6, 0xff487EB8, 3);
         }
         if (this.nodeBtnPoint_ >= this.nodeBtns.length) {
             this.nodeBtns.push(new XButton());
@@ -247,11 +248,11 @@ class MainEditor {
             this.nodeMoreBtns.push(new XButton());
         }
         let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
-        pbtn.move(x + w + 17, y - 3, 15, h + 6);
+        pbtn.move(x + w + 18, y - 3, 15, h + 6);
         pbtn.draw();
-        pm2f.drawLine(x + w + 17, y + 10, x + w + 27, y + 10, 0xffffffff, 2)
+        pm2f.drawLine(x + w + 20, y + 10, x + w + 30, y + 10, 0xffffffff, 2)
         if(!node.isOpen_){
-            pm2f.drawLine(x + w + 22, y + 5, x + w + 22, y + 15, 0xffffffff, 2)
+            pm2f.drawLine(x + w + 25, y + 5, x + w + 25, y + 15, 0xffffffff, 2)
         }
         pbtn.node_ = node;
         this.nodeMoreBtnPoint_ += 1;
@@ -272,17 +273,17 @@ class MainEditor {
 
         if (this.selectNode_.type != null) {
             if (this.selectNode_.type == "change_target") {
-                pm2f.drawText("点击选择目标", 18, this.mousePos_.x, this.mousePos_.y, 1, 1, 0, -3, -3, 0xff00ff00);
+                pm2f.drawText("点击选择目标", 18, this.mousePos_.x, this.mousePos_.y, 1, 1, 0, -3, -3, 0xff487EB8);
                 this.btnCancelSelect_.name_ = "取消选择";
             }
             else if (this.selectNode_.type == "copy_node") {
                 pm2f.drawText("已复制" + this.selectNode_.pnode.name_, 18, this.mousePos_.x, this.mousePos_.y, 1,
-                    1, 0, -3, -3, 0xff00ff00);
+                    1, 0, -3, -3, 0xff487EB8);
                 this.btnCancelSelect_.name_ = "取消复制";
             }
             else if (this.selectNode_.type == "cut_node") {
                 pm2f.drawText("已剪切" + this.selectNode_.pnode.name_, 18, this.mousePos_.x, this.mousePos_.y, 1,
-                    1, 0, -3, -3, 0xff00ff00);
+                    1, 0, -3, -3, 0xff487EB8);
                 this.btnCancelSelect_.name_ = "取消剪切";
             }
 
