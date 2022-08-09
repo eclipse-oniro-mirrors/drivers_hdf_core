@@ -12,7 +12,6 @@
 #include "devhost_service_if.h"
 #include "hdf_service_observer.h"
 #include "hdf_dlist.h"
-#include "osal_mutex.h"
 #include "osal_sysevent.h"
 
 struct DevHostService {

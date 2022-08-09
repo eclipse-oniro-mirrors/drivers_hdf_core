@@ -11,9 +11,11 @@
 
 #include "devhost_service_if.h"
 #include "device_token_if.h"
+#include "hdf_device_desc.h"
 #include "hdf_object.h"
-#include "power_state_token_if.h"
 #include "hdf_power_state.h"
+#include "hdf_sbuf.h"
+#include "power_state_token_if.h"
 
 struct IDevmgrService {
     struct HdfObject base;

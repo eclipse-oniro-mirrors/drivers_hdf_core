@@ -7,8 +7,6 @@
  */
 
 #include "ioserviceremove_fuzzer.h"
-#include <cstddef>
-#include <cstdint>
 #include "hdf_base.h"
 #include "hdf_log.h"
 #include "hdf_io_service.h"

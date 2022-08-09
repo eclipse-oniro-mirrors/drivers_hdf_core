@@ -11,9 +11,11 @@
 #include "hcs_macro.h"
 #include "hdf_attribute_manager.h"
 #include "hdf_config_macro.h"
+#include "hdf_device_desc.h"
 #include "hdf_host_info.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
+
 #define HDF_LOG_TAG hdf_attr_macro
 static bool HdfHostListCompare(struct HdfSListNode *listEntryFirst, struct HdfSListNode *listEntrySecond)
 {
@@ -144,8 +146,8 @@ static bool GetDeviceNodeInfo(const struct HdfDeviceNodeType *deviceNode, struct
     return CheckDeviceInfo(deviceNodeInfo);
 }
 
-static bool GetDevcieNodeList(const struct HdfDeviceType *device,
-    struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
+static bool GetDevcieNodeList(
+    const struct HdfDeviceType *device, struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
 {
     uint8_t deviceNodeIdx = 1;
     uint16_t hostId = hostClnt->hostId;
@@ -187,8 +189,8 @@ static void AttributeManagerFreeHost(struct HdfHostType *host)
     struct HdfDeviceNodeType *devNodeTemp = NULL;
 
     DLIST_FOR_EACH_ENTRY_SAFE(device, deviceTemp, &host->devices, struct HdfDeviceType, deviceEntry) {
-        DLIST_FOR_EACH_ENTRY_SAFE(devNode, devNodeTemp, &device->deviceNodes, struct HdfDeviceNodeType,
-                                  deviceNodeEntry) {
+        DLIST_FOR_EACH_ENTRY_SAFE(
+            devNode, devNodeTemp, &device->deviceNodes, struct HdfDeviceNodeType, deviceNodeEntry) {
             OsalMemFree(devNode);
         }
         OsalMemFree(device);

@@ -15,8 +15,7 @@
 
 #include "devmgr_service_proxy.h"
 #include "devhost_service_stub.h"
-#include "device_token_stub.h"
-#include "devmgr_service.h"
+#include "devmgr_service_if.h"
 #include "devmgr_service_stub.h"
 #include "devsvc_manager_clnt.h"
 #include "hdf_base.h"
@@ -41,8 +40,7 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
     }
     remoteService = serviceProxy->remote;
     dipatcher = remoteService->dispatcher;
-    if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) ||
-        !HdfSbufWriteInt32(data, hostId) ||
+    if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) || !HdfSbufWriteInt32(data, hostId) ||
         HdfSbufWriteRemoteService(data, hostStub->remote) != HDF_SUCCESS) {
         HDF_LOGE("failed to attach host, write sbuf error");
         goto FINISHED;

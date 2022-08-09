@@ -14,10 +14,8 @@
  */
 
 #include "dev_attribute_serialize.h"
-#include "hdf_base.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
-#include "securec.h"
 
 #define HDF_LOG_TAG dev_attr_serialze
 

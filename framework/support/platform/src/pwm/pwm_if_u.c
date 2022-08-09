@@ -9,7 +9,6 @@
 #include "pwm_if.h"
 #include "hdf_log.h"
 #include "hdf_io_service_if.h"
-#include "osal_mem.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG pwm_if_u_c

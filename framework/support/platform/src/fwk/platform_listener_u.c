@@ -5,11 +5,11 @@
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
+
 #include "platform_listener_u.h"
 #include "hdf_log.h"
-#include "ioservstat_listener.h"
 #include "osal_mem.h"
-#include "securec.h"
+#include "platform_listener_common.h"
 
 int RtcOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
 {

@@ -11,6 +11,7 @@
 #include "hdf_cstring.h"
 #include "hdf_log.h"
 #include "hdf_observer_record.h"
+#include "hdf_service_subscriber.h"
 
 #define HDF_LOG_TAG service_observer
 
@@ -35,8 +36,8 @@ void HdfServiceObserverDestruct(struct HdfServiceObserver *observer)
     }
 }
 
-int HdfServiceObserverSubscribeService(struct HdfServiceObserver *observer,
-    const char *svcName, devid_t devid, struct SubscriberCallback callback)
+int HdfServiceObserverSubscribeService(
+    struct HdfServiceObserver *observer, const char *svcName, devid_t devid, struct SubscriberCallback callback)
 {
     struct HdfServiceObserverRecord *serviceRecord = NULL;
     struct HdfServiceSubscriber *subscriber = NULL;
@@ -69,10 +70,8 @@ int HdfServiceObserverSubscribeService(struct HdfServiceObserver *observer,
             return HDF_FAILURE;
         }
     }
-    if ((serviceRecord->publisher != NULL) &&
-        (subscriber->callback.OnServiceConnected != NULL) &&
-        ((serviceRecord->policy != SERVICE_POLICY_PRIVATE) ||
-        (serviceRecord->devId == devid))) {
+    if ((serviceRecord->publisher != NULL) && (subscriber->callback.OnServiceConnected != NULL) &&
+        ((serviceRecord->policy != SERVICE_POLICY_PRIVATE) || (serviceRecord->devId == devid))) {
         subscriber->state = HDF_SUBSCRIBER_STATE_READY;
         subscriber->callback.OnServiceConnected(subscriber->callback.deviceObject, serviceRecord->publisher);
     }
@@ -82,8 +81,8 @@ int HdfServiceObserverSubscribeService(struct HdfServiceObserver *observer,
     return HDF_SUCCESS;
 }
 
-int HdfServiceObserverPublishService(struct HdfServiceObserver *observer,
-    const char *svcName, uint32_t devId, uint16_t policy, struct HdfObject *service)
+int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const char *svcName, uint32_t devId,
+    uint16_t policy, struct HdfObject *service)
 {
     struct HdfServiceObserverRecord *serviceRecord = NULL;
     uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
@@ -129,4 +128,3 @@ void HdfServiceObserverRemoveRecord(struct HdfServiceObserver *observer, const c
         HdfServiceObserverRecordRecycle(serviceRecord);
     }
 }
-

@@ -14,7 +14,6 @@
  */
 
 #include <fcntl.h>
-#include <limits.h>
 #include <securec.h>
 #include <stdlib.h>
 #include <sys/syscall.h>

@@ -14,18 +14,16 @@
  */
 
 #include "driver_loader_full.h"
+
 #include <dlfcn.h>
 #include <errno.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <limits.h>
-#include "hdf_device.h"
-#include "dev_attribute_serialize.h"
-#include "hdf_device_node.h"
+
+#include "securec.h"
+
 #include "hdf_log.h"
 #include "hdf_object_manager.h"
 #include "osal_mem.h"
-#include "securec.h"
 
 #define DRIVER_DESC "driverDesc"
 #define HDF_LOG_TAG driver_loader_full
@@ -39,8 +37,8 @@ static struct DriverLoaderFull *g_fullLoader = NULL;
 
 struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
 {
-    char realPath[PATH_MAX] = { 0 };
-    char driverPath[PATH_MAX] = { 0 };
+    char realPath[PATH_MAX] = {0};
+    char driverPath[PATH_MAX] = {0};
     if (moduleName == NULL) {
         return NULL;
     }
@@ -92,7 +90,6 @@ void HdfDriverLoaderFullReclaimDriver(struct HdfDriver *driver)
 
     OsalMemFree(driver);
 }
-
 
 void HdfDriverLoaderFullConstruct(struct DriverLoaderFull *inst)
 {

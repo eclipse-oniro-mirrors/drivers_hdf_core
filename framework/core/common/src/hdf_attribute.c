@@ -6,23 +6,24 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_attribute_manager.h"
 #include "devhost_service_clnt.h"
 #include "hcs_tree_if.h"
+#include "hdf_attribute_manager.h"
+#include "hdf_device_desc.h"
 #include "hdf_host_info.h"
 #include "hdf_log.h"
 #ifdef LOSCFG_DRIVERS_HDF_USB_PNP_NOTIFY
 #include "usb_pnp_manager.h"
 #endif
 
-#define ATTR_HOST_NAME "hostName"
-#define ATTR_DEV_POLICY "policy"
-#define ATTR_DEV_PRIORITY "priority"
-#define ATTR_DEV_PRELOAD "preload"
-#define ATTR_DEV_PERMISSION "permission"
-#define ATTR_DEV_MODULENAME "moduleName"
-#define ATTR_DEV_SVCNAME "serviceName"
-#define ATTR_DEV_MATCHATTR "deviceMatchAttr"
+#define ATTR_HOST_NAME          "hostName"
+#define ATTR_DEV_POLICY         "policy"
+#define ATTR_DEV_PRIORITY       "priority"
+#define ATTR_DEV_PRELOAD        "preload"
+#define ATTR_DEV_PERMISSION     "permission"
+#define ATTR_DEV_MODULENAME     "moduleName"
+#define ATTR_DEV_SVCNAME        "serviceName"
+#define ATTR_DEV_MATCHATTR      "deviceMatchAttr"
 #define MANAGER_NODE_MATCH_ATTR "hdf_manager"
 
 #define DEFATLT_DEV_PRIORITY 100
@@ -52,8 +53,7 @@ static bool GetHostInfo(const struct DeviceResourceNode *hostNode, struct HdfHos
         HDF_LOGW("%s: get host name failed", __func__);
         return false;
     }
-    if ((HcsGetUint16(hostNode, ATTR_DEV_PRIORITY, &readNum, 0) != HDF_SUCCESS) ||
-        (readNum > MAX_PRIORITY_NUM)) {
+    if ((HcsGetUint16(hostNode, ATTR_DEV_PRIORITY, &readNum, 0) != HDF_SUCCESS) || (readNum > MAX_PRIORITY_NUM)) {
         HDF_LOGW("%s: get host priority failed, priority is: %u", __func__, readNum);
         return false;
     }
@@ -177,8 +177,8 @@ static bool GetDeviceNodeInfo(const struct DeviceResourceNode *deviceNode, struc
     return CheckDeviceInfo(deviceNodeInfo);
 }
 
-static bool GetDevcieNodeList(const struct DeviceResourceNode *device,
-    struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
+static bool GetDevcieNodeList(
+    const struct DeviceResourceNode *device, struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
 {
     uint8_t deviceNodeIdx = 1;
     uint16_t hostId = hostClnt->hostId;

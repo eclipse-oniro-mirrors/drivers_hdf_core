@@ -9,12 +9,10 @@
 #ifndef HDF_SYSCALL_ADAPTER_H
 #define HDF_SYSCALL_ADAPTER_H
 
-#include <fcntl.h>
-#include <poll.h>
-#include <osal_mutex.h>
-#include <osal_thread.h>
-#include <hdf_dlist.h>
-#include "hdf_io_service.h"
+#include "hdf_dlist.h"
+#include "hdf_io_service_if.h"
+#include "osal_mutex.h"
+#include "osal_thread.h"
 
 struct HdfSyscallAdapter;
 

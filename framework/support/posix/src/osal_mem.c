@@ -8,7 +8,6 @@
 
 #include "osal_mem.h"
 #include <stdlib.h>
-#include <string.h>
 #include "securec.h"
 #include "hdf_log.h"
 

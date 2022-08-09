@@ -8,12 +8,10 @@
 
 #include "hdf_device.h"
 #include "hdf_base.h"
-#include "hdf_cstring.h"
 #include "hdf_device_node.h"
 #include "hdf_device_token.h"
 #include "hdf_log.h"
 #include "hdf_object_manager.h"
-#include "hdf_service_observer.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG hdf_device

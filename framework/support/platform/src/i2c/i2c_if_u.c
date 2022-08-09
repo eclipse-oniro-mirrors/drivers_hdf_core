@@ -6,11 +6,10 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "i2c_if.h"
 #include "hdf_base.h"
 #include "hdf_io_service_if.h"
 #include "hdf_log.h"
-#include "osal_mem.h"
+#include "i2c_if.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG i2c_if_u
@@ -240,8 +239,7 @@ int32_t I2cTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t count)
     }
 
     if (msgs == NULL || count <= 0) {
-        HDF_LOGE("I2cTransfer: err params! msgs:%s, count:%hd",
-            (msgs == NULL) ? "0" : "x", count);
+        HDF_LOGE("I2cTransfer: err params! msgs:%s, count:%hd", (msgs == NULL) ? "0" : "x", count);
         return HDF_ERR_INVALID_PARAM;
     }
 

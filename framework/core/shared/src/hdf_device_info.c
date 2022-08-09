@@ -7,6 +7,7 @@
  */
 
 #include "hdf_device_info.h"
+#include "hdf_device_desc.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
 

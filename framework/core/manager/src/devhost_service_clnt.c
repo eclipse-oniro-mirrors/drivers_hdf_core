@@ -10,7 +10,7 @@
 #include "device_token_clnt.h"
 #include "devmgr_service_start.h"
 #include "hdf_base.h"
-#include "hdf_driver_installer.h"
+#include "hdf_device_desc.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
 

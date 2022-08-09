@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "hdf_io_service_if.h"
 #include "hdf_uhdf_test.h"
 

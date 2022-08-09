@@ -14,11 +14,9 @@
  */
 
 #include "devmgr_service_full.h"
-#include "devhost_service.h"
 #include "devhost_service_clnt.h"
 #include "devhost_service_proxy.h"
 #include "device_token_clnt.h"
-#include "hdf_device_token.h"
 #include "hdf_driver_installer.h"
 #include "hdf_log.h"
 #include "hdf_map.h"
@@ -30,7 +28,7 @@
 
 static Map g_hostMap = {0};
 #define HOST_INIT_DIE_NUM 1
-#define HOST_MAX_DIE_NUM 3
+#define HOST_MAX_DIE_NUM  3
 
 static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt)
 {
@@ -92,7 +90,7 @@ void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t 
         return;
     }
     OsalMutexLock(&inst->super.devMgrMutex);
-    DLIST_FOR_EACH_ENTRY_SAFE(hostClnt, hostClntTmp,  &inst->super.hosts, struct DevHostServiceClnt, node) {
+    DLIST_FOR_EACH_ENTRY_SAFE(hostClnt, hostClntTmp, &inst->super.hosts, struct DevHostServiceClnt, node) {
         if (hostClnt->hostId == hostId) {
             int32_t ret = DevmgrServiceFullHandleDeviceHostDied(hostClnt);
             if (ret == INVALID_PID) {
@@ -107,8 +105,7 @@ void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t 
 int32_t DevmgrServiceFullDispatchMessage(struct HdfMessageTask *task, struct HdfMessage *msg)
 {
     (void)task;
-    struct DevmgrServiceFull *fullService =
-        (struct DevmgrServiceFull *)DevmgrServiceGetInstance();
+    struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)DevmgrServiceGetInstance();
     if (msg == NULL) {
         HDF_LOGE("Input msg is null");
         return HDF_ERR_INVALID_PARAM;
@@ -129,8 +126,7 @@ int32_t DevmgrServiceFullDispatchMessage(struct HdfMessageTask *task, struct Hdf
 
 struct HdfMessageTask *DevmgrServiceFullGetMessageTask(void)
 {
-    struct DevmgrServiceFull *fullService =
-        (struct DevmgrServiceFull *)DevmgrServiceGetInstance();
+    struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)DevmgrServiceGetInstance();
     if (fullService != NULL) {
         return &fullService->task;
     }
@@ -140,9 +136,7 @@ struct HdfMessageTask *DevmgrServiceFullGetMessageTask(void)
 
 void DevmgrServiceFullConstruct(struct DevmgrServiceFull *inst)
 {
-    static struct IHdfMessageHandler handler = {
-        .Dispatch = DevmgrServiceFullDispatchMessage
-    };
+    static struct IHdfMessageHandler handler = {.Dispatch = DevmgrServiceFullDispatchMessage};
     if (inst != NULL) {
         HdfMessageLooperConstruct(&inst->looper);
         DevmgrServiceConstruct(&inst->super);

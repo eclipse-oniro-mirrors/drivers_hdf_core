@@ -13,12 +13,9 @@
 #include "hdf_base.h"
 #include "hdf_dlist.h"
 #include "hdf_io_service_if.h"
-#include "hdf_service_status.h"
 #include "osal_mutex.h"
 #include "platform_core.h"
-#include "platform_listener_common.h"
 #include "rtc_if.h"
-#include "svcmgr_ioservice.h"
 #include "timer_if.h"
 
 #ifdef __cplusplus

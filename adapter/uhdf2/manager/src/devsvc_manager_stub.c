@@ -19,7 +19,6 @@
 #include <hdf_service_checker.h>
 #endif
 
-#include "device_token_proxy.h"
 #include "devmgr_service_stub.h"
 #include "devsvc_listener_holder.h"
 #include "devsvc_manager_proxy.h"

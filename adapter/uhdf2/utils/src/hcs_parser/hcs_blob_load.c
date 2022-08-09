@@ -16,7 +16,6 @@
 #include "hcs_blob_load.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "hcs_blob_if.h"
 #include "hdf_log.h"
 #include "osal_mem.h"

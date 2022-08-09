@@ -7,7 +7,6 @@
  */
 
 #include "power_state_token.h"
-#include "devmgr_service_clnt.h"
 #include "hdf_device_desc.h"
 #include "hdf_slist.h"
 #include "osal_mem.h"

@@ -7,7 +7,7 @@
  */
 
 #include "rtc_base.h"
-#include "platform_core.h"
+#include "platform_log.h"
 
 #define HDF_LOG_TAG rtc_base
 

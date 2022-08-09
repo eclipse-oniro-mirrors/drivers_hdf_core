@@ -9,7 +9,6 @@
 #ifndef HDF_DEVICE_H
 #define HDF_DEVICE_H
 
-#include "hdf_device_desc.h"
 #include "hdf_dlist.h"
 #include "hdf_object.h"
 

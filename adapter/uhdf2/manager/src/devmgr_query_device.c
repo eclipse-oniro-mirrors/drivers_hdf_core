@@ -16,7 +16,6 @@
 #include "devhost_service_clnt.h"
 #include "devmgr_service.h"
 #include "hdf_base.h"
-#include "hdf_cstring.h"
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
 
@@ -43,12 +42,12 @@ int DevFillQueryDeviceInfo(struct IDevmgrService *inst, struct HdfSBuf *data, st
     }
 
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
-    HdfSListIteratorInit(&itDeviceInfo, &hostClnt->unloadDevInfos);
+        HdfSListIteratorInit(&itDeviceInfo, &hostClnt->unloadDevInfos);
         HDF_LOGD("%{public}s, host:%{public}s %{public}d", __func__, hostClnt->hostName, hostClnt->hostId);
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
             deviceInfo = (struct HdfDeviceInfo *)HdfSListIteratorNext(&itDeviceInfo);
-            HDF_LOGD("%{public}s %{public}s policy:%{public}d status:%{public}d type:%{public}d",
-                __func__, deviceInfo->svcName, deviceInfo->policy, deviceInfo->status, deviceInfo->deviceType);
+            HDF_LOGD("%{public}s %{public}s policy:%{public}d status:%{public}d type:%{public}d", __func__,
+                deviceInfo->svcName, deviceInfo->policy, deviceInfo->status, deviceInfo->deviceType);
             if ((deviceInfo->policy == SERVICE_POLICY_CAPACITY || deviceInfo->policy == SERVICE_POLICY_PUBLIC) &&
                 deviceInfo->status == status) {
                 flag = HdfSbufWriteString(reply, deviceInfo->svcName);
@@ -66,4 +65,3 @@ int DevFillQueryDeviceInfo(struct IDevmgrService *inst, struct HdfSBuf *data, st
     }
     return HDF_SUCCESS;
 }
-
