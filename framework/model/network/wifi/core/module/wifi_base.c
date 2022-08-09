@@ -1425,7 +1425,7 @@ static uint32_t HdfdWlanGetPowerMode(const char *ifName, uint8_t *mode)
         HDF_LOGE("%s: chipDriver->ops->GetPowerMode is null\r\n", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->GetPowerMode(ifName, mode);
+    return chipDriver->ops->GetPowerMode(netdev, mode);
 }
 
 static int32_t WifiCmdGetPowerMode(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -1482,7 +1482,7 @@ static uint32_t HdfdWlanSetPowerMode(const char *ifName, uint8_t mode)
         HDF_LOGE("%s: chipDriver->ops->SetPowerMode is null\r\n", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->SetPowerMode(ifName, mode);
+    return chipDriver->ops->SetPowerMode(netdev, mode);
 }
 
 static int32_t WifiCmdSetPowerMode(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -1535,7 +1535,7 @@ static uint32_t HdfWlanStartChannelMeas(const char *ifName,  const MeasParam *me
         HDF_LOGE("%s: chipDriver->ops->StartChannelMeas is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->StartChannelMeas(ifName, measParam);
+    return chipDriver->ops->StartChannelMeas(netdev, measParam);
 }
 
 static int32_t WifiCmdStartChannelMeas(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -1592,7 +1592,7 @@ static int32_t HdfWlanSetProjectionScreenParam(const char *ifName, int cmd, cons
         HDF_LOGE("%s: chipDriver->ops->SetProjectionScreenParam is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->SetProjectionScreenParam(ifName, cmd, buf, bufLen);
+    return chipDriver->ops->SetProjectionScreenParam(netdev, cmd, buf, bufLen);
 }
 
 static int32_t WifiSetProjectionScreenParam(const RequestContext *context, struct HdfSBuf *reqData,
@@ -1652,7 +1652,7 @@ static int32_t HdfWlanSendCmdIoctl(const char *ifName, int32_t cmd, const int8_t
         HDF_LOGE("%s: chipDriver->ops->SendCmdIoctl is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    return chipDriver->ops->SendCmdIoctl(ifName, cmd, buf, bufLen);
+    return chipDriver->ops->SendCmdIoctl(netdev, cmd, buf, bufLen);
 }
 
 static int32_t WifiSendCmdIoctl(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -1683,6 +1683,68 @@ static int32_t WifiSendCmdIoctl(const RequestContext *context, struct HdfSBuf *r
     ret = HdfWlanSendCmdIoctl(ifName, cmd, buf, bufLen);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to config projection screen, %d", __func__, ret);
+    }
+    return ret;
+}
+
+static int32_t HdfWlanGetStationInfo(const char *ifName, StationInfo *info, const uint8_t *mac, uint32_t macLen)
+{
+    struct NetDevice *netdev = NULL;
+    struct HdfChipDriver *chipDriver = NULL;
+    
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->ops == NULL) {
+        HDF_LOGE("%s: chipDriver->ops is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (chipDriver->ops->GetStationInfo == NULL) {
+        HDF_LOGE("%s: chipDriver->ops->GetStationInfo is null", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    return chipDriver->ops->GetStationInfo(netdev, info, mac, macLen);
+}
+
+static int32_t WifiGetStationInfo(const RequestContext *context, struct HdfSBuf *reqData,
+    struct HdfSBuf *rspData)
+{
+    int32_t ret = HDF_FAILURE;
+    const char *ifName = NULL;
+    StationInfo info = {0};
+    const uint8_t *mac = NULL;
+    uint32_t macLen;
+
+    (void)context;
+    if (reqData == NULL || rspData == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: read ifName failed!", __func__);
+        return ret;
+    }
+    if (!HdfSbufReadBuffer(reqData, (const void **)&mac, &macLen)) {
+        HDF_LOGE("%s: read buf failed!", __func__);
+        return ret;
+    }
+    ret = HdfWlanGetStationInfo(ifName, &info, mac, macLen);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: fail to get station information, %d", __func__, ret);
+        return ret;
+    }
+
+    if (!HdfSbufWriteBuffer(rspData, &info, sizeof(StationInfo))) {
+        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        ret = HDF_FAILURE;
     }
     return ret;
 }
@@ -1719,6 +1781,7 @@ static struct MessageDef g_wifiBaseFeatureCmds[] = {
     DUEMessage(CMD_BASE_START_CHANNEL_MEAS, WifiCmdStartChannelMeas, 0),
     DUEMessage(CMD_BASE_SET_PROJECTION_SCREEN_PARAM, WifiSetProjectionScreenParam, 0),
     DUEMessage(CMD_BASE_SEND_CMD_IOCTL, WifiSendCmdIoctl, 0),
+    DUEMessage(CMD_BASE_GET_STATION_INFO, WifiGetStationInfo, 0),
 };
 ServiceDefine(BaseService, BASE_SERVICE_ID, g_wifiBaseFeatureCmds);
 

@@ -445,6 +445,18 @@ typedef struct {
     int32_t noise;
 } MeasResult;
 
+typedef struct {
+    uint32_t rxRate;
+    uint32_t txRate;
+    uint32_t flags; /* bitfield of STA_DRV_DATA_* */
+    uint8_t rxVhtmcs;
+    uint8_t txVhtmcs;
+    uint8_t rxMcs;
+    uint8_t txMcs;
+    uint8_t rxVhtNss;
+    uint8_t txVhtNss;
+} __attribute__ ((aligned(8))) StationInfo;
+
 #ifdef __cplusplus
 #if __cplusplus
 }
