@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace HDI {
-struct FileDetail {
+class FileDetail {
 public:
     inline std::string GetFullName() const
     {

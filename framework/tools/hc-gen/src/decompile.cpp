@@ -149,7 +149,7 @@ std::shared_ptr<AstObject> Decompile::RebuildNode()
     node->SetHash(nodeHash);
     Logger().Debug() << "node name is: " << node->Name() << ", size is: " << nodeSize << ", hash is: " << nodeHash;
     int32_t pos = file_.tellg();
-    int32_t nodeEnd = pos + static_cast<uint32_t>(nodeSize);
+    int32_t nodeEnd = pos + static_cast<int32_t>(nodeSize);
     while (pos < nodeEnd) {
         uint32_t childOpCode;
         if (!GetNextByteCode(childOpCode)) {

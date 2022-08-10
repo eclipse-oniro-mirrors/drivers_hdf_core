@@ -285,29 +285,6 @@ bool File::CheckValid(const std::string &path)
     return true;
 }
 
-std::string File::Pascal2UnderScoreCase(const std::string &name)
-{
-    if (name.empty()) {
-        return name;
-    }
-
-    StringBuilder sb;
-    for (size_t i = 0; i < name.size(); i++) {
-        char c = name[i];
-        if (isupper(c) != 0) {
-            // 2->Index of the last char array.
-            if (i > 1) {
-                sb.Append('_');
-            }
-            sb.Append(tolower(c));
-        } else {
-            sb.Append(c);
-        }
-    }
-
-    return sb.ToString();
-}
-
 size_t File::GetHashKey()
 {
     StringBuilder fileStr;
