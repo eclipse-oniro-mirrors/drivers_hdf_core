@@ -106,7 +106,7 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
     return false;
 }
 
-/**
+/*
  * ForExample:
  * -r option: -r ohos.hdi:./drivers/interface
  * outDir: ./out

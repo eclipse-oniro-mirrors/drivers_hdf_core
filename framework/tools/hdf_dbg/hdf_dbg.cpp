@@ -76,7 +76,7 @@ static void PrintHelp()
 static const int32_t alignSize = 30;
 static void SetPadAlign(std::string &name, char padChar, int32_t size)
 {
-    int32_t padCnt = size - name.length();
+    int32_t padCnt = size - static_cast<int32_t>(name.length());
 
     padCnt = (padCnt <= 0) ? 0 : padCnt;
     name.append(padCnt, padChar);

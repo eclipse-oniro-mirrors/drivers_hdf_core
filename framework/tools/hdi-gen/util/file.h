@@ -70,9 +70,6 @@ public:
 
     static bool CheckValid(const std::string &path);
 
-    // "FileName" -> "file_name"
-    static std::string Pascal2UnderScoreCase(const std::string &name);
-
     size_t GetHashKey();
 
     static constexpr unsigned int READ = 0x1;

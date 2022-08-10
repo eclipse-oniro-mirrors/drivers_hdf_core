@@ -10,8 +10,6 @@
 
 namespace OHOS {
 namespace HDI {
-const char *TAB = TAB;
-
 void ASTType::SetName(const std::string &name)
 {
     name_ = name;
