@@ -242,25 +242,6 @@ int32_t AudioSetCaptureBufInfo(struct PlatformData *data, const struct AudioPcmH
     return HDF_SUCCESS;
 }
 
-int32_t AudioWriteProcBigEndian(const struct PlatformData *data, struct AudioTxData *txData)
-{
-    uint32_t buffSize;
-
-    if (data == NULL || txData == NULL || txData->buf == NULL) {
-        AUDIO_DRIVER_LOG_ERR("input param is null.");
-        return HDF_ERR_INVALID_PARAM;
-    }
-
-    buffSize = (uint32_t)txData->frames * data->renderPcmInfo.frameSize;
-    if (data->renderPcmInfo.isBigEndian) {
-        if (AudioDataBigEndianChange(txData->buf, buffSize, data->renderPcmInfo.bitWidth) != HDF_SUCCESS) {
-            AUDIO_DRIVER_LOG_ERR("AudioDataBigEndianChange: failed.");
-            return HDF_FAILURE;
-        }
-    }
-    return HDF_SUCCESS;
-}
-
 static int32_t AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStreamType streamType)
 {
     uint32_t dataAvailable;
@@ -642,7 +623,7 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
     return HDF_SUCCESS;
 }
 
-int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct AudioMmapData *rxMmapData)
+static int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct AudioMmapData *rxMmapData)
 {
     uint32_t offset = 0;
     int32_t status;

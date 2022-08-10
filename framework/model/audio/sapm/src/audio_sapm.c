@@ -321,7 +321,7 @@ static void AudioSampPowerClockCallback(struct AudioSapmComponent *sapmComponent
     return;
 }
 
-int32_t AudioSapmNewComponent(struct AudioCard *audioCard, const struct AudioSapmComponent *component)
+static int32_t AudioSapmNewComponent(struct AudioCard *audioCard, const struct AudioSapmComponent *component)
 {
     struct AudioSapmComponent *sapmComponent = NULL;
 
@@ -329,13 +329,8 @@ int32_t AudioSapmNewComponent(struct AudioCard *audioCard, const struct AudioSap
         ADM_LOG_ERR("input params check error: audioCard is NULL.");
         return HDF_FAILURE;
     }
-    if (component == NULL) {
-        ADM_LOG_ERR("input params check error: component is NULL.");
-        return HDF_FAILURE;
-    }
-
-    if (component->componentName == NULL) {
-        ADM_LOG_ERR("component->componentName is NULL");
+    if (component == NULL || component->componentName == NULL) {
+        ADM_LOG_ERR("params component or component->componentName is null.");
         return HDF_FAILURE;
     }
 
@@ -681,12 +676,6 @@ static int32_t AudioSampStaticOrDynamicPath(struct AudioCard *audioCard,
 {
     int32_t ret;
 
-    if ((audioCard == NULL) || (source == NULL) || (sink == NULL) || (path == NULL) || (route == NULL)) {
-        ADM_LOG_ERR("input params check error: audioCard=%p, source=%p, sink=%p, path=%p, route=%p.",
-            audioCard, source, sink, path, route);
-        return HDF_FAILURE;
-    }
-
     if (route->control == NULL) {
         DListInsertHead(&path->list, &audioCard->paths);
         DListInsertHead(&path->listSink, &sink->sources);
@@ -767,10 +756,6 @@ static int32_t AudioSapmAddRoute(struct AudioCard *audioCard, const struct Audio
     struct AudioSapmComponent *sapmComponent = NULL;
     int32_t ret;
 
-    if (audioCard == NULL) {
-        ADM_LOG_ERR("input params check error: audioCard is NULL.");
-        return HDF_FAILURE;
-    }
     if (route == NULL || route->source == NULL || route->sink == NULL) {
         ADM_LOG_ERR("input params check error: route is NULL.");
         return HDF_FAILURE;
@@ -844,7 +829,8 @@ int32_t AudioSapmAddRoutes(struct AudioCard *audioCard, const struct AudioSapmRo
     return HDF_SUCCESS;
 }
 
-int32_t AudioSapmNewMixerControls(const struct AudioSapmComponent *sapmComponent, struct AudioCard *audioCard)
+static int32_t AudioSapmNewMixerControls(
+    const struct AudioSapmComponent *sapmComponent, struct AudioCard *audioCard)
 {
     struct AudioSapmpath *path = NULL;
     int32_t i;
@@ -882,7 +868,7 @@ int32_t AudioSapmNewMixerControls(const struct AudioSapmComponent *sapmComponent
     return HDF_SUCCESS;
 }
 
-int32_t AudioSapmNewMuxControls(struct AudioSapmComponent *sapmComponent, struct AudioCard *audioCard)
+static int32_t AudioSapmNewMuxControls(struct AudioSapmComponent *sapmComponent, struct AudioCard *audioCard)
 {
     struct AudioKcontrol *kctrl = NULL;
 

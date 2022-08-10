@@ -770,7 +770,7 @@ int32_t AudioGetCtrlOpsReg(struct AudioCtrlElemValue *elemValue,
     return HDF_SUCCESS;
 }
 
-int32_t AudioGetEnumCtrlOpsReg(struct AudioCtrlElemValue *elemValue,
+static int32_t AudioGetEnumCtrlOpsReg(struct AudioCtrlElemValue *elemValue,
     const struct AudioEnumKcontrol *enumCtrl, uint32_t curValue)
 {
     if (elemValue == NULL || enumCtrl == NULL) {
@@ -789,7 +789,7 @@ int32_t AudioGetEnumCtrlOpsReg(struct AudioCtrlElemValue *elemValue,
     return HDF_SUCCESS;
 }
 
-int32_t AudioGetEnumCtrlOpsRReg(struct AudioCtrlElemValue *elemValue,
+static int32_t AudioGetEnumCtrlOpsRReg(struct AudioCtrlElemValue *elemValue,
     const struct AudioEnumKcontrol *enumCtrl, uint32_t rcurValue)
 {
     if (elemValue == NULL || enumCtrl == NULL) {
@@ -966,7 +966,7 @@ int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct 
     return HDF_SUCCESS;
 }
 
-int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struct AudioEnumKcontrol *enumCtrl,
+static int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struct AudioEnumKcontrol *enumCtrl,
     uint32_t *value)
 {
     uint32_t val[2];
