@@ -187,6 +187,7 @@ static int32_t HdmiCmdInfoFrameSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data
     union HdmiInfoFrameInfo *frame = NULL;
     size_t size;
 
+    (void)reply;
     if (!HdfSbufReadUint16(data, (uint16_t *)&type)) {
         HDF_LOGE("HdmiCmdInfoFrameSet: sbuf read uint16 failed");
         return HDF_ERR_IO;

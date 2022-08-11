@@ -404,6 +404,7 @@ static int32_t AdcManagerIoRead(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t AdcManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)client;
     switch (cmd) {
         case ADC_IO_OPEN:
             return AdcManagerIoOpen(data, reply);

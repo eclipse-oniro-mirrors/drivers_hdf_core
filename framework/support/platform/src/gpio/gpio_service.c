@@ -169,6 +169,7 @@ static void GpioServiceUpdate(uint16_t gpio)
 
 static int32_t GpioServiceIrqFunc(uint16_t gpio, void *data)
 {
+    (void)data;
     HDF_LOGD("%s:%d", __func__, gpio);
     GpioServiceUpdate(gpio);
     return HDF_SUCCESS;
@@ -312,6 +313,7 @@ static int32_t GpioServiceDispatch(
 {
     int32_t ret;
 
+    (void)client;
     switch (cmd) {
         case GPIO_IO_READ:
             return GpioServiceIoRead(data, reply);

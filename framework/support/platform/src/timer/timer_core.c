@@ -189,6 +189,8 @@ static int32_t TimerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t handle;
     int16_t number;
+
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: param invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -211,6 +213,8 @@ static int32_t TimerIoStart(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t handle;
     int16_t number;
+
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: param invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -232,6 +236,8 @@ static int32_t TimerIoStop(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t handle;
     int16_t number;
+
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: param invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -277,6 +283,8 @@ static int32_t TimerIoSet(struct HdfSBuf *data, struct HdfSBuf *reply)
     uint32_t handle;
     int16_t number;
     struct TimerConfig *cfg = NULL;
+
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: param invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -305,6 +313,8 @@ static int32_t TimerIoSetOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     uint32_t handle;
     int16_t number;
     struct TimerConfig *cfg = NULL;
+
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: param invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -367,6 +377,7 @@ static int32_t TimerIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct
 {
     int32_t ret;
 
+    (void)client;
     switch (cmd) {
         case TIMER_IO_OPEN:
             ret = TimerIoOpen(data, reply);

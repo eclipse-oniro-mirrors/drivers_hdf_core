@@ -69,7 +69,7 @@ int32_t CanRxBoxAddMsg(struct CanRxBox *rbox, struct CanMsg *cmsg)
     ret = PlatformQueueAddMsg(rbox->queue, pmsg);
     if (ret != HDF_SUCCESS) {
         OsalMemFree(pmsg);
-        CanMsgPut(cmsg); // decrase ref count if enqueue failed 
+        CanMsgPut(cmsg); // decrase ref count if enqueue failed
     }
     return ret;
 }

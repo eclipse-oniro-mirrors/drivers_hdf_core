@@ -356,6 +356,7 @@ static int32_t DacManagerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t number;
 
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: invalid data", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -383,6 +384,7 @@ static int32_t DacManagerIoWrite(struct HdfSBuf *data, struct HdfSBuf *reply)
     uint32_t val;
     uint32_t number;
 
+    (void)reply;
     if (data == NULL) {
         HDF_LOGE("%s: invalid data", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -421,6 +423,7 @@ static int32_t DacManagerIoWrite(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t DacManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)client;
     switch (cmd) {
         case DAC_IO_OPEN:
             return DacManagerIoOpen(data, reply);

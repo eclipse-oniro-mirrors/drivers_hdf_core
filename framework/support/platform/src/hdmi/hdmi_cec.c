@@ -1506,6 +1506,7 @@ static void HdmiCecHandleUserControlReleasedMsg(struct HdmiCntlr *cntlr,
 static void HdmiCecHandleGetCecVersionMsg(struct HdmiCntlr *cntlr,
     struct HdmiCecMsg *msg, struct HdmiCecMsg *txMsg)
 {
+    (void)msg;
     HdmiCecEncodingCecVersionMsg(txMsg, cntlr->cec->info.cecVersion);
     if (HdmiCecSendMsg(cntlr, txMsg) != HDF_SUCCESS) {
         HDF_LOGE("get cec version msg send fail");

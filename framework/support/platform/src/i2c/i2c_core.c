@@ -361,6 +361,7 @@ static int32_t I2cManagerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
     int16_t number;
     uint32_t handle;
 
+    (void)reply;
     if (!HdfSbufReadUint32(data, &handle)) {
         return HDF_ERR_IO;
     }
@@ -378,6 +379,7 @@ static int32_t I2cManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
 {
     int32_t ret;
 
+    (void)client;
     switch (cmd) {
         case I2C_IO_OPEN:
             return I2cManagerIoOpen(data, reply);

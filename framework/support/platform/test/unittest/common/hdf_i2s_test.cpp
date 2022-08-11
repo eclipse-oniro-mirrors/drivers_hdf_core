@@ -66,7 +66,7 @@ void HdfLiteI2sTest::TearDown()
  * @tc.name: I2sSetCfgTest001
  * @tc.desc: i2s function test
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(HdfLiteI2sTest, I2sSetCfgTest001, TestSize.Level1)
 {
@@ -78,7 +78,7 @@ HWTEST_F(HdfLiteI2sTest, I2sSetCfgTest001, TestSize.Level1)
   * @tc.name: I2sReadStartTest001
   * @tc.desc: i2s function test
   * @tc.type: FUNC
-  * @tc.requir: 
+  * @tc.requir:
   */
 HWTEST_F(HdfLiteI2sTest, I2sReadStartTest001, TestSize.Level1)
 {
@@ -90,7 +90,7 @@ HWTEST_F(HdfLiteI2sTest, I2sReadStartTest001, TestSize.Level1)
   * @tc.name: I2sReadTest001
   * @tc.desc: i2s function test
   * @tc.type: FUNC
-  * @tc.require: 
+  * @tc.require:
   */
 HWTEST_F(HdfLiteI2sTest, I2sReadTest001, TestSize.Level1)
 {
@@ -102,7 +102,7 @@ HWTEST_F(HdfLiteI2sTest, I2sReadTest001, TestSize.Level1)
   * @tc.name: I2sReadStopTest001
   * @tc.desc: i2s function test
   * @tc.type: FUNC
-  * @tc.requir: 
+  * @tc.requir:
   */
 HWTEST_F(HdfLiteI2sTest, I2sReadStopTest001, TestSize.Level1)
 {
@@ -114,7 +114,7 @@ HWTEST_F(HdfLiteI2sTest, I2sReadStopTest001, TestSize.Level1)
   * @tc.name: I2sWriteStartTest001
   * @tc.desc: i2s function test
   * @tc.type: FUNC
-  * @tc.requir: 
+  * @tc.requir:
   */
 HWTEST_F(HdfLiteI2sTest, I2sWriteStartTest001, TestSize.Level1)
 {
@@ -127,7 +127,7 @@ HWTEST_F(HdfLiteI2sTest, I2sWriteStartTest001, TestSize.Level1)
   * @tc.name: I2sWriteTest001
   * @tc.desc: i2s function test
   * @tc.type: FUNC
-  * @tc.require: 
+  * @tc.require:
   */
 HWTEST_F(HdfLiteI2sTest, I2sWriteTest001, TestSize.Level1)
 {
@@ -140,7 +140,7 @@ HWTEST_F(HdfLiteI2sTest, I2sWriteTest001, TestSize.Level1)
   * @tc.name: I2sWriteStopTest001
   * @tc.desc: i2s function test
   * @tc.type: FUNC
-  * @tc.require: 
+  * @tc.require:
   */
 HWTEST_F(HdfLiteI2sTest, I2sWriteStopTest001, TestSize.Level1)
 {
@@ -152,7 +152,7 @@ HWTEST_F(HdfLiteI2sTest, I2sWriteStopTest001, TestSize.Level1)
  * @tc.name: I2sGetCfgTest001
  * @tc.desc: i2s function test
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(HdfLiteI2sTest, I2sGetCfgTest001, TestSize.Level1)
 {
@@ -164,7 +164,7 @@ HWTEST_F(HdfLiteI2sTest, I2sGetCfgTest001, TestSize.Level1)
  * @tc.name: I2sReliabilityTest001
  * @tc.desc: i2s function test
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(HdfLiteI2sTest, I2sReliabilityTest001, TestSize.Level1)
 {
