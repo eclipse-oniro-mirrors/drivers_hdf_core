@@ -641,6 +641,7 @@ int32_t PinIoManagerDispatch(struct HdfDeviceIoClient *client, int cmd, struct H
 {
     int32_t ret;
 
+    (void)client;
     switch (cmd) {
         case PIN_IO_GET:
             return PinIoGet(data, reply);

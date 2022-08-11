@@ -76,6 +76,7 @@ static int32_t GpioManagerAdd(struct PlatformManager *manager, struct PlatformDe
 
 static int32_t GpioManagerDel(struct PlatformManager *manager, struct PlatformDevice *device)
 {
+    (void)manager;
     if (!DListIsEmpty(&device->node)) {
         DListRemove(&device->node);
     }

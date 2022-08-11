@@ -19,10 +19,10 @@
 #define WATCHDOG_ID_MAX   8
 #define WATCHDOG_NAME_LEN 32
 
-static void *WatchdogGetById(int16_t wdtId)
+static struct WatchdogCntlr *WatchdogGetById(int16_t wdtId)
 {
     char *serviceName = NULL;
-    void *obj = NULL;
+    struct WatchdogCntlr *obj = NULL;
 
     if (wdtId < 0 || wdtId >= WATCHDOG_ID_MAX) {
         HDF_LOGE("WatchdogGetById: invalid id:%d", wdtId);
@@ -38,7 +38,7 @@ static void *WatchdogGetById(int16_t wdtId)
         OsalMemFree(serviceName);
         return NULL;
     }
-    obj = (void *)DevSvcManagerClntGetService(serviceName);
+    obj = (struct WatchdogCntlr *)DevSvcManagerClntGetService(serviceName);
     if (obj == NULL) {
         HDF_LOGE("WatchdogGetById: get obj fail!");
     }
@@ -48,7 +48,7 @@ static void *WatchdogGetById(int16_t wdtId)
 
 int32_t WatchdogOpen(int16_t wdtId, DevHandle *handle)
 {
-    struct Watchdog *service = NULL;
+    struct WatchdogCntlr *service = NULL;
     int32_t ret;
 
     if (handle == NULL) {
@@ -62,7 +62,7 @@ int32_t WatchdogOpen(int16_t wdtId, DevHandle *handle)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = WatchdogGetPrivData((struct WatchdogCntlr *)service);
+    ret = WatchdogGetPrivData(service);
     if (ret == HDF_SUCCESS) {
         *handle = (DevHandle)service;
         return ret;
