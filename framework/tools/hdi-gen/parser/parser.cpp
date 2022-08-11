@@ -1517,7 +1517,6 @@ bool Parser::CheckCallbackAst()
 }
 
 /*
- * For example
  * filePath: ./ohos/interface/foo/v1_0/IFoo.idl
  * package OHOS.Hdi.foo.v1_0;
  */
