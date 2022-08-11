@@ -93,7 +93,7 @@ protected:
 
     void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
 
-    /* ForExample:
+    /* add version prefix
      * MajorVersion: 1
      * MinorVersion: 0
      * name: IFoo
