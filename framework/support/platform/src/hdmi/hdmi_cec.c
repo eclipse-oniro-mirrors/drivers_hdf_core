@@ -1265,7 +1265,7 @@ void HdmiCdcEncodingHecInquireStateMsg(struct HdmiCecMsg *msg, uint16_t initiato
 }
 
 void HdmiCdcEncodingHecReportStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
-    uint16_t phyAddr, struct HdmiCdcHecState *state)
+    uint16_t phyAddr, const struct HdmiCdcHecState *state)
 {
     msg->len = HDMI_CDC_GET_MSG_LEN(HDMI_CDC_HEC_REPORT_STATE_MSG_PARAM_MIN_LEN);
     msg->data[HDMI_CEC_MSG_DATA_ZEROTH_ELEMENT] |= HDMI_CEC_LOG_ADDR_UNREGISTERED_OR_BROADCAST;

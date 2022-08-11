@@ -280,7 +280,7 @@ static int32_t RtcRegListener(struct HdfIoService *service, enum RtcAlarmIndex a
     param->func = cb;
 
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, 0, (void *)param,
-            RtcOnDevEventReceive) != HDF_SUCCESS) {
+        RtcOnDevEventReceive) != HDF_SUCCESS) {
         HDF_LOGE("%s: PlatformUserListenerReg fail", __func__);
         OsalMemFree(param);
         return HDF_ERR_IO;
