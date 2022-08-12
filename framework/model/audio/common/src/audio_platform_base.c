@@ -848,7 +848,7 @@ int32_t AudioCaptureOpen(const struct AudioCard *card)
 {
     struct PlatformData *platformData;
     if (card == NULL) {
-        AUDIO_DRIVER_LOG_ERR("param card is NULL.");
+        AUDIO_DRIVER_LOG_ERR("capture open param card is NULL.");
         return HDF_FAILURE;
     }
 
@@ -871,7 +871,7 @@ int32_t AudioCaptureClose(const struct AudioCard *card)
 {
     struct PlatformData *platformData;
     if (card == NULL) {
-        AUDIO_DRIVER_LOG_ERR("param card is NULL.");
+        AUDIO_DRIVER_LOG_ERR("capture close param card is NULL.");
         return HDF_FAILURE;
     }
 
@@ -1231,13 +1231,13 @@ int32_t AudioRenderPrepare(const struct AudioCard *card)
     int32_t ret;
     struct PlatformData *platformData;
     if (card == NULL) {
-        AUDIO_DRIVER_LOG_ERR("param card is NULL.");
+        AUDIO_DRIVER_LOG_ERR("audio render param card is NULL.");
         return HDF_ERR_INVALID_PARAM;
     }
 
     platformData = PlatformDataFromCard(card);
     if (platformData == NULL) {
-        AUDIO_DRIVER_LOG_ERR("PlatformDataFromCard failed.");
+        AUDIO_DRIVER_LOG_ERR("audio render PlatformDataFromCard failed.");
         return HDF_FAILURE;
     }
 
@@ -1255,13 +1255,13 @@ int32_t AudioCapturePrepare(const struct AudioCard *card)
     int32_t ret;
     struct PlatformData *platformData;
     if (card == NULL) {
-        AUDIO_DRIVER_LOG_ERR("param card is NULL.");
+        AUDIO_DRIVER_LOG_ERR("audio capture param card is NULL.");
         return HDF_ERR_INVALID_PARAM;
     }
 
     platformData = PlatformDataFromCard(card);
     if (platformData == NULL) {
-        AUDIO_DRIVER_LOG_ERR("PlatformDataFromCard failed.");
+        AUDIO_DRIVER_LOG_ERR("audio capture PlatformDataFromCard failed.");
         return HDF_FAILURE;
     }
 

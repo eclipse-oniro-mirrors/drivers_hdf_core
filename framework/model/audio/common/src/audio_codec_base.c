@@ -595,7 +595,7 @@ int32_t CodecDeviceRegI2cRead(const struct CodecDevice *codec, uint32_t reg, uin
 
     i2cTransferParam = (struct I2cTransferParam *)codec->devData->privateParam;
     if (i2cTransferParam == NULL) {
-        AUDIO_DRIVER_LOG_ERR("i2cTransferParam is NULL.");
+        AUDIO_DRIVER_LOG_ERR("codec i2cTransferParam is NULL.");
         return HDF_FAILURE;
     }
 
@@ -623,7 +623,7 @@ int32_t CodecDeviceRegI2cWrite(const struct CodecDevice *codec, uint32_t reg, ui
 
     i2cTransferParam = (struct I2cTransferParam *)codec->devData->privateParam;
     if (i2cTransferParam == NULL) {
-        AUDIO_DRIVER_LOG_ERR("i2cTransferParam is NULL.");
+        AUDIO_DRIVER_LOG_ERR("codec i2cTransferParam is NULL.");
         return HDF_FAILURE;
     }
 
@@ -631,7 +631,7 @@ int32_t CodecDeviceRegI2cWrite(const struct CodecDevice *codec, uint32_t reg, ui
     regAttr.value = (uint16_t)value;
     ret = CodecI2cTransfer(i2cTransferParam, &regAttr, 0);
     if (ret != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("failed.");
+        AUDIO_DRIVER_LOG_ERR("I2c Transfer failed.");
         return HDF_FAILURE;
     }
     AUDIO_DRIVER_LOG_DEBUG("success");
@@ -651,7 +651,7 @@ int32_t CodecDaiRegI2cRead(const struct DaiDevice *dai, uint32_t reg, uint32_t *
 
     i2cTransferParam = (struct I2cTransferParam *)dai->devData->privateParam;
     if (i2cTransferParam == NULL) {
-        AUDIO_DRIVER_LOG_ERR("i2cTransferParam is NULL.");
+        AUDIO_DRIVER_LOG_ERR("codec dai i2cTransferParam is NULL.");
         return HDF_FAILURE;
     }
 
@@ -659,7 +659,7 @@ int32_t CodecDaiRegI2cRead(const struct DaiDevice *dai, uint32_t reg, uint32_t *
     regAttr.value = 0;
     ret = CodecI2cTransfer(i2cTransferParam, &regAttr, I2C_FLAG_READ);
     if (ret != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("failed.");
+        AUDIO_DRIVER_LOG_ERR("CodecI2cTransfer failed.");
         return HDF_FAILURE;
     }
     *value = regAttr.value;
@@ -679,7 +679,7 @@ int32_t CodecDaiRegI2cWrite(const struct DaiDevice *dai, uint32_t reg, uint32_t 
 
     i2cTransferParam = (struct I2cTransferParam *)dai->devData->privateParam;
     if (i2cTransferParam == NULL) {
-        AUDIO_DRIVER_LOG_ERR("i2cTransferParam is NULL.");
+        AUDIO_DRIVER_LOG_ERR("codec dai i2cTransferParam is NULL.");
         return HDF_FAILURE;
     }
 
@@ -687,7 +687,7 @@ int32_t CodecDaiRegI2cWrite(const struct DaiDevice *dai, uint32_t reg, uint32_t 
     regAttr.value = (uint16_t)value;
     ret = CodecI2cTransfer(i2cTransferParam, &regAttr, 0);
     if (ret != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("failed.");
+        AUDIO_DRIVER_LOG_ERR("codec I2c Transfer failed.");
         return HDF_FAILURE;
     }
     AUDIO_DRIVER_LOG_DEBUG("success");

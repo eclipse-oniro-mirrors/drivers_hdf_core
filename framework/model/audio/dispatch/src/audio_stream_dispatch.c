@@ -444,12 +444,10 @@ static int32_t StreamHostCaptureOpen(const struct HdfDeviceIoClient *client, str
         ADM_LOG_ERR("StreamHostCaptureOpen input param is NULL.");
         return HDF_FAILURE;
     }
-
     (void)reply;
-
     cardName = (char *)OsalMemCalloc(sizeof(char) * BUFF_SIZE_MAX);
     if (cardName == NULL) {
-        ADM_LOG_ERR("malloc cardServiceName failed!");
+        ADM_LOG_ERR("malloc failed!");
         return HDF_FAILURE;
     }
 
@@ -529,18 +527,17 @@ static int32_t StreamHostRenderOpen(const struct HdfDeviceIoClient *client, stru
     struct HdfSBuf *reply)
 {
     char *cardName = NULL;
-    const char *carNameTemp = NULL;
+    const char *carNameStr = NULL;
     struct StreamHost *streamHost = NULL;
     struct AudioCard *audioCard = NULL;
 
     ADM_LOG_DEBUG("entry.");
+    (void)reply;
 
     if (client == NULL) {
         ADM_LOG_ERR("StreamHostRenderOpen input param is NULL.");
         return HDF_FAILURE;
     }
-
-    (void)reply;
 
     cardName = (char *)OsalMemCalloc(sizeof(char) * BUFF_SIZE_MAX);
     if (cardName == NULL) {
@@ -555,14 +552,14 @@ static int32_t StreamHostRenderOpen(const struct HdfDeviceIoClient *client, stru
         return HDF_FAILURE;
     }
 
-    if (!(carNameTemp = HdfSbufReadString(data))) {
+    if (!(carNameStr = HdfSbufReadString(data))) {
         ADM_LOG_ERR("read request cardServiceName failed!");
         OsalMemFree(cardName);
         return HDF_FAILURE;
     }
 
-    if (strncpy_s(cardName, BUFF_SIZE_MAX - 1, carNameTemp, strlen(carNameTemp) + 1) != EOK) {
-        ADM_LOG_ERR("memcpy cardName failed.");
+    if (strncpy_s(cardName, BUFF_SIZE_MAX - 1, carNameStr, strlen(carNameStr) + 1) != EOK) {
+        ADM_LOG_ERR("strncpy cardName failed.");
         OsalMemFree(cardName);
         return HDF_FAILURE;
     }
@@ -785,11 +782,12 @@ static int32_t StreamHostMmapWrite(const struct HdfDeviceIoClient *client, struc
     ADM_LOG_DEBUG("success.");
     return HDF_SUCCESS;
 }
+
 static int32_t StreamHostMmapPositionWrite(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct AudioCard *audioCard = NULL;
-    struct PlatformData *platformData;
+    struct PlatformData *platform;
     (void)data;
     ADM_LOG_DEBUG("entry.");
     if (client == NULL || reply == NULL) {
@@ -801,12 +799,12 @@ static int32_t StreamHostMmapPositionWrite(const struct HdfDeviceIoClient *clien
         ADM_LOG_ERR("audioCard instance is NULL.");
         return HDF_FAILURE;
     }
-    platformData = PlatformDataFromCard(audioCard);
-    if (platformData == NULL) {
+    platform = PlatformDataFromCard(audioCard);
+    if (platform == NULL) {
         ADM_LOG_ERR("platformHost instance is NULL.");
         return HDF_FAILURE;
     }
-    if (!HdfSbufWriteUint64(reply, platformData->renderBufInfo.framesPosition)) {
+    if (!HdfSbufWriteUint64(reply, platform->renderBufInfo.framesPosition)) {
         ADM_LOG_ERR("render mmap write position failed!");
         return HDF_FAILURE;
     }
@@ -870,12 +868,12 @@ static int32_t StreamHostMmapPositionRead(const struct HdfDeviceIoClient *client
 {
     struct AudioCard *audioCard = NULL;
     struct PlatformData *platformData;
-    (void)data;
     ADM_LOG_DEBUG("entry.");
     if (client == NULL || reply == NULL) {
         ADM_LOG_ERR("input param is NULL.");
         return HDF_FAILURE;
     }
+    (void)data;
     audioCard = StreamHostGetCardInstance(client);
     if (audioCard == NULL) {
         ADM_LOG_ERR("audioCard is NULL.");

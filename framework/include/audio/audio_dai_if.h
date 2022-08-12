@@ -81,6 +81,18 @@ struct AudioDaiOps {
 };
 
 /**
+ * @brief Defines Dai host in audio driver.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct DaiHost {
+    struct IDeviceIoService service; /**< Services provided by dai */
+    struct HdfDeviceObject *device;  /**< HDF device */
+    void *priv;                      /**< Dai private data interface */
+};
+
+/**
  * @brief Defines dai private data.
  *
  * @since 1.0
@@ -140,18 +152,6 @@ struct DaiData {
     struct AudioRegCfgGroupNode **regCfgGroup; /**< dai register group configured in HCS */
     struct OsalMutex mutex;                    /**< dai mutex */
     void *privateParam;                        /**< dai private parameter */
-};
-
-/**
- * @brief Defines Dai host in audio driver.
- *
- * @since 1.0
- * @version 1.0
- */
-struct DaiHost {
-    struct IDeviceIoService service; /**< Services provided by dai */
-    struct HdfDeviceObject *device;  /**< HDF device */
-    void *priv;                      /**< Dai private data interface */
 };
 
 #ifdef __cplusplus

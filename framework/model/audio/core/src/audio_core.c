@@ -480,29 +480,29 @@ int32_t AudioUpdateDaiRegBits(const struct DaiDevice *dai, uint32_t reg,
 
 int32_t AudioCodecRegUpdate(struct CodecDevice *codec, struct AudioMixerControl *mixerCtrl)
 {
-    uint32_t value;
+    uint32_t mixerValue;
     if (codec == NULL || mixerCtrl == NULL) {
         ADM_LOG_ERR("AudioKcontrolGetCodec is fail.");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    value = mixerCtrl->value;
-    if (value < mixerCtrl->min || value > mixerCtrl->max) {
-        ADM_LOG_ERR("Audio invalid value=%d", value);
+    mixerValue = mixerCtrl->value;
+    if (mixerValue < mixerCtrl->min || mixerValue > mixerCtrl->max) {
+        ADM_LOG_ERR("Audio codec invalid value=%d", mixerValue);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mixerCtrl->invert) {
-        value = mixerCtrl->max - mixerCtrl->value;
+        mixerValue = mixerCtrl->max - mixerCtrl->value;
     }
-    if (AudioUpdateCodecRegBits(codec, mixerCtrl->reg, mixerCtrl->mask, mixerCtrl->shift, value) != HDF_SUCCESS) {
+    if (AudioUpdateCodecRegBits(codec, mixerCtrl->reg, mixerCtrl->mask, mixerCtrl->shift, mixerValue) != HDF_SUCCESS) {
         ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
         return HDF_FAILURE;
     }
 
     if (mixerCtrl->reg != mixerCtrl->rreg || mixerCtrl->shift != mixerCtrl->rshift) {
         if (AudioUpdateCodecRegBits(codec, mixerCtrl->rreg, mixerCtrl->mask,
-            mixerCtrl->rshift, value) != HDF_SUCCESS) {
+            mixerCtrl->rshift, mixerValue) != HDF_SUCCESS) {
             ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
             return HDF_FAILURE;
         }
@@ -564,7 +564,7 @@ int32_t AudioDaiRegUpdate(const struct DaiDevice *dai, struct AudioMixerControl 
 
     value = mixerCtrl->value;
     if (value < mixerCtrl->min || value > mixerCtrl->max) {
-        ADM_LOG_ERR("Audio invalid value=%d", value);
+        ADM_LOG_ERR("Audio dai invalid value=%d", value);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -592,13 +592,13 @@ struct CodecDevice *AudioKcontrolGetCodec(const struct AudioKcontrol *kcontrol)
 {
     struct AudioCard *audioCard = NULL;
     if (kcontrol == NULL || kcontrol->pri == NULL) {
-        ADM_LOG_ERR("Input param kcontrol is NULL.");
+        ADM_LOG_ERR("Get Codec input param kcontrol is NULL.");
         return NULL;
     }
 
     audioCard = (struct AudioCard *)((volatile uintptr_t)(kcontrol->pri));
     if (audioCard == NULL || audioCard->rtd == NULL) {
-        ADM_LOG_ERR("Get codec or rtd fail.");
+        ADM_LOG_ERR("Get audio card or rtd fail.");
         return NULL;
     }
 
@@ -609,13 +609,13 @@ struct DaiDevice *AudioKcontrolGetCpuDai(const struct AudioKcontrol *kcontrol)
 {
     struct AudioCard *audioCard = NULL;
     if (kcontrol == NULL || kcontrol->pri == NULL) {
-        ADM_LOG_ERR("Input param kcontrol is NULL.");
+        ADM_LOG_ERR("Get CpuDai input param kcontrol is NULL.");
         return NULL;
     }
 
     audioCard = (struct AudioCard *)((volatile uintptr_t)(kcontrol->pri));
     if (audioCard == NULL || audioCard->rtd == NULL) {
-        ADM_LOG_ERR("Get codec or rtd fail.");
+        ADM_LOG_ERR("Get audio card or rtd fail.");
         return NULL;
     }
 
@@ -829,7 +829,7 @@ int32_t AudioCodecGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioC
     }
     if (AudioCodecReadReg(codec, mixerCtrl->reg, &curValue) != HDF_SUCCESS ||
         AudioCodecReadReg(codec, mixerCtrl->rreg, &rcurValue) != HDF_SUCCESS) {
-        ADM_LOG_ERR("Read Reg fail.");
+        ADM_LOG_ERR("Read Codec Reg fail.");
         return HDF_FAILURE;
     }
     if (AudioGetCtrlOpsReg(elemValue, mixerCtrl, curValue) != HDF_SUCCESS ||
@@ -931,7 +931,7 @@ int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct 
     struct CodecDevice *codec = NULL;
     struct AudioMixerControl *mixerCtrl = NULL;
     if (kcontrol == NULL || (kcontrol->privateValue <= 0) || elemValue == NULL) {
-        ADM_LOG_ERR("Audio input param is NULL.");
+        ADM_LOG_ERR("Audio codec set control register input param is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -969,7 +969,7 @@ int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct 
 static int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struct AudioEnumKcontrol *enumCtrl,
     uint32_t *value)
 {
-    uint32_t val[2];
+    uint32_t setVal[2];
     int32_t ret;
 
     if (codec == NULL || enumCtrl == NULL || value == NULL) {
@@ -978,29 +978,29 @@ static int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struc
     }
 
     if (enumCtrl->values != NULL) {
-        val[0] = enumCtrl->values[value[0]];
-        val[1] = enumCtrl->values[value[1]];
+        setVal[0] = enumCtrl->values[value[0]];
+        setVal[1] = enumCtrl->values[value[1]];
     } else {
-        val[0] = value[0];
-        val[1] = value[1];
+        setVal[0] = value[0];
+        setVal[1] = value[1];
     }
 
-    if (val[0] > enumCtrl->max) {
-        ADM_LOG_ERR("Audio invalid value=%d", val[0]);
+    if (setVal[0] > enumCtrl->max) {
+        ADM_LOG_ERR("Audio invalid value=%d", setVal[0]);
         return HDF_ERR_INVALID_OBJECT;
     }
-    ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft, val[0]);
+    ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft, setVal[0]);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
         return HDF_FAILURE;
     }
 
     if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
-        if (val[1] > enumCtrl->max) {
-            ADM_LOG_ERR("Audio invalid value=%d", val[1]);
+        if (setVal[1] > enumCtrl->max) {
+            ADM_LOG_ERR("Audio invalid value=%d", setVal[1]);
             return HDF_ERR_INVALID_OBJECT;
         }
-        ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight, val[1]);
+        ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight, setVal[1]);
         if (ret != HDF_SUCCESS) {
             ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
             return HDF_FAILURE;
@@ -1041,7 +1041,7 @@ int32_t AudioCpuDaiSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct
     struct DaiDevice *dai = NULL;
     struct AudioMixerControl *mixerCtrl = NULL;
     if (kcontrol == NULL || (kcontrol->privateValue <= 0) || elemValue == NULL) {
-        ADM_LOG_ERR("Audio input param is NULL.");
+        ADM_LOG_ERR("Audio cpu dai set control register input param is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -1092,12 +1092,12 @@ int32_t AudioCpuDaiGetCtrlOps(const struct AudioKcontrol *kcontrol, struct Audio
     }
     if (AudioDaiReadReg(dai, mixerCtrl->reg, &curValue) != HDF_SUCCESS ||
         AudioDaiReadReg(dai, mixerCtrl->rreg, &rcurValue) != HDF_SUCCESS) {
-        ADM_LOG_ERR("Read Reg fail.");
+        ADM_LOG_ERR("Read dai Reg fail.");
         return HDF_FAILURE;
     }
     if (AudioGetCtrlOpsReg(elemValue, mixerCtrl, curValue) != HDF_SUCCESS ||
         AudioGetCtrlOpsRReg(elemValue, mixerCtrl, rcurValue) != HDF_SUCCESS) {
-        ADM_LOG_ERR("Audio codec get kcontrol reg and rreg fail.");
+        ADM_LOG_ERR("Audio dai get kcontrol reg and rreg fail.");
         return HDF_FAILURE;
     }
 

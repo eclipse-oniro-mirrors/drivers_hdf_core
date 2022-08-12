@@ -25,15 +25,15 @@ enum ControlDispMethodCmd {
     AUDIODRV_CTRL_IOCTRL_ELEM_BUTT,
 };
 
-struct ControlDispCmdHandleList {
-    enum ControlDispMethodCmd cmd;
-    int32_t (*func)(const struct HdfDeviceIoClient *client, struct HdfSBuf *data, struct HdfSBuf *reply);
-};
-
 struct ControlHost {
     struct IDeviceIoService service;
     struct HdfDeviceObject *device;
     void *priv;
+};
+
+struct ControlDispCmdHandleList {
+    enum ControlDispMethodCmd cmd;
+    int32_t (*func)(const struct HdfDeviceIoClient *client, struct HdfSBuf *data, struct HdfSBuf *reply);
 };
 
 #ifdef __cplusplus
