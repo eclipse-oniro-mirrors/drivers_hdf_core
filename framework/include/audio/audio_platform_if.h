@@ -183,6 +183,18 @@ struct AudioDmaOps {
 };
 
 /**
+ * @brief Defines Platform host in audio driver.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct PlatformHost {
+    struct IDeviceIoService service; /**< Services provided by patform */
+    struct HdfDeviceObject *device;  /**< HDF device */
+    void *priv;                      /**< Platform private data interface */
+};
+
+/**
  * @brief Defines Dai device name and data.
  *
  * @since 1.0
@@ -193,18 +205,6 @@ struct PlatformDevice {
     struct PlatformData *devData;   /**< Platform module private data */
     struct HdfDeviceObject *device; /**< HDF device */
     struct DListHead list;          /**< Platform list */
-};
-
-/**
- * @brief Defines Platform host in audio driver.
- *
- * @since 1.0
- * @version 1.0
- */
-struct PlatformHost {
-    struct IDeviceIoService service; /**< Services provided by patform */
-    struct HdfDeviceObject *device;  /**< HDF device */
-    void *priv;                      /**< Platform private data interface */
 };
 
 #ifdef __cplusplus

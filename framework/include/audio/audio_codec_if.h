@@ -32,6 +32,18 @@ struct CodecDevice {
 };
 
 /**
+ * @brief Defines Codec host in audio driver.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct CodecHost {
+    struct IDeviceIoService service; /**< Services provided by codec */
+    struct HdfDeviceObject *device;  /**< HDF device */
+    void *priv;                      /**< Codec private data interface */
+};
+
+/**
  * @brief Defines Codec private data.
  *
  * @since 1.0
@@ -92,18 +104,6 @@ struct CodecData {
     struct AudioRegCfgGroupNode **regCfgGroup; /**< Codec register group configured in HCS */
     struct OsalMutex mutex;                    /**< Codec mutex */
     void *privateParam;                        /**< Codec private parameter */
-};
-
-/**
- * @brief Defines Codec host in audio driver.
- *
- * @since 1.0
- * @version 1.0
- */
-struct CodecHost {
-    struct IDeviceIoService service; /**< Services provided by codec */
-    struct HdfDeviceObject *device;  /**< HDF device */
-    void *priv;                      /**< Codec private data interface */
 };
 
 #ifdef __cplusplus
