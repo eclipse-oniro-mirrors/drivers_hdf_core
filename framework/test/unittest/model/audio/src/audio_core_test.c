@@ -26,11 +26,17 @@ static struct AudioMixerControl g_audioTestReg = {
 
 static int32_t AudioDeviceReadRegMock(const struct CodecDevice *codec, uint32_t reg, uint32_t *value)
 {
+    (void)codec;
+    (void)reg;
+    (void)value;
     return HDF_SUCCESS;
 }
 
 static int32_t AudioDeviceWriteRegMock(const struct CodecDevice *codec, uint32_t reg, uint32_t value)
 {
+    (void)codec;
+    (void)reg;
+    (void)value;
     return HDF_SUCCESS;
 }
 
