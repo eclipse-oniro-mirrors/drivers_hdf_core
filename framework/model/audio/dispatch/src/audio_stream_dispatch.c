@@ -285,10 +285,6 @@ static int32_t AudioDaiDeviceStartup(const struct AudioCard *audioCard)
 
 static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwParams *params)
 {
-    if ((reqData == NULL) || (params == NULL)) {
-        ADM_LOG_ERR(" input param is NULL.");
-        return HDF_FAILURE;
-    }
     if (!HdfSbufReadUint32(reqData, &params->streamType)) {
         ADM_LOG_ERR("read request streamType failed!");
         return HDF_FAILURE;
@@ -301,12 +297,9 @@ static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwPa
         ADM_LOG_ERR("read request rate failed!");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadUint32(reqData, &params->periodSize)) {
-        ADM_LOG_ERR("read request periodSize failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufReadUint32(reqData, &params->periodCount)) {
-        ADM_LOG_ERR("read request periodCount failed!");
+    if (!HdfSbufReadUint32(reqData, &params->periodSize) ||
+        !HdfSbufReadUint32(reqData, &params->periodCount)) {
+        ADM_LOG_ERR("read request periodSize or periodCount failed!");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->format)) {
@@ -325,24 +318,15 @@ static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwPa
         HDF_LOGE("read request frameSize failed!");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->isBigEndian)) {
-        HDF_LOGE("read request isBigEndian failed!");
+    if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->isBigEndian) ||
+        !HdfSbufReadUint32(reqData, (uint32_t *)&params->isSignedData)) {
+        HDF_LOGE("read request isBigEndian or isSignedData failed!");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->isSignedData)) {
-        HDF_LOGE("read request isSignedData failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufReadUint32(reqData, &params->startThreshold)) {
-        HDF_LOGE("read request startThreshold failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufReadUint32(reqData, &params->stopThreshold)) {
-        HDF_LOGE("read request stopThreshold failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufReadUint32(reqData, &params->silenceThreshold)) {
-        HDF_LOGE("read request silenceThreshold failed!");
+    if (!HdfSbufReadUint32(reqData, &params->startThreshold) ||
+        !HdfSbufReadUint32(reqData, &params->stopThreshold) ||
+        !HdfSbufReadUint32(reqData, &params->silenceThreshold)) {
+        HDF_LOGE("read request Threshold params failed!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -806,6 +790,7 @@ static int32_t StreamHostMmapPositionWrite(const struct HdfDeviceIoClient *clien
 {
     struct AudioCard *audioCard = NULL;
     struct PlatformData *platformData;
+    (void)data;
     ADM_LOG_DEBUG("entry.");
     if (client == NULL || reply == NULL) {
         ADM_LOG_ERR("input param is NULL.");
@@ -885,6 +870,7 @@ static int32_t StreamHostMmapPositionRead(const struct HdfDeviceIoClient *client
 {
     struct AudioCard *audioCard = NULL;
     struct PlatformData *platformData;
+    (void)data;
     ADM_LOG_DEBUG("entry.");
     if (client == NULL || reply == NULL) {
         ADM_LOG_ERR("input param is NULL.");

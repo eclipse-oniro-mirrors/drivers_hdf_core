@@ -135,16 +135,8 @@ static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struc
     struct AudioCtrlElemId id;
     int32_t result;
 
-    if (client == NULL) {
-        ADM_LOG_ERR("Input ElemRead params check error: client is NULL.");
-        return HDF_FAILURE;
-    }
-    if (reqData == NULL) {
-        ADM_LOG_ERR("Input ElemRead params check error: reqData is NULL.");
-        return HDF_FAILURE;
-    }
-    if (rspData == NULL) {
-        ADM_LOG_ERR("Input ElemRead params check error: rspData is NULL.");
+    if (client == NULL || reqData == NULL || rspData == NULL) {
+        ADM_LOG_ERR("params client or reqData or rspData is null.");
         return HDF_FAILURE;
     }
 

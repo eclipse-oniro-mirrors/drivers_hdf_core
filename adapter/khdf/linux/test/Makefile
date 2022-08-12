@@ -94,14 +94,7 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_TEST) += $(HDF_FRAMWORK_TEST_ROOT)/model/audio/sr
                                         $(HDF_FRAMWORK_TEST_ROOT)/model/audio/src/audio_dai_base_test.o \
                                         $(HDF_FRAMWORK_TEST_ROOT)/model/audio/src/audio_dma_base_test.o \
                                         $(HDF_FRAMWORK_TEST_ROOT)/model/audio/src/audio_dsp_base_test.o \
-                                        $(HDF_FRAMWORK_TEST_ROOT)/model/audio/src/audio_platform_base_test.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hdf_audio_driver_test.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hi3516_common_func.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hi3516_dai_ops_test.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hi3516_dma_ops_test.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hi3516_codec_ops_test.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hi3516_codec_impl_test.o \
-                                        $(HDF_AUDIO_DRIVER_TEST_ROOT)/src/hi3516_aiao_impl_test.o
+                                        $(HDF_FRAMWORK_TEST_ROOT)/model/audio/src/audio_platform_base_test.o
 
 ccflags-y += -I$(srctree)/drivers/hdf/framework/include \
              -I$(srctree)/drivers/hdf/framework/include/osal \

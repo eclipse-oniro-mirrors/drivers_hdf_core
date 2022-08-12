@@ -79,7 +79,6 @@
 #include "hdf_wifi_test.h"
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_AUDIO_TEST) || defined(CONFIG_DRIVERS_HDF_AUDIO_TEST)
-#include "hdf_audio_driver_test.h"
 #include "hdf_audio_test.h"
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_USB_DDK_DEVICE) || defined(CONFIG_DRIVERS_HDF_USB_DDK_DEVICE)
@@ -169,7 +168,6 @@ HdfTestFuncList g_hdfTestFuncList[] = {
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_AUDIO_TEST) || defined(CONFIG_DRIVERS_HDF_AUDIO_TEST)
     {TEST_AUDIO_TYPE, HdfAudioEntry},
-    {TEST_AUDIO_DRIVER_TYPE, HdfAudioDriverEntry},
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_USB_DDK_DEVICE) || defined(CONFIG_DRIVERS_HDF_USB_DDK_DEVICE)
     {TEST_USB_DEVICE_TYPE, HdfUsbDeviceEntry},

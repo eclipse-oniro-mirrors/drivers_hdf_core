@@ -491,22 +491,13 @@ static int32_t ParseAudioAttr(const struct DeviceResourceIface *parser, const st
 int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData)
 {
     uint16_t index;
-    const struct DeviceResourceNode *root = NULL;
     const struct DeviceResourceNode *regCfgNode = NULL;
     const struct DeviceResourceAttr *regAttr = NULL;
     const struct DeviceResourceNode *idNode = NULL;
     struct DeviceResourceIface *drsOps = NULL;
 
-    ADM_LOG_DEBUG("Entry.");
-
-    if (device == NULL || configData == NULL) {
+    if (device == NULL || device->property == NULL || configData == NULL) {
         ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
-        return HDF_FAILURE;
-    }
-
-    root = device->property;
-    if (root == NULL) {
-        ADM_LOG_ERR("drs node is NULL.");
         return HDF_FAILURE;
     }
 
@@ -516,7 +507,7 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
         return HDF_FAILURE;
     }
 
-    idNode = drsOps->GetChildNode(root, "idInfo");
+    idNode = drsOps->GetChildNode(device->property, "idInfo");
     if (idNode != NULL) {
         if (ParseAudioAttr(drsOps, idNode, &configData->audioIdInfo) != HDF_SUCCESS) {
             ADM_LOG_ERR("audio reg node attr is null");
@@ -524,7 +515,7 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
         }
     }
 
-    regCfgNode = drsOps->GetChildNode(root, "regConfig");
+    regCfgNode = drsOps->GetChildNode(device->property, "regConfig");
     if (regCfgNode == NULL) {
         ADM_LOG_ERR("CodecGetRegConfig: Read audioRegConfig fail!");
         return HDF_FAILURE;
