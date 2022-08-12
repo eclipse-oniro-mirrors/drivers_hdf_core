@@ -109,10 +109,10 @@ int32_t HdfWifiEventInformBssFrame(const struct NetDevice *netDev,
     ieLen = bssInfo->mgmtLen - (uint32_t)OFFSET_OF(struct Ieee80211Mgmt, u.probeResp.variable);
     beaconLen = bssInfo->mgmtLen - (uint32_t)OFFSET_OF(struct Ieee80211Mgmt, u.beacon.variable);
     if (!HdfSbufWriteString(data, netDev->name) ||
-        !HdfSbufWriteUint16(data, (int16_t)bssInfo->mgmt->u.probeResp.beaconInt) ||
-        !HdfSbufWriteUint16(data, (int16_t)bssInfo->mgmt->u.probeResp.capabInfo) ||
-        !HdfSbufWriteUint32(data, bssInfo->signal) || !HdfSbufWriteUint32(data, channel->centerFreq) ||
-        !HdfSbufWriteUint32(data, (int32_t)channel->flags) ||
+        !HdfSbufWriteUint16(data, bssInfo->mgmt->u.probeResp.beaconInt) ||
+        !HdfSbufWriteUint16(data, bssInfo->mgmt->u.probeResp.capabInfo) ||
+        !HdfSbufWriteInt32(data, bssInfo->signal) || !HdfSbufWriteUint32(data, channel->centerFreq) ||
+        !HdfSbufWriteUint32(data, channel->flags) ||
         !HdfSbufWriteBuffer(data, bssInfo->mgmt->bssid, ETH_ADDR_LEN) ||
         !HdfSbufWriteBuffer(data, bssInfo->mgmt->u.probeResp.variable, ieLen) ||
         !HdfSbufWriteBuffer(data, bssInfo->mgmt->u.beacon.variable, beaconLen)) {
