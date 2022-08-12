@@ -9,11 +9,9 @@
 #ifndef HC_GEN_AST_H
 #define HC_GEN_AST_H
 
-#include <cstdint>
 #include <list>
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "token.h"
@@ -79,7 +77,7 @@ public:
 
     std::shared_ptr<AstObject> Lookup(const std::string &name, uint32_t type = 0) const;
 
-    bool IsElders(const std::shared_ptr<AstObject> &child);
+    bool IsElders(const std::shared_ptr<AstObject> &child) const;
 
     bool IsNumber() const;
 
@@ -99,11 +97,11 @@ public:
 
     void SetHash(uint32_t hash);
 
-    uint32_t GetSize();
+    uint32_t GetSize() const;
 
-    uint32_t GetSubSize();
+    uint32_t GetSubSize() const;
 
-    uint32_t GetHash();
+    uint32_t GetHash() const;
 
     std::shared_ptr<AstObject> Child();
 
@@ -113,17 +111,17 @@ public:
 
     const std::string &StringValue();
 
-    uint64_t IntegerValue();
+    uint64_t IntegerValue() const;
 
     virtual uint32_t Type();
 
-    uint8_t OpCode();
+    uint8_t OpCode() const;
 
     void SetOpCode(uint8_t opcode);
 
     virtual bool HasDuplicateChild();
 
-    std::shared_ptr<AstObject> Parent();
+    std::shared_ptr<AstObject> Parent() const;
 
 protected:
     uint32_t type_;
@@ -186,11 +184,11 @@ public:
 
     bool IsBaseNode();
 
-    uint32_t InheritIndex();
+    uint32_t InheritIndex() const;
 
-    uint32_t InheritCount();
+    uint32_t InheritCount() const;
 
-    uint32_t TemplateSignNum();
+    uint32_t TemplateSignNum() const;
 
     void SetTemplateSignNum(uint32_t sigNum);
 
@@ -235,7 +233,7 @@ public:
 
     std::weak_ptr<AstObject> RefNode();
 
-    uint32_t SigNum();
+    uint32_t SigNum() const;
 
     void SetSigNum(uint32_t sigNum);
 
@@ -264,9 +262,9 @@ public:
 
     bool Copy(std::shared_ptr<AstObject> src, bool overwrite) override;
 
-    uint16_t ArraySize();
+    uint16_t ArraySize() const;
 
-    uint16_t ArrayType();
+    uint16_t ArrayType() const;
 
 private:
     uint32_t arrayType_;
@@ -303,7 +301,7 @@ public:
 
         while (forwardWalkObj != nullptr) {
             if (!preVisited) {
-                int32_t ret = (int32_t)callback(forwardWalkObj, walkDepth);
+                int32_t ret = static_cast<int32_t>(callback(forwardWalkObj, walkDepth));
                 if (ret && ret != EASTWALKBREAK) {
                     return false;
                 } else if (ret != EASTWALKBREAK && forwardWalkObj->child_ != nullptr) {
@@ -444,7 +442,7 @@ private:
 
     bool InheritExpand();
 
-    std::list<std::string> SplitNodePath(const std::string &path, char separator);
+    std::list<std::string> SplitNodePath(const std::string &path, char separator) const;
 
     std::shared_ptr<AstObject> astRoot_;
     bool redefineChecked_;

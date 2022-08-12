@@ -31,7 +31,7 @@ private:
 
     int32_t PrintBaseType(const std::shared_ptr<AstObject> &astObj);
 
-    std::string GetNodeRefPath(uint32_t hash);
+    std::string GetNodeRefPath(uint32_t value);
 
     int32_t PrintArrayType(const std::shared_ptr<AstObject> &astObj);
 

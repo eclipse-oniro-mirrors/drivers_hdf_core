@@ -21,7 +21,7 @@ constexpr static const char *FILE_HEAD_COMMENT =
 
 MacroGen::MacroGen(std::shared_ptr<Ast> ast) : Generator(ast) {}
 
-const std::string &MacroGen::ToUpperString(std::string &str)
+const std::string &MacroGen::ToUpperString(std::string &str) const
 {
     for (char &c : str) {
         c = static_cast<char>(toupper(c));
@@ -95,6 +95,7 @@ bool MacroGen::Initialize()
 bool MacroGen::TemplateNodeSeparate()
 {
     return ast_->WalkBackward([this](std::shared_ptr<AstObject> &object, int32_t depth) {
+        (void)depth;
         if (object->IsNode() && ConfigNode::CastFrom(object)->GetNodeType() == NODE_TEMPLATE) {
             object->Separate();
             return NOERR;
@@ -170,7 +171,7 @@ bool MacroGen::GenNodeForeach(int32_t depth, const std::shared_ptr<AstObject> &n
     ofs_ << "#define " << GenFullName(depth, node, "_").append("_exists 1") << std::endl;
     std::string fullName = GenFullName(depth, node, "_");
     ofs_ << "#define " << fullName.append("_nodeName \"").append(node->Name()).append("\"") << std::endl;
-    if (count) {
+    if (count > 0) {
         uint32_t index = 0;
         std::list<std::string>::iterator iter;
 

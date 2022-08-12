@@ -14,7 +14,6 @@
 
 namespace OHOS {
 namespace Hardware {
-
 class Option {
 public:
     Option() = default;
@@ -25,9 +24,9 @@ public:
 
     Option &Parse(int argc, char *argv[]);
 
-    void ShowUsage();
+    void ShowUsage() const;
 
-    void ShowVersion();
+    void ShowVersion() const;
 
     bool ShouldShowUsage() const;
 
@@ -57,7 +56,7 @@ public:
 
     std::string GetOutputName();
 
-    void GetVersion(uint32_t &minor, uint32_t &major);
+    void GetVersion(uint32_t &minor, uint32_t &major) const;
 
     bool VerboseLog() const;
 

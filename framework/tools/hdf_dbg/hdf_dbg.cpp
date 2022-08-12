@@ -28,6 +28,7 @@ static constexpr uint32_t HELP_INFO_PARA_CNT = 2;
 static constexpr int32_t DBG_HDI_PARA_MIN_LEN = 7;
 static constexpr int32_t DBG_HDI_SERVICE_LOAD_IDX = 2;
 static constexpr int32_t QUERY_INFO_PARA_CNT = 3;
+static constexpr int32_t ALIGN_SIZE = 30;
 static constexpr const char *HELP_COMMENT =
     " hdf_dbg menu:  \n"
     " hdf_dbg -h   :display help information\n"
@@ -73,7 +74,6 @@ static void PrintHelp()
     cout << HELP_COMMENT;
 }
 
-static const int32_t alignSize = 30;
 static void SetPadAlign(std::string &name, char padChar, int32_t size)
 {
     int32_t padCnt = size - static_cast<int32_t>(name.length());
@@ -86,13 +86,13 @@ static void PrintAllServiceInfoUser(std::vector<HdiServiceInfo> &serviceInfos)
 {
     uint32_t cnt = 0;
     std::string titleName = "serviceName";
-    SetPadAlign(titleName, ' ', alignSize);
+    SetPadAlign(titleName, ' ', ALIGN_SIZE);
 
     cout << "display service info in user space, format:" << endl;
     cout << titleName << ":devClass" << "\t:devId" << endl;
 
     for (auto &info : serviceInfos) {
-        SetPadAlign(info.serviceName, ' ', alignSize);
+        SetPadAlign(info.serviceName, ' ', ALIGN_SIZE);
         cout << info.serviceName << ":0x" << std::hex << info.devClass << "\t:0x" << info.devId << endl;
         cnt++;
     }
@@ -105,7 +105,7 @@ static void PrintAllServiceInfoKernel(struct HdfSBuf *data, bool flag)
     uint32_t cnt = 0;
     std::string titleName = "serviceName";
 
-    SetPadAlign(titleName, ' ', alignSize);
+    SetPadAlign(titleName, ' ', ALIGN_SIZE);
     cout << "display service info in kernel space, format:" << endl;
     cout << titleName << ":devClass" << "\t:devId" << endl;
 
@@ -126,7 +126,7 @@ static void PrintAllServiceInfoKernel(struct HdfSBuf *data, bool flag)
         }
 
         std::string serviceName = servName;
-        SetPadAlign(serviceName, ' ', alignSize);
+        SetPadAlign(serviceName, ' ', ALIGN_SIZE);
         cout << serviceName << ":0x" << std::hex << devClass << "\t:0x" << devId << endl;
         cnt++;
     }
@@ -138,25 +138,25 @@ static void PrintALLDeviceInfoUser(std::vector<HdiDevHostInfo> &deviceInfos)
 {
     cout << "display device info in user space, format:" << endl;
     std::string titleHostName = "hostName";
-    SetPadAlign(titleHostName, ' ', alignSize);
+    SetPadAlign(titleHostName, ' ', ALIGN_SIZE);
 
     cout << titleHostName << ":hostId" << endl;
 
     std::string titleDevName = "deviceName";
     std::string titleSrvName = ":serviceName";
-    SetPadAlign(titleDevName, ' ', alignSize);
-    SetPadAlign(titleSrvName, ' ', alignSize);
+    SetPadAlign(titleDevName, ' ', ALIGN_SIZE);
+    SetPadAlign(titleSrvName, ' ', ALIGN_SIZE);
 
     cout << "\t" << titleDevName << ":deviceId  \t" << titleSrvName << endl;
     uint32_t hostCnt = 0;
     uint32_t devNodeCnt = 0;
 
     for (auto &info : deviceInfos) {
-        SetPadAlign(info.hostName, ' ', alignSize);
+        SetPadAlign(info.hostName, ' ', ALIGN_SIZE);
         cout << info.hostName << ":0x" << std::hex << info.hostId << endl;
         for (auto &dev : info.devInfo) {
-            SetPadAlign(dev.deviceName, ' ', alignSize);
-            SetPadAlign(dev.servName, ' ', alignSize);
+            SetPadAlign(dev.deviceName, ' ', ALIGN_SIZE);
+            SetPadAlign(dev.servName, ' ', ALIGN_SIZE);
             cout << "\t" << dev.deviceName << ":0x" << std::hex << dev.devId << "\t:" << dev.servName << endl;
             devNodeCnt++;
         }
@@ -180,7 +180,7 @@ static int32_t PrintOneHostInfoKernel(struct HdfSBuf *data, uint32_t &devNodeCnt
     }
 
     std::string hostNameStr = hostName;
-    SetPadAlign(hostNameStr, ' ', alignSize);
+    SetPadAlign(hostNameStr, ' ', ALIGN_SIZE);
     cout << hostNameStr << ":0x" << std::hex << hostId << endl;
 
     uint32_t devCnt;
@@ -192,7 +192,7 @@ static int32_t PrintOneHostInfoKernel(struct HdfSBuf *data, uint32_t &devNodeCnt
     for (uint32_t i = 0; i < devCnt; i++) {
         const char *str = HdfSbufReadString(data);
         std::string deviceName = (str == nullptr) ? "" : str;
-        SetPadAlign(deviceName, ' ', alignSize);
+        SetPadAlign(deviceName, ' ', ALIGN_SIZE);
 
         uint32_t devId;
         if (!HdfSbufReadUint32(data, &devId)) {
@@ -202,7 +202,7 @@ static int32_t PrintOneHostInfoKernel(struct HdfSBuf *data, uint32_t &devNodeCnt
 
         str = HdfSbufReadString(data);
         std::string servName = (str == nullptr) ? "" : str;
-        SetPadAlign(servName, ' ', alignSize);
+        SetPadAlign(servName, ' ', ALIGN_SIZE);
         cout << "\t" << deviceName << ":0x" << std::hex << devId << "\t:" << servName << endl;
     }
     devNodeCnt += devCnt;
@@ -215,14 +215,14 @@ static void PrintAllDeviceInfoKernel(struct HdfSBuf *data, bool flag)
     uint32_t devNodeCnt = 0;
 
     std::string titleHostName = "hostName";
-    SetPadAlign(titleHostName, ' ', alignSize);
+    SetPadAlign(titleHostName, ' ', ALIGN_SIZE);
     cout << "display device info in kernel space, format:" << endl;
     cout << titleHostName << ":hostId" << endl;
 
     std::string titleDevName = "deviceName";
     std::string titleSrvName = "serviceName";
-    SetPadAlign(titleDevName, ' ', alignSize);
-    SetPadAlign(titleSrvName, ' ', alignSize);
+    SetPadAlign(titleDevName, ' ', ALIGN_SIZE);
+    SetPadAlign(titleSrvName, ' ', ALIGN_SIZE);
     cout << "\t" << titleDevName << ":deviceId  \t:" << titleSrvName << endl;
 
     while (flag) {
