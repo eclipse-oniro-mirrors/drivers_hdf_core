@@ -222,7 +222,7 @@ static int32_t TimerListenerReg(struct HdfIoService *service, DevHandle handle, 
     param->manager = (struct PlatformUserListenerManager *)service->priv;
 
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, param->handle, (void *)param,
-            TimerOnDevEventReceive) != HDF_SUCCESS) {
+        TimerOnDevEventReceive) != HDF_SUCCESS) {
         HDF_LOGE("%s: PlatformUserListenerReg fail", __func__);
         OsalMemFree(param);
         return HDF_ERR_IO;

@@ -941,7 +941,7 @@ static void HdmiEdidExtUseExtDataBlockCdbPhase(struct HdmiSinkDeviceCapability *
 }
 
 static void HdmiEdidExtUseExtDataBlockY420VdbPhase(struct HdmiSinkDeviceCapability *sinkCap,
-    uint8_t *data, uint8_t len)
+    const uint8_t *data, uint8_t len)
 {
     uint8_t i;
     uint32_t vic;

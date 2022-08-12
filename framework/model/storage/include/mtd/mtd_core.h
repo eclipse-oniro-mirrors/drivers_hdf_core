@@ -18,7 +18,7 @@
 #define MTD_FLASH_ID_LEN_MAX 8
 #define MTD_DEVICE_NUM_MAX   3
 
-// #define MTD_DEBUG /* open this macro for debug
+// if you want to debug mtd, please define macro MTD_DEBUG, for example "#define MTD_DEBUG"
 
 struct MtdDevice;
 struct MtdDeviceMethod;
@@ -220,7 +220,7 @@ static inline struct MtdDevice *MtdDeviceGetByNum(int16_t num)
 
 /**
  * @brief Decrease reference count for a mtd device.
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  */
 static inline void MtdDevicePut(struct MtdDevice *mtdDevice)
@@ -232,110 +232,110 @@ static inline void MtdDevicePut(struct MtdDevice *mtdDevice)
 
 /**
  * @brief Lock the mtd device exclusivly.
- *  
+ *
  * do not call in irq context cause it may sleep
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
- *  
+ *
  * @return Returns 0 on success; returns a negative value otherwise.
  */
 int32_t MtdDeviceLock(struct MtdDevice *mtdDevice);
 
 /**
  * @brief Unlock the mtd device.
- *  
+ *
  * do not call in irq context cause it may sleep
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
- */  
+ */
 void MtdDeviceUnlock(struct MtdDevice *mtdDevice);
 
 /**
  * @brief Reads data of a specified size from a mtd device.
- *  
+ *
  * do not call in irq context cause it may sleep
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param from Indicates the start address to read from.
  * @param len Indicates the size of the data to read.
  * @param buf Indicates the pointer to the buffer for receiving the data.
- *  
+ *
  * @return Returns the size of the data read on success; returns a negative value otherwise.
  */
 ssize_t MtdDeviceRead(struct MtdDevice *mtdDevice, off_t from, size_t len, uint8_t *buf);
 
 /**
  * @brief Writes data of a specified size to a mtd device.
- *  
+ *
  * do not call in irq context cause it may sleep
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param to Indicates the start address to write to.
  * @param len Indicates the size of the data to write.
  * @param buf Indicates the pointer to the buffer which provide the data.
- *  
+ *
  * @return Returns the size of the data written on success; returns a negative value otherwise.
  */
 ssize_t MtdDeviceWrite(struct MtdDevice *mtdDevice, off_t to, size_t len, const uint8_t *buf);
 
 /**
  * @brief Erases data of a specified size to a mtd device.
- *  
+ *
  * do not call in irq context cause it may sleep
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param from Indicates the start address to erase from.
  * @param len Indicates the size of the data to erase.
  * @param faddr Indicates the pointer for receiving the address when erasing failed.
- *  
+ *
  * @return Returns the size of the data erased on success; returns a negative value otherwise.
  */
 ssize_t MtdDeviceErase(struct MtdDevice *mtdDevice, off_t from, size_t len, off_t *faddr);
 
 /**
  * @brief Reads data of a specified size from a mtd device including oob data.
- *  
+ *
  * It is similar to MtdDeviceRead but read oob data together.
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param from Indicates the start address to read from.
  * @param len Indicates the size of the data, including oob, to read.
  * @param buf Indicates the pointer to the buffer for receiving the data, including oob data.
- *  
+ *
  * @return Returns the size of the data read on success; returns a negative value otherwise.
  */
 ssize_t MtdDeviceReadWithOob(struct MtdDevice *mtdDevice, off_t from, size_t len, uint8_t *buf);
 
 /**
  * @brief Writes data of a specified size to a mtd device including oob data.
- *  
+ *
  * It is similar to MtdDeviceWrite but write oob data together.
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param to Indicates the start address to write to.
  * @param len Indicates the size of the data, including oob, to .
  * @param buf Indicates the pointer to the buffer which provide the data including oob.
- *  
+ *
  * @return Returns the size of the data read on success; returns a negative value otherwise.
  */
 ssize_t MtdDeviceWriteWithOob(struct MtdDevice *mtdDevice, off_t to, size_t len, const uint8_t *buf);
 
 /**
  * @brief Judge whether the block where the specified address is located is a bad block
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param addr Indicates the address to judge, which is not necessary to align by block size.
- *  
+ *
  * @return Returns true is the specified address falls into a bad block; returns false otherwise.
  */
 bool MtdDeviceIsBadBlock(struct MtdDevice *mtdDevice, off_t addr);
 
 /**
  * @brief Mark the block where the specified address is located as a bad block
- *  
+ *
  * @param mtdDevice Indicates the pointer to the mtd device.
  * @param addr Indicates the address to mark, which is not necessary to align by block size.
- *  
+ *
  * @return Returns 0 on success; returns a negative value otherwise.
  */
 int32_t MtdDeviceMarkBadBlock(struct MtdDevice *mtdDevice, off_t addr);
@@ -345,7 +345,7 @@ int32_t MtdDeviceMarkBadBlock(struct MtdDevice *mtdDevice, off_t addr);
 
 /**
  * @brief A debugging macro which an dump all the attributes of a mtd device
- *  
+ *
  */
 #define MTD_DEVICE_DUMP(mtd) \
     do { \
@@ -363,7 +363,7 @@ int32_t MtdDeviceMarkBadBlock(struct MtdDevice *mtdDevice, off_t addr);
 
 /**
  * @brief Judge whether the specified address is aligned by page size
- *  
+ *
  */
 static inline bool MtdDeviceIsPageAligned(struct MtdDevice *mtdDevice, off_t addr)
 {
@@ -372,7 +372,7 @@ static inline bool MtdDeviceIsPageAligned(struct MtdDevice *mtdDevice, off_t add
 
 /**
  * @brief Transfer the specified address to page number
- *  
+ *
  */
 static inline size_t MtdDeviceAddrToPage(struct MtdDevice *mtdDevice, off_t addr)
 {
@@ -381,7 +381,7 @@ static inline size_t MtdDeviceAddrToPage(struct MtdDevice *mtdDevice, off_t addr
 
 /**
  * @brief Flush the cache for dma transfer
- *  
+ *
  */
 static inline void MtdDmaCacheClean(void *addr, size_t size)
 {
@@ -395,7 +395,7 @@ static inline void MtdDmaCacheClean(void *addr, size_t size)
 
 /**
  * @brief Invalid the cache for dma transfer
- *  
+ *
  */
 static inline void MtdDmaCacheInv(void *addr, size_t size)
 {
@@ -409,7 +409,7 @@ static inline void MtdDmaCacheInv(void *addr, size_t size)
 
 /**
  * @brief Find the first bit set in word
- *  
+ *
  * @return Returns the position of first bit set; returns 0 if all zero.
  */
 int MtdFfs(int x);

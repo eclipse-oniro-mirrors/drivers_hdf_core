@@ -250,7 +250,7 @@ static int32_t GpioRegListener(struct HdfIoService *service, uint16_t gpio, Gpio
     param->data = arg;
 
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, gpio, (void *)param,
-            GpioOnDevEventReceive) != HDF_SUCCESS) {
+        GpioOnDevEventReceive) != HDF_SUCCESS) {
         HDF_LOGE("%s: PlatformUserListenerReg failed!", __func__);
         OsalMemFree(param);
         return HDF_ERR_IO;
