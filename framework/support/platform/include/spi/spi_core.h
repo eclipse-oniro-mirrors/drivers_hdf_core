@@ -57,7 +57,7 @@ void SpiCntlrDestroy(struct SpiCntlr *cntlr);
  * @return Retrns the pointer of the HdfDeviceObject on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct HdfDeviceObject *SpiCntlrToDevice(struct SpiCntlr *cntlr)
+static inline struct HdfDeviceObject *SpiCntlrToDevice(const struct SpiCntlr *cntlr)
 {
     return (cntlr == NULL) ? NULL : cntlr->device;
 }
@@ -70,7 +70,7 @@ static inline struct HdfDeviceObject *SpiCntlrToDevice(struct SpiCntlr *cntlr)
  * @return Retrns the pointer of the SpiCntlr on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct SpiCntlr *SpiCntlrFromDevice(struct HdfDeviceObject *device)
+static inline struct SpiCntlr *SpiCntlrFromDevice(const struct HdfDeviceObject *device)
 {
     return (device == NULL) ? NULL : (struct SpiCntlr *)device->service;
 }

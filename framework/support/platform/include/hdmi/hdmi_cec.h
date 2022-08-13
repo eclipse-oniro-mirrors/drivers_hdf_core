@@ -1701,7 +1701,7 @@ static inline bool HdmiCecIsBroadcastMsg(struct HdmiCecMsg *msg)
     return false;
 }
 
-static inline uint8_t HdmiCecGetMsgInitiator(struct HdmiCecMsg *msg)
+static inline uint8_t HdmiCecGetMsgInitiator(const struct HdmiCecMsg *msg)
 {
     return ((msg->data[0] & HDMI_CEC_HEADER_BLOCK_INITIATOR_MARK) >> HDMI_CEC_HEADER_BLOCK_INITIATOR_SHIFT);
 }

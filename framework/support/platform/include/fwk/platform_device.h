@@ -256,7 +256,7 @@ int32_t PlatformDeviceSetHdfDev(struct PlatformDevice *device, struct HdfDeviceO
  * @return Returns the pointer to the platform device object on success; otherwise null.
  * @since 1.0
  */
-struct PlatformDevice *PlatformDeviceFromHdfDev(struct HdfDeviceObject *hdfDev);
+struct PlatformDevice *PlatformDeviceFromHdfDev(const struct HdfDeviceObject *hdfDev);
 
 #ifdef __cplusplus
 #if __cplusplus

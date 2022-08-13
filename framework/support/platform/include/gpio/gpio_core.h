@@ -167,7 +167,7 @@ void GpioCntlrRemove(struct GpioCntlr *cntlr);
  * @return Retrns the pointer of the GpioCntlr on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct GpioCntlr *GpioCntlrFromHdfDev(struct HdfDeviceObject *device)
+static inline struct GpioCntlr *GpioCntlrFromHdfDev(const struct HdfDeviceObject *device)
 {
     return (struct GpioCntlr *)PlatformDeviceFromHdfDev(device);
 }

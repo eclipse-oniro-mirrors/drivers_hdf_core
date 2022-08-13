@@ -69,7 +69,7 @@ void MipiDsiUnregisterCntlr(struct MipiDsiCntlr *cntlr)
     return;
 }
 
-struct MipiDsiCntlr *MipiDsiCntlrFromDevice(struct HdfDeviceObject *device)
+struct MipiDsiCntlr *MipiDsiCntlrFromDevice(const struct HdfDeviceObject *device)
 {
     return (device == NULL) ? NULL : (struct MipiDsiCntlr *)device->service;
 }

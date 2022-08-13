@@ -13,7 +13,7 @@
 
 #define HDMI_SCDC_READ_SOURCE_VERSION_TIMES 2
 
-int32_t HdmiScdcRead(struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *buffer, uint32_t len)
+static int32_t HdmiScdcRead(const struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *buffer, uint32_t len)
 {
     struct HdmiDdcCfg cfg = {0};
     struct HdmiCntlr *cntlr = NULL;
@@ -33,7 +33,7 @@ int32_t HdmiScdcRead(struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t
     return HdmiDdcTransfer(&(cntlr->ddc), &cfg);
 }
 
-int32_t HdmiScdcWrite(struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *buffer, uint32_t len)
+static int32_t HdmiScdcWrite(const struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *buffer, uint32_t len)
 {
     struct HdmiDdcCfg cfg = {0};
     struct HdmiCntlr *cntlr = NULL;
@@ -53,110 +53,110 @@ int32_t HdmiScdcWrite(struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_
     return HdmiDdcTransfer(&(cntlr->ddc), &cfg);
 }
 
-int32_t HdmiScdcReadByte(struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *byte)
+static int32_t HdmiScdcReadByte(const struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *byte)
 {
     return HdmiScdcRead(scdc, offset, byte, sizeof(*byte));
 }
 
-int32_t HdmiScdcWriteByte(struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *byte)
+static int32_t HdmiScdcWriteByte(const struct HdmiScdc *scdc, enum HdmiScdcsOffset offset, uint8_t *byte)
 {
     return HdmiScdcWrite(scdc, offset, byte, sizeof(*byte));
 }
 
 /* read opt */
-int32_t HdmiScdcReadSinkVersion(struct HdmiScdc *scdc, uint8_t *sinkVer)
+static int32_t HdmiScdcReadSinkVersion(const struct HdmiScdc *scdc, uint8_t *sinkVer)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_SINK_VERSION, sinkVer);
 }
 
-int32_t HdmiScdcReadSourceVersion(struct HdmiScdc *scdc, uint8_t *srcVer)
+static int32_t HdmiScdcReadSourceVersion(const struct HdmiScdc *scdc, uint8_t *srcVer)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_SOURCE_VERSION, srcVer);
 }
 
-int32_t HdmiScdcReadUpdate0(struct HdmiScdc *scdc, uint8_t *flag)
+static int32_t HdmiScdcReadUpdate0(const struct HdmiScdc *scdc, uint8_t *flag)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_UPDATE_0, flag);
 }
 
-int32_t HdmiScdcReadScramblerStatus(struct HdmiScdc *scdc, uint8_t *status)
+static int32_t HdmiScdcReadScramblerStatus(const struct HdmiScdc *scdc, uint8_t *status)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_SCRAMBLER_STATUS, status);
 }
 
-int32_t HdmiScdcReadTmdsConfig(struct HdmiScdc *scdc, uint8_t *tmdsCfg)
+static int32_t HdmiScdcReadTmdsConfig(const struct HdmiScdc *scdc, uint8_t *tmdsCfg)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_TMDS_CONFIG, tmdsCfg);
 }
 
-int32_t HdmiScdcReadConfig0(struct HdmiScdc *scdc, uint8_t *cfg)
+int32_t HdmiScdcReadConfig0(const struct HdmiScdc *scdc, uint8_t *cfg)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_CONFIG_0, cfg);
 }
 
-int32_t HdmiScdcReadConfig1(struct HdmiScdc *scdc, uint8_t *cfg)
+static int32_t HdmiScdcReadConfig1(const struct HdmiScdc *scdc, uint8_t *cfg)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_CONFIG_1, cfg);
 }
 
-int32_t HdmiScdcReadTestConfig0(struct HdmiScdc *scdc, uint8_t *testCfg)
+int32_t HdmiScdcReadTestConfig0(const struct HdmiScdc *scdc, uint8_t *testCfg)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_TEST_CONFIG_0, testCfg);
 }
 
-int32_t HdmiScdcReadTestConfig1(struct HdmiScdc *scdc, uint8_t *testCfg)
+static int32_t HdmiScdcReadTestConfig1(const struct HdmiScdc *scdc, uint8_t *testCfg)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_TEST_CONFIG_1, testCfg);
 }
 
-int32_t HdmiScdcReadStatusFlag0(struct HdmiScdc *scdc, uint8_t *flag)
+static int32_t HdmiScdcReadStatusFlag0(const struct HdmiScdc *scdc, uint8_t *flag)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_STASTUS_FLAG_0, flag);
 }
 
-int32_t HdmiScdcReadStatusFlag1(struct HdmiScdc *scdc, uint8_t *flag)
+int32_t HdmiScdcReadStatusFlag1(const struct HdmiScdc *scdc, uint8_t *flag)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_STASTUS_FLAG_1, flag);
 }
 
-int32_t HdmiScdcReadStatusFlag2(struct HdmiScdc *scdc, uint8_t *flag)
+int32_t HdmiScdcReadStatusFlag2(const struct HdmiScdc *scdc, uint8_t *flag)
 {
     return HdmiScdcReadByte(scdc, HDMI_SCDCS_OFFSET_STASTUS_FLAG_2, flag);
 }
 
 /* write opt */
-int32_t HdmiScdcWriteSourceVersion(struct HdmiScdc *scdc, uint8_t *srcVer)
+static int32_t HdmiScdcWriteSourceVersion(const struct HdmiScdc *scdc, uint8_t *srcVer)
 {
     return HdmiScdcWriteByte(scdc, HDMI_SCDCS_OFFSET_SOURCE_VERSION, srcVer);
 }
 
-int32_t HdmiScdcWriteUpdate0(struct HdmiScdc *scdc, uint8_t *flag)
+static int32_t HdmiScdcWriteUpdate0(const struct HdmiScdc *scdc, uint8_t *flag)
 {
     return HdmiScdcWriteByte(scdc, HDMI_SCDCS_OFFSET_UPDATE_0, flag);
 }
 
-int32_t HdmiScdcWriteTmdsConfig(struct HdmiScdc *scdc, uint8_t *tmdsCfg)
+static int32_t HdmiScdcWriteTmdsConfig(const struct HdmiScdc *scdc, uint8_t *tmdsCfg)
 {
     return HdmiScdcWriteByte(scdc, HDMI_SCDCS_OFFSET_TMDS_CONFIG, tmdsCfg);
 }
 
-int32_t HdmiScdcWriteConfig0(struct HdmiScdc *scdc, uint8_t *cfg)
+static int32_t HdmiScdcWriteConfig0(const struct HdmiScdc *scdc, uint8_t *cfg)
 {
     return HdmiScdcWriteByte(scdc, HDMI_SCDCS_OFFSET_CONFIG_0, cfg);
 }
 
-int32_t HdmiScdcWriteConfig1(struct HdmiScdc *scdc, uint8_t *cfg)
+static int32_t HdmiScdcWriteConfig1(const struct HdmiScdc *scdc, uint8_t *cfg)
 {
     return HdmiScdcWriteByte(scdc, HDMI_SCDCS_OFFSET_CONFIG_1, cfg);
 }
 
-int32_t HdmiScdcWriteTestConfig0(struct HdmiScdc *scdc, uint8_t *testCfg)
+static int32_t HdmiScdcWriteTestConfig0(const struct HdmiScdc *scdc, uint8_t *testCfg)
 {
     return HdmiScdcWriteByte(scdc, HDMI_SCDCS_OFFSET_TEST_CONFIG_0, testCfg);
 }
 
 /* cntlr ops */
-bool HdmiCntlrScdcSourceScrambleGet(struct HdmiCntlr *cntlr)
+static bool HdmiCntlrScdcSourceScrambleGet(struct HdmiCntlr *cntlr)
 {
     bool ret = false;
 
@@ -169,7 +169,7 @@ bool HdmiCntlrScdcSourceScrambleGet(struct HdmiCntlr *cntlr)
     return ret;
 }
 
-int32_t HdmiCntlrScdcSourceScrambleSet(struct HdmiCntlr *cntlr, bool enable)
+static int32_t HdmiCntlrScdcSourceScrambleSet(struct HdmiCntlr *cntlr, bool enable)
 {
     int32_t ret;
 
@@ -294,7 +294,7 @@ bool HdmiScdcSinkSupport(struct HdmiScdc *scdc)
     return true;
 }
 
-int32_t HdmiScdcOptMsgHandle(struct HdmiScdc *scdc, enum HdmiScdcOptMsg msg, uint8_t *buffer, uint32_t len)
+int32_t HdmiScdcOptMsgHandle(const struct HdmiScdc *scdc, enum HdmiScdcOptMsg msg, uint8_t *buffer, uint32_t len)
 {
     int32_t ret;
 

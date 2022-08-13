@@ -350,8 +350,8 @@ void HdmiCntlrRemove(struct HdmiCntlr *cntlr)
     }
 }
 
-static int32_t HdmiCntlrParseVideoCaps(struct HdmiCntlr *cntlr, struct DeviceResourceIface *drsOps,
-    const struct DeviceResourceNode *node)
+static int32_t HdmiCntlrParseVideoCaps(
+    struct HdmiCntlr *cntlr, struct DeviceResourceIface *drsOps, const struct DeviceResourceNode *node)
 {
     int32_t ret;
 
@@ -399,8 +399,8 @@ static int32_t HdmiCntlrParseVideoCaps(struct HdmiCntlr *cntlr, struct DeviceRes
     return HDF_SUCCESS;
 }
 
-static int32_t HdmiCntlrParseAudioCaps(struct HdmiCntlr *cntlr, struct DeviceResourceIface *drsOps,
-    const struct DeviceResourceNode *node)
+static int32_t HdmiCntlrParseAudioCaps(
+    struct HdmiCntlr *cntlr, struct DeviceResourceIface *drsOps, const struct DeviceResourceNode *node)
 {
     int32_t ret;
 
@@ -434,8 +434,8 @@ static int32_t HdmiCntlrParseAudioCaps(struct HdmiCntlr *cntlr, struct DeviceRes
     return HDF_SUCCESS;
 }
 
-static int32_t HdmiCntlrParseHdrCaps(struct HdmiCntlr *cntlr, struct DeviceResourceIface *drsOps,
-    const struct DeviceResourceNode *node)
+static int32_t HdmiCntlrParseHdrCaps(
+    struct HdmiCntlr *cntlr, struct DeviceResourceIface *drsOps, const struct DeviceResourceNode *node)
 {
     int32_t ret;
 
@@ -537,7 +537,7 @@ int32_t HdmiCntlrGetSinkEdid(struct HdmiCntlr *cntlr, uint8_t *buffer, uint32_t 
         return HdmiEdidGetRaw(&(cntlr->hdmi->edid), buffer, len);
     }
 
-    ret  = HdmiCntlrAllocDev(cntlr);
+    ret = HdmiCntlrAllocDev(cntlr);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
@@ -564,8 +564,7 @@ static void HdmiCntlrModeSelect(struct HdmiCntlr *cntlr)
     int32_t ret;
 
     /* support FRL. */
-    if (HdmiFrlSupport(cntlr->frl) == true &&
-        cntlr->cap.baseCap.bits.frl > 0) {
+    if (HdmiFrlSupport(cntlr->frl) == true && cntlr->cap.baseCap.bits.frl > 0) {
         return;
     }
 
@@ -582,8 +581,7 @@ static void HdmiCntlrModeSelect(struct HdmiCntlr *cntlr)
     HdmiCntlrTmdsModeSet(cntlr, tmdsMode);
     HdmiCntlrReset(cntlr);
 
-    if (cntlr->cap.baseCap.bits.scdc > 0 &&
-        HdmiEdidScdcSupport(cntlr->hdmi) == true) {
+    if (cntlr->cap.baseCap.bits.scdc > 0 && HdmiEdidScdcSupport(cntlr->hdmi) == true) {
         ret = HdmiScdcScrambleGet(cntlr->scdc, &curScramble);
         if (ret != HDF_SUCCESS) {
             return;
@@ -619,12 +617,9 @@ static void HdmiVideoAttrInit(struct HdmiCntlr *cntlr)
     videoAttr->colorimetry = (enum HdmiColorimetry)cntlr->cap.colorimetry;
     videoAttr->timing = (enum HdmiVideoTiming)cntlr->cap.videoTiming;
     colorimetry601 = ((videoAttr->timing == HDMI_VIDEO_TIMING_720X480P60) ||
-        (videoAttr->timing == HDMI_VIDEO_TIMING_720X576P50) ||
-        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X240P60) ||
-        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60) ||
-        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) ||
-        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X576P50) ||
-        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I60));
+        (videoAttr->timing == HDMI_VIDEO_TIMING_720X576P50) || (videoAttr->timing == HDMI_VIDEO_TIMING_1440X240P60) ||
+        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60) || (videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) ||
+        (videoAttr->timing == HDMI_VIDEO_TIMING_1440X576P50) || (videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I60));
 
     if (videoAttr->timing == HDMI_VIDEO_TIMING_640X480P60) {
         videoAttr->colorimetry = HDMI_COLORIMETRY_ITU709;
@@ -642,8 +637,7 @@ static void HdmiVideoAttrInit(struct HdmiCntlr *cntlr)
     }
 
     videoAttr->pixelRepeat = 1;
-    if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 ||
-        videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
+    if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 || videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
         videoAttr->pixelRepeat = 2;
     }
 
@@ -653,8 +647,7 @@ static void HdmiVideoAttrInit(struct HdmiCntlr *cntlr)
         videoAttr->yccQuantization = HDMI_YCC_QUANTIZATION_RANGE_LIMITED;
     }
 
-    if (videoAttr->timing != HDMI_VIDEO_TIMING_NONE &&
-        videoAttr->timing != HDMI_VIDEO_TIMING_640X480P60) {
+    if (videoAttr->timing != HDMI_VIDEO_TIMING_NONE && videoAttr->timing != HDMI_VIDEO_TIMING_640X480P60) {
         videoAttr->colorSpace = HDMI_COLOR_SPACE_YCBCR444;
     } else {
         videoAttr->colorSpace = HDMI_COLOR_SPACE_RGB;
@@ -706,7 +699,7 @@ int32_t HdmiCntlrOpen(struct HdmiCntlr *cntlr)
     HdmiHdrInit(cntlr);
     HdmiAttrInit(cntlr);
     HdmiCntlrHardWareInit(cntlr);
-     /* HDCP on. */
+    /* HDCP on. */
     if ((cntlr->cap.baseCap.data & HDMI_CAP_HDCP_MARK) > 0) {
         ret = HdmiHdcpOpen(cntlr->hdcp);
         if (ret != HDF_SUCCESS) {
@@ -728,8 +721,7 @@ int32_t HdmiCntlrStart(struct HdmiCntlr *cntlr)
     HdmiCntlrModeSelect(cntlr);
     HdmiCntlrAvmuteSet(cntlr, false);
 
-    if (cntlr->cap.baseCap.bits.hdr > 0 &&
-        cntlr->cap.baseCap.bits.frl > 0) {
+    if (cntlr->cap.baseCap.bits.hdr > 0 && cntlr->cap.baseCap.bits.frl > 0) {
         HdmiFrlEnable(cntlr->frl, true);
     } else {
         /* TMDS Transfer. */
@@ -802,13 +794,11 @@ static void HdmiTmdsClockUpdate(struct HdmiVideoAttr *videoAttr, struct HdmiComm
             videoAttr->tmdsClock = HDMI_MULTIPLE_2P0(videoAttr->pixelClock);
         }
     } else {
-        if ((commAttr->deepColor != HDMI_DEEP_COLOR_OFF) &&
-            (commAttr->deepColor != HDMI_DEEP_COLOR_24BITS)) {
+        if ((commAttr->deepColor != HDMI_DEEP_COLOR_OFF) && (commAttr->deepColor != HDMI_DEEP_COLOR_24BITS)) {
             HDF_LOGD("Y422 foce deepcolor 8bit");
             commAttr->deepColor = HDMI_DEEP_COLOR_24BITS;
         }
-        if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 ||
-            videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
+        if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 || videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
             HDF_LOGD("Y422 is not support at pal and ntsc, force adapt to rgb!");
             commAttr->colorSpace = HDMI_COLOR_SPACE_RGB;
         }
@@ -820,7 +810,7 @@ static bool HdmiYcbcr420FormatCheck(struct HdmiSinkDeviceCapability *sinkCap, st
     uint32_t i;
     enum HdmiVic vic;
 
-    vic =  HdmiCommonGetVic(videoAttr->timing, videoAttr->aspect, false);
+    vic = HdmiCommonGetVic(videoAttr->timing, videoAttr->aspect, false);
     if (vic == HDMI_VIC_NONE) {
         HDF_LOGD("Y420 not have supported vic.");
         return false;
@@ -844,16 +834,15 @@ static bool HdmiYcbcr420FormatCheck(struct HdmiSinkDeviceCapability *sinkCap, st
     return false;
 }
 
-static int32_t HdmiColorSpaceCheck(struct HdmiCntlr *cntlr, struct HdmiSinkDeviceCapability *sinkCap,
-    uint32_t maxTmdsClk)
+static int32_t HdmiColorSpaceCheck(
+    struct HdmiCntlr *cntlr, struct HdmiSinkDeviceCapability *sinkCap, uint32_t maxTmdsClk)
 {
     struct HdmiVideoAttr *videoAttr = &(cntlr->attr.videoAttr);
     struct HdmiCommonAttr *commAttr = &(cntlr->attr.commAttr);
     union HdmiCap *cap = &(cntlr->cap.baseCap);
     bool supportColorSpace = false;
 
-    if (videoAttr->pixelClock > maxTmdsClk &&
-        commAttr->colorSpace != HDMI_COLOR_SPACE_YCBCR420) {
+    if (videoAttr->pixelClock > maxTmdsClk && commAttr->colorSpace != HDMI_COLOR_SPACE_YCBCR420) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -884,8 +873,8 @@ static int32_t HdmiColorSpaceCheck(struct HdmiCntlr *cntlr, struct HdmiSinkDevic
     return HDF_SUCCESS;
 }
 
-static void HdmiDeepColor10bitsCheck(struct HdmiSinkDeviceCapability *sinkCap, struct HdmiCommonAttr *commAttr,
-    union HdmiCap *cap, uint32_t *tmdsClock, bool *supportDeepColor)
+static void HdmiDeepColor10bitsCheck(const struct HdmiSinkDeviceCapability *sinkCap,
+    const struct HdmiCommonAttr *commAttr, const union HdmiCap *cap, uint32_t *tmdsClock, bool *supportDeepColor)
 {
     uint32_t tmpTmdsClk = *tmdsClock;
 
@@ -897,7 +886,9 @@ static void HdmiDeepColor10bitsCheck(struct HdmiSinkDeviceCapability *sinkCap, s
         case HDMI_COLOR_SPACE_YCBCR444:
             tmpTmdsClk = HDMI_MULTIPLE_1P25(tmpTmdsClk);
             *supportDeepColor = (sinkCap->vsdbInfo.deepColor.dc30bit && cap->bits.deepColor10bits &&
-                sinkCap->vsdbInfo.deepColor.dcY444) ? true : false;
+                                    sinkCap->vsdbInfo.deepColor.dcY444) ?
+                true :
+                false;
             break;
         case HDMI_COLOR_SPACE_YCBCR420:
             tmpTmdsClk = HDMI_MULTIPLE_1P25(tmpTmdsClk);
@@ -911,8 +902,8 @@ static void HdmiDeepColor10bitsCheck(struct HdmiSinkDeviceCapability *sinkCap, s
     *tmdsClock = tmpTmdsClk;
 }
 
-static void HdmiDeepColor12bitsCheck(struct HdmiSinkDeviceCapability *sinkCap, struct HdmiCommonAttr *commAttr,
-    union HdmiCap *cap, uint32_t *tmdsClock, bool *supportDeepColor)
+static void HdmiDeepColor12bitsCheck(const struct HdmiSinkDeviceCapability *sinkCap,
+    const struct HdmiCommonAttr *commAttr, const union HdmiCap *cap, uint32_t *tmdsClock, bool *supportDeepColor)
 {
     uint32_t tmpTmdsClk = *tmdsClock;
 
@@ -924,7 +915,9 @@ static void HdmiDeepColor12bitsCheck(struct HdmiSinkDeviceCapability *sinkCap, s
         case HDMI_COLOR_SPACE_YCBCR444:
             tmpTmdsClk = HDMI_MULTIPLE_1P5(tmpTmdsClk);
             *supportDeepColor = (sinkCap->vsdbInfo.deepColor.dc36bit && cap->bits.deepColor12bits &&
-                sinkCap->vsdbInfo.deepColor.dcY444) ? true : false;
+                                    sinkCap->vsdbInfo.deepColor.dcY444) ?
+                true :
+                false;
             break;
         case HDMI_COLOR_SPACE_YCBCR420:
             tmpTmdsClk = HDMI_MULTIPLE_1P5(tmpTmdsClk);
@@ -938,8 +931,8 @@ static void HdmiDeepColor12bitsCheck(struct HdmiSinkDeviceCapability *sinkCap, s
     *tmdsClock = tmpTmdsClk;
 }
 
-static int32_t HdmiDeepColorCheck(struct HdmiCntlr *cntlr, struct HdmiSinkDeviceCapability *sinkCap,
-    uint32_t maxTmdsClk)
+static int32_t HdmiDeepColorCheck(
+    struct HdmiCntlr *cntlr, struct HdmiSinkDeviceCapability *sinkCap, uint32_t maxTmdsClk)
 {
     struct HdmiVideoAttr *videoAttr = &(cntlr->attr.videoAttr);
     struct HdmiCommonAttr *commAttr = &(cntlr->attr.commAttr);
@@ -970,13 +963,11 @@ static int32_t HdmiDeepColorCheck(struct HdmiCntlr *cntlr, struct HdmiSinkDevice
     videoAttr->tmdsClock = tmdsClock;
     /* Y422 default 12bit output, deep_color force adapt to 8bit(24bit). */
     if (commAttr->colorSpace == HDMI_COLOR_SPACE_YCBCR422) {
-        if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 ||
-            videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
+        if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 || videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
             HDF_LOGD("force change colorspace to RGB!");
             commAttr->colorSpace = HDMI_COLOR_SPACE_RGB;
         }
-        if ((videoAttr->deepColor != HDMI_DEEP_COLOR_24BITS) &&
-            (videoAttr->deepColor != HDMI_DEEP_COLOR_OFF)) {
+        if ((videoAttr->deepColor != HDMI_DEEP_COLOR_24BITS) && (videoAttr->deepColor != HDMI_DEEP_COLOR_OFF)) {
             videoAttr->deepColor = HDMI_DEEP_COLOR_OFF;
             HDF_LOGD("when Y422, deep_color not support 10/12bit!");
         }
@@ -1019,8 +1010,7 @@ static int32_t HdmiColorBitSelect(struct HdmiCntlr *cntlr)
         /* use default clock. */
         maxTmdsClk = cntlr->cap.defTmdsClock;
     } else {
-        maxTmdsClk = (sinkCap->maxTmdsClk < cntlr->cap.maxTmdsClock) ?
-            sinkCap->maxTmdsClk : cntlr->cap.maxTmdsClock;
+        maxTmdsClk = (sinkCap->maxTmdsClk < cntlr->cap.maxTmdsClock) ? sinkCap->maxTmdsClk : cntlr->cap.maxTmdsClock;
     }
     /* MHz is converted to KHz */
     maxTmdsClk *= 1000;
@@ -1036,7 +1026,7 @@ static int32_t HdmiColorBitSelect(struct HdmiCntlr *cntlr)
 
 static int32_t HdmiAudioAttrHandle(struct HdmiCntlr *cntlr)
 {
-    struct HdmiAudioConfigInfo audioCfg  = {0};
+    struct HdmiAudioConfigInfo audioCfg = {0};
     struct HdmiCommonAttr *commAttr = &(cntlr->attr.commAttr);
     struct HdmiVideoAttr *videoAttr = &(cntlr->attr.videoAttr);
     struct HdmiAudioAttr *audioAttr = &(cntlr->attr.audioAttr);
@@ -1058,8 +1048,8 @@ static int32_t HdmiAudioAttrHandle(struct HdmiCntlr *cntlr)
     return ret;
 }
 
-static void HdmiHdrModeCheck(struct HdmiCommonAttr *commAttr,
-    struct HdmiVideoAttr *videoAttr, struct HdmiHdrAttr *hdrAttr)
+static void HdmiHdrModeCheck(
+    struct HdmiCommonAttr *commAttr, struct HdmiVideoAttr *videoAttr, const struct HdmiHdrAttr *hdrAttr)
 {
     switch (hdrAttr->userMode) {
         case HDMI_HDR_USERMODE_DOLBY:
@@ -1073,8 +1063,8 @@ static void HdmiHdrModeCheck(struct HdmiCommonAttr *commAttr,
             if (hdrAttr->mode == HDMI_HDR_MODE_CEA_861_3) {
                 if (hdrAttr->colorimetry > HDMI_HDR_COLORIMETRY_EXTENDED) {
                     videoAttr->colorimetry = HDMI_COLORIMETRY_EXTENDED;
-                    videoAttr->extColorimetry = (enum HdmiExtendedColorimetry)(hdrAttr->colorimetry -
-                        HDMI_HDR_EXTENDED_COLORIMETRY_XV_YCC_601);
+                    videoAttr->extColorimetry =
+                        (enum HdmiExtendedColorimetry)(hdrAttr->colorimetry - HDMI_HDR_EXTENDED_COLORIMETRY_XV_YCC_601);
                 } else {
                     videoAttr->colorimetry = (enum HdmiColorimetry)(hdrAttr->colorimetry);
                     videoAttr->extColorimetry = HDMI_EXTENDED_COLORIMETRY_BUTT;
@@ -1087,8 +1077,8 @@ static void HdmiHdrModeCheck(struct HdmiCommonAttr *commAttr,
     }
 }
 
-static void HdmiFillVideoAttrFromHardwareStatus(struct HdmiVideoAttr *videoAttr,
-    struct HdmiHardwareStatus *hwStatus, struct HdmiCommonAttr *commAttr)
+static void HdmiFillVideoAttrFromHardwareStatus(
+    struct HdmiVideoAttr *videoAttr, const struct HdmiHardwareStatus *hwStatus, struct HdmiCommonAttr *commAttr)
 {
     bool rgb = false;
     bool aspectIs256 = false;
@@ -1109,10 +1099,10 @@ static void HdmiFillVideoAttrFromHardwareStatus(struct HdmiVideoAttr *videoAttr,
         aspectIs256 = (((vic == 0) && (hwStatus->infoFrameStatus.vsif[8] == 0x04)) ||
             ((vic >= HDMI_VIC_4096X2160P25_256_135) && (vic <= HDMI_VIC_4096X2160P60_256_135)));
         videoAttr->aspect = (aspectIs256 == true) ? HDMI_PICTURE_ASPECT_256_135 :
-            ((hwStatus->infoFrameStatus.avi[5] >> 4) & 0x3);  /* 4'b, BIT[2:1] */
+                                                    ((hwStatus->infoFrameStatus.avi[5] >> 4) & 0x3); /* 4'b, BIT[2:1] */
         videoAttr->activeAspect = hwStatus->infoFrameStatus.avi[5] & 0xf;
-        videoAttr->colorimetry = (hwStatus->infoFrameStatus.avi[5] >> 6) & 0x3; /* 6'b, BIT[2:1] */
-        videoAttr->quantization = (hwStatus->infoFrameStatus.avi[6] >> 2) & 0x3; /* 2'b, BIT[2:1] */
+        videoAttr->colorimetry = (hwStatus->infoFrameStatus.avi[5] >> 6) & 0x3;     /* 6'b, BIT[2:1] */
+        videoAttr->quantization = (hwStatus->infoFrameStatus.avi[6] >> 2) & 0x3;    /* 2'b, BIT[2:1] */
         videoAttr->extColorimetry = (hwStatus->infoFrameStatus.avi[6] >> 4) & 0x07; /* 4'b, BIT[3:1] */
         videoAttr->yccQuantization = (hwStatus->infoFrameStatus.avi[8] >> 6) & 0x3; /* 6'b, BIT[2:1] */
         videoAttr->pixelRepeat = (hwStatus->infoFrameStatus.avi[8] & 0xf) + 1;
@@ -1120,8 +1110,8 @@ static void HdmiFillVideoAttrFromHardwareStatus(struct HdmiVideoAttr *videoAttr,
         if ((!hwStatus->infoFrameStatus.vsifEnable) && (!vic)) {
             videoAttr->timing = HDMI_VIDEO_TIMING_NONE;
         }
-        commAttr->quantization = (commAttr->colorSpace == HDMI_COLOR_SPACE_RGB) ?
-            videoAttr->quantization : (videoAttr->yccQuantization + 1);
+        commAttr->quantization =
+            (commAttr->colorSpace == HDMI_COLOR_SPACE_RGB) ? videoAttr->quantization : (videoAttr->yccQuantization + 1);
     }
 
     videoAttr->_3dStruct = HDMI_VS_VIDEO_3D_BUTT;
@@ -1136,8 +1126,8 @@ static void HdmiFillVideoAttrFromHardwareStatus(struct HdmiVideoAttr *videoAttr,
     }
 }
 
-static void HdmiFillCommonAttrFromHardwareStatus(struct HdmiCommonAttr *commAttr,
-    struct HdmiHardwareStatus *hwStatus, struct HdmiAttr *attr)
+static void HdmiFillCommonAttrFromHardwareStatus(
+    struct HdmiCommonAttr *commAttr, const struct HdmiHardwareStatus *hwStatus, const struct HdmiAttr *attr)
 {
     bool dolby = false;
 
@@ -1164,12 +1154,9 @@ static void HdmiFillCommonAttrFromHardwareStatus(struct HdmiCommonAttr *commAttr
     commAttr->deepColor = HdmiCommonColorDepthConvertToDeepClolor(hwStatus->videoStatus.outBitDepth);
 
     /* color space is ycbcr444 when the hdr mode is dolby. */
-    dolby = ((attr->hdrAttr.userMode == HDMI_HDR_USERMODE_DOLBY) &&
-        (!hwStatus->videoStatus.rgb2Ycbcr) &&
-        (!hwStatus->videoStatus.ycbcr2Rgb) &&
-        (!hwStatus->videoStatus.ycbcr444422) &&
-        (!hwStatus->videoStatus.ycbcr422420) &&
-        (!hwStatus->videoStatus.ycbcr422444) &&
+    dolby = ((attr->hdrAttr.userMode == HDMI_HDR_USERMODE_DOLBY) && (!hwStatus->videoStatus.rgb2Ycbcr) &&
+        (!hwStatus->videoStatus.ycbcr2Rgb) && (!hwStatus->videoStatus.ycbcr444422) &&
+        (!hwStatus->videoStatus.ycbcr422420) && (!hwStatus->videoStatus.ycbcr422444) &&
         (!hwStatus->videoStatus.ycbcr420422));
     commAttr->colorSpace = (dolby == true) ? HDMI_COLOR_SPACE_YCBCR444 : hwStatus->videoStatus.outColorSpace;
 }
@@ -1178,20 +1165,16 @@ static bool HdmiCommonAttrChanged(struct HdmiCommonAttr *curCommAttr, struct Hdm
 {
     bool change;
 
-    change = (commAttr->enableHdmi != curCommAttr->enableHdmi) ||
-        (commAttr->colorSpace != curCommAttr->colorSpace) ||
-        (commAttr->xvyccMode != curCommAttr->xvyccMode) ||
-        (commAttr->avi != curCommAttr->avi) ||
+    change = (commAttr->enableHdmi != curCommAttr->enableHdmi) || (commAttr->colorSpace != curCommAttr->colorSpace) ||
+        (commAttr->xvyccMode != curCommAttr->xvyccMode) || (commAttr->avi != curCommAttr->avi) ||
         (commAttr->quantization != curCommAttr->quantization);
 
     if (change == true) {
         return true;
     }
 
-    if (((commAttr->deepColor == HDMI_DEEP_COLOR_OFF) ||
-        (commAttr->deepColor == HDMI_DEEP_COLOR_24BITS)) &&
-        ((curCommAttr->deepColor == HDMI_DEEP_COLOR_OFF) ||
-        (curCommAttr->deepColor == HDMI_DEEP_COLOR_24BITS))) {
+    if (((commAttr->deepColor == HDMI_DEEP_COLOR_OFF) || (commAttr->deepColor == HDMI_DEEP_COLOR_24BITS)) &&
+        ((curCommAttr->deepColor == HDMI_DEEP_COLOR_OFF) || (curCommAttr->deepColor == HDMI_DEEP_COLOR_24BITS))) {
         HDF_LOGI("deep color not change: %u", curCommAttr->deepColor);
     } else if (commAttr->deepColor != curCommAttr->deepColor) {
         return true;
@@ -1203,15 +1186,12 @@ static bool HdmiVideoAttrChanged(struct HdmiVideoAttr *curVideoAttr, struct Hdmi
 {
     bool change;
 
-    change = (videoAttr->timing != curVideoAttr->timing) ||
-        (videoAttr->colorSpace != curVideoAttr->colorSpace) ||
-        (videoAttr->_3dStruct != curVideoAttr->_3dStruct) ||
-        (videoAttr->pixelRepeat != curVideoAttr->pixelRepeat) ||
+    change = (videoAttr->timing != curVideoAttr->timing) || (videoAttr->colorSpace != curVideoAttr->colorSpace) ||
+        (videoAttr->_3dStruct != curVideoAttr->_3dStruct) || (videoAttr->pixelRepeat != curVideoAttr->pixelRepeat) ||
         (videoAttr->colorimetry != curVideoAttr->colorimetry) ||
         (videoAttr->extColorimetry != curVideoAttr->extColorimetry) ||
         (videoAttr->quantization != curVideoAttr->quantization) ||
-        (videoAttr->yccQuantization != curVideoAttr->yccQuantization) ||
-        (videoAttr->aspect != curVideoAttr->aspect);
+        (videoAttr->yccQuantization != curVideoAttr->yccQuantization) || (videoAttr->aspect != curVideoAttr->aspect);
     return change;
 }
 
@@ -1239,8 +1219,7 @@ static int32_t HdmiVedioAttrHandle(struct HdmiCntlr *cntlr, struct HdmiHardwareS
     HdmiFillCommonAttrFromHardwareStatus(&curCommAttr, hwStatus, &(cntlr->attr));
     HdmiFillVideoAttrFromHardwareStatus(&curVideoAttr, hwStatus, &curCommAttr);
     if (HdmiCommonAttrChanged(&curCommAttr, commAttr) == false &&
-        HdmiVideoAttrChanged(&curVideoAttr, videoAttr) == false &&
-        HdmiFrlModeChanged(cntlr->frl) == false) {
+        HdmiVideoAttrChanged(&curVideoAttr, videoAttr) == false && HdmiFrlModeChanged(cntlr->frl) == false) {
         HDF_LOGI("video and common attr is not changed.");
         return HDF_SUCCESS;
     }

@@ -152,7 +152,7 @@ struct DmaCntlr {
 };
 
 #ifdef LOSCFG_DRIVERS_HDF_PLATFORM_DMAC
-struct DmaCntlr *DmaCntlrCreate(struct HdfDeviceObject *dev);
+struct DmaCntlr *DmaCntlrCreate(const struct HdfDeviceObject *dev);
 
 void DmaCntlrDestroy(struct DmaCntlr *cntlr);
 
@@ -164,7 +164,7 @@ int32_t DmaCntlrTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg);
 
 uintptr_t DmaGetCurrChanDestAddr(struct DmaCntlr *cntlr, uint16_t chan);
 #else
-static inline struct DmaCntlr *DmaCntlrCreate(struct HdfDeviceObject *dev)
+static inline struct DmaCntlr *DmaCntlrCreate(const struct HdfDeviceObject *dev)
 {
     (void)dev;
     return NULL;

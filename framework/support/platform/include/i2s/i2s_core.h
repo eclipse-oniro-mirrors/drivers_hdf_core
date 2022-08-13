@@ -50,7 +50,7 @@ struct I2sCntlr {
  * @return Retrns the pointer of the I2sCntlr on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct I2sCntlr *I2sCntlrFromDevice(struct HdfDeviceObject *device)
+static inline struct I2sCntlr *I2sCntlrFromDevice(const struct HdfDeviceObject *device)
 {
     return (device == NULL) ? NULL : (struct I2sCntlr *)device->service;
 }

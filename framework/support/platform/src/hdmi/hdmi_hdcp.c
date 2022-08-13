@@ -161,7 +161,7 @@ static int32_t HdmiHdcpAuthenticationGenerateAksvAn(struct HdmiHdcp *hdcp)
     return cntlr->ops->hdcpGenerateAksvAndAn(cntlr);
 }
 
-static void HdmiHdcpRegPrepare(struct HdmiHdcp *hdcp)
+static void HdmiHdcpRegPrepare(const struct HdmiHdcp *hdcp)
 {
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)hdcp->priv;
 

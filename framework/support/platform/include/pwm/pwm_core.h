@@ -44,7 +44,7 @@ int32_t PwmDeviceGet(struct PwmDev *pwm);
 int32_t PwmDevicePut(struct PwmDev *pwm);
 int32_t PwmDeviceSetConfig(struct PwmDev *pwm, struct PwmConfig *config);
 int32_t PwmDeviceGetConfig(struct PwmDev *pwm, struct PwmConfig *config);
-void *PwmGetPriv(struct PwmDev *pwm);
+void *PwmGetPriv(const struct PwmDev *pwm);
 int32_t PwmSetPriv(struct PwmDev *pwm, void *priv);
 int32_t PwmDeviceAdd(struct HdfDeviceObject *obj, struct PwmDev *pwm);
 void PwmDeviceRemove(struct HdfDeviceObject *obj, struct PwmDev *pwm);

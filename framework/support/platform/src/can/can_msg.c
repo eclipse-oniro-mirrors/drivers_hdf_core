@@ -25,7 +25,7 @@ static void CanMsgHolderOnFirstGet(struct HdfSRef *sref)
     (void)sref;
 }
 
-static void CanMsgDoRecycle(struct CanMsg *msg)
+static void CanMsgDoRecycle(const struct CanMsg *msg)
 {
     struct CanMsgHolder *msgExt = NULL;
 
@@ -65,7 +65,7 @@ struct CanMsg *CanMsgObtain(void)
     return &msgExt->cmsg;
 }
 
-void CanMsgGet(struct CanMsg *msg)
+void CanMsgGet(const struct CanMsg *msg)
 {
     struct CanMsgHolder *msgExt = NULL;
 
@@ -76,7 +76,7 @@ void CanMsgGet(struct CanMsg *msg)
     HdfSRefAcquire(&msgExt->ref);
 }
 
-void CanMsgPut(struct CanMsg *msg)
+void CanMsgPut(const struct CanMsg *msg)
 {
     struct CanMsgHolder *msgExt = NULL;
 

@@ -15,7 +15,7 @@
 #define HDMI_DFM_THOUSAND 1000
 #define HDMI_DFM_INVALID_VAL (-1)
 
-uint32_t HdmiDfmGetPixelFormat(enum HdmiColorSpace colorSpace)
+static uint32_t HdmiDfmGetPixelFormat(enum HdmiColorSpace colorSpace)
 {
     uint32_t pixelFormat;
 
@@ -39,8 +39,8 @@ uint32_t HdmiDfmGetPixelFormat(enum HdmiColorSpace colorSpace)
     return pixelFormat;
 }
 
-void HdmiDfmFillParam(struct HdmiDfmParam *param, struct HdmiVideoDefInfo *videoInfo,
-    struct HdmiAudioAttr *audioAttr, enum HdmiColorSpace colorSpace, enum HdmiDeepColor deepColor)
+void HdmiDfmFillParam(struct HdmiDfmParam *param, const struct HdmiVideoDefInfo *videoInfo,
+    const struct HdmiAudioAttr *audioAttr, enum HdmiColorSpace colorSpace, enum HdmiDeepColor deepColor)
 {
     if (param == NULL || videoInfo == NULL || audioAttr == NULL) {
         return;
@@ -65,7 +65,7 @@ void HdmiDfmFillParam(struct HdmiDfmParam *param, struct HdmiVideoDefInfo *video
     param->packetType = HDMI_AUDIO_SAMPLE_PACKET;
 }
 
-static void HdmiDfmBaseInfoInit(struct HdmiDfmInfo *info, struct HdmiDfmParam *param)
+static void HdmiDfmBaseInfoInit(struct HdmiDfmInfo *info, const struct HdmiDfmParam *param)
 {
     info->htotal = param->hactive + param->hblank;
     info->vtotal = param->vactive + param->vblank;
@@ -103,7 +103,7 @@ static void HdmiDfmBaseInfoInit(struct HdmiDfmInfo *info, struct HdmiDfmParam *p
     info->overheadMax = info->overheadMin + HDMI_DFM_OVERHEAD_SIZE;
 }
 
-static uint32_t HdmiDfmGetAudioPackets(struct HdmiDfmParam *param)
+static uint32_t HdmiDfmGetAudioPackets(const struct HdmiDfmParam *param)
 {
     uint32_t ap = 0;
 
@@ -139,7 +139,7 @@ static uint32_t HdmiDfmGetAudioPackets(struct HdmiDfmParam *param)
     return ap;
 }
 
-static void HdmiDfmCaculateAudioInfo(struct HdmiDfmInfo *info, struct HdmiDfmParam *param)
+static void HdmiDfmCaculateAudioInfo(struct HdmiDfmInfo *info, const struct HdmiDfmParam *param)
 {
     /* 1. Determine the number of audio packets required to carry each sample. */
     info->audioAp = HdmiDfmGetAudioPackets(param);
@@ -177,7 +177,7 @@ static void HdmiDfmCaculateVideoBorrowInfo(struct HdmiDfmInfo *info)
     }
 }
 
-static void HdmiDfmCaculateVideoInfo(struct HdmiDfmInfo *info, struct HdmiDfmParam *param)
+static void HdmiDfmCaculateVideoInfo(struct HdmiDfmInfo *info, const struct HdmiDfmParam *param)
 {
     uint32_t kcd, k420;
 

@@ -76,7 +76,7 @@ static inline int32_t CanCntlrSetHdfDev(struct CanCntlr *cntlr, struct HdfDevice
     return PlatformDeviceSetHdfDev(&cntlr->device, device);
 }
 
-static inline struct CanCntlr *CanCntlrFromHdfDev(struct HdfDeviceObject *device)
+static inline struct CanCntlr *CanCntlrFromHdfDev(const struct HdfDeviceObject *device)
 {
     struct PlatformDevice *pdevice = PlatformDeviceFromHdfDev(device);
     return (pdevice == NULL) ? NULL : CONTAINER_OF(pdevice, struct CanCntlr, device);

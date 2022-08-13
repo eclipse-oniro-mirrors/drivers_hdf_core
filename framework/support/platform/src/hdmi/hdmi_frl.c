@@ -82,7 +82,7 @@ static uint8_t HdmiFrlGetTestConfig1(struct HdmiScdc *scdc)
     return cfg;
 }
 
-static void HdmiFrlSetFltUpdate(struct HdmiScdc *scdc, bool fltUpdate)
+static void HdmiFrlSetFltUpdate(const struct HdmiScdc *scdc, bool fltUpdate)
 {
     uint8_t flag = 0;
 
@@ -101,7 +101,7 @@ static void HdmiFrlSetFltUpdate(struct HdmiScdc *scdc, bool fltUpdate)
     }
 }
 
-static void HdmiFrlSetFrlStart(struct HdmiScdc *scdc, bool frlStart)
+static void HdmiFrlSetFrlStart(const struct HdmiScdc *scdc, bool frlStart)
 {
     uint8_t flag = 0;
 
@@ -121,14 +121,14 @@ static void HdmiFrlSetFrlStart(struct HdmiScdc *scdc, bool frlStart)
     }
 }
 
-static void HdmiFrlSetConfig1(struct HdmiScdc *scdc, uint8_t *data)
+static void HdmiFrlSetConfig1(const struct HdmiScdc *scdc, uint8_t *data)
 {
     if (HdmiScdcOptMsgHandle(scdc, HDMI_SCDC_OPT_SET_CONFIG1, data, sizeof(*data)) != HDF_SUCCESS) {
         HDF_LOGD("frl set cfg1 fail");
     }
 }
 
-static void HdmiFrlSetTrainRate(struct HdmiFrl *frl)
+static void HdmiFrlSetTrainRate(const struct HdmiFrl *frl)
 {
     union HdmiScdcsConfig1 cfg = {0};
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
@@ -308,7 +308,7 @@ static int32_t HdmiFrlGetCurRate(struct HdmiFrl *frl)
     return HDF_SUCCESS;
 }
 
-static void HdmiFrlAudioNctsSet(struct HdmiFrl *frl)
+static void HdmiFrlAudioNctsSet(const struct HdmiFrl *frl)
 {
     struct HdmiFrlAudioNctsConfig cfg = {0};
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
@@ -332,7 +332,7 @@ static void HdmiFrlAudioNctsSet(struct HdmiFrl *frl)
     HdmiCntlrUnlock(cntlr);
 }
 
-static void HdmiFrlTxffeSet(struct HdmiFrl *frl)
+static void HdmiFrlTxffeSet(const struct HdmiFrl *frl)
 {
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
     struct HdmiPhyCfg cfg = {0};
@@ -349,7 +349,7 @@ static void HdmiFrlTxffeSet(struct HdmiFrl *frl)
     HdmiCntlrUnlock(cntlr);
 }
 
-static void HdmiFrlphyConfigSet(struct HdmiFrl *frl)
+static void HdmiFrlphyConfigSet(const struct HdmiFrl *frl)
 {
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
     struct HdmiPhyCfg cfg = {0};

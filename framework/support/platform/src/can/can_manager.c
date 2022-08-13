@@ -101,7 +101,7 @@ int32_t CanCntlrDel(struct CanCntlr *cntlr)
     return HDF_SUCCESS;
 }
 
-static struct CanCntlr *CanCntlrFromPlatformDevice(struct PlatformDevice *pdevice)
+static struct CanCntlr *CanCntlrFromPlatformDevice(const struct PlatformDevice *pdevice)
 {
     return CONTAINER_OF(pdevice, struct CanCntlr, device);
 }

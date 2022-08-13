@@ -346,7 +346,7 @@ static void HdmiCecEncodingRecordOnOwn(struct HdmiCecMsg *msg)
     msg->data[HDMI_CEC_MSG_DATA_SECOND_ELEMENT] = HDMI_CEC_RECORD_SRC_OWN;
 }
 
-static void HdmiCecEncodingDigitalServiceId(uint8_t *data, uint8_t len, struct HdmiCecDigitalServiceId *digital)
+static void HdmiCecEncodingDigitalServiceId(uint8_t *data, uint8_t len, const struct HdmiCecDigitalServiceId *digital)
 {
     if (len < HDMI_CEC_DIGITAL_SERVICE_ID_LEN) {
         return;
@@ -484,7 +484,7 @@ void HdmiCecEncodingRecordTvScreenMsg(struct HdmiCecMsg *msg, bool response)
     }
 }
 
-static void HdmiCecEncodingCommTimerInfo(uint8_t *data, uint8_t len, struct HdmiCecCommTimerInfo *info)
+static void HdmiCecEncodingCommTimerInfo(uint8_t *data, uint8_t len, const struct HdmiCecCommTimerInfo *info)
 {
     if (len < HDMI_CEC_COMM_TIMER_INFO_LEN) {
         return;
@@ -629,7 +629,7 @@ void HdmiCecEncodingTimerClearedStatusMsg(struct HdmiCecMsg *msg, uint8_t status
     msg->data[HDMI_CEC_MSG_DATA_SECOND_ELEMENT] = status;
 }
 
-void HdmiCecEncodingTimerStatusMsg(struct HdmiCecMsg *msg, struct HdmiCecTimerStatusData *status)
+void HdmiCecEncodingTimerStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTimerStatusData *status)
 {
     bool duration = false;
 
@@ -658,7 +658,7 @@ void HdmiCecEncodingTimerStatusMsg(struct HdmiCecMsg *msg, struct HdmiCecTimerSt
     }
 }
 
-void HdmiCecEncodingCecVersionMsg(struct HdmiCecMsg *msg, uint8_t version)
+static void HdmiCecEncodingCecVersionMsg(struct HdmiCecMsg *msg, uint8_t version)
 {
     msg->len = HDMI_CEC_GET_MSG_LEN(HDMI_CEC_CEC_VERSION_MSG_PARAM_LEN);
     msg->data[HDMI_CEC_MSG_DATA_FIRST_ELEMENT] = HDMI_CEC_OPCODE_CEC_VERSION;
@@ -697,7 +697,7 @@ void HdmiCecEncodingGetMenuLanguageMsg(struct HdmiCecMsg *msg, bool response)
     }
 }
 
-void HdmiCecEncodingReportPhyAddressMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, uint8_t deviceType)
+static void HdmiCecEncodingReportPhyAddressMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, uint8_t deviceType)
 {
     msg->len = HDMI_CEC_GET_MSG_LEN(HDMI_CEC_REPORT_PHYSICAL_ADDRESS_MSG_PARAM_LEN);
     msg->data[HDMI_CEC_MSG_DATA_ZEROTH_ELEMENT] |= HDMI_CEC_LOG_ADDR_UNREGISTERED_OR_BROADCAST;
@@ -723,7 +723,7 @@ void HdmiCecEncodingSetMenuLanguageMsg(struct HdmiCecMsg *msg, uint8_t *language
     }
 }
 
-void HdmiCecEncodingReportFeaturesMsg(struct HdmiCecMsg *msg, struct HdmiCecInfo *info)
+static void HdmiCecEncodingReportFeaturesMsg(struct HdmiCecMsg *msg, const struct HdmiCecInfo *info)
 {
     uint32_t i;
 
@@ -823,7 +823,7 @@ void HdmiCecEncodingSelectDigitalServiceMsg(struct HdmiCecMsg *msg, struct HdmiC
                                     digital);
 }
 
-void HdmiCecEncodingTunerDeviceStatusMsg(struct HdmiCecMsg *msg, struct HdmiCecTunerDeviceInfo *info)
+void HdmiCecEncodingTunerDeviceStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTunerDeviceInfo *info)
 {
     msg->data[HDMI_CEC_MSG_DATA_FIRST_ELEMENT] = HDMI_CEC_OPCODE_TUNER_DEVICE_STATUS;
     msg->data[HDMI_CEC_MSG_DATA_SECOND_ELEMENT] = (info->recordingFlag << HDMI_CEC_RECORDING_FALG_SHIFT) |
@@ -854,7 +854,7 @@ void HdmiCecEncodingTunerStepIncrementMsg(struct HdmiCecMsg *msg)
     msg->data[HDMI_CEC_MSG_DATA_FIRST_ELEMENT] = HDMI_CEC_OPCODE_TUNER_STEP_INCREMENT;
 }
 
-void HdmiCecEncodingDeviceVendorIdMsg(struct HdmiCecMsg *msg, uint32_t devVendorId)
+static void HdmiCecEncodingDeviceVendorIdMsg(struct HdmiCecMsg *msg, uint32_t devVendorId)
 {
     msg->len = HDMI_CEC_GET_MSG_LEN(HDMI_CEC_DEVICE_VENDOR_ID_MSG_PARAM_LEN);
     msg->data[HDMI_CEC_MSG_DATA_FIRST_ELEMENT] = HDMI_CEC_OPCODE_DEVICE_VENDOR_ID;
@@ -960,7 +960,7 @@ void HdmiCecEncodingGiveOsdNameMsg(struct HdmiCecMsg *msg, bool response)
     }
 }
 
-void HdmiCecEncodingSetOsdNameMsg(struct HdmiCecMsg *msg, uint8_t *name, uint32_t len)
+static void HdmiCecEncodingSetOsdNameMsg(struct HdmiCecMsg *msg, uint8_t *name, uint32_t len)
 {
     uint32_t length;
 
@@ -994,7 +994,7 @@ void HdmiCecEncodingMenuStatusMsg(struct HdmiCecMsg *msg, uint8_t menuStatus)
     msg->data[HDMI_CEC_MSG_DATA_SECOND_ELEMENT] = menuStatus;
 }
 
-void HdmiCecEncodingUserControlPrtessedMsg(struct HdmiCecMsg *msg, struct HdmiCecUiCmd *cmd)
+void HdmiCecEncodingUserControlPrtessedMsg(struct HdmiCecMsg *msg, const struct HdmiCecUiCmd *cmd)
 {
     if (cmd == NULL) {
         return;
@@ -1053,7 +1053,7 @@ void HdmiCecEncodingReportDevicePowerStatusMsg(struct HdmiCecMsg *msg, uint8_t p
     msg->data[HDMI_CEC_MSG_DATA_SECOND_ELEMENT] = powerStatus;
 }
 
-void HdmiCecEncodingFeatureAbortMsg(struct HdmiCecMsg *msg, uint8_t opcode, uint8_t reason)
+static void HdmiCecEncodingFeatureAbortMsg(struct HdmiCecMsg *msg, uint8_t opcode, uint8_t reason)
 {
     msg->len = HDMI_CEC_GET_MSG_LEN(HDMI_CEC_FEATURE_ABORT_MSG_PARA_LEN);
     msg->data[HDMI_CEC_MSG_DATA_FIRST_ELEMENT] = HDMI_CEC_OPCODE_FEATURE_ABORT;
