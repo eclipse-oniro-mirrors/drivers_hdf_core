@@ -71,7 +71,7 @@ static int32_t DacTestGetConfig(struct DacTestConfig *config)
     return ret;
 }
 
-struct DacTester *DacTesterGet(void)
+static struct DacTester *DacTesterGet(void)
 {
     int32_t ret;
     static struct DacTester tester;
@@ -94,7 +94,7 @@ struct DacTester *DacTesterGet(void)
     return &tester;
 }
 
-int32_t DacTestWrite(void)
+static int32_t DacTestWrite(void)
 {
     struct DacTester *tester = NULL;
     uint32_t value[TEST_DAC_VAL_NUM];
@@ -145,7 +145,7 @@ static int DacTestThreadFunc(void *param)
     return val;
 }
 
-int32_t DacTestMultiThread(void)
+static int32_t DacTestMultiThread(void)
 {
     int32_t ret;
     uint32_t time = 0;
@@ -202,7 +202,7 @@ int32_t DacTestMultiThread(void)
     return HDF_SUCCESS;
 }
 
-int32_t DacTestReliability(void)
+static int32_t DacTestReliability(void)
 {
     struct DacTester *tester = NULL;
     uint32_t val;

@@ -18,6 +18,8 @@ static int32_t I2cTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct
 {
     HDF_LOGD("%s: enter!", __func__);
 
+    (void)client;
+    (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
             HDF_LOGE("%s: reply is null!", __func__);

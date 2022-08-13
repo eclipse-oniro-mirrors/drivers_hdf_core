@@ -144,7 +144,7 @@ static int32_t I3cTestMallocBuf(struct I3cTester *tester)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestSetUpAll(void *param)
+static int32_t I3cTestSetUpAll(void *param)
 {
     struct I3cTester *tester = NULL;
     struct I3cTestConfig *cfg = NULL;
@@ -172,7 +172,7 @@ int32_t I3cTestSetUpAll(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestTearDownAll(void *param)
+static int32_t I3cTestTearDownAll(void *param)
 {
     if (g_buf != NULL) {
         OsalMemFree(g_buf);
@@ -193,7 +193,7 @@ int32_t I3cTestTearDownSingle(void)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestTransfer(void *param)
+static int32_t I3cTestTransfer(void *param)
 {
     struct I3cTester *tester = NULL;
     int32_t ret;
@@ -232,7 +232,7 @@ int32_t I3cTestTransfer(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestSetConfig(void *param)
+static int32_t I3cTestSetConfig(void *param)
 {
     struct I3cTester *tester = NULL;
     struct I3cConfig *config = NULL;
@@ -269,7 +269,7 @@ int32_t I3cTestSetConfig(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestGetConfig(void *param)
+static int32_t I3cTestGetConfig(void *param)
 {
     struct I3cTester *tester = NULL;
     struct I3cConfig *config = NULL;
@@ -314,7 +314,7 @@ static int32_t TestI3cIbiFunc(DevHandle handle, uint16_t addr, struct I3cIbiData
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestRequestIbi(void *param)
+static int32_t I3cTestRequestIbi(void *param)
 {
     struct I3cTester *tester = NULL;
     int32_t ret;
@@ -338,7 +338,7 @@ int32_t I3cTestRequestIbi(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestFreeIbi(void *param)
+static int32_t I3cTestFreeIbi(void *param)
 {
     struct I3cTester *tester = NULL;
     int32_t ret;
@@ -447,7 +447,7 @@ static struct I3cTestEntry g_multiThreadEntry[] = {
     { I3C_TEST_CMD_FREE_IBI, I3cTestFreeIbi, "I3cTestFreeIbi" },
 };
 
-int32_t I3cTestMultiThread(void *param)
+static int32_t I3cTestMultiThread(void *param)
 {
     uint32_t i;
     int32_t ret;
@@ -469,7 +469,7 @@ int32_t I3cTestMultiThread(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestReliability(void *param)
+static int32_t I3cTestReliability(void *param)
 {
     struct I3cTester *tester = NULL;
     struct I3cConfig *config = NULL;

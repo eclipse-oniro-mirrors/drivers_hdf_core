@@ -37,7 +37,7 @@ static struct HdfDeviceObject hdfDev = {
 };
 
 struct HdfDriverEntry *CanVirtualGetEntry(void);
-struct HdfDriverEntry *g_driverEntry = NULL;
+static struct HdfDriverEntry *g_driverEntry = NULL;
 static uint16_t g_busNum;
 static DevHandle g_handle;
 static struct CanMsg g_msgA;
@@ -145,7 +145,7 @@ static int32_t CanTestSetUpByConfig(struct CanTestConfig *config)
     return HDF_SUCCESS;
 }
 
-int32_t CanTestSetUpEveryCase(void)
+static int32_t CanTestSetUpEveryCase(void)
 {
     struct CanTestConfig config;
 
@@ -162,7 +162,7 @@ int32_t CanTestSetUpEveryCase(void)
     return HDF_SUCCESS;
 }
 
-int32_t CanTestTearDownEveryCase(void)
+static int32_t CanTestTearDownEveryCase(void)
 {
     CanBusClose(g_handle);
     if (g_driverEntry != NULL) {
@@ -198,6 +198,7 @@ static bool CanMsgEquals(const struct CanMsg *msgA, const struct CanMsg *msgB)
 static bool CanBusCanNotReadMsg(DevHandle handle, struct CanMsg *msg)
 {
     struct CanMsg msgGot;
+    (void)msg;
     LONGS_EQUAL_RETURN(HDF_ERR_TIMEOUT, CanBusReadMsg(handle, &msgGot, CAN_TEST_TIMEOUT_10));
     return true;
 }

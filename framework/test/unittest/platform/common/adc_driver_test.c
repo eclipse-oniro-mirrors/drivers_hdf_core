@@ -19,6 +19,7 @@ static struct AdcTestConfig g_config;
 static int32_t AdcTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)data;
+    (void)client;
 
     if (cmd == 0) {
         if (reply == NULL) {

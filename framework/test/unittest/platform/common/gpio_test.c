@@ -354,7 +354,7 @@ static int32_t GpioTestIrqEdge(void)
     return GpioTestIrqSharedFunc(tester, mode, true);
 }
 
-int32_t GpioTestIrqThread(void)
+static int32_t GpioTestIrqThread(void)
 {
     uint16_t mode;
     struct GpioTester *tester = NULL;
@@ -375,7 +375,7 @@ int32_t GpioTestIrqThread(void)
     return GpioTestIrqSharedFunc(tester, mode, true);
 }
 
-int32_t GpioTestGetNumByName(void)
+static int32_t GpioTestGetNumByName(void)
 {
     int32_t ret;
     struct GpioTester *tester = NULL;

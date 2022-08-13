@@ -19,7 +19,7 @@
 
 #define PIN_FUNC_NAME_LENGTH       30
 
-struct PinCfgs {
+static struct PinCfgs {
     enum PinPullType pullTypeNum;
     uint32_t strengthNum;
     const char *funcName;
@@ -209,7 +209,7 @@ static int32_t PinSetGetFuncTest(void)
     return HDF_SUCCESS;
 }
 
-int32_t PinTestSetUpAll(void)
+static int32_t PinTestSetUpAll(void)
 {
     int32_t ret;
     struct PinTester *tester = NULL;
@@ -247,7 +247,7 @@ int32_t PinTestSetUpAll(void)
     return HDF_SUCCESS;
 }
 
-int32_t PinTestTearDownAll(void)
+static int32_t PinTestTearDownAll(void)
 {
     int32_t ret;
     struct PinTester *tester = NULL;
@@ -288,7 +288,7 @@ int32_t PinTestTearDownSingle(void)
     return HDF_SUCCESS;
 }
 
-int32_t PinTestReliability(void)
+static int32_t PinTestReliability(void)
 {
     struct PinTester *tester = NULL;
 
