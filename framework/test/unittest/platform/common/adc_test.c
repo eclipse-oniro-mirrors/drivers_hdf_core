@@ -76,7 +76,7 @@ static int32_t AdcTestGetConfig(struct AdcTestConfig *config)
     return ret;
 }
 
-struct AdcTester *AdcTesterGet(void)
+static struct AdcTester *AdcTesterGet(void)
 {
     int32_t ret;
     static struct AdcTester tester;
@@ -101,7 +101,7 @@ struct AdcTester *AdcTesterGet(void)
     return &tester;
 }
 
-int32_t AdcTestRead(void)
+static int32_t AdcTestRead(void)
 {
     struct AdcTester *tester = NULL;
     uint32_t value[TEST_ADC_VAL_NUM];
@@ -157,7 +157,7 @@ static int AdcTestThreadFunc(void *param)
     return val;
 }
 
-int32_t AdcTestMultiThread(void)
+static int32_t AdcTestMultiThread(void)
 {
     int32_t ret;
     struct OsalThread thread1, thread2;
@@ -211,7 +211,7 @@ int32_t AdcTestMultiThread(void)
     return HDF_SUCCESS;
 }
 
-int32_t AdcTestReliability(void)
+static int32_t AdcTestReliability(void)
 {
     struct AdcTester *tester = NULL;
     uint32_t val;

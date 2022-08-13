@@ -83,7 +83,7 @@ EXIT:
     return ret;
 }
 
-struct I2cTester *I2cTesterGet(void)
+static struct I2cTester *I2cTesterGet(void)
 {
     int32_t ret;
     static struct I2cTester tester;
@@ -140,7 +140,7 @@ static int32_t I2cTestMallocBuf(struct I2cTester *tester)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestSetUpAll(void)
+static int32_t I2cTestSetUpAll(void)
 {
     struct I2cTester *tester = NULL;
     struct I2cTestConfig *cfg = NULL;
@@ -164,7 +164,7 @@ int32_t I2cTestSetUpAll(void)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestTearDownAll(void)
+static int32_t I2cTestTearDownAll(void)
 {
     if (g_buf != NULL) {
         OsalMemFree(g_buf);
@@ -174,17 +174,17 @@ int32_t I2cTestTearDownAll(void)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestSetUpSingle(void)
+static int32_t I2cTestSetUpSingle(void)
 {
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestTearDownSingle(void)
+static int32_t I2cTestTearDownSingle(void)
 {
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestTransfer(void)
+static int32_t I2cTestTransfer(void)
 {
     int32_t ret;
     struct I2cTester *tester = NULL;
@@ -217,7 +217,7 @@ int32_t I2cTestTransfer(void)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestWriteRead(void)
+static int32_t I2cTestWriteRead(void)
 {
     return HDF_SUCCESS;
 }
@@ -248,7 +248,7 @@ static int I2cTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestMultiThread(void)
+static int32_t I2cTestMultiThread(void)
 {
     int32_t ret;
     struct OsalThread thread1, thread2;
@@ -305,7 +305,7 @@ int32_t I2cTestMultiThread(void)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestReliability(void)
+static int32_t I2cTestReliability(void)
 {
     struct I2cTester *tester = NULL;
 
@@ -324,7 +324,7 @@ int32_t I2cTestReliability(void)
     return HDF_SUCCESS;
 }
 
-int32_t I2cTestPeformance(void)
+static int32_t I2cTestPeformance(void)
 {
 #ifdef __LITEOS__
     // liteos the accuracy of the obtained time is too large and inaccurate.
