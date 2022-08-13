@@ -22,26 +22,27 @@ AstObject::AstObject(const AstObject &obj) : AstObject(obj.name_, obj.type_, obj
     src_ = obj.src_;
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t value) :
-    type_(type),
-    name_(std::move(name)),
-    parent_(nullptr),
-    lineno_(0),
-    opCode_(0),
-    size_(0),
-    subSize_(0),
-    hash_(0),
-    integerValue_(value)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t value)
+    : type_(type),
+      name_(std::move(name)),
+      parent_(nullptr),
+      lineno_(0),
+      opCode_(0),
+      size_(0),
+      subSize_(0),
+      hash_(0),
+      integerValue_(value)
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string value) : AstObject(std::move(name), type, 0)
+AstObject::AstObject(std::string name, uint32_t type, std::string value)
+    : AstObject(std::move(name), type, 0)
 {
     stringValue_ = std::move(value);
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t value, const Token &bindToken) :
-    AstObject(std::move(name), type, value)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t value, const Token &bindToken)
+    : AstObject(std::move(name), type, value)
 {
     lineno_ = bindToken.lineNo;
     src_ = bindToken.src;
@@ -58,8 +59,8 @@ AstObject::AstObject(std::string name, uint32_t type, uint64_t value, const Toke
     }
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string value, const Token &bindToken) :
-    AstObject(std::move(name), type, 0, bindToken)
+AstObject::AstObject(std::string name, uint32_t type, std::string value, const Token &bindToken)
+    : AstObject(std::move(name), type, 0, bindToken)
 {
     stringValue_ = std::move(value);
 }
@@ -336,7 +337,7 @@ void AstObject::SetSubSize(uint32_t size)
     subSize_ = size;
 }
 
-uint32_t AstObject::GetSubSize()
+uint32_t AstObject::GetSubSize() const
 {
     return subSize_;
 }
@@ -346,12 +347,12 @@ void AstObject::SetHash(uint32_t hash)
     hash_ = hash;
 }
 
-uint32_t AstObject::GetSize()
+uint32_t AstObject::GetSize() const
 {
     return size_;
 }
 
-uint32_t AstObject::GetHash()
+uint32_t AstObject::GetHash() const
 {
     return hash_;
 }
@@ -376,7 +377,7 @@ const std::string &AstObject::StringValue()
     return stringValue_;
 }
 
-uint64_t AstObject::IntegerValue()
+uint64_t AstObject::IntegerValue() const
 {
     return integerValue_;
 }
@@ -386,7 +387,7 @@ uint32_t AstObject::Type()
     return type_;
 }
 
-uint8_t AstObject::OpCode()
+uint8_t AstObject::OpCode() const
 {
     return opCode_;
 }
@@ -401,7 +402,7 @@ bool AstObject::HasDuplicateChild()
     return false;
 }
 
-bool AstObject::IsElders(const std::shared_ptr<AstObject> &child)
+bool AstObject::IsElders(const std::shared_ptr<AstObject> &child) const
 {
     auto p = child.get();
     while (p != nullptr) {
@@ -413,9 +414,9 @@ bool AstObject::IsElders(const std::shared_ptr<AstObject> &child)
     return false;
 }
 
-std::shared_ptr<AstObject> AstObject::Parent()
+std::shared_ptr<AstObject> AstObject::Parent() const
 {
-    return std::shared_ptr<AstObject>(parent_, [](auto p) {});
+    return std::shared_ptr<AstObject>(parent_, [](auto p) { (void)p; });
 }
 
 ConfigNode::ConfigNode(const ConfigNode &node) : ConfigNode(node.name_, node.nodeType_, node.refNodePath_)
@@ -427,23 +428,23 @@ ConfigNode::ConfigNode(const ConfigNode &node) : ConfigNode(node.name_, node.nod
     }
 }
 
-ConfigNode::ConfigNode(std::string name, uint32_t nodeType, std::string refName) :
-    AstObject(std::move(name), PARSEROP_CONFNODE, ""),
-    refNodePath_(std::move(refName)),
-    nodeType_(nodeType),
-    inheritIndex_(0),
-    inheritCount_(0),
-    templateSignNum_(0)
+ConfigNode::ConfigNode(std::string name, uint32_t nodeType, std::string refName)
+    : AstObject(std::move(name), PARSEROP_CONFNODE, ""),
+      refNodePath_(std::move(refName)),
+      nodeType_(nodeType),
+      inheritIndex_(0),
+      inheritCount_(0),
+      templateSignNum_(0)
 {
 }
 
-ConfigNode::ConfigNode(Token &name, uint32_t nodeType, std::string refName) :
-    AstObject(name.strval, PARSEROP_CONFNODE, 0, name),
-    refNodePath_(std::move(refName)),
-    nodeType_(nodeType),
-    inheritIndex_(0),
-    inheritCount_(0),
-    templateSignNum_(0)
+ConfigNode::ConfigNode(Token &name, uint32_t nodeType, std::string refName)
+    : AstObject(name.strval, PARSEROP_CONFNODE, 0, name),
+      refNodePath_(std::move(refName)),
+      nodeType_(nodeType),
+      inheritIndex_(0),
+      inheritCount_(0),
+      templateSignNum_(0)
 {
 }
 
@@ -587,7 +588,7 @@ bool ConfigNode::RefExpand(const std::shared_ptr<AstObject> &refObj)
         return true;
     }
 
-    if (refObj->IsElders(std::shared_ptr<AstObject>(this, [](auto p) {}))) {
+    if (refObj->IsElders(std::shared_ptr<AstObject>(this, [](auto p) { (void)p; }))) {
         Logger().Error() << SourceInfo() << "circular reference " << refObj->SourceInfo();
         return false;
     }
@@ -667,17 +668,17 @@ bool ConfigNode::Compare(ConfigNode &other)
     return true;
 }
 
-uint32_t ConfigNode::InheritIndex()
+uint32_t ConfigNode::InheritIndex() const
 {
     return inheritIndex_;
 }
 
-uint32_t ConfigNode::InheritCount()
+uint32_t ConfigNode::InheritCount() const
 {
     return inheritCount_;
 }
 
-uint32_t ConfigNode::TemplateSignNum()
+uint32_t ConfigNode::TemplateSignNum() const
 {
     return templateSignNum_;
 }
@@ -716,8 +717,8 @@ ConfigTerm::ConfigTerm(const ConfigTerm &term) : ConfigTerm(term.name_, nullptr)
     lineno_ = term.lineno_;
 }
 
-ConfigTerm::ConfigTerm(std::string name, const std::shared_ptr<AstObject> &value) :
-    AstObject(std::move(name), PARSEROP_CONFTERM, 0), signNum_(0)
+ConfigTerm::ConfigTerm(std::string name, const std::shared_ptr<AstObject> &value)
+    : AstObject(std::move(name), PARSEROP_CONFTERM, 0), signNum_(0)
 {
     if (value != nullptr) {
         child_ = value;
@@ -725,8 +726,8 @@ ConfigTerm::ConfigTerm(std::string name, const std::shared_ptr<AstObject> &value
     }
 }
 
-ConfigTerm::ConfigTerm(Token &name, const std::shared_ptr<AstObject> &value) :
-    AstObject(name.strval, PARSEROP_CONFTERM, 0, name), signNum_(0)
+ConfigTerm::ConfigTerm(Token &name, const std::shared_ptr<AstObject> &value)
+    : AstObject(name.strval, PARSEROP_CONFTERM, 0, name), signNum_(0)
 {
     if (value != nullptr) {
         child_ = value;
@@ -818,7 +819,7 @@ void ConfigTerm::SetSigNum(uint32_t sigNum)
     signNum_ = sigNum;
 }
 
-uint32_t ConfigTerm::SigNum()
+uint32_t ConfigTerm::SigNum() const
 {
     return signNum_;
 }
@@ -836,8 +837,8 @@ ConfigArray::ConfigArray(const ConfigArray &array) : ConfigArray()
     arrayType_ = array.arrayType_;
 }
 
-ConfigArray::ConfigArray(const Token &bindToken) :
-    AstObject("", PARSEROP_ARRAY, 0, bindToken), arrayType_(0), arraySize_(0)
+ConfigArray::ConfigArray(const Token &bindToken)
+    : AstObject("", PARSEROP_ARRAY, 0, bindToken), arrayType_(0), arraySize_(0)
 {
 }
 
@@ -894,12 +895,12 @@ ConfigArray *ConfigArray::CastFrom(const std::shared_ptr<AstObject> &astObject)
     return static_cast<ConfigArray *>(astObject.get());
 }
 
-uint16_t ConfigArray::ArraySize()
+uint16_t ConfigArray::ArraySize() const
 {
     return arraySize_;
 }
 
-uint16_t ConfigArray::ArrayType()
+uint16_t ConfigArray::ArrayType() const
 {
     return arrayType_;
 }
@@ -1036,18 +1037,20 @@ bool Ast::NodeExpandTermRef()
 {
     return WalkBackward([this](const std::shared_ptr<AstObject> &current, int32_t walkDepth) -> int32_t {
         (void)walkDepth;
-        if (current->IsTerm()) {
-            std::shared_ptr<AstObject> ref;
-            if (current->child_->Type() == PARSEROP_NODEREF) {
-                ref = Lookup(current, current->child_->StringValue());
-                if (!ConfigTerm::CastFrom(current)->RefExpand(ref)) {
-                    return EFAIL;
-                }
-            }
+        if (!current->IsTerm()) {
+            return NOERR;
+        }
+
+        if (current->child_->Type() != PARSEROP_NODEREF) {
+            return NOERR;
+        }
+
+        std::shared_ptr<AstObject> ref = Lookup(current, current->child_->StringValue());
+        if (!ConfigTerm::CastFrom(current)->RefExpand(ref)) {
+            return EFAIL;
         }
         return NOERR;
     });
-    ;
 }
 
 bool Ast::NodeExpand()
@@ -1128,7 +1131,7 @@ std::shared_ptr<AstObject> Ast::Lookup(const std::shared_ptr<AstObject> &startOb
     return target;
 }
 
-std::list<std::string> Ast::SplitNodePath(const std::string &path, char separator)
+std::list<std::string> Ast::SplitNodePath(const std::string &path, char separator) const
 {
     std::list<std::string> splitList;
     std::string temp;

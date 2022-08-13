@@ -120,7 +120,7 @@ void Option::SetOptionData(char op)
     }
 }
 
-void Option::ShowUsage()
+void Option::ShowUsage() const
 {
     Logger() << "Usage: hc-gen [Options] [File]\n"
              << "options:";
@@ -148,7 +148,7 @@ bool Option::ShouldShowUsage() const
     return showUsage_;
 }
 
-void Option::ShowVersion()
+void Option::ShowVersion() const
 {
     Logger() << "Hcs compiler " << HCS_COMPILER_VERSION_MAJOR << "." << HCS_COMPILER_VERSION_MINOR;
     Logger() << "Copyright (c) 2020-2021 Huawei Device Co., Ltd.";
@@ -249,7 +249,7 @@ bool Option::SetSourceOption(const char *srcName)
     return true;
 }
 
-void Option::GetVersion(uint32_t &minor, uint32_t &major)
+void Option::GetVersion(uint32_t &minor, uint32_t &major) const
 {
     minor = HCS_COMPILER_VERSION_MINOR;
     major = HCS_COMPILER_VERSION_MAJOR;

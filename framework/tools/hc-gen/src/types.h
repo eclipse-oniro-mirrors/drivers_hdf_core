@@ -28,6 +28,8 @@
 #define OS_SEPARATOR UNIX_SEPARATOR
 #endif
 
+namespace OHOS {
+namespace Hardware {
 enum HcsErrorNo {
     NOERR = 0,     /* No error */
     EFAIL,         /* Process fail */
@@ -40,5 +42,7 @@ enum HcsErrorNo {
     EOUTPUT,       /* Output error */
     EASTWALKBREAK, /* Break ast walk */
 };
+} // namespace Hardware
+} // namespace OHOS
 
 #endif // HC_GEN_TYPES_H

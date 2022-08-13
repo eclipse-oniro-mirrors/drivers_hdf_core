@@ -29,7 +29,7 @@ private:
 
     bool ReadFile(char *buffer, size_t readSize);
 
-    uint32_t GetAlignSize(uint32_t size)
+    uint32_t GetAlignSize(uint32_t size) const
     {
         if (isAlign_) {
             return (size + ALIGN_SIZE - 1) & (~(ALIGN_SIZE - 1));

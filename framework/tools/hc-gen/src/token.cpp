@@ -43,32 +43,32 @@ std::string OHOS::Hardware::TokenType2String(int32_t type)
     return str;
 }
 
-std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const OHOS::Hardware::Token &t)
+std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const OHOS::Hardware::Token &token)
 {
-    stream << "Token: type: " << std::setw(WIDTH_EIGHT) << ::std::left << TokenType2String(t.type).data();
+    stream << "Token: type: " << std::setw(WIDTH_EIGHT) << ::std::left << TokenType2String(token.type).data();
     stream << " value: " << std::setw(WIDTH_EIGHT) << ::std::left;
-    t.type != NUMBER ? stream << std::setw(WIDTH_TWENTY) << t.strval.data()
+    token.type != NUMBER ? stream << std::setw(WIDTH_TWENTY) << token.strval.data()
                      : stream << std::setw(WIDTH_ZERO) << "0x" << std::setw(WIDTH_EIGHTEEN) <<
-                       std::hex << t.numval;
-    stream << " lineno:" << t.lineNo;
+                       std::hex << token.numval;
+    stream << " lineno:" << token.lineNo;
     return stream;
 }
 
-bool Token::operator==(int32_t t) const
+bool Token::operator==(int32_t otherType) const
 {
-    return t == type;
+    return otherType == type;
 }
 
-bool Token::operator!=(int32_t t) const
+bool Token::operator!=(int32_t otherType) const
 {
-    return t != type;
+    return otherType != type;
 }
-bool Token::operator==(Token &t) const
+bool Token::operator==(Token &token) const
 {
-    return t.type == type && t.numval == numval && t.strval == strval;
+    return token.type == type && token.numval == numval && token.strval == strval;
 }
 
-bool Token::operator!=(Token &t) const
+bool Token::operator!=(Token &token) const
 {
-    return t.type != type || t.numval != numval || t.strval != strval;
+    return token.type != type || token.numval != numval || token.strval != strval;
 }

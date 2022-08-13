@@ -113,7 +113,7 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     ofs_ << '\n';
 }
 
-void StartupCfgGen::InitHostInfo(HostInfo &hostData)
+void StartupCfgGen::InitHostInfo(HostInfo &hostData) const
 {
     hostData.dynamicLoad = true;
     hostData.hostCaps = "";
@@ -126,6 +126,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
 bool StartupCfgGen::TemplateNodeSeparate()
 {
     return ast_->WalkBackward([this](std::shared_ptr<AstObject> &object, int32_t depth) {
+        (void)depth;
         if (object->IsNode() && ConfigNode::CastFrom(object)->GetNodeType() == NODE_TEMPLATE) {
             object->Separate();
             return NOERR;
@@ -134,15 +135,6 @@ bool StartupCfgGen::TemplateNodeSeparate()
     });
 }
 
-struct compare {
-    bool operator()(const std::pair<std::string, HostInfo> &p1,
-        const std::pair<std::string, HostInfo> &p2)
-    {
-        return (p1.second.hostPriority == p2.second.hostPriority) ?
-            (p1.second.hostId < p2.second.hostId) : (p1.second.hostPriority < p2.second.hostPriority);
-    }
-};
-
 void StartupCfgGen::HostInfosOutput()
 {
     bool end = false;
@@ -150,7 +142,13 @@ void StartupCfgGen::HostInfosOutput()
     const uint32_t size = hostInfoMap_.size();
 
     std::vector<std::pair<std::string, HostInfo>> vect(hostInfoMap_.begin(), hostInfoMap_.end());
-    sort(vect.begin(), vect.end(), compare());
+
+    using elementType = std::pair<std::string, HostInfo>;
+    sort(vect.begin(), vect.end(), [] (const elementType &p1, const elementType &p2) -> bool {
+        return (p1.second.hostPriority == p2.second.hostPriority) ?
+            (p1.second.hostId < p2.second.hostId) : (p1.second.hostPriority < p2.second.hostPriority);
+    });
+
     std::vector<std::pair<std::string, HostInfo>>::iterator it = vect.begin();
     for (; it != vect.end(); ++it, ++cnt) {
         if (cnt == size) {
@@ -160,7 +158,7 @@ void StartupCfgGen::HostInfosOutput()
     }
 }
 
-void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)
+void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config) const
 {
     if (term == nullptr) {
         return;
@@ -186,7 +184,7 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
     }
 }
 
-void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData)
+void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData) const
 {
     uint32_t preload;
     std::shared_ptr<AstObject> current = nullptr;

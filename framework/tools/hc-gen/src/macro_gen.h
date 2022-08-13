@@ -44,7 +44,7 @@ private:
 
     bool HeaderBottomOutput();
 
-    const std::string &ToUpperString(std::string &str);
+    const std::string &ToUpperString(std::string &str) const;
 
     bool GenArray(const std::string &arrName, uint32_t &arrSize, uint32_t type, const std::shared_ptr<AstObject> &node);
 

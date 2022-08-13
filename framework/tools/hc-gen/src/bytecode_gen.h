@@ -14,7 +14,6 @@
 
 namespace OHOS {
 namespace Hardware {
-
 struct OpCode {
     OpCode() : opCode(0), size(0) {}
 
@@ -42,7 +41,7 @@ private:
 
     uint32_t Align(uint32_t size) const;
 
-    void CalculateSize(const std::shared_ptr<AstObject> &object);
+    void CalculateSize(const std::shared_ptr<AstObject> &object) const;
 
     bool ByteCodeWrite(bool dummy);
 

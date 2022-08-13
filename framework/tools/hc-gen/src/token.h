@@ -34,14 +34,14 @@ struct Token {
     uint64_t numval;
     std::shared_ptr<std::string> src;
     int32_t lineNo;
-    bool operator==(Token &t) const;
-    bool operator!=(Token &t) const;
-    bool operator==(int32_t type) const;
-    bool operator!=(int32_t type) const;
-    friend std::ostream &operator<<(std::ostream &stream, const Token &t);
+    bool operator==(Token &token) const;
+    bool operator!=(Token &token) const;
+    bool operator==(int32_t otherType) const;
+    bool operator!=(int32_t otherType) const;
+    friend std::ostream &operator<<(std::ostream &stream, const Token &token);
 };
 
-std::ostream &operator<<(std::ostream &s, const Token &t);
+std::ostream &operator<<(std::ostream &stream, const Token &token);
 
 std::string TokenType2String(int32_t type);
 

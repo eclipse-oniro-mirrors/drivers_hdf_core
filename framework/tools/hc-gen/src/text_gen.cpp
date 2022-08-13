@@ -212,6 +212,7 @@ const std::string &TextGen::ToUpperString(std::string &str)
 
 std::string TextGen::GetHeaderProtectMacro(const std::string &headerFileName)
 {
+    (void)headerFileName;
     return std::string().append("HCS_CONFIG_").append(ToUpperString(outputNameBase_)).append("_HEADER_H");
 }
 
@@ -261,7 +262,6 @@ bool TextGen::GenObjectDefinitionGen(const std::shared_ptr<AstObject> &object)
             if (node->GetNodeType() == NODE_TEMPLATE) {
                 ofs_ << Indent() << "const struct " << structName << "* " << nodeName << ";\n";
                 ofs_ << Indent() << "uint16_t " << nodeName << "Size;\n";
-
             } else if (node->GetNodeType() == NODE_INHERIT) {
                 return true;
             } else {
@@ -623,7 +623,7 @@ bool TextGen::OutputTemplateImpl()
              << "[] = {\n";
         auto subClass = node->SubClasses();
         for (auto nodeObj : subClass) {
-            std::shared_ptr<AstObject> obj = std::shared_ptr<AstObject>(nodeObj, [](auto p) {});
+            std::shared_ptr<AstObject> obj = std::shared_ptr<AstObject>(nodeObj, [](auto p) { (void)p; });
             ofs_ << Indent() << '[' << std::dec << ConfigNode::CastFrom(obj)->InheritIndex() << "] = {\n";
             if (!TemplateVariableGen(obj)) {
                 return EOUTPUT;
@@ -716,7 +716,7 @@ bool TextGen::DuplicateNodeNameCheck()
 {
     std::map<std::string, std::shared_ptr<AstObject>> nodeMap;
 
-    return ast_->WalkForward([&](const std::shared_ptr<AstObject> &current, uint32_t) -> uint32_t {
+    return ast_->WalkForward([&nodeMap](const std::shared_ptr<AstObject> &current, uint32_t) -> uint32_t {
         if (!current->IsNode() || IsInSubClassNode(current)) {
             return NOERR;
         }

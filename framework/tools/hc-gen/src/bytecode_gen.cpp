@@ -14,11 +14,11 @@
 
 using namespace OHOS::Hardware;
 
-ByteCodeGen::ByteCodeGen(std::shared_ptr<Ast> ast) :
-    Generator(ast),
-    needAlign_(false),
-    dummyOutput_(false),
-    writeSize_(0)
+ByteCodeGen::ByteCodeGen(std::shared_ptr<Ast> ast)
+    : Generator(ast),
+      needAlign_(false),
+      dummyOutput_(false),
+      writeSize_(0)
 {
 }
 
@@ -74,6 +74,7 @@ bool ByteCodeGen::Initialize()
 bool ByteCodeGen::ByteCodeConvert()
 {
     return ast_->WalkBackward([this](std::shared_ptr<AstObject> &object, int32_t depth) {
+        (void)depth;
         if (object->IsNode() && ConfigNode::CastFrom(object)->GetNodeType() == NODE_TEMPLATE) {
             object->Separate();
             return NOERR;
@@ -138,7 +139,7 @@ void ByteCodeGen::Write(const char *data, uint32_t size)
     writeSize_ += alignSize;
 }
 
-void ByteCodeGen::CalculateSize(const std::shared_ptr<AstObject> &object)
+void ByteCodeGen::CalculateSize(const std::shared_ptr<AstObject> &object) const
 {
     uint32_t size = Align(OPCODE_BYTE_WIDTH) + Align(ToOpCode(object->Type()).size);
     switch (object->OpCode()) {
@@ -190,6 +191,7 @@ bool ByteCodeGen::ByteCodeWrite(bool dummy)
 bool ByteCodeGen::ByteCodeWriteWalk()
 {
     return ast_->WalkForward([this](std::shared_ptr<AstObject> &current, int32_t depth) {
+        (void)depth;
         current->SetHash(writeSize_);
         auto opcode = current->OpCode();
         Write(opcode);
@@ -238,8 +240,9 @@ bool ByteCodeGen::ByteCodeWriteWalk()
 
 void ByteCodeGen::FsWrite(const char *data, uint32_t size)
 {
-    if (dummyOutput_)
+    if (dummyOutput_) {
         return;
+    }
 
     ofs_.write(data, size);
 }
@@ -283,8 +286,8 @@ bool ByteCodeGen::Hexdump()
     }
 
     auto ret = HexdumpOutput(in, out);
-    fclose(in);
-    fclose(out);
+    (void)fclose(in);
+    (void)fclose(out);
 
     return ret;
 }
