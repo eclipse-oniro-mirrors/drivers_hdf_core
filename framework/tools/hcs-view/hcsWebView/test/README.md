@@ -76,7 +76,7 @@
 
 2.执行单个用例,如test_rootselfattr，命令为：
 
-	pytest -s -W ignore test_index.py::Test_HcsTool::test_rootselfattr
+	pytest -s -W ignore test_index.py::TestHcsTool::test_rootselfattr
 
 
 ## 查看结果

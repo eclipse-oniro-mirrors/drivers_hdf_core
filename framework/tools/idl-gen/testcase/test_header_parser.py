@@ -238,43 +238,28 @@ class HeaderParserTestCase(unittest.TestCase):
         parser = HeaderParser()
         hjson = json.loads(CppHeaderParser.CppHeader(header_file, "string").toJSON())
         parser._extract_struct(hjson["classes"]["DevAbility"])
-        self.assertSequenceEqual(
-            parser._header_dict.get("struct"), [{'name': 'DevAbility',
-                                                 'type': 'struct',
-                                                 'members': [
-                                                     {'file_name': '/', 'line_number': 3, 'name': 'succeed',
-                                                      'type': 'bool'},
-                                                     {'file_name': '/', 'line_number': 4, 'name': 'end',
-                                                      'type': 'int8_t'},
-                                                     {'file_name': '/', 'line_number': 5, 'name': 'rate',
-                                                      'type': 'float'},
-                                                     {'file_name': '/', 'line_number': 6, 'name': 'rate2',
-                                                      'type': 'double'},
-                                                     {'file_name': '/', 'line_number': 7, 'name': 'desc',
-                                                      'type': 'cstring'},
-                                                     {'file_name': '/', 'line_number': 8, 'name': 'location',
-                                                      'type': 'std::string'},
-                                                     {'file_name': '/', 'line_number': 9, 'name': 'status',
-                                                      'type': 'uint8_t'},
-                                                     {'file_name': '/', 'line_number': 10, 'name': 'busType',
-                                                      'type': 'uint16_t'},
-                                                     {'file_name': '/', 'line_number': 11, 'name': 'num',
-                                                      'type': 'int32_t'},
-                                                     {'file_name': '/', 'line_number': 12, 'name': 'count',
-                                                      'type': 'uint32_t'},
-                                                     {'file_name': '/', 'line_number': 13, 'name': 'timestamp',
-                                                      'type': 'uint64_t'},
-                                                     {'file_name': '/', 'line_number': 14, 'name': 'path',
-                                                      'type': 'void'},
-                                                     {'file_name': '/', 'line_number': 15, 'name': 'chipInfo',
-                                                      'type': 'char *'},
-                                                     {'file_name': '/', 'line_number': 16, 'name': 'status',
-                                                      'type': 'RetStatus'},
-                                                     {'file_name': '/', 'line_number': 17, 'name': 'package',
-                                                      'type': 'struct EvtPack'},
-                                                     {'file_name': '/', 'line_number': 18, 'name': 'pkgPtr',
-                                                      'type': 'struct EvtPack *'}
-                                                 ]}])
+        self.assertSequenceEqual(parser._header_dict.get("struct"), [{
+            'name': 'DevAbility',
+            'type': 'struct',
+            'members': [
+                {'file_name': '/', 'line_number': 3,  'name': 'succeed',   'type': 'bool'},
+                {'file_name': '/', 'line_number': 4,  'name': 'end',       'type': 'int8_t'},
+                {'file_name': '/', 'line_number': 5,  'name': 'rate',      'type': 'float'},
+                {'file_name': '/', 'line_number': 6,  'name': 'rate2',     'type': 'double'},
+                {'file_name': '/', 'line_number': 7,  'name': 'desc',      'type': 'cstring'},
+                {'file_name': '/', 'line_number': 8,  'name': 'location',  'type': 'std::string'},
+                {'file_name': '/', 'line_number': 9,  'name': 'status',    'type': 'uint8_t'},
+                {'file_name': '/', 'line_number': 10, 'name': 'busType',   'type': 'uint16_t'},
+                {'file_name': '/', 'line_number': 11, 'name': 'num',       'type': 'int32_t'},
+                {'file_name': '/', 'line_number': 12, 'name': 'count',     'type': 'uint32_t'},
+                {'file_name': '/', 'line_number': 13, 'name': 'timestamp', 'type': 'uint64_t'},
+                {'file_name': '/', 'line_number': 14, 'name': 'path',      'type': 'void'},
+                {'file_name': '/', 'line_number': 15, 'name': 'chipInfo',  'type': 'char *'},
+                {'file_name': '/', 'line_number': 16, 'name': 'status',    'type': 'RetStatus'},
+                {'file_name': '/', 'line_number': 17, 'name': 'package',   'type': 'struct EvtPack'},
+                {'file_name': '/', 'line_number': 18, 'name': 'pkgPtr',    'type': 'struct EvtPack *'}
+            ]
+        }])
 
     def test_extract_struct_with_enum_pointer(self):
         header_file = """
