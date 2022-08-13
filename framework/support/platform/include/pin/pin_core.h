@@ -59,7 +59,7 @@ struct PinDesc *PinCntlrGetPinDescByName(const char *pinName);
 
 struct PinCntlr *PinCntlrGetByNumber(uint16_t number);
 
-struct PinCntlr *PinCntlrGetByPin(struct PinDesc *desc);
+struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc);
 
 void PinCntlrPutPin(struct PinDesc *desc);
 

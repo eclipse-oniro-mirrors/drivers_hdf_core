@@ -91,7 +91,7 @@ static void I3cDeviceListPut(void)
     (void)OsalSpinUnlock(&g_listLock);
 }
 
-static int32_t GetAddrStatus(struct I3cCntlr *cntlr, uint16_t addr)
+static int32_t GetAddrStatus(const struct I3cCntlr *cntlr, uint16_t addr)
 {
     int32_t status;
 
@@ -203,7 +203,7 @@ int32_t I3cCntlrSendCccCmd(struct I3cCntlr *cntlr, struct I3cCccCmd *ccc)
     return ret;
 }
 
-struct I3cDevice *GetDeviceByAddr(struct I3cCntlr *cntlr, uint16_t addr)
+struct I3cDevice *GetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr)
 {
     struct DListHead *head = NULL;
     struct I3cDevice *pos = NULL;

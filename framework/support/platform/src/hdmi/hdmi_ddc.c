@@ -10,7 +10,7 @@
 
 #define HDF_LOG_TAG hdmi_ddc_c
 
-int32_t HdmiCntlrDdcTransfer(struct HdmiCntlr *cntlr, struct HdmiDdcCfg *ddcCfg)
+static int32_t HdmiCntlrDdcTransfer(struct HdmiCntlr *cntlr, struct HdmiDdcCfg *ddcCfg)
 {
     int32_t ret;
 

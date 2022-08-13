@@ -308,7 +308,7 @@ int32_t HdmiScdcScrambleSet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *s
 int32_t HdmiScdcScrambleGet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *scramble);
 bool HdmiScdcSinkSupport(struct HdmiScdc *scdc);
 void HdmiScdcReset(struct HdmiScdc *scdc);
-int32_t HdmiScdcOptMsgHandle(struct HdmiScdc *scdc, enum HdmiScdcOptMsg msg, uint8_t *buffer, uint32_t len);
+int32_t HdmiScdcOptMsgHandle(const struct HdmiScdc *scdc, enum HdmiScdcOptMsg msg, uint8_t *buffer, uint32_t len);
 int32_t HdmiScdcFillScrambleCap(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *scramble,
     enum HdmiTmdsModeType *tmdsMode);
 

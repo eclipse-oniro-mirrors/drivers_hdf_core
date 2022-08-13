@@ -30,7 +30,7 @@ static int RegulatorChildNodeAdd(struct RegulatorTreeInfo *pRegulator, struct Re
     return HDF_SUCCESS;
 }
 
-void RegulatorChildListDestroy(struct RegulatorTreeInfo *pRegulator)
+static void RegulatorChildListDestroy(struct RegulatorTreeInfo *pRegulator)
 {
     CHECK_NULL_PTR_RETURN(pRegulator);
     struct RegulatorChildNode *nodeInfo = NULL;

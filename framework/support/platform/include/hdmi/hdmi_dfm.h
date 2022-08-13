@@ -150,8 +150,8 @@ struct HdmiDfmParam {
 };
 
 uint32_t HdmiDfmGetPixelFormat(enum HdmiColorSpace colorSpace);
-void HdmiDfmFillParam(struct HdmiDfmParam *param, struct HdmiVideoDefInfo *videoInfo,
-    struct HdmiAudioAttr *audioAttr, enum HdmiColorSpace colorSpace, enum HdmiDeepColor deepColor);
+void HdmiDfmFillParam(struct HdmiDfmParam *param, const struct HdmiVideoDefInfo *videoInfo,
+    const struct HdmiAudioAttr *audioAttr, enum HdmiColorSpace colorSpace, enum HdmiDeepColor deepColor);
 bool HdmiDfmFormatSupport(struct HdmiDfmParam *param);
 
 #ifdef __cplusplus

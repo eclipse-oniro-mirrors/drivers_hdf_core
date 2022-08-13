@@ -40,7 +40,7 @@ static int32_t HdmiEventPostMsg(struct HdmiCntlr *cntlr, struct HdmiEventMsg *ev
     return ret;
 }
 
-bool HdmiHpdStatusGet(struct HdmiCntlr *cntlr)
+static bool HdmiHpdStatusGet(struct HdmiCntlr *cntlr)
 {
     bool ret = false;
 
@@ -71,7 +71,7 @@ bool HdmiHpdStatusDelayGet(struct HdmiCntlr *cntlr)
     return false;
 }
 
-int32_t HdmiAddEventMsgToQueue(struct HdmiCntlr *cntlr, int32_t code, bool block, void *data)
+static int32_t HdmiAddEventMsgToQueue(struct HdmiCntlr *cntlr, int32_t code, bool block, void *data)
 {
     struct HdmiEventMsg *event = NULL;
 

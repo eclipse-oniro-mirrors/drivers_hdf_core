@@ -47,7 +47,7 @@ struct RtcMethod {
 struct RtcHost *RtcHostCreate(struct HdfDeviceObject *device);
 void RtcHostDestroy(struct RtcHost *host);
 
-static inline struct RtcHost *RtcHostFromDevice(struct HdfDeviceObject *device)
+static inline struct RtcHost *RtcHostFromDevice(const struct HdfDeviceObject *device)
 {
     return (device == NULL) ? NULL : (struct RtcHost *)device->service;
 }

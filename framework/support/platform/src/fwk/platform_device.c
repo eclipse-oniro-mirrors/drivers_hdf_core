@@ -316,7 +316,7 @@ void PlatformDeviceUnbind(struct PlatformDevice *device, struct HdfDeviceObject 
     device->hdfDev = NULL;
 }
 
-struct PlatformDevice *PlatformDeviceFromHdfDev(struct HdfDeviceObject *hdfDev)
+struct PlatformDevice *PlatformDeviceFromHdfDev(const struct HdfDeviceObject *hdfDev)
 {
     if (hdfDev == NULL || hdfDev->priv == NULL) {
         PLAT_LOGE("PlatformDeviceFromHdfDev: hdf device or priv null");

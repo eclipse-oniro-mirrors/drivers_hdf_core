@@ -120,7 +120,7 @@ int32_t PwmSetPriv(struct PwmDev *pwm, void *priv)
     return HDF_SUCCESS;
 }
 
-void *PwmGetPriv(struct PwmDev *pwm)
+void *PwmGetPriv(const struct PwmDev *pwm)
 {
     if (pwm == NULL) {
         HDF_LOGE("%s: pwm is null", __func__);

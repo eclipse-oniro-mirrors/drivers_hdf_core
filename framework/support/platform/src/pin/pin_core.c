@@ -143,7 +143,7 @@ struct PinCntlr *PinCntlrGetByNumber(uint16_t number)
     return NULL;
 }
 
-struct PinCntlr *PinCntlrGetByPin(struct PinDesc *desc)
+struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc)
 {
     struct DListHead *head = NULL;
     struct PinCntlr *cntlr = NULL;

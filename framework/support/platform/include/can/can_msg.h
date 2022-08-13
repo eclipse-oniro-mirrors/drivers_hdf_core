@@ -21,9 +21,9 @@ struct CanMsg *CanMsgObtain(void);
 
 void CanMsgRecycle(struct CanMsg *msg);
 
-void CanMsgGet(struct CanMsg *msg);
+void CanMsgGet(const struct CanMsg *msg);
 
-void CanMsgPut(struct CanMsg *msg);
+void CanMsgPut(const struct CanMsg *msg);
 
 #ifdef __cplusplus
 }

@@ -55,7 +55,7 @@ void UartHostDestroy(struct UartHost *host);
  * @return Retrns the pointer of the HdfDeviceObject on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct HdfDeviceObject *UartHostToDevice(struct UartHost *host)
+static inline struct HdfDeviceObject *UartHostToDevice(const struct UartHost *host)
 {
     return (host == NULL) ? NULL : host->device;
 }
@@ -68,7 +68,7 @@ static inline struct HdfDeviceObject *UartHostToDevice(struct UartHost *host)
  * @return Retrns the pointer of the UartHost on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct UartHost *UartHostFromDevice(struct HdfDeviceObject *device)
+static inline struct UartHost *UartHostFromDevice(const struct HdfDeviceObject *device)
 {
     return (device == NULL) ? NULL : (struct UartHost *)device->service;
 }

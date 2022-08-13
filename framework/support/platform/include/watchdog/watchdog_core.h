@@ -70,7 +70,7 @@ void WatchdogCntlrRemove(struct WatchdogCntlr *cntlr);
  * @return Retrns the pointer of the WatchdogCntlr on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct WatchdogCntlr *WatchdogCntlrFromDevice(struct HdfDeviceObject *device)
+static inline struct WatchdogCntlr *WatchdogCntlrFromDevice(const struct HdfDeviceObject *device)
 {
     return (device == NULL) ? NULL : (struct WatchdogCntlr *)device->service;
 }
@@ -83,7 +83,7 @@ static inline struct WatchdogCntlr *WatchdogCntlrFromDevice(struct HdfDeviceObje
  * @return Retrns the pointer of the HdfDeviceObject on success; returns NULL otherwise.
  * @since 1.0
  */
-static inline struct HdfDeviceObject *WatchdogCntlrToDevice(struct WatchdogCntlr *wdt)
+static inline struct HdfDeviceObject *WatchdogCntlrToDevice(const struct WatchdogCntlr *wdt)
 {
     return (wdt == NULL) ? NULL : wdt->device;
 }

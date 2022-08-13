@@ -59,7 +59,7 @@ void MipiDsiUnregisterCntlr(struct MipiDsiCntlr *cntlr);
  * @return Retrns the pointer of the MipiDsiCntlr on success; returns NULL otherwise.
  * @since 1.0
  */
-struct MipiDsiCntlr *MipiDsiCntlrFromDevice(struct HdfDeviceObject *device);
+struct MipiDsiCntlr *MipiDsiCntlrFromDevice(const struct HdfDeviceObject *device);
 
 /**
  * @brief Obtains the MIPI DSI device handle with a specified channel ID.
