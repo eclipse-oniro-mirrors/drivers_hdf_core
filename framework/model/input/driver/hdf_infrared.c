@@ -269,28 +269,26 @@ static int32_t RegisterInfraredDevice(InfraredCfg *infraredCfg)
     ret = InfraredInit(infraredDrv);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: infrared driver init failed, ret %d", __func__, ret);
-        goto EXIT;
+        OsalMemFree(infraredDrv);
+        return HDF_FAILURE;
     }
 
     InputDevice *inputDev = InputDeviceInstance(infraredDrv);
     if (inputDev == NULL) {
         HDF_LOGE("%s: instance input device failed", __func__);
-        goto EXIT;
+        OsalMemFree(infraredDrv);
+        return HDF_FAILURE;
     }
 
     ret = RegisterInputDevice(inputDev);
     if (ret != HDF_SUCCESS) {
-        goto EXIT1;
+        OsalMemFree(inputDev->pkgBuf);
+        OsalMemFree(inputDev);
+        OsalMemFree(infraredDrv);
+        HDF_LOGE("%s: RegisterInputDevice failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
     }
     return HDF_SUCCESS;
-
-EXIT1:
-    OsalMemFree(inputDev->pkgBuf);
-    OsalMemFree(inputDev);
-EXIT:
-    OsalMemFree(infraredDrv);
-    HDF_LOGE("%s: exit failed", __func__);
-    return HDF_FAILURE;
 }
 
 static int32_t HdfInfraredDriverInit(struct HdfDeviceObject *device)
@@ -316,7 +314,8 @@ static int32_t HdfInfraredDriverInit(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
-static int32_t HdfInfraredDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t HdfInfraredDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data,
+    struct HdfSBuf *reply)
 {
     (void)cmd;
     if (client == NULL || data == NULL || reply == NULL) {

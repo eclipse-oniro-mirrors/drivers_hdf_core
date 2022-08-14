@@ -261,7 +261,6 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->pwrOn.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "powerOnSeq", pwrSeq->pwrOn.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-
     pwrSeq->suspend.count = parser->GetElemNum(seqNode, "suspendSeq");
     num = pwrSeq->suspend.count;
     pwrSeq->suspend.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
@@ -273,7 +272,6 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->suspend.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "suspendSeq", pwrSeq->suspend.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-
     pwrSeq->resume.count = parser->GetElemNum(seqNode, "resumeSeq");
     num = pwrSeq->resume.count;
     pwrSeq->resume.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
@@ -287,7 +285,6 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->resume.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "resumeSeq", pwrSeq->resume.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-
     pwrSeq->pwrOff.count = parser->GetElemNum(seqNode, "powerOffSeq");
     num = pwrSeq->pwrOff.count;
     pwrSeq->pwrOff.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
@@ -303,7 +300,6 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->pwrOff.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "powerOffSeq", pwrSeq->pwrOff.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-
     return HDF_SUCCESS;
 }
 
