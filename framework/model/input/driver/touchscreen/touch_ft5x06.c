@@ -93,7 +93,7 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     memset_s(touch_fw_version, sizeof(touch_fw_version), NUM_0, sizeof(touch_fw_version));
 
     error = InputI2cRead(i2cClient, "\xbb", NUM_1, rdbuf, EDT_NAME_LEN - NUM_1);
-    if (error) {
+    if (error != HDF_SUCCESS) {
         return error;
     }
 
@@ -110,14 +110,13 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
         HDF_LOGI("%s: version = GENERIC_FT;", __func__);
 
         error = InputI2cRead(i2cClient, "\xA6", NUM_1, rdbuf, NUM_2);
-        if (error) {
+        if (error != HDF_SUCCESS) {
             return error;
         }
-
         strlcpy(touch_fw_version, rdbuf, NUM_2);
 
         error = InputI2cRead(i2cClient, "\xA8", NUM_1, rdbuf, NUM_1);
-        if (error) {
+        if (error != HDF_SUCCESS) {
             return error;
         }
 
@@ -131,7 +130,6 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
                 device->chipCfg->chipVersion = EDT_M09;
                 HDF_LOGI("%s: version = EDT_M09;", __func__);
                 break;
-
             case EPDISPLAY:
                 device->chipCfg->chipVersion = EV_FT;
                 HDF_LOGI("%s: version = EV_FT;", __func__);
@@ -141,7 +139,6 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
                     return error;
                 strlcpy(touch_fw_version, rdbuf, NUM_1);
                 break;
-
             default:
                 break;
         }
@@ -209,7 +206,6 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
             tplen = NUM_4;  /* data comes in so called frames */
             crclen = NUM_1; /* length of the crc data */
             break;
-
         case EDT_M09:
         case EDT_M12:
         case EV_FT:
@@ -218,7 +214,6 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
             tplen = NUM_6;
             crclen = NUM_0;
             break;
-
         default:
             return HDF_FAILURE;
     }
@@ -232,12 +227,10 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
             return HDF_FAILURE;
             continue;
         }
-
         /* M06 sometimes sends bogus coordinates in TOUCH_DOWN */
         if (version == EDT_M06 && type == TOUCH_EVENT_DOWN) {
             continue;
         }
-
         if (type == TOUCH_EVENT_UP) {
             frame->definedEvent = type;
             continue;
