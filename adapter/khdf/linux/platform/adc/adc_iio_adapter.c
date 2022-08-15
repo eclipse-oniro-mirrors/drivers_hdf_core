@@ -139,7 +139,7 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
     if (drNameLen > (ADC_DRIVER_PATHNAME_LEN - 1)) {
         HDF_LOGE("%s: Illegal length of drName", __func__);
         return HDF_FAILURE;
-    } 
+    }
     ret = memcpy_s(g_driverPathname, ADC_DRIVER_PATHNAME_LEN, drName, drNameLen);
     if (ret != 0) {
         HDF_LOGE("%s: memcpy drName fail", __func__);

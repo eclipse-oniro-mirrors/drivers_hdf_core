@@ -74,7 +74,7 @@ static int32_t PwmTesterGetConfig(struct PwmTestConfig *config)
     return HDF_SUCCESS;
 }
 
-struct PwmTester *PwmTesterGet(void)
+static struct PwmTester *PwmTesterGet(void)
 {
     int32_t ret;
     static struct PwmTester tester;

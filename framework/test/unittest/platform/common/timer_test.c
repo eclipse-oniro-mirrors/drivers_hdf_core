@@ -26,7 +26,7 @@ struct TimerTestFunc {
     int32_t (*Func)(struct TimerTest *test);
 };
 
-int32_t TimerTestcaseCb(uint32_t number)
+static int32_t TimerTestcaseCb(uint32_t number)
 {
     static uint16_t num = 0;
     num++;
@@ -38,7 +38,7 @@ int32_t TimerTestcaseCb(uint32_t number)
     return HDF_SUCCESS;
 }
 
-int32_t TimerTestcaseOnceCb(uint32_t number)
+static int32_t TimerTestcaseOnceCb(uint32_t number)
 {
     HDF_LOGD("->>>>>>>>>>>%s:%d", __func__, number);
     g_theard1Flag = true;
@@ -152,7 +152,7 @@ static int TimerPeriodTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t TimerTestMultiThread(struct TimerTest *test)
+static int32_t TimerTestMultiThread(struct TimerTest *test)
 {
     int32_t ret;
     uint32_t time = 0;
@@ -244,7 +244,7 @@ int32_t TimerTestMultiThread(struct TimerTest *test)
     return ret;
 }
 
-int32_t TimerTestReliability(struct TimerTest *test)
+static int32_t TimerTestReliability(struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -317,7 +317,7 @@ static int32_t TimerTestGetConfig(struct TimerTestConfig *config)
     return HDF_SUCCESS;
 }
 
-struct TimerTest *TimerTestGet(void)
+static struct TimerTest *TimerTestGet(void)
 {
     int32_t ret;
     static struct TimerTest tester;

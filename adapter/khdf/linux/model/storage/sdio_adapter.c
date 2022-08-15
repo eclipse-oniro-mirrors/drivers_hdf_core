@@ -40,7 +40,7 @@ enum SleepTime {
     MS_50 = 50,
 };
 
-static struct sdio_func *LinuxSdioGetFunc(struct SdioDevice *dev)
+static struct sdio_func *LinuxSdioGetFunc(const struct SdioDevice *dev)
 {
     if (dev == NULL) {
         HDF_LOGE("LinuxSdioGetFunc: dev is null.");

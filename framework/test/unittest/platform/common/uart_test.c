@@ -110,7 +110,7 @@ static inline void UartBufFree(struct UartTestConfig *config)
     config->rbuf = NULL;
 }
 
-struct UartTester *UartTesterGet(void)
+static struct UartTester *UartTesterGet(void)
 {
     int32_t ret;
     static struct UartTester tester;

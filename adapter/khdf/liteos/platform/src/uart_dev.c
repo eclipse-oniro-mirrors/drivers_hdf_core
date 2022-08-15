@@ -245,7 +245,7 @@ static void UartAddRemoveDev(struct UartHost *host, bool add)
             return;
         }
     } else {
-        if (unregister_driver(devName)) {
+        if (unregister_driver(devName) != HDF_SUCCESS) {
             HDF_LOGE("%s: remove /dev/uartdev-%d fail!", __func__, host->num);
             OsalMemFree(devName);
             return;

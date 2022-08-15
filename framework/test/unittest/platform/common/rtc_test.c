@@ -73,7 +73,7 @@ static int32_t RtcTestGetConfig(struct RtcTestConfig *config)
     return HDF_SUCCESS;
 }
 
-struct RtcTester *RtcTesterGet(void)
+static struct RtcTester *RtcTesterGet(void)
 {
     int32_t ret;
     static struct RtcTester tester;
@@ -106,7 +106,7 @@ static void RtcTesterPut(struct RtcTester *tester)
 
 static int8_t g_rtcIrqCallback = HDF_FAILURE;
 
-int32_t RtcAlarmACallback(enum RtcAlarmIndex alarmIndex)
+static int32_t RtcAlarmACallback(enum RtcAlarmIndex alarmIndex)
 {
     if (alarmIndex == RTC_ALARM_INDEX_A) {
         HDF_LOGI("%s: alarm a callback success", __func__);

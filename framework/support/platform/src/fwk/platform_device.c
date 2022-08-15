@@ -298,7 +298,7 @@ int32_t PlatformDeviceBind(struct PlatformDevice *device, struct HdfDeviceObject
     return ret;
 }
 
-void PlatformDeviceUnbind(struct PlatformDevice *device, struct HdfDeviceObject *hdfDev)
+void PlatformDeviceUnbind(struct PlatformDevice *device, const struct HdfDeviceObject *hdfDev)
 {
     if (device == NULL) {
         return;
@@ -374,7 +374,7 @@ void PlatformDeviceUnListenEvent(struct PlatformDevice *device, struct PlatformE
     }
 }
 
-const struct DeviceResourceNode *PlatformDeviceGetDrs(struct PlatformDevice *device)
+const struct DeviceResourceNode *PlatformDeviceGetDrs(const struct PlatformDevice *device)
 {
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
     (void)device;

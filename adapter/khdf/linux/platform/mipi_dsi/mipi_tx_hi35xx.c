@@ -58,7 +58,7 @@ static void WriteReg32(unsigned long *addr, unsigned int value, unsigned int mas
 {
     unsigned int t;
 
-    t = OSAL_READL(addr);
+    t = (unsigned int)OSAL_READL(addr);
     t &= ~mask;
     t |= value & mask;
     OSAL_WRITEL(t, addr);
@@ -131,7 +131,7 @@ static void MipiTxDrvGetPhyPllSet1Set5(unsigned int phyDataRate,
     int pllRef;
     uint64_t int_multiplication;
 
-    dataRateClk = (phyDataRate + MIPI_TX_REF_CLK - 1) / MIPI_TX_REF_CLK;
+    dataRateClk = (int)(phyDataRate + MIPI_TX_REF_CLK - 1) / MIPI_TX_REF_CLK;
 
     /* to get pllSet1 and pllSet5, the parameters come from algorithm */
     if (pllSet0 / 2 == 4) {           /* 2: pll, 4: pll sel */
@@ -150,12 +150,12 @@ static void MipiTxDrvGetPhyPllSet1Set5(unsigned int phyDataRate,
         HDF_LOGE("%s: exceeds the maximum value of type int32_t.", __func__);
         return;
     }
-    if ((dataRateClk * pllRef) % 2) { /* 2: pll */
+    if (((dataRateClk * pllRef) % 2) != 0) { /* 2: pll */
         *pllSet1 = 0x10;
-        *pllSet5 = (dataRateClk * pllRef - 1) / 2; /* 2: pllRef sel */
+        *pllSet5 = (unsigned char)((dataRateClk * pllRef - 1) / 2); /* 2: pllRef sel */
     } else {
         *pllSet1 = 0x20;
-        *pllSet5 = dataRateClk * pllRef / 2 - 1;   /* 2: pllRef sel */
+        *pllSet5 = (unsigned char)(dataRateClk * pllRef / 2 - 1);   /* 2: pllRef sel */
     }
 
     return;
@@ -210,7 +210,7 @@ static void MipiTxDrvGetPhyClkPrepare(unsigned char *clkPrepare)
     unsigned char temp0;
     unsigned char temp1;
 
-    temp0 = ((g_actualPhyDataRate * TCLK_PREPARE + ROUNDUP_VALUE) / INNER_PEROID - 1 +
+    temp0 = (unsigned char)((g_actualPhyDataRate * TCLK_PREPARE + ROUNDUP_VALUE) / INNER_PEROID - 1 +
             ((g_actualPhyDataRate * PREPARE_COMPENSATE + ROUNDUP_VALUE) / INNER_PEROID) -
             ((((g_actualPhyDataRate * TCLK_PREPARE + ROUNDUP_VALUE) / INNER_PEROID +
             ((g_actualPhyDataRate * PREPARE_COMPENSATE + ROUNDUP_VALUE) / INNER_PEROID)) * INNER_PEROID -
@@ -221,8 +221,8 @@ static void MipiTxDrvGetPhyClkPrepare(unsigned char *clkPrepare)
         temp1 = 0; /* 0 is the minimum */
     }
 
-    if (((temp1 + 1) * INNER_PEROID - PREPARE_COMPENSATE * g_actualPhyDataRate) /* temp + 1 is next level period */
-        > 94 * g_actualPhyDataRate) { /* 94 is the  maximum in mipi protocol */
+    if (((temp1 + 1) * INNER_PEROID - PREPARE_COMPENSATE * g_actualPhyDataRate) > /* temp + 1 is next level period */
+        94 * g_actualPhyDataRate) { /* 94 is the  maximum in mipi protocol */
         if (temp0 > 0) {
             *clkPrepare = temp0 - 1;
         } else {
@@ -244,7 +244,7 @@ static void MipiTxDrvGetPhyDataPrepare(unsigned char *dataPrepare)
     unsigned char temp1;
 
     /* DATA_THS_PREPARE */
-    temp0 = ((g_actualPhyDataRate * THS_PREPARE + ROUNDUP_VALUE) / INNER_PEROID - 1 +
+    temp0 = (unsigned char)((g_actualPhyDataRate * THS_PREPARE + ROUNDUP_VALUE) / INNER_PEROID - 1 +
             ((g_actualPhyDataRate * PREPARE_COMPENSATE + ROUNDUP_VALUE) / INNER_PEROID) -
             ((((g_actualPhyDataRate * THS_PREPARE + ROUNDUP_VALUE) / INNER_PEROID +
             ((g_actualPhyDataRate * PREPARE_COMPENSATE + ROUNDUP_VALUE) / INNER_PEROID)) * INNER_PEROID -
@@ -278,31 +278,34 @@ static void MipiTxDrvGetPhyTimingParam(MipiTxPhyTimingParamTag *tp)
 {
     /* DATA0~3 TPRE-DELAY */
     /* 1: compensate */
-    tp->dataTpreDelay = (g_actualPhyDataRate * TPRE_DELAY + ROUNDUP_VALUE) / INNER_PEROID - 1;
+    tp->dataTpreDelay = (unsigned char)((g_actualPhyDataRate * TPRE_DELAY + ROUNDUP_VALUE) / INNER_PEROID - 1);
     /* CLK_TLPX */
-    tp->clkTlpx = (g_actualPhyDataRate * TLPX + ROUNDUP_VALUE) / INNER_PEROID - 1; /* 1 is compensate */
+    tp->clkTlpx = (unsigned char)((g_actualPhyDataRate * TLPX + ROUNDUP_VALUE) /
+        INNER_PEROID - 1); /* 1 is compensate */
     /* CLK_TCLK_PREPARE */
     MipiTxDrvGetPhyClkPrepare(&tp->clkTclkPrepare);
     /* CLK_TCLK_ZERO */
     if ((g_actualPhyDataRate * TCLK_ZERO + ROUNDUP_VALUE) / INNER_PEROID > 4) {    /* 4 is compensate */
-        tp->clkTclkZero = (g_actualPhyDataRate * TCLK_ZERO + ROUNDUP_VALUE) / INNER_PEROID - 4;
+        tp->clkTclkZero = (unsigned char)((g_actualPhyDataRate * TCLK_ZERO + ROUNDUP_VALUE) / INNER_PEROID - 4);
     } else {
         tp->clkTclkZero = 0;       /* 0 is minimum */
     }
     /* CLK_TCLK_TRAIL */
-    tp->clkTclkTrail = (g_actualPhyDataRate * TCLK_TRAIL + ROUNDUP_VALUE) / INNER_PEROID;
+    tp->clkTclkTrail = (unsigned char)((g_actualPhyDataRate * TCLK_TRAIL + ROUNDUP_VALUE) / INNER_PEROID);
     /* DATA_TLPX */
-    tp->dataTlpx = (g_actualPhyDataRate * TLPX + ROUNDUP_VALUE) / INNER_PEROID - 1; /* 1 is compensate */
+    tp->dataTlpx = (unsigned char)((g_actualPhyDataRate * TLPX + ROUNDUP_VALUE) /
+        INNER_PEROID - 1); /* 1 is compensate */
     /* DATA_THS_PREPARE */
     MipiTxDrvGetPhyDataPrepare(&tp->dataThsPrepare);
     /* DATA_THS_ZERO */
     if ((g_actualPhyDataRate * THS_ZERO + ROUNDUP_VALUE) / INNER_PEROID > 4) {      /* 4 is compensate */
-        tp->dataThsZero = (g_actualPhyDataRate * THS_ZERO + ROUNDUP_VALUE) / INNER_PEROID - 4;
+        tp->dataThsZero = (unsigned char)((g_actualPhyDataRate * THS_ZERO + ROUNDUP_VALUE) / INNER_PEROID - 4);
     } else {
         tp->dataThsZero = 0;       /* 0 is minimum */
     }
     /* DATA_THS_TRAIL */
-    tp->dataThsTrail = (g_actualPhyDataRate * THS_TRAIL + ROUNDUP_VALUE) / INNER_PEROID + 1; /* 1 is compensate */
+    tp->dataThsTrail = (unsigned char)((g_actualPhyDataRate * THS_TRAIL + ROUNDUP_VALUE) /
+        INNER_PEROID + 1); /* 1 is compensate */
 }
 
 /* set global operation timing parameters. */
@@ -460,7 +463,7 @@ static void SetOutputFormat(const ComboDevCfgTag *cfg)
             colorCoding = 0x5;
         }
     }
-    g_mipiTxRegsVa->COLOR_CODING.u32 = colorCoding;
+    g_mipiTxRegsVa->COLOR_CODING.u32 = (uint32_t)colorCoding;
 #ifdef MIPI_TX_DEBUG
     HDF_LOGI("%s: SetOutputFormat: 0x%x", __func__, colorCoding);
 #endif
@@ -521,11 +524,11 @@ static void SetTimingConfig(const ComboDevCfgTag *cfg)
 
 static void SetLaneConfig(const short laneId[], int len)
 {
-    int num = 0;
+    uint32_t num = 0;
     int i;
 
     for (i = 0; i < len; i++) {
-        if (-1 != laneId[i]) {
+        if (laneId[i] != -1) {
             num++;
         }
     }

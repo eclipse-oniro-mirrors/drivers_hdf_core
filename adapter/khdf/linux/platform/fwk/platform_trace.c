@@ -85,11 +85,12 @@ void PlatformTraceAddUintMsg(int module, int moduleFun, uint infos[], uint8_t si
         return;
     }
     for (i = 0; i < size; i++) {
-        snprintf_s(messages + strlen(messages), PLATFORM_TRACE_MSG_MAX_LEN + 1 - strlen(messages),
+        ret = snprintf_s(messages + strlen(messages), PLATFORM_TRACE_MSG_MAX_LEN + 1 - strlen(messages),
             PLATFORM_TRACE_MSG_MAX_LEN - strlen(messages),
             "%d, ", infos[i]);
         if ((ret < 0) || (strlen(messages) >= PLATFORM_TRACE_MSG_MAX_LEN)) {
-            HDF_LOGE("PlatformTraceAddUintMsg[%s][%s] generate messages fail[%d][%d]!", moduleMean, moduleFunMean, ret, strlen(messages));
+            HDF_LOGE("PlatformTraceAddUintMsg[%s][%s] generate messages fail[%d][%d]!",
+                moduleMean, moduleFunMean, ret, strlen(messages));
             return;
         }
     }
@@ -107,7 +108,7 @@ static bool TraceIsOpen()
 #endif
 }
 
-static ssize_t TraceFileWrite(OsalFile *file, const void *string, uint32_t length)
+static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t length)
 {
     ssize_t ret;
     loff_t pos;
@@ -133,7 +134,7 @@ static ssize_t TraceFileWrite(OsalFile *file, const void *string, uint32_t lengt
     return ret;
 }
 
-static ssize_t TraceFileRead(OsalFile *file, void *buf, uint32_t length)
+static ssize_t TraceFileRead(OsalFile *file, char *buf, uint32_t length)
 {
     ssize_t ret;
     mm_segment_t org_fs;

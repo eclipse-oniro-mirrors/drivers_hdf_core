@@ -406,7 +406,7 @@ static int MtdCharIoctl(FAR struct file *filep, int cmd, unsigned long arg)
                 ret = -EINVAL;
                 break;
             }
-            mfi->mode = arg;
+            mfi->mode = (int)arg;
             break;
         default:
             ret = -EINVAL;
@@ -460,7 +460,7 @@ static int ToLiteOsMtdType(enum MtdDevType hdfType)
     return ret;
 }
 
-int HdfMtdDevErase(struct MtdDev *mtdDev, UINT64 start, UINT64 len, UINT64 *failAddr)
+static int HdfMtdDevErase(struct MtdDev *mtdDev, UINT64 start, UINT64 len, UINT64 *failAddr)
 {
     int ret;
     off_t failPos;
@@ -479,7 +479,7 @@ int HdfMtdDevErase(struct MtdDev *mtdDev, UINT64 start, UINT64 len, UINT64 *fail
     return ret;
 }
 
-int HdfMtdDevRead(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *buf)
+static int HdfMtdDevRead(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *buf)
 {
     if (mtdDev == NULL) {
         return HDF_ERR_INVALID_OBJECT;
@@ -487,7 +487,7 @@ int HdfMtdDevRead(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *b
     return MtdDeviceRead((struct MtdDevice *)mtdDev->priv, start, len, (uint8_t *)buf);
 }
 
-int HdfMtdDevWrite(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *buf)
+static int HdfMtdDevWrite(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *buf)
 {
     if (mtdDev == NULL) {
         return HDF_ERR_INVALID_OBJECT;

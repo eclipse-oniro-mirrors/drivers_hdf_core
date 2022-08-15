@@ -20,6 +20,8 @@ static struct SpiTestConfig g_config;
 
 static int32_t SpiTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)client;
+    (void)data;
     HDF_LOGD("%s: enter!", __func__);
     if (cmd != 0) {
         return HDF_ERR_NOT_SUPPORT;

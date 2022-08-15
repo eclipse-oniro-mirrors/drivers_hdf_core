@@ -114,6 +114,7 @@ static irqreturn_t LinuxGpioIrqBridge(int irq, void *data)
     int gpio = (int)(uintptr_t)data;
     struct GpioCntlr *cntlr = NULL;
 
+    (void)irq;
     cntlr = GpioCntlrGetByGpio(gpio);
     GpioCntlrIrqCallback(cntlr, GpioCntlrGetLocal(cntlr, gpio));
     GpioCntlrPut(cntlr);
@@ -280,6 +281,7 @@ static int LinuxGpioMatchRelease(struct gpio_chip *chip, void *data)
 {
     struct GpioCntlr *cntlr = NULL;
 
+    (void)data;
     if (chip == NULL) {
         return 0;
     }

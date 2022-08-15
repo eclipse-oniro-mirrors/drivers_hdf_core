@@ -82,7 +82,7 @@ struct AdapterDrvData {
 
 static struct AdapterDrvData g_adapterDrvData;
 
-/** 
+/**
  * Get bayer order based on flip setting.
  * ref. linuxtv.org/downloads/v4l-dvb-apis/userspace-api/v4l/subdev-formats.html?highlight=media_bus_fmt_uv8_1x8
  */
@@ -148,7 +148,7 @@ static int LinuxEnumMbusCode(struct v4l2_subdev *sd,
     return 0;
 }
 
-static void LinuxUpdatePadFormat(struct AdapterDrvData *drvData,
+static void LinuxUpdatePadFormat(const struct AdapterDrvData *drvData,
     const struct CameraSensorMode *mode, struct v4l2_subdev_format *fmt)
 {
     (void)mode;
@@ -261,7 +261,7 @@ static int LinuxInitControls(struct AdapterDrvData *drvData)
 
     if (ctrl_hdlr == NULL) {
         ret = v4l2_ctrl_handler_init(ctrl_hdlr, CTRLS_COUNT);
-        if (ret) {
+        if (ret != 0) {
             HDF_LOGE("%s: [v4l2_ctrl_handler_init] failed.", __func__);
             return ret;
         }
@@ -446,7 +446,7 @@ static struct MipiCsiCntlrMethod g_method = {
     .setDrvData = MipiCsiAdapterSetDrvData,
 };
 
-static void MipiCsiAdapterRemoveV4l2(struct MipiCsiCntlr *cntlr)
+static void MipiCsiAdapterRemoveV4l2(const struct MipiCsiCntlr *cntlr)
 {
     struct AdapterDrvData *drvData = (struct AdapterDrvData *)cntlr->priv;
     struct CameraDrvData *camera = NULL;

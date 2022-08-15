@@ -15,7 +15,7 @@
 
 #define HDF_LOG_TAG platform_dumper_test
 
-const char *dumperTestName = "dumperTestName";
+static const char *g_dumperTestName = "dumperTestName";
 struct PlatformDumper *g_dumperTest = NULL;
 struct PlatformDumperTestEntry {
     int cmd;
@@ -59,13 +59,13 @@ static int16_t g_int16_test = 1601;
 static int32_t g_int32_test = 3201;
 static int64_t g_int64_test = 6401;
 
-static float g_float_test = 3.13;
-static double g_double_test = 3.1314;
-static char g_char_test = 'a';
-static char *g_string_test = "abcdefg";
-static volatile unsigned char *g_registerL_test = NULL;
-static volatile unsigned char *g_registerW_test = NULL;
-static volatile unsigned char *g_registerB_test = NULL;
+static float g_floatTest = 3.13;
+static double g_doubleTest = 3.1314;
+static char g_charTest = 'a';
+static char *g_stringTest = "abcdefg";
+static volatile unsigned char *g_registerLTest = NULL;
+static volatile unsigned char *g_registerWTest = NULL;
+static volatile unsigned char *g_registerBTest = NULL;
 
 static struct PlatformDumperData g_datas[] = {
     {"arrayDumperTestUint8",  PLATFORM_DUMPER_UINT8,  &g_uint8_test },
@@ -73,7 +73,7 @@ static struct PlatformDumperData g_datas[] = {
     {"arrayDumperTestUint32", PLATFORM_DUMPER_UINT32, &g_uint32_test},
     {"arrayDumperTestUint64", PLATFORM_DUMPER_UINT64, &g_uint64_test},
     {"arrayDumperTestint64",  PLATFORM_DUMPER_INT64,  &g_int64_test },
-    {"arrayDumperTestchar",   PLATFORM_DUMPER_CHAR,   &g_char_test  }
+    {"arrayDumperTestchar",   PLATFORM_DUMPER_CHAR,   &g_charTest  }
 };
 
 static int32_t PlatformDumperTestAddatas()
@@ -195,7 +195,7 @@ static int32_t PlatformDumperTestAddInt64(void)
 static int32_t PlatformDumperTestAddFloat(void)
 {
     int32_t ret;
-    ret = PlatformDumperTestAdd("dumperTestFloat", PLATFORM_DUMPER_FLOAT, &g_float_test);
+    ret = PlatformDumperTestAdd("dumperTestFloat", PLATFORM_DUMPER_FLOAT, &g_floatTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddFloat add data fail");
         return HDF_FAILURE;
@@ -207,7 +207,7 @@ static int32_t PlatformDumperTestAddFloat(void)
 static int32_t PlatformDumperTestAddDouble(void)
 {
     int32_t ret;
-    ret = PlatformDumperTestAdd("dumperTestDouble", PLATFORM_DUMPER_DOUBLE, &g_double_test);
+    ret = PlatformDumperTestAdd("dumperTestDouble", PLATFORM_DUMPER_DOUBLE, &g_doubleTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddDouble add data fail");
         return HDF_FAILURE;
@@ -219,7 +219,7 @@ static int32_t PlatformDumperTestAddDouble(void)
 static int32_t PlatformDumperTestAddChar(void)
 {
     int32_t ret;
-    ret = PlatformDumperTestAdd("dumperTestChar", PLATFORM_DUMPER_CHAR, &g_char_test);
+    ret = PlatformDumperTestAdd("dumperTestChar", PLATFORM_DUMPER_CHAR, &g_charTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddChar add data fail");
         return HDF_FAILURE;
@@ -231,7 +231,7 @@ static int32_t PlatformDumperTestAddChar(void)
 static int32_t PlatformDumperTestAddString(void)
 {
     int32_t ret;
-    ret = PlatformDumperTestAdd("dumperTestString", PLATFORM_DUMPER_STRING, g_string_test);
+    ret = PlatformDumperTestAdd("dumperTestString", PLATFORM_DUMPER_STRING, g_stringTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddString add data fail");
         return HDF_FAILURE;
@@ -246,26 +246,26 @@ static int32_t PlatformDumperTestAddString(void)
 static int32_t PlatformDumperTestAddRegister(void)
 {
     int32_t ret;
-    if (g_registerL_test == NULL) {
-        g_registerL_test = OsalIoRemap(TIMER0_VALUE, 0x1000);
+    if (g_registerLTest == NULL) {
+        g_registerLTest = OsalIoRemap(TIMER0_VALUE, 0x1000);
     }
-    if (g_registerW_test == NULL) {
-        g_registerW_test = OsalIoRemap(GPIO0_VALUE, 0x1000);
+    if (g_registerWTest == NULL) {
+        g_registerWTest = OsalIoRemap(GPIO0_VALUE, 0x1000);
     }
-    if (g_registerB_test == NULL) {
-        g_registerB_test = OsalIoRemap(ADC_VALUE, 0x1000);
+    if (g_registerBTest == NULL) {
+        g_registerBTest = OsalIoRemap(ADC_VALUE, 0x1000);
     }
-    ret = PlatformDumperTestAdd("dumperTestRegisterL", PLATFORM_DUMPER_REGISTERL, (void *)g_registerL_test);
+    ret = PlatformDumperTestAdd("dumperTestRegisterL", PLATFORM_DUMPER_REGISTERL, (void *)g_registerLTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddRegister add registerL data fail");
         return HDF_FAILURE;
     }
-    ret = PlatformDumperTestAdd("dumperTestRegisterW", PLATFORM_DUMPER_REGISTERW, (void *)g_registerW_test);
+    ret = PlatformDumperTestAdd("dumperTestRegisterW", PLATFORM_DUMPER_REGISTERW, (void *)g_registerWTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddRegister add registerW data fail");
         return HDF_FAILURE;
     }
-    ret = PlatformDumperTestAdd("dumperTestRegisterB", PLATFORM_DUMPER_REGISTERB, (void *)g_registerB_test);
+    ret = PlatformDumperTestAdd("dumperTestRegisterB", PLATFORM_DUMPER_REGISTERB, (void *)g_registerBTest);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddRegister add registerB data fail");
         return HDF_FAILURE;
@@ -274,39 +274,39 @@ static int32_t PlatformDumperTestAddRegister(void)
     return HDF_SUCCESS;
 }
 
-static void testDumperCfgInfo(void)
+static void TestDumperCfgInfo(void)
 {
 #ifdef __LITEOS__
-    dprintf("testDumperCfgInfo\r\n");
+    dprintf("TestDumperCfgInfo\r\n");
 #else
-    printk("testDumperCfgInfo\r\n");
+    printk("TestDumperCfgInfo\r\n");
 #endif
 }
 
-static void testDumperStatusInfo(void)
+static void TestDumperStatusInfo(void)
 {
 #ifdef __LITEOS__
-    dprintf("testDumperStatusInfo\r\n");
+    dprintf("TestDumperStatusInfo\r\n");
 #else
-    printk("testDumperStatusInfo\r\n");
+    printk("TestDumperStatusInfo\r\n");
 #endif
 }
 
-static void testDumperStatisInfo(void)
+static void TestDumperStatisInfo(void)
 {
 #ifdef __LITEOS__
-    dprintf("testDumperStatisInfo\r\n");
+    dprintf("TestDumperStatisInfo\r\n");
 #else
-    printk("testDumperStatisInfo\r\n");
+    printk("TestDumperStatisInfo\r\n");
 #endif
 }
 
-static void testDumperRegisterInfo(void)
+static void TestDumperRegisterInfo(void)
 {
 #ifdef __LITEOS__
-    dprintf("testDumperRegisterInfo\r\n");
+    dprintf("TestDumperRegisterInfo\r\n");
 #else
-    printk("testDumperRegisterInfo\r\n");
+    printk("TestDumperRegisterInfo\r\n");
 #endif
 }
 
@@ -314,10 +314,10 @@ struct PlatformDumperMethod g_ops;
 static int32_t PlatformDumperTestSetOps(void)
 {
     int32_t ret;
-    g_ops.dumperCfgInfo = testDumperCfgInfo;
-    g_ops.dumperStatusInfo = testDumperStatusInfo;
-    g_ops.dumperStatisInfo = testDumperStatisInfo;
-    g_ops.dumperRegisterInfo = testDumperRegisterInfo;
+    g_ops.dumperCfgInfo = TestDumperCfgInfo;
+    g_ops.dumperStatusInfo = TestDumperStatusInfo;
+    g_ops.dumperStatisInfo = TestDumperStatisInfo;
+    g_ops.dumperRegisterInfo = TestDumperRegisterInfo;
     ret = PlatformDumperSetMethod(g_dumperTest, &g_ops);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PlatformDumperTestAddRegister add data fail");
@@ -452,17 +452,17 @@ static void PlatformDumperTestClear(void)
 {
     PlatformDumperDestroy(g_dumperTest);
     g_dumperTest = NULL;
-    if (g_registerL_test != NULL) {
-        OsalIoUnmap((void *)g_registerL_test);
-        g_registerL_test = NULL;
+    if (g_registerLTest != NULL) {
+        OsalIoUnmap((void *)g_registerLTest);
+        g_registerLTest = NULL;
     }
-    if (g_registerW_test != NULL) {
-        OsalIoUnmap((void *)g_registerW_test);
-        g_registerW_test = NULL;
+    if (g_registerWTest != NULL) {
+        OsalIoUnmap((void *)g_registerWTest);
+        g_registerWTest = NULL;
     }
-    if (g_registerB_test != NULL) {
-        OsalIoUnmap((void *)g_registerB_test);
-        g_registerB_test = NULL;
+    if (g_registerBTest != NULL) {
+        OsalIoUnmap((void *)g_registerBTest);
+        g_registerBTest = NULL;
     }
 }
 
@@ -480,7 +480,7 @@ int PlatformDumperTestExecute(int cmd)
     }
 
     if (g_dumperTest == NULL) {
-        g_dumperTest = PlatformDumperCreate(dumperTestName);
+        g_dumperTest = PlatformDumperCreate(g_dumperTestName);
         if (g_dumperTest == NULL) {
             HDF_LOGE("PlatformDumperTestExecute: PlatformDumperCreate failed");
             return HDF_FAILURE;

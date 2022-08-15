@@ -345,8 +345,8 @@ static int32_t LinuxRegulatorReadHcs(struct RegulatorNode *regNode, const struct
     regNode->regulatorInfo.status = REGULATOR_STATUS_OFF;
 
     HDF_LOGI("%s: name[%s][%d]--[%d][%d]--[%d][%d]", __func__,
-        regNode->regulatorInfo.name, regNode->regulatorInfo.constraints.mode, 
-        regNode->regulatorInfo.constraints.minUv, regNode->regulatorInfo.constraints.maxUv, 
+        regNode->regulatorInfo.name, regNode->regulatorInfo.constraints.mode,
+        regNode->regulatorInfo.constraints.minUv, regNode->regulatorInfo.constraints.maxUv,
         regNode->regulatorInfo.constraints.minUa, regNode->regulatorInfo.constraints.maxUa);
 
     return HDF_SUCCESS;

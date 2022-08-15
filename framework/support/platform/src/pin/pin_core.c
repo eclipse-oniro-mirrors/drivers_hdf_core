@@ -186,7 +186,7 @@ static int32_t GetPinIndex(struct PinCntlr *cntlr, struct PinDesc *desc)
     return HDF_ERR_INVALID_PARAM;
 }
 
-void PinCntlrPutPin(struct PinDesc *desc)
+void PinCntlrPutPin(const struct PinDesc *desc)
 {
     (void)desc;
 }

@@ -334,7 +334,7 @@ int32_t PlatformDumperSetMethod(struct PlatformDumper *dumper, struct PlatformDu
     return HDF_SUCCESS;
 }
 
-static void PlatformGetDumperOpsInfo(struct PlatformDumperMethod *ops)
+static void PlatformGetDumperOpsInfo(const struct PlatformDumperMethod *ops)
 {
     if (ops == NULL) {
         return;

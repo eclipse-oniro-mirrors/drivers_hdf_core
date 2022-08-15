@@ -18,6 +18,8 @@ static struct TimerTestConfig g_config;
 
 static int32_t TimerTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)client;
+    (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
             HDF_LOGE("%s: reply is null!", __func__);

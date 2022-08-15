@@ -175,7 +175,7 @@ static int32_t I2cCntlrRead(DevHandle handle, uint16_t addr,
     return (ret == 1) ? HDF_SUCCESS : ret;
 }
 
-ssize_t I2cFsRead(struct file *filep, char *buf, size_t count)
+static ssize_t I2cFsRead(struct file *filep, char *buf, size_t count)
 {
     int32_t ret;
     uint8_t *kbuf = NULL;
@@ -221,7 +221,7 @@ static int32_t I2cCntlrWrite(DevHandle handle, uint16_t addr,
 }
 
 
-ssize_t I2cFsWrite(struct file *filep, const char *buf, size_t count)
+static ssize_t I2cFsWrite(struct file *filep, const char *buf, size_t count)
 {
     int32_t ret;
     uint8_t *kbuf = NULL;

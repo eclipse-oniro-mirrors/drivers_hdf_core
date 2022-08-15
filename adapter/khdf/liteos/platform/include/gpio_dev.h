@@ -39,7 +39,7 @@
 int32_t GpioAddVfs(uint16_t bitNum);
 void GpioRemoveVfs(void);
 
-typedef void (*irq_func)(unsigned int irq, void *data);
+typedef void (*irqFunc)(unsigned int irq, void *data);
 
 typedef struct GpioBitInfo {
     unsigned int  groupnumber;
@@ -52,12 +52,12 @@ typedef struct GpioBitInfo {
 #define GPIO_DIRECTION_IN       0
 #define GPIO_DIRECTION_IN_OUT   1
 
-    unsigned char irq_status;
-    unsigned char irq_enable;
+    unsigned char irqStatus;
+    unsigned char irqEnable;
 #define GPIO_IRQ_ENABLE         1
 #define GPIO_IRQ_DISABLE        0
-    irq_func  irq_handler;
-    unsigned int irq_type;
+    irqFunc  irqHandler;
+    unsigned int irqType;
 #define IRQ_TYPE_NONE           0x00000000
 #define IRQ_TYPE_EDGE_RISING    0x00000001
 #define IRQ_TYPE_EDGE_FALLING   0x00000002

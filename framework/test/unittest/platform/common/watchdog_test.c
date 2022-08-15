@@ -77,7 +77,7 @@ static int32_t WatchdogTestGetTestConfig(struct WatchdogTestConfig *config)
     return HDF_SUCCESS;
 }
 
-struct WatchdogTester *WatchdogTesterGet(void)
+static struct WatchdogTester *WatchdogTesterGet(void)
 {
     int32_t ret;
     static struct WatchdogTester tester;

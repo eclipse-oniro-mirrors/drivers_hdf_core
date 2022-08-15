@@ -351,7 +351,7 @@ static int32_t MipiDsiDevSetCfg(struct MipiDsiCntlr *cntlr, struct MipiCfg *arg)
     return ret;
 }
 
-int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *arg)
+static int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *arg)
 {
     int32_t ret;
     struct DsiCmdDesc *temp = NULL;
@@ -399,7 +399,7 @@ int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *arg)
     return ret;
 }
 
-int32_t MipiDsiDevCmdCopyFromUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, uint32_t *size)
+static int32_t MipiDsiDevCmdCopyFromUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, uint32_t *size)
 {
     if (access_ok(
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
