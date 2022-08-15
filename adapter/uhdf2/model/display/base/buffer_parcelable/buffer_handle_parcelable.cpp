@@ -14,6 +14,7 @@
  */
 
 #include "buffer_handle_parcelable.h"
+#include <unistd.h>
 #include <sstream>
 #include "hdf_log.h"
 #include "ipc_file_descriptor.h"
@@ -84,6 +85,7 @@ bool BufferHandleParcelable::Marshalling(Parcel &parcel) const
         parcel.WriteBool(false);
         return true;
     }
+    parcel.WriteBool(true);
     if (!parcel.WriteUint32(handle_->reserveFds) || !parcel.WriteUint32(handle_->reserveInts) ||
         !parcel.WriteInt32(handle_->width) || !parcel.WriteInt32(handle_->stride) ||
         !parcel.WriteInt32(handle_->height) || !parcel.WriteInt32(handle_->size) ||

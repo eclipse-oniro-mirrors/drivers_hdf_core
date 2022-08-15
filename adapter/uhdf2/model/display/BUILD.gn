@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-group("display_inerface_utils") {
+group("display_inerface") {
   deps = [
     "base/buffer_parcelable:libbufferhandle_parcelable",
     "base/hdifd_parcelable:libhdifd_parcelable",

@@ -41,7 +41,7 @@ public:
     do {                                                                                         \
         bool ret = fn(arg);                                                                      \
         if (ret == false) {                                                                      \
-            HDF_LOG("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
+            HDF_LOGE("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
             return HDF_FAILURE;                                                                  \
         }                                                                                        \
     } while (0)
@@ -51,7 +51,7 @@ public:
         if (ret) {                                                                               \
             ret = fn(arg);                                                                       \
         } else {                                                                                 \
-            HDF_LOG("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
+            HDF_LOGE("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
         }                                                                                        \
     } while (0)
 
@@ -179,8 +179,8 @@ public:
                 }
             } else {
                 // A illegal fd is transfered by smq directly.
-                ec = packer->WriteInt32(fd);
-                if (ec != HDF_SUCCESS {
+                ec = packer->WriteInt32(fd) ? HDF_SUCCESS : HDF_FAILURE;
+                if (ec != HDF_SUCCESS) {
                     HDF_LOGE("%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
                 }
             }
@@ -207,7 +207,7 @@ public:
         PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.key);
 
         bool retVal = true;
-        int32_t i = 0;
+        uint32_t i = 0;
         for (i = 0; i < buffer.reserveFds; i++) {
             ec = FileDescriptorPack(buffer.reserve[i], packer, hdiFds);
             if (ec != HDF_SUCCESS) {
@@ -215,7 +215,7 @@ public:
                 break;
             }
         }
-        for (int32_t j = 0; j < buffer.reserveInts; j++) {
+        for (uint32_t j = 0; j < buffer.reserveInts; j++) {
             retVal = packer->WriteInt32(buffer.reserve[i++]);
             if (!retVal) {
                 break;
@@ -282,11 +282,12 @@ public:
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->stride, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->height, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->size, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->format, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadUint64, handle->usage, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadUint64, handle->phyAddr, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->key, retVal);
         if (retVal) {
-            int32_t i = 0;
+            uint32_t i = 0;
             for (i = 0; i < handle->reserveFds; i++) {
                 ec = FileDescriptorUnpack(unpacker, hdiFds, handle->reserve[i]);
                 if (ec != HDF_SUCCESS) {
@@ -294,7 +295,7 @@ public:
                     break;
                 }
             }
-            for (int32_t j = 0; j < handle->reserveInts; j++) {
+            for (uint32_t j = 0; j < handle->reserveInts; j++) {
                 retVal = unpacker->ReadInt32(handle->reserve[i++]);
                 if (!retVal) {
                     break;

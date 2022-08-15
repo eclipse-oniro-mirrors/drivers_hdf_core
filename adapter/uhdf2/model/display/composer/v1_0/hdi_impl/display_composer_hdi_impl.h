@@ -39,7 +39,7 @@ public:
         return std::make_unique<DisplayComposerHdiImpl>(hdi, req);
     }
 
-    DisplayComposerHdiImpl(sptr<Hdi> hdi, std::shared_ptr<CmdReq> req)
+    DisplayComposerHdiImpl(sptr<CompHdi> hdi, std::shared_ptr<CmdReq> req)
         : hdi_(hdi),
         req_(req),
         hotPlugCb_(nullptr),

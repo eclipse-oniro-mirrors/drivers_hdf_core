@@ -38,16 +38,16 @@ using namespace OHOS::HDI::Base;
 using namespace OHOS::HDI::Display::Composer::V1_0;
 using HdifdSet = std::vector<std::shared_ptr<HdifdParcelable>>;
 
-template <typename Transfer, typename HalImpl>
+template <typename Transfer, typename HwiImpl>
 class DisplayCmdResponser {
 public:
-    static std::unique_ptr<DisplayCmdResponser> Create(std::shared_ptr<HalImpl> impl)
+    static std::unique_ptr<DisplayCmdResponser> Create(std::shared_ptr<HwiImpl> impl)
     {
         return std::make_unique<DisplayCmdResponser>(impl);
     }
 
-    DisplayCmdResponser(std::shared_ptr<HalImpl> halImpl)
-        : impl_(halImpl),
+    DisplayCmdResponser(std::shared_ptr<HwiImpl> impl)
+        : impl_(impl),
         request_(nullptr),
         isReplyUpdated_(false),
         reply_(nullptr),
@@ -88,9 +88,10 @@ public:
         return ec;
     }
 
-    void ProcessRequestCmd(std::shared_ptr<CommandDataUnpacker> unpacker, int32_t cmd,
+    int32_t ProcessRequestCmd(std::shared_ptr<CommandDataUnpacker> unpacker, int32_t cmd,
         const std::vector<HdifdInfo> &inFds, std::vector<HdifdInfo> &outFds)
     {
+        int32_t ec = HDF_SUCCESS;
         HDF_LOGD("PackSection, cmd-[%{public}d] = %{public}s", cmd, CmdUtils::CommandToString(cmd));
         switch (cmd) {
             case REQUEST_CMD_PREPAREDISPLAYLAYERS:
@@ -149,12 +150,13 @@ public:
                 ec = HDF_FAILURE;
                 break;
         }
+        return ec;
     }
 
     int32_t CmdRequest(uint32_t inEleCnt, const std::vector<HdifdInfo> &inFds, uint32_t &outEleCnt,
         std::vector<HdifdInfo> &outFds)
     {
-        std::shared_ptr<char[]> requestData(new char[inEleCnt * CmdUtils::ELEMENT_SIZE], std::default_delete<char[]>());
+        std::shared_ptr<char> requestData(new char[inEleCnt * CmdUtils::ELEMENT_SIZE], std::default_delete<char[]>());
         int32_t ec = request_->Read(reinterpret_cast<int32_t *>(requestData.get()), inEleCnt,
             CmdUtils::TRANSFER_WAIT_TIME);
 
@@ -181,7 +183,7 @@ public:
                 HDF_LOGE("error: PackSection failed, unpackCmd=%{public}s.", CmdUtils::CommandToString(unpackCmd));
                 ec = HDF_FAILURE;
             }
-            ProcessRequestCmd(unpacker, unpackCmd, inFds, outFds);
+            ec = ProcessRequestCmd(unpacker, unpackCmd, inFds, outFds);
         }
         /* pack request end commands */
         replyPacker_->PackEnd(CONTROL_CMD_REPLY_END);
@@ -389,7 +391,7 @@ private:
     {
         uint32_t devId = -1;
         uint32_t layerId = -1;
-        IRect rect = {0}
+        IRect rect = {0};
 
         int32_t ec = CmdUtils::SetupDeviceUnpack(unpacker, devId, layerId);
         if (ec == HDF_SUCCESS) {
@@ -622,7 +624,7 @@ private:
     }
 
 private:
-    std::shared_ptr<HalImpl> impl_;
+    std::shared_ptr<HwiImpl> impl_;
     std::shared_ptr<Transfer> request_;
     bool isReplyUpdated_;
     std::shared_ptr<Transfer> reply_;

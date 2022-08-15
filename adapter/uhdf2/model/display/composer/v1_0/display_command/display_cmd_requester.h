@@ -100,9 +100,9 @@ public:
         if (ec == HDF_SUCCESS) {
             ec = CmdUtils::EndPack(requestPacker_);
         }
-        size_t replyEleCnt;
+        uint32_t replyEleCnt;
         std::vector<HdifdInfo> outFds;
-        std::shared_ptr<char[]> replyData;
+        std::shared_ptr<char> replyData;
         if (ec == HDF_SUCCESS) {
             ec = DoRequest(replyEleCnt, outFds, replyData);
         }
@@ -176,9 +176,9 @@ public:
         if (ec == HDF_SUCCESS) {
             ec = CmdUtils::EndPack(requestPacker_);
         }
-        size_t replyEleCnt = 0;
+        uint32_t replyEleCnt = 0;
         std::vector<HdifdInfo> outFds;
-        std::shared_ptr<char[]> replyData;
+        std::shared_ptr<char> replyData;
         if (ec == HDF_SUCCESS) {
             ec = DoRequest(replyEleCnt, outFds, replyData);
         }
@@ -458,7 +458,7 @@ private:
         return CmdUtils::FileDescriptorUnpack(replyUnpacker, replyFds, fenceFd);
     }
 
-    int32_t DoReplyResults(size_t replyEleCnt, std::vector<HdifdInfo> replyFds, std::shared_ptr<char[]> replyData,
+    int32_t DoReplyResults(uint32_t replyEleCnt, std::vector<HdifdInfo> replyFds, std::shared_ptr<char> replyData,
         std::function<int32_t(void *)> fn)
     {
         std::shared_ptr<CommandDataUnpacker> replyUnpacker = std::make_shared<CommandDataUnpacker>();
@@ -480,9 +480,11 @@ private:
                 HDF_LOGE("error: PackSection failed, unpackCmd=%{public}d.", unpackCmd);
                 ec = HDF_FAILURE;
             }
+            bool needFlushFb;
+            int32_t fenceFd = -1;
+            std::unordered_map<int32_t, int32_t> errMaps;
             switch (unpackCmd) {
                 case REPLY_CMD_PREPAREDISPLAYLAYERS:
-                    bool needFlushFb;
                     ec = OnReplyPrepareDisplayLayers(replyUnpacker, needFlushFb);
                     if (ec == HDF_SUCCESS) {
                         ec = fn(&needFlushFb);
@@ -492,7 +494,6 @@ private:
                     }
                     break;
                 case REPLY_CMD_COMMIT:
-                    int32_t fenceFd = -1;
                     ec = OnReplyCommit(replyUnpacker, replyFds, fenceFd);
                     if (ec == HDF_SUCCESS) {
                         ec = fn(&fenceFd);
@@ -503,10 +504,9 @@ private:
                     }
                     break;
                 case REPLY_CMD_SETERROR:
-                    std::unordered_map<int32_t, int32_t> errMaps;
                     ec = OnReplySetError(replyUnpacker, errMaps);
                     if (ec == HDF_SUCCESS && errMaps.size() > 0) {
-                        HDF_LOGI("error: server return errs, size=%{public}d", errMaps.size());
+                        HDF_LOGI("error: server return errs, size=%{public}zu", errMaps.size());
                         ec = HDF_FAILURE;
                     }
                     break;
@@ -525,7 +525,7 @@ private:
         return ec;
     }
 
-    int32_t DoRequest(size_t &replyEleCnt, std::vector<HdifdInfo> &outFds, std::shared_ptr<char[]> &replyData)
+    int32_t DoRequest(uint32_t &replyEleCnt, std::vector<HdifdInfo> &outFds, std::shared_ptr<char> &replyData)
     {
         requestPacker_->Dump();
         int32_t eleCnt = requestPacker_->ValidSize() / CmdUtils::ELEMENT_SIZE;

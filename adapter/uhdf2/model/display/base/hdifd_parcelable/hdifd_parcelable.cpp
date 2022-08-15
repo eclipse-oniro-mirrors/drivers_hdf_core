@@ -14,6 +14,7 @@
  */
 
 #include "hdifd_parcelable.h"
+#include <unistd.h>
 #include <sstream>
 #include "securec.h"
 #include "hdf_log.h"
@@ -34,7 +35,7 @@ HdifdParcelable::HdifdParcelable(int32_t fd)
 
 HdifdParcelable::~HdifdParcelable()
 {
-    if ((init_ != false) && (hdiFd_ < 0)) {
+    if ((init_ != false) && (hdiFd_ >= 0)) {
         close(hdiFd_);
     }
 }
