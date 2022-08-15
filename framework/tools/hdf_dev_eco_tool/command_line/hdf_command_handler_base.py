@@ -39,6 +39,8 @@ class HdfCommandHandlerBase(object):
             return getattr(self.args, 'action_type')
         except AttributeError:
             return ''
+        finally:
+            pass
 
     def check_arg_raise_if_not_exist(self, arg):
         try:
@@ -49,6 +51,8 @@ class HdfCommandHandlerBase(object):
             raise HdfToolException(
                 'argument "--%s" is required for "%s" cmd' %
                 (arg, self.cmd), CommandErrorCode.INTERFACE_ERROR)
+        finally:
+            pass
 
     def _get_arg(self, arg):
         try:
@@ -56,6 +60,8 @@ class HdfCommandHandlerBase(object):
             return value
         except AttributeError:
             return ''
+        finally:
+            pass
 
     def get_args(self):
         args = ['vendor_name', 'module_name',
@@ -70,15 +76,18 @@ class HdfCommandHandlerBase(object):
                     board_index = args.index('board_name')+1
                     ret[board_index] = '_'.join([ret[board_index], value])
             else:
-                if arg == "board_name":
-                    value = self._get_arg(arg)
-                    ret.append(value)
-                else:
-                    value = self._get_arg(arg)
-                    if value:
-                        value = hdf_utils.WordsConverter(value).lower_case()
-                    ret.append(value)
+                res_value = self.board_args_format_operation(arg)
+                ret.append(res_value)
         return tuple(ret)
+
+    def board_args_format_operation(self, arg):
+        if arg == "board_name":
+            value = self._get_arg(arg)
+        else:
+            value = self._get_arg(arg)
+            if value:
+                value = hdf_utils.WordsConverter(value).lower_case()
+        return value
 
     @staticmethod
     def check_path_raise_if_not_exist(full_path):

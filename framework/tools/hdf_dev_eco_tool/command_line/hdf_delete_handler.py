@@ -81,18 +81,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         self.check_arg_raise_if_not_exist("root_dir")
         self.check_arg_raise_if_not_exist("module_name")
         root, _, module, _, _, _, _ = self.get_args()
-        adapter_framework = hdf_utils.get_vendor_hdf_dir_framework(root=root)
-        if not os.path.exists(adapter_framework):
-            raise HdfToolException(
-                ' adapter model path  "%s" not exist' %
-                adapter_framework, CommandErrorCode.TARGET_NOT_EXIST)
-        create_file_save_path = os.path.join(
-            adapter_framework, "tools", "hdf_dev_eco_tool",
-            "resources", "create_model.config")
-        if not os.path.exists(create_file_save_path):
-            raise HdfToolException(
-                'create file config "%s" not exist' %
-                create_file_save_path, CommandErrorCode.TARGET_NOT_EXIST)
+        create_file_save_path = hdf_utils.module_save_file_info(root)
         data = hdf_utils.read_file(create_file_save_path)
         write_data = json.loads(data)
         write_data.pop(module)
@@ -104,18 +93,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         self.check_arg_raise_if_not_exist("root_dir")
         self.check_arg_raise_if_not_exist("module_name")
         root, _, module, _, _, _, _ = self.get_args()
-        adapter_framework = hdf_utils.get_vendor_hdf_dir_framework(root=root)
-        if not os.path.exists(adapter_framework):
-            raise HdfToolException(
-                ' adapter model path  "%s" not exist' %
-                adapter_framework, CommandErrorCode.TARGET_NOT_EXIST)
-        create_file_save_path = os.path.join(
-            adapter_framework, "tools", "hdf_dev_eco_tool",
-            "resources", "create_model.config")
-        if not os.path.exists(create_file_save_path):
-            raise HdfToolException(
-                'create file config "%s" not exist' %
-                create_file_save_path, CommandErrorCode.TARGET_NOT_EXIST)
+        create_file_save_path = hdf_utils.module_save_file_info(root)
         data = hdf_utils.read_file(create_file_save_path)
         file_info = json.loads(data)
         model_info = file_info.get(module, None)
@@ -146,38 +124,10 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
 
     def _delete_file_func(self, root, key, model_info, model):
         if key == "module_level_config_path":
-            for key1, value1 in model_info[key].items():
-                if key1 == "%s_Makefile" % model:
-                    HdfVendorMakeFile(
-                        root, vendor="", kernel="",
-                        path=os.path.join(root, value1)).delete_module(model)
-                elif key1 == "%s_Kconfig" % model:
-                    HdfVendorKconfigFile(
-                        root, vendor="", kernel="",
-                        path=os.path.join(root, value1)).delete_module(model)
-                elif key1 == "%sBuild" % model:
-                    HdfVendorBuildFile(
-                        root, vendor="").delete_module(
-                        file_path=os.path.join(root, value1), model=model)
-                elif key1 == "%s_hdf_lite" % model:
-                    HdfVendorMkFile(
-                        root, vendor="").delete_module(
-                        file_path=os.path.join(root, value1), module=model)
-                elif key1 == "%s_dot_configs" % model:
-                    for dot_path in value1:
-                        if dot_path.split(".")[-1] == "config":
-                            template_string = \
-                                "LOSCFG_DRIVERS_HDF_${module_upper_case}=y\n"
-                        else:
-                            template_string = \
-                                "CONFIG_DRIVERS_HDF_${module_upper_case}=y\n"
-                        new_demo_config = Template(template_string).\
-                            substitute({"module_upper_case": model.upper()})
-                        defconfig_patch = HdfDefconfigAndPatch(
-                            root=root, vendor="", kernel="", board="",
-                            data_model="", new_demo_config=new_demo_config)
-                        defconfig_patch.delete_module(
-                            path=os.path.join(root, dot_path))
+            for key_name, value in model_info[key].items():
+                self._delete_config_operation(
+                    key_name, value, temp_root=root, temp_model=model)
+
         elif key == "module_path":
             for file_name, value2 in model_info[key].items():
                 if file_name.startswith("adapter"):
@@ -214,3 +164,36 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                                 file_list = os.listdir(model_dir_path)
                                 if not file_list:
                                     shutil.rmtree(model_dir_path)
+
+    def _delete_config_operation(self, key_name, value, temp_root, temp_model):
+        if key_name == "%s_Makefile" % temp_model:
+            HdfVendorMakeFile(
+                temp_root, vendor="", kernel="",
+                path=os.path.join(temp_root, value)).delete_module(temp_model)
+        elif key_name == "%s_Kconfig" % temp_model:
+            HdfVendorKconfigFile(
+                temp_root, vendor="", kernel="",
+                path=os.path.join(temp_root, value)).delete_module(temp_model)
+        elif key_name == "%sBuild" % temp_model:
+            HdfVendorBuildFile(
+                temp_root, vendor="").delete_module(
+                file_path=os.path.join(temp_root, value), model=temp_model)
+        elif key_name == "%s_hdf_lite" % temp_model:
+            HdfVendorMkFile(
+                temp_root, vendor="").delete_module(
+                file_path=os.path.join(temp_root, value), module=temp_model)
+        elif key_name == "%s_dot_configs" % temp_model:
+            for dot_path in value:
+                if dot_path.split(".")[-1] == "config":
+                    template_string = \
+                        "LOSCFG_DRIVERS_HDF_${module_upper_case}=y\n"
+                else:
+                    template_string = \
+                        "CONFIG_DRIVERS_HDF_${module_upper_case}=y\n"
+                new_demo_config = Template(template_string). \
+                    substitute({"module_upper_case": temp_model.upper()})
+                defconfig_patch = HdfDefconfigAndPatch(
+                    root=temp_root, vendor="", kernel="", board="",
+                    data_model="", new_demo_config=new_demo_config)
+                defconfig_patch.delete_module(
+                    path=os.path.join(temp_root, dot_path))

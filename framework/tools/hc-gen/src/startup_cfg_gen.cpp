@@ -143,8 +143,8 @@ void StartupCfgGen::HostInfosOutput()
 
     std::vector<std::pair<std::string, HostInfo>> vect(hostInfoMap_.begin(), hostInfoMap_.end());
 
-    using elementType = std::pair<std::string, HostInfo>;
-    sort(vect.begin(), vect.end(), [] (const elementType &p1, const elementType &p2) -> bool {
+    using ElementType = std::pair<std::string, HostInfo>;
+    sort(vect.begin(), vect.end(), [] (const ElementType &p1, const ElementType &p2) -> bool {
         return (p1.second.hostPriority == p2.second.hostPriority) ?
             (p1.second.hostId < p2.second.hostId) : (p1.second.hostPriority < p2.second.hostPriority);
     });
@@ -213,7 +213,8 @@ void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, 
     }
 }
 
-void StartupCfgGen::GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name)
+void StartupCfgGen::GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config,
+    const std::string &name) const
 {
     // get array format configuration
     GetConfigArray(term, config);

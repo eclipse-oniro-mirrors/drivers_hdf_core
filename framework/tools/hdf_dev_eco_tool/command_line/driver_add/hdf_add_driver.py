@@ -38,31 +38,9 @@ class HdfAddDriver(object):
                 self.template_file_path, CommandErrorCode.TARGET_NOT_EXIST)
 
     def add_linux(self, driver_file_path, driver_head_path):
-        file_path = {}
-        file_path.update(self.linux_operation_config(driver_file_path, driver_head_path))
-
-        device_info = HdfDeviceInfoHcsFile(self.root, self.vendor,
-                                           self.module, self.board,
-                                           self.driver, path="")
-        hcs_file_path = device_info.add_hcs_config_to_exists_model(self.device)
-        file_path["devices_info.hcs"] = hcs_file_path
-        device_enable_config_line = self.__get_enable_config()
-        template_string = "CONFIG_DRIVERS_HDF_${module_upper}_${driver_upper}=y\n"
-        data_model = {
-            "module_upper": self.module.upper(),
-            "driver_upper": self.driver.upper()
-        }
-
-        new_demo_config = Template(template_string).substitute(data_model)
-        if device_enable_config_line:
-            new_demo_config_list = [device_enable_config_line, new_demo_config]
-        else:
-            new_demo_config_list = [new_demo_config]
-        defconfig_patch = HdfDefconfigAndPatch(
-            self.root, self.vendor, self.kernel, self.board,
-            data_model, new_demo_config_list)
-
-        config_path = defconfig_patch.get_config_config()
+        config_path_result = self.get_kernel_linux_config_path(
+            driver_file_path, driver_head_path)
+        config_path, file_path, defconfig_patch = config_path_result
         pat_files = []
         patch_list = defconfig_patch.add_module(
             config_path, files=pat_files, codetype=None)
@@ -85,36 +63,9 @@ class HdfAddDriver(object):
         liteos_file_name = ['BUILD.gn', 'Makefile', 'Kconfig']
         file_path = {}
         for file_name in liteos_file_name:
-            if file_name == "BUILD.gn":
-                build_file_path = os.path.join(adapter_model_path, file_name)
-                if self.module == "audio":
-                    args_tuple = (driver_file_path, driver_head_path, self.module,
-                                  self.driver, self.root, self.device, self.kernel)
-                    audio_build_file_operation(build_file_path, args_tuple)
-                else:
-                    build_file_operation(
-                        build_file_path, driver_file_path[0], driver_head_path[0], 
-                        self.module, self.driver)
-                file_path['BUILD.gn'] = build_file_path
-
-            elif file_name == "Makefile":
-                makefile_path = os.path.join(adapter_model_path, file_name)
-                if self.module == "audio":
-                    args_tuple = (driver_file_path, driver_head_path, self.module,
-                                  self.driver, self.root, self.device, self.kernel)
-                    audio_makefile_file_operation(makefile_path, args_tuple)
-                else:
-                    makefile_file_operation(
-                        makefile_path, driver_file_path[0], driver_head_path[0], 
-                        self.module, self.driver, self.root)
-                file_path['Makefile'] = makefile_path
-
-            elif file_name == "Kconfig":
-                kconfig_path = os.path.join(adapter_model_path, file_name)
-                kconfig_file_operation(kconfig_path, self.module,
-                                       self.driver, self.template_file_path)
-                file_path['Kconfig'] = kconfig_path
-
+            file_path = self._liteos_config_file_configure(
+                file_path, file_name, adapter_model_path,
+                driver_file_path, driver_head_path)
         # Modify hcs file
         device_info = HdfDeviceInfoHcsFile(
             self.root, self.vendor, self.module,
@@ -150,7 +101,55 @@ class HdfAddDriver(object):
         file_path[self.module + "_dot_configs"] = dot_file_list
         return file_path
 
+    def _liteos_config_file_configure(self, file_path, file_name, adapter_model_path,
+                                      driver_file_path, driver_head_path):
+        if file_name == "BUILD.gn":
+            build_file_path = os.path.join(adapter_model_path, file_name)
+            if self.module == "audio":
+                args_tuple = (driver_file_path, driver_head_path, self.module,
+                              self.driver, self.root, self.device, self.kernel)
+                audio_build_file_operation(build_file_path, args_tuple)
+            else:
+                build_file_operation(
+                    build_file_path, driver_file_path[0], driver_head_path[0],
+                    self.module, self.driver)
+            file_path['BUILD.gn'] = build_file_path
+
+        elif file_name == "Makefile":
+            makefile_path = os.path.join(adapter_model_path, file_name)
+            if self.module == "audio":
+                args_tuple = (driver_file_path, driver_head_path, self.module,
+                              self.driver, self.root, self.device, self.kernel)
+                audio_makefile_file_operation(makefile_path, args_tuple)
+            else:
+                makefile_file_operation(
+                    makefile_path, driver_file_path[0], driver_head_path[0],
+                    self.module, self.driver, self.root)
+            file_path['Makefile'] = makefile_path
+
+        elif file_name == "Kconfig":
+            kconfig_path = os.path.join(adapter_model_path, file_name)
+            kconfig_file_operation(kconfig_path, self.module,
+                                   self.driver, self.template_file_path)
+            file_path['Kconfig'] = kconfig_path
+        return file_path
+
     def add_kernel(self, driver_file_path, driver_head_path):
+        config_path_result = self.get_kernel_linux_config_path(
+            driver_file_path, driver_head_path)
+        config_path, file_path, defconfig_patch = config_path_result
+        files = []
+        patch_list = defconfig_patch.add_module(
+            config_path, files=files, codetype=None)
+        config_path = defconfig_patch.get_config_patch()
+        files1 = []
+        defconfig_list = defconfig_patch.add_module(
+            config_path, files=files1, codetype=None)
+        file_path[self.module + "_dot_configs"] = \
+            list(set(patch_list + defconfig_list))
+        return file_path
+
+    def get_kernel_linux_config_path(self, driver_file_path, driver_head_path):
         file_path = {}
         file_path.update(self.linux_operation_config(driver_file_path, driver_head_path))
 
@@ -176,16 +175,7 @@ class HdfAddDriver(object):
             data_model, new_demo_config_list)
 
         config_path = defconfig_patch.get_config_config()
-        files = []
-        patch_list = defconfig_patch.add_module(
-            config_path, files=files, codetype=None)
-        config_path = defconfig_patch.get_config_patch()
-        files1 = []
-        defconfig_list = defconfig_patch.add_module(
-            config_path, files=files1, codetype=None)
-        file_path[self.module + "_dot_configs"] = \
-            list(set(patch_list + defconfig_list))
-        return file_path
+        return config_path, file_path, defconfig_patch
 
     def driver_create_info_format(self, config_file_json,
                                   config_item, file_path):
@@ -241,22 +231,27 @@ class HdfAddDriver(object):
             'device_lower_camel_case': dev_converter.lower_camel_case(),
             'device_upper_case': dev_converter.upper_case()
         }
-        source_statu_exist = False
-        head_statu_exist = False
         templates_list, target_path = self.get_model_template_list(module, board)
+        source_file_list, source_statu_exist = self.get_template_source_file(
+            source_file, data_model, templates_list, target_path, args_tuple)
+        head_path_list, head_statu_exist = self.get_template_head_file(
+            head_path, data_model, templates_list, target_path, args_tuple)
+        if head_statu_exist and source_statu_exist:
+            return True, source_file_list, head_path_list
+        child_dir_list, operation_object = hdf_utils.ini_file_read_operation(
+            section_name=module, node_name='file_dir')
+        if device not in child_dir_list:
+            child_dir_list.append(device)
+            hdf_utils.ini_file_write_operation(
+                module, operation_object, child_dir_list)
+        return True, source_file_list, head_path_list
+
+    def get_template_source_file(self, source_file, data_model,
+                                 templates_list, target_path, *args_tuple):
         # find model template .c
-        if module == "audio":
-            if board.startswith("rk3568"):
-                source_file_template_list = list(
-                    filter(lambda file_name: "source" in file_name and
-                                             file_name.startswith("rk"),
-                           templates_list))
-            else:
-                source_file_template_list = list(
-                    filter(lambda file_name: "source" in file_name and
-                                             file_name.startswith("hi"),
-                           templates_list))
-        elif module == "display":
+        source_statu_exist = False
+        root, vendor, module, driver, board, kernel, device = args_tuple
+        if module == "audio" or module == "display":
             if board.startswith("rk3568"):
                 source_file_template_list = list(
                     filter(lambda file_name: "source" in file_name and
@@ -292,14 +287,24 @@ class HdfAddDriver(object):
             else:
                 self._template_fill(source_file_temp, source_file_name, data_model)
                 source_file_list.append(source_file_name)
+        return source_file_list, source_statu_exist
+
+    def get_template_head_file(self, head_path, data_model,
+                          templates_list, target_path, *args_tuple):
         # find model template .h
+        head_statu_exist = False
+        root, vendor, module, driver, board, kernel, device = args_tuple
         if module == "audio":
             if board.startswith("rk3568"):
                 head_file_template_list = list(filter(
-                    lambda file_name: "head" in file_name and file_name.startswith("rk"), templates_list))
+                    lambda file_name:
+                    ("head" in file_name and file_name.startswith("rk")),
+                    templates_list))
             else:
                 head_file_template_list = list(filter(
-                    lambda file_name: "head" in file_name and file_name.startswith("hi"), templates_list))
+                    lambda file_name:
+                    ("head" in file_name and file_name.startswith("hi")),
+                    templates_list))
         else:
             head_file_template_list = list(filter(
                 lambda file_name: "head" in file_name, templates_list))
@@ -315,7 +320,8 @@ class HdfAddDriver(object):
             if not os.path.exists(head_path):
                 os.makedirs(head_path)
             create_name = re.search(r'[a-z]+_head', head_file_temp).group()
-            create_head_name = "%s_%s_%s.h" % (device, driver, create_name.split("_")[0])
+            create_head_name = "%s_%s_%s.h" % (device, driver,
+                                               create_name.split("_")[0])
             head_file_name = os.path.join(head_path, create_head_name)
             if os.path.exists(head_file_name):
                 head_statu_exist = True
@@ -323,15 +329,7 @@ class HdfAddDriver(object):
             else:
                 self._template_fill(head_file_temp, head_file_name, data_model)
                 head_path_list.append(head_file_name)
-        if head_statu_exist and source_statu_exist:
-            return True, source_file_list, head_path_list
-        child_dir_list, operation_object = hdf_utils.ini_file_read_operation(
-            section_name=module, node_name='file_dir')
-        if device not in child_dir_list:
-            child_dir_list.append(device)
-            hdf_utils.ini_file_write_operation(
-                module, operation_object, child_dir_list)
-        return True, source_file_list, head_path_list
+        return head_path_list, head_statu_exist
 
     def _file_gen_lite(self, template, source_file_path, model):
         templates_dir = hdf_utils.get_templates_lite_dir()

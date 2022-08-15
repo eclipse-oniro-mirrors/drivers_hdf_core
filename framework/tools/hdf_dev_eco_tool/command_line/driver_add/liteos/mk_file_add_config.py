@@ -84,7 +84,8 @@ def audio_makefile_file_operation(path, args_tuple):
     hdf_utils.write_file_lines(makefile_gn_path, date_lines)
 
 
-def makefile_file_operation(path, driver_file_path, head_path, module, driver, root_path):
+def makefile_file_operation(path, driver_file_path, head_path,
+                            module, driver, root_path):
     makefile_gn_path = path
     date_lines = hdf_utils.read_file_lines(makefile_gn_path)
     judge_result = judge_driver_config_exists(date_lines, driver_name=driver)
@@ -93,7 +94,50 @@ def makefile_file_operation(path, driver_file_path, head_path, module, driver, r
     source_file_path = driver_file_path.replace('\\', '/')
     result_tuple = find_makefile_file_end_index(date_lines, model_name=module)
     end_index, model_dir_name, model_dir_value = result_tuple
+    makefile_add_template = get_liteos_mk_template(module)
+    include_model_info = model_dir_value.split("model")[-1].strip('"') + "/"
+    makefile_path_config = source_file_path.split(include_model_info)
+    temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
+    base_replace_dict = {
+        'model_name_upper': module.upper(),
+        'driver_name_upper': driver.upper(),
+    }
+    if module == "display":
+        temp_replace = {
+            'source_file_path': '/'.join(
+                list(filter(lambda x: x, driver_file_path.split(root_path)[-1].
+                            strip(os.path.sep).split(os.path.sep)))),
+            'head_file_path': '/'.join(
+                list(filter(lambda x: x, head_path.split(root_path)[-1].
+                            strip(os.path.sep).split(os.path.sep)))[:-1])}
+    elif module == "sensor":
+        temp_replace = {
+            'source_file_path': source_file_path.split(module, 1)[-1][1:],
+            'head_file_path': '/'.join(list(filter(
+                lambda x: x, head_path.split(module, 1)[-1][1:].
+                    split(os.path.sep)))[:-1]).strip(os.path.sep)}
+    else:
+        temp_replace = {
+            'source_file_path': makefile_path_config[-1],
+            'head_file_path': '/'.join(
+                list(filter(lambda x: x, head_path.split("model")[-1].strip(
+                    os.path.sep).split(os.path.sep)[2:-1])))}
+    temp_replace.update(base_replace_dict)
+    new_line = temp_handle.substitute(temp_replace).replace("temp_flag", "$(")
+    endif_status = False
+    for index, v in enumerate(date_lines[::-1]):
+        if v.strip().startswith("endif"):
+            endif_status = True
+            end_line_index = len(date_lines) - index - 1
+            date_lines = date_lines[:end_line_index] + [new_line] + \
+                         date_lines[end_line_index:]
+            break
+    if not endif_status:
+        date_lines = date_lines + [new_line]
+    hdf_utils.write_file_lines(makefile_gn_path, date_lines)
 
+
+def get_liteos_mk_template(module):
     first_line = "\nifeq ($(LOSCFG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}), y)\n"
     input_include_line = "LOCAL_INCLUDE += $(${model_name_upper}_ROOT_DIR)/${head_file_path}\n"
     input_second_line = "LOCAL_SRCS += $(${model_name_upper}_ROOT_DIR)/${source_file_path}\n"
@@ -105,52 +149,12 @@ def makefile_file_operation(path, driver_file_path, head_path, module, driver, r
     display_second_line = "LOCAL_SRCS += $(LITEOSTOPDIR)/../../${source_file_path}\n"
     third_line = "endif\n"
     if module == "sensor":
-        makefile_add_template = first_line + sensor_include_line + sensor_second_line + third_line
+        makefile_add_template = first_line + sensor_include_line \
+                                + sensor_second_line + third_line
     elif module == "display":
-        makefile_add_template = first_line + display_include_line + display_second_line + third_line
+        makefile_add_template = first_line + display_include_line \
+                                + display_second_line + third_line
     else:
-        makefile_add_template = first_line + input_include_line + input_second_line + third_line
-    include_model_info = model_dir_value.split("model")[-1].strip('"') + "/"
-    makefile_path_config = source_file_path.split(include_model_info)
-    temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
-    if module == "display":
-        temp_replace = {
-            'model_name_upper': module.upper(),
-            'driver_name_upper': driver.upper(),
-            'source_file_path': '/'.join(
-                list(filter(lambda x: x, driver_file_path.split(root_path)[-1].
-                            strip(os.path.sep).split(os.path.sep)))),
-            'head_file_path': '/'.join(
-                list(filter(lambda x: x, head_path.split(root_path)[-1].
-                            strip(os.path.sep).split(os.path.sep)))[:-1])
-        }
-    elif module == "sensor":
-        temp_replace = {
-            'model_name_upper': module.upper(),
-            'driver_name_upper': driver.upper(),
-            'source_file_path': source_file_path.split(module, 1)[-1][1:],
-            'head_file_path': '/'.join(list(filter(
-                lambda x: x, head_path.split(module, 1)[-1][1:].
-                    split(os.path.sep)))[:-1]).strip(os.path.sep)
-        }
-    else:
-        temp_replace = {
-            'model_name_upper': module.upper(),
-            'driver_name_upper': driver.upper(),
-            'source_file_path': makefile_path_config[-1],
-            'head_file_path': '/'.join(
-                list(filter(lambda x: x, head_path.split("model")[-1].strip(
-                    os.path.sep).split(os.path.sep)[2:-1])))
-        }
-    new_line = temp_handle.substitute(temp_replace).replace("temp_flag", "$(")
-
-    endif_status = False
-    for index, v in enumerate(date_lines[::-1]):
-        if v.strip().startswith("endif"):
-            endif_status = True
-            end_line_index = len(date_lines) - index - 1
-            date_lines = date_lines[:end_line_index] + [new_line] + date_lines[end_line_index:]
-            break
-    if not endif_status:
-        date_lines = date_lines + [new_line]
-    hdf_utils.write_file_lines(makefile_gn_path, date_lines)
+        makefile_add_template = first_line + input_include_line \
+                                + input_second_line + third_line
+    return makefile_add_template
