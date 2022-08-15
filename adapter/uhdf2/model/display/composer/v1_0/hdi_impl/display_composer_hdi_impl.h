@@ -293,7 +293,7 @@ public:
         return ToDispErrCode(req_->SetLayerVisibleRegion(devId, layerId, rects));
     }
 
-    virtual int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, BufferHandle &buffer, int32_t fence) override
+    virtual int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, const BufferHandle &buffer, int32_t fence) override
     {
         COMPOSER_CHECK_NULLPTR(req_);
         return ToDispErrCode(req_->SetLayerBuffer(devId, layerId, buffer, fence));

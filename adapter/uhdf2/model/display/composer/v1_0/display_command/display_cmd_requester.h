@@ -352,7 +352,7 @@ public:
         return ec;
     }
 
-    int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, BufferHandle buffer, int32_t fence)
+    int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, const BufferHandle &buffer, int32_t fence)
     {
         int32_t ec = CmdUtils::StartSection(REQUEST_CMD_SETLAYERBUFFER, requestPacker_);
         if (ec == HDF_SUCCESS) {
