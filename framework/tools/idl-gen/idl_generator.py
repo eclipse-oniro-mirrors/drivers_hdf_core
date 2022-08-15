@@ -34,6 +34,10 @@ except ImportError:
     except ImportError:
         HeaderParser = None
         lost_module("robotpy-cppheaderparser")
+    finally:
+        pass
+finally:
+    pass
 
 
 class IDLGenerator:
@@ -53,6 +57,8 @@ class IDLGenerator:
                 self._generate_type(self._parse_results[i])
                 self._generate_interface(self._parse_results[i])
         except KeyError:
+            pass
+        finally:
             pass
 
     def _parse_option(self):
@@ -79,23 +85,28 @@ class IDLGenerator:
                 if os.path.split(path)[1] == file_name:
                     return path
 
+    def _parse_include_file(self, file_list, root_path):
+        include_file = []
+        for header_file in file_list:
+            result = HeaderParser().parse(header_file)
+            if result is None:
+                continue
+            self._parse_results[result.get("name")] = result
+            for file_name in result["import"]:  # 把include的文件加入列表
+                if file_name in self._parse_results:  # 解析过的不重复解析
+                    continue
+                file_path = self._search_file(root_path, file_name)
+                if file_path is not None:
+                    include_file.append(file_path)
+        return include_file
+
     def _parse_header(self):
         try:
             for file in self._file_list:
                 root_path, _ = os.path.split(file)  # 输入文件所在目录
                 file_list = [file]  # 需要解析的头文件列表,包括include包含的头文件
                 while len(file_list) > 0:
-                    include_file = []
-                    for header_file in file_list:
-                        result = HeaderParser().parse(header_file)
-                        if result is not None:
-                            self._parse_results[result.get("name")] = result
-                            for file_name in result["import"]:  # 把include的文件加入列表
-                                if file_name not in self._parse_results:  # 解析过的不重复解析
-                                    file_path = self._search_file(root_path, file_name)
-                                    if file_path is not None:
-                                        include_file.append(file_path)
-                    file_list = include_file
+                    file_list = self._parse_include_file(file_list, root_path)
 
             for i in self._parse_results:
                 for enum in self._parse_results[i]["enum"]:
@@ -111,6 +122,8 @@ class IDLGenerator:
                 for td in self._parse_results[i]["typedef"]:
                     self._typedef_list[td["name"]] = td["type"]
         except KeyError:
+            pass
+        finally:
             pass
 
     def _generate_type(self, header):
@@ -138,27 +151,28 @@ class IDLGenerator:
         try:
             original_idl = self._idl
             for file_name in header["import"]:
-                if file_name in self._parse_results:
-                    include_file = self._parse_results[file_name]
-                    if self._has_user_define_type(include_file):
-                        tt = re.search("import\\s+\\S+.Types", self._idl)
-                        if tt is None:
-                            self._idl += "import " + self._get_package(include_file['path']) + ".Types;\n"
-                    for iface in include_file["interface"]:
-                        self._idl += "import " + self._get_package(include_file['path']) + ".%s;\n" % iface["name"]
-                    for cb in include_file["callback"]:
-                        self._idl += "import " + self._get_package(include_file['path']) + ".%s;\n" % cb["name"]
-                else:
+                if file_name not in self._parse_results:
                     self._idl += "// can't import %s\n" % file_name
                     print("[IDLGenerator]: %s[line ?] can't find %s"
                           % (os.path.normpath(header["path"] + "/" + header["name"]), file_name))
-
+                    continue
+                include_file = self._parse_results[file_name]
+                if self._has_user_define_type(include_file):
+                    tt = re.search("import\\s+\\S+.Types", self._idl)
+                    if tt is None:
+                        self._idl += "import " + self._get_package(include_file['path']) + ".Types;\n"
+                for iface in include_file["interface"]:
+                    self._idl += "import " + self._get_package(include_file['path']) + ".%s;\n" % iface["name"]
+                for cb in include_file["callback"]:
+                    self._idl += "import " + self._get_package(include_file['path']) + ".%s;\n" % cb["name"]
             for cb in header['callback']:
                 self._idl += "import " + self._get_package(header['path']) + ".%s;\n" % cb["name"]
 
             if original_idl != self._idl:
                 self._idl += "\n"
         except KeyError:
+            pass
+        finally:
             pass
 
     def _install_enum(self, enums):
@@ -226,11 +240,12 @@ class IDLGenerator:
         for cti in type_c2idl:
             for ct in cti[0]:
                 tt = re.match(r"(const )* *%s *(\**) *" % ct, c_type)
-                if tt:
-                    idl_type = cti[1]
-                    if c_type.count('*') == 1:
-                        idl_type += '[]'
-                    return idl_type
+                if not tt:
+                    continue
+                idl_type = cti[1]
+                if c_type.count('*') == 1:
+                    idl_type += '[]'
+                return idl_type
         return ""
 
     def _convert_structure(self, c_type):
