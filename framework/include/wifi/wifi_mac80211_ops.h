@@ -615,7 +615,7 @@ struct HdfMac80211BaseOps {
      * @since 1.0
      * @version 1.0
      */
-    int32_t (*GetPowerMode)(const char *ifName, uint8_t *mode);
+    int32_t (*GetPowerMode)(struct NetDevice *netDev, uint8_t *mode);
 
     /**
      * @brief Set the power mode.
@@ -628,7 +628,7 @@ struct HdfMac80211BaseOps {
      * @since 1.0
      * @version 1.0
      */
-    int32_t (*SetPowerMode)(const char *ifName, uint8_t mode);
+    int32_t (*SetPowerMode)(struct NetDevice *netDev, uint8_t mode);
 
     /**
     * @brief Start channel measurement(asynchronous interface, need call getChannelMeasResult to
@@ -642,7 +642,7 @@ struct HdfMac80211BaseOps {
      * @since 3.2
      * @version 1.0
      */
-    int32_t (*StartChannelMeas)(const char *ifName, const MeasParam *measParam);
+    int32_t (*StartChannelMeas)(struct NetDevice *netDev, const MeasParam *measParam);
 
     /**
      * @brief Set projection screen parameters.
@@ -657,7 +657,7 @@ struct HdfMac80211BaseOps {
      * @since 3.2
      * @version 1.0
      */
-    int32_t (*SetProjectionScreenParam)(const char *ifName, int32_t cmd, const int8_t *data, uint32_t dataLen);
+    int32_t (*SetProjectionScreenParam)(struct NetDevice *netDev, int32_t cmd, const int8_t *data, uint32_t dataLen);
 
     /**
      * @brief Send ioctl command to driver.
@@ -672,7 +672,22 @@ struct HdfMac80211BaseOps {
      * @since 3.2
      * @version 1.0
      */
-    int32_t (*SendCmdIoctl)(const char *ifName, int32_t cmdId, const int8_t *paramBuf, uint32_t paramBufLen);
+    int32_t (*SendCmdIoctl)(struct NetDevice *netDev, int32_t cmdId, const int8_t *paramBuf, uint32_t paramBufLen);
+
+    /**
+     * @brief Get station information.
+     *
+     * @param ifName Indicates the pointer to the network interface name.
+     * @param info Indicates the Station information.
+     * @param mac Indicates the mac address of station.
+     * @param param Indicates the length of mac address.
+     *
+     * @return Returns <b>0</b> if get station information successful; returns a negative value otherwise.
+     *
+     * @since 3.2
+     * @version 1.0
+     */
+    int32_t (*GetStationInfo)(struct NetDevice *netDev, StationInfo *info, const uint8_t *mac, uint32_t macLen);
 };
 
 /**
