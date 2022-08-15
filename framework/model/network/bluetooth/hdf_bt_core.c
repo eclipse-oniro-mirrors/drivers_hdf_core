@@ -65,7 +65,8 @@ struct HdfBtVirtualDevice g_btDevices[MAX_BT_DEVICE_COUNT];
 // lock of the device tab
 OSAL_DECLARE_SPINLOCK(g_devicesLock);
 
-static int32_t ParseTransportConfig(const struct DeviceResourceNode *node, struct HdfBtTransportConfig *config) {
+static int32_t ParseTransportConfig(const struct DeviceResourceNode *node, struct HdfBtTransportConfig *config)
+{
     struct DeviceResourceIface *drsOps = NULL;
     int32_t ret = HDF_SUCCESS;
     if (node == NULL || config == NULL) {
@@ -104,13 +105,15 @@ static int32_t ParseTransportConfig(const struct DeviceResourceNode *node, struc
     return ret;
 }
 
-static int32_t InitDeivceList() {
+static int32_t InitDeivceList()
+{
     (void)memset_s(g_btDevices, sizeof(g_btDevices), 0, sizeof(g_btDevices));
     g_deviceCount = 0;
     return OsalSpinInit(&g_devicesLock);
 }
 
-static int32_t RegistBtDevice(struct HdfVirtualDevice *device, struct HdfBtTransport *transport) {
+static int32_t RegistBtDevice(struct HdfVirtualDevice *device, struct HdfBtTransport *transport)
+{
     int ret;
     if (device == NULL || transport == NULL) {
         HDF_LOGE("%s:nullptr!", __func__);
@@ -133,7 +136,8 @@ static int32_t RegistBtDevice(struct HdfVirtualDevice *device, struct HdfBtTrans
     return ret;
 }
 
-inline static int32_t OperateDevice(uint8_t id, DeviceOperator operator) {
+static int32_t OperateDevice(uint8_t id, DeviceOperator operator)
+{
     int32_t ret = OsalSpinLockIrq(&g_devicesLock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:lock failed!ret=%d", __func__, ret);
@@ -172,15 +176,18 @@ inline static int32_t OperateDevice(uint8_t id, DeviceOperator operator) {
         (void)OsalSpinUnlockIrq(&g_devicesLock);                                                                       \
     } while (false)
 
-inline int32_t PowerOnDevice(uint8_t id) {
+static inline int32_t PowerOnDevice(uint8_t id)
+{
     return OperateDevice(id, HdfPowerOnVirtualDevice);
 }
 
-inline int32_t PowerOffDevice(uint8_t id) {
+static inline int32_t PowerOffDevice(uint8_t id)
+{
     return OperateDevice(id, HdfPowerOffVirtualDevice);
 }
 
-static int32_t InitTransportOperation(struct HdfBtVirtualDevice *device) {
+static int32_t InitTransportOperation(struct HdfBtVirtualDevice *device)
+{
     if (device == NULL) {
         HDF_LOGE("%s:nullptr", __func__);
         return HDF_FAILURE;
@@ -191,13 +198,15 @@ static int32_t InitTransportOperation(struct HdfBtVirtualDevice *device) {
     return HDF_SUCCESS;
 }
 
-inline int32_t InitTransport(uint8_t id) {
+static inline int32_t InitTransport(uint8_t id)
+{
     int ret = HDF_SUCCESS;
     OperateBtDevice(ret, id, InitTransportOperation);
     return ret;
 }
 
-static int32_t DeinitTransportOperation(struct HdfBtVirtualDevice *device) {
+static int32_t DeinitTransportOperation(struct HdfBtVirtualDevice *device)
+{
     if (device == NULL) {
         HDF_LOGE("%s:nullptr", __func__);
         return HDF_FAILURE;
@@ -208,13 +217,15 @@ static int32_t DeinitTransportOperation(struct HdfBtVirtualDevice *device) {
     return HDF_SUCCESS;
 }
 
-inline int32_t DeinitTransport(uint8_t id) {
+static inline int32_t DeinitTransport(uint8_t id)
+{
     int ret = HDF_SUCCESS;
     OperateBtDevice(ret, id, DeinitTransportOperation);
     return ret;
 }
 
-static int32_t GetDevNodeNameOperation(struct HdfBtVirtualDevice *device, char *buf, uint32_t size) {
+static int32_t GetDevNodeNameOperation(struct HdfBtVirtualDevice *device, char *buf, uint32_t size)
+{
     if (device == NULL || device->transport == NULL || device->transport->ops == NULL ||
         device->transport->ops->GetVfsDevName == NULL) {
         HDF_LOGE("%s:bad transport.", __func__);
@@ -223,14 +234,16 @@ static int32_t GetDevNodeNameOperation(struct HdfBtVirtualDevice *device, char *
     return device->transport->ops->GetVfsDevName(device->transport, buf, size);
 }
 
-inline int32_t GetDevNodeName(uint8_t id, char *buf, uint32_t size) {
+static inline int32_t GetDevNodeName(uint8_t id, char *buf, uint32_t size)
+{
     int ret = HDF_SUCCESS;
     OperateBtDevice(ret, id, GetDevNodeNameOperation, buf, size);
     return ret;
 }
 
 static int32_t BtMessageDispatcher(struct HdfDeviceIoClient *client, int id, struct HdfSBuf *reqData,
-                                   struct HdfSBuf *rspData) {
+                                   struct HdfSBuf *rspData)
+{
     int ret = HDF_FAILURE;
     HDF_LOGV("%s: enter", __func__);
     (void)client;
@@ -305,7 +318,8 @@ static int32_t BtMessageDispatcher(struct HdfDeviceIoClient *client, int id, str
     return ret;
 }
 
-static int HdfBtChipDriverBind(struct HdfDeviceObject *dev) {
+static int HdfBtChipDriverBind(struct HdfDeviceObject *dev)
+{
     static struct IDeviceIoService btService = {
         .object.objectId = 1,
         .Dispatch = BtMessageDispatcher,
@@ -316,21 +330,27 @@ static int HdfBtChipDriverBind(struct HdfDeviceObject *dev) {
     return 0;
 }
 
-static int32_t HdfBtInitRawTransport(struct HdfBtTransport *transport) {
+static int32_t HdfBtInitRawTransport(struct HdfBtTransport *transport)
+{
+    (void)transport;
     return HDF_SUCCESS;
 }
 
-static void HdfBtDeinitRawTransport(struct HdfBtTransport *transport) {
+static void HdfBtDeinitRawTransport(struct HdfBtTransport *transport)
+{
+    (void)transport;
     return;
 }
 
-static void HdfBtDestoryRawTransport(struct HdfBtTransport *transport) {
+static void HdfBtDestoryRawTransport(struct HdfBtTransport *transport)
+{
     if (transport != NULL) {
         OsalMemFree(transport);
     }
 }
 
-static int32_t HdfBtGetRawTransportDeviceName(struct HdfBtTransport *transport, char *buf, uint32_t size) {
+static int32_t HdfBtGetRawTransportDeviceName(struct HdfBtTransport *transport, char *buf, uint32_t size)
+{
     struct HdfBtRawTransport *rawTransport = (struct HdfBtRawTransport *)transport;
     if (rawTransport == NULL) {
         return HDF_FAILURE;
@@ -346,7 +366,8 @@ static const struct HdfBtTransportOps g_rawTransportOps = {.Init = HdfBtInitRawT
                                                      .GetVfsDevName = HdfBtGetRawTransportDeviceName,
                                                      .Destory = HdfBtDestoryRawTransport};
 
-static struct HdfBtRawTransport *CreateRawTransport(const char *devName) {
+static struct HdfBtRawTransport *CreateRawTransport(const char *devName)
+{
     struct HdfBtRawTransport *transport = NULL;
     if (devName == NULL) {
         return NULL;
@@ -360,7 +381,8 @@ static struct HdfBtRawTransport *CreateRawTransport(const char *devName) {
     return transport;
 }
 
-static struct HdfBtTransport *CreateCustomTransport(const char *serviceName, const struct DeviceResourceNode *node) {
+static struct HdfBtTransport *CreateCustomTransport(const char *serviceName, const struct DeviceResourceNode *node)
+{
     struct SubscriberCallback callback = {NULL};
     struct HdfDeviceObject *object = NULL;
     struct HdfBtTransportService *service = NULL;
@@ -383,7 +405,8 @@ static struct HdfBtTransport *CreateCustomTransport(const char *serviceName, con
     return service->CreateTransport(node);
 }
 
-static struct HdfBtTransport *CreateTransport(const struct DeviceResourceNode *node) {
+static struct HdfBtTransport *CreateTransport(const struct DeviceResourceNode *node)
+{
     struct HdfBtTransport *transport = NULL;
     struct DeviceResourceIface *drsOps = NULL;
     struct HdfBtTransportConfig config = {0};
@@ -420,7 +443,8 @@ static struct HdfBtTransport *CreateTransport(const struct DeviceResourceNode *n
     return transport;
 }
 
-static int32_t InitDevice(const struct DeviceResourceNode *node) {
+static int32_t InitDevice(const struct DeviceResourceNode *node)
+{
     struct HdfChipConfig config = {0};
     struct HdfVirtualDevice *device = NULL;
     struct HdfBtTransport *transport = NULL;
@@ -459,7 +483,8 @@ static int32_t InitDevice(const struct DeviceResourceNode *node) {
     return ret;
 }
 
-static int32_t InitDevices(struct HdfDeviceObject *device) {
+static int32_t InitDevices(struct HdfDeviceObject *device)
+{
     struct DeviceResourceIface *drsOps = NULL;
     const struct DeviceResourceNode *devListNode = NULL;
     struct DeviceResourceNode *childNode = NULL;
@@ -492,7 +517,8 @@ static int32_t InitDevices(struct HdfDeviceObject *device) {
     return ret;
 }
 
-static int32_t HdfBtChipDriverInit(struct HdfDeviceObject *device) {
+static int32_t HdfBtChipDriverInit(struct HdfDeviceObject *device)
+{
 
     int ret;
     HDF_LOGV("%s:driver init...", __func__);
@@ -511,7 +537,8 @@ static int32_t HdfBtChipDriverInit(struct HdfDeviceObject *device) {
     return HDF_SUCCESS;
 };
 
-static void HdfBtChipDriverRelease(struct HdfDeviceObject *object) {
+static void HdfBtChipDriverRelease(struct HdfDeviceObject *object)
+{
     uint8_t i;
     int ret = OsalSpinLockIrq(&g_devicesLock);
     if (ret != HDF_SUCCESS) {

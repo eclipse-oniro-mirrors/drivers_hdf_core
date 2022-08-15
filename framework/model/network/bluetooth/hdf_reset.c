@@ -17,18 +17,21 @@ struct GpioBasedReset {
     uint8_t activeLevel;
 };
 
-int32_t ResetNoManagableReset(struct HdfReset *reset) {
+static int32_t ResetNoManagableReset(struct HdfReset *reset)
+{
     (void)reset;
     return HDF_FAILURE;
 }
 
-void ReleaseNoManagableReset(struct HdfReset *reset) {
+static void ReleaseNoManagableReset(struct HdfReset *reset)
+{
     if (reset != NULL) {
         OsalMemFree(reset);
     }
 }
 
-int32_t ResetGpioBasedReset(struct HdfReset *reset) {
+static int32_t ResetGpioBasedReset(struct HdfReset *reset)
+{
     int ret;
     struct GpioBasedReset *gpioBasedReset = (struct GpioBasedReset *)reset;
     if (reset == NULL) {
@@ -55,13 +58,15 @@ int32_t ResetGpioBasedReset(struct HdfReset *reset) {
     return ret;
 }
 
-void ReleaseGpioBasedReset(struct HdfReset *reset) {
+static void ReleaseGpioBasedReset(struct HdfReset *reset)
+{
     if (reset != NULL) {
         OsalMemFree(reset);
     }
 }
 
-struct HdfReset *CreateVirtualReset(const struct HdfResetConfig *resetConfig) {
+struct HdfReset *CreateVirtualReset(const struct HdfResetConfig *resetConfig)
+{
     struct HdfReset *result = NULL;
     if (resetConfig == NULL) {
         HDF_LOGE("%s:nullptr", __func__);

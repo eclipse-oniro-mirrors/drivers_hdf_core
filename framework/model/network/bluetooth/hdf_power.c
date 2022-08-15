@@ -32,24 +32,28 @@ struct MutiPowers {
     struct HdfPower *powers[0];
 };
 
-static int32_t NotManagablePowerOn(struct HdfPower *power) {
+static int32_t NotManagablePowerOn(struct HdfPower *power)
+{
     (void)power;
     return HDF_SUCCESS;
 }
 
-static int32_t NotManagablePowerOff(struct HdfPower *power) {
+static int32_t NotManagablePowerOff(struct HdfPower *power)
+{
     (void)power;
     return HDF_FAILURE;
 }
 
-static void ReleasePower(struct HdfPower *power) {
+static void ReleasePower(struct HdfPower *power)
+{
     if (power == NULL) {
         return;
     }
     OsalMemFree(power);
 }
 
-static struct NoManagablePower *CreateNoManagablePower(const struct HdfPowerConfig *power) {
+static struct NoManagablePower *CreateNoManagablePower(const struct HdfPowerConfig *power)
+{
     struct NoManagablePower *result = NULL;
     static const struct HdfPowerOps notManagablePowerOps = {.On = NotManagablePowerOn,
                                                             .Off = NotManagablePowerOff,
@@ -63,7 +67,8 @@ static struct NoManagablePower *CreateNoManagablePower(const struct HdfPowerConf
     return result;
 }
 
-static int32_t GpioPowerOn(struct HdfPower *power) {
+static int32_t GpioPowerOn(struct HdfPower *power)
+{
     int32_t ret;
     struct GpioBasedPower *gpioPower = (struct GpioBasedPower *)power;
     if (power == NULL) {
@@ -83,7 +88,8 @@ static int32_t GpioPowerOn(struct HdfPower *power) {
     return HDF_SUCCESS;
 }
 
-static int32_t GpioPowerOff(struct HdfPower *power) {
+static int32_t GpioPowerOff(struct HdfPower *power)
+{
     int32_t ret;
     struct GpioBasedPower *gpioPower = (struct GpioBasedPower *)power;
     if (power == NULL) {
@@ -103,7 +109,8 @@ static int32_t GpioPowerOff(struct HdfPower *power) {
     return HDF_SUCCESS;
 }
 
-static struct GpioBasedPower *CreateGpioBasedPower(const struct HdfPowerConfig *power) {
+static struct GpioBasedPower *CreateGpioBasedPower(const struct HdfPowerConfig *power)
+{
     struct GpioBasedPower *result = NULL;
     result = (struct GpioBasedPower *)OsalMemCalloc(sizeof(struct GpioBasedPower));
     if (result == NULL) {
@@ -119,7 +126,8 @@ static struct GpioBasedPower *CreateGpioBasedPower(const struct HdfPowerConfig *
     return result;
 }
 
-static struct HdfPower *CreatePower(const struct HdfPowerConfig *power) {
+static struct HdfPower *CreatePower(const struct HdfPowerConfig *power)
+{
     if (power == NULL) {
         return NULL;
     }
@@ -133,7 +141,8 @@ static struct HdfPower *CreatePower(const struct HdfPowerConfig *power) {
     }
 }
 
-static int32_t ActiveMutiPower(struct HdfPower *power) {
+static int32_t ActiveMutiPower(struct HdfPower *power)
+{
     struct MutiPowers *mutiPower = (struct MutiPowers *)power;
     int ret;
     if (power == NULL) {
@@ -159,7 +168,8 @@ static int32_t ActiveMutiPower(struct HdfPower *power) {
     return ret;
 }
 
-static int32_t DeactiveMutiPower(struct HdfPower *power) {
+static int32_t DeactiveMutiPower(struct HdfPower *power)
+{
     struct MutiPowers *mutiPower = (struct MutiPowers *)power;
     int ret;
     if (power == NULL) {
@@ -181,7 +191,8 @@ static int32_t DeactiveMutiPower(struct HdfPower *power) {
     return ret;
 }
 
-static void ReleaseMutiPower(struct HdfPower *power) {
+static void ReleaseMutiPower(struct HdfPower *power)
+{
     struct MutiPowers *mutiPower = (struct MutiPowers *)power;
     if (power == NULL) {
         HDF_LOGE("%s:nullptr", __func__);
@@ -223,7 +234,8 @@ static struct MutiPowers *CreateMutiPower(const struct HdfPowersConfig *powersCo
     return mutiPower;
 }
 
-struct HdfPower *CreateVirtualPower(const struct HdfPowersConfig *powers) {
+struct HdfPower *CreateVirtualPower(const struct HdfPowersConfig *powers)
+{
     if (powers == NULL) {
         HDF_LOGE("%s:nullptr", __func__);
         return NULL;

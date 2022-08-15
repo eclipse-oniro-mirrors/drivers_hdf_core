@@ -13,7 +13,7 @@
 
 static struct HdfEthChipDriverFactory *g_ethChipDriverFactory[MAX_CHIPDRIVER_COUNT] = {NULL};
 
-struct HdfEthChipDriverFactory *HdfEthGetChipDriverByName(const char *driverName)
+static struct HdfEthChipDriverFactory *HdfEthGetChipDriverByName(const char *driverName)
 {
     int32_t i;
     if (driverName == NULL) {
@@ -32,7 +32,7 @@ struct HdfEthChipDriverFactory *HdfEthGetChipDriverByName(const char *driverName
     return NULL;
 }
 
-int32_t HdfEthRegChipDriver(struct HdfEthChipDriverFactory *obj)
+static int32_t HdfEthRegChipDriver(struct HdfEthChipDriverFactory *obj)
 {
     int32_t index;
     if (obj == NULL || obj->driverName == NULL) {

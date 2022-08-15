@@ -477,7 +477,7 @@ ServiceDefine(APService, AP_SERVICE_ID, g_wifiApFeatureCmds);
 
 static Service *g_apService = NULL;
 
-int32_t ApInit(struct WifiFeature *feature)
+static int32_t ApInit(struct WifiFeature *feature)
 {
     (void)feature;
     if (g_apService == NULL) {
@@ -492,7 +492,7 @@ int32_t ApInit(struct WifiFeature *feature)
     return HDF_SUCCESS;
 }
 
-int32_t ApDeinit(struct WifiFeature *feature)
+static int32_t ApDeinit(struct WifiFeature *feature)
 {
     (void)feature;
     if (g_apService != NULL && g_apService->Destroy != NULL) {

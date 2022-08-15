@@ -160,7 +160,7 @@ int32_t HdfWifiEventScanDone(const struct NetDevice *netDev, WifiScanStatus stat
 uint32_t g_ipCheckOut = 0;
 OSAL_DECLARE_TIMER(g_dhcpTimer);
 
-void HdfDhcpResultCheck(uintptr_t para)
+static void HdfDhcpResultCheck(uintptr_t para)
 {
     int32_t ret;
     struct NetDevice *dev = (struct NetDevice *)para;
