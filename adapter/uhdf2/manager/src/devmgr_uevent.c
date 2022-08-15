@@ -363,7 +363,7 @@ static int32_t DevMgrUeventSocketInit(void)
     return sockfd;
 }
 
-static int32_t DevMgrReadUeventMessage(int sockFd, char *buffer, size_t length)
+static ssize_t DevMgrReadUeventMessage(int sockFd, char *buffer, size_t length)
 {
     struct sockaddr_nl addr;
     (void)memset_s(&addr, sizeof(addr), 0, sizeof(addr));
@@ -399,6 +399,7 @@ static int32_t DevMgrReadUeventMessage(int sockFd, char *buffer, size_t length)
 
 static bool DevMgrUeventMsgCheckValid(const char *msg, ssize_t msgLen)
 {
+    (void)msgLen;
     if (strncmp(msg, "libudev", strlen("libudev")) == 0) {
         return false;
     }
@@ -431,7 +432,7 @@ static bool DevMgrUeventMatchRule(struct DListHead *keyList, struct DListHead *r
     return true;
 }
 
-static void DevMgrUeventProcessPnPEvent(struct DevMgrUeventRuleCfg *ruleCfg)
+static void DevMgrUeventProcessPnPEvent(const struct DevMgrUeventRuleCfg *ruleCfg)
 {
     struct IDevmgrService *instance = DevmgrServiceGetInstance();
 
@@ -472,8 +473,9 @@ static int32_t DevMgrParseUevent(char *msg, ssize_t msgLen)
     DListHeadInit(&keyList);
     struct DevMgrMatchKey *key = NULL;
 
-    for (char *ptr = msg; ptr < (msg + msgLen); ptr++) {
+    for (char *ptr = msg; ptr < (msg + msgLen);) {
         if (*ptr == '0') {
+            ptr++;
             continue;
         }
 
@@ -485,8 +487,8 @@ static int32_t DevMgrParseUevent(char *msg, ssize_t msgLen)
             }
             DListHeadInit(&key->entry);
         }
-        // the terminator of the string ptr is processed by ptr++ in for statement
-        int32_t subStrLen = strlen(ptr);
+ 
+        uint32_t subStrLen = (uint32_t)strlen(ptr) + 1;
         HDF_LOGD("%{public}s %{public}d [%{public}s]", __func__, subStrLen, ptr);
         if (DevMgrUeventParseKeyValue(ptr, key, UEVENT_DELIMITER) == HDF_SUCCESS) {
             DListInsertHead(&key->entry, &keyList);
@@ -506,6 +508,7 @@ static int32_t DevMgrParseUevent(char *msg, ssize_t msgLen)
 #define DEVMGR_UEVENT_WAIT_TIME 1000
 static int32_t DevMgrUeventThread(void *arg)
 {
+    (void)arg;
     int32_t sfd = DevMgrUeventSocketInit();
     if (sfd < 0) {
         HDF_LOGE("DevMgrUeventSocketInit get sfd error");

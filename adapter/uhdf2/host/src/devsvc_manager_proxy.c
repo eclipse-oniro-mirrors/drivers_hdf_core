@@ -116,12 +116,12 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
         return HDF_ERR_INVALID_PARAM;
     }
     if ((serviceProxy == NULL) || (serviceProxy->remote == NULL)) {
-        HDF_LOGE("Add service failed, serviceProxy is invalid");
+        HDF_LOGE("update service failed, serviceProxy is invalid");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (servInfo->devClass >= DEVICE_CLASS_MAX) {
-        HDF_LOGE("Add service failed, devClass is invalid");
+        HDF_LOGE("update service failed, devClass is invalid");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -130,7 +130,7 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
     struct HdfSBuf *reply = HdfSbufTypedObtain(SBUF_IPC);
     do {
         if (data == NULL || reply == NULL) {
-            HDF_LOGE("Add service failed, failed to obtain sbuf");
+            HDF_LOGE("update service failed, failed to obtain sbuf");
             break;
         }
         if (!HdfRemoteServiceWriteInterfaceToken(serviceProxy->remote, data) ||
@@ -225,7 +225,7 @@ static void DevSvcManagerProxyOnRemoteDied(struct HdfDeathRecipient *recipient, 
         HDF_LOGE("%{public}s parameter is null", __func__);
         return;
     }
-
+    (void)recipient;
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     HDF_LOGW("%{public}s: DevSvcManager dead, host %{public}d stop", __func__, fullService->super.hostId);
@@ -254,7 +254,7 @@ static struct IDevSvcManager *DevSvcManagerProxyObtain(struct HdfRemoteService *
     return (struct IDevSvcManager *)instance;
 }
 
-struct HdfObject *DevSvcManagerProxyCreate()
+struct HdfObject *DevSvcManagerProxyCreate(void)
 {
     static struct IDevSvcManager *instance = NULL;
     if (instance == NULL) {

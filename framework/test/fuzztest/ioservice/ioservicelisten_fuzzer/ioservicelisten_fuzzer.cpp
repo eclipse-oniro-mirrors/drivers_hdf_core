@@ -34,7 +34,8 @@ static int OnDevEventReceived(
 {
     OsalTimespec time;
     OsalGetTime(&time);
-
+    (void)service;
+    (void)id;
     const char *string = HdfSbufReadString(data);
     if (string == nullptr) {
         HDF_LOGE("failed to read string in event data");

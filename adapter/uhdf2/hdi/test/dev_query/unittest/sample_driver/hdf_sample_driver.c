@@ -19,7 +19,7 @@
 
 #define HDF_LOG_TAG hdf_sample_driver
 
-int32_t HdfSampleDriverBind(struct HdfDeviceObject *para)
+static int32_t HdfSampleDriverBind(struct HdfDeviceObject *para)
 {
     (void)para;
 
@@ -27,7 +27,7 @@ int32_t HdfSampleDriverBind(struct HdfDeviceObject *para)
     return 0;
 }
 
-int32_t HdfSampleDriverInit(struct HdfDeviceObject *para)
+static int32_t HdfSampleDriverInit(struct HdfDeviceObject *para)
 {
     (void)para;
 
@@ -35,7 +35,7 @@ int32_t HdfSampleDriverInit(struct HdfDeviceObject *para)
     return 0;
 }
 
-void HdfSampleDriverRelease(struct HdfDeviceObject *para)
+static void HdfSampleDriverRelease(struct HdfDeviceObject *para)
 {
     (void)para;
 

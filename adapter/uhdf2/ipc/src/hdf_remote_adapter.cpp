@@ -169,6 +169,7 @@ void HdfRemoteAdapterRemoveDeathRecipient(
     struct HdfRemoteService *service, struct HdfDeathRecipient *recipient)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+    (void)recipient;
     if (holder == nullptr) {
         return;
     }

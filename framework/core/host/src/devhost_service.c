@@ -36,6 +36,7 @@ static struct HdfDevice *DevHostServiceFindDevice(struct DevHostService *hostSer
 
 static void DevHostServiceFreeDevice(struct DevHostService *hostService, struct HdfDevice *device)
 {
+    (void)hostService;
     if (device != NULL) {
         DListRemove(&device->node);
         HdfDeviceFreeInstance(device);

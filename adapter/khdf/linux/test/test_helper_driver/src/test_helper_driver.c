@@ -28,9 +28,12 @@
 
 #define HDF_LOG_TAG test_help_driver
 
-static int32_t HelperDriverDispatch(struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t HelperDriverDispatch(
+    struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t num = 0;
+
+    (void)client;
     if (cmdId != 1) {
         HDF_LOGE("%s:unknown comd id %d", __func__, cmdId);
         return HDF_ERR_NOT_SUPPORT;

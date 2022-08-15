@@ -38,11 +38,11 @@ int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, const struct
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;
     if (devSvcMgrClnt == NULL) {
-        HDF_LOGE("failed to add service, client is null");
+        HDF_LOGE("failed to update service, client is null");
         return HDF_FAILURE;
     }
     if (servinfo->devClass >= DEVICE_CLASS_MAX) {
-        HDF_LOGE("failed to add service, invalid class");
+        HDF_LOGE("failed to update service, invalid class");
         return HDF_FAILURE;
     }
 
@@ -92,8 +92,8 @@ int DevSvcManagerClntSubscribeService(const char *svcName, struct SubscriberCall
 {
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;
-    if (devSvcMgrClnt == NULL) {
-        HDF_LOGE("failed to subscribe service, client is null");
+    if (devSvcMgrClnt == NULL || svcName == NULL) {
+        HDF_LOGE("failed to subscribe service, client or svcName is null");
         return HDF_FAILURE;
     }
 
@@ -109,8 +109,8 @@ int DevSvcManagerClntUnsubscribeService(const char *svcName)
 {
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;
-    if (devSvcMgrClnt == NULL) {
-        HDF_LOGE("failed to unsubscribe service, client is null");
+    if (devSvcMgrClnt == NULL || svcName == NULL) {
+        HDF_LOGE("failed to unsubscribe service, client or svcName is null");
         return HDF_FAILURE;
     }
 

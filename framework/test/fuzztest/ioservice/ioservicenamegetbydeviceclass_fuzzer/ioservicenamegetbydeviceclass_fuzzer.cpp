@@ -22,7 +22,7 @@ bool IoserviceNameGetByDeviceClassFuzzTest(const uint8_t *data, size_t size)
         HDF_LOGE("%{public}s: data is nullptr!", __func__);
         return false;
     }
-
+    (void)size;
     struct HdfSBuf *reply = HdfSbufObtainDefaultSize();
     int32_t ret = HdfGetServiceNameByDeviceClass(static_cast<DeviceClass>(*data), reply);
     if (ret == HDF_SUCCESS) {

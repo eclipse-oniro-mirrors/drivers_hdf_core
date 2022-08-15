@@ -72,7 +72,7 @@ void HdfThreadDestruct(struct HdfThread *thread)
     }
 }
 
-struct HdfThread *HdfThreadNewInstance()
+struct HdfThread *HdfThreadNewInstance(void)
 {
     struct HdfThread *thread =
         (struct HdfThread *)OsalMemCalloc(sizeof(struct HdfThread));

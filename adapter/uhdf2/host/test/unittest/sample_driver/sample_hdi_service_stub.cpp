@@ -71,6 +71,7 @@ static int32_t SampleServiceStubSum(struct HdfDeviceIoClient *client, struct Hdf
 static int32_t SampleServiceStubCallback(struct HdfDeviceIoClient *client, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t code;
+    (void)reply;
     if (!HdfDeviceObjectCheckInterfaceDesc(client->device, data)) {
         return HDF_ERR_INVALID_PARAM;
     }

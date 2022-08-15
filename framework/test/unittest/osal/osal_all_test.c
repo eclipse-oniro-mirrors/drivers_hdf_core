@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -115,7 +115,7 @@ static int ThreadTest1(void *arg)
 
 static int g_thread2RunFlag;
 static int32_t g_threadTest2Flag = true;
-int ThreadTest2(void *arg)
+static int ThreadTest2(void *arg)
 {
     static int cnt = 0;
     OsalTimespec hdfTs1 = { 0, 0 };
@@ -416,7 +416,7 @@ static void OsaCheckRun(int cnt)
     }
 }
 static uint8_t g_irqData = 100;
-uint32_t IRQHandle(uint32_t irqId, void *data)
+static uint32_t IRQHandle(uint32_t irqId, void *data)
 {
     uint8_t *p = data;
     static OsalTimespec hdfTs = { 0, 0 };
@@ -438,7 +438,7 @@ uint32_t IRQHandle(uint32_t irqId, void *data)
 }
 
 #define IRQ_TEST_CNT 10
-void OsaIrqTest(void)
+static void OsaIrqTest(void)
 {
     int i = 0;
     int32_t ret;
@@ -548,7 +548,7 @@ static int ThreadTest(void *arg)
 }
 
 #define HDF_TEST_STACK_SIZE 10000
-void OsaThreadTest1(void)
+static void OsaThreadTest1(void)
 {
     struct OsalThreadParam threadCfg;
     static int para = 120;
@@ -564,7 +564,7 @@ void OsaThreadTest1(void)
     UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
 }
 
-void OsaThreadTest(void)
+static void OsaThreadTest(void)
 {
     struct OsalThreadParam threadCfg;
     int ret;

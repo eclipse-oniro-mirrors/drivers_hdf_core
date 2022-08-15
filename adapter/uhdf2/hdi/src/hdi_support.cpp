@@ -116,7 +116,7 @@ static int32_t ParseInterface(
         HDF_LOGE("%{public}s invalid hdi impl so name %{public}s", __func__, path);
         return HDF_FAILURE;
     }
-    libpath = path;
+    libpath = resolvedPath;
     return HDF_SUCCESS;
 }
 

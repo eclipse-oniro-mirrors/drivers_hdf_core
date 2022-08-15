@@ -167,7 +167,7 @@ static int32_t InstallModule(const char *module)
         HDF_LOGE("module %{public}s is invalid", module);
         return HDF_ERR_BAD_FD;
     }
-    int32_t ret = syscall(SYS_finit_module, fd, "", 0);
+    int32_t ret = (int32_t)syscall(SYS_finit_module, fd, "", 0);
     if (ret != 0) {
         HDF_LOGE("failed to install module %{public}s, %{public}d", module, ret);
     }
@@ -201,6 +201,7 @@ static int32_t ModuleSysEventHandle(
         return HDF_ERR_INVALID_PARAM;
     }
 
+    (void)self;
     HDF_LOGI("handle driver module: %{public}s", content);
     char modulePath[PATH_MAX] = {0};
     int32_t ret = MakeModulePath(modulePath, content);

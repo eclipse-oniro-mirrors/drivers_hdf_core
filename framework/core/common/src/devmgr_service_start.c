@@ -22,15 +22,22 @@
 
 static int g_isQuickLoad = DEV_MGR_SLOW_LOAD;
 
-static void GetDeviceServiceNameByClass(struct HdfSBuf *reply, DeviceClass deviceClass)
+static int32_t GetDeviceServiceNameByClass(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    if (reply == NULL) {
-        return;
+    int32_t deviceClass = 0;
+    if (reply == NULL || data == NULL) {
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadInt32(data, &deviceClass)) {
+        HDF_LOGE("%s: failed to get deviceClass", __func__);
+        return HDF_FAILURE;
     }
 
     HdfSbufFlush(reply);
     DevSvcManagerListService(reply, deviceClass);
     HdfSbufWriteString(reply, NULL);
+    return HDF_SUCCESS;
 }
 
 static int32_t ListAllService(struct HdfSBuf *reply)
@@ -59,13 +66,13 @@ static int32_t ListAllDevice(struct DevmgrService *devMgrSvc, struct HdfSBuf *re
 int DeviceManagerDispatch(struct HdfObject *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int ret = HDF_FAILURE;
-    int32_t deviceClass = 0;
     const char *svcName = NULL;
     struct DevmgrService *devMgrSvc = (struct DevmgrService *)DevmgrServiceGetInstance();
     static struct SubscriberCallback callback = {
         .deviceObject = NULL,
         .OnServiceConnected = NULL,
     };
+    (void)stub;
     if (devMgrSvc == NULL) {
         HDF_LOGE("%s: input param is invalid", __func__);
         return ret;
@@ -74,27 +81,14 @@ int DeviceManagerDispatch(struct HdfObject *stub, int code, struct HdfSBuf *data
     switch (code) {
         case DEVMGR_LOAD_SERVICE:
             svcName = HdfSbufReadString(data);
-            if (svcName == NULL) {
-                HDF_LOGE("%s: get svc name is null", __func__);
-                break;
-            }
             ret = DevSvcManagerClntSubscribeService(svcName, callback);
             break;
         case DEVMGR_UNLOAD_SERVICE:
             svcName = HdfSbufReadString(data);
-            if (svcName == NULL) {
-                HDF_LOGE("%s: svc name is null", __func__);
-                break;
-            }
             ret = DevSvcManagerClntUnsubscribeService(svcName);
             break;
         case DEVMGR_GET_SERVICE:
-            if (!HdfSbufReadInt32(data, &deviceClass)) {
-                HDF_LOGE("%s: failed to get deviceClass", __func__);
-                break;
-            }
-            GetDeviceServiceNameByClass(reply, deviceClass);
-            ret = HDF_SUCCESS;
+            ret = GetDeviceServiceNameByClass(data, reply);
             break;
         case DEVMGR_LIST_ALL_SERVICE:
             ret = ListAllService(reply);

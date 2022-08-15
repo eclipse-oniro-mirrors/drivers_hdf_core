@@ -151,6 +151,7 @@ EXPORT_SYMBOL(OsalThreadStart);
 
 int32_t OsalThreadSuspend(struct OsalThread *thread)
 {
+	(void)thread;
 	return HDF_ERR_NOT_SUPPORT;
 }
 EXPORT_SYMBOL(OsalThreadSuspend);
@@ -171,6 +172,7 @@ EXPORT_SYMBOL(OsalThreadDestroy);
 
 int32_t OsalThreadResume(struct OsalThread *thread)
 {
+	(void)thread;
 	return HDF_ERR_NOT_SUPPORT;
 }
 EXPORT_SYMBOL(OsalThreadResume);

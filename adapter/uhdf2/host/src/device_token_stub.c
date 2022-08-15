@@ -40,7 +40,7 @@ void DeviceTokenStubConstruct(struct DeviceTokenStub *inst)
     inst->remote = NULL;
 }
 
-struct HdfObject *DeviceTokenStubCreate()
+struct HdfObject *DeviceTokenStubCreate(void)
 {
     struct DeviceTokenStub *instance =
         (struct DeviceTokenStub *)OsalMemCalloc(sizeof(struct DeviceTokenStub));

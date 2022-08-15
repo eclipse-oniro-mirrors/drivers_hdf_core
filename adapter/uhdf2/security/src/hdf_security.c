@@ -85,7 +85,7 @@ Map *HdfSecGetHashMap()
     return &hdfHashMap;
 }
 
-static void InitStrToIndexMap()
+static void InitStrToIndexMap(void)
 {
     MapInit(&g_indexMap);
     for (int i = 0; i < PAL_MAX_TYPE; ++i) {
@@ -134,7 +134,7 @@ static int32_t HdfSecCheckParameters(const char *id)
     return HDF_SUCCESS;
 }
 
-static int32_t HdfUpdateSecurityId(const char *id, const uint64_t perms, const int32_t isSetCurrentSecId)
+static int32_t HdfUpdateSecurityId(const char *id, uint64_t perms, int32_t isSetCurrentSecId)
 {
     if (HdfSecCheckParameters(id) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s check id failed", __FUNCTION__);
@@ -230,7 +230,7 @@ int32_t HdfRegisterAllDevSecId(const struct DeviceResourceNode *hostRoot)
 
 int32_t HdfSetCurrentHostSecurity(const char *hostName, int32_t procId)
 {
-    return HdfUpdateSecurityId(hostName, procId, HDF_SECURE_SET_CUR_ID);
+    return HdfUpdateSecurityId(hostName, (uint64_t)procId, HDF_SECURE_SET_CUR_ID);
 }
 
 void HdfDelSecurity(const char *hostName)

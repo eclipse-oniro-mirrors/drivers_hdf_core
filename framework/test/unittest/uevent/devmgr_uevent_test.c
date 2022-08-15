@@ -11,7 +11,7 @@
 
 #define HDF_LOG_TAG uevent_ut_driver
 
-int32_t HdfUeventDriverDispatch(
+static int32_t HdfUeventDriverDispatch(
     struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)client;
@@ -22,7 +22,7 @@ int32_t HdfUeventDriverDispatch(
     return HDF_SUCCESS;
 }
 
-void HdfUeventDriverRelease(struct HdfDeviceObject *deviceObject)
+static void HdfUeventDriverRelease(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
 
@@ -31,7 +31,7 @@ void HdfUeventDriverRelease(struct HdfDeviceObject *deviceObject)
     return;
 }
 
-int HdfUeventDriverBind(struct HdfDeviceObject *deviceObject)
+static int HdfUeventDriverBind(struct HdfDeviceObject *deviceObject)
 {
     if (deviceObject == NULL) {
         return HDF_FAILURE;
@@ -49,7 +49,7 @@ int HdfUeventDriverBind(struct HdfDeviceObject *deviceObject)
     return HDF_SUCCESS;
 }
 
-int HdfUeventDriverInit(struct HdfDeviceObject *deviceObject)
+static int HdfUeventDriverInit(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
 

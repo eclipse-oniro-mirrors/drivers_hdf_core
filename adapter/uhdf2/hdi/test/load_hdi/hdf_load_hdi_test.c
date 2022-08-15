@@ -38,8 +38,6 @@ static int32_t g_testItemFailCnt = 0;
 #define HDI_LOAD_PRESSURE_TIME 1000
 #define HDF_MICRO_UNIT 1000000
 
-struct HdiObject *g_hdi[HDI_LOAD_PRESSURE_TIME];
-
 #define HDF_LOG_TAG hdf_hdi_test
 
 struct HdiSampleA {
@@ -48,7 +46,7 @@ struct HdiSampleA {
     int (*ServiceB)(int para);
 };
 
-void PrintTestResult()
+static void PrintTestResult(void)
 {
     HDF_LOGE("[HDF_TEST] %{public}s test items: %{public}d", __func__, g_testItemCnt);
     HDF_LOGE("[HDF_TEST] %{public}s test PASS: %{public}d", __func__, g_testItemCnt - g_testItemFailCnt);
@@ -59,7 +57,7 @@ void PrintTestResult()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_001/HDF_LOAD_HDI_BaseFunction_AR_002 */
-static void HdiOpenTest()
+static void HdiOpenTest(void)
 {
     int32_t ret;
     OsalTimespec time1 = {0, 0};
@@ -92,7 +90,7 @@ static void HdiOpenTest()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_003 */
-static void HdiReCloseTest()
+static void HdiReCloseTest(void)
 {
     int32_t ret;
     struct HdiObject *hdi = NULL;
@@ -116,7 +114,7 @@ static void HdiReCloseTest()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_004 */
-static void HdiOpenVersionErrorTest()
+static void HdiOpenVersionErrorTest(void)
 {
     int32_t ret;
     struct HdiObject *hdi = NULL;
@@ -139,7 +137,7 @@ static void HdiOpenVersionErrorTest()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_005 */
-static void HdiOpenNameErrorTest()
+static void HdiOpenNameErrorTest(void)
 {
     int32_t ret;
     struct HdiObject *hdi = NULL;
@@ -162,7 +160,7 @@ static void HdiOpenNameErrorTest()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_006 */
-static void HdiOpenErrorTest()
+static void HdiOpenErrorTest(void)
 {
     int32_t ret;
     struct HdiObject *hdi = NULL;
@@ -185,9 +183,10 @@ static void HdiOpenErrorTest()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_007 HDF_LOAD_HDI_BaseFunction_AR_008 */
-static void HdiOpenMoreTest()
+static void HdiOpenMoreTest(void)
 {
     int32_t ret;
+    struct HdiObject *hdiArray[HDI_LOAD_PRESSURE_TIME];
     struct HdiSampleA *sampleA = NULL;
     struct HdiObject *hdi = NULL;
     OsalTimespec time1 = {0, 0};
@@ -197,8 +196,8 @@ static void HdiOpenMoreTest()
 
     OsalGetTime(&time1);
     for (int i = 0; i < HDI_LOAD_PRESSURE_TIME; i++) {
-        g_hdi[i] = LoadHdi("hdf_test_load_hdi_driver.so", 1);
-        UT_TEST_CHECK_RET(g_hdi[i] != NULL, false);
+        hdiArray[i] = LoadHdi("hdf_test_load_hdi_driver.so", 1);
+        UT_TEST_CHECK_RET(hdiArray[i] != NULL, false);
     }
     OsalGetTime(&time2);
     OsalDiffTime(&time1, &time2, &diff);
@@ -209,7 +208,7 @@ static void HdiOpenMoreTest()
     UT_TEST_CHECK_RET((totalUsec / HDF_KILO_UNIT / HDI_LOAD_PRESSURE_TIME) <= HDI_LOAD_TIME_RANGE, true);
 
     for (int i = 0; i < HDI_LOAD_PRESSURE_TIME; i++) {
-        hdi = g_hdi[i];
+        hdi = hdiArray[i];
         if (hdi == NULL) {
             continue;
         }
@@ -224,7 +223,7 @@ static void HdiOpenMoreTest()
     }
     OsalGetTime(&time1);
     for (int i = 0; i < HDI_LOAD_PRESSURE_TIME; i++) {
-        hdi = g_hdi[i++];
+        hdi = hdiArray[i];
         CloseHdi(hdi);
     }
     OsalGetTime(&time2);
@@ -237,7 +236,7 @@ static void HdiOpenMoreTest()
 }
 
 /* HDF_LOAD_HDI_BaseFunction_AR_009 */
-static void HdiOpenTwoSoTest()
+static void HdiOpenTwoSoTest(void)
 {
     int32_t ret;
     struct HdiObject *hdiA = NULL;

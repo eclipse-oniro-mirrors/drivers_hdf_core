@@ -39,7 +39,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define OsalAtomicReadWrapper(v)        ((v)->counter)
-#define OsalAtomicSetWrapper(v, value)  (v)->counter = value
+#define OsalAtomicSetWrapper(v, value)  (v)->counter = (value)
 #define OsalAtomicIncWrapper(v)         ((v)->counter)++
 #define OsalAtomicIncRetWrapper(v)      (++((v)->counter))
 #define OsalAtomicDecWrapper(v)         (((v)->counter)--)

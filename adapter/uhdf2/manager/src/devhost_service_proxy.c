@@ -36,7 +36,7 @@ static int32_t DevHostServiceProxyOpsDevice(
     }
 
     DeviceAttributeSerialize(attribute, data);
-    status = hostClnt->remote->dispatcher->Dispatch(hostClnt->remote, DEVHOST_SERVICE_ADD_DEVICE, data, NULL);
+    status = hostClnt->remote->dispatcher->Dispatch(hostClnt->remote, opsCode, data, NULL);
 FINISHED:
     if (data != NULL) {
         HdfSbufRecycle(data);

@@ -22,7 +22,7 @@ void HdfOrderedListDestroy(struct HdfOrderedList *list)
     OsalMutexDestroy(&list->mutex);
 }
 
-int HdfOrderedListIsEmpty(struct HdfOrderedList *list)
+int HdfOrderedListIsEmpty(const struct HdfOrderedList *list)
 {
     return HdfSListIsEmpty(&list->head);
 }

@@ -98,7 +98,7 @@ void HdfDriverLoaderFullConstruct(struct DriverLoaderFull *inst)
     pvtbl->super.ReclaimDriver = HdfDriverLoaderFullReclaimDriver;
 }
 
-struct HdfObject *HdfDriverLoaderFullCreate()
+struct HdfObject *HdfDriverLoaderFullCreate(void)
 {
     if (g_fullLoader == NULL) {
         struct DriverLoaderFull *instance =

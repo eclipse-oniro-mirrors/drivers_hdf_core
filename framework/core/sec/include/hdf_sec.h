@@ -45,7 +45,7 @@ struct SecInfo {
     char secId[ID_MAX_SIZE];
     HDF_DECLARE_BITMAP(secMap, SECMAP_MAX_SIZE);
 };
-uint32_t hdf_permission_check(uint8_t type);
+uint32_t HdfPermissionCheck(uint8_t type);
 
 #ifdef __cplusplus
 #if __cplusplus

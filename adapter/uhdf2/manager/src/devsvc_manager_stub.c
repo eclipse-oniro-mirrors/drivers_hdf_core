@@ -28,6 +28,7 @@
 #include "hdf_sbuf.h"
 #include "hdf_slist.h"
 #include "osal_mem.h"
+#include "securec.h"
 
 #define HDF_LOG_TAG devsvc_manager_stub
 
@@ -106,6 +107,39 @@ static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDevic
     OsalMemFree(serviceObject);
 }
 
+static int32_t DevSvcMgrStubGetPara(
+    struct HdfSBuf *data, struct HdfServiceInfo *info, struct HdfRemoteService **service)
+{
+    int ret = HDF_FAILURE;
+    info->servName = HdfSbufReadString(data);
+    if (info->servName == NULL) {
+        HDF_LOGE("%{public}s failed, name is null", __func__);
+        return ret;
+    }
+    ret = AddServicePermCheck(info->servName);
+    if (ret != HDF_SUCCESS) {
+        return ret;
+    }
+
+    info->devClass = DEVICE_CLASS_DEFAULT;
+    if (!HdfSbufReadUint16(data, &info->devClass)) {
+        HDF_LOGE("%{public}s failed, devClass invalid", __func__);
+        return ret;
+    }
+    if (!HdfSbufReadUint32(data, &info->devId)) {
+        HDF_LOGE("%{public}s failed, devId invalid", __func__);
+        return ret;
+    }
+
+    *service = HdfSbufReadRemoteService(data);
+    if (service == NULL) {
+        HDF_LOGE("%{public}s failed, service is null", __func__);
+        return ret;
+    }
+    info->servInfo = HdfSbufReadString(data);
+    return HDF_SUCCESS;
+}
+
 static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct HdfSBuf *data)
 {
     int ret = HDF_FAILURE;
@@ -115,32 +149,12 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
         return HDF_ERR_INVALID_PARAM;
     }
     struct HdfServiceInfo info;
-    info.servName = HdfSbufReadString(data);
-    if (info.servName == NULL) {
-        HDF_LOGE("%{public}s failed, name is null", __func__);
+    struct HdfRemoteService *service = NULL;
+    (void)memset_s(&info, sizeof(info), 0, sizeof(info));
+    if (DevSvcMgrStubGetPara(data, &info, &service) != HDF_SUCCESS) {
         return ret;
     }
-    ret = AddServicePermCheck(info.servName);
-    if (ret != HDF_SUCCESS) {
-        return ret;
-    }
-
-    info.devClass = DEVICE_CLASS_DEFAULT;
-    if (!HdfSbufReadUint16(data, &info.devClass)) {
-        HDF_LOGE("%{public}s failed, devClass invalid", __func__);
-        return ret;
-    }
-    if (!HdfSbufReadUint32(data, &info.devId)) {
-        HDF_LOGE("%{public}s failed, devId invalid", __func__);
-        return ret;
-    }
-
-    struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
-    if (service == NULL) {
-        HDF_LOGE("%{public}s failed, service is null", __func__);
-        return ret;
-    }
-    info.servInfo = HdfSbufReadString(data);
+ 
     struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, info.servName, service);
     if (serviceObject == NULL) {
         return HDF_ERR_MALLOC_FAIL;
@@ -165,34 +179,13 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
         HDF_LOGE("%{public}s: invalid interface token", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
+
+    struct HdfRemoteService *service = NULL;
     struct HdfServiceInfo info;
-    info.servName = HdfSbufReadString(data);
-    if (info.servName == NULL) {
-        HDF_LOGE("%{public}s failed, name is null", __func__);
+    (void)memset_s(&info, sizeof(info), 0, sizeof(info));
+    if (DevSvcMgrStubGetPara(data, &info, &service) != HDF_SUCCESS) {
         return ret;
     }
-    ret = AddServicePermCheck(info.servName);
-    if (ret != HDF_SUCCESS) {
-        return ret;
-    }
-
-    info.devClass = DEVICE_CLASS_DEFAULT;
-    if (!HdfSbufReadUint16(data, &info.devClass)) {
-        HDF_LOGE("%{public}s failed, devClass invalid", __func__);
-        return ret;
-    }
-
-    if (!HdfSbufReadUint32(data, &info.devId)) {
-        HDF_LOGE("%{public}s failed, devId invalid", __func__);
-        return ret;
-    }
-
-    struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
-    if (service == NULL) {
-        HDF_LOGE("%{public}s failed, remote service is null", __func__);
-        return ret;
-    }
-    info.servInfo = HdfSbufReadString(data);
 
     struct HdfDeviceObject *oldServiceObject = super->GetObject(super, info.servName);
     if (oldServiceObject == NULL) {

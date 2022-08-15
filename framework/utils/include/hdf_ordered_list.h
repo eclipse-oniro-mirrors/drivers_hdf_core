@@ -36,14 +36,14 @@ void HdfOrderedListInit(struct HdfOrderedList *list);
 
 void HdfOrderedListDestroy(struct HdfOrderedList *list);
 
-int HdfOrderedListIsEmpty(struct HdfOrderedList *list);
+int HdfOrderedListIsEmpty(const struct HdfOrderedList *list);
 
 void HdfOrderedListOffer(struct HdfOrderedList *list, struct HdfOrderedListEntity *newEntity);
 
 struct HdfOrderedListEntity *HdfOrderedListTake(struct HdfOrderedList *list);
 
 struct HdfOrderedListEntity *HdfOrderedListFetch(
-    struct HdfOrderedList *list, long match_key, HdfOrderedListComparer comparer);
+    struct HdfOrderedList *list, long matchKey, HdfOrderedListComparer comparer);
 
 int HdfOrderedListWait(struct HdfOrderedList *list, long timeout);
 

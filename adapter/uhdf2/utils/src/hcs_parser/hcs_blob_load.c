@@ -52,8 +52,8 @@ uint32_t OpenHcsBlobFile(const char *hcsBlobPath, char **hcsBlob)
             HDF_LOGE("%{public}s failed, pls check the path of %{public}s", __func__, hcsBlobPath);
             break;
         }
-        fseek(fp, 0, SEEK_END);
-        length = ftell(fp);
+        (void)fseek(fp, 0, SEEK_END);
+        length = (int32_t)ftell(fp);
         if ((length <= 0) || (length >= HBC_BLOB_MAX_LENGTH)) {
             length = 0;
             HDF_LOGE("%{public}s failed, the HcsBlob file length is %{public}d",  __func__, length);
@@ -65,8 +65,8 @@ uint32_t OpenHcsBlobFile(const char *hcsBlobPath, char **hcsBlob)
             HDF_LOGE("%{public}s failed, OsalMemCalloc hcsBlob memory failed", __func__);
             break;
         }
-        fseek(fp, 0, SEEK_SET);
-        (void)fread((void *)(*hcsBlob), length, 1, fp);
+        (void)fseek(fp, 0, SEEK_SET);
+        (void)fread((void *)(*hcsBlob), (size_t)length, 1, fp);
     } while (0);
     if (fp != NULL) {
         fclose(fp);

@@ -89,7 +89,7 @@ void DeviceThreadConstruct(struct DeviceThread *inst)
     HdfThreadConstruct(&inst->super);
 }
 
-struct DeviceThread *DeviceThreadNewInstance()
+struct DeviceThread *DeviceThreadNewInstance(void)
 {
     struct DeviceThread *thread =
         (struct DeviceThread *)OsalMemCalloc(sizeof(struct DeviceThread));
