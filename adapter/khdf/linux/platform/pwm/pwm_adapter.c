@@ -24,7 +24,7 @@
 
 #define HDF_LOG_TAG pwm_adapter
 
-int32_t HdfPwmOpen(struct PwmDev *pwm)
+static int32_t HdfPwmOpen(struct PwmDev *pwm)
 {
     struct pwm_device *device = NULL;
 
@@ -45,7 +45,7 @@ int32_t HdfPwmOpen(struct PwmDev *pwm)
     return HDF_SUCCESS;
 }
 
-int32_t HdfPwmClose(struct PwmDev *pwm)
+static int32_t HdfPwmClose(struct PwmDev *pwm)
 {
     if (pwm == NULL) {
         HDF_LOGE("%s: pwm is null", __func__);
@@ -55,7 +55,7 @@ int32_t HdfPwmClose(struct PwmDev *pwm)
     return HDF_SUCCESS;
 }
 
-int32_t HdfPwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
+static int32_t HdfPwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 {
     int32_t ret;
     struct pwm_state state;

@@ -352,7 +352,7 @@ static unsigned char StopBitToAttr(unsigned short st)
 {
     if (!(st & CSTOPB)) {
         return UART_ATTR_STOPBIT_1;
-    } else if (st & CSTOPB) {
+    } else if ((st & CSTOPB) != 0) {
         return UART_ATTR_STOPBIT_2;
     } else {
         /* default value */
@@ -362,7 +362,7 @@ static unsigned char StopBitToAttr(unsigned short st)
 
 static unsigned char CtsRtsToAttr(unsigned short cr)
 {
-    if (cr & CRTSCTS) {
+    if ((cr & CRTSCTS) != 0) {
         return UART_ATTR_RTS_EN;
     }
     return UART_ATTR_RTS_DIS;

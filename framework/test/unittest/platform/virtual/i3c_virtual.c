@@ -42,22 +42,22 @@ struct VirtualI3cIbiSimulator {
     uint16_t deviceAddr;
 };
 
-static struct VirtualI3cIbiSimulator ibiSimulator;
+static struct VirtualI3cIbiSimulator g_ibiSimulator;
 
 static inline void VirtualI3cSetIbiSimulator(uint16_t addr, uint16_t deviceAddr)
 {
-    ibiSimulator.ibiAddr = addr;
-    ibiSimulator.deviceAddr = deviceAddr;
+    g_ibiSimulator.ibiAddr = addr;
+    g_ibiSimulator.deviceAddr = deviceAddr;
 }
 
 static inline uint16_t VirtualI3cGetIbiAddr(void)
 {
-    return ibiSimulator.ibiAddr;
+    return g_ibiSimulator.ibiAddr;
 }
 
 static inline uint16_t VirtualI3cGetIbiDeviceAddr(void)
 {
-    return ibiSimulator.deviceAddr;
+    return g_ibiSimulator.deviceAddr;
 }
 
 static int32_t VirtualI3cXferI2cOneMsgPolling(const struct VirtualI3cCntlr *virtual,
@@ -138,7 +138,7 @@ static int32_t VirtualI3cCntlrI2cTransfer(struct I3cCntlr *cntlr, struct I3cMsg 
     return (td.index > 0) ? td.index : ret;
 }
 
-int32_t VirtualI3cSetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
+static int32_t VirtualI3cSetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
 {
     (void)cntlr;
     (void)config;
@@ -146,7 +146,7 @@ int32_t VirtualI3cSetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
     return HDF_SUCCESS;
 }
 
-int32_t VirtualI3cGetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
+static int32_t VirtualI3cGetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
 {
     (void)cntlr;
     (void)config;
@@ -154,7 +154,7 @@ int32_t VirtualI3cGetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
     return HDF_SUCCESS;
 }
 
-int32_t VirtualI3cRequestIbi(struct I3cDevice *dev)
+static int32_t VirtualI3cRequestIbi(struct I3cDevice *dev)
 {
     (void)dev;
     HDF_LOGI("%s: done!", __func__);

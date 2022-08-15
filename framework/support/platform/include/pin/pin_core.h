@@ -61,7 +61,7 @@ struct PinCntlr *PinCntlrGetByNumber(uint16_t number);
 
 struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc);
 
-void PinCntlrPutPin(struct PinDesc *desc);
+void PinCntlrPutPin(const struct PinDesc *desc);
 
 int32_t PinCntlrSetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum PinPullType pullType);
 

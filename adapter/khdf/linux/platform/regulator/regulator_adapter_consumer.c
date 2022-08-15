@@ -25,6 +25,7 @@
 
 static void RegulatorAdapterConsumerDevRelease(struct device *dev)
 {
+    (void)dev;
 }
 
 static struct platform_device RegulatorAdapterConsumerPlatformDevice = {
@@ -35,11 +36,9 @@ static struct platform_device RegulatorAdapterConsumerPlatformDevice = {
     }
 };
 
-struct platform_device *g_regulatorAdapterDev;
 static int RegulatorAdapterConsumerPlatformProbe(struct platform_device *platform_dev)
 {
     if (platform_dev != NULL) {
-        g_regulatorAdapterDev = platform_dev;
         LinuxRegulatorSetConsumerDev(&platform_dev->dev);
         HDF_LOGI("%s success", __func__);
         return HDF_SUCCESS;

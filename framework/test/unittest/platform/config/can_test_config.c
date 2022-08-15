@@ -16,6 +16,8 @@ static struct CanTestConfig g_config;
 
 static int32_t CanTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)client;
+    (void)data;
     HDF_LOGD("%s: enter!", __func__);
 
     if (cmd != 0) {

@@ -48,6 +48,7 @@ static struct regulator_init_data g_virtualVoltageRegulatorInitData = {
 
 static void VirtualVoltageRegulatorDevRelease(struct device *dev)
 {
+    (void)dev;
 }
 static struct platform_device g_virtualVoltageRegulatorPlatformDevice = {
     .name = "virtual_regulator_dev",
@@ -98,14 +99,15 @@ static int VirtualVoltageRegulatorIsEnabled(struct regulator_dev *rdev)
 static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int min_uV,
     int max_uV, unsigned *selector)
 {
+    (void)selector;
     if ((rdev == NULL) || (rdev->constraints == NULL)) {
         HDF_LOGE("%s: rdev NULL", __func__);
         return HDF_FAILURE;
     }
 
-    struct regulation_constraints *regu_constraints = rdev->constraints;
-    if (regu_constraints->min_uV == min_uV &&
-        regu_constraints->max_uV == max_uV) {
+    struct regulation_constraints *reguConstraints = rdev->constraints;
+    if (reguConstraints->min_uV == min_uV &&
+        reguConstraints->max_uV == max_uV) {
         return HDF_SUCCESS;
     }
 
@@ -139,23 +141,21 @@ static struct regulator_desc g_virtualVoltageRegulatorDesc = {
     .owner = THIS_MODULE,
 };
 
-static int VirtualVoltageRegulatorPlatformProbe(struct platform_device *platform_dev)
+static int VirtualVoltageRegulatorPlatformProbe(struct platform_device *platformDev)
 {
-    if (platform_dev == NULL) {
-        HDF_LOGE("%s: platform_dev null!", __func__);
+    if (platformDev == NULL) {
+        HDF_LOGE("%s: platformDev null!", __func__);
         return HDF_FAILURE;
     }
     struct VirtualVoltageRegulatorDev *data;
-    struct regulator_config config;
+    struct regulator_config config = {0};
 
-    memset(&config, 0, sizeof(struct regulator_config));
-
-    data = devm_kzalloc(&platform_dev->dev, sizeof(*data), GFP_KERNEL);
+    data = devm_kzalloc(&platformDev->dev, sizeof(*data), GFP_KERNEL);
     if (!data) {
         return -ENOMEM;
     }
 
-    config.dev = &platform_dev->dev;
+    config.dev = &platformDev->dev;
     config.init_data = &g_virtualVoltageRegulatorInitData;
     config.driver_data = data;
 
@@ -165,18 +165,18 @@ static int VirtualVoltageRegulatorPlatformProbe(struct platform_device *platform
         return PTR_ERR(data->dev);
     }
 
-    platform_set_drvdata(platform_dev, data);
+    platform_set_drvdata(platformDev, data);
     HDF_LOGI("%s: success", __func__);
     return 0;
 }
 
-static int VirtualVoltageRegulatorPlatformRemove(struct platform_device *platform_dev)
+static int VirtualVoltageRegulatorPlatformRemove(struct platform_device *platformDev)
 {
-    struct VirtualVoltageRegulatorDev *rdev = platform_get_drvdata(platform_dev);
+    struct VirtualVoltageRegulatorDev *rdev = platform_get_drvdata(platformDev);
 
     regulator_unregister(rdev->dev);
 
-    platform_set_drvdata(platform_dev, NULL);
+    platform_set_drvdata(platformDev, NULL);
     HDF_LOGI("VirtualVoltageRegulatorPlatformRemove");
     return 0;
 }

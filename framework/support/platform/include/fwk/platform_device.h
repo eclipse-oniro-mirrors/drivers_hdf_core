@@ -193,7 +193,7 @@ void PlatformDeviceDel(struct PlatformDevice *device);
  * @return Returns the pointer to the resource node on success; returns NULL otherwise.
  * @since 1.0
  */
-const struct DeviceResourceNode *PlatformDeviceGetDrs(struct PlatformDevice *device);
+const struct DeviceResourceNode *PlatformDeviceGetDrs(const struct PlatformDevice *device);
 
 /**
  * @brief Create a hdf device service for the platform device.
@@ -235,7 +235,7 @@ int32_t PlatformDeviceBind(struct PlatformDevice *device, struct HdfDeviceObject
  *
  * @since 1.0
  */
-void PlatformDeviceUnbind(struct PlatformDevice *device, struct HdfDeviceObject *hdfDevice);
+void PlatformDeviceUnbind(struct PlatformDevice *device, const struct HdfDeviceObject *hdfDevice);
 
 /**
  * @brief Set a hdf device object for the platform device object.

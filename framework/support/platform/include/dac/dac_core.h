@@ -52,7 +52,7 @@ void DacDeviceRemove(struct DacDevice *device);
 
 struct DacDevice *DacDeviceGet(uint32_t number);
 
-void DacDevicePut(struct DacDevice *device);
+void DacDevicePut(const struct DacDevice *device);
 
 int32_t DacDeviceWrite(struct DacDevice *device, uint32_t channel, uint32_t val);
 

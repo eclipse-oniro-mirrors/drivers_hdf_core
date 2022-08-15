@@ -897,7 +897,7 @@ enum SdioCccrSdRev {
     SDIO_CCCR_SD_REV_1_01 = 0x00, /* SD Physical Spec Version 1.01 */
     SDIO_CCCR_SD_REV_1_10 = 0x01, /* SD Physical Spec Version 1.10 */
     SDIO_CCCR_SD_REV_2_00 = 0x02, /* SD Physical Spec Version 2.00 */
-    SDIO_CCCR_SD_REV_3_0x = 0x03, /* SD Physical Spev Version 3.0x */
+    SDIO_CCCR_SD_REV_3_0X = 0x03, /* SD Physical Spev Version 3.0X */
 };
 
 /* IO_ABORT-->bit3: RES(I/O Card Reset).

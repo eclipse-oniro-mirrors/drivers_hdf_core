@@ -1706,7 +1706,7 @@ static inline uint8_t HdmiCecGetMsgInitiator(const struct HdmiCecMsg *msg)
     return ((msg->data[0] & HDMI_CEC_HEADER_BLOCK_INITIATOR_MARK) >> HDMI_CEC_HEADER_BLOCK_INITIATOR_SHIFT);
 }
 
-static inline uint8_t HdmiCecGetMsgDestination(struct HdmiCecMsg *msg)
+static inline uint8_t HdmiCecGetMsgDestination(const struct HdmiCecMsg *msg)
 {
     return (msg->data[0] & HDMI_CEC_HEADER_BLOCK_DESTINATION_MARK);
 }
@@ -1722,7 +1722,7 @@ static inline bool HdmiCecIsCdcOnlyDevice(struct HdmiCec *cec)
         (cec->info.primaryDeviceType == HDMI_CEC_DEVICE_TYPE_PURE_CEC_SWITCH));
 }
 
-static inline void HdmiCecFillMsgHeader(struct HdmiCecMsg *destMsg, struct HdmiCecMsg *srcMsg)
+static inline void HdmiCecFillMsgHeader(struct HdmiCecMsg *destMsg, const struct HdmiCecMsg *srcMsg)
 {
     destMsg->data[0] = (HdmiCecGetMsgDestination(srcMsg) << HDMI_CEC_HEADER_BLOCK_INITIATOR_SHIFT) |
         HdmiCecGetMsgInitiator(srcMsg);

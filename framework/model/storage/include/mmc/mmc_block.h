@@ -36,9 +36,9 @@ extern "C" {
 #define MMC_MAX_SEC_NR (MMC_MAX_BYTES >> MMC_SEC_SHIFT)
 
 #define MMC_SEC_PARAM_INVALID(s, n) \
-    (s >= MMC_MAX_SEC_NR || \
-    n >= MMC_MAX_SEC_NR || \
-    (MMC_MAX_SEC_NR - n) <= s)
+    ((s) >= MMC_MAX_SEC_NR || \
+    (n) >= MMC_MAX_SEC_NR || \
+    (MMC_MAX_SEC_NR - (n)) <= (s))
 
 /**
  * @Defines the max length of mmc block device name

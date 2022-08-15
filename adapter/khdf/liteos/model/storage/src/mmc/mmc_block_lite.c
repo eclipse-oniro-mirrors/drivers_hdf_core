@@ -334,7 +334,7 @@ void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
     }
 }
 
-struct MmcBlock *MmcBlockFromDiskId(int32_t diskId)
+static struct MmcBlock *MmcBlockFromDiskId(int32_t diskId)
 {
     if (diskId >= 0 && diskId < SYS_MAX_DISK) {
         return g_diskIdTable[diskId];

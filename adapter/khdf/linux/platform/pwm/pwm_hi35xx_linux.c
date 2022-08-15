@@ -60,7 +60,7 @@ static int Hi35xxPwmApply(struct pwm_chip *chip, struct pwm_device *pwm, struct 
     }
     if (state->duty_cycle < 1 || state->duty_cycle > state->period) {
         HDF_LOGE("%s: duty %llu is not support, duty must in [1, period = %llu].",
-            __func__, state->duty_cycle , state->period);
+            __func__, state->duty_cycle, state->period);
         return -EINVAL;
     }
 

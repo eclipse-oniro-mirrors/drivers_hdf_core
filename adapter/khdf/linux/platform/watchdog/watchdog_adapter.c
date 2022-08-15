@@ -150,7 +150,7 @@ static struct watchdog_device *WdtCoreDataToWdd(void *wdCoreData)
      * struct watchdog_device *wdd;
      * ...
      * }
-     */ 
+     */
     struct WdtCoreDataHead {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 182)
         struct device dev;
@@ -175,7 +175,7 @@ static int32_t WdtAdapterGetStatus(struct WatchdogCntlr *wdt, int32_t *status)
     if (wdd == NULL) {
         return HDF_FAILURE;
     }
-    if (watchdog_active(wdd)) {
+    if (watchdog_active(wdd) != 0) {
         HDF_LOGE("WDT is ACTIVE");
         *status = (int32_t)WATCHDOG_START;
     } else {

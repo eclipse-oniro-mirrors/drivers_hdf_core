@@ -350,15 +350,15 @@ int32_t MtdDeviceMarkBadBlock(struct MtdDevice *mtdDevice, off_t addr);
 #define MTD_DEVICE_DUMP(mtd) \
     do { \
         uint16_t i; \
-        HDF_LOGI("%s: name = %s(%s), type = %d", __func__, mtd->name, mtd->chipName, mtd->type); \
-        for (i = 0; i < mtd->idLen; i++) { \
-            HDF_LOGI("%s: id[%u] = 0x%x", __func__, i, mtd->id[i]); \
+        HDF_LOGI("%s: name = %s(%s), type = %d", __func__, (mtd)->name, (mtd)->chipName, (mtd)->type); \
+        for (i = 0; i < (mtd)->idLen; i++) { \
+            HDF_LOGI("%s: id[%u] = 0x%x", __func__, i, (mtd)->id[i]); \
         } \
-        HDF_LOGI("%s: capacity: %zu", __func__, mtd->capacity); \
-        HDF_LOGI("%s: eraseSize: %zu", __func__, mtd->eraseSize); \
-        HDF_LOGI("%s: writeSize: %zu", __func__, mtd->writeSize); \
-        HDF_LOGI("%s: readSize: %zu", __func__, mtd->readSize); \
-        HDF_LOGI("%s: oobSize: %zu", __func__, mtd->oobSize); \
+        HDF_LOGI("%s: capacity: %zu", __func__, (mtd)->capacity); \
+        HDF_LOGI("%s: eraseSize: %zu", __func__, (mtd)->eraseSize); \
+        HDF_LOGI("%s: writeSize: %zu", __func__, (mtd)->writeSize); \
+        HDF_LOGI("%s: readSize: %zu", __func__, (mtd)->readSize); \
+        HDF_LOGI("%s: oobSize: %zu", __func__, (mtd)->oobSize); \
     } while (0)
 
 /**

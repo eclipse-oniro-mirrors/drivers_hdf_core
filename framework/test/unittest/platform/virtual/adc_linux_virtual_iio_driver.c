@@ -34,7 +34,7 @@ enum AdcScanIndex {
 
 struct VirtualAdcDev {
     char *name;
-    int BusNum;
+    int busNum;
     struct mutex lock;
 };
 
@@ -155,7 +155,7 @@ static int VirtualAdcPlatformProbe(struct platform_device *pdev)
     }
     adcInfo = iio_priv(indioDev);
     adcInfo->name = "virtual-adc-3516";
-    adcInfo->BusNum = BUS_NUM;
+    adcInfo->busNum = BUS_NUM;
     
     indioDev->name = KBUILD_MODNAME;
     indioDev->channels = AdcChannels;

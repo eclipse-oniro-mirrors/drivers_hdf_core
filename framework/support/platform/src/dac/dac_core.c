@@ -108,7 +108,7 @@ static int32_t DacManagerAddDevice(struct DacDevice *device)
     return ret;
 }
 
-static void DacManagerRemoveDevice(struct DacDevice *device)
+static void DacManagerRemoveDevice(const struct DacDevice *device)
 {
     struct DacManager *manager = g_dacManager;
 
@@ -212,7 +212,7 @@ struct DacDevice *DacDeviceGet(uint32_t number)
     return DacManagerFindDevice(number);
 }
 
-void DacDevicePut(struct DacDevice *device)
+void DacDevicePut(const struct DacDevice *device)
 {
     (void)device;
 }

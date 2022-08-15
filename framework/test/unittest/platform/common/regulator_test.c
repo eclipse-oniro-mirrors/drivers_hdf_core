@@ -178,7 +178,7 @@ static int RegulatorTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t RegulatorTestMultiThread(struct RegulatorTest *test)
+static int32_t RegulatorTestMultiThread(struct RegulatorTest *test)
 {
     int32_t ret;
     uint32_t time;
@@ -236,7 +236,7 @@ int32_t RegulatorTestMultiThread(struct RegulatorTest *test)
     return HDF_SUCCESS;
 }
 
-int32_t RegulatorTestReliability(struct RegulatorTest *test)
+static int32_t RegulatorTestReliability(struct RegulatorTest *test)
 {
     HDF_LOGD("RegulatorTestReliability: test for Regulator ...");
     if (test == NULL || test->handle == NULL) {

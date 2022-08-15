@@ -138,23 +138,21 @@ static struct regulator_desc g_virtualCurrentRegulatorDesc = {
     .owner = THIS_MODULE,
 };
 
-static int VirtualCurrentRegulatorPlatformProbe(struct platform_device *platform_dev)
+static int VirtualCurrentRegulatorPlatformProbe(struct platform_device *platformDev)
 {
-    if (platform_dev == NULL) {
-        HDF_LOGE("%s: platform_dev null!", __func__);
+    if (platformDev == NULL) {
+        HDF_LOGE("%s: platformDev null!", __func__);
         return HDF_FAILURE;
     }
     struct VirtualCurrentRegulatorDev *data;
-    struct regulator_config config;
+    struct regulator_config config = {0};
 
-    memset(&config, 0, sizeof(struct regulator_config));
-
-    data = devm_kzalloc(&platform_dev->dev, sizeof(*data), GFP_KERNEL);
+    data = devm_kzalloc(&platformDev->dev, sizeof(*data), GFP_KERNEL);
     if (!data) {
         HDF_LOGE("%s: devm_kzalloc error!", __func__);
         return -ENOMEM;
     }
-    config.dev = &platform_dev->dev;
+    config.dev = &platformDev->dev;
     config.init_data = &g_virtualCurrentRegulatorInitData;
     config.driver_data = data;
 
@@ -164,18 +162,18 @@ static int VirtualCurrentRegulatorPlatformProbe(struct platform_device *platform
         return PTR_ERR(data->dev);
     }
 
-    platform_set_drvdata(platform_dev, data);
+    platform_set_drvdata(platformDev, data);
     HDF_LOGI("%s: success", __func__);
     return 0;
 }
 
-static int VirtualCurrentRegulatorPlatformRemove(struct platform_device *platform_dev)
+static int VirtualCurrentRegulatorPlatformRemove(struct platform_device *platformDev)
 {
-    struct VirtualCurrentRegulatorDev *rdev = platform_get_drvdata(platform_dev);
+    struct VirtualCurrentRegulatorDev *rdev = platform_get_drvdata(platformDev);
 
     regulator_unregister(rdev->dev);
 
-    platform_set_drvdata(platform_dev, NULL);
+    platform_set_drvdata(platformDev, NULL);
     HDF_LOGI("%s: success", __func__);
     return 0;
 }

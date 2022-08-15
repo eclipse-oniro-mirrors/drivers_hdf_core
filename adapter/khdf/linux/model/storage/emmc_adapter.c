@@ -29,7 +29,7 @@
 
 struct mmc_host *GetMmcHost(int32_t slot);
 
-int32_t LinuxEmmcGetCid(struct EmmcDevice *dev, uint8_t *cid, uint32_t size)
+static int32_t LinuxEmmcGetCid(struct EmmcDevice *dev, uint8_t *cid, uint32_t size)
 {
     struct mmc_host *mmcHost = NULL;
     struct MmcCntlr *cntlr = NULL;
