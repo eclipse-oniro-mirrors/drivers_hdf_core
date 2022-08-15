@@ -218,6 +218,7 @@ static int32_t KeventPmNotifierFn(struct notifier_block *nb, unsigned long actio
     bool sync = false;
     int ret = 0;
 
+    (void)dummy;
     keventModule = CONTAINER_OF(nb, struct HdfKeventModule, keventPmNotifier);
     HDF_LOGI("%s:action=%d", __func__, action);
     switch (action) {

@@ -76,10 +76,10 @@ static inline void DataBlockFree(struct DataBlock *dataBlock)
 
 static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data)
 {
-    const struct DataBlock *dataBlock_ = nullptr;
+    const struct DataBlock *block = nullptr;
     uint32_t readSize = 0;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&dataBlock_, &readSize)) {
+    if (!HdfSbufReadBuffer(data, (const void **)&block, &readSize)) {
         HDF_LOGE("%{public}s: failed to read dataBlock", __func__);
         return nullptr;
     }
@@ -93,9 +93,8 @@ static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data
     if (dataBlock == nullptr) {
         return nullptr;
     }
-    HDF_LOGD("%{public}s: DataBlock mem: %{public}d %{public}d %{public}d", __func__,
-        dataBlock_->a, dataBlock_->b, dataBlock_->c);
-    if (memcpy_s(dataBlock, sizeof(*dataBlock), dataBlock_, sizeof(*dataBlock)) != EOK) {
+    HDF_LOGD("%{public}s: DataBlock mem: %{public}d %{public}d %{public}d", __func__, block->a, block->b, block->c);
+    if (memcpy_s(dataBlock, sizeof(*dataBlock), block, sizeof(*dataBlock)) != EOK) {
         return nullptr;
     }
 
@@ -114,7 +113,7 @@ static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data
     return dataBlock;
 }
 
-static inline bool DataBlockBlockMarshalling(struct DataBlock *dataBlock, struct HdfSBuf *data)
+static inline bool DataBlockBlockMarshalling(const struct DataBlock *dataBlock, struct HdfSBuf *data)
 {
     if (!HdfSbufWriteBuffer(data, dataBlock, sizeof(struct DataBlock))) {
         return false;

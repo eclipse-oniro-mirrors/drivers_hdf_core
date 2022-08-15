@@ -75,7 +75,7 @@ struct HdfDeviceNodeType {
         if (strcmp(HCS_PROP(node, hostName), name) == 0) { \
             (host)->devHostName = HCS_PROP(node, hostName); \
             (host)->priority = HCS_PROP(node, priority); \
-            node##_foreach_child_vargs(HDF_DEAL_DEVICE, host->devices); \
+            node##_foreach_child_vargs(HDF_DEAL_DEVICE, (host)->devices); \
             break; \
         } \
     } while (0)

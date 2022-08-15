@@ -25,13 +25,13 @@
 #define INT32_MAX 0x7fffffff
 #endif
 
-void HdfSampleDriverRelease(struct HdfDeviceObject *deviceObject)
+static void HdfSampleDriverRelease(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
     return;
 }
 
-int32_t SampleDriverRegisteDevice(struct HdfSBuf *data)
+static int32_t SampleDriverRegisteDevice(struct HdfSBuf *data)
 {
     if (data == NULL) {
         return HDF_FAILURE;
@@ -53,7 +53,7 @@ int32_t SampleDriverRegisteDevice(struct HdfSBuf *data)
     return HDF_SUCCESS;
 }
 
-int32_t SampleDriverUnregisteDevice(struct HdfSBuf *data)
+static int32_t SampleDriverUnregisteDevice(struct HdfSBuf *data)
 {
     if (data == NULL) {
         return HDF_FAILURE;
@@ -71,7 +71,7 @@ int32_t SampleDriverUnregisteDevice(struct HdfSBuf *data)
     return HDF_SUCCESS;
 }
 
-int32_t SampleDriverSendEvent(struct HdfDeviceIoClient *client, int id, struct HdfSBuf *data, bool broadcast)
+static int32_t SampleDriverSendEvent(struct HdfDeviceIoClient *client, int id, struct HdfSBuf *data, bool broadcast)
 {
     int32_t ret = broadcast ? HdfDeviceSendEvent(client->device, id, data) :
         HdfDeviceSendEventToClient(client, id, data);
@@ -79,7 +79,8 @@ int32_t SampleDriverSendEvent(struct HdfDeviceIoClient *client, int id, struct H
     return ret;
 }
 
-int32_t SampleDriverDispatch(struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t SampleDriverDispatch(
+    struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret = HDF_SUCCESS;
     if (reply == NULL || client == NULL) {
@@ -111,7 +112,7 @@ int32_t SampleDriverDispatch(struct HdfDeviceIoClient *client, int cmdId, struct
     return ret;
 }
 
-int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
+static int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
 {
     HDF_LOGD("%{public}s::enter!, deviceObject=%{public}p", __func__, deviceObject);
     if (deviceObject == NULL) {
@@ -126,7 +127,7 @@ int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
     return HDF_SUCCESS;
 }
 
-int HdfSampleDriverInit(struct HdfDeviceObject *deviceObject)
+static int HdfSampleDriverInit(struct HdfDeviceObject *deviceObject)
 {
     HDF_LOGD("%{public}s::enter!, deviceObject=%{public}p", __func__, deviceObject);
     if (deviceObject == NULL) {

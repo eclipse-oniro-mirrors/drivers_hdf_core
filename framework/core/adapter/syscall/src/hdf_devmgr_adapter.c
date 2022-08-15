@@ -22,23 +22,23 @@ int32_t HdfLoadDriverByServiceName(const char *serviceName)
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfLoadDriverByServiceName failed to get %s service", DEV_MGR_NODE);
         return ret;
     }
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("failed to obtain sbuf data");
+        HDF_LOGE("HdfLoadDriverByServiceName failed to obtain sbuf data");
         ret = HDF_DEV_ERR_NO_MEMORY;
         goto OUT;
     }
     if (!HdfSbufWriteString(data, serviceName)) {
-        HDF_LOGE("failed to write sbuf");
+        HDF_LOGE("HdfLoadDriverByServiceName failed to write sbuf");
         ret = HDF_FAILURE;
         goto OUT;
     }
     ret = ioService->dispatcher->Dispatch(&ioService->object, DEVMGR_LOAD_SERVICE, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to load khdf driver %s", serviceName);
+        HDF_LOGE("HdfLoadDriverByServiceName failed to load khdf driver %s", serviceName);
     }
 OUT:
     HdfIoServiceRecycle(ioService);
@@ -56,23 +56,23 @@ int32_t HdfGetServiceNameByDeviceClass(DeviceClass deviceClass, struct HdfSBuf *
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfGetServiceNameByDeviceClass failed to get %s service", DEV_MGR_NODE);
         return ret;
     }
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("failed to obtain sbuf data");
+        HDF_LOGE("HdfGetServiceNameByDeviceClass failed to obtain sbuf data");
         ret = HDF_DEV_ERR_NO_MEMORY;
         goto OUT;
     }
     if (!HdfSbufWriteInt32(data, deviceClass)) {
-        HDF_LOGE("failed to write sbuf");
+        HDF_LOGE("HdfGetServiceNameByDeviceClass failed to write sbuf");
         ret = HDF_FAILURE;
         goto OUT;
     }
     ret = ioService->dispatcher->Dispatch(&ioService->object, DEVMGR_GET_SERVICE, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to query service by class");
+        HDF_LOGE("HdfGetServiceNameByDeviceClass failed to query service by class");
     }
 OUT:
     HdfIoServiceRecycle(ioService);
@@ -84,12 +84,12 @@ int32_t HdfListAllService(struct HdfSBuf *reply)
 {
     int32_t ret = HDF_FAILURE;
     if (reply == NULL) {
-        HDF_LOGE("%s input reply is null", __func__);
+        HDF_LOGE("HdfListAllService input reply is null");
         return ret;
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfListAllService failed to get %s service", DEV_MGR_NODE);
         return ret;
     }
 
@@ -105,12 +105,12 @@ int32_t HdfListAllDevice(struct HdfSBuf *reply)
 {
     int32_t ret = HDF_FAILURE;
     if (reply == NULL) {
-        HDF_LOGE("%s input reply is null", __func__);
+        HDF_LOGE("HdfListAllDevice input reply is null");
         return ret;
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfListAllDevice failed to get %s service", DEV_MGR_NODE);
         return ret;
     }
 

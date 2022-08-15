@@ -28,12 +28,12 @@
     static int __init hdf_driver_init(void)            \
     {                                                  \
         HDF_LOGI("hdf driver " #module " register");   \
-        return HdfRegisterDriverEntry(&module);        \
+        return HdfRegisterDriverEntry(&(module));      \
     }                                                  \
     static void __exit hdf_driver_exit(void)           \
     {                                                  \
         HDF_LOGI("hdf driver " #module " unregister"); \
-        HdfUnregisterDriverEntry(&module);             \
+        HdfUnregisterDriverEntry(&(module));           \
     }                                                  \
     module_init(hdf_driver_init);                      \
     module_exit(hdf_driver_exit);

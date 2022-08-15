@@ -155,13 +155,9 @@ static void DevmgrFreeQueryDeviceList(struct HDIDeviceManager *self, struct Devi
     DevmgrFreeQueryDeviceListImpl(list);
 }
 
-int32_t DevmgrLoadDevice(struct HDIDeviceManager *iDevMgr, const char *serviceName)
+static int32_t DevmgrProcessLoad(struct HDIDeviceManager *iDevMgr, const char *serviceName, int32_t id)
 {
     int32_t status = HDF_FAILURE;
-    if (iDevMgr == NULL || serviceName == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
-    HDF_LOGI("load device: %{public}s", serviceName);
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     do {
         if (data == NULL) {
@@ -176,9 +172,9 @@ int32_t DevmgrLoadDevice(struct HDIDeviceManager *iDevMgr, const char *serviceNa
             HDF_LOGE("%{public}s: writing service name failed!", __func__);
             break;
         }
-        status = DeviceManagerHdiCall(iDevMgr, DEVMGR_SERVICE_LOAD_DEVICE, data, NULL);
+        status = DeviceManagerHdiCall(iDevMgr, id, data, NULL);
         if (status != HDF_SUCCESS) {
-            HDF_LOGE("failed to load device %{public}s", serviceName);
+            HDF_LOGE("failed to process load/unload device %{public}s code:%{public}d", serviceName, id);
         }
     } while (0);
 
@@ -186,36 +182,26 @@ int32_t DevmgrLoadDevice(struct HDIDeviceManager *iDevMgr, const char *serviceNa
     return status;
 }
 
-int32_t DevmgrUnloadDevice(struct HDIDeviceManager *iDevMgr, const char *serviceName)
+int32_t DevmgrLoadDevice(struct HDIDeviceManager *iDevMgr, const char *serviceName)
 {
-    int32_t status = HDF_FAILURE;
     if (iDevMgr == NULL || serviceName == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
+
+    HDF_LOGI("load device: %{public}s", serviceName);
+
+    return DevmgrProcessLoad(iDevMgr, serviceName, DEVMGR_SERVICE_LOAD_DEVICE);
+}
+
+int32_t DevmgrUnloadDevice(struct HDIDeviceManager *iDevMgr, const char *serviceName)
+{
+    if (iDevMgr == NULL || serviceName == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     HDF_LOGI("unload device: %{public}s", serviceName);
 
-    struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
-    do {
-        if (data == NULL) {
-            status = HDF_ERR_MALLOC_FAIL;
-            break;
-        }
-        if (!HdfRemoteServiceWriteInterfaceToken(iDevMgr->remote, data)) {
-            status = HDF_FAILURE;
-            break;
-        }
-        if (!HdfSbufWriteString(data, serviceName)) {
-            HDF_LOGE("%{public}s: writing service name failed!", __func__);
-            break;
-        }
-        status = DeviceManagerHdiCall(iDevMgr, DEVMGR_SERVICE_UNLOAD_DEVICE, data, NULL);
-        if (status != HDF_SUCCESS) {
-            HDF_LOGE("failed to unload device %{public}s", serviceName);
-        }
-    } while (0);
-
-    HdfSbufRecycle(data);
-    return status;
+    return DevmgrProcessLoad(iDevMgr, serviceName, DEVMGR_SERVICE_UNLOAD_DEVICE);
 }
 
 static void HDIDeviceManagerConstruct(struct HDIDeviceManager *inst)

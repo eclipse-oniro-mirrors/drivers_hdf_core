@@ -779,7 +779,7 @@ HWTEST_F(HdfSBufTest, SbufTestSbufMoveHalf019, TestSize.Level1)
         ret = HdfSbufWriteBuffer(sBuf, str.data(), str.size() + 1);
         ASSERT_EQ(ret, true);
     }
-    for (int j = 0; j < loop/2; ++j) {
+    for (int j = 0; j < loop / 2; ++j) {
         const char *data = nullptr;
         uint32_t readSize = 0;
         ret = HdfSbufReadBuffer(sBuf, (const void **)(&data), &readSize);

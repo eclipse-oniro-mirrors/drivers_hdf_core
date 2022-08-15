@@ -82,7 +82,7 @@ void DeviceManagerSetQuickLoad(int loadFlag)
     g_isQuickLoad = loadFlag;
 }
 
-int DeviceManagerIsQuickLoad()
+int DeviceManagerIsQuickLoad(void)
 {
     return g_isQuickLoad;
 }
@@ -125,7 +125,7 @@ void DevmgrPmResume(UINT32 mode)
     HDF_LOGI("%s: hdf resume done", __func__);
 }
 
-int DeviceManagerStart()
+int DeviceManagerStart(void)
 {
     struct IDevmgrService *instance = DevmgrServiceGetInstance();
     HDF_LOGE("%s in", __func__);
@@ -152,7 +152,7 @@ int DeviceManagerStart()
     return HDF_SUCCESS;
 }
 
-int DeviceManagerStartStep2()
+int DeviceManagerStartStep2(void)
 {
     if (DeviceManagerIsQuickLoad() == DEV_MGR_SLOW_LOAD) {
         HDF_LOGW("%s device manager is not set quick load!", __func__);

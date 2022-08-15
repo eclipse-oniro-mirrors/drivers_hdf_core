@@ -52,8 +52,8 @@ sptr<ISample> ISample::Get(bool isStub)
     return ISample::Get(defaultName, isStub);
 }
 
-SampleServiceStub::SampleServiceStub(const sptr<ISample> &serviceImpl) :
-    IPCObjectStub(ISample::GetDescriptor()), impl_(serviceImpl)
+SampleServiceStub::SampleServiceStub(const sptr<ISample> &serviceImpl)
+    : IPCObjectStub(ISample::GetDescriptor()), impl_(serviceImpl)
 {
 }
 

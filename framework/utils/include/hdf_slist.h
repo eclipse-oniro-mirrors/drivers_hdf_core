@@ -54,7 +54,7 @@ void HdfSListInit(struct HdfSList *list);
  * @return struct HdfSListNode of search result
  *  -# NULL if not found.
  */
-struct HdfSListNode *HdfSListSearch(struct HdfSList *list, uint32_t searchKey, HdfSListSearchComparer comparer);
+struct HdfSListNode *HdfSListSearch(const struct HdfSList *list, uint32_t searchKey, HdfSListSearchComparer comparer);
 
 /*
  * @brief tests if list is empty
@@ -63,7 +63,7 @@ struct HdfSListNode *HdfSListSearch(struct HdfSList *list, uint32_t searchKey, H
  *
  * @return bool result of queue status.
  */
-bool HdfSListIsEmpty(struct HdfSList *list);
+bool HdfSListIsEmpty(const struct HdfSList *list);
 
 /*
  * @brief find the last item in the list
@@ -72,7 +72,7 @@ bool HdfSListIsEmpty(struct HdfSList *list);
  *
  * @return last link of list.
  */
-struct HdfSListNode *HdfSListGetLast(struct HdfSList *list);
+struct HdfSListNode *HdfSListGetLast(const struct HdfSList *list);
 
 /*
  * @brief add item to the head of the list
@@ -131,7 +131,7 @@ void HdfSListFlush(struct HdfSList *list, HdfSListDeleter deleter);
  *
  * @return the count of list.
  */
-int HdfSListCount(struct HdfSList *list);
+int HdfSListCount(const struct HdfSList *list);
 
 /*
  * @brief get first element
@@ -140,7 +140,7 @@ int HdfSListCount(struct HdfSList *list);
  *
  * @return the first element in the list.
  */
-struct HdfSListNode *HdfSListPeek(struct HdfSList *list);
+struct HdfSListNode *HdfSListPeek(const struct HdfSList *list);
 
 /*
  * @brief get next element of link;
@@ -149,7 +149,7 @@ struct HdfSListNode *HdfSListPeek(struct HdfSList *list);
  *
  * @return the next element of the link pass in
  */
-struct HdfSListNode *HdfSListNext(struct HdfSListNode *link);
+struct HdfSListNode *HdfSListNext(const struct HdfSListNode *link);
 
 /*
  * @brief get and remove first element
@@ -168,7 +168,7 @@ struct HdfSListNode *HdfSListPop(struct HdfSList *list);
  *
  * @return None
  */
-void HdfSListIteratorInit(struct HdfSListIterator *iterator, struct HdfSList *list);
+void HdfSListIteratorInit(struct HdfSListIterator *iterator, const struct HdfSList *list);
 
 /*
  * @brief check whether list has next node.
@@ -177,7 +177,7 @@ void HdfSListIteratorInit(struct HdfSListIterator *iterator, struct HdfSList *li
  *
  * @return the result of check next.
  */
-bool HdfSListIteratorHasNext(struct HdfSListIterator *iterator);
+bool HdfSListIteratorHasNext(const struct HdfSListIterator *iterator);
 
 /*
  * @brief get next link in the list and move iterator to next.

@@ -83,7 +83,7 @@ void HdfPmAcquireDevice(struct HdfDeviceObject *deviceObject)
     struct HdfDeviceNode *devNode = NULL;
     struct IPowerStateToken *tokenIf = NULL;
     if (deviceObject == NULL) {
-        HDF_LOGE("%s: input param is invalid", __func__);
+        HDF_LOGE("HdfPmAcquireDevice input param is invalid");
         return;
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
@@ -99,7 +99,7 @@ void HdfPmReleaseDevice(struct HdfDeviceObject *deviceObject)
     struct HdfDeviceNode *devNode = NULL;
     struct IPowerStateToken *tokenIf = NULL;
     if (deviceObject == NULL) {
-        HDF_LOGE("%s: input param is invalid", __func__);
+        HDF_LOGE("HdfPmReleaseDevice input param is invalid");
         return;
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(

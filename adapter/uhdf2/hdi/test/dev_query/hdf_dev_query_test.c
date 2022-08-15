@@ -55,7 +55,7 @@ static uint64_t g_totalUsec[TEST_ITEM_CNT];
 
 #define HDF_LOG_TAG hdf_query_device_test
 
-void PrintTestResult()
+static void PrintTestResult(void)
 {
     HDF_LOGE("[HDF_TEST] %{public}s test items: %{public}d", __func__, g_testItemCnt);
     HDF_LOGE("[HDF_TEST] %{public}s test PASS: %{public}d", __func__, g_testItemCnt - g_testItemFailCnt);
@@ -71,7 +71,7 @@ static void CalcAverageTime(int index, const OsalTimespec *diff)
     g_index[index]++;
 }
 
-static void CheckAverageTime()
+static void CheckAverageTime(void)
 {
     HDF_LOGD("[HDF_TEST] %{public}s line:%{public}d test query usable %{public}d time use time:%{public}lu us",
         __func__, __LINE__, g_index[USABLE], g_totalUsec[USABLE]);
@@ -94,7 +94,7 @@ static void CheckAverageTime()
 }
 
 
-void HdfFreeQueryDeviceList(struct DeviceInfoList *list)
+static void HdfFreeQueryDeviceList(struct DeviceInfoList *list)
 {
     struct HDIDeviceManager *iDevmgr = HDIDeviceManagerGet();
     if (iDevmgr == NULL) {
@@ -106,7 +106,7 @@ void HdfFreeQueryDeviceList(struct DeviceInfoList *list)
     HDIDeviceManagerRelease(iDevmgr);
 }
 
-int32_t HdfQueryUsableDeviceInfo(struct DeviceInfoList *list)
+static int32_t HdfQueryUsableDeviceInfo(struct DeviceInfoList *list)
 {
     struct HDIDeviceManager *iDevmgr = HDIDeviceManagerGet();
     if (iDevmgr == NULL) {
@@ -119,7 +119,7 @@ int32_t HdfQueryUsableDeviceInfo(struct DeviceInfoList *list)
     return ret;
 }
 
-int32_t HdfQueryUnusableDeviceInfo(struct DeviceInfoList *list)
+static int32_t HdfQueryUnusableDeviceInfo(struct DeviceInfoList *list)
 {
     struct HDIDeviceManager *iDevmgr = HDIDeviceManagerGet();
     if (iDevmgr == NULL) {

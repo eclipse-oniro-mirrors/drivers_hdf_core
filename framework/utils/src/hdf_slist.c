@@ -18,12 +18,12 @@ void HdfSListInit(struct HdfSList *list)
     }
 }
 
-bool HdfSListIsEmpty(struct HdfSList *list)
+bool HdfSListIsEmpty(const struct HdfSList *list)
 {
     return ((list == NULL) || (list->root == NULL));
 }
 
-struct HdfSListNode *HdfSListSearch(struct HdfSList *list, uint32_t keyValue, HdfSListSearchComparer comparer)
+struct HdfSListNode *HdfSListSearch(const struct HdfSList *list, uint32_t keyValue, HdfSListSearchComparer comparer)
 {
     struct HdfSListIterator it;
     if (comparer == NULL) {
@@ -39,7 +39,7 @@ struct HdfSListNode *HdfSListSearch(struct HdfSList *list, uint32_t keyValue, Hd
     return NULL;
 }
 
-struct HdfSListNode *HdfSListGetLast(struct HdfSList *list)
+struct HdfSListNode *HdfSListGetLast(const struct HdfSList *list)
 {
     struct HdfSListNode *last = NULL;
     struct HdfSListNode *iterator = NULL;
@@ -146,7 +146,7 @@ void HdfSListFlush(struct HdfSList *list, HdfSListDeleter deleter)
     }
 }
 
-int HdfSListCount(struct HdfSList *list)
+int HdfSListCount(const struct HdfSList *list)
 {
     struct HdfSListNode *iterator = NULL;
     int counter = 0;
@@ -160,7 +160,7 @@ int HdfSListCount(struct HdfSList *list)
     return counter;
 }
 
-struct HdfSListNode *HdfSListPeek(struct HdfSList *list)
+struct HdfSListNode *HdfSListPeek(const struct HdfSList *list)
 {
     if (list == NULL) {
         return NULL;
@@ -169,7 +169,7 @@ struct HdfSListNode *HdfSListPeek(struct HdfSList *list)
     return list->root;
 }
 
-struct HdfSListNode *HdfSListNext(struct HdfSListNode *link)
+struct HdfSListNode *HdfSListNext(const struct HdfSListNode *link)
 {
     if (link == NULL) {
         return NULL;
@@ -189,7 +189,7 @@ struct HdfSListNode *HdfSListPop(struct HdfSList *list)
     return first;
 }
 
-void HdfSListIteratorInit(struct HdfSListIterator *iterator, struct HdfSList *list)
+void HdfSListIteratorInit(struct HdfSListIterator *iterator, const struct HdfSList *list)
 {
     if (iterator == NULL || list == NULL) {
         if (iterator != NULL) {
@@ -204,7 +204,7 @@ void HdfSListIteratorInit(struct HdfSListIterator *iterator, struct HdfSList *li
     iterator->curr = list->root;
 }
 
-bool HdfSListIteratorHasNext(struct HdfSListIterator *iterator)
+bool HdfSListIteratorHasNext(const struct HdfSListIterator *iterator)
 {
     if ((iterator == NULL) || (iterator->curr == NULL) || (iterator->prev == NULL)) {
         return false;

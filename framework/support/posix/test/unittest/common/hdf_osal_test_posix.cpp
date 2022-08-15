@@ -17,7 +17,21 @@
 #include "osal_get_case_test.h"
 #include "osal_test_case_def.h"
 
-int32_t HdfOsalUserEntry(enum HdfOsalTestCaseCmd cmd)
+using namespace testing::ext;
+
+class OsalTest : public testing::Test {
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+    static int32_t HdfOsalUserEntry(enum HdfOsalTestCaseCmd cmd);
+    void SetUp();
+    void TearDown();
+private:
+    static const int OSAL_TEST_TIME = 30;
+    static const int OSAL_WAIT_END_TIME = 5;
+};
+
+int32_t OsalTest::HdfOsalUserEntry(enum HdfOsalTestCaseCmd cmd)
 {
     int32_t result = 0;
     if (cmd < OSAL_TEST_MAX) {
@@ -39,23 +53,10 @@ int32_t HdfOsalUserEntry(enum HdfOsalTestCaseCmd cmd)
     return result;
 }
 
-using namespace testing::ext;
-
 #define OSAL_TEST_FUNC_DEFINE(subCmd) do { \
     printf("OSAL test enter cmd:%d\n\r", subCmd); \
     EXPECT_EQ(0, HdfOsalUserEntry(subCmd)); \
 } while (0)
-
-class OsalTest : public testing::Test {
-public:
-    static void SetUpTestCase();
-    static void TearDownTestCase();
-    void SetUp();
-    void TearDown();
-private:
-    static const int OSAL_TEST_TIME = 30;
-    static const int OSAL_WAIT_END_TIME = 5;
-};
 
 void OsalTest::SetUpTestCase()
 {

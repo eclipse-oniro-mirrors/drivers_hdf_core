@@ -21,19 +21,19 @@
 #define SAMPLEA_RET 100
 #define SAMPLEB_RET 101
 
-int SampleAServiceA()
+static int SampleAServiceA(void)
 {
     HDF_LOGE("%{public}s", __func__);
     return SAMPLEA_RET;
 }
 
-int SampleAServiceB(int para)
+static int SampleAServiceB(int para)
 {
     HDF_LOGE("%{public}s %{public}d", __func__, para);
     return SAMPLEB_RET;
 }
 
-int SampleAOpen()
+static int SampleAOpen(void)
 {
     HDF_LOGE("%{public}s", __func__);
     return 0;

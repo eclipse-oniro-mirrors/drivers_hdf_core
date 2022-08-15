@@ -703,7 +703,7 @@ struct HdfIoService *HdfIoServiceAdapterObtain(const char *serviceName)
 {
     struct HdfSyscallAdapter *adapter = NULL;
     struct HdfIoService *ioService = NULL;
-    char *devNodePath = NULL;
+    char *nodePath = NULL;
     char *realPath = NULL;
 
     const char *devPath = DEV_NODE_PATH;
@@ -711,20 +711,19 @@ struct HdfIoService *HdfIoServiceAdapterObtain(const char *serviceName)
         devPath = DEV_PATH;
     }
 
-    devNodePath = OsalMemCalloc(PATH_MAX);
+    nodePath = OsalMemCalloc(PATH_MAX);
     realPath = OsalMemCalloc(PATH_MAX);
-    if (devNodePath == NULL || realPath == NULL) {
+    if (nodePath == NULL || realPath == NULL) {
         HDF_LOGE("%s: out of memory", __func__);
         goto OUT;
     }
 
-    if (sprintf_s(devNodePath, PATH_MAX - 1, "%s%s", devPath, serviceName) < 0) {
+    if (sprintf_s(nodePath, PATH_MAX - 1, "%s%s", devPath, serviceName) < 0) {
         HDF_LOGE("Failed to get the node path");
         goto OUT;
     }
 
-    if (realpath(devNodePath, realPath) == NULL &&
-        TrytoLoadIoService(serviceName, devNodePath, realPath) != HDF_SUCCESS) {
+    if (realpath(nodePath, realPath) == NULL && TrytoLoadIoService(serviceName, nodePath, realPath) != HDF_SUCCESS) {
         goto OUT;
     }
 
@@ -754,7 +753,7 @@ struct HdfIoService *HdfIoServiceAdapterObtain(const char *serviceName)
     };
     ioService->dispatcher = &dispatch;
 OUT:
-    OsalMemFree(devNodePath);
+    OsalMemFree(nodePath);
     OsalMemFree(realPath);
     return ioService;
 }

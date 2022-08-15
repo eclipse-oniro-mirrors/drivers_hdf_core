@@ -21,7 +21,7 @@ struct SvcMgrIoservice {
     struct DListHead listeners;
 };
 
-static int32_t SetListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t devClass)
+static int32_t ProcessListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t devClass, int cmdId)
 {
     struct HdfSBuf *data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
@@ -35,28 +35,19 @@ static int32_t SetListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t devCl
         return HDF_ERR_INVALID_OBJECT;
     }
     int32_t ret = svcmgrInst->iosvc->dispatcher->Dispatch(
-        (struct HdfObject *)svcmgrInst->iosvc, SVCMGR_REGISTER_LISTENER, data, NULL);
+        (struct HdfObject *)svcmgrInst->iosvc, cmdId, data, NULL);
     HdfSbufRecycle(data);
     return ret;
 }
 
+static int32_t SetListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t devClass)
+{
+    return ProcessListenClass(svcmgrInst, devClass, SVCMGR_REGISTER_LISTENER);
+}
+
 static int32_t UnSetListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t devClass)
 {
-    struct HdfSBuf *data = HdfSbufObtainDefaultSize();
-    if (data == NULL) {
-        return HDF_ERR_MALLOC_FAIL;
-    }
-
-    (void)HdfSbufWriteUint16(data, devClass);
-    if (svcmgrInst->iosvc == NULL || svcmgrInst->iosvc->dispatcher == NULL
-        || svcmgrInst->iosvc->dispatcher->Dispatch == NULL) {
-        HdfSbufRecycle(data);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    int32_t ret = svcmgrInst->iosvc->dispatcher->Dispatch(
-        (struct HdfObject *)svcmgrInst->iosvc, SVCMGR_UNREGISTER_LISTENER, data, NULL);
-    HdfSbufRecycle(data);
-    return ret;
+    return ProcessListenClass(svcmgrInst, devClass, SVCMGR_UNREGISTER_LISTENER);
 }
 
 int32_t SvcMgrIoserviceRegSvcStatListener(

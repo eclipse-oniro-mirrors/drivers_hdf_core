@@ -28,7 +28,7 @@ struct HdfSListEntry {
     void *data;
 };
 
-void HdfBlockingQueue_Init(struct HdfBlockingQueue *queue);
+void HdfBlockingQueueInit(struct HdfBlockingQueue *queue);
 
 void HdfBlockingQueueDestroy(struct HdfBlockingQueue *queue);
 
@@ -44,7 +44,7 @@ void *HdfBlockingQueuePoll(struct HdfBlockingQueue *queue, long timeout);
 
 void HdfBlockingQueueOffer(struct HdfBlockingQueue *queue, void *val);
 
-void *HdfBlockingQueueFind(struct HdfBlockingQueue *queue, long match_key, SlList_Comparer comparer);
+void *HdfBlockingQueueFind(struct HdfBlockingQueue *queue, long matchKey, SListComparer comparer);
 
 #ifdef __cplusplus
 }

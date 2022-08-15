@@ -64,7 +64,7 @@ int32_t DeviceManagerProxy::LoadDevice(const std::string &serviceName)
     }
 
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LOAD_DEVICE, data, reply, option);
-    if (status) {
+    if (status != HDF_SUCCESS) {
         HDF_LOGE("load device failed, %{public}d", status);
     }
     return status;
@@ -84,7 +84,7 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
     }
 
     int status = Remote()->SendRequest(DEVMGR_SERVICE_UNLOAD_DEVICE, data, reply, option);
-    if (status) {
+    if (status != HDF_SUCCESS) {
         HDF_LOGE("unload device failed, %{public}d", status);
     }
     return status;

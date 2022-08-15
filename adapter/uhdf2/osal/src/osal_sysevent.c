@@ -33,12 +33,11 @@ struct HdfSysEventNotifier {
     struct HdfIoService *keventIoService;
 };
 
-struct HdfSysEventNotifier *g_hdfSysEventNotifier;
-
 static struct HdfSysEventNotifier *HdfSysEventNotifierGetInstance(void)
 {
-    if (g_hdfSysEventNotifier != NULL) {
-        return g_hdfSysEventNotifier;
+    static struct HdfSysEventNotifier *hdfSysEventNotifier = NULL;
+    if (hdfSysEventNotifier != NULL) {
+        return hdfSysEventNotifier;
     }
 
     struct HdfSysEventNotifier *notifier = OsalMemCalloc(sizeof(struct HdfSysEventNotifier));
@@ -54,7 +53,7 @@ static struct HdfSysEventNotifier *HdfSysEventNotifierGetInstance(void)
 
     DListHeadInit(&notifier->notifyNodeList);
 
-    g_hdfSysEventNotifier = notifier;
+    hdfSysEventNotifier = notifier;
 
     return notifier;
 }

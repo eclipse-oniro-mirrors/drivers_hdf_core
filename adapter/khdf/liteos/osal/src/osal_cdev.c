@@ -40,79 +40,79 @@
 
 struct OsalCdev {
     struct file_operations_vfs fops;
-    const struct OsalCdevOps* opsImpl;
-    const char* path;
-    void* priv;
+    const struct OsalCdevOps *opsImpl;
+    const char *path;
+    void *priv;
 };
 
-int OsalCdevOpen(struct file* filep)
+static int OsalCdevOpen(struct file *filep)
 {
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->open(dev, filep);
 }
 
-int OsalCdevRelease(struct file* filep)
+static int OsalCdevRelease(struct file *filep)
 {
     if (filep == NULL || filep->f_vnode == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->release(dev, filep);
 }
 
-ssize_t OsalCdevRead(struct file* filep, char* buffer, size_t buflen)
+static ssize_t OsalCdevRead(struct file *filep, char *buffer, size_t buflen)
 {
     if (filep == NULL || filep->f_vnode == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->read(filep, buffer, buflen, 0);
 }
 
-ssize_t OsalCdevWrite(struct file* filep, const char* buffer, size_t buflen)
+static ssize_t OsalCdevWrite(struct file *filep, const char *buffer, size_t buflen)
 {
     if (filep == NULL || filep->f_vnode == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->write(filep, buffer, buflen, 0);
 }
 
-off_t OsalCdevSeek(struct file* filep, off_t offset, int whence)
+static off_t OsalCdevSeek(struct file *filep, off_t offset, int whence)
 {
     if (filep == NULL || filep->f_vnode == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->seek(filep, offset, whence);
 }
 
-int OsalCdevIoctl(struct file* filep, int cmd, unsigned long arg)
+static int OsalCdevIoctl(struct file *filep, int cmd, unsigned long arg)
 {
     if (filep == NULL || filep->f_vnode == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->ioctl(filep, cmd, arg);
 }
 
-int OsalCdevPoll(struct file* filep, poll_table* fds)
+static int OsalCdevPoll(struct file *filep, poll_table *fds)
 {
     if (filep == NULL || filep->f_vnode == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    struct drv_data* drvData = (struct drv_data* )filep->f_vnode->data;
-    struct OsalCdev* dev = (struct OsalCdev* )drvData->priv;
+    struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
+    struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
     return dev->opsImpl->poll(filep, fds);
 }
 
-static void AssignFileOps(struct file_operations_vfs* fops, const struct OsalCdevOps* src)
+static void AssignFileOps(struct file_operations_vfs *fops, const struct OsalCdevOps *src)
 {
     fops->seek = src->seek != NULL ? OsalCdevSeek : NULL;
     fops->read = src->read != NULL ? OsalCdevRead : NULL;
@@ -123,9 +123,9 @@ static void AssignFileOps(struct file_operations_vfs* fops, const struct OsalCde
     fops->close = src->release != NULL ? OsalCdevRelease : NULL;
 }
 
-struct OsalCdev* OsalAllocCdev(const struct OsalCdevOps* fops)
+struct OsalCdev *OsalAllocCdev(const struct OsalCdevOps *fops)
 {
-    struct OsalCdev* cdev = OsalMemCalloc(sizeof(struct OsalCdev));
+    struct OsalCdev *cdev = OsalMemCalloc(sizeof(struct OsalCdev));
     if (cdev == NULL) {
         return NULL;
     }
@@ -136,7 +136,7 @@ struct OsalCdev* OsalAllocCdev(const struct OsalCdevOps* fops)
     return cdev;
 }
 
-int OsalRegisterCdev(struct OsalCdev* cdev, const char* name, unsigned int mode, void* priv)
+int OsalRegisterCdev(struct OsalCdev *cdev, const char *name, unsigned int mode, void *priv)
 {
     if (cdev == NULL || name == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -146,7 +146,7 @@ int OsalRegisterCdev(struct OsalCdev* cdev, const char* name, unsigned int mode,
     if (!devPathInitted && mkdir(DEV_NODE_PATH, DEV_NODE_PATH_MODE) == 0) {
         devPathInitted = true;
     }
-    int ret =  register_driver(name, &cdev->fops, mode, cdev);
+    int ret = register_driver(name, &cdev->fops, mode, cdev);
     if (ret == HDF_SUCCESS) {
         cdev->priv = priv;
         cdev->path = name;
@@ -154,33 +154,33 @@ int OsalRegisterCdev(struct OsalCdev* cdev, const char* name, unsigned int mode,
     return ret;
 }
 
-void OsalUnregisterCdev(struct OsalCdev* cdev)
+void OsalUnregisterCdev(struct OsalCdev *cdev)
 {
     if (cdev != NULL) {
         unregister_driver(cdev->path);
     }
 }
 
-void OsalFreeCdev(struct OsalCdev* cdev)
+void OsalFreeCdev(struct OsalCdev *cdev)
 {
     if (cdev != NULL) {
         OsalMemFree(cdev);
     }
 }
 
-void* OsalGetCdevPriv(struct OsalCdev* cdev)
+void *OsalGetCdevPriv(struct OsalCdev *cdev)
 {
     return cdev != NULL ? cdev->priv : NULL;
 }
 
-void OsalSetFilePriv(struct file* filep, void* priv)
+void OsalSetFilePriv(struct file *filep, void *priv)
 {
     if (filep != NULL) {
         filep->f_priv = priv;
     }
 }
 
-void* OsalGetFilePriv(struct file* filep)
+void *OsalGetFilePriv(struct file *filep)
 {
     return filep != NULL ? filep->f_priv : NULL;
 }

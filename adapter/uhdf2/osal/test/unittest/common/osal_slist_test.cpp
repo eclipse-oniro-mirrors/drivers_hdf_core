@@ -26,6 +26,7 @@
 
 namespace OHOS {
 using namespace testing::ext;
+using HdfSListOps = void (*)(struct HdfSList *list, struct HdfSListNode *link);
 
 class HdfOsalSlistTest : public testing::Test {
 public:
@@ -58,7 +59,7 @@ struct TestList {
 
 void TestListDeleter(struct HdfSListNode *listNode)
 {
-    struct TestList *data = (struct TestList *)listNode;
+    struct TestList *data = reinterpret_cast<struct TestList *>(listNode);
     if (data != nullptr) {
         data->data = 0;
         OsalMemFree(data);
@@ -67,7 +68,7 @@ void TestListDeleter(struct HdfSListNode *listNode)
 
 bool HdfTestSListSearchCompare(struct HdfSListNode *entry, uint32_t data)
 {
-    struct TestList *node = (struct TestList *)entry;
+    struct TestList *node = reinterpret_cast<struct TestList *>(entry);
     if (node->data == data) {
         return true;
     }
@@ -88,6 +89,19 @@ HWTEST_F(HdfOsalSlistTest, SlistInitTest001, TestSize.Level1)
     EXPECT_TRUE(HdfSListIsEmpty(&list));
 }
 
+static void HdfOsalSlistTestInit(struct HdfSList *list, int &totalCount, HdfSListOps ops)
+{
+    HdfSListInit(list);
+    uint32_t insertData[] = {3, 1, 4, 5};
+    totalCount = static_cast<int>(sizeof(insertData) / sizeof(insertData[0]));
+    for (int i = 0; i < totalCount; i++) {
+        struct TestList *testData = reinterpret_cast<struct TestList *>(OsalMemAlloc(sizeof(struct TestList)));
+        testData->data = insertData[i];
+        ops(list, &testData->entry);
+    }
+    EXPECT_EQ(totalCount, HdfSListCount(list));
+}
+
 /*
 * @tc.name: SlistCountTest001
 * @tc.desc: Slist init
@@ -97,15 +111,8 @@ HWTEST_F(HdfOsalSlistTest, SlistInitTest001, TestSize.Level1)
 HWTEST_F(HdfOsalSlistTest, SlistCountTest001, TestSize.Level1)
 {
     struct HdfSList list;
-    HdfSListInit(&list);
-    uint32_t insertData[] = {3, 1, 4, 5};
-    int totalCount = (int)(sizeof(insertData)/ sizeof(insertData[0]));
-    for (int i = 0; i < totalCount; i++) {
-        struct TestList *testData = (struct TestList *)OsalMemAlloc(sizeof(struct TestList));
-        testData->data = insertData[i];
-        HdfSListAdd(&list, &testData->entry);
-    }
-    EXPECT_EQ(totalCount, HdfSListCount(&list));
+    int totalCount = 0;
+    HdfOsalSlistTestInit(&list, totalCount, HdfSListAdd);
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));
 }
@@ -119,18 +126,11 @@ HWTEST_F(HdfOsalSlistTest, SlistCountTest001, TestSize.Level1)
 HWTEST_F(HdfOsalSlistTest, SlistSearchTest001, TestSize.Level1)
 {
     struct HdfSList list;
-    HdfSListInit(&list);
-    uint32_t insertData[] = {3, 1, 4, 5};
-    int totalCount = (int)(sizeof(insertData)/ sizeof(insertData[0]));
-    for (int i = 0; i < totalCount; i++) {
-        struct TestList *testData = (struct TestList *)OsalMemAlloc(sizeof(struct TestList));
-        testData->data = insertData[i];
-        HdfSListAdd(&list, &testData->entry);
-    }
-    EXPECT_EQ(totalCount, HdfSListCount(&list));
+    int totalCount = 0;
+    HdfOsalSlistTestInit(&list, totalCount, HdfSListAdd);
     struct HdfSListNode *resultNode = HdfSListSearch(&list, 5, HdfTestSListSearchCompare);
     EXPECT_TRUE(resultNode != NULL);
-    EXPECT_EQ(5, (int)(((struct TestList *)resultNode)->data));
+    EXPECT_EQ(5, static_cast<int>((reinterpret_cast<struct TestList *>(resultNode))->data));
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));
 }
@@ -144,30 +144,18 @@ HWTEST_F(HdfOsalSlistTest, SlistSearchTest001, TestSize.Level1)
 HWTEST_F(HdfOsalSlistTest, SlistGetTest001, TestSize.Level1)
 {
     struct HdfSList list;
-    HdfSListInit(&list);
-    uint32_t insertData[] = {3, 1, 4, 5};
-    int totalCount = (int)(sizeof(insertData)/ sizeof(insertData[0]));
-    for (int i = 0; i < totalCount; i++) {
-        struct TestList *testData = (struct TestList *)OsalMemAlloc(sizeof(struct TestList));
-        testData->data = insertData[i];
-        HdfSListAdd(&list, &testData->entry);
-    }
-    EXPECT_EQ(totalCount, HdfSListCount(&list));
+    int totalCount = 0;
+    HdfOsalSlistTestInit(&list, totalCount, HdfSListAdd);
     struct HdfSListNode *resultNode = HdfSListGetLast(&list);
     EXPECT_TRUE(resultNode != NULL);
-    EXPECT_EQ(3, (int)(((struct TestList *)resultNode)->data));
+    EXPECT_EQ(3, static_cast<int>((reinterpret_cast<struct TestList *>(resultNode))->data));
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));
 
-    for (int i = 0; i < totalCount; i++) {
-        struct TestList *testData = (struct TestList *)OsalMemAlloc(sizeof(struct TestList));
-        testData->data = insertData[i];
-        HdfSListAddTail(&list, &testData->entry);
-    }
-    EXPECT_EQ(totalCount, HdfSListCount(&list));
+    HdfOsalSlistTestInit(&list, totalCount, HdfSListAddTail);
     resultNode = HdfSListGetLast(&list);
     EXPECT_TRUE(resultNode != NULL);
-    EXPECT_EQ(5, (int)(((struct TestList *)resultNode)->data));
+    EXPECT_EQ(5, static_cast<int>((reinterpret_cast<struct TestList *>(resultNode))->data));
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));
 }

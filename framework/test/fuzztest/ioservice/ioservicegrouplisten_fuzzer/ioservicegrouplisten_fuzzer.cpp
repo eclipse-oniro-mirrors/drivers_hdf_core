@@ -21,7 +21,7 @@ struct Eventlistener {
 static int OnDevEventReceived(
     struct HdfDevEventlistener *listener, struct HdfIoService *service, uint32_t id, struct HdfSBuf *data);
 
-static struct Eventlistener listener0 = {
+static struct Eventlistener g_listener0 = {
     .listener.onReceive = OnDevEventReceived,
     .listener.priv = (void *)"listener0",
     .eventCount = 0,
@@ -32,7 +32,8 @@ static int OnDevEventReceived(
 {
     OsalTimespec time;
     OsalGetTime(&time);
-
+    (void)service;
+    (void)id;
     const char *string = HdfSbufReadString(data);
     if (string == nullptr) {
         HDF_LOGE("failed to read string in event data");
@@ -66,8 +67,8 @@ bool IoserviceGroupListenFuzzTest(const uint8_t *data, size_t size)
         HdfIoServiceRecycle(serv);
         return false;
     }
-    if (HdfIoServiceGroupRegisterListener(group, &listener0.listener) == HDF_SUCCESS) {
-        ret = HdfIoServiceGroupUnregisterListener(group, &listener0.listener);
+    if (HdfIoServiceGroupRegisterListener(group, &g_listener0.listener) == HDF_SUCCESS) {
+        ret = HdfIoServiceGroupUnregisterListener(group, &g_listener0.listener);
         if (ret != HDF_SUCCESS) {
             HdfIoServiceGroupRecycle(group);
             HdfIoServiceRecycle(serv);

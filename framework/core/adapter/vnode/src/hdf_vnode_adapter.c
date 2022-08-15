@@ -47,7 +47,7 @@ struct HdfIoServiceKClient {
     struct HdfDeviceIoClient client;
 };
 
-int HdfKIoServiceDispatch (struct HdfObject *service, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
+int HdfKIoServiceDispatch(struct HdfObject *service, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct HdfIoService *ioService = (struct HdfIoService*)service;
     struct HdfIoServiceKClient *kClient = NULL;

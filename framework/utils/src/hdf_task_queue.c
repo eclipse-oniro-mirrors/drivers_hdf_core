@@ -74,7 +74,7 @@ struct HdfTaskQueue *HdfTaskQueueCreate(HdfTaskFunc func, const char *name)
     return queue;
 }
 
-static void hdfQueueStopThread(struct HdfTaskQueue *queue)
+static void HdfQueueStopThread(struct HdfTaskQueue *queue)
 {
     int32_t ret;
 
@@ -97,10 +97,10 @@ void HdfTaskQueueDestroy(struct HdfTaskQueue *queue)
         HDF_LOGE("%s queue ptr is null", __func__);
         return;
     }
-    hdfQueueStopThread(queue);
+    HdfQueueStopThread(queue);
 }
 
-static void hdfQueueStartThread(struct HdfTaskQueue *queue)
+static void HdfQueueStartThread(struct HdfTaskQueue *queue)
 {
     int32_t ret;
     struct OsalThreadParam param;
@@ -132,7 +132,7 @@ void HdfTaskEnqueue(struct HdfTaskQueue *queue, struct HdfTaskType *task)
     }
 
     if (!queue->threadRunFlag) {
-        hdfQueueStartThread(queue);
+        HdfQueueStartThread(queue);
     }
 
     DListInsertTail(&task->node, &queue->head);

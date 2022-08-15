@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -57,13 +57,13 @@ struct SampleTestDevice *GetRegistedDevice(const char *serviceName)
     return NULL;
 }
 
-void HdfSampleDriverRelease(struct HdfDeviceObject *deviceObject)
+static void HdfSampleDriverRelease(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
     return;
 }
 
-int32_t SampleDriverRegisterDevice(struct HdfDeviceObject *dev, struct HdfSBuf *data)
+static int32_t SampleDriverRegisterDevice(struct HdfDeviceObject *dev, struct HdfSBuf *data)
 {
     const char *moduleName = NULL;
     const char *serviceName = NULL;
@@ -117,7 +117,7 @@ int32_t SampleDriverRegisterDevice(struct HdfDeviceObject *dev, struct HdfSBuf *
     return ret;
 }
 
-int32_t SampleDriverUnregisterDevice(struct HdfSBuf *data)
+static int32_t SampleDriverUnregisterDevice(struct HdfSBuf *data)
 {
     const char *moduleName = NULL;
     const char *serviceName = NULL;
@@ -146,12 +146,12 @@ int32_t SampleDriverUnregisterDevice(struct HdfSBuf *data)
     return HDF_SUCCESS;
 }
 
-int32_t SampleDriverSendEvent(struct HdfDeviceIoClient *client, int id, struct HdfSBuf *data, bool broadcast)
+static int32_t SampleDriverSendEvent(struct HdfDeviceIoClient *client, int id, struct HdfSBuf *data, bool broadcast)
 {
     return broadcast ? HdfDeviceSendEvent(client->device, id, data) : HdfDeviceSendEventToClient(client, id, data);
 }
 
-int32_t SampleDriverPowerStateInject(uint32_t powerState)
+static int32_t SampleDriverPowerStateInject(uint32_t powerState)
 {
     int ret;
     struct IDevmgrService *devmgrService = DevmgrServiceGetInstance();
@@ -164,7 +164,7 @@ int32_t SampleDriverPowerStateInject(uint32_t powerState)
     return ret;
 }
 
-int32_t SampleDriverUpdateService(struct HdfDeviceIoClient *client, struct HdfSBuf *data)
+static int32_t SampleDriverUpdateService(struct HdfDeviceIoClient *client, struct HdfSBuf *data)
 {
     const char *servInfo = HdfSbufReadString(data);
     int32_t ret;
@@ -182,7 +182,8 @@ int32_t SampleDriverUpdateService(struct HdfDeviceIoClient *client, struct HdfSB
     return ret;
 }
 
-int32_t SampleDriverDispatch(struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t SampleDriverDispatch(
+    struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t powerState = 0;
     int32_t ret = HDF_SUCCESS;
@@ -220,7 +221,7 @@ int32_t SampleDriverDispatch(struct HdfDeviceIoClient *client, int cmdId, struct
     return ret;
 }
 
-int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
+static int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
 {
     static struct IDeviceIoService testService = {
         .Dispatch = SampleDriverDispatch,
@@ -236,28 +237,28 @@ int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
     return HDF_SUCCESS;
 }
 
-int HdfSampleDozeResume(struct HdfDeviceObject *deviceObject)
+static int HdfSampleDozeResume(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
     HDF_LOGI("%s:called", __func__);
     return HDF_SUCCESS;
 }
 
-int HdfSampleDozeSuspend(struct HdfDeviceObject *deviceObject)
+static int HdfSampleDozeSuspend(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
     HDF_LOGI("%s:called", __func__);
     return HDF_SUCCESS;
 }
 
-int HdfSampleResume(struct HdfDeviceObject *deviceObject)
+static int HdfSampleResume(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
     HDF_LOGI("%s:called", __func__);
     return HDF_SUCCESS;
 }
 
-int HdfSampleSuspend(struct HdfDeviceObject *deviceObject)
+static int HdfSampleSuspend(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
     HDF_LOGI("%s:called", __func__);
@@ -269,7 +270,7 @@ struct SampleDriverPmListener {
     void *p;
 };
 
-int HdfSampleDriverInit(struct HdfDeviceObject *deviceObject)
+static int HdfSampleDriverInit(struct HdfDeviceObject *deviceObject)
 {
     static struct SampleDriverPmListener pmListener = { 0 };
     int ret;

@@ -40,7 +40,7 @@ static struct DevSvcRecord *DevSvcManagerSearchService(struct IDevSvcManager *in
 }
 
 static void NotifyServiceStatusLocked(
-    struct DevSvcManager *devSvcManager, struct DevSvcRecord *record, uint32_t status)
+    struct DevSvcManager *devSvcManager, const struct DevSvcRecord *record, uint32_t status)
 {
     struct ServStatListenerHolder *holder = NULL;
     struct ServStatListenerHolder *tmp = NULL;
@@ -63,7 +63,7 @@ static void NotifyServiceStatusLocked(
 }
 
 static void NotifyServiceStatusOnRegisterLocked(
-    struct DevSvcManager *devSvcManager, struct ServStatListenerHolder *listenerHolder)
+    const struct DevSvcManager *devSvcManager, struct ServStatListenerHolder *listenerHolder)
 {
     struct DevSvcRecord *record = NULL;
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {

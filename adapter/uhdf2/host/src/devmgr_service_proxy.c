@@ -111,11 +111,12 @@ FINISHED:
     }
     return status;
 }
-int DevmgrServiceProxyLoadDevice(struct IDevmgrService *inst, const char *svcName)
+
+static int DevmgrServiceProxyProcessLoad(struct IDevmgrService *inst, const char *svcName, int code)
 {
     struct DevmgrServiceProxy *serviceProxy = (struct DevmgrServiceProxy *)inst;
     if (serviceProxy == NULL || serviceProxy->remote == NULL || svcName == NULL) {
-        HDF_LOGE("DevmgrServiceProxyLoadDevice failed");
+        HDF_LOGE("DevmgrServiceProxyProcessLoad code: %{public}d failed", code);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -126,30 +127,19 @@ int DevmgrServiceProxyLoadDevice(struct IDevmgrService *inst, const char *svcNam
         return HDF_FAILURE;
     }
 
-    int status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_LOAD_DEVICE, data, NULL);
+    int status = remoteService->dispatcher->Dispatch(remoteService, code, data, NULL);
     HdfSbufRecycle(data);
     return status;
 }
 
+int DevmgrServiceProxyLoadDevice(struct IDevmgrService *inst, const char *svcName)
+{
+    return DevmgrServiceProxyProcessLoad(inst, svcName, DEVMGR_SERVICE_LOAD_DEVICE);
+}
+
 int DevmgrServiceProxyUnLoadDevice(struct IDevmgrService *inst, const char *svcName)
 {
-    struct DevmgrServiceProxy *serviceProxy = (struct DevmgrServiceProxy *)inst;
-    if (serviceProxy == NULL || serviceProxy->remote == NULL || svcName == NULL) {
-        HDF_LOGE("DevmgrServiceProxyLoadDevice failed");
-        return HDF_ERR_INVALID_PARAM;
-    }
-
-    struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
-    struct HdfRemoteService *remoteService = serviceProxy->remote;
-    if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) || !HdfSbufWriteString(data, svcName)) {
-        HdfSbufRecycle(data);
-        return HDF_FAILURE;
-    }
-
-    int status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_UNLOAD_DEVICE, data, NULL);
-
-    HdfSbufRecycle(data);
-    return status;
+    return DevmgrServiceProxyProcessLoad(inst, svcName, DEVMGR_SERVICE_UNLOAD_DEVICE);
 }
 
 static void DevmgrServiceProxyConstruct(struct DevmgrServiceProxy *inst)

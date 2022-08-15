@@ -17,28 +17,28 @@
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG hdf_attr_macro
-static bool HdfHostListCompare(struct HdfSListNode *listEntryFirst, struct HdfSListNode *listEntrySecond)
+static bool HdfHostListCompareMacro(struct HdfSListNode *listEntryFirst, struct HdfSListNode *listEntrySecond)
 {
-    struct HdfHostInfo *attrFirst = NULL;
-    struct HdfHostInfo *attrSecond = NULL;
+    struct HdfHostInfo *attrFirstMacro = NULL;
+    struct HdfHostInfo *attrSecondMacro = NULL;
     if (listEntryFirst == NULL || listEntrySecond == NULL) {
         return false;
     }
-    attrFirst = (struct HdfHostInfo *)listEntryFirst;
-    attrSecond = (struct HdfHostInfo *)listEntrySecond;
-    return attrFirst->priority <= attrSecond->priority;
+    attrFirstMacro = (struct HdfHostInfo *)listEntryFirst;
+    attrSecondMacro = (struct HdfHostInfo *)listEntrySecond;
+    return attrFirstMacro->priority <= attrSecondMacro->priority;
 }
 
-static bool GetHostInfo(const struct HdfHostType *hostNode, struct HdfHostInfo *hostInfo)
+static bool GetHostInfoMacro(const struct HdfHostType *hostNode, struct HdfHostInfo *hostInfo)
 {
     hostInfo->hostName = hostNode->devHostName;
     hostInfo->priority = hostNode->priority;
     if (strcmp(hostInfo->hostName, "") == 0) {
-        HDF_LOGW("%s: get host name failed", __func__);
+        HDF_LOGW("GetHostInfoMacro get host name failed");
         return false;
     }
     if (hostInfo->priority > MAX_PRIORITY_NUM) {
-        HDF_LOGW("%s: get host priority failed, priority is: %u", __func__, hostInfo->priority);
+        HDF_LOGW("GetHostInfoMacro get host priority failed, priority is: %u", hostInfo->priority);
         return false;
     }
 
@@ -83,13 +83,13 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
             return false;
         }
 
-        if (!GetHostInfo(host, hostInfo)) {
+        if (!GetHostInfoMacro(host, hostInfo)) {
             HdfHostInfoFreeInstance(hostInfo);
             continue;
         }
 
         hostInfo->hostId = hostId;
-        if (!HdfSListAddOrder(hostList, &hostInfo->node, HdfHostListCompare)) {
+        if (!HdfSListAddOrder(hostList, &hostInfo->node, HdfHostListCompareMacro)) {
             HdfHostInfoFreeInstance(hostInfo);
             continue;
         }
@@ -100,32 +100,32 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
     return true;
 }
 
-static bool HdfDeviceListCompare(struct HdfSListNode *listEntryFirst, struct HdfSListNode *listEntrySecond)
+static bool HdfDeviceListCompareMacro(struct HdfSListNode *listEntryFirst, struct HdfSListNode *listEntrySecond)
 {
-    struct HdfDeviceInfo *attrFirst = NULL;
-    struct HdfDeviceInfo *attrSecond = NULL;
+    struct HdfDeviceInfo *attrFirstMacro = NULL;
+    struct HdfDeviceInfo *attrSecondMacro = NULL;
     if (listEntryFirst == NULL || listEntrySecond == NULL) {
         return false;
     }
-    attrFirst = (struct HdfDeviceInfo *)listEntryFirst;
-    attrSecond = (struct HdfDeviceInfo *)listEntrySecond;
-    return attrFirst->priority <= attrSecond->priority;
+    attrFirstMacro = (struct HdfDeviceInfo *)listEntryFirst;
+    attrSecondMacro = (struct HdfDeviceInfo *)listEntrySecond;
+    return attrFirstMacro->priority <= attrSecondMacro->priority;
 }
 
-static bool CheckDeviceInfo(const struct HdfDeviceInfo *deviceNodeInfo)
+static bool CheckDeviceInfoMacro(const struct HdfDeviceInfo *deviceNodeInfo)
 {
     if (deviceNodeInfo->policy >= SERVICE_POLICY_INVALID) {
-        HDF_LOGE("%s: policy %u is invalid", __func__, deviceNodeInfo->policy);
+        HDF_LOGE("CheckDeviceInfoMacro policy %u is invalid", deviceNodeInfo->policy);
         return false;
     }
 
     if (deviceNodeInfo->priority > MAX_PRIORITY_NUM) {
-        HDF_LOGE("%s: priority %u is invalid", __func__, deviceNodeInfo->priority);
+        HDF_LOGE("CheckDeviceInfoMacro priority %u is invalid", deviceNodeInfo->priority);
         return false;
     }
 
     if (deviceNodeInfo->preload >= DEVICE_PRELOAD_INVALID) {
-        HDF_LOGE("%s: preload %u is invalid", __func__, deviceNodeInfo->preload);
+        HDF_LOGE("CheckDeviceInfoMacro preload %u is invalid", deviceNodeInfo->preload);
         return false;
     }
 
@@ -143,11 +143,11 @@ static bool GetDeviceNodeInfo(const struct HdfDeviceNodeType *deviceNode, struct
     deviceNodeInfo->svcName = deviceNode->svcName;
     deviceNodeInfo->deviceName = deviceNode->deviceName;
 
-    return CheckDeviceInfo(deviceNodeInfo);
+    return CheckDeviceInfoMacro(deviceNodeInfo);
 }
 
-static bool GetDevcieNodeList(
-    const struct HdfDeviceType *device, struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
+static bool GetDevcieNodeList(const struct HdfDeviceType *device,
+    struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
 {
     uint8_t deviceNodeIdx = 1;
     uint16_t hostId = hostClnt->hostId;
@@ -167,7 +167,7 @@ static bool GetDevcieNodeList(
 
         deviceNodeInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
         if (deviceNodeInfo->preload != DEVICE_PRELOAD_DISABLE) {
-            if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &deviceNodeInfo->node, HdfDeviceListCompare)) {
+            if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &deviceNodeInfo->node, HdfDeviceListCompareMacro)) {
                 HDF_LOGE("%s: failed to add device info to list %s", __func__, deviceNodeInfo->svcName);
                 HdfDeviceInfoFreeInstance(deviceNodeInfo);
                 continue;
@@ -189,8 +189,8 @@ static void AttributeManagerFreeHost(struct HdfHostType *host)
     struct HdfDeviceNodeType *devNodeTemp = NULL;
 
     DLIST_FOR_EACH_ENTRY_SAFE(device, deviceTemp, &host->devices, struct HdfDeviceType, deviceEntry) {
-        DLIST_FOR_EACH_ENTRY_SAFE(
-            devNode, devNodeTemp, &device->deviceNodes, struct HdfDeviceNodeType, deviceNodeEntry) {
+        DLIST_FOR_EACH_ENTRY_SAFE(devNode, devNodeTemp, &device->deviceNodes, struct HdfDeviceNodeType,
+                                  deviceNodeEntry) {
             OsalMemFree(devNode);
         }
         OsalMemFree(device);

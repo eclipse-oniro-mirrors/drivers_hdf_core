@@ -26,9 +26,6 @@ using OHOS::HDI::Base::SharedMemQueue;
 using OHOS::HDI::Base::SharedMemQueueMeta;
 using OHOS::HDI::Base::SmqType;
 
-constexpr int SMQ_TRANS_ELEMENT_MAX = 5;
-constexpr int SMQ_TRANS_WAIT_TIME = 100;
-
 struct SampleDevice {
     struct DListHead listNode;
     struct HdfDeviceObject *devobj;
@@ -106,6 +103,7 @@ static int32_t SampleServiceUnregisterDevice(struct HdfDeviceObject *device, con
     struct SampleDevice *sampleDev = nullptr;
     struct SampleDevice *sampleDevTmp = nullptr;
     HDF_LOGI("remove device %{public}s in", servName);
+    (void)device;
     DLIST_FOR_EACH_ENTRY_SAFE(sampleDev, sampleDevTmp, &g_sampleDeviceList, struct SampleDevice, listNode)
     {
         if (sampleDev->devobj == nullptr || HdfDeviceGetServiceName(sampleDev->devobj) == nullptr) {
@@ -137,10 +135,13 @@ static int32_t SampleServiceUpdateDevice(struct HdfDeviceObject *device, const c
 static int32_t SampleServiceTansSmq(
     struct HdfDeviceObject *device, SharedMemQueueMeta<SampleSmqElement> *smqMeta, uint32_t element)
 {
+    constexpr int SMQ_TRANS_ELEMENT_MAX = 5;
+    constexpr int SMQ_TRANS_WAIT_TIME = 100;
     HDF_LOGI("SampleServiceTansSmq in, element=%{public}u", element);
     if (element > SMQ_TRANS_ELEMENT_MAX) {
         return HDF_ERR_INVALID_PARAM;
     }
+    (void)device;
     static std::shared_ptr<SharedMemQueue<SampleSmqElement>> smq = nullptr;
     smq = std::make_shared<SharedMemQueue<SampleSmqElement>>(*smqMeta);
     if (!smq->IsGood()) {

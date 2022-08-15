@@ -58,6 +58,8 @@ static int DevmgrPmResume(void)
 static int DevmgrPmNotifier(struct notifier_block *nb, unsigned long mode, void *data)
 {
     int ret = HDF_SUCCESS;
+    (void)nb;
+    (void)data;
     switch (mode) {
         case PM_SUSPEND_PREPARE:
             ret = DevmgrPmSuspend();
@@ -70,7 +72,7 @@ static int DevmgrPmNotifier(struct notifier_block *nb, unsigned long mode, void 
     }
     return ret;
 }
-static struct notifier_block PmNotifier = {
+static struct notifier_block pmNotifier = {
     .notifier_call = DevmgrPmNotifier,
 };
 
@@ -79,7 +81,7 @@ int DevMgrPmRegister(void)
     int ret;
 
     HDF_LOGD("%s enter", __func__);
-    ret = register_pm_notifier(&PmNotifier);
+    ret = register_pm_notifier(&pmNotifier);
     if (ret) {
         HDF_LOGE("%s register_pm_notifier failed", __func__);
     }
