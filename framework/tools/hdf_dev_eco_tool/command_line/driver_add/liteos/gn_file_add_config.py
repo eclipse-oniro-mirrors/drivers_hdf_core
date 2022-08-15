@@ -99,13 +99,14 @@ def analyze_parent_path(date, source_path, head_path,
     macro_definition_dict = {}
     for index, i in enumerate(date):
         re_result = re.search(str_re, i)
-        if re_result:
-            str_split_list = i.strip().split(" = ")
-            if len(str_split_list) == 1 and str_split_list[0].endswith("="):
-                temp_name = str_split_list[0].split(" ")[0].strip("=")
-                macro_definition_dict[temp_name] = date[index + 1].strip()
-            else:
-                macro_definition_dict[str_split_list[0]] = str_split_list[-1]
+        if not re_result:
+            continue
+        str_split_list = i.strip().split(" = ")
+        if len(str_split_list) == 1 and str_split_list[0].endswith("="):
+            temp_name = str_split_list[0].split(" ")[0].strip("=")
+            macro_definition_dict[temp_name] = date[index + 1].strip()
+        else:
+            macro_definition_dict[str_split_list[0]] = str_split_list[-1]
     date_replace = {
         "file_parent_path": "",
         "source_path": "",
@@ -115,33 +116,29 @@ def analyze_parent_path(date, source_path, head_path,
         parent_path_temp = source_path.split(devices)[0].strip(
             root).replace("\\", "/").strip("/")
         parent_path = '/'.join(parent_path_temp.split('/')[:3])
-		
     else:
         parent_path_temp = head_path.split(devices)[0].strip(
             root).replace("\\", "/").strip("/")
         parent_path = '/'.join(parent_path_temp.split('/')[:3])
-		
     if kernel_type == "linux":
-        for k, v in macro_definition_dict.items():
-            if v.find(parent_path) != -1:
-                if v.startswith("drivers/hdf/framework") and head_path.strip():
-                    date_replace['file_parent_path'] = k
-                elif source_path.strip() and not v.startswith("drivers/hdf/framework"):
-                    date_replace['file_parent_path'] = k
+        for k_name, values in macro_definition_dict.items():
+            if values.find(parent_path) == -1:
+                continue
+            if values.startswith("drivers/hdf/framework") and head_path.strip():
+                date_replace['file_parent_path'] = k_name
+            elif source_path.strip() and not values.startswith("drivers/hdf/framework"):
+                date_replace['file_parent_path'] = k_name
     else:
-        for k, v in macro_definition_dict.items():
-            if v.find(parent_path) != -1:
-                date_replace['file_parent_path'] = k
-
+        for k_name, values in macro_definition_dict.items():
+            if values.find(parent_path) != -1:
+                date_replace['file_parent_path'] = k_name
     relatively_path_dict, _ = hdf_utils.ini_file_read_operation(
         section_name="audio", node_name='driver_path')
     audio_board_name = parent_path_temp.split('/')[3]
     if audio_board_name.startswith("rk3568"):
         relatively_path = relatively_path_dict["rk3568"]
-
     else:
         relatively_path = relatively_path_dict["hi3516"]
-
     if source_path:
         file_source_path_full = source_path.replace("\\", "/")
         date_replace['source_path'] = file_source_path_full.split(
@@ -163,14 +160,7 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
     if driver_file_path.find("FRAMEWORK".lower()) != -1:
         result_tuple = find_build_file_end_index(date_lines, model_name=module)
         end_index, frameworks_name, frameworks_value = result_tuple
-        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF" \
-                     "_${model_name_upper}_${driver_name_upper})) {\n"
-        include_line = '    include_dirs += [ "$FRAMEWORKS' \
-                       '_${model_name_upper}_ROOT/${head_file_path}" ]\n'
-        second_line = '    sources += [ "$FRAMEWORKS' \
-                      '_${model_name_upper}_ROOT/${source_file_path}" ]\n'
-        third_line = "  }\n"
-        build_add_template = first_line+include_line+second_line+third_line
+        build_add_template = template_str_splice(type_name="framework")
         include_model_info = frameworks_value.split("model")[-1].strip('"')+"/"
         build_gn_path_config = source_file_path.split(include_model_info)
         temp_handle = Template(
@@ -189,14 +179,7 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
         result_tuple = find_build_file_end_index(
             date_lines, model_name=module, pre_str="PERIPHERAL")
         end_index, frameworks_name, frameworks_value = result_tuple
-        first_line = "\n  if (defined(LOSCFG_DRIVERS_" \
-                     "HDF_${model_name_upper}_${driver_name_upper})) {\n"
-        include_line = '    include_dirs += [ "$PERIPHERAL' \
-                       '_${model_name_upper}_ROOT/${head_file_path}" ]\n'
-        second_line = '    sources += [ "$PERIPHERAL' \
-                      '_${model_name_upper}_ROOT/${source_file_path}" ]\n'
-        third_line = "  }\n"
-        build_add_template = first_line+include_line+second_line+third_line
+        build_add_template = template_str_splice(type_name=" ")
         include_model_info = frameworks_value.split("/")[-1].strip("\"")
         build_gn_path_config = source_file_path.split(include_model_info+"/", 1)
         temp_handle = Template(
@@ -216,3 +199,25 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
 
     date_lines = date_lines[:end_index]+[new_line]+date_lines[end_index:]
     hdf_utils.write_file_lines(build_gn_path, date_lines)
+
+
+def template_str_splice(type_name):
+    if type_name == "framework":
+        first_line = "\n  if (defined(LOSCFG_DRIVERS_HDF" \
+                     "_${model_name_upper}_${driver_name_upper})) {\n"
+        include_line = '    include_dirs += [ "$FRAMEWORKS' \
+                       '_${model_name_upper}_ROOT/${head_file_path}" ]\n'
+        second_line = '    sources += [ "$FRAMEWORKS' \
+                      '_${model_name_upper}_ROOT/${source_file_path}" ]\n'
+        third_line = "  }\n"
+        build_add_template = first_line + include_line + second_line + third_line
+    else:
+        first_line = "\n  if (defined(LOSCFG_DRIVERS_" \
+                     "HDF_${model_name_upper}_${driver_name_upper})) {\n"
+        include_line = '    include_dirs += [ "$PERIPHERAL' \
+                       '_${model_name_upper}_ROOT/${head_file_path}" ]\n'
+        second_line = '    sources += [ "$PERIPHERAL' \
+                      '_${model_name_upper}_ROOT/${source_file_path}" ]\n'
+        third_line = "  }\n"
+        build_add_template = first_line + include_line + second_line + third_line
+    return build_add_template

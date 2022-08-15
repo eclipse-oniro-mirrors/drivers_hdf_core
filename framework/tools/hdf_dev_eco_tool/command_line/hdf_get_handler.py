@@ -144,20 +144,9 @@ class HdfGetHandler(HdfCommandHandlerBase):
     def _get_model_dict(self):
         self.check_arg_raise_if_not_exist("root_dir")
         root, _, _, _, _, _, _ = self.get_args()
-        adapter_framework = hdf_utils.get_vendor_hdf_dir_framework(root=root)
-        if not os.path.exists(adapter_framework):
-            raise HdfToolException(
-                ' adapter model path  "%s" not exist' %
-                adapter_framework, CommandErrorCode.TARGET_NOT_EXIST)
-        create_file_save_path = os.path.join(
-            adapter_framework, "tools", "hdf_dev_eco_tool",
-            "resources", "create_model.config")
-        if not os.path.exists(create_file_save_path):
-            raise HdfToolException(
-                'create file config "%s" not exist' %
-                create_file_save_path, CommandErrorCode.TARGET_NOT_EXIST)
+        create_model_file_save_path = hdf_utils.module_save_file_info(root)
         out_model_list = []
-        data = hdf_utils.read_file(create_file_save_path)
+        data = hdf_utils.read_file(create_model_file_save_path)
         json_type = json.loads(data)
         if not json_type:
             return out_model_list
@@ -168,7 +157,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
             for key in file_key_list:
                 if key.split("_")[-1] == "path":
                     path_dict = json_type[k][key]
-                    model_file_path = self._model_info(
+                    model_file_path = hdf_utils.model_info(
                         path_dict, root, model_file_path, key)
             out_model_list.append({k: model_file_path})
         return out_model_list
@@ -178,21 +167,6 @@ class HdfGetHandler(HdfCommandHandlerBase):
         version_head = "hdf_dev_eco_tool version : "
         return version_head + str(self.HDF_VERSION_MAJOR) \
                + "." + str(self.HDF_VERSION_MINOR) + version_end
-
-    def _model_info(self, path_dict, root, model_file_path, key):
-        if isinstance(path_dict, dict):
-            for k_filename, file_path in path_dict.items():
-                if not os.path.exists(os.path.join(root, file_path)):
-                    model_file_path[k_filename] = " "
-                else:
-                    model_file_path[k_filename] = path_dict[k_filename]
-        else:
-            hcs_file_path = os.path.join(root, path_dict)
-            if not os.path.exists(hcs_file_path):
-                model_file_path[key] = " "
-            else:
-                model_file_path[key] = path_dict
-        return model_file_path
 
     def _mode_scan(self):
         self.check_arg_raise_if_not_exist("root_dir")

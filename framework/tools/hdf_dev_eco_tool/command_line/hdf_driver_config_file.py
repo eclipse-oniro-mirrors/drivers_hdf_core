@@ -19,8 +19,6 @@ from .hdf_manager_config_file import HdfManagerConfigFile
 from .hdf_hcs_file import HdfHcsFile
 
 
-
-
 class HdfDriverConfigFile(object):
     def __init__(self, root, board, module, driver, kernel, only_path=False):
         self.root = root

@@ -191,9 +191,9 @@ class HdfAddHandler(HdfCommandHandlerBase):
         liteos_file_path = {}
         liteos_level_config_file_path = {}
         liteos_file_name = ['BUILD.gn', 'Kconfig', 'Makefile']
-        template_path = "/".join([framework_hdf] +
-                                 ["tools", "hdf_dev_eco_tool",
-                                  "resources", "templates", "lite"])
+        # template_path = "/".join([framework_hdf] +["tools", "hdf_dev_eco_tool", "resources", "templates", "lite"])
+        temp_path = HdfToolSettings().get_template_path()
+        template_path = os.path.join(framework_hdf, temp_path)
         for file_name in liteos_file_name:
             for i in hdf_utils.template_filename_filtrate(
                     template_path, kernel):
@@ -243,9 +243,9 @@ class HdfAddHandler(HdfCommandHandlerBase):
         linux_file_path = {}
         linux_level_config_file_path = {}
         linux_file_name = ['Kconfig', 'Makefile']
-        template_path = "/".join([framework_hdf]
-                                 + ["tools", "hdf_dev_eco_tool",
-                                    "resources", "templates", "lite"])
+        # template_path = "/".join([framework_hdf] + ["tools", "hdf_dev_eco_tool", "resources", "templates", "lite"])
+        temp_path = HdfToolSettings().get_template_path()
+        template_path = os.path.join(framework_hdf, temp_path)
         for file_name in linux_file_name:
             for i in hdf_utils.template_filename_filtrate(
                     template_path, kernel):
@@ -264,54 +264,28 @@ class HdfAddHandler(HdfCommandHandlerBase):
         vendor_mk = HdfVendorMakeFile(root, vendor, kernel, path='')
         vendor_mk_path = vendor_mk.add_module(data_model)
         linux_level_config_file_path[module + "_Makefile"] = vendor_mk_path
+        # device_info.hcs
+        device_info = HdfDeviceInfoHcsFile(
+            root, vendor, module, board, driver, path="")
+        hcs_file_path = device_info.add_model_hcs_file_config()
+        linux_file_path["devices_info.hcs"] = hcs_file_path
 
-        if board.endswith("linux"):
-            # device_info.hcs
-            device_info = HdfDeviceInfoHcsFile(
-                root, vendor, module, board, driver, path="")
-            hcs_file_path = device_info.add_model_hcs_file_config()
-            linux_file_path["devices_info.hcs"] = hcs_file_path
+        # dot_configs config file
+        template_string = "CONFIG_DRIVERS_HDF_${module_upper_case}=y\n"
+        new_demo_config = [Template(template_string).substitute(data_model)]
+        defconfig_patch = HdfDefconfigAndPatch(
+            root, vendor, kernel, board,
+            data_model, new_demo_config)
 
-            # dot_configs config file
-            template_string = "CONFIG_DRIVERS_HDF_${module_upper_case}=y\n"
-            new_demo_config = [Template(template_string).substitute(data_model)]
-            defconfig_patch = HdfDefconfigAndPatch(
-                root, vendor, kernel, board,
-                data_model, new_demo_config)
-
-            config_path = defconfig_patch.get_config_config()
-            files = []
-            patch_list = defconfig_patch.add_module(config_path, files=files, codetype=None)
-            config_path = defconfig_patch.get_config_patch()
-            files1 = []
-            defconfig_list = defconfig_patch.add_module(config_path, files=files1, codetype=None)
-            linux_level_config_file_path[module + "_dot_configs"] = \
-                list(set(patch_list + defconfig_list))
-            return linux_file_path, linux_level_config_file_path
-
-        elif board.endswith("kernel"):
-            # device_info.hcs
-            device_info = HdfDeviceInfoHcsFile(
-                root, vendor, module, board, driver, path="")
-            hcs_file_path = device_info.add_model_hcs_file_config()
-            linux_file_path["devices_info.hcs"] = hcs_file_path
-
-            # dot_configs config file
-            template_string = "CONFIG_DRIVERS_HDF_${module_upper_case}=y\n"
-            new_demo_config = [Template(template_string).substitute(data_model)]
-            defconfig_patch = HdfDefconfigAndPatch(
-                root, vendor, kernel, board,
-                data_model, new_demo_config)
-
-            config_path = defconfig_patch.get_config_config()
-            files = []
-            patch_list = defconfig_patch.add_module(config_path, files=files, codetype=None)
-            config_path = defconfig_patch.get_config_patch()
-            files1 = []
-            defconfig_list = defconfig_patch.add_module(config_path, files=files1, codetype=None)
-            linux_level_config_file_path[module + "_dot_configs"] = \
-                list(set(patch_list + defconfig_list))
-            return linux_file_path, linux_level_config_file_path
+        config_path = defconfig_patch.get_config_config()
+        files = []
+        patch_list = defconfig_patch.add_module(config_path, files=files, codetype=None)
+        config_path = defconfig_patch.get_config_patch()
+        files1 = []
+        defconfig_list = defconfig_patch.add_module(config_path, files=files1, codetype=None)
+        linux_level_config_file_path[module + "_dot_configs"] = \
+            list(set(patch_list + defconfig_list))
+        return linux_file_path, linux_level_config_file_path
 
     def _add_module_handler_linux_user(self, framework_hdf, driver_file_path,
                                        *args_tuple):
@@ -324,16 +298,13 @@ class HdfAddHandler(HdfCommandHandlerBase):
         if not os.path.exists(user_model_path):
             os.makedirs(user_model_path)
         user_model_file_path = os.path.join(user_model_path, "BUILD.gn")
-        template_path = "/".join([framework_hdf]
-                                 + ["tools", "hdf_dev_eco_tool",
-                                    "resources", "templates", "lite"])
-
+        temp_path = HdfToolSettings().get_template_path()
+        template_path = os.path.join(framework_hdf, temp_path)
         user_file_path = driver_file_path.split(root)[-1].replace("\\", "/")
         if user_file_path.startswith("/"):
             driver_file_name = "/" + user_file_path.replace("\\", "/")
         else:
             driver_file_name = "//" + user_file_path.replace("\\", "/")
-
         data_model = {
             "model_path": "//drivers/hdf_core/adapter/uhdf2/" + module,
             "driver_file_name": driver_file_name,
@@ -346,7 +317,6 @@ class HdfAddHandler(HdfCommandHandlerBase):
                     self._render(user_template_build,
                                  user_model_file_path, data_model)
                     linux_file_path["BUILD.gn"] = user_model_file_path
-
         # passwd group
         etc_path = hdf_utils.get_passwd_group_path(root_path=root)
         passwd_lines = hdf_utils.read_file_lines(os.path.join(etc_path, 'passwd'))
@@ -365,7 +335,6 @@ class HdfAddHandler(HdfCommandHandlerBase):
         hdf_utils.write_file_lines(os.path.join(etc_path, 'group'), group_lines)
         linux_file_path["passwd"] = os.path.join(etc_path, 'passwd')
         linux_file_path["group"] = os.path.join(etc_path, 'group')
-
         # build.gn file add path
         ohos_path = os.path.join(root, '/'.join(relative_path.split("/")[:-1]), 'BUILD.gn')
         user_build_info = hdf_utils.read_file_lines(ohos_path)
@@ -379,13 +348,11 @@ class HdfAddHandler(HdfCommandHandlerBase):
                 hdf_utils.write_file_lines(ohos_path, user_build_info)
                 break
         linux_file_path["adapter_build.gn"] = ohos_path
-
         # add hcs file
         device_info = HdfDeviceInfoHcsFile(
             root, vendor, module, board, driver, path="")
         hcs_file_path = device_info.add_model_hcs_file_config_user()
         linux_file_path["devices_info.hcs"] = hcs_file_path
-
         return linux_file_path, linux_level_config_file_path
 
     def _add_driver(self, *args_tuple):

@@ -202,6 +202,21 @@ def get_vendor_hdf_dir_framework(root):
     return os.path.join(root, relative_path)
 
 
+def module_save_file_info(root):
+    adapter_framework = get_vendor_hdf_dir_framework(root=root)
+    if not os.path.exists(adapter_framework):
+        raise HdfToolException(
+            ' adapter model path  "%s" not exist' %
+            adapter_framework, CommandErrorCode.TARGET_NOT_EXIST)
+    save_file_path = HdfToolSettings().get_module_save_path()
+    create_file_save_path = os.path.join(adapter_framework, save_file_path)
+    if not os.path.exists(create_file_save_path):
+        raise HdfToolException(
+            'create file config "%s" not exist' %
+            create_file_save_path, CommandErrorCode.TARGET_NOT_EXIST)
+    return create_file_save_path
+
+
 def get_vendor_hdf_dir_peripheral(root):
     relative_path = HdfToolSettings().get_drivers_path_peripheral()
     return os.path.join(root, relative_path)
@@ -340,6 +355,22 @@ def template_filename_filtrate(dir_path, kernal):
     return filename_list
 
 
+def model_info(path_dict, root, model_file_path, key):
+    if isinstance(path_dict, dict):
+        for k_filename, file_path in path_dict.items():
+            if not os.path.exists(os.path.join(root, file_path)):
+                model_file_path[k_filename] = " "
+            else:
+                model_file_path[k_filename] = path_dict[k_filename]
+    else:
+        hcs_file_path = os.path.join(root, path_dict)
+        if not os.path.exists(hcs_file_path):
+            model_file_path[key] = " "
+        else:
+            model_file_path[key] = path_dict
+    return model_file_path
+
+
 def get_create_model_info(root, create_data):
     data = json.loads(create_data)
     out_model_list = []
@@ -351,18 +382,8 @@ def get_create_model_info(root, create_data):
         for key in file_key_list:
             if key.split("_")[-1] == "path":
                 path_dict = data[k][key]
-                if isinstance(path_dict, dict):
-                    for k_filename, file_path in path_dict.items():
-                        if not os.path.exists(os.path.join(root, file_path)):
-                            model_file_path[k_filename] = " "
-                        else:
-                            model_file_path[k_filename] = path_dict[k_filename]
-                else:
-                    hcs_file_path = os.path.join(root, path_dict)
-                    if not os.path.exists(hcs_file_path):
-                        model_file_path[key] = " "
-                    else:
-                        model_file_path[key] = path_dict
+                model_file_path = model_info(
+                    path_dict, root, model_file_path, key)
         out_model_list.append({k: model_file_path})
     return out_model_list
 

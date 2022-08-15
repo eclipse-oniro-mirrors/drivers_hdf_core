@@ -311,7 +311,7 @@ class TestHcsTool:
         assert text == 'nodeaa'
 
     def test_modifyrefename(self):
-        nodeloc = self.test.add_node('root')  #add & click node
+        nodeloc = self.test.add_node('root')  # add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath(
             '/html/body/div/select/option[3]').click(

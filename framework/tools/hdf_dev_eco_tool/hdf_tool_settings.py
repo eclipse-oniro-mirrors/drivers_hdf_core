@@ -44,6 +44,8 @@ class HdfToolSettings(object):
                 raise HdfToolException('file: %s format wrong, %s' %
                                        (self.file_path, str(exc)),
                                        CommandErrorCode.FILE_FORMAT_WRONG)
+            finally:
+                pass
         self.supported_boards_key = 'supported_boards'
         self.drivers_path_key_framework = 'drivers_path_relative_framework'
         self.drivers_path_key_peripheral = 'drivers_path_relative_peripheral'
@@ -53,6 +55,7 @@ class HdfToolSettings(object):
         self.board_path_key = 'board_parent_path'
         self.dot_config_path_key = 'dot_config_path'
         self.template_path_key = 'template_file_path'
+        self.module_save_path = 'create_file_save_path'
 
     def get_supported_boards(self):
         key = self.supported_boards_key
@@ -112,4 +115,8 @@ class HdfToolSettings(object):
 
     def get_user_adapter_path(self):
         key = self.user_adapter_path_key
+        return self.settings.get(key, 'hdf')
+
+    def get_module_save_path(self):
+        key = self.module_save_path
         return self.settings.get(key, 'hdf')

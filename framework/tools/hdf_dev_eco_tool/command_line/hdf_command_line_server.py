@@ -113,9 +113,16 @@ class HdfCommandLineServer(object):
                     self._send_back_error(exc.error_code, exc.exc_msg)
                 except OSError:
                     sys.exit(-1)
+                finally:
+                    pass
+
             except BaseException as exc:
                 try:
                     self._send_back_error(CommandErrorCode.UNKNOWN_ERROR,
                                           str(exc))
                 except OSError:
                     sys.exit(-1)
+                finally:
+                    pass
+            finally:
+                pass

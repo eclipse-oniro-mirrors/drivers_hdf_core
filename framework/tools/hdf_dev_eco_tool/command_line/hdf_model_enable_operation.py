@@ -82,20 +82,8 @@ class EnableOperation(object):
             "LOSCFG_DRIVERS_HDF_${module_upper_case}=y"
         new_template_string = \
             "LOSCFG_DRIVERS_HDF_${module_upper_case} is not set\n"
-        new_demo_config = Template(new_template_string).substitute(
-            {"module_upper_case": self.model.upper()})
-        old_demo_config = Template(old_template_string).substitute(
-            {"module_upper_case": self.model.upper()})
-
-        if self.model not in self.liteos_model_name:
-            return False
-        for dot_file in dot_file_list:
-            file_lines = hdf_utils.read_file_lines(dot_file)
-            for index, line in enumerate(file_lines):
-                if old_demo_config == line.strip():
-                    file_lines[index] = new_demo_config
-            hdf_utils.write_file_lines(dot_file, file_lines)
-        return True
+        return self.enable_disable_same_code(
+            new_template_string, old_template_string, dot_file_list)
 
     def enable_model_liteos(self):
         dot_file_list = hdf_utils.get_dot_configs_path(
@@ -104,6 +92,11 @@ class EnableOperation(object):
             "LOSCFG_DRIVERS_HDF_${module_upper_case}=y\n"
         old_template_string = \
             "LOSCFG_DRIVERS_HDF_${module_upper_case} is not set"
+        return self.enable_disable_same_code(
+            new_template_string, old_template_string, dot_file_list)
+
+    def enable_disable_same_code(self, new_template_string,
+                                 old_template_string, dot_file_list):
         new_demo_config = Template(new_template_string).substitute(
             {"module_upper_case": self.model.upper()})
         old_demo_config = Template(old_template_string).substitute(
@@ -128,6 +121,8 @@ class EnableOperation(object):
                     return "%s model_name is not linux_l2 type" % self.model
             except Exception:
                 raise "failure(linux) enable %s" % self.model
+            finally:
+                pass
 
         elif self.board.endswith("hispark_taurus_linux"):
             try:
@@ -137,6 +132,8 @@ class EnableOperation(object):
                     return "%s model_name is not linux type" % self.model
             except Exception:
                 raise "failure(linux) enable %s" % self.model
+            finally:
+                pass
 
         elif self.board.endswith("hispark_taurus"):
             try:
@@ -146,6 +143,8 @@ class EnableOperation(object):
                     return "%s model_name is not liteos type" % self.model
             except Exception:
                 raise "failure(liteos) enable %s" % self.model
+            finally:
+                pass
 
         else:
             return "this board name : (%s) is not support" % self.board
@@ -159,6 +158,8 @@ class EnableOperation(object):
                     return "%s model_name is not linux_l2 type" % self.model
             except Exception:
                 raise "failure(linux) disable %s" % self.model
+            finally:
+                pass
 
         elif self.board.endswith("hispark_taurus_linux"):
             try:
@@ -168,6 +169,8 @@ class EnableOperation(object):
                     return "%s model_name is not linux type" % self.model
             except Exception:
                 raise "failure(linux) disable %s" % self.model
+            finally:
+                pass
 
         elif self.board.endswith("hispark_taurus"):
             try:
@@ -177,6 +180,8 @@ class EnableOperation(object):
                     return "%s model_name is not liteos type" % self.model
             except Exception:
                 raise "failure(liteos) disable %s" % self.model
+            finally:
+                pass
 
         else:
             return "this board name : (%s) is not support " % self.board

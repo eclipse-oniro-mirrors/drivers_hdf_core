@@ -103,18 +103,19 @@ class HdfDeviceInfoHcsFile(object):
         index_info = {}
         count = 0
         for index, line in enumerate(hcs_config):
-            if line.find("%s :: host" % module) > 0:
-                index_info["start_index"] = index
-                for child_index in range(
-                        index_info.get("start_index"), len(hcs_config)):
-                    if hcs_config[child_index].strip().find("{") != -1:
-                        count += 1
-                    elif hcs_config[child_index].strip() == "}":
-                        count -= 1
-                    if count == 0:
-                        index_info["end_index"] = child_index
-                        break
-                break
+            if line.find("%s :: host" % module) == -1:
+                continue
+            index_info["start_index"] = index
+            for child_index in range(
+                    index_info.get("start_index"), len(hcs_config)):
+                if hcs_config[child_index].strip().find("{") != -1:
+                    count += 1
+                elif hcs_config[child_index].strip() == "}":
+                    count -= 1
+                if count == 0:
+                    index_info["end_index"] = child_index
+                    break
+            break
         if index_info:
             self.lines = hcs_config[0:index_info.get("start_index")] \
                          + hcs_config[index_info.get("end_index") + 1:]
@@ -195,9 +196,10 @@ class HdfDeviceInfoHcsFile(object):
                     count += 1
                 elif start_state and old_line.find("}") != -1:
                     count -= 1
-                    if count == 0:
-                        start_state = False
-                        model_end_index = index
+                    if count != 0:
+                        continue
+                    start_state = False
+                    model_end_index = index
         return model_end_index, model_start_index
 
     def judge_driver_hcs_exists(self, date_lines):

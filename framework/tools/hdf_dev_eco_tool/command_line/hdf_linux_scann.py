@@ -65,29 +65,31 @@ class HdfLinuxScan(object):
         for index, lines in enumerate(self.contents):
             temp_list = []
             obj_result = re.search(self.re_temp2_obj, lines.strip())
-            if obj_result:
-                enable_name_result = re.search(
-                    self.re_temp3_enable, lines.strip())
-                model_path = lines.split("+=")[-1].strip()
-                model_name_result = re.search(
-                    self.re_temp1_model, model_path)
-                if model_name_result:
-                    model_name = enable_name_result.group()
-                    if self.platform == "windows":
-                        model_path =\
-                            os.path.join('\\'.join(self.makefile_path.
-                                        split('\\')[:-1]), model_path)
-                    elif self.platform == "linux":
-                        model_path = \
-                            os.path.join('/'.join(
-                            self.makefile_path.split('/')[:-1]), model_path)
-                    temp_list.append(model_path)
-                    if os.path.exists(model_path):
-                        if model_enable_dict.get(model_name, None):
-                            model_enable_dict[model_name] =\
-                                temp_list + model_enable_dict.get(model_name)
-                        else:
-                            model_enable_dict[model_name] = temp_list
+            if not obj_result:
+                continue
+            enable_name_result = re.search(
+                self.re_temp3_enable, lines.strip())
+            model_path = lines.split("+=")[-1].strip()
+            model_name_result = re.search(
+                self.re_temp1_model, model_path)
+            if not model_name_result:
+                continue
+            model_name = enable_name_result.group()
+            if self.platform == "windows":
+                model_path = \
+                    os.path.join('\\'.join(self.makefile_path.
+                                           split('\\')[:-1]), model_path)
+            elif self.platform == "linux":
+                model_path = \
+                    os.path.join('/'.join(
+                        self.makefile_path.split('/')[:-1]), model_path)
+            temp_list.append(model_path)
+            if os.path.exists(model_path):
+                if model_enable_dict.get(model_name, None):
+                    model_enable_dict[model_name] = \
+                        temp_list + model_enable_dict.get(model_name)
+                else:
+                    model_enable_dict[model_name] = temp_list
         return model_enable_dict
 
     def get_config_path(self):
@@ -106,13 +108,15 @@ class HdfLinuxScan(object):
         defconfig_path = self.get_config_path()[0]
         config_enable_lines = hdf_utils.read_file_lines(defconfig_path)
         for enable_name, model_path in judge_enable_dict.items():
-            # 先去判断使能文件中是否使能(获取使能配置文件路径)
-            if ('%s=y\n' % enable_name) in config_enable_lines:
-                if "Makefile" in os.listdir(model_path[0]):
-                    if os.path.join(model_path[0],
-                                    'Makefile') not in enable_list:
-                        enable_list.append(
-                            os.path.join(model_path[0], 'Makefile'))
+            # First determine whether the enable file is enabled
+            # (get the enable configuration file path)
+            if ('%s=y\n' % enable_name) not in config_enable_lines:
+                continue
+            if "Makefile" in os.listdir(model_path[0]):
+                if os.path.join(model_path[0],
+                                'Makefile') not in enable_list:
+                    enable_list.append(
+                        os.path.join(model_path[0], 'Makefile'))
         return enable_list
 
     def _get_model_file_dict(self):
@@ -161,8 +165,8 @@ class HdfLinuxScan(object):
         if list1_12:
             names = re.search(re_temp3, lines[list1_12[0]].strip()).group()
             test2_dict = {}
-            test_dict[names] = self.scan_enable_dict\
-                (lines[list1_12[0] + 1:list1_12[1] - 1], test2_dict, names)
+            test_dict[names] = self.scan_enable_dict(
+                lines[list1_12[0] + 1:list1_12[1] - 1], test2_dict, names)
             temp_lines = lines
         else:
             temp_lines = lines
