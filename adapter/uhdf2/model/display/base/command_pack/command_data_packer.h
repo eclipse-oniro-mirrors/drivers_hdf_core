@@ -18,7 +18,7 @@
 
 #include <memory>
 #include <securec.h>
-#include "hdf_log.h"
+#include "hilog/log.h"
 
 namespace OHOS {
 namespace HDI {
@@ -49,7 +49,7 @@ public:
         uint32_t alignedSize = (packSize_ + ALLOC_PAGE_SIZE - 1) & (~(ALLOC_PAGE_SIZE - 1));
         data_ = new char[alignedSize]();
         if (data_ == nullptr) {
-            HDF_LOGE("%{public}s: alloc memory failed", __func__);
+            HILOG_ERROR(LOG_CORE, "%{public}s: alloc memory failed", __func__);
             ret = false;
         } else {
             packSize_ = alignedSize;
@@ -111,7 +111,7 @@ public:
         bool ret = false;
         // len must be 4 byte alignment.
         if ((len & SECTION_LEN_ALIGN - 1) != 0) {
-            HDF_LOGE("%{public}s: length is not aligned by 4 bytes", __func__);
+            HILOG_ERROR(LOG_CORE, "%{public}s: length is not aligned by 4 bytes", __func__);
         } else {
             ret = true;
         }
@@ -142,8 +142,8 @@ public:
             *reinterpret_cast<uint32_t *>(data_ + curSecLenPos_) = updatedLen;
             writePos_ = curSecOffset_ + updatedLen;
         } else {
-            HDF_LOGE("%{public}s: writePos_(%{public}zu) before curSecOffset_(%{public}zu)", __func__, writePos_,
-                curSecOffset_);
+            HILOG_ERROR(LOG_CORE, "%{public}s: writePos_(%{public}zu) before curSecOffset_(%{public}zu)",
+                __func__, writePos_, curSecOffset_);
             return false;
         }
         return (writePos_ >= packSize_ ? false : true);
@@ -153,8 +153,8 @@ public:
     {
         bool ret = WriteInt32(endCmd);
         if (writePos_ >= packSize_) {
-            HDF_LOGE("%{public}s: writePos_(%{public}zu) > packSize_(%{public}zu), write overflow.", __func__,
-                writePos_, curSecOffset_);
+            HILOG_ERROR(LOG_CORE, "%{public}s: writePos_(%{public}zu) > packSize_(%{public}zu), write overflow.",
+                __func__, writePos_, curSecOffset_);
             ret = false;
         }
         return ret;
@@ -162,28 +162,28 @@ public:
 
     void Dump()
     {
-        HDF_LOGI("---------------------------------------------\n");
-        HDF_LOGI("ALLOC_PAGE_SIZE       =%{public}d\n", ALLOC_PAGE_SIZE);
-        HDF_LOGI("INIT_DATA_SIZE        =%{public}d\n", INIT_DATA_SIZE);
-        HDF_LOGI("SECTION_END_MAGIC     =0x%{public}x\n", SECTION_END_MAGIC);
-        HDF_LOGI("packSize_             =%{public}zu\n", packSize_);
-        HDF_LOGI("writePos_             =%{public}zu\n", writePos_);
-        HDF_LOGI("curSecOffset_         =%{public}zu\n", curSecOffset_);
-        HDF_LOGI("settingSecLen_        =%{public}d\n", settingSecLen_);
-        HDF_LOGI("curSecLenPos_         =%{public}zu\n", curSecLenPos_);
-        HDF_LOGI("data_                 =%{public}p\n", data_);
+        HILOG_INFO(LOG_CORE, "---------------------------------------------\n");
+        HILOG_INFO(LOG_CORE, "ALLOC_PAGE_SIZE       =%{public}d\n", ALLOC_PAGE_SIZE);
+        HILOG_INFO(LOG_CORE, "INIT_DATA_SIZE        =%{public}d\n", INIT_DATA_SIZE);
+        HILOG_INFO(LOG_CORE, "SECTION_END_MAGIC     =0x%{public}x\n", SECTION_END_MAGIC);
+        HILOG_INFO(LOG_CORE, "packSize_             =%{public}zu\n", packSize_);
+        HILOG_INFO(LOG_CORE, "writePos_             =%{public}zu\n", writePos_);
+        HILOG_INFO(LOG_CORE, "curSecOffset_         =%{public}zu\n", curSecOffset_);
+        HILOG_INFO(LOG_CORE, "settingSecLen_        =%{public}d\n", settingSecLen_);
+        HILOG_INFO(LOG_CORE, "curSecLenPos_         =%{public}zu\n", curSecLenPos_);
+        HILOG_INFO(LOG_CORE, "data_                 =%{public}p\n", data_);
         uint32_t i = 0;
         for (; sizeof(int32_t) * i < writePos_;) {
-            HDF_LOGI("%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));
+            HILOG_INFO(LOG_CORE, "%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));
             i++;
             if ((i % DUMP_LINE_LEN) == 0) {
-                HDF_LOGI("\n");
+                HILOG_INFO(LOG_CORE, "\n");
             } else if ((i % DUMP_HALF_LINE_SPACE) == 0) {
-                HDF_LOGI(" ");
+                HILOG_INFO(LOG_CORE, " ");
             } else {
             }
         }
-        HDF_LOGI("\n");
+        HILOG_INFO(LOG_CORE, "\n");
     }
 
 private:
@@ -197,7 +197,7 @@ private:
 
             char *newData = new char[newSize];
             if (memcpy_s(newData, newSize, data_, packSize_) != EOK) {
-                HDF_LOGE("%{public}s: memcpy_s failed", __func__);
+                HILOG_ERROR(LOG_CORE, "%{public}s: memcpy_s failed", __func__);
                 return false;
             }
             data_ = newData;

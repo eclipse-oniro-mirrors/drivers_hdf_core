@@ -18,7 +18,7 @@
 
 #include <unordered_map>
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hilog/log.h"
 #include "hdi_smq.h"
 #include "buffer_handle_parcelable.h"
 #include "buffer_handle_utils.h"
@@ -83,7 +83,7 @@ public:
         }
         isReplyUpdated_ = false;
         if (ec != HDF_SUCCESS) {
-            HDF_LOGE("error: GetCmdReply failure");
+            HILOG_ERROR(LOG_CORE, "error: GetCmdReply failure");
         }
         return ec;
     }
@@ -92,7 +92,7 @@ public:
         const std::vector<HdifdInfo> &inFds, std::vector<HdifdInfo> &outFds)
     {
         int32_t ec = HDF_SUCCESS;
-        HDF_LOGD("PackSection, cmd-[%{public}d] = %{public}s", cmd, CmdUtils::CommandToString(cmd));
+        HILOG_DEBUG(LOG_CORE, "PackSection, cmd-[%{public}d] = %{public}s", cmd, CmdUtils::CommandToString(cmd));
         switch (cmd) {
             case REQUEST_CMD_PREPAREDISPLAYLAYERS:
                 OnPrepareDisplayLayers(unpacker);
@@ -146,7 +146,7 @@ public:
                 OnRequestEnd(unpacker);
                 break;
             default:
-                HDF_LOGE("error: not support display command, unpacked cmd = %{public}d", cmd);
+                HILOG_ERROR(LOG_CORE, "error: not support display command, unpacked cmd = %{public}d", cmd);
                 ec = HDF_FAILURE;
                 break;
         }
@@ -169,32 +169,33 @@ public:
         }
         int32_t unpackCmd = -1;
         if (ec != HDF_SUCCESS || unpacker->PackBegin(unpackCmd) == false) {
-            HDF_LOGE("error: Check RequestBegin failed.");
+            HILOG_ERROR(LOG_CORE, "error: Check RequestBegin failed.");
             ec = HDF_FAILURE;
         }
         if (unpackCmd != CONTROL_CMD_REQUEST_BEGIN) {
-            HDF_LOGI("error: unpacker PackBegin cmd not match, cmd(%{public}d)=%{public}s.", unpackCmd,
+            HILOG_INFO(LOG_CORE, "error: unpacker PackBegin cmd not match, cmd(%{public}d)=%{public}s.", unpackCmd,
                 CmdUtils::CommandToString(unpackCmd));
             ec = HDF_FAILURE;
         }
 
         while (ec == HDF_SUCCESS && unpacker->NextSection()) {
             if (!unpacker->BeginSection(unpackCmd)) {
-                HDF_LOGE("error: PackSection failed, unpackCmd=%{public}s.", CmdUtils::CommandToString(unpackCmd));
+                HILOG_ERROR(LOG_CORE, "error: PackSection failed, unpackCmd=%{public}s.",
+                    CmdUtils::CommandToString(unpackCmd));
                 ec = HDF_FAILURE;
             }
             ec = ProcessRequestCmd(unpacker, unpackCmd, inFds, outFds);
         }
         /* pack request end commands */
         replyPacker_->PackEnd(CONTROL_CMD_REPLY_END);
-        HDF_LOGE("CmdReply command cnt=%{public}d", replyCommandCnt_);
+        HILOG_ERROR(LOG_CORE, "CmdReply command cnt=%{public}d", replyCommandCnt_);
         /*  Write reply pack */
         replyPacker_->Dump();
         outEleCnt = replyPacker_->ValidSize() / CmdUtils::ELEMENT_SIZE;
         ec = reply_->Write(reinterpret_cast<int32_t *>(replyPacker_->GetDataPtr()), outEleCnt,
             CmdUtils::TRANSFER_WAIT_TIME);
         if (ec != HDF_SUCCESS) {
-            HDF_LOGE("Reply write failure, ec=%{public}d", ec);
+            HILOG_ERROR(LOG_CORE, "Reply write failure, ec=%{public}d", ec);
             outEleCnt = 0;
         }
         int32_t ec2 = PeriodDataReset();
@@ -206,12 +207,12 @@ private:
     {
         reply_ = std::make_shared<Transfer>(size, SmqType::SYNCED_SMQ);
         if (reply_ == nullptr) {
-            HDF_LOGE("nullptr error");
+            HILOG_ERROR(LOG_CORE, "nullptr error");
             return HDF_FAILURE;
         }
         replyPacker_ = std::make_shared<CommandDataPacker>();
         if (replyPacker_ == nullptr || replyPacker_->Init(reply_->GetSize() * CmdUtils::ELEMENT_SIZE) == false) {
-            HDF_LOGE("replyPacker init failure");
+            HILOG_ERROR(LOG_CORE, "replyPacker init failure");
             return HDF_FAILURE;
         }
         return CmdUtils::StartPack(CONTROL_CMD_REPLY_BEGIN, replyPacker_);
@@ -236,13 +237,13 @@ private:
                 if (retVal) {
                     retVal = replyPacker_->WriteInt32(it->second);
                 }
-                HDF_LOGE("Call display cmd failed, Id:%{public}s, ec=%{public}d", CmdUtils::CommandToString(it->first),
-                    it->second);
+                HILOG_ERROR(LOG_CORE, "Call display cmd failed, Id:%{public}s, ec=%{public}d",
+                    CmdUtils::CommandToString(it->first), it->second);
             }
             if (retVal) {
                 CmdUtils::EndSection(replyPacker_);
             } else {
-                HDF_LOGE("OnRequestEnd failed");
+                HILOG_ERROR(LOG_CORE, "OnRequestEnd failed");
             }
             replyCommandCnt_++;
         }
@@ -618,7 +619,7 @@ private:
 
         int32_t ec = CmdUtils::StartPack(CONTROL_CMD_REPLY_BEGIN, replyPacker_);
         if (ec != HDF_SUCCESS) {
-            HDF_LOGE("PackBegin failure, ec=%{public}d", ec);
+            HILOG_ERROR(LOG_CORE, "PackBegin failure, ec=%{public}d", ec);
         }
         return ec;
     }

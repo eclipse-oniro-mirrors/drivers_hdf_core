@@ -14,7 +14,7 @@
  */
 
 #include "display_buffer_hdi_impl.h"
-#include "hdf_log.h"
+#include "hilog/log.h"
 
 namespace OHOS {
 namespace HDI {

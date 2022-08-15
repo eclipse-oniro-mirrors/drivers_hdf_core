@@ -16,7 +16,7 @@
 #ifndef OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
 
-#include "hdf_log.h"
+#include "hilog/log.h"
 #include "v1_0/display_command/display_cmd_requester.h"
 #include "v1_0/display_composer_type.h"
 #include "v1_0/idisplay_composer.h"
@@ -29,10 +29,10 @@ namespace Composer {
 namespace V1_0 {
 using namespace OHOS::HDI::Display::Composer::V1_0;
 
-#define COMPOSER_CHECK_NULLPTR(ptr)                                             \
-    if (ptr == nullptr) {                                                       \
-        HDF_LOGE("%{public}d@%{public}s nullptr error", __LINE__, __func__);    \
-        return DISPLAY_NULL_PTR;                                                \
+#define COMPOSER_CHECK_NULLPTR(ptr)                                                         \
+    if (ptr == nullptr) {                                                                   \
+        HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s nullptr error", __LINE__, __func__);   \
+        return DISPLAY_NULL_PTR;                                                            \
     }
 
 template <typename Interface, typename CompHdi, typename CmdReq>
@@ -324,7 +324,7 @@ public:
         if (hotPlugCb_ != nullptr) {
             hotPlugCb_(outputId, connected, hotPlugCbData_);
         } else {
-            HDF_LOGE("erroe: hot plug callback fn is nullptr");
+            HILOG_ERROR(LOG_CORE, "erroe: hot plug callback fn is nullptr");
             ret = HDF_FAILURE;
         }
 
@@ -337,7 +337,7 @@ public:
         if (vBlankCb_ != nullptr) {
             vBlankCb_(sequence, ns, vBlankCbData_);
         } else {
-            HDF_LOGE("erroe: vblank callback fn is nullptr");
+            HILOG_ERROR(LOG_CORE, "erroe: vblank callback fn is nullptr");
             ret = HDF_FAILURE;
         }
 
