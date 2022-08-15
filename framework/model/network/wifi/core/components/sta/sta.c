@@ -171,6 +171,7 @@ static int WifiFillAssocParams(WifiAssociateParams *assoc, struct HdfSBuf *reqDa
 static int WifiSetAssocParams(const WifiAssociateParams *assoc, const struct NetDevice *netdev,
     struct WlanConnectParams *params)
 {
+    (void)netdev;
     params->ssid = assoc->ssid;
     params->ssidLen = assoc->ssidLen;
     params->ie = assoc->ie;
@@ -404,7 +405,7 @@ ServiceDefine(STAService, STA_SERVICE_ID, g_wifiStaFeatureCmds);
 
 Service *g_staService = NULL;
 
-int32_t StaInit(struct WifiFeature *feature)
+static int32_t StaInit(struct WifiFeature *feature)
 {
     (void)feature;
     if (g_staService == NULL) {
@@ -420,7 +421,7 @@ int32_t StaInit(struct WifiFeature *feature)
     return HDF_SUCCESS;
 }
 
-int32_t StaDeinit(struct WifiFeature *feature)
+static int32_t StaDeinit(struct WifiFeature *feature)
 {
     (void)feature;
     if (g_staService != NULL && g_staService->Destroy != NULL) {

@@ -13,7 +13,8 @@
 #include "hdf_reset.h"
 #include "osal/osal_mem.h"
 
-struct HdfVirtualDevice *CreateVirtualDevice(struct HdfChipConfig *config) {
+struct HdfVirtualDevice *CreateVirtualDevice(struct HdfChipConfig *config)
+{
     struct HdfVirtualDevice *device = NULL;
     int32_t ret = HDF_SUCCESS;
     if (config == NULL) {
@@ -45,7 +46,8 @@ struct HdfVirtualDevice *CreateVirtualDevice(struct HdfChipConfig *config) {
     }
     return device;
 }
-void ReleaseVirtualDevice(struct HdfVirtualDevice *device) {
+void ReleaseVirtualDevice(struct HdfVirtualDevice *device)
+{
     if (device == NULL) {
         return;
     }

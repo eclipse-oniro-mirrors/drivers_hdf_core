@@ -18,7 +18,7 @@
 static struct HdfChipDriverFactory *g_wlanChipDriverManagerFactory[MAX_CHIPDRIVER_COUNT] = {NULL};
 
 /* chip driver manager method get chip driver factory by chip name */
-struct HdfChipDriverFactory *HdfWlanGetChipDriverByName(const char *driverName)
+static struct HdfChipDriverFactory *HdfWlanGetChipDriverByName(const char *driverName)
 {
     int32_t i;
     if (driverName == NULL) {
@@ -38,7 +38,7 @@ struct HdfChipDriverFactory *HdfWlanGetChipDriverByName(const char *driverName)
 }
 
 /* chip driver manager register */
-int32_t HdfWlanRegChipDriver(struct HdfChipDriverFactory *obj)
+static int32_t HdfWlanRegChipDriver(struct HdfChipDriverFactory *obj)
 {
     int32_t index;
     if (obj == NULL || obj->driverName == NULL) {

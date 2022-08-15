@@ -379,7 +379,7 @@ ServiceDefine(P2PService, P2P_SERVICE_ID, g_wifiP2pFeatureCmds);
 
 static Service *g_p2pService = NULL;
 
-int32_t P2pInit(struct WifiFeature *feature)
+static int32_t P2pInit(struct WifiFeature *feature)
 {
     (void)feature;
     if (g_p2pService == NULL) {
@@ -394,7 +394,7 @@ int32_t P2pInit(struct WifiFeature *feature)
     return HDF_SUCCESS;
 }
 
-int32_t P2pDeinit(struct WifiFeature *feature)
+static int32_t P2pDeinit(struct WifiFeature *feature)
 {
     (void)feature;
     if (g_p2pService != NULL && g_p2pService->Destroy != NULL) {

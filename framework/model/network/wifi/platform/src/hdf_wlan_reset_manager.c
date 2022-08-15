@@ -35,7 +35,7 @@ struct ResetManagerImpl {
 /**
  * @brief HdfChipReset
  */
-int32_t HdfChipReset(struct ResetManager *resetManager)
+static int32_t HdfChipReset(struct ResetManager *resetManager)
 {
     int32_t ret;
     struct ResetManagerImpl *resetMgrImpl = NULL;
@@ -70,7 +70,7 @@ int32_t HdfChipReset(struct ResetManager *resetManager)
     return HDF_SUCCESS;
 }
 /* to release reset manager resource */
-int32_t HdfWlanResetMgrRelease(struct ResetManager* resetMgr)
+static int32_t HdfWlanResetMgrRelease(struct ResetManager* resetMgr)
 {
     if (resetMgr == NULL) {
         HDF_LOGE("%s: resetMgr already deinit or input para error ", __func__);

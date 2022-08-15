@@ -133,7 +133,7 @@ static int32_t HdfWlanChipPowerOff(struct PowerManager* powerMgr)
     return HDF_SUCCESS;
 }
 
-int32_t HdfWlanPowerMgrRelease(struct PowerManager* powerMgr)
+static int32_t HdfWlanPowerMgrRelease(struct PowerManager* powerMgr)
 {
     if (powerMgr == NULL) {
         HDF_LOGW("%s: powerMgr already deinit or input para error ", __func__);
