@@ -183,32 +183,33 @@ class HdfLiteScan(object):
         multiple_path = {}
         for path in model_path_dict[name]:
             model_build = os.path.join(path, "BUILD.gn")
-            if os.path.exists(model_build):
-                model_build_lines = hdf_utils.read_file_lines(model_build)
-                key_index = self.get_index(
-                    model_config_lines=model_build_lines)
-                replace_path = {}
-                enable_path_dict = self.enable_dict(
-                    index_list=key_index,
-                    enable_lines=model_build_lines,
-                    path=path
-                )
-                for index, line in enumerate(model_build_lines):
-                    if re.search(self.re_temp_module_switch, line.strip()):
-                        temp_name = re.search(self.re_temp_loscfg,
-                                              line.strip()).group()
-                    elif re.search(self.re_left_macro, line.strip()):
-                        replace_path = self.get_macro_replace_path(
-                            line, model_build_lines,
-                            index, replace_path, import_replace_name)
-                    elif re.search(r"^import", line.strip()):
-                        import_gni_path.append(line.strip())
-                enable_path_dict[temp_name] = enable_path_dict.pop("temp")
-                multiple_path.update(enable_path_dict)
-                if need_replace.get(name):
-                    need_replace[name].update(replace_path)
-                else:
-                    need_replace[name] = replace_path
+            if not os.path.exists(model_build):
+                continue
+            model_build_lines = hdf_utils.read_file_lines(model_build)
+            key_index = self.get_index(
+                model_config_lines=model_build_lines)
+            replace_path = {}
+            enable_path_dict = self.enable_dict(
+                index_list=key_index,
+                enable_lines=model_build_lines,
+                path=path
+            )
+            for index, line in enumerate(model_build_lines):
+                if re.search(self.re_temp_module_switch, line.strip()):
+                    temp_name = re.search(self.re_temp_loscfg,
+                                          line.strip()).group()
+                elif re.search(self.re_left_macro, line.strip()):
+                    replace_path = self.get_macro_replace_path(
+                        line, model_build_lines,
+                        index, replace_path, import_replace_name)
+                elif re.search(r"^import", line.strip()):
+                    import_gni_path.append(line.strip())
+            enable_path_dict[temp_name] = enable_path_dict.pop("temp")
+            multiple_path.update(enable_path_dict)
+            if need_replace.get(name):
+                need_replace[name].update(replace_path)
+            else:
+                need_replace[name] = replace_path
         return_dict[name] = multiple_path
         return need_replace, return_dict, enable_path_dict, import_gni_path
 
@@ -254,19 +255,18 @@ class HdfLiteScan(object):
                             model_path_dict, name, import_replace_name,
                             import_gni_path, return_dict, need_replace)
 
-        for k in list(return_dict.keys()):
-            for model_detail in list(return_dict.get(k).keys()):
+        for k_name in list(return_dict.keys()):
+            for model_detail in list(return_dict.get(k_name).keys()):
                 enable_key = '%s=y\n' % model_detail
                 if enable_key not in self.contents_config_enable:
-                    del return_dict.get(k)[model_detail]
+                    del return_dict.get(k_name)[model_detail]
+                    continue
+                if not return_dict.get(k_name).get(model_detail):
+                    del return_dict.get(k_name)[model_detail]
                 else:
-                    if not return_dict.get(k).get(model_detail):
-                        del return_dict.get(k)[model_detail]
-                    else:
-                        return_dict = self.format_replace_string(
-                            return_dict, model_name=k,
-                            model_detail=model_detail)
-
+                    return_dict = self.format_replace_string(
+                        return_dict, model_name=k_name,
+                        model_detail=model_detail)
         return return_dict, need_replace, \
                import_gni_path, import_replace_name
 
@@ -316,26 +316,9 @@ class HdfLiteScan(object):
                     enable_name = "temp"
             else:
                 enable_name = "temp"
-            temp_list0 = []
-            for temp_info in temp_list:
-                source_file_path1 = re.search(
-                    self.re_source_file1, temp_info.strip())
-                source_file_path2 = re.search(
-                    self.re_source_file2, temp_info.strip())
-                if source_file_path1:
-                    temp_list0.append(source_file_path1.group())
-                elif source_file_path2:
-                    list1 = temp_info.strip().split("=")
-                    try:
-                        str1 = ast.literal_eval(list1[-1].strip())[0]
-                    except NameError:
-                        continue
-                    finally:
-                        pass
-                    temp_list0.append(re.search(
-                        self.re_source_file2, str1.strip()).group())
+            temp_res_list = self.eval_source_str_path(temp_list)
             replace_finish = []
-            for temp_path in temp_list0:
+            for temp_path in temp_res_list:
                 if temp_path.startswith('$'):
                     replace_finish.append(temp_path)
                 else:
@@ -344,6 +327,27 @@ class HdfLiteScan(object):
             temp_dict["drivers_sources"] = replace_finish
             result_dict[enable_name] = temp_dict
         return result_dict
+
+    def eval_source_str_path(self, temp_list):
+        temp_res_list = []
+        for temp_info in temp_list:
+            source_file_path1 = re.search(
+                self.re_source_file1, temp_info.strip())
+            source_file_path2 = re.search(
+                self.re_source_file2, temp_info.strip())
+            if source_file_path1:
+                temp_res_list.append(source_file_path1.group())
+            elif source_file_path2:
+                list1 = temp_info.strip().split("=")
+                try:
+                    str1 = ast.literal_eval(list1[-1].strip())[0]
+                except NameError:
+                    continue
+                finally:
+                    pass
+                temp_res_list.append(re.search(
+                    self.re_source_file2, str1.strip()).group())
+        return temp_res_list
 
     def get_header_list(self, enable_lines, index_list, index_num):
         count = 0
@@ -356,12 +360,11 @@ class HdfLiteScan(object):
                     header_name = enable_lines[index_list[index_num]].strip()
                     temp_list.append(line)
                     continue
+                if line.strip().find("+=") > 0:
+                    count += 1
+                    header_name = enable_lines[index_list[index_num]].strip()
                 else:
-                    if line.strip().find("+=") > 0:
-                        count += 1
-                        header_name = enable_lines[index_list[index_num]].strip()
-                    else:
-                        count += 1
+                    count += 1
             elif line.strip() == "]":
                 count -= 1
                 if count == 0:
@@ -392,22 +395,25 @@ class HdfLiteScan(object):
                 json.dumps(return_dict[key_model]))
             temp_key_model = json.loads(temp_template1.
                                         substitute(replace_dict))
-            for enable_name_lower in list(temp_key_model.keys()):
-                if enable_name_lower.find("HDF") != -1:
-                    key_name = ''.join(["HDF", enable_name_lower.
-                                 split("HDF")[-1]]).lower()
-                else:
-                    key_name = enable_name_lower.lower()
-                temp_key_model[key_name] = temp_key_model.pop(enable_name_lower)
-                for file_path in temp_key_model[key_name]["drivers_sources"]:
-                    if not os.path.exists(file_path):
-                        temp_key_model[key_name]["drivers_sources"].\
-                            remove(file_path)
-            return_dict[key_model] = temp_key_model
+            temp_res_key_model = self.driver_source_filter(temp_key_model)
+            return_dict[key_model] = temp_res_key_model
         return_dict["deconfig"] = self.dot_file[0]
         return_dict["build"] = self.build_path
         return_dict["hcs_path"] = self.hcs_path
         return json.dumps(return_dict, indent=4)
+
+    def driver_source_filter(self, temp_key_model):
+        for enable_name_lower in list(temp_key_model.keys()):
+            if enable_name_lower.find("HDF") != -1:
+                key_name = ''.join(["HDF", enable_name_lower.
+                                   split("HDF")[-1]]).lower()
+            else:
+                key_name = enable_name_lower.lower()
+            temp_key_model[key_name] = temp_key_model.pop(enable_name_lower)
+            for file_path in temp_key_model[key_name]["drivers_sources"]:
+                if not os.path.exists(file_path):
+                    temp_key_model[key_name]["drivers_sources"].remove(file_path)
+        return temp_key_model
 
     def get_model_scan(self):
         liteos_model = self.scan_build()

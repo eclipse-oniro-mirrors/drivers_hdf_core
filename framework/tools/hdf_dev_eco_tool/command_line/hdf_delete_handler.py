@@ -129,41 +129,46 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                     key_name, value, temp_root=root, temp_model=model)
 
         elif key == "module_path":
-            for file_name, value2 in model_info[key].items():
-                if file_name.startswith("adapter"):
-                    file_path = os.path.join(root, value2)
-                    file_info = hdf_utils.read_file_lines(file_path)
-                    delete_info = "libhdf_%s_hotplug" % model
+            for file_name, module_value in model_info[key].items():
+                self._delete_module_file(root, model, file_name, module_value)
 
-                    for index, line_info in enumerate(file_info):
-                        if line_info.find(delete_info) > 0:
-                            file_info.pop(index)
-                            hdf_utils.write_file_lines(file_path, file_info)
-                            break
-                elif file_name == "group" or file_name == "passwd":
-                    file_path = os.path.join(root, value2)
-                    file_info = hdf_utils.read_file_lines(file_path)
-                    for index, line in enumerate(file_info):
-                        if line.find(model) != -1:
-                            file_info.pop(index)
+    def _delete_module_file(self, root, model, file_name, module_value):
+        if file_name.startswith("adapter"):
+            file_path = os.path.join(root, module_value)
+            file_info = hdf_utils.read_file_lines(file_path)
+            delete_info = "libhdf_%s_hotplug" % model
+
+            for index, line_info in enumerate(file_info):
+                if line_info.find(delete_info) > 0:
+                    file_info.pop(index)
                     hdf_utils.write_file_lines(file_path, file_info)
-                else:
-                    if value2.endswith("hcs"):
-                        hcs_path = os.path.join(root, value2)
-                        HdfDeviceInfoHcsFile(
-                            root=root, vendor="", module="",
-                            board="", driver=" ", path=hcs_path).\
-                            delete_driver(module=model)
-                    else:
-                        if value2:
-                            file_path = os.path.join(root, value2)
-                            if os.path.exists(file_path):
-                                os.remove(file_path)
-                            model_dir_path = "/".join(file_path.split("/")[:-1])
-                            if os.path.exists(model_dir_path):
-                                file_list = os.listdir(model_dir_path)
-                                if not file_list:
-                                    shutil.rmtree(model_dir_path)
+                    break
+        elif file_name == "group" or file_name == "passwd":
+            file_path = os.path.join(root, module_value)
+            file_info = hdf_utils.read_file_lines(file_path)
+            for index, line in enumerate(file_info):
+                if line.find(model) != -1:
+                    file_info.pop(index)
+            hdf_utils.write_file_lines(file_path, file_info)
+        else:
+            if module_value.endswith("hcs"):
+                hcs_path = os.path.join(root, module_value)
+                HdfDeviceInfoHcsFile(
+                    root=root, vendor="", module="",
+                    board="", driver=" ", path=hcs_path). \
+                    delete_driver(module=model)
+            else:
+                if not module_value:
+                    return
+                file_path = os.path.join(root, module_value)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                model_dir_path = "/".join(file_path.split("/")[:-1])
+                if not os.path.exists(model_dir_path):
+                    return
+                file_list = os.listdir(model_dir_path)
+                if not file_list:
+                    shutil.rmtree(model_dir_path)
 
     def _delete_config_operation(self, key_name, value, temp_root, temp_model):
         if key_name == "%s_Makefile" % temp_model:

@@ -56,48 +56,6 @@ class HdfDeviceInfoHcsFile(object):
                 for line in self.lines:
                     lwrite.write(line)
 
-    def _find_line(self, pattern):
-        for index, line in enumerate(self.lines):
-            if re.search(pattern, line):
-                return index, line
-        return 0, ''
-
-    def _find_last_include(self):
-        if not self.lines:
-            return 0
-        i = len(self.lines) - 1
-        while i >= 0:
-            line = self.lines[i]
-            if re.search(self.include_pattern, line):
-                return i + 1
-            i -= 1
-        return 0
-
-    def _create_makefile(self):
-        mk_path = os.path.join(self.file_dir, 'Makefile')
-        template_str = hdf_utils.get_template('hdf_hcs_makefile.template')
-        hdf_utils.write_file(mk_path, template_str)
-
-    def check_and_create(self):
-        if self.lines:
-            return
-        if not os.path.exists(self.file_dir):
-            os.makedirs(self.file_dir)
-        self._create_makefile()
-        self.lines.append('#include "hdf_manager/manager_config.hcs"\n')
-        self._save()
-
-    def add_driver(self, module, driver):
-        target_line = self.line_template % (module, driver)
-        target_pattern = self.line_pattern % (module, driver)
-        idx, line = self._find_line(target_pattern)
-        if line:
-            self.lines[idx] = target_line
-        else:
-            pos = self._find_last_include()
-            self.lines.insert(pos, target_line)
-        self._save()
-
     def delete_driver(self, module):
         hcs_config = hdf_utils.read_file_lines(self.hcspath)
         index_info = {}
@@ -187,19 +145,18 @@ class HdfDeviceInfoHcsFile(object):
         start_state = False
         count = 0
         for index, old_line in enumerate(old_lines):
-            if old_line.strip().startswith(self.module):
+            if old_line.strip().startswith(self.module) and start_state == False:
                 model_start_index = index
                 count += 1
                 start_state = True
-            else:
-                if start_state and old_line.find("{") != -1:
-                    count += 1
-                elif start_state and old_line.find("}") != -1:
-                    count -= 1
-                    if count != 0:
-                        continue
-                    start_state = False
-                    model_end_index = index
+            if start_state and old_line.find("{") != -1:
+                count += 1
+            elif start_state and old_line.find("}") != -1:
+                count -= 1
+                if count != 0:
+                    continue
+                start_state = False
+                model_end_index = index
         return model_end_index, model_start_index
 
     def judge_driver_hcs_exists(self, date_lines):
