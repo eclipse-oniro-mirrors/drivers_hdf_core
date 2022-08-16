@@ -391,7 +391,7 @@ void I3cCntlrRemove(struct I3cCntlr *cntlr);
  * @return Returns <b>0</b> on success; Returns a negative value otherwise.
  * @since 1.0
  */
-struct I3cDevice *GetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr);
+struct I3cDevice *I3cGetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr);
 
 /**
  * @brief IBI(In-bind Interrupt) callback function.

@@ -142,7 +142,7 @@ static int UartAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long ar
 
     oldfs = get_fs();
     set_fs(KERNEL_DS);
-    if (fp->f_op->unlocked_ioctl) {
+    if (fp->f_op->unlocked_ioctl != NULL) {
         ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
     }
     set_fs(oldfs);
@@ -336,7 +336,7 @@ static unsigned short AttrToCs(unsigned char attr)
 
 static unsigned char PariTyToAttr(unsigned short ps)
 {
-    if (ps & (PARENB | PARODD)) {
+    if ((ps & (PARENB | PARODD)) != 0) {
         return UART_ATTR_PARITY_ODD;
     } else if (!(ps & PARODD) && (ps & PARENB)) {
         return UART_ATTR_PARITY_EVEN;
