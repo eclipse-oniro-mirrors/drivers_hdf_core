@@ -95,8 +95,8 @@ static int VirtualCurrentRegulatorIsEnabled(struct regulator_dev *rdev)
     return g_virStatus;
 }
 
-static int VirtualCurrentRegulatorSetCurrent(struct regulator_dev *rdev, int min_uA,
-    int max_uA)
+static int VirtualCurrentRegulatorSetCurrent(struct regulator_dev *rdev, int minUa,
+    int maxUa)
 {
     if ((rdev == NULL) || (rdev->constraints == NULL)) {
         HDF_LOGE("%s: rdev NULL", __func__);
@@ -104,8 +104,8 @@ static int VirtualCurrentRegulatorSetCurrent(struct regulator_dev *rdev, int min
     }
 
     struct regulation_constraints *regu_constraints = rdev->constraints;
-    if (regu_constraints->min_uA == min_uA &&
-        regu_constraints->max_uA == max_uA) {
+    if (regu_constraints->min_uA == minUa &&
+        regu_constraints->max_uA == maxUa) {
         return HDF_SUCCESS;
     }
 

@@ -96,8 +96,8 @@ static int VirtualVoltageRegulatorIsEnabled(struct regulator_dev *rdev)
     return g_virStatus;
 }
 
-static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int min_uV,
-    int max_uV, unsigned *selector)
+static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int minUv,
+    int maxUv, unsigned *selector)
 {
     (void)selector;
     if ((rdev == NULL) || (rdev->constraints == NULL)) {
@@ -106,8 +106,8 @@ static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int min
     }
 
     struct regulation_constraints *reguConstraints = rdev->constraints;
-    if (reguConstraints->min_uV == min_uV &&
-        reguConstraints->max_uV == max_uV) {
+    if (reguConstraints->min_uV == minUv &&
+        reguConstraints->max_uV == maxUv) {
         return HDF_SUCCESS;
     }
 
