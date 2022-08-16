@@ -124,17 +124,17 @@ static int32_t DevSvcMgrStubGetPara(
     info->devClass = DEVICE_CLASS_DEFAULT;
     if (!HdfSbufReadUint16(data, &info->devClass)) {
         HDF_LOGE("%{public}s failed, devClass invalid", __func__);
-        return ret;
+        return HDF_FAILURE;
     }
     if (!HdfSbufReadUint32(data, &info->devId)) {
         HDF_LOGE("%{public}s failed, devId invalid", __func__);
-        return ret;
+        return HDF_FAILURE;
     }
 
     *service = HdfSbufReadRemoteService(data);
-    if (service == NULL) {
+    if (*service == NULL) {
         HDF_LOGE("%{public}s failed, service is null", __func__);
-        return ret;
+        return HDF_FAILURE;
     }
     info->servInfo = HdfSbufReadString(data);
     return HDF_SUCCESS;
