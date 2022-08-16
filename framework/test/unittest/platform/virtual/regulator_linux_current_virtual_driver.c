@@ -47,6 +47,7 @@ static struct regulator_init_data g_virtualCurrentRegulatorInitData = {
 
 static void VirtualCurrentRegulatorDevRelease(struct device *dev)
 {
+    (void)dev;
 }
 
 static struct platform_device g_virtualCurrentRegulatorPlatformDevice = {

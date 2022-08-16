@@ -41,7 +41,7 @@
 
 #ifdef __cplusplus
 #if __cplusplus
-extern "C"{
+extern "C" {
 #endif
 #endif /* End of #ifdef __cplusplus */
 
@@ -417,7 +417,7 @@ static int32_t MipiDsiDevCmdCopyFromUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag
     return HDF_SUCCESS;
 }
 
-int32_t MipiDsiDevCmdCopyToUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, uint32_t *size)
+static int32_t MipiDsiDevCmdCopyToUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, uint32_t *size)
 {
     if (access_ok(
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
@@ -435,7 +435,7 @@ int32_t MipiDsiDevCmdCopyToUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, u
     return HDF_SUCCESS;
 }
 
-int32_t MipiDsiDevGetCmd(struct MipiDsiCntlr *cntlr, GetDsiCmdDescTag *arg)
+static int32_t MipiDsiDevGetCmd(struct MipiDsiCntlr *cntlr, GetDsiCmdDescTag *arg)
 {
     int32_t ret;
     GetDsiCmdDescTag *temp = NULL;
