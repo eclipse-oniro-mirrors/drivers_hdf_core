@@ -203,7 +203,7 @@ int32_t I3cCntlrSendCccCmd(struct I3cCntlr *cntlr, struct I3cCccCmd *ccc)
     return ret;
 }
 
-struct I3cDevice *GetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr)
+struct I3cDevice *I3cGetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr)
 {
     struct DListHead *head = NULL;
     struct I3cDevice *pos = NULL;
@@ -586,7 +586,7 @@ int32_t I3cCntlrRequestIbi(struct I3cCntlr *cntlr, uint16_t addr, I3cIbiFunc fun
         HDF_LOGE("%s: invalid func or addr!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    device = GetDeviceByAddr(cntlr, addr);
+    device = I3cGetDeviceByAddr(cntlr, addr);
     if (device == NULL) {
         HDF_LOGE("%s: Get device failed!", __func__);
         return HDF_ERR_INVALID_OBJECT;
@@ -638,7 +638,7 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    device = GetDeviceByAddr(cntlr, addr);
+    device = I3cGetDeviceByAddr(cntlr, addr);
     if (device == NULL || device->ibi == NULL) {
         HDF_LOGE("%s: invaild device!", __func__);
         return HDF_ERR_INVALID_OBJECT;

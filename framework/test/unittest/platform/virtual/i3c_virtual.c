@@ -246,7 +246,7 @@ static int32_t I3cIbiHandle(uint32_t irq, void *data)
         return VirtualI3cReservedAddrWorker(virtual, ibiAddr);
     } else {
         HDF_LOGD("%s: Calling I3cCntlrIbiCallback...", __func__);
-        device = GetDeviceByAddr(&virtual->cntlr, ibiAddr);
+        device = I3cGetDeviceByAddr(&virtual->cntlr, ibiAddr);
         if (device == NULL) {
             HDF_LOGE("func:%s device is NULL!", __func__);
             return HDF_ERR_MALLOC_FAIL;

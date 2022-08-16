@@ -1729,6 +1729,9 @@ static inline void HdmiCecFillMsgHeader(struct HdmiCecMsg *destMsg, const struct
 }
 
 int32_t HdmiCecReceivedMsg(struct HdmiCec *cec, struct HdmiCecMsg *msg);
+void HdmiCecEncodingTimerStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTimerStatusData *status);
+void HdmiCecEncodingTunerDeviceStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTunerDeviceInfo *info);
+void HdmiCecEncodingUserControlPrtessedMsg(struct HdmiCecMsg *msg, const struct HdmiCecUiCmd *cmd);
 
 #ifdef __cplusplus
 #if __cplusplus

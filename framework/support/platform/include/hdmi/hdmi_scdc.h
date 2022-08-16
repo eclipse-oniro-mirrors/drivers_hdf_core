@@ -306,6 +306,9 @@ enum HdmiScdcOptMsg {
 
 int32_t HdmiScdcScrambleSet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *scramble);
 int32_t HdmiScdcScrambleGet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *scramble);
+int32_t HdmiScdcReadStatusFlag1(const struct HdmiScdc *scdc, uint8_t *flag);
+int32_t HdmiScdcReadStatusFlag2(const struct HdmiScdc *scdc, uint8_t *flag);
+int32_t HdmiScdcReadConfig0(const struct HdmiScdc *scdc, uint8_t *cfg);
 bool HdmiScdcSinkSupport(struct HdmiScdc *scdc);
 void HdmiScdcReset(struct HdmiScdc *scdc);
 int32_t HdmiScdcOptMsgHandle(const struct HdmiScdc *scdc, enum HdmiScdcOptMsg msg, uint8_t *buffer, uint32_t len);
