@@ -35,7 +35,7 @@ static uint32_t MapHash(const char *hashKey)
 {
     uint32_t hashValue = 0;
 
-    while (*hashKey != 0) {
+    while (hashKey != NULL && *hashKey != 0) {
         hashValue = hashValue * HASH_SEED + (*hashKey++);
     }
 

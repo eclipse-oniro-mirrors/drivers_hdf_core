@@ -29,8 +29,8 @@ static int32_t ProcessListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t d
     }
 
     (void)HdfSbufWriteUint16(data, devClass);
-    if (svcmgrInst->iosvc == NULL || svcmgrInst->iosvc->dispatcher == NULL
-        || svcmgrInst->iosvc->dispatcher->Dispatch == NULL) {
+    if (svcmgrInst->iosvc == NULL || svcmgrInst->iosvc->dispatcher == NULL ||
+        svcmgrInst->iosvc->dispatcher->Dispatch == NULL) {
         HdfSbufRecycle(data);
         return HDF_ERR_INVALID_OBJECT;
     }
