@@ -48,6 +48,8 @@ enum I3cTestCmd {
 };
 
 int32_t I3cTestExecute(int cmd);
+int32_t I3cTestSetUpSingle(void);
+int32_t I3cTestTearDownSingle(void);
 
 #ifdef __cplusplus
 #if __cplusplus

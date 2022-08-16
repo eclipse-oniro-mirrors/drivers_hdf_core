@@ -14,14 +14,12 @@
 
 #define PLAT_DEV_WAIT_TIMEOUT     10
 
-int32_t PlatformDeviceTestSetUpAll(void)
+void PlatformDeviceTestSetUpAll(void)
 {
-    return HDF_SUCCESS;
 }
 
-int32_t PlatformDeviceTestTearDownAll(void)
+void PlatformDeviceTestTearDownAll(void)
 {
-    return HDF_SUCCESS;
 }
 
 static int32_t PlatformDeviceTestSetName(struct PlatformDevice *device)
