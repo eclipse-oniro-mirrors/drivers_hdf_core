@@ -1039,17 +1039,6 @@ int32_t UsbDdkPnpLoaderEventReceived(void *usbPnpManagerPtr, uint32_t id, struct
     struct UsbPnpRemoveInfo removeInfo;
     struct HdfDeviceObject *usbPnpManagerDevice = (struct HdfDeviceObject *)usbPnpManagerPtr;
 
-    flag = HdfSbufReadBuffer(data, (const void **)(&infoTable), &infoSize);
-    if ((!flag) || (infoTable == NULL)) {
-        ret = HDF_ERR_INVALID_PARAM;
-        HDF_LOGE("%s: fail to read infoTable in event data, flag = %d", __func__, flag);
-        return ret;
-    }
-
-    HDF_LOGI("%s:%d id = %d infoSize = %u, devNum = %d, busNum = %d, infoTable=0x%x-0x%x success",
-        __func__, __LINE__, id, infoSize, infoTable->devNum, infoTable->busNum,
-        infoTable->deviceInfo.vendorId, infoTable->deviceInfo.productId);
-
     switch (id) {
         case USB_PNP_NOTIFY_ADD_INTERFACE:
         case USB_PNP_NOTIFY_ADD_DEVICE:
@@ -1057,6 +1046,12 @@ int32_t UsbDdkPnpLoaderEventReceived(void *usbPnpManagerPtr, uint32_t id, struct
 #if USB_PNP_NOTIFY_TEST_MODE == true
         case USB_PNP_NOTIFY_ADD_TEST:
 #endif
+            flag = HdfSbufReadBuffer(data, (const void **)(&infoTable), &infoSize);
+            if ((!flag) || (infoTable == NULL)) {
+                ret = HDF_ERR_INVALID_PARAM;
+                HDF_LOGE("%{public}s: fail to read infoTable in event data, flag = %{public}d", __func__, flag);
+                return ret;
+            }
             ret = UsbDdkPnpLoaderDevice(usbPnpManagerDevice, infoTable, id);
             break;
         case USB_PNP_NOTIFY_REMOVE_INTERFACE:
@@ -1064,6 +1059,12 @@ int32_t UsbDdkPnpLoaderEventReceived(void *usbPnpManagerPtr, uint32_t id, struct
 #if USB_PNP_NOTIFY_TEST_MODE == true
         case USB_PNP_NOTIFY_REMOVE_TEST:
 #endif
+            flag = HdfSbufReadBuffer(data, (const void **)(&infoTable), &infoSize);
+            if ((!flag) || (infoTable == NULL)) {
+                ret = HDF_ERR_INVALID_PARAM;
+                HDF_LOGE("%{public}s: fail to read infoTable in event data, flag = %{public}d", __func__, flag);
+                return ret;
+            }
             removeInfo.removeType = infoTable->removeType;
             removeInfo.usbDevAddr = infoTable->usbDevAddr;
             removeInfo.devNum = infoTable->devNum;
@@ -1072,7 +1073,8 @@ int32_t UsbDdkPnpLoaderEventReceived(void *usbPnpManagerPtr, uint32_t id, struct
             ret = UsbDdkPnpLoaderRemoveDevice(usbPnpManagerDevice, removeInfo, id);
             break;
         default:
-            ret = HDF_ERR_INVALID_PARAM;
+            HDF_LOGI("%{public}s: not interested in %{public}d", __func__, id);
+            ret = HDF_SUCCESS;
             break;
     }
 
