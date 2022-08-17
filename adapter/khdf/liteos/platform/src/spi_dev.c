@@ -421,11 +421,11 @@ static void SpiAddRemoveDev(struct SpiDev *dev, bool add)
     }
     if (add) {
         HDF_LOGI("create /dev/spidev%u.%u", dev->cntlr->busNum, dev->csNum);
-        if (register_driver(devName, &g_spiDevFops, HDF_SPI_FS_MODE, dev)) {
+        if (register_driver(devName, &g_spiDevFops, HDF_SPI_FS_MODE, dev) != HDF_SUCCESS) {
             HDF_LOGE("%s: gen /dev/spidev%u.%u", __func__, dev->cntlr->busNum, dev->csNum);
         }
     } else {
-        if (unregister_driver(devName)) {
+        if (unregister_driver(devName) != HDF_SUCCESS) {
             HDF_LOGE("%s: remove /dev/spidev%u.%u", __func__, dev->cntlr->busNum, dev->csNum);
         }
     }

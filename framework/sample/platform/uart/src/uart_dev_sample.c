@@ -167,13 +167,13 @@ static void AddRemoveUartDev(struct UartHost *host, bool add)
         return;
     }
     if (add) {
-        if (register_driver(devName, &g_uartSampleDevFops, HDF_UART_FS_MODE, host)) {
+        if (register_driver(devName, &g_uartSampleDevFops, HDF_UART_FS_MODE, host) != HDF_SUCCESS) {
             HDF_LOGE("%s: gen /dev/uartdev-%d fail!", __func__, host->num);
             OsalMemFree(devName);
             return;
         }
     } else {
-        if (unregister_driver(devName)) {
+        if (unregister_driver(devName) != HDF_SUCCESS) {
             HDF_LOGE("%s: remove /dev/uartdev-%d fail!", __func__, host->num);
             OsalMemFree(devName);
             return;
