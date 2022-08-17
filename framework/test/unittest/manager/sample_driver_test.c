@@ -38,7 +38,7 @@ static void SaveRegistedDevice(struct SampleTestDevice *sampleDev)
     DListInsertTail(&sampleDev->listNode, &g_sampleDeviceList);
 }
 
-struct SampleTestDevice *GetRegistedDevice(const char *serviceName)
+static struct SampleTestDevice *GetRegistedDevice(const char *serviceName)
 {
     struct SampleTestDevice *sampleDev = NULL;
     struct SampleTestDevice *sampleDevTmp = NULL;

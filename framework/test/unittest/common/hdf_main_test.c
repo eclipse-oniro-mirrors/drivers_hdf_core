@@ -189,6 +189,7 @@ static int32_t HdfTestCaseProcess(struct HdfDeviceIoClient *client,
     int i;
     struct TestService *testService = NULL;
 
+    (void)cmdId;
     if (client == NULL || client->device == NULL) {
         HDF_LOGE("%s::  client or client->device is NULL", __func__);
         return HDF_ERR_INVALID_OBJECT;
@@ -231,17 +232,13 @@ static int32_t HdfTestCaseProcess(struct HdfDeviceIoClient *client,
     return HDF_SUCCESS;
 }
 
-void HdfTestDriverRelease(struct HdfDeviceObject *device)
+static void HdfTestDriverRelease(struct HdfDeviceObject *device)
 {
+    (void)device;
     return;
 }
 
-void HdfTestDriverDispatch(struct HdfDeviceObject *device)
-{
-    return;
-}
-
-int HdfTestDriverBind(struct HdfDeviceObject *device)
+static int HdfTestDriverBind(struct HdfDeviceObject *device)
 {
     static struct TestService testService;
 
@@ -261,7 +258,7 @@ struct HdfDeviceObject *GetDeviceObject(void)
     return g_devObject;
 }
 
-int HdfTestDriverInit(struct HdfDeviceObject *device)
+static int HdfTestDriverInit(struct HdfDeviceObject *device)
 {
     if (device == NULL) {
         HDF_LOGE("%s::ptr is null!\n", __func__);

@@ -166,7 +166,7 @@ void HdfRemoteAdapterAddDeathRecipient(
 }
 
 void HdfRemoteAdapterRemoveDeathRecipient(
-    struct HdfRemoteService *service, struct HdfDeathRecipient *recipient)
+    struct HdfRemoteService *service, const struct HdfDeathRecipient *recipient)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
     (void)recipient;
