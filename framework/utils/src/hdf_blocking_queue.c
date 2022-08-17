@@ -55,7 +55,7 @@ void *HdfBlockingQueueGet(struct HdfBlockingQueue *queue)
 }
 
 
-void *HdfBlockingQueueFind(struct HdfBlockingQueue *queue, long matchKey, SListComparer comparer)
+void *HdfBlockingQueueFind(const struct HdfBlockingQueue *queue, long matchKey, SListComparer comparer)
 {
     void *matchData = NULL;
     struct HdfSListIterator it;

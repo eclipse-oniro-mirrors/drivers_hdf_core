@@ -37,7 +37,7 @@ struct HdfRemoteService *HdfRemoteAdapterGetSa(int32_t saId);
 
 void HdfRemoteAdapterAddDeathRecipient(struct HdfRemoteService *service, struct HdfDeathRecipient *recipient);
 
-void HdfRemoteAdapterRemoveDeathRecipient(struct HdfRemoteService *service, struct HdfDeathRecipient *recipient);
+void HdfRemoteAdapterRemoveDeathRecipient(struct HdfRemoteService *service, const struct HdfDeathRecipient *recipient);
 
 bool HdfRemoteAdapterSetInterfaceDesc(struct HdfRemoteService *service, const char *descriptor);
 

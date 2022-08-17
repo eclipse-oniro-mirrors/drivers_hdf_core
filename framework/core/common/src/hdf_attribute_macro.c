@@ -151,29 +151,29 @@ static bool GetDevcieNodeList(const struct HdfDeviceType *device,
 {
     uint8_t deviceNodeIdx = 1;
     uint16_t hostId = hostClnt->hostId;
-    struct HdfDeviceInfo *deviceNodeInfo = NULL;
+    struct HdfDeviceInfo *devInfo = NULL;
     const struct HdfDeviceNodeType *devNode = NULL;
 
     DLIST_FOR_EACH_ENTRY(devNode, &device->deviceNodes, struct HdfDeviceNodeType, deviceNodeEntry) {
-        deviceNodeInfo = HdfDeviceInfoNewInstance();
-        if (deviceNodeInfo == NULL) {
+        devInfo = HdfDeviceInfoNewInstance();
+        if (devInfo == NULL) {
             return false;
         }
-        if (!GetDeviceNodeInfo(devNode, deviceNodeInfo)) {
-            HdfDeviceInfoFreeInstance(deviceNodeInfo);
+        if (!GetDeviceNodeInfo(devNode, devInfo)) {
+            HdfDeviceInfoFreeInstance(devInfo);
             HDF_LOGE("%s: failed to parse device node info, ignore", __func__);
             continue;
         }
 
-        deviceNodeInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
-        if (deviceNodeInfo->preload != DEVICE_PRELOAD_DISABLE) {
-            if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &deviceNodeInfo->node, HdfDeviceListCompareMacro)) {
-                HDF_LOGE("%s: failed to add device info to list %s", __func__, deviceNodeInfo->svcName);
-                HdfDeviceInfoFreeInstance(deviceNodeInfo);
+        devInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
+        if (devInfo->preload != DEVICE_PRELOAD_DISABLE) {
+            if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &devInfo->node, HdfDeviceListCompareMacro)) {
+                HDF_LOGE("%s: failed to add device info to list %s", __func__, devInfo->svcName);
+                HdfDeviceInfoFreeInstance(devInfo);
                 continue;
             }
         } else {
-            HdfSListAdd(&hostClnt->dynamicDevInfos, &deviceNodeInfo->node);
+            HdfSListAdd(&hostClnt->dynamicDevInfos, &devInfo->node);
         }
 
         deviceNodeIdx++;
