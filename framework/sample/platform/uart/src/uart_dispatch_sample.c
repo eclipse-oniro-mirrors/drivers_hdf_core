@@ -40,6 +40,7 @@ static int32_t SampleDispatchWrite(struct UartDevice *device, struct HdfSBuf *tx
 int32_t SampleDispatch(struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t result = HDF_FAILURE;
+    (void)reply;
     if (client == NULL || client->device == NULL) {
         HDF_LOGE("%s: client or client->device is NULL", __func__);
         return result;
