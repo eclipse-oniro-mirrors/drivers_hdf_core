@@ -72,6 +72,30 @@
               ],
               "header_base": "//drivers/hdf_core/framework/include"
           }
+        },
+        {
+          "name": "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable:libbufferhandle_parcelable",
+            "header": {
+              "header_files": [
+              ],
+              "header_base": "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable"
+          }
+        },
+        {
+          "name": "//drivers/hdf_core/adapter/uhdf2/model/display/buffer/v1_0:libdisplay_buffer_hdi_impl",
+            "header": {
+              "header_files": [
+              ],
+              "header_base": "//drivers/hdf_core/adapter/uhdf2/model/display/buffer"
+          }
+        },
+        {
+          "name": "//drivers/hdf_core/adapter/uhdf2/model/display/composer/v1_0:libdisplay_composer_hdi_impl",
+            "header": {
+              "header_files": [
+              ],
+              "header_base": "//drivers/hdf_core/adapter/uhdf2/model/display/composer"
+          }
         }
       ],
       "test": [

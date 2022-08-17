@@ -17,7 +17,7 @@
 #define OHOS_HDI_DISPLAY_V1_0_IDISPLAY_COMPOSER_INTERFACE_H
 
 #include <vector>
-#include "display_common.h"
+#include "common/include/display_common.h"
 #include "v1_0/display_composer_type.h"
 
 namespace OHOS {
@@ -30,8 +30,9 @@ using namespace OHOS::HDI::Display::Composer::V1_0;
 class IDisplayComposerInterface {
 public:
     virtual ~IDisplayComposerInterface() = default;
+    static IDisplayComposerInterface* Get();
     /* device func */
-    virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void *data) = 0;
+    virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void* data) = 0;
     virtual int32_t GetDisplayCapability(uint32_t devId, DisplayCapability& info) = 0;
     virtual int32_t GetDisplaySupportedModes(uint32_t devId, std::vector<DisplayModeInfo>& modes) = 0;
     virtual int32_t GetDisplayMode(uint32_t devId, uint32_t& modeId) = 0;

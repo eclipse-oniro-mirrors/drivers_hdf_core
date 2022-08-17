@@ -13,8 +13,9 @@
 
 group("display_inerface") {
   deps = [
-    "base/buffer_parcelable:libbufferhandle_parcelable",
+    "base/bufferhandle_parcelable:libbufferhandle_parcelable",
     "base/hdifd_parcelable:libhdifd_parcelable",
+    "composer/v1_0:libdisplay_composer_hdi_impl",
     "buffer/v1_0:libdisplay_buffer_hdi_impl",
   ]
 }

@@ -17,8 +17,8 @@
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_CMD_UTILS_H
 
 #include "buffer_handle_utils.h"
-#include "command_data_packer.h"
-#include "command_data_unpacker.h"
+#include "command_pack/command_data_packer.h"
+#include "command_pack/command_data_unpacker.h"
 #include "v1_0/display_composer_type.h"
 
 namespace OHOS {

@@ -38,7 +38,7 @@ using namespace OHOS::HDI::Display::Composer::V1_0;
 template <typename Interface, typename CompHdi, typename CmdReq>
 class DisplayComposerHdiImpl : public Interface, public IHotPlugCallback, public IVBlankCallback {
 public:
-    static std::unique_ptr<IDisplayComposerInterface> create()
+    static IDisplayComposerInterface* Create()
     {
         sptr<CompHdi> hdi = CompHdi::Get();
         if (hdi == nullptr) {
@@ -48,7 +48,7 @@ public:
         if (req == nullptr) {
             return nullptr;
         }
-        return std::make_unique<DisplayComposerHdiImpl>(hdi, req);
+        return new DisplayComposerHdiImpl(hdi, req);
     }
 
     DisplayComposerHdiImpl(sptr<CompHdi> hdi, std::shared_ptr<CmdReq> req)

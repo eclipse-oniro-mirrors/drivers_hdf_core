@@ -36,15 +36,7 @@ public:
      * @since 1.0
      * @version 1.0
      */
-    template <typename Impl>
-    static IDisplayBuffer *Get()
-    {
-        IDisplayBuffer *instance = new Impl();
-        if (instance == nullptr) {
-            return nullptr;
-        }
-        return instance;
-    }
+    static IDisplayBuffer *Get();
 
     /**
      * @brief Allocates memory based on the parameters passed by the GUI.

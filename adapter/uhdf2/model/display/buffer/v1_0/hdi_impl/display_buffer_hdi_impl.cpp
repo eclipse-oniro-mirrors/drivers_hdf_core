@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "display_buffer_hdi_impl.h"
+#include "v1_0/hdi_impl/display_buffer_hdi_impl.h"
 #include "hilog/log.h"
 
 namespace OHOS {
@@ -52,6 +52,15 @@ namespace V1_0 {
         }                                                             \
     } while (0)
 #endif
+
+IDisplayBuffer *IDisplayBuffer::Get()
+{
+    IDisplayBuffer *instance = new DisplayBufferHdiImpl();
+    if (instance == nullptr) {
+        return nullptr;
+    }
+    return instance;
+}
 
 DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
 {
