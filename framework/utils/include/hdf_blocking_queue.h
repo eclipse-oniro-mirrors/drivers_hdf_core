@@ -44,7 +44,7 @@ void *HdfBlockingQueuePoll(struct HdfBlockingQueue *queue, long timeout);
 
 void HdfBlockingQueueOffer(struct HdfBlockingQueue *queue, void *val);
 
-void *HdfBlockingQueueFind(struct HdfBlockingQueue *queue, long matchKey, SListComparer comparer);
+void *HdfBlockingQueueFind(const struct HdfBlockingQueue *queue, long matchKey, SListComparer comparer);
 
 #ifdef __cplusplus
 }
