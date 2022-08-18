@@ -25,8 +25,8 @@ public:
     void SetUp();
     void TearDown();
 
-    static const uint32_t waitTime = 300;
-    static const uint32_t timeout = 10;
+    static const uint32_t waitTime = 30;
+    static const uint32_t timeout = 200;
     static const uint32_t stressTime = 10;
     static struct HDIServiceManager *servmgr;
     static struct HDIDeviceManager *devmgr;
