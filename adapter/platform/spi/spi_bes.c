@@ -782,7 +782,6 @@ static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, 
 {
     uint32_t spiId;
     struct SpiDevice *spiDevice = NULL;
-    struct HAL_SPI_CFG_T *spiDevCfg = NULL;
     struct SpiMsg *msg = NULL;
     int32_t ret;
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
