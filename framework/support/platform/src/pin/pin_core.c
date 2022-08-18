@@ -13,7 +13,7 @@
 
 #define HDF_LOG_TAG pin_core
 
-#define MAX_CNT_PER_CNTLR    20
+#define PIN_MAX_CNT_PER_CNTLR    32
 
 struct PinManager {
     struct IDeviceIoService service;
@@ -66,7 +66,7 @@ int32_t PinCntlrAdd(struct PinCntlr *cntlr)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    if (cntlr->pinCount >= MAX_CNT_PER_CNTLR) {
+    if (cntlr->pinCount >= PIN_MAX_CNT_PER_CNTLR) {
         HDF_LOGE("%s: invalid pinCount:%u", __func__, cntlr->pinCount);
         return HDF_ERR_INVALID_PARAM;
     }
