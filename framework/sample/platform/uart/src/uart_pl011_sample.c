@@ -20,7 +20,7 @@ void UartPl011SetLcrBits(struct UartRegisterMap *regMap, uint32_t bits)
     }
 }
 
-void UartPl011UpdateLcr(struct UartRegisterMap *regMap)
+static void UartPl011UpdateLcr(struct UartRegisterMap *regMap)
 {
     bool uartEnabled = UartPl011IsEnabled(regMap);
     /* UART must be disabled before UARTLCR_H are reprogrammed */

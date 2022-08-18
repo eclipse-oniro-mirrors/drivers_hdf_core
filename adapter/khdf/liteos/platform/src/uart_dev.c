@@ -239,7 +239,7 @@ static void UartAddRemoveDev(struct UartHost *host, bool add)
     }
     if (add) {
         HDF_LOGI("create /dev/uartdev-%d", host->num);
-        if (register_driver(devName, &g_uartDevFops, HDF_UART_FS_MODE, host)) {
+        if (register_driver(devName, &g_uartDevFops, HDF_UART_FS_MODE, host) != HDF_SUCCESS) {
             HDF_LOGE("%s: gen /dev/uartdev-%d fail!", __func__, host->num);
             OsalMemFree(devName);
             return;
