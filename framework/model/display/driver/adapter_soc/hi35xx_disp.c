@@ -67,7 +67,7 @@ static void Lcd8BitMuxCfg(unsigned long ioCfgBase)
     OSAL_WRITEL(0x462, ioCfgBase + 0x0060);
 }
 
-void Lcd24BitMuxCfg(unsigned long ioCfgBase)
+static void Lcd24BitMuxCfg(unsigned long ioCfgBase)
 {
     OSAL_WRITEL(0x462, ioCfgBase + 0x0034);
     OSAL_WRITEL(0x432, ioCfgBase + 0x0058);

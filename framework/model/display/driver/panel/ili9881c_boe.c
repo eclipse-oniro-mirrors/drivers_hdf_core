@@ -414,7 +414,7 @@ static struct DsiCmdDesc g_panelOffCode[] = {
 #define ILI9881C_MIPI_DATA_LANES   4
 
 static int Ili9881cBoeSendCmds(struct mipi_dsi_device *dsi,
-	const struct DsiCmdDesc *cmds, int size)
+    const struct DsiCmdDesc *cmds, int size)
 {
     int32_t i;
 
