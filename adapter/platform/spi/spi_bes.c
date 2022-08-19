@@ -441,7 +441,6 @@ static int32_t InitSpiDevice(struct SpiDevice *spiDevice)
 #define PLATFORM_SPI_CONFIG HCS_NODE(HCS_NODE(HCS_ROOT, platform), spi_config)
 static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const char *deviceMatchAttr)
 {
-    uint32_t tempPin;
     int32_t result = HDF_FAILURE;
     struct SpiResource *resource = NULL;
     if (spiDevice == NULL || deviceMatchAttr == NULL) {
@@ -782,7 +781,6 @@ static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, 
 {
     uint32_t spiId;
     struct SpiDevice *spiDevice = NULL;
-    struct HAL_SPI_CFG_T *spiDevCfg = NULL;
     struct SpiMsg *msg = NULL;
     int32_t ret;
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {

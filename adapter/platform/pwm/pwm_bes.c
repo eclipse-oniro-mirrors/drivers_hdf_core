@@ -102,7 +102,6 @@ static int InitPwmDevice(struct PwmDev *host)
 #define PLATFORM_PWM_CONFIG HCS_NODE(HCS_NODE(HCS_ROOT, platform), pwm_config)
 static uint32_t GetPwmDeviceResource(struct PwmDevice *device, const char *deviceMatchAttr)
 {
-    uint32_t tempPin;
     int32_t result = HDF_FAILURE;
     struct PwmResource *resource = NULL;
     if (device == NULL || deviceMatchAttr == NULL) {
