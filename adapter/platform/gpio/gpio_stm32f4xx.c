@@ -184,7 +184,7 @@ static void InitGpioClock(STM32_GPIO_GROUP group)
     }
 }
 
-static int32_t InitGpioDevice(GpioDevice* device)
+static int32_t InitGpioDevice(const GpioDevice* device)
 {
     LL_GPIO_InitTypeDef gpioInitStruct = {0};
     if (device == NULL) {
@@ -350,7 +350,7 @@ static int32_t GetGpioDeviceResource(GpioDevice *device, const struct DeviceReso
 }
 #endif
 
-static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, struct HdfDeviceObject *device)
+static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
 
@@ -454,6 +454,7 @@ static void GpioDriverRelease(struct HdfDeviceObject *device)
 /* dev api */
 static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val)
 {
+    (void)cntlr;
     uint16_t realPin = g_gpioPinsMap[gpio].realPin;
     uint32_t pinReg = g_stmRealPinMaps[realPin];
     if (pinReg > LL_GPIO_PIN_15 || pinReg < LL_GPIO_PIN_0) {
@@ -473,6 +474,7 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
 
 static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
+    (void)cntlr;
     uint16_t realPin = g_gpioPinsMap[gpio].realPin;
     uint32_t pinReg = g_stmRealPinMaps[realPin];
     uint16_t value = 0;

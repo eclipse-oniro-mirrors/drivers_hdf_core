@@ -92,6 +92,7 @@ static struct HAL_IOMUX_PIN_FUNCTION_MAP pinMuxSpi[] = {
 
 void Spi0DmaIrq(int error)
 {
+    (void)error;
     if (HDF_SUCCESS != OsalSemPost(&spiCtx[0].sem)) {
         HDF_LOGE("spi0dmairq OsalSemPost failed!\r\n");
         return;
@@ -100,6 +101,7 @@ void Spi0DmaIrq(int error)
 
 void Spi1DmaIrq(int error)
 {
+    (void)error;
     if (HDF_SUCCESS != OsalSemPost(&spiCtx[1].sem)) {
         HDF_LOGE("spi1dmairq OsalSemPost failed!\r\n");
         return;
@@ -157,7 +159,7 @@ static void SpiIomuxInit(struct SpiDevice *spiDevice)
     hal_iomux_init(pinMuxSpi, ARRAY_SIZE(pinMuxSpi));
 }
 
-static int32_t SpiDevCfgInit(struct HAL_SPI_CFG_T *spiDevCfg, struct SpiResource *resource)
+static int32_t SpiDevCfgInit(struct HAL_SPI_CFG_T *spiDevCfg, const struct SpiResource *resource)
 {
     if (spiDevCfg == NULL || resource == NULL) {
         HDF_LOGE("spi input para err\r\n");
@@ -213,7 +215,7 @@ static int32_t SpiDevCfgInit(struct HAL_SPI_CFG_T *spiDevCfg, struct SpiResource
 #ifdef HalSpiSend
 #undef HalSpiSend
 #endif
-int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
+static int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret;
     uint32_t spiId;
@@ -250,7 +252,7 @@ int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t si
         ret = spiCtx[spiId].SpiSend(data, len);
     }
 
-    if (ret) {
+    if (ret != 0) {
         HDF_LOGE("spi tail send fail %ld, size %ld\r\n", ret, len);
         goto OUT;
     }
@@ -323,7 +325,7 @@ static int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t s
             HDF_LOGE("spi tail fail %ld, size %ld\r\n", ret, len);
             goto OUT;
         }
-    } while (len);
+    } while (len != 0);
 OUT:
     OsalMutexUnlock(&spiCtx[spiId].mutex);
     return ret;
@@ -333,7 +335,7 @@ OUT:
 #undef HalSpiSendRecv
 #endif
 static int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
-                        uint16_t rxSize)
+    uint16_t rxSize)
 {
     int32_t ret;
     int32_t status;
@@ -362,7 +364,7 @@ static int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint
     } else {
         ret = spiCtx[spiId].SpiRecv(txData, rxData, rxSize);
     }
-    if (ret) {
+    if (ret != 0) {
         HDF_LOGE("spi dma tail fail %d\r\n", ret);
     }
 OUT:
@@ -548,7 +550,7 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
 }
 #endif
 
-int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, struct HdfDeviceObject *device)
+static int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct SpiDevice *spiDevice = NULL;

@@ -370,7 +370,7 @@ static int InitUartDevice(struct UartHost *host)
 }
 
 #ifndef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
-static int32_t GetUartHcs(struct DeviceResourceIface *dri,
+static int32_t GetUartHcs(const struct DeviceResourceIface *dri,
     const struct DeviceResourceNode *resourceNode, UartResource *resource)
 {
     if (dri->GetUint8(resourceNode, "num", &resource->num, 0) != HDF_SUCCESS) {

@@ -97,7 +97,7 @@ static uint32_t GetPwmDeviceResource(
     return HDF_SUCCESS;
 }
 
-static int32_t AttachPwmDevice(struct PwmDev *host, struct HdfDeviceObject *device)
+static int32_t AttachPwmDevice(struct PwmDev *host, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct PwmDevice *pwmDevice = NULL;
