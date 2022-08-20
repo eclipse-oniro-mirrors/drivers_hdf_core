@@ -194,6 +194,7 @@ static int32_t SetPpgOption(uint32_t option)
 
 static int32_t PpgIrqHandler(uint16_t gpio, void *data)
 {
+    (void)data;
     struct PpgDrvData *drvData = PpgGetDrvData();
     CHECK_PPG_INIT_RETURN_VALUE(drvData, HDF_ERR_NOT_SUPPORT);
 
