@@ -477,6 +477,8 @@ static int32_t UartHostDevPollEvent(struct UartHost *host, void *filep, void *ta
 {
     struct UartDriverData *udd = NULL;
 
+    (void)table;
+    (void)filep;
     if (host == NULL || host->priv == NULL) {
         HDF_LOGE("%s: host is NULL", __func__);
         return HDF_FAILURE;

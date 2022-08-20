@@ -91,6 +91,7 @@ static void OemGpioIrqHdl(uint16_t *arg)
 /* dispatch */
 int32_t GpioDispatch(struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)cmdId;
     if (client == NULL || client->device == NULL || data == NULL || reply == NULL) {
         HDF_LOGE("%s: client or client->device is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -376,7 +377,7 @@ static uint32_t GetGpioDeviceResource(
 #endif
 
 
-static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, struct HdfDeviceObject *device)
+static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
 

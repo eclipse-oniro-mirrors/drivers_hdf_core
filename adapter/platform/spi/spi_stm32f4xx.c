@@ -223,7 +223,7 @@ static SPI_CONTEXT_T spiContext[SPI_PORT3] = {
     },
 };
 
-int32_t HalSpiSend(SpiDevice *spiDevice, const uint8_t *data, uint16_t size)
+static int32_t HalSpiSend(SpiDevice *spiDevice, const uint8_t *data, uint16_t size)
 {
     uint32_t spiId;
     SpiResource *resource = NULL;
@@ -253,7 +253,7 @@ int32_t HalSpiSend(SpiDevice *spiDevice, const uint8_t *data, uint16_t size)
     return HDF_SUCCESS;
 }
 
-int32_t HalSpiRecv(SpiDevice *spiDevice, uint8_t *data, uint16_t size)
+static int32_t HalSpiRecv(SpiDevice *spiDevice, uint8_t *data, uint16_t size)
 {
     uint32_t len = size;
     uint8_t *cmd = NULL;
@@ -292,7 +292,7 @@ int32_t HalSpiRecv(SpiDevice *spiDevice, uint8_t *data, uint16_t size)
     return HDF_SUCCESS;
 }
 
-int32_t HalSpiSendRecv(SpiDevice *spiDevice, uint8_t *txData,
+static int32_t HalSpiSendRecv(SpiDevice *spiDevice, uint8_t *txData,
     uint16_t txSize, uint8_t *rxData, uint16_t rxSize)
 {
     uint32_t spiId;
@@ -492,7 +492,7 @@ static int32_t GetSpiDeviceResource(SpiDevice *spiDevice, const struct DeviceRes
 }
 #endif
 
-int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, struct HdfDeviceObject *device)
+static int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     SpiDevice *spiDevice = NULL;

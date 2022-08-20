@@ -91,6 +91,7 @@ static void OemGpioIrqHdl(enum HAL_GPIO_PIN_T pin)
 /* dispatch */
 int32_t GpioDispatch(struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)cmdId;
     if (client == NULL || client->device == NULL || data == NULL || reply == NULL) {
         HDF_LOGE("%s: client or client->device is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -135,7 +136,7 @@ struct GpioMethod g_GpioCntlrMethod = {
     .disableIrq = GpioDevDisableIrq,
 };
 
-static int InitGpioDevice(struct GpioDevice *device)
+static int InitGpioDevice(const struct GpioDevice *device)
 {
     struct HAL_IOMUX_PIN_FUNCTION_MAP gpioCfg;
     if (device == NULL) {
@@ -146,8 +147,8 @@ static int InitGpioDevice(struct GpioDevice *device)
     gpioCfg.function = HAL_IOMUX_FUNC_AS_GPIO;
     gpioCfg.volt = HAL_IOMUX_PIN_VOLTAGE_VIO;
 
-    if ((device->config == OUTPUT_PUSH_PULL) || (device->config == OUTPUT_OPEN_DRAIN_PULL_UP)
-        || (device->config == INPUT_PULL_UP) || (device->config == IRQ_MODE)) {
+    if ((device->config == OUTPUT_PUSH_PULL) || (device->config == OUTPUT_OPEN_DRAIN_PULL_UP) ||
+        (device->config == INPUT_PULL_UP) || (device->config == IRQ_MODE)) {
         gpioCfg.pull_sel = HAL_IOMUX_PIN_PULLUP_ENABLE;
     } else if ((device->config == INPUT_PULL_DOWN)) {
         gpioCfg.pull_sel = HAL_IOMUX_PIN_PULLDOWN_ENABLE;
@@ -259,7 +260,7 @@ static uint32_t GetGpioDeviceResource(
 }
 #endif
 
-static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, struct HdfDeviceObject *device)
+static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
 

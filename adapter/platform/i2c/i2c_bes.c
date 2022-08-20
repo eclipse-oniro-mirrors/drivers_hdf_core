@@ -48,7 +48,7 @@ struct I2cMethod g_i2cHostMethod = {
     .transfer = i2cHostTransfer,
 };
 
-static void I2cDeviceIomuxInit(uint32_t i2cId, struct I2cResource *resource)
+static void I2cDeviceIomuxInit(uint32_t i2cId, const struct I2cResource *resource)
 {
     if (i2cId > HAL_I2C_ID_NUM || resource == NULL) {
         HDF_LOGE("%s %d: invalid parameter\r\n", __func__, __LINE__);
@@ -82,7 +82,7 @@ static void I2cDeviceIomuxInit(uint32_t i2cId, struct I2cResource *resource)
     hal_iomux_init(pinMuxI2c, ARRAY_SIZE(pinMuxI2c));
 }
 
-int32_t InitI2cDevice(struct I2cDevice *device)
+static int32_t InitI2cDevice(struct I2cDevice *device)
 {
     int32_t ret;
     uint32_t i2cPort;
@@ -236,7 +236,7 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
     return HDF_SUCCESS;
 }
 #endif
-static int32_t AttachI2cDevice(struct I2cCntlr *host, struct HdfDeviceObject *device)
+static int32_t AttachI2cDevice(struct I2cCntlr *host, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct I2cDevice *i2cDevice = NULL;
@@ -374,7 +374,7 @@ static int32_t i2c_transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16
         msg = &msgs[i];
         if (msg->flags == I2C_FLAG_READ) {
             ret = hal_i2c_task_recv(i2cPort, msg->addr, msg->buf, 0, msg->buf, msg->len, 0, NULL);
-            if (ret) {
+            if (ret != 0) {
                 HDF_LOGE("%s:%d,i2c recev fail, dev_addr = 0x%x, ret = %d\r\n", __func__, __LINE__, msg->addr, ret);
                 OsalMutexUnlock(&device->mutex);
                 return i;
@@ -383,14 +383,14 @@ static int32_t i2c_transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16
             i++;
             msg2 = &msgs[i];
             ret = hal_i2c_task_recv(i2cPort, msg->addr, msg->buf, msg->len, msg2->buf, msg2->len, 0, NULL);
-            if (ret) {
+            if (ret != 0) {
                 HDF_LOGE("%s:%d,i2c recev fail, dev_addr = 0x%x, ret = %d\r\n", __func__, __LINE__, msg->addr, ret);
                 OsalMutexUnlock(&device->mutex);
                 return i;
             }
         } else {
             ret = hal_i2c_task_send(i2cPort, msg->addr, msg->buf, msg->len, 0, NULL);
-            if (ret) {
+            if (ret != 0) {
                 HDF_LOGE("%s:%d,i2c send fail, dev_addr = 0x%x, ret = %d\r\n", __func__, __LINE__, msg->addr, ret);
                 OsalMutexUnlock(&device->mutex);
                 return i;
