@@ -438,6 +438,7 @@ int32_t UsbFnDviceTestRequestSync007(void)
 
 static void TestCancelComplete(uint8_t pipe, struct UsbFnRequest *req)
 {
+    (void)req;
     struct AcmDevice *acmDevice = UsbGetAcmDevice();
     if (acmDevice == NULL) {
         return;

@@ -142,7 +142,7 @@ static struct HdfDeviceObject *GetRegistedDevice(const char *serviceName)
     return dev;
 }
 
-int32_t UsbPnpManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
+static int32_t UsbPnpManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
 {
     int32_t ret = HDF_FAILURE;
     struct HdfDeviceObject *devObj = HdfDeviceObjectAlloc(managerInfo->usbPnpManager, managerInfo->moduleName);
@@ -169,7 +169,7 @@ int32_t UsbPnpManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
     return SaveRegistedDevice(devObj);
 }
 
-int32_t UsbPnpManagerUnregisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
+static int32_t UsbPnpManagerUnregisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
 {
     // need optimize this code to remove GetRegistedDevice function later
     struct HdfDeviceObject *devObj = GetRegistedDevice(managerInfo->serviceName);
@@ -742,7 +742,7 @@ static struct UsbPnpDeviceListTable *UsbDdkPnpLoaderAddInterface(
     struct UsbPnpDeviceListTable *deviceListTablePos = NULL;
     struct UsbPnpDeviceListTable *deviceListTableTemp = NULL;
 
-    if (DListIsEmpty(&g_usbPnpDeviceTableListHead)) {
+    if (DListIsEmpty(&g_usbPnpDeviceTableListHead) == true) {
         HDF_LOGE("%s:%d g_usbPnpDeviceTableListHead is empty. ", __func__, __LINE__);
         return NULL;
     }
@@ -775,7 +775,6 @@ static int32_t UsbDdkPnpLoaderrAddPnpDevice(struct HdfDeviceObject *usbPnpManage
 
     deviceListTable = UsbDdkPnpLoaderAddInterface(infoTable, idTable);
     if ((deviceListTable != NULL) && (deviceListTable->status != USB_PNP_REMOVE_STATUS)) {
-        HDF_LOGI("%s:%d %s-%s is already exist!", __func__, __LINE__, idTable->moduleName, idTable->serviceName);
         return HDF_SUCCESS;
     }
 
@@ -801,8 +800,7 @@ static int32_t UsbDdkPnpLoaderrAddPnpDevice(struct HdfDeviceObject *usbPnpManage
 
     ret = UsbDdkPnpLoaderDispatchPnpDevice(usbPnpManagerDevice, pnpData, true);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:%d handle failed, %s-%s cmdId is %d, ret=%d",
-            __func__, __LINE__, idTable->moduleName, idTable->serviceName, cmdId, ret);
+        HDF_LOGE("%s: handle failed, cmdId is %d, ret=%d", __func__, cmdId, ret);
     } else {
         if (cmdId == USB_PNP_NOTIFY_ADD_INTERFACE) {
             if (deviceListTable == NULL) {
@@ -901,7 +899,7 @@ static int32_t UsbDdkPnpLoaderRemoveDevice(struct HdfDeviceObject *usbPnpManager
     bool findFlag = false;
     int32_t i;
 
-    if (DListIsEmpty(&g_usbPnpDeviceTableListHead)) {
+    if (DListIsEmpty(&g_usbPnpDeviceTableListHead) == true) {
         HDF_LOGE("%s:%d g_usbPnpDeviceTableListHead is empty. ", __func__, __LINE__);
         return HDF_SUCCESS;
     }

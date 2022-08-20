@@ -21,7 +21,7 @@ struct AcmDevice *UsbGetAcmDevice(void)
 int32_t UsbFnDviceTestCreate(void)
 {
     dprintf("%s: start\n", __func__);
-    remove_usb_device();
+    RemoveUsbDevice();
     g_acmDevice = SetUpAcmDevice();
     if (g_acmDevice == NULL || g_acmDevice->fnDev == NULL) {
         HDF_LOGE("%s: UsbFnDviceTestCreate fail", __func__);

@@ -45,6 +45,7 @@ bool UsbPnpManagerWriteModuleName(struct HdfSBuf *sbuf, const char *moduleName)
 static int32_t UsbPnpManagerDispatch(struct HdfDeviceIoClient *client, int32_t cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    (void)reply;
     if (client == NULL) {
         HDF_LOGE("%s:%d client is NULL, cmd = %d", __func__, __LINE__, cmd);
         return HDF_FAILURE;

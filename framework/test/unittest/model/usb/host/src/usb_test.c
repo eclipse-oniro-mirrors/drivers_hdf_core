@@ -1943,7 +1943,7 @@ static int32_t CheckHostSdkIfCloseInterface006(void)
 
 struct UsbTestFunc g_usbTestFunc[] = {
     { USB_HOSTSDK_INIT_001_TEST, CheckHostSdkIfInit001},
-    { Usb_HOSTSDK_EXIT_001_TEST, CheckHostSdkIfExit001},
+    { USB_HOSTSDK_EXIT_001_TEST, CheckHostSdkIfExit001},
     { USB_HOSTSDK_INIT_002_TEST, CheckHostSdkIfInit002},
     { USB_HOSTSDK_EXIT_002_TEST, CheckHostSdkIfExit002},
     { USB_HOSTSDK_INIT_003_TEST, CheckHostSdkIfInit003},

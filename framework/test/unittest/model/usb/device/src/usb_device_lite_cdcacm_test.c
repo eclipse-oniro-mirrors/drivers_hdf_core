@@ -581,6 +581,7 @@ static uint32_t Enable(struct AcmDevice *acm)
 
 static uint32_t Disable(struct AcmDevice *acm)
 {
+    (void)acm;
     return HDF_SUCCESS;
 }
 
@@ -782,7 +783,7 @@ void ReleaseAcmDevice(struct AcmDevice *acm)
     OsalMemFree(acm->port);
 }
 
-int32_t remove_usb_device(void)
+int32_t RemoveUsbDevice(void)
 {
     struct UsbFnDevice *device = NULL;
     struct UsbFnDeviceMgr *devMgr = NULL;
@@ -807,7 +808,7 @@ int32_t remove_usb_device(void)
             break;
         }
     }
-    dprintf("%s, i = %hhu, running = %d\n", __func__, i, (devMgr->running ? 1 : 0));
+    
     for (i = 0; i < device->numInterfaces; i++) {
         intfMgr = devMgr->interfaceMgr + i;
         if (intfMgr) {

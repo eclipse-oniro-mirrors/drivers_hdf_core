@@ -181,7 +181,7 @@ void AcmReadBulkCallback(const void *requestArg)
             break;
     }
 
-    if (UsbRawSubmitRequest(req)) {
+    if (UsbRawSubmitRequest(req) != HDF_SUCCESS) {
         printf("%s - UsbRawSubmitRequest failed", __func__);
     }
 }
