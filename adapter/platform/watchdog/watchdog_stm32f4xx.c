@@ -50,7 +50,7 @@ struct WatchdogMethod g_WatchdogCntlrMethod = {
     .releasePriv = NULL,
 };
 
-static int InitWatchdogDeviceInfo(WatchdogDeviceInfo *watchdogdeviceinfo)
+static int InitWatchdogDeviceInfo(const WatchdogDeviceInfo *watchdogdeviceinfo)
 {
     if (watchdogdeviceinfo == NULL) {
         HDF_LOGE("%s: invaild parameter\r\n", __func__);
@@ -286,7 +286,7 @@ static int32_t WatchdogDevStart(struct WatchdogCntlr *watchdogCntlr)
     hdf_iwdg->PR = IWDG_PRESCALER_32;   // 32 frequency division
     hdf_iwdg->RLR = timeout - 1;        // 32K crystal oscillator corresponds to 1-4096ms under 32 prescaled frequency
 
-    tickstart = LOS_TickCountGet();
+    tickstart = (unsigned long long)LOS_TickCountGet();
     // Wait for the register value to be updated and confirm that the watchdog is started successfully
     while ((hdf_iwdg->SR & (IWDG_SR_RVU | IWDG_SR_PVU)) != 0x00u) {
         if ((LOS_TickCountGet() - tickstart) > WATCHDOG_UPDATE_TIME) {

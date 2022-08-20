@@ -274,7 +274,7 @@ static int32_t GetPwmDeviceResource(PwmDevice *device, const struct DeviceResour
 }
 #endif
 
-static int32_t AttachPwmDevice(struct PwmDev *host, struct HdfDeviceObject *device)
+static int32_t AttachPwmDevice(struct PwmDev *host, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     PwmDevice *pwmDevice = NULL;
@@ -503,7 +503,7 @@ static void DeInitTimPwm(PWM_TIM pwmId, PWM_CH pwmCh)
     LL_TIM_CC_DisableChannel(g_stTimMap[pwmId], g_stChannelMap[pwmCh]);
     LL_TIM_OC_DisablePreload(g_stTimMap[pwmId], g_stChannelMap[pwmCh]);
 
-    if (pwmId== PWM_TIM1 || pwmId == PWM_TIM8) {
+    if (pwmId == PWM_TIM1 || pwmId == PWM_TIM8) {
         LL_TIM_DisableAutomaticOutput(g_stTimMap[pwmId]);
     }
 
