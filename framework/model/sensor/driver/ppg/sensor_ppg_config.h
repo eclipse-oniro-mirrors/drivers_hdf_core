@@ -6,8 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_CONFIG_H_
-#define MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_CONFIG_H_
+#ifndef MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_CONFIG_H
+#define MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_CONFIG_H
 
 #include "device_resource_if.h"
 #include "hdf_device_desc.h"
@@ -85,4 +85,4 @@ void ReleasePpgCfgData(void);
 int32_t ParsePpgCfgData(const struct DeviceResourceNode *node, struct PpgCfgData **cfgData);
 struct PpgCfgData *GetPpgConfig(void);
 
-#endif  // MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_CONFIG_H_
+#endif  // MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_CONFIG_H
