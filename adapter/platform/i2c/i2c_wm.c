@@ -59,7 +59,7 @@ struct I2cMethod g_i2cHostMethod = {
     .transfer = i2cHostTransfer,
 };
 
-int32_t InitI2cDevice(struct I2cDevice *device)
+static int32_t InitI2cDevice(struct I2cDevice *device)
 {
     int32_t ret = -1;
     uint32_t i2cPort;
@@ -173,7 +173,7 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
     return HDF_SUCCESS;
 }
 
-static int32_t AttachI2cDevice(struct I2cCntlr *host, struct HdfDeviceObject *device)
+static int32_t AttachI2cDevice(struct I2cCntlr *host, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct I2cDevice *i2cDevice = NULL;

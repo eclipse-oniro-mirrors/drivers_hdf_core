@@ -121,6 +121,9 @@ static void UartRxHandler(enum HAL_UART_ID_T uartId, union HAL_UART_IRQ_T status
 static void UartDmaRxHandler(uint32_t xferSize, int dmaError, union HAL_UART_IRQ_T status)
 {
     uint32_t len;
+
+    (void)dmaError;
+    (void)status;
     len = kfifo_put(&g_uartCtx[HAL_UART_ID_0].fifo, g_uartCtx[HAL_UART_ID_0].buffer, xferSize);
     if (len < xferSize) {
         HDF_LOGE("%s ringbuf is full have %d need %d\r", __FUNCTION__, (int)len, (int)xferSize);
@@ -140,6 +143,9 @@ static void UartDmaTxHandler(uint32_t xferSize, int dmaError)
 static void Uart1DmaRxHandler(uint32_t xferSize, int dmaError, union HAL_UART_IRQ_T status)
 {
     uint32_t len;
+
+    (void)dmaError;
+    (void)status;
     len = kfifo_put(&g_uartCtx[HAL_UART_ID_1].fifo, g_uartCtx[HAL_UART_ID_1].buffer, xferSize);
     if (len < xferSize) {
         HDF_LOGE("%s ringbuf is full have %d need %d\r", __FUNCTION__, (int)len, (int)xferSize);
@@ -152,6 +158,8 @@ static void Uart1DmaRxHandler(uint32_t xferSize, int dmaError, union HAL_UART_IR
 
 static void Uart1DmaTxHandler(uint32_t xferSize, int dmaError)
 {
+    (void)xferSize;
+    (void)dmaError;
     OsalSemPost(&g_uartCtx[HAL_UART_ID_1].txSem);
 }
 
@@ -217,7 +225,7 @@ static int32_t HalUartSend(uint32_t uartId, const void *data, uint32_t size, uin
 }
 
 static int32_t HalUartRecv(uint8_t uartId, void *data, uint32_t expectSize,
-                            uint32_t *recvSize, uint32_t timeOut)
+    uint32_t *recvSize, uint32_t timeOut)
 {
     uint32_t beginTime;
     uint32_t nowTime;
@@ -846,7 +854,7 @@ static int32_t UartHostDevGetBaud(struct UartHost *host, uint32_t *baudRate)
     return HDF_SUCCESS;
 }
 
-static int32_t SetUartDevConfig(struct UartAttribute *attribute, struct UartDevice *uartDevice)
+static int32_t SetUartDevConfig(const struct UartAttribute *attribute, struct UartDevice *uartDevice)
 {
     struct HAL_UART_CFG_T *uartCfg = NULL;
     uint32_t uartId;
@@ -928,7 +936,7 @@ static int32_t UartHostDevSetAttribute(struct UartHost *host, struct UartAttribu
     return HDF_SUCCESS;
 }
 
-static int32_t GetUartDevConfig(struct UartAttribute *attribute, struct HAL_UART_CFG_T *uartCfg)
+static int32_t GetUartDevConfig(struct UartAttribute *attribute, const struct HAL_UART_CFG_T *uartCfg)
 {
     if (attribute == NULL || uartCfg == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);

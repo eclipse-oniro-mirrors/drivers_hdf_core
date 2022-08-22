@@ -148,7 +148,7 @@ static int32_t HalUartRecv(uint8_t uartId, uint8_t *data, uint32_t expectSize,
         if ((uint32_t)(hdfTsDiff.sec * TMO_MS_UNIT_CONV + hdfTsDiff.usec / TMO_MS_UNIT_CONV) >= timeOut) {
             break;
         }
-    } while (1);
+    } while (true);
 
     if (recvSize != NULL) {
         *recvSize = recvedLen;
@@ -156,7 +156,7 @@ static int32_t HalUartRecv(uint8_t uartId, uint8_t *data, uint32_t expectSize,
     return HDF_SUCCESS;
 }
 
-static void HalUartHandlerInit(struct UartDevice *device)
+static void HalUartHandlerInit(const struct UartDevice *device)
 {
     uint32_t uartId;
 
@@ -306,7 +306,7 @@ static uint32_t GetUartDeviceResource(struct UartDevice *device, const struct De
     return HDF_SUCCESS;
 }
 
-static int32_t AttachUartDevice(struct UartHost *uartHost, struct HdfDeviceObject *device)
+static int32_t AttachUartDevice(struct UartHost *uartHost, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct UartDevice *uartDevice = NULL;

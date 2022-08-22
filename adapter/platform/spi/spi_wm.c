@@ -79,7 +79,7 @@ static void SpiIomuxInit(struct SpiDevice *spiDevice)
  *
  * @return  0 : on success, EIO : if the SPI device could not be initialised
  */
-int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
+static int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret = 0;
     uint32_t spiId;
@@ -122,7 +122,7 @@ int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t si
  *
  * @return  0 : on success, EIO : if the SPI device could not be initialised
  */
-int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, uint32_t timeOut)
+static int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret = 0;
     uint32_t len = size;
@@ -163,7 +163,7 @@ int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, ui
     len -= remainder;
     data += remainder;
 
-    if (ret) {
+    if (ret != 0) {
         HDF_LOGE("spi tail fail %ld, size %ld\r\n", ret, len);
     }
     OsalMutexUnlock(&spiDevice->mutex);
@@ -171,7 +171,7 @@ int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, ui
     return ret;
 }
 
-int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
+static int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
     uint16_t rxSize)
 {
     int32_t ret;
@@ -190,7 +190,7 @@ int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t tx
         return HDF_ERR_TIMEOUT;
     }
     ret = tls_spi_xfer(txData, rxData, txSize, rxSize);
-    if (ret) {
+    if (ret != 0) {
         HDF_LOGE("spi dma tail fail %d\r\n", ret);
     }
     OsalMutexUnlock(&spiDevice->mutex);
@@ -261,7 +261,7 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
     return HDF_SUCCESS;
 }
 
-int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, struct HdfDeviceObject *device)
+int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct SpiDevice *spiDevice = NULL;

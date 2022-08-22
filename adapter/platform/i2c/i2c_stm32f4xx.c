@@ -42,7 +42,7 @@ struct RealI2cResource {
 static bool g_I2cEnableFlg[I2C_HANDLE_MAX] = {0};
 
 static void HdfI2cInit(I2C_HANDLE i2cx, unsigned int i2cRate, unsigned int addr);
-static void HdfI2cWrite(I2C_HANDLE i2cx, unsigned char devAddr, unsigned char *buf, unsigned int len);
+static void HdfI2cWrite(I2C_HANDLE i2cx, unsigned char devAddr, const unsigned char *buf, unsigned int len);
 static void HdfI2cRead(I2C_HANDLE i2cx, unsigned char devAddr, unsigned char *buf, unsigned int len);
 
 static int32_t I2cDriverBind(struct HdfDeviceObject *device);
@@ -135,7 +135,7 @@ static int32_t GetI2cDeviceResource(struct RealI2cResource *i2cResource, const s
 }
 #endif
 
-static int32_t AttachI2cDevice(struct I2cCntlr *host, struct HdfDeviceObject *device)
+static int32_t AttachI2cDevice(struct I2cCntlr *host, const struct HdfDeviceObject *device)
 {
     int32_t ret = HDF_FAILURE;
 
@@ -330,7 +330,7 @@ static void HdfI2cInit(I2C_HANDLE i2cx, unsigned int i2cRate, unsigned int addr)
     g_I2cEnableFlg[i2cx] = true;
 }
 
-static void HdfI2cWrite(I2C_HANDLE i2cx, unsigned char devAddr, unsigned char *buf, unsigned int len)
+static void HdfI2cWrite(I2C_HANDLE i2cx, unsigned char devAddr, const unsigned char *buf, unsigned int len)
 {
     if (g_I2cEnableFlg[i2cx] != true) {
         printf("I2C_WriteByte err, Please initialize first!");

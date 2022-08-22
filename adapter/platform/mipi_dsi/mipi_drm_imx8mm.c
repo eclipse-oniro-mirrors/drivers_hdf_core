@@ -34,6 +34,7 @@ static struct mipi_dsi_device *GetLinuxPanel(const struct MipiDsiCntlr *cntlr)
 
 static int32_t MipiDsiAdapterSetConfig(struct MipiDsiCntlr *cntlr)
 {
+    (void)cntlr;
     return HDF_SUCCESS;
 }
 

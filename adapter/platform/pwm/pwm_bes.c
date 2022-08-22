@@ -56,7 +56,7 @@ struct PwmMethod g_pwmmethod = {
     .close = PwmDevClose,
 };
 
-static int InitPwmDevice(struct PwmDev *host)
+static int InitPwmDevice(const struct PwmDev *host)
 {
     struct PwmDevice *pwmDevice = NULL;
     struct PwmResource *resource = NULL;
@@ -156,7 +156,7 @@ static uint32_t GetPwmDeviceResource(
     return HDF_SUCCESS;
 }
 #endif
-static int32_t AttachPwmDevice(struct PwmDev *host, struct HdfDeviceObject *device)
+static int32_t AttachPwmDevice(struct PwmDev *host, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct PwmDevice *pwmDevice = NULL;
