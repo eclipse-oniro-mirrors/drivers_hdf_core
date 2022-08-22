@@ -3,7 +3,7 @@
  *
  * net device adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -22,6 +22,7 @@
 #include <linux/version.h>
 #if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 #include <linux/phy.h>
+#include <linux/of_mdio.h>
 #endif
 #include "net_device.h"
 #include "net_device_impl.h"
@@ -29,13 +30,6 @@
 #include "securec.h"
 
 #define HDF_LOG_TAG NetDeviceFull
-#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
-extern struct phy_device *of_phy_connect(struct net_device *dev,
-    struct device_node *phy_np,
-    void (*hndlr)(struct net_device *),
-    u32 flags,
-    phy_interface_t iface);
-#endif
 
 static int32_t NetDevXmitCheck(struct sk_buff *skb, struct net_device *dev)
 {
@@ -242,7 +236,7 @@ static int32_t NetDevDelete(struct NetDeviceImpl *impl)
 
 #if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 #define NAPI_ADD_NUM   (64)
-void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
+static void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
     int (*poll)(struct napi_struct *, int), int weight)
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
@@ -250,7 +244,7 @@ void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
     netif_napi_add(dev, napi, poll, NAPI_ADD_NUM);
 }
 
-struct netdev_queue *NetDevGetTxQueue(struct NetDeviceImpl *impl, unsigned int queue)
+static struct netdev_queue *NetDevGetTxQueue(struct NetDeviceImpl *impl, unsigned int queue)
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
     struct netdev_queue *nq;
@@ -260,7 +254,7 @@ struct netdev_queue *NetDevGetTxQueue(struct NetDeviceImpl *impl, unsigned int q
     return nq;
 }
 
-__be16 NetDevTypeTrans(struct NetDeviceImpl *impl, struct sk_buff *skb)
+static __be16 NetDevTypeTrans(struct NetDeviceImpl *impl, struct sk_buff *skb)
 {
     __be16 ret;
     struct net_device *dev = GetDevFromDevImpl(impl);
@@ -270,7 +264,7 @@ __be16 NetDevTypeTrans(struct NetDeviceImpl *impl, struct sk_buff *skb)
     return ret;
 }
 
-struct sk_buff *NetDevAllocBuf(struct NetDeviceImpl *impl, uint32_t length)
+static struct sk_buff *NetDevAllocBuf(struct NetDeviceImpl *impl, uint32_t length)
 {
     struct sk_buff *skb = NULL;
     struct net_device *dev = GetDevFromDevImpl(impl);
@@ -279,7 +273,7 @@ struct sk_buff *NetDevAllocBuf(struct NetDeviceImpl *impl, uint32_t length)
     return skb;
 }
 
-void NetDevStartQueue(struct NetDeviceImpl *impl)
+static void NetDevStartQueue(struct NetDeviceImpl *impl)
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
     struct netdev_queue *nq;
@@ -288,21 +282,21 @@ void NetDevStartQueue(struct NetDeviceImpl *impl)
     netif_tx_start_queue(nq);
 }
 
-void NetDevDisableTx(struct NetDeviceImpl *impl)
+static void NetDevDisableTx(struct NetDeviceImpl *impl)
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
 
     netif_tx_disable(dev);
 }
 
-void NetDevSetDev(struct NetDeviceImpl *impl, struct device *dev)
+static void NetDevSetDev(struct NetDeviceImpl *impl, struct device *dev)
 {
     struct net_device *ndev = GetDevFromDevImpl(impl);
 
     SET_NETDEV_DEV(ndev, dev);
 }
 
-void NetDevWakeQueue(struct NetDeviceImpl *impl)
+static void NetDevWakeQueue(struct NetDeviceImpl *impl)
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
     struct netdev_queue *nq;
@@ -311,11 +305,8 @@ void NetDevWakeQueue(struct NetDeviceImpl *impl)
     netif_tx_wake_queue(nq);
 }
 
-struct phy_device *NetDevOfPhyConnect(struct NetDeviceImpl *impl,
-                                      struct device_node *phy_np,
-                                      void (*hndlr)(struct net_device *),
-                                      u32 flags,
-                                      phy_interface_t iface)
+static struct phy_device *NetDevOfPhyConnect(struct NetDeviceImpl *impl, struct device_node *phy_np,
+    void (*hndlr)(struct net_device *), u32 flags, phy_interface_t iface)
 {
     struct phy_device *phy = NULL;
     struct net_device *ndev = GetDevFromDevImpl(impl);
@@ -384,7 +375,7 @@ static int32_t NetDevReceive(struct NetDeviceImpl *impl,
     return HDF_SUCCESS;
 }
 
-int32_t NetDevChangeMacAddr(struct NetDeviceImpl *impl)
+static int32_t NetDevChangeMacAddr(struct NetDeviceImpl *impl)
 {
     struct net_device *dev = NULL;
 
