@@ -289,7 +289,7 @@ static void Icn9700PanelInit(struct PanelData *panel)
     panel->off = Icn9700Off;
 }
 
-int32_t Icn9700EntryInit(struct HdfDeviceObject *object)
+static int32_t Icn9700EntryInit(struct HdfDeviceObject *object)
 {
     struct Icn9700Dev *icn9700 = NULL;
 

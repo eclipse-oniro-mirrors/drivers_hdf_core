@@ -90,7 +90,7 @@ static int32_t SpiWrite9Bits(DevHandle spiHandle, uint8_t cmd, uint8_t data)
     return HDF_SUCCESS;
 }
 
-DevHandle GetSpiHandle(void)
+static DevHandle GetSpiHandle(void)
 {
     int32_t ret;
     DevHandle spiHandle = NULL;
@@ -259,7 +259,7 @@ static struct PanelData g_panelData = {
     .setBacklight = St7789SetBacklight,
 };
 
-int32_t SspSt7789EntryInit(struct HdfDeviceObject *object)
+static int32_t SspSt7789EntryInit(struct HdfDeviceObject *object)
 {
     if (object == NULL) {
         HDF_LOGE("%s: param is null", __func__);

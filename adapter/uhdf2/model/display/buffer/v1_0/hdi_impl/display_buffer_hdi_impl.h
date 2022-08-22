@@ -29,7 +29,7 @@ namespace Buffer {
 namespace V1_0 {
 class DisplayBufferHdiImpl : public IDisplayBuffer {
 public:
-    DisplayBufferHdiImpl(bool isAllocLocal = false);
+    explicit DisplayBufferHdiImpl(bool isAllocLocal = false);
     virtual ~DisplayBufferHdiImpl() = default;
 
     virtual int32_t AllocMem(const AllocInfo &info, BufferHandle *&handle) const override;
