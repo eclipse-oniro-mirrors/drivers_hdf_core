@@ -226,6 +226,45 @@ public:
         return ToDispErrCode(req_->Commit(devId, fence));
     }
 
+    virtual int32_t GetDisplaySupportedColorGamuts(uint32_t devId, std::vector<ColorGamut>& gamuts) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+    virtual int32_t GetDisplayColorGamut(uint32_t devId, ColorGamut& gamut) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetDisplayColorGamut(uint32_t devId, const ColorGamut& gamut) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t GetDisplayGamutMap(uint32_t devId, GamutMap& gamutMap) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetDisplayGamutMap(uint32_t devId, const GamutMap& gamutMap) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetDisplayColorTransform(uint32_t devId, const std::vector<float>& matrix) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t GetHDRCapabilityInfos(uint32_t devId, HDRCapability& info) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t GetSupportedMetadataKey(uint32_t devId, std::vector<HDRMetadataKey>& keys) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
     // layer func
     virtual int32_t CreateLayer(uint32_t devId, const LayerInfo &layerInfo, uint32_t &layerId) override
     {
@@ -315,6 +354,47 @@ public:
     {
         COMPOSER_CHECK_NULLPTR(req_);
         return ToDispErrCode(req_->SetLayerVisible(devId, layerId, visible));
+    }
+
+    virtual int32_t SetLayerColorTransform(uint32_t devId, uint32_t layerId, const std::vector<float>& matrix) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetLayerColorDataSpace(uint32_t devId, uint32_t layerId, const ColorDataSpace colorSpace) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t GetLayerColorDataSpace(uint32_t devId, uint32_t layerId, ColorDataSpace& colorSpace) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetLayerMetaData(uint32_t devId, uint32_t layerId, const std::vector<HDRMetaData>& metaData) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetLayerMetaDataSet(uint32_t devId, uint32_t layerId, HDRMetadataKey key,
+        const std::vector<uint8_t>& metaData) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t GetSupportedPresentTimestamp(uint32_t devId, uint32_t layerId, PresentTimestampType& type) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t GetHwPresentTimestamp(uint32_t devId, uint32_t layerId, PresentTimestamp& pts) override
+    {
+        return DISPLAY_SUCCESS;
+    }
+
+    virtual int32_t SetLayerTunnelHandle(uint32_t devId, uint32_t layerId, const ExtDataHandle& handle) override
+    {
+        return DISPLAY_SUCCESS;
     }
 
     // Callback implement

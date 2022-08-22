@@ -57,6 +57,14 @@ public:
     virtual int32_t SetVirtualDisplayBuffer(uint32_t devId, const BufferHandle& buffer, const int32_t fence) = 0;
     virtual int32_t SetDisplayProperty(uint32_t devId, uint32_t id, uint64_t value) = 0;
     virtual int32_t Commit(uint32_t devId, int32_t& fence) = 0;
+    virtual int32_t GetDisplaySupportedColorGamuts(uint32_t devId, std::vector<ColorGamut>& gamuts) = 0;
+    virtual int32_t GetDisplayColorGamut(uint32_t devId, ColorGamut& gamut) = 0;
+    virtual int32_t SetDisplayColorGamut(uint32_t devId, const ColorGamut& gamut) = 0;
+    virtual int32_t GetDisplayGamutMap(uint32_t devId, GamutMap& gamutMap) = 0;
+    virtual int32_t SetDisplayGamutMap(uint32_t devId, const GamutMap& gamutMap) = 0;
+    virtual int32_t SetDisplayColorTransform(uint32_t devId, const std::vector<float>& matrix) = 0;
+    virtual int32_t GetHDRCapabilityInfos(uint32_t devId, HDRCapability& info) = 0;
+    virtual int32_t GetSupportedMetadataKey(uint32_t devId, std::vector<HDRMetadataKey>& keys) = 0;
     /* layer func */
     virtual int32_t CreateLayer(uint32_t devId, const LayerInfo& layerInfo, uint32_t& layerId) = 0;
     virtual int32_t DestroyLayer(uint32_t devId, uint32_t layerId) = 0;
@@ -73,6 +81,15 @@ public:
     virtual int32_t SetLayerCompositionType(uint32_t devId, uint32_t layerId, CompositionType type) = 0;
     virtual int32_t SetLayerBlendType(uint32_t devId, uint32_t layerId, BlendType type) = 0;
     virtual int32_t SetLayerVisible(uint32_t devId, uint32_t layerId, bool visible) = 0;
+    virtual int32_t SetLayerColorTransform(uint32_t devId, uint32_t layerId, const std::vector<float>& matrix) = 0;
+    virtual int32_t SetLayerColorDataSpace(uint32_t devId, uint32_t layerId, const ColorDataSpace colorSpace) = 0;
+    virtual int32_t GetLayerColorDataSpace(uint32_t devId, uint32_t layerId, ColorDataSpace& colorSpace) = 0;
+    virtual int32_t SetLayerMetaData(uint32_t devId, uint32_t layerId, const std::vector<HDRMetaData>& metaData) = 0;
+    virtual int32_t SetLayerMetaDataSet(uint32_t devId, uint32_t layerId, HDRMetadataKey key,
+         const std::vector<uint8_t>& metaData) = 0;
+    virtual int32_t GetSupportedPresentTimestamp(uint32_t devId, uint32_t layerId, PresentTimestampType& type) = 0;
+    virtual int32_t GetHwPresentTimestamp(uint32_t devId, uint32_t layerId, PresentTimestamp& pts) = 0;
+    virtual int32_t SetLayerTunnelHandle(uint32_t devId, uint32_t layerId, const ExtDataHandle& handle) = 0;
 };
 } // V1_0
 } // Composer
