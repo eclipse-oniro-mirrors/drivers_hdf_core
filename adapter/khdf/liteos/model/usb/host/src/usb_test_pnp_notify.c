@@ -29,8 +29,8 @@
  */
 
 #include "devsvc_manager_clnt.h"
-#include "hdf_log.h"
 #include "hdf_device_desc.h"
+#include "hdf_log.h"
 
 #define HDF_LOG_TAG USB_TEST_PNP_NOTIFY
 
@@ -38,8 +38,8 @@
 #define INT32_MAX 0x7fffffff
 #endif
 
-static int32_t UsbTestPnpNotifyDispatch(struct HdfDeviceIoClient *client,
-    int32_t cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t UsbTestPnpNotifyDispatch(
+    struct HdfDeviceIoClient *client, int32_t cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)data;
     int32_t ret = HDF_SUCCESS;
@@ -76,7 +76,7 @@ static int32_t UsbTestPnpNotifyInit(struct HdfDeviceObject *deviceObject)
     return HDF_SUCCESS;
 }
 
-static void UsbTestPnpNotifyRelease(struct HdfDeviceObject *deviceObject)
+static void UsbTestPnpNotifyRelease(struct HdfDeviceObject * const deviceObject)
 {
     (void)deviceObject;
     HDF_LOGD("ZXX %s:%d release success", __func__, __LINE__);
