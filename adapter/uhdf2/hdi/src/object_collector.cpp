@@ -68,6 +68,9 @@ OHOS::sptr<OHOS::IRemoteObject> ObjectCollector::NewObject(
 OHOS::sptr<OHOS::IRemoteObject> ObjectCollector::GetOrNewObject(
     const OHOS::sptr<HdiBase> &interface, const std::u16string &interfaceName)
 {
+    if (interface == nullptr) {
+        return nullptr;
+    }
     mutex_.lock();
 RETRY:
     auto it = interfaceObjectCollector_.find(interface.GetRefPtr());
