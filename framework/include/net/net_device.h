@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -466,7 +466,7 @@ typedef struct {
 typedef struct NetDevice {
     NetIfCategory netifCateg;                 /**< Network interface category {@link NetIfCategory} */
     char name[IFNAMSIZ];                      /**< Network device name {@link IFNAMSIZ} */
-    NetLinkType LinkLayerType;                /**< Data link layer type */
+    NetLinkType linkLayerType;                /**< Data link layer type */
     IfType funType;                           /**< Network port type */
     uint8_t macAddr[MAC_ADDR_SIZE];           /**< MAC address {@link MAC_ADDR_SIZE} */
     uint32_t flags;                           /**< Network port status */

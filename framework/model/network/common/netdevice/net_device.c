@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -190,7 +190,7 @@ struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetLinkType ty
         DeInitNetDeviceImpl(ndImpl);
         return NULL;
     }
-    netDevice->LinkLayerType = type;
+    netDevice->linkLayerType = type;
     HDF_LOGI("Init Net Device success!");
     return netDevice;
 }

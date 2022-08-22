@@ -3,7 +3,7 @@
  *
  * net buffer adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -30,8 +30,8 @@
  * @version 1.0
  */
 
-#ifndef _HDF_NETBUF_ADAPTER_H
-#define _HDF_NETBUF_ADAPTER_H
+#ifndef HDF_NETBUF_ADAPTER_H
+#define HDF_NETBUF_ADAPTER_H
 
 #include <linux/skbuff.h>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -28,7 +28,7 @@ typedef int32_t (*pTestCaseFunc)(void);
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest001(void)
+static int32_t HdfNetBufTest001(void)
 {
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
     if (nb == NULL) {
@@ -45,7 +45,7 @@ int32_t HdfNetBufTest001(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest002(void)
+static int32_t HdfNetBufTest002(void)
 {
     NetBuf *nb = NetBufAlloc(MAX_MEM_ALLOC_SIZE);
     if (nb == NULL) {
@@ -61,7 +61,7 @@ int32_t HdfNetBufTest002(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest003(void)
+static int32_t HdfNetBufTest003(void)
 {
     void *tmp = NULL;
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -92,7 +92,7 @@ int32_t HdfNetBufTest003(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest004(void)
+static int32_t HdfNetBufTest004(void)
 {
     void *tmp = NULL;
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -134,7 +134,7 @@ int32_t HdfNetBufTest004(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest005(void)
+static int32_t HdfNetBufTest005(void)
 {
     void *tmp = NULL;
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -171,7 +171,7 @@ int32_t HdfNetBufTest005(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest006(void)
+static int32_t HdfNetBufTest006(void)
 {
     void *tmp = NULL;
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -207,7 +207,7 @@ int32_t HdfNetBufTest006(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest007(void)
+static int32_t HdfNetBufTest007(void)
 {
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
     if (nb == NULL) {
@@ -248,7 +248,7 @@ int32_t HdfNetBufTest007(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest008(void)
+static int32_t HdfNetBufTest008(void)
 {
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
     if (nb == NULL) {
@@ -278,7 +278,7 @@ int32_t HdfNetBufTest008(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest009(void)
+static int32_t HdfNetBufTest009(void)
 {
     int32_t ret;
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -319,7 +319,7 @@ int32_t HdfNetBufTest009(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest010(void)
+static int32_t HdfNetBufTest010(void)
 {
     uint32_t ret;
     NetBuf *dst = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -358,7 +358,7 @@ int32_t HdfNetBufTest010(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest011(void)
+static int32_t HdfNetBufTest011(void)
 {
     uint32_t ret, dstDataLen;
     NetBuf *dst = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -401,7 +401,7 @@ int32_t HdfNetBufTest011(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest012(void)
+static int32_t HdfNetBufTest012(void)
 {
     struct pbuf *lwipBuf = NULL;
     NetBuf *nb = NetBufAlloc(DEFAULT_NETBUF_SIZE);
@@ -430,7 +430,7 @@ int32_t HdfNetBufTest012(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufTest013(void)
+static int32_t HdfNetBufTest013(void)
 {
     struct pbuf *lwipBuf = NULL;
     NetBuf *nb = NULL;
@@ -461,7 +461,7 @@ int32_t HdfNetBufTest013(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest001(void)
+static int32_t HdfNetBufQueueTest001(void)
 {
     NetBufQueue q;
 
@@ -481,7 +481,7 @@ int32_t HdfNetBufQueueTest001(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest002(void)
+static int32_t HdfNetBufQueueTest002(void)
 {
     NetBufQueue q;
 
@@ -501,7 +501,7 @@ int32_t HdfNetBufQueueTest002(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest003(void)
+static int32_t HdfNetBufQueueTest003(void)
 {
     NetBufQueue q;
     NetBuf *nb1 = NULL;
@@ -541,7 +541,7 @@ int32_t HdfNetBufQueueTest003(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest004(void)
+static int32_t HdfNetBufQueueTest004(void)
 {
     NetBufQueue q;
     NetBuf *nb = NULL;
@@ -581,7 +581,7 @@ int32_t HdfNetBufQueueTest004(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest005(void)
+static int32_t HdfNetBufQueueTest005(void)
 {
     NetBufQueue q;
     NetBuf *nb = NULL;
@@ -621,7 +621,7 @@ int32_t HdfNetBufQueueTest005(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest006(void)
+static int32_t HdfNetBufQueueTest006(void)
 {
     NetBufQueue q;
     NetBuf *nb1 = NULL;
@@ -682,7 +682,7 @@ int32_t HdfNetBufQueueTest006(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest007(void)
+static int32_t HdfNetBufQueueTest007(void)
 {
     NetBufQueue q;
     NetBuf *nb1 = NULL;
@@ -746,7 +746,7 @@ int32_t HdfNetBufQueueTest007(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest008(void)
+static int32_t HdfNetBufQueueTest008(void)
 {
     NetBufQueue q;
     NetBuf *nb1 = NULL;
@@ -784,7 +784,7 @@ int32_t HdfNetBufQueueTest008(void)
 * @tc.type: FUNC
 * @tc.require: AR000DT1UD
 */
-int32_t HdfNetBufQueueTest009(void)
+static int32_t HdfNetBufQueueTest009(void)
 {
     NetBufQueue q;
     NetBufQueue add;
