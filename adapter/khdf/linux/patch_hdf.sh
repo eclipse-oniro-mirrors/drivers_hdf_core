@@ -20,7 +20,6 @@ KERNEL_BUILD_ROOT=$2
 KERNEL_PATCH_PATH=$3
 DEVICE_NAME=$4
 HDF_COMMON_PATCH="common"
-HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
 
 ln_list=(
     $OHOS_SOURCE_ROOT/drivers/hdf_core/adapter/khdf/linux    drivers/hdf/khdf
@@ -41,7 +40,7 @@ function copy_external_compents()
     do
         dst_dir=${cp_list[$(expr $i + 1)]}/${cp_list[$i]##*/}
         mkdir -p $dst_dir
-        [ -d ${cp_list[$i]}/ ] && cp -arfL ${cp_list[$i]}/* $dst_dir/
+        [ -d "${cp_list[$i]}"/ ] && cp -arfL ${cp_list[$i]}/* $dst_dir/
     done
 }
 
@@ -53,19 +52,20 @@ function ln_hdf_repos()
     done
 }
 
-function get_hdf_patch_patch()
+function put_hdf_patch()
 {
-    if [ ! -e ${HDF_PATCH_FILE} ]
+    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
+    if [ ! -e "${HDF_PATCH_FILE}" ]
     then
 	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${HDF_COMMON_PATCH}_patch/hdf.patch
     fi
+    patch -p1 < $HDF_PATCH_FILE
 }
 
 function main()
 {
     cd $KERNEL_BUILD_ROOT
-    get_hdf_patch_patch
-    patch -p1 < $HDF_PATCH_FILE
+    put_hdf_patch
     ln_hdf_repos
     copy_external_compents
     cd -
