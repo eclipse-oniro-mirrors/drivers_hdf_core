@@ -131,7 +131,7 @@ void *PwmGetPriv(const struct PwmDev *pwm)
 
 static int32_t PwmUserSetConfig(struct PwmDev *pwm, struct HdfSBuf *data)
 {
-    size_t size;
+    uint32_t size;
     struct PwmConfig *config = NULL;
 
     if (data == NULL) {

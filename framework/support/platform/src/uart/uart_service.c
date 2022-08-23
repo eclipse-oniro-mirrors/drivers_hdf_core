@@ -55,7 +55,7 @@ static int32_t UartIoRead(struct UartHost *host, struct HdfSBuf *data, struct Hd
 
 static int32_t UartIoWrite(struct UartHost *host, struct HdfSBuf *data)
 {
-    size_t size;
+    uint32_t size;
     uint8_t *buf = NULL;
 
     if (!HdfSbufReadBuffer(data, (const void **)&buf, &size)) {
