@@ -16,7 +16,7 @@ else
 	export TARGET:=$(TARGET_DIR)/hdi-gen
 endif
 
-export CXXFLAGS = -std=c++14 -O2 -w
+export CXXFLAGS = -std=c++14 -O2 -Wall -fno-common -fno-strict-aliasing
 export Q := @
 export MAKEFLAGS += --no-print-directory
 
