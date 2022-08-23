@@ -25,7 +25,7 @@ public:
     virtual std::string Dump(const std::string &prefix);
 
 protected:
-    static constexpr char *TAB = "    ";
+    static const char *TAB;
 };
 } // namespace HDI
 } // namespace OHOS

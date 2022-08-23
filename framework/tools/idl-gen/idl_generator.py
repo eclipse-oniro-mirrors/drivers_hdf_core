@@ -1,12 +1,11 @@
-# !/usr/bin/env python3
-# coding=utf-8
-"""
-* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
-*
-* HDF is dual licensed: you can use it either under the terms of
-* the GPL, or the BSD license, at your option.
-* See the LICENSE file in the root of this repository for complete details.
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+#
+# HDF is dual licensed: you can use it either under the terms of
+# the GPL, or the BSD license, at your option.
+# See the LICENSE file in the root of this repository for complete details.
 
 import argparse
 import os
@@ -341,10 +340,10 @@ class IDLGenerator:
 
     def _get_package(self, file_path):
         path_name = re.split(r'[/\\]', self._split_path(file_path))
-        out_path = ""
+        out_path_temp = []
         for name in path_name:
-            out_path += name + '.'
-        return out_path.strip('.')
+            out_path_temp.append(name)
+        return ".".join(out_path_temp)
 
 
 if __name__ == "__main__":

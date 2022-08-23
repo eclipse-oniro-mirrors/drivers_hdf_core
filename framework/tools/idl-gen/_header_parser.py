@@ -1,12 +1,11 @@
-# !/usr/bin/env python3
-# coding=utf-8
-"""
-* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
-*
-* HDF is dual licensed: you can use it either under the terms of
-* the GPL, or the BSD license, at your option.
-* See the LICENSE file in the root of this repository for complete details.
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+#
+# HDF is dual licensed: you can use it either under the terms of
+# the GPL, or the BSD license, at your option.
+# See the LICENSE file in the root of this repository for complete details.
 
 import json
 import os
@@ -65,25 +64,23 @@ class HeaderParser:
     def _pre_handle(header_file):
         back_file = header_file + ".back"
         copyfile(header_file, back_file)
-        f = open(header_file, 'r')
-        new_lines = ""
-        for line in f:
-            tt = re.match(r".*enum *((\w+) *\*) *\w* *;", line)
-            if tt:
-                new_line = line.replace(tt[1], tt[2] + "_ENUM_POINTER ")
-                new_lines += new_line
-                continue
-            tt = re.match(r".*(\[\w* *\(.*\) *]) *", line)
-            if tt:
-                new_line = line.replace(tt[1], "[]")
-                new_lines += new_line
-                continue
-            else:
-                new_lines += line
-        f.close()
-        f = open(header_file, 'w')
-        f.writelines(new_lines)
-        f.close()
+        with open(header_file, 'r') as f:
+            new_lines = ""
+            for line in f:
+                tt = re.match(r".*enum *((\w+) *\*) *\w* *;", line)
+                if tt:
+                    new_line = line.replace(tt[1], tt[2] + "_ENUM_POINTER ")
+                    new_lines += new_line
+                    continue
+                tt = re.match(r".*(\[\w* *\(.*\) *]) *", line)
+                if tt:
+                    new_line = line.replace(tt[1], "[]")
+                    new_lines += new_line
+                    continue
+                else:
+                    new_lines += line
+        with open(header_file, 'w') as f:
+            f.writelines(new_lines)
         return back_file
 
     @staticmethod
@@ -268,7 +265,7 @@ class HeaderParser:
         """
         for td in typedefs:
             if "typedef" in typedefs[td]:
-                self._header_dict.get("typedef").append({"name": td,
-                                                         "type": "/* unsupported function pointer type: " + td + " */"})
+                error_comment = "/* unsupported function pointer type: %s */" % (td)
+                self._header_dict.get("typedef").append({"name": td, "type": error_comment})
             else:
                 self._header_dict.get("typedef").append({"name": td, "type": typedefs[td]})
