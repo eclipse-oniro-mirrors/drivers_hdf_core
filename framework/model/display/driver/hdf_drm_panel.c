@@ -245,6 +245,7 @@ static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int3
 
 static int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
 {
+    (void)object;
     uint32_t ret;
     uint32_t i;
     uint32_t j;
