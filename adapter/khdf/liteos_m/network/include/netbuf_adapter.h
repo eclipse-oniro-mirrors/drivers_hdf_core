@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -42,8 +42,8 @@
  * @version 1.0
  */
 
-#ifndef _HDF_NETBUF_ADAPTER_H
-#define _HDF_NETBUF_ADAPTER_H
+#ifndef HDF_NETBUF_ADAPTER_H
+#define HDF_NETBUF_ADAPTER_H
 
 #include "osal_spinlock.h"
 #include "hdf_dlist.h"
