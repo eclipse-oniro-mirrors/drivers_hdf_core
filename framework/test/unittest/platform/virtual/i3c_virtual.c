@@ -108,7 +108,7 @@ static int32_t VirtualI3cTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, i
 static int32_t VirtualI3cCntlrI2cTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t count)
 {
     int32_t ret;
-    unsigned long irqSave;
+    int irqSave;
     struct VirtualI3cCntlr *virtual = NULL;
     struct VirtualI3cTransferData td;
 

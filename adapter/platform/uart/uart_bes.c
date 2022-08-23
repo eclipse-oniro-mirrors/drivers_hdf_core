@@ -137,6 +137,8 @@ static void UartDmaRxHandler(uint32_t xferSize, int dmaError, union HAL_UART_IRQ
 
 static void UartDmaTxHandler(uint32_t xferSize, int dmaError)
 {
+    (void)xferSize;
+    (void)dmaError;
     OsalSemPost(&g_uartCtx[HAL_UART_ID_0].txSem);
 }
 
@@ -261,7 +263,7 @@ static int32_t HalUartRecv(uint8_t uartId, void *data, uint32_t expectSize,
         if ((uint32_t)(nowTime - beginTime) >= timeOut) {
             break;
         }
-    } while (1);
+    } while (true);
 
     if (recvSize != NULL) {
         *recvSize = recvedLen;
@@ -269,7 +271,7 @@ static int32_t HalUartRecv(uint8_t uartId, void *data, uint32_t expectSize,
     return HDF_SUCCESS;
 }
 
-static int32_t InitUartCtxCfg(struct UartDevice *device)
+static int32_t InitUartCtxCfg(const struct UartDevice *device)
 {
     uint32_t uartId;
     struct HAL_UART_CFG_T *uartCfg = NULL;

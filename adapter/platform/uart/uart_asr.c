@@ -642,7 +642,7 @@ static int32_t HdfUartDeviceBind(struct HdfDeviceObject *device)
     return (UartHostCreate(device) == NULL) ? HDF_FAILURE : HDF_SUCCESS;
 }
 
-int32_t HdfUartDeviceInit(struct HdfDeviceObject *device)
+static int32_t HdfUartDeviceInit(struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct UartHost *host = NULL;
@@ -665,7 +665,7 @@ int32_t HdfUartDeviceInit(struct HdfDeviceObject *device)
     return ret;
 }
 
-void HdfUartDeviceRelease(struct HdfDeviceObject *device)
+static void HdfUartDeviceRelease(struct HdfDeviceObject *device)
 {
     struct UartHost *host = NULL;
 

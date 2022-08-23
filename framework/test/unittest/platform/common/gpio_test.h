@@ -18,6 +18,7 @@ extern "C" {
 #define NAME_SIZE_MAX 100
 
 int32_t GpioTestExecute(int cmd);
+void GpioTestExecuteAll(void);
 
 enum GpioTestCmd {
     GPIO_TEST_SET_GET_DIR = 0,

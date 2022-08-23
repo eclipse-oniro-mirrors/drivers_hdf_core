@@ -223,7 +223,7 @@ static SPI_CONTEXT_T spiContext[SPI_PORT3] = {
     },
 };
 
-static int32_t HalSpiSend(SpiDevice *spiDevice, const uint8_t *data, uint16_t size)
+static int32_t HalSpiSend(const SpiDevice *spiDevice, const uint8_t *data, uint16_t size)
 {
     uint32_t spiId;
     SpiResource *resource = NULL;
@@ -253,7 +253,7 @@ static int32_t HalSpiSend(SpiDevice *spiDevice, const uint8_t *data, uint16_t si
     return HDF_SUCCESS;
 }
 
-static int32_t HalSpiRecv(SpiDevice *spiDevice, uint8_t *data, uint16_t size)
+static int32_t HalSpiRecv(const SpiDevice *spiDevice, uint8_t *data, uint16_t size)
 {
     uint32_t len = size;
     uint8_t *cmd = NULL;
@@ -292,7 +292,7 @@ static int32_t HalSpiRecv(SpiDevice *spiDevice, uint8_t *data, uint16_t size)
     return HDF_SUCCESS;
 }
 
-static int32_t HalSpiSendRecv(SpiDevice *spiDevice, uint8_t *txData,
+static int32_t HalSpiSendRecv(const SpiDevice *spiDevice, uint8_t *txData,
     uint16_t txSize, uint8_t *rxData, uint16_t rxSize)
 {
     uint32_t spiId;
@@ -373,7 +373,7 @@ static void InitSpiInitStruct(LL_SPI_InitTypeDef *spiInitStruct, const SpiResour
     return;
 }
 
-static int32_t InitSpiDevice(SpiDevice *spiDevice)
+static int32_t InitSpiDevice(const SpiDevice *spiDevice)
 {
     uint32_t spiPort;
     SpiResource *resource = NULL;

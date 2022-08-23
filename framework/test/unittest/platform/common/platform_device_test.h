@@ -26,6 +26,8 @@ enum PlatformDeviceTestCmd {
 
 int PlatformDeviceTestExecute(int cmd);
 void PlatformDeviceTestExecuteAll(void);
+void PlatformDeviceTestSetUpAll(void);
+void PlatformDeviceTestTearDownAll(void);
 
 #ifdef __cplusplus
 }

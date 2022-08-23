@@ -40,7 +40,7 @@ struct SpiDevice {
     struct OsalMutex mutex;
 };
 
-static void SpiIomuxInit(struct SpiDevice *spiDevice)
+static void SpiIomuxInit(const struct SpiDevice *spiDevice)
 {
     struct SpiResource *resource = NULL;
     uint32_t spiPort;
@@ -104,7 +104,7 @@ static int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint
         return HDF_ERR_TIMEOUT;
     }
     ret = tls_spi_write(data, (uint32_t)size);
-    if (ret) {
+    if (ret != 0) {
         HDF_LOGE("spi tail send fail %ld, size %ld\r\n", ret, len);
     }
     OsalMutexUnlock(&spiDevice->mutex);
@@ -261,7 +261,7 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
     return HDF_SUCCESS;
 }
 
-int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, const struct HdfDeviceObject *device)
+static int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, const struct HdfDeviceObject *device)
 {
     int32_t ret;
     struct SpiDevice *spiDevice = NULL;

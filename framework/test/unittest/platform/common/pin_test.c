@@ -87,7 +87,7 @@ static int32_t PinTestGetTestConfig(struct PinTestConfig *config)
     return HDF_SUCCESS;
 }
 
-struct PinTester *PinTesterGet(void)
+static struct PinTester *PinTesterGet(void)
 {
     int32_t ret;
     static struct PinTester tester;

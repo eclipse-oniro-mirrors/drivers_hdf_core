@@ -42,7 +42,7 @@ static int32_t VirtualRegulatorEnable(struct RegulatorNode *node)
     return HDF_SUCCESS;
 }
 
-int32_t VirtualRegulatorDisable(struct RegulatorNode *node)
+static int32_t VirtualRegulatorDisable(struct RegulatorNode *node)
 {
     if (node == NULL) {
         HDF_LOGE("VirtualRegulatorDisable node null\n");

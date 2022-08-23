@@ -67,7 +67,7 @@ static struct wmGpioIrqHandler g_wmGpioIrqHandler[WM_IO_MAX_GPIO_PIN_NUM] = {0};
 enum tls_gpio_irq_trig g_gpioIrqCfg[WM_IO_MAX_GPIO_PIN_NUM] = {0};
 
 
-GpioIrqFunc GpioIrqHdl()
+static GpioIrqFunc GpioIrqHdl()
 {
     uint16_t ret;
 

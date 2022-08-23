@@ -532,7 +532,7 @@ static void SetLaneConfig(const short laneId[], int len)
             num++;
         }
     }
-    g_mipiTxRegsVa->PHY_IF_CFG.u32 = num - 1;
+    g_mipiTxRegsVa->PHY_IF_CFG.u32 = (unsigned int)(num - 1);
 }
 
 static void MipiTxDrvSetClkMgrCfg(void)
