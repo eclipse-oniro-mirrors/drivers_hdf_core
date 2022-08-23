@@ -70,7 +70,7 @@ static bool UsbPnpNotifyFindDeviceList(struct usb_device *deviceObj, bool freeFl
     struct UsbPnpNotifyDeviceList *pnpNotifyDeviceTemp = NULL;
     bool findFlag = false;
 
-    if (DListIsEmpty(&g_usbPnpDeviceListHead)) {
+    if (DListIsEmpty(&g_usbPnpDeviceListHead) == true) {
         PRINTK("%s:%d device list is empty\n", __func__, __LINE__);
         return false;
     }
@@ -123,7 +123,7 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyFindInfo(struct UsbInfoQueryPara que
     struct UsbPnpDeviceInfo *infoTemp = NULL;
     bool findFlag = false;
 
-    if (DListIsEmpty(&g_usbPnpInfoListHead)) {
+    if (DListIsEmpty(&g_usbPnpInfoListHead) == true) {
         HDF_LOGE("%s:%d usb pnp list head is empty.", __func__, __LINE__);
         return NULL;
     }
@@ -175,7 +175,7 @@ static HDF_STATUS UsbPnpNotifyDestroyInfo(struct UsbPnpDeviceInfo *deviceInfo)
         return ret;
     }
 
-    if (DListIsEmpty(&g_usbPnpInfoListHead)) {
+    if (DListIsEmpty(&g_usbPnpInfoListHead) == true) {
         HDF_LOGI("%s:%d the g_usbPnpInfoListHead is empty.", __func__, __LINE__);
         return HDF_SUCCESS;
     }
@@ -558,7 +558,7 @@ static int32_t UsbPnpNotifyFirstReportDevice(struct HdfDeviceIoClient *client)
 
     dprintf("%s:%d Enter!\n", __func__, __LINE__);
 
-    if (DListIsEmpty(&g_usbPnpDeviceListHead)) {
+    if (DListIsEmpty(&g_usbPnpDeviceListHead) == true) {
         dprintf("%s:%d device list is empty\n", __func__, __LINE__);
         return HDF_SUCCESS;
     }
@@ -742,7 +742,7 @@ void UsbPnpNotifyDevice(const char *type, struct usb_device *udev)
     }
 }
 
-struct usb_device *UsbPnpNotifyGetUsbDevice(struct UsbGetDevicePara paraData)
+static struct usb_device *UsbPnpNotifyGetUsbDevice(struct UsbGetDevicePara paraData)
 {
     bool findFlag = false;
     struct usb_device *usbPnpDevice = NULL;

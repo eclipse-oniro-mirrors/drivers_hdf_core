@@ -20,8 +20,7 @@ static void ReadComplete(uint8_t pipe, struct UsbFnRequest *req)
         uint8_t *data = (uint8_t *)req->buf;
         data[req->actual] = '\0';
         dprintf("receive [%d] bytes data: %s\n", req->actual, data);
-        if (strcmp((const char *)data, "q") == 0 || \
-            strcmp((const char *)data, "q\n") == 0) {
+        if (strcmp((const char *)data, "q") == 0 || strcmp((const char *)data, "q\n") == 0) {
             acmDevice->submitExit = 1;
         }
     }
@@ -52,8 +51,8 @@ int32_t UsbFnDviceTestRequestAsync002(void)
         return HDF_FAILURE;
     }
     dprintf("wait receiving data form host, please connect\n");
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -97,8 +96,8 @@ int32_t UsbFnDviceTestRequestAsync003(void)
         return HDF_FAILURE;
     }
     dprintf("wait receiving data form host, please connect\n");
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -149,8 +148,7 @@ int32_t UsbFnDviceTestRequestAsync004(void)
         HDF_LOGE("%s: dataIface.fn is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-        acmDevice->dataInPipe.maxPacketSize);
+    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -200,8 +198,8 @@ int32_t UsbFnDviceTestRequestAsync005(void)
     }
     dprintf("------send \"xyz\" 10 times to host------\n");
     while (loopTime--) {
-        req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-            acmDevice->dataInPipe.maxPacketSize);
+        req = UsbFnAllocRequest(
+            acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
         if (req == NULL) {
             HDF_LOGE("%s: alloc req fail", __func__);
             return HDF_FAILURE;
@@ -259,8 +257,8 @@ int32_t UsbFnDviceTestRequestSync002(void)
         return HDF_FAILURE;
     }
     dprintf("wait receiving data form host\n");
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -293,8 +291,8 @@ int32_t UsbFnDviceTestRequestSync003(void)
         return HDF_FAILURE;
     }
     dprintf("receive data until 'q' exit\n");
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -307,8 +305,7 @@ int32_t UsbFnDviceTestRequestSync003(void)
         }
         data = (uint8_t *)req->buf;
         data[req->actual] = '\0';
-        if (strcmp((const char *)data, "q") == 0 || \
-            strcmp((const char *)data, "q\n") == 0) {
+        if (strcmp((const char *)data, "q") == 0 || strcmp((const char *)data, "q\n") == 0) {
             submitExit = 1;
         }
         dprintf("receive data from host: %s\n", data);
@@ -331,8 +328,7 @@ int32_t UsbFnDviceTestRequestSync004(void)
         HDF_LOGE("%s: dataIface.fn is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-        acmDevice->dataInPipe.maxPacketSize);
+    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -343,8 +339,7 @@ int32_t UsbFnDviceTestRequestSync004(void)
     }
     req->length = strlen("abc");
     ret = UsbFnSubmitRequestSync(req, 0);
-    if (HDF_SUCCESS != ret || (req->actual != strlen("abc")) || \
-        (req->status != USB_REQUEST_COMPLETED)) {
+    if (HDF_SUCCESS != ret || (req->actual != strlen("abc")) || (req->status != USB_REQUEST_COMPLETED)) {
         HDF_LOGE("%s: async Request error", __func__);
         return HDF_FAILURE;
     }
@@ -369,8 +364,8 @@ int32_t UsbFnDviceTestRequestSync005(void)
     }
     dprintf("------send \"abcdefg\" 10 times to host------\n");
     while (loopTime--) {
-        req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-            acmDevice->dataInPipe.maxPacketSize);
+        req = UsbFnAllocRequest(
+            acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
         if (req == NULL) {
             HDF_LOGE("%s: alloc req fail", __func__);
             return HDF_FAILURE;
@@ -380,8 +375,7 @@ int32_t UsbFnDviceTestRequestSync005(void)
         }
         req->length = strlen("abcdefg");
         ret = UsbFnSubmitRequestSync(req, 0);
-        if (HDF_SUCCESS != ret || (req->actual != strlen("abcdefg")) || \
-            (req->status != USB_REQUEST_COMPLETED)) {
+        if (HDF_SUCCESS != ret || (req->actual != strlen("abcdefg")) || (req->status != USB_REQUEST_COMPLETED)) {
             HDF_LOGE("%s: async Request error", __func__);
             return HDF_FAILURE;
         }
@@ -404,8 +398,8 @@ int32_t UsbFnDviceTestRequestSync006(void)
         return HDF_FAILURE;
     }
     dprintf("test sync timeout 5s:\n");
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -438,6 +432,7 @@ int32_t UsbFnDviceTestRequestSync007(void)
 
 static void TestCancelComplete(uint8_t pipe, struct UsbFnRequest *req)
 {
+    (void)req;
     struct AcmDevice *acmDevice = UsbGetAcmDevice();
     if (acmDevice == NULL) {
         return;
@@ -468,8 +463,7 @@ int32_t UsbFnDviceTestCancelRequest002(void)
         HDF_LOGE("%s: CtrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocCtrlRequest(acmDevice->ctrlIface.handle,
-        sizeof(struct UsbCdcNotification));
+    req = UsbFnAllocCtrlRequest(acmDevice->ctrlIface.handle, sizeof(struct UsbCdcNotification));
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -502,8 +496,7 @@ int32_t UsbFnDviceTestCancelRequest003(void)
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-        acmDevice->dataInPipe.maxPacketSize);
+    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -536,8 +529,7 @@ int32_t UsbFnDviceTestCancelRequest004(void)
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-        acmDevice->dataInPipe.maxPacketSize);
+    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -570,8 +562,7 @@ int32_t UsbFnDviceTestCancelRequest005(void)
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id,
-        acmDevice->dataInPipe.maxPacketSize);
+    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataInPipe.id, acmDevice->dataInPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -648,8 +639,8 @@ int32_t UsbFnDviceTestCancelRequest006(void)
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -658,8 +649,8 @@ int32_t UsbFnDviceTestCancelRequest006(void)
     req->complete = TestCancelComplete;
     req->context = acmDevice;
 
-    req2 = UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id,
-        acmDevice->dataOutPipe.maxPacketSize);
+    req2 =
+        UsbFnAllocRequest(acmDevice->dataIface.handle, acmDevice->dataOutPipe.id, acmDevice->dataOutPipe.maxPacketSize);
     if (req2 == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
         return HDF_FAILURE;
@@ -674,4 +665,3 @@ int32_t UsbFnDviceTestCancelRequest006(void)
     }
     return TestCancelRequest(req, req2);
 }
-

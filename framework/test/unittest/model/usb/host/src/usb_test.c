@@ -148,10 +148,10 @@ static struct UsbControlRequest UsbControlMsg(struct TestControlMsgData msgData)
     dr.reqType = (UsbControlRequestType)((msgData.requestType >> USB_TYPE_OFFSET) & REQUEST_TYPE_MASK);
     dr.directon = (UsbRequestDirection)((msgData.requestType >> USB_DIR_OFFSET) & DIRECTION_MASK);
     dr.request = msgData.request;
-    dr.value = CpuToLe16(msgData.value);
-    dr.index = CpuToLe16(msgData.index);
+    dr.value = CPU_TO_LE16(msgData.value);
+    dr.index = CPU_TO_LE16(msgData.index);
     dr.buffer = msgData.data;
-    dr.length = CpuToLe16(msgData.size);
+    dr.length = CPU_TO_LE16(msgData.size);
     return dr;
 }
 
@@ -1477,7 +1477,7 @@ static int32_t CheckHostSdkIfFillRequest004(void)
     parmas.callback = AcmCtrlIrq;
     parmas.requestType = USB_REQUEST_PARAMS_CTRL_TYPE;
     parmas.timeout = USB_CTRL_SET_TIMEOUT;
-    g_acm->lineCoding.dwDTERate = CpuToLe32(DATARATE);
+    g_acm->lineCoding.dwDTERate = CPU_TO_LE32(DATARATE);
     g_acm->lineCoding.bCharFormat = USB_CDC_1_STOP_BITS;
     g_acm->lineCoding.bParityType = USB_CDC_NO_PARITY;
     g_acm->lineCoding.bDataBits = DATA_BITS_LENGTH;
@@ -1657,7 +1657,7 @@ static int32_t CheckHostSdkIfFillRequest008(void)
     parmas.callback = AcmCtrlIrq;
     parmas.requestType = USB_REQUEST_PARAMS_CTRL_TYPE;
     parmas.timeout = USB_CTRL_SET_TIMEOUT;
-    g_acm->lineCoding.dwDTERate = CpuToLe32(DATARATE);
+    g_acm->lineCoding.dwDTERate = CPU_TO_LE32(DATARATE);
     g_acm->lineCoding.bCharFormat = USB_CDC_1_STOP_BITS;
     g_acm->lineCoding.bParityType = USB_CDC_NO_PARITY;
     g_acm->lineCoding.bDataBits = DATA_BITS_LENGTH;
@@ -1943,7 +1943,7 @@ static int32_t CheckHostSdkIfCloseInterface006(void)
 
 struct UsbTestFunc g_usbTestFunc[] = {
     { USB_HOSTSDK_INIT_001_TEST, CheckHostSdkIfInit001},
-    { Usb_HOSTSDK_EXIT_001_TEST, CheckHostSdkIfExit001},
+    { USB_HOSTSDK_EXIT_001_TEST, CheckHostSdkIfExit001},
     { USB_HOSTSDK_INIT_002_TEST, CheckHostSdkIfInit002},
     { USB_HOSTSDK_EXIT_002_TEST, CheckHostSdkIfExit002},
     { USB_HOSTSDK_INIT_003_TEST, CheckHostSdkIfInit003},
