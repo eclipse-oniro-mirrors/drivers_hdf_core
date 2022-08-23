@@ -271,7 +271,7 @@ static int32_t HalUartRecv(uint8_t uartId, void *data, uint32_t expectSize,
     return HDF_SUCCESS;
 }
 
-static int32_t InitUartCtxCfg(struct UartDevice *device)
+static int32_t InitUartCtxCfg(const struct UartDevice *device)
 {
     uint32_t uartId;
     struct HAL_UART_CFG_T *uartCfg = NULL;

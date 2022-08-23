@@ -40,7 +40,7 @@ struct SpiDevice {
     struct OsalMutex mutex;
 };
 
-static void SpiIomuxInit(struct SpiDevice *spiDevice)
+static void SpiIomuxInit(const struct SpiDevice *spiDevice)
 {
     struct SpiResource *resource = NULL;
     uint32_t spiPort;

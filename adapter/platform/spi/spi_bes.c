@@ -215,7 +215,7 @@ static int32_t SpiDevCfgInit(struct HAL_SPI_CFG_T *spiDevCfg, const struct SpiRe
 #ifdef HalSpiSend
 #undef HalSpiSend
 #endif
-static int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
+static int32_t HalSpiSend(const struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret;
     uint32_t spiId;
@@ -276,7 +276,7 @@ OUT:
  *
  * @return  0 : on success, EIO : if the SPI device could not be initialised
  */
-static int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, uint32_t timeOut)
+static int32_t HalSpiRecv(const struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret;
     int32_t len = (int32_t)size;
@@ -334,7 +334,7 @@ OUT:
 #ifdef HalSpiSendRecv
 #undef HalSpiSendRecv
 #endif
-static int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
+static int32_t HalSpiSendRecv(const struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
     uint16_t rxSize)
 {
     int32_t ret;
