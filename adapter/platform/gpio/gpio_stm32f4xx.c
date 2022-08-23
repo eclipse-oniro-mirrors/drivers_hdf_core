@@ -452,7 +452,7 @@ static void GpioDriverRelease(struct HdfDeviceObject *device)
 }
 
 /* dev api */
-static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val)
+static int32_t GpioDevWrite(const struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val)
 {
     (void)cntlr;
     uint16_t realPin = g_gpioPinsMap[gpio].realPin;
@@ -472,7 +472,7 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
     return HDF_SUCCESS;
 }
 
-static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
+static int32_t GpioDevRead(const struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
     (void)cntlr;
     uint16_t realPin = g_gpioPinsMap[gpio].realPin;
