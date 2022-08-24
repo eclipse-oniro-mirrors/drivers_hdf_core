@@ -36,6 +36,8 @@ std::string FileDetail::Dump() const
     return sb.ToString();
 }
 
+const char *Preprocessor::TAG = "Preprocessor";
+
 bool Preprocessor::Preprocess(std::vector<std::string> &compileSourceFiles)
 {
     std::vector<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
