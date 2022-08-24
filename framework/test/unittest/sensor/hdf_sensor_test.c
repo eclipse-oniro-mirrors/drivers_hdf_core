@@ -35,6 +35,7 @@ static struct SensorTestDrvData *GetSensorTestDrvData(void)
 }
 static void SensorTestDataWorkEntry(void *arg)
 {
+    (void)arg;
     int32_t value = HDF_SENSOR_TEST_VALUE;
     struct SensorReportEvent event;
     OsalTimespec time;
