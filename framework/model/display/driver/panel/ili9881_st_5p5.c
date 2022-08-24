@@ -605,7 +605,7 @@ static void PanelResInit(struct panel_ili9881_dev *panel_dev)
     panel_dev->hw_delay.unprepare_delay = 20;  /* 20:unprepare_delay */
 }
 
-int32_t PanelEntryInit(struct HdfDeviceObject *object)
+static int32_t PanelEntryInit(struct HdfDeviceObject *object)
 {
     struct device_node *panelNode = NULL;
     struct panel_ili9881_dev *panel_dev = NULL;
