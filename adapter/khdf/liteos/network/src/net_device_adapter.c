@@ -313,8 +313,8 @@ static int32_t LiteNetDevAdd(struct NetDeviceImpl *netDeviceImpl)
         return HDF_FAILURE;
     }
     HDF_LOGI("netifapi_netif_add success!");
-#ifdef LOSCFG_NET_LWIP_SACK_2_0
-#if LOSCFG_NET_LWIP_SACK_2_0
+
+#if (defined(LOSCFG_NET_LWIP_SACK_2_0) && LOSCFG_NET_LWIP_SACK_2_0)
     /* update netdevice name -  wipNf->name + lwipNf->num */
     int32_t num = snprintf_s(lwipNd->name, IFNAMSIZ, (IFNAMSIZ - 1), "%s%" U16_F, lwipNf->name, lwipNf->num);
     if (num < 0) {
@@ -323,7 +323,6 @@ static int32_t LiteNetDevAdd(struct NetDeviceImpl *netDeviceImpl)
         DestroyLwipNetIf(lwipNf);
         return HDF_FAILURE;
     }
-#endif
 #endif
     /* copy MAC ADDR TO LWIP */
     if (memcpy_s(lwipNf->hwaddr, NETIF_MAX_HWADDR_LEN, lwipNd->macAddr, MAC_ADDR_SIZE) != EOK) {
