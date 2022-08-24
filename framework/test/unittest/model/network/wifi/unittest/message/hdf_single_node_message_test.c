@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -98,7 +98,7 @@ Service *g_serviceA = NULL;
 Service *g_serviceB = NULL;
 bool g_dispatcherInited = false;
 
-int32_t StartEnv(void)
+static int32_t StartEnv(void)
 {
     int32_t errCode;
     if (!g_dispatcherInited) {
@@ -128,7 +128,7 @@ int32_t StartEnv(void)
     return HDF_SUCCESS;
 }
 
-int32_t StopEnv(void)
+static int32_t StopEnv(void)
 {
     if (g_serviceA != NULL) {
         if (g_serviceA->Destroy != NULL) {
@@ -249,7 +249,7 @@ int32_t MessageSingleNodeTest003(void)
 
 OSAL_DECLARE_SEMAPHORE(g_callBackSem);
 
-void SendMessageTestCallBack(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData,
+static void SendMessageTestCallBack(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData,
     ErrorCode rspCode)
 {
     if (context == NULL) {
@@ -285,11 +285,15 @@ int32_t MessageSingleNodeTest004(void)
     return errCode;
 }
 
-void SendMessagePerfTestCallBack(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData,
+static void SendMessagePerfTestCallBack(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData,
     ErrorCode rspCode)
 {
-    ErrorCode errCode = OsalSemPost(&g_callBackSem);
     (void)context;
+    (void)reqData;
+    (void)rspData;
+    (void)rspCode;
+
+    ErrorCode errCode = OsalSemPost(&g_callBackSem);
     if (HDF_SUCCESS != errCode) {
         HDF_LOGE("%s:Post sem failed!ret=%d", __func__, errCode);
     }

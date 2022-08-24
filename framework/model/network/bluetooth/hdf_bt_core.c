@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -539,6 +539,7 @@ static int32_t HdfBtChipDriverInit(struct HdfDeviceObject *device)
 
 static void HdfBtChipDriverRelease(struct HdfDeviceObject *object)
 {
+    (void)object;
     uint8_t i;
     int ret = OsalSpinLockIrq(&g_devicesLock);
     if (ret != HDF_SUCCESS) {
