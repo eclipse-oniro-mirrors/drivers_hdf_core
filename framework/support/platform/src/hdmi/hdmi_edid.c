@@ -1085,6 +1085,9 @@ static void HdmiEdidDolbyCapVersionOnePhase(struct HdmiSinkDeviceCapability *sin
     sinkCap->dolbyCap.blueY = data[UINT8_ARRAY_TELEMENT_13];
 }
 
+#define SHIFT_8_BIT    8
+#define SHIFT_16_BIT   16
+
 static void HdmiEdidExtUseExtDataBlockVsvdbPhase(struct HdmiSinkDeviceCapability *sinkCap,
                                                  uint8_t *data,
                                                  uint8_t len)
@@ -1097,7 +1100,8 @@ static void HdmiEdidExtUseExtDataBlockVsvdbPhase(struct HdmiSinkDeviceCapability
         return;
     }
 
-    oui = (data[UINT8_ARRAY_TELEMENT_1]) | (data[UINT8_ARRAY_TELEMENT_2] << 8) | (data[UINT8_ARRAY_TELEMENT_3] << 16);
+    oui = (data[UINT8_ARRAY_TELEMENT_1]) | (data[UINT8_ARRAY_TELEMENT_2] << SHIFT_8_BIT) |
+        (data[UINT8_ARRAY_TELEMENT_3] << SHIFT_16_BIT);
     if (oui != HDMI_EDID_VSVDB_DOLBY_OUI) {
         return;
     }

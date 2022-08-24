@@ -48,6 +48,9 @@ enum PinTestCmd {
 };
 
 int32_t PinTestExecute(int cmd);
+void PinTestExecuteAll(void);
+int32_t PinTestSetUpSingle(void);
+int32_t PinTestTearDownSingle(void);
 
 #ifdef __cplusplus
 #if __cplusplus

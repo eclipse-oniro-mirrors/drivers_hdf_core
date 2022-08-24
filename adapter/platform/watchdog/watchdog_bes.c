@@ -42,7 +42,7 @@ static void WatchdogIrqHandler(enum HAL_WDT_ID_T id, enum HAL_WDT_EVENT_T event)
     HDF_LOGD("%s: id %d event %d\r\n", __func__, id, event);
 }
 
-static int InitWatchdogDevice(struct WatchdogDevice *watchdogDevice)
+static int InitWatchdogDevice(const struct WatchdogDevice *watchdogDevice)
 {
     struct WatchdogResource *resource = NULL;
     int32_t watchdogId;

@@ -243,6 +243,7 @@ static void HdmiDfmCaculateVideoInfo(struct HdmiDfmInfo *info, const struct Hdmi
         HDF_LOGE("min FRL Characters per line is 0!");
         return;
     }
+    /* 100000 is used to calculate utilization and margin */
     info->utilization = (uint64_t)info->cFrlActualPayload * 100000 / (uint64_t)info->minFrlCharsPerLine;
     info->margin = (int32_t)(100000 - (info->utilization + info->overheadMax));
 }

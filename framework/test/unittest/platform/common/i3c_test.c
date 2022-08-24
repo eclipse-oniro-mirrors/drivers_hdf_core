@@ -89,7 +89,7 @@ static int32_t I3cTestGetTestConfig(struct I3cTestConfig *config)
     return ret;
 }
 
-struct I3cTester *I3cTesterGet(void)
+static struct I3cTester *I3cTesterGet(void)
 {
     int32_t ret;
     static struct I3cTester tester;
@@ -150,6 +150,7 @@ static int32_t I3cTestSetUpAll(void *param)
     struct I3cTestConfig *cfg = NULL;
     int32_t ret;
 
+    (void)param;
     HDF_LOGD("I3cTestSetUpAll: enter!");
     tester = I3cTesterGet();
     if (tester == NULL) {
@@ -362,7 +363,7 @@ static int32_t I3cTestFreeIbi(void *param)
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2, int *count1, int *count2)
+static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2, int *count1, int *count2)
 {
     int32_t ret;
     uint32_t time;
@@ -406,7 +407,7 @@ int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread
     return HDF_SUCCESS;
 }
 
-int32_t I3cTestThreadFunc(OsalThreadEntry func)
+static int32_t I3cTestThreadFunc(OsalThreadEntry func)
 {
     int32_t ret;
     struct OsalThread thread1, thread2;
@@ -474,6 +475,7 @@ static int32_t I3cTestReliability(void *param)
     struct I3cTester *tester = NULL;
     struct I3cConfig *config = NULL;
 
+    (void)param;
     tester = I3cTesterGet();
     if (tester == NULL || tester->handle == NULL) {
         return HDF_ERR_INVALID_OBJECT;

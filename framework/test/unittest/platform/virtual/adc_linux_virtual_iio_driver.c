@@ -38,7 +38,7 @@ struct VirtualAdcDev {
     struct mutex lock;
 };
 
-static int AdcReadChannelData(struct iio_dev *indioDev, struct iio_chan_spec const *chan, int *val)
+static int AdcReadChannelData(const struct iio_dev *indioDev, struct iio_chan_spec const *chan, int *val)
 {
     if (val == NULL) {
         HDF_LOGE("%s: val is NULL", __func__);

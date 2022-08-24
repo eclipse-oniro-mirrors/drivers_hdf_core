@@ -186,6 +186,7 @@ static int32_t RegulatorTestMultiThread(struct RegulatorTest *test)
     struct OsalThreadParam cfg1, cfg2;
     int32_t count1, count2;
 
+    (void)test;
     count1 = count2 = 0;
     time = 0;
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)RegulatorTestThreadFunc, (void *)&count1);
