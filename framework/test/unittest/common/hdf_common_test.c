@@ -18,6 +18,9 @@ static struct HdfSBuf *g_reply = NULL;
 void HdfTestOpenService(void)
 {
     g_testService = HdfIoServiceBind(HDF_TEST_SERVICE_NAME);
+    if (g_testService == NULL) {
+        return;
+    }
     g_msg = HdfSbufObtainDefaultSize();
     if (g_msg == NULL) {
         printf("fail to obtain sbuf data\n\r");
@@ -52,7 +55,9 @@ int HdfTestSendMsgToService(struct HdfTestMsg *msg)
     int ret;
     struct HdfTestMsg *testReply = NULL;
     unsigned int len;
-    CHECK_TEST_NULL_PTR_RETURN(g_testService);
+    if (g_testService == NULL) {
+        return HDF_SUCCESS;
+    }
     CHECK_TEST_NULL_PTR_RETURN(g_msg);
     CHECK_TEST_NULL_PTR_RETURN(g_reply);
     CHECK_TEST_NULL_PTR_RETURN(msg);
