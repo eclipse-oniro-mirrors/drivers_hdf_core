@@ -52,7 +52,7 @@ static void I2cDeviceIomuxInit(uint32_t i2cId, const struct I2cResource *resourc
 {
     if (i2cId > HAL_I2C_ID_NUM || resource == NULL) {
         HDF_LOGE("%s %d: invalid parameter\r\n", __func__, __LINE__);
-        return HDF_ERR_INVALID_PARAM;
+        return;
     }
 
     struct HAL_IOMUX_PIN_FUNCTION_MAP pinMuxI2c[] = {
