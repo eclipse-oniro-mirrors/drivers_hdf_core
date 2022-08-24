@@ -352,6 +352,12 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
     ret = parser->GetUint32(infoNode, "power", (uint32_t *)&value, 0);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "power");
     config->sensorInfo.power = value;
+    ret = parser->GetUint64(infoNode, "minDelay", (uint64_t *)&value, 0);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "minDelay");
+    config->sensorInfo.minDelay = value;
+    ret = parser->GetUint64(infoNode, "maxDelay", (uint64_t *)&value, 0);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "maxDelay");
+    config->sensorInfo.maxDelay = value;
 
     return ret;
 }

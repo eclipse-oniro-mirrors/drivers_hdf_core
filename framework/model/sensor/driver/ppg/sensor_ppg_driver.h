@@ -6,8 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_DRIVER_H_
-#define MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_DRIVER_H_
+#ifndef MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_DRIVER_H
+#define MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_DRIVER_H
 
 #include "hdf_workqueue.h"
 #include "osal_time.h"
@@ -41,4 +41,4 @@ struct PpgDrvData {
 };
 
 int32_t RegisterPpgChip(struct PpgChipData *chipData);
-#endif  // MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_DRIVER_H_
+#endif  // MODEL_SENSOR_DRIVER_PPG_SENSOR_PPG_DRIVER_H
