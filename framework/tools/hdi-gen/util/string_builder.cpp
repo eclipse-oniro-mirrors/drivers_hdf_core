@@ -12,13 +12,12 @@
 #include <cstring>
 
 #include "securec.h"
+#include "util/common.h"
 #include "util/logger.h"
 #include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
-const char *StringBuilder::TAG = "StringBuilder";
-
 StringBuilder::~StringBuilder()
 {
     if (buffer_ != nullptr) {

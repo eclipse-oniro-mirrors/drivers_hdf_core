@@ -17,14 +17,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "util/common.h"
 #include "util/logger.h"
 #include "util/string_helper.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
 namespace HDI {
-const char *File::TAG = "File";
-
 File::File(const std::string &path, unsigned int mode) : mode_(mode)
 {
     if (path.empty()) {

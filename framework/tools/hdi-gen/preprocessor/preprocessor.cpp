@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <queue>
 
+#include "util/common.h"
 #include "util/file.h"
 #include "util/logger.h"
 #include "util/options.h"
@@ -35,8 +36,6 @@ std::string FileDetail::Dump() const
     }
     return sb.ToString();
 }
-
-const char *Preprocessor::TAG = "Preprocessor";
 
 bool Preprocessor::Preprocess(std::vector<std::string> &compileSourceFiles)
 {
