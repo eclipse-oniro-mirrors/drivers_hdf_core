@@ -426,9 +426,8 @@ def ini_file_read_operation(section_name, node_name, path=""):
 def ini_file_write_operation(model, operation_object, model_child_dir_list):
     json_format_list = json.dumps(model_child_dir_list)
     operation_object.set(model, "file_dir", json_format_list)
-    write_ini_file = open(os.path.join("resources", "config.ini"), "w")
-    operation_object.write(write_ini_file)
-    write_ini_file.close()
+    with open(os.path.join("resources", "config.ini"), "w") as write_ini_file:
+        operation_object.write(write_ini_file)
 
 
 def judge_enable_line(enable_line, device_base):

@@ -63,7 +63,7 @@ def audio_linux_makefile_operation(path, args_tuple):
             temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
             build_resource = temp_handle.substitute(temp_dict).replace("temp_flag", "$(")
-    head_line = ""
+    head_line = []
     ccflags_first_line = "\nccflags-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\" + "\n"
     temp_line = "\t\t\t\t-I$(srctree)/$(${file_parent_path})/${head_path}"
     for head_file in head_path:
@@ -71,10 +71,12 @@ def audio_linux_makefile_operation(path, args_tuple):
         temp_dict = analyze_parent_path(
             date_lines, "", head_file, devices, root)
         if head_file == head_path[-1]:
-            head_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(") + "\n"
+            temp_str = "".join([temp_handle.substitute(temp_dict).replace("temp_flag", "$("), "\n"])
+            head_line.append(temp_str)
         else:
-            head_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
-    build_head = ccflags_first_line + head_line
+            temp_str = "".join([temp_handle.substitute(temp_dict).replace("temp_flag", "$("), " \\", "\n"])
+            head_line.append(temp_str)
+    build_head = ccflags_first_line + "".join(head_line)
     makefile_add_template = build_resource + build_head
     temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
     temp_replace = {
