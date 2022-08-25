@@ -139,6 +139,12 @@ def analyze_parent_path(date, source_path, head_path,
         relatively_path = relatively_path_dict["rk3568"]
     else:
         relatively_path = relatively_path_dict["hi3516"]
+    res_date_replace = source_hand_file_path(
+        relatively_path, source_path, head_path, date_replace)
+    return res_date_replace
+
+
+def source_hand_file_path(relatively_path, source_path, head_path, date_replace):
     if source_path:
         file_source_path_full = source_path.replace("\\", "/")
         date_replace['source_path'] = file_source_path_full.split(
