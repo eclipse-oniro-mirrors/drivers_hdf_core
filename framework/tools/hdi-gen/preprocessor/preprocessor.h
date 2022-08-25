@@ -61,7 +61,7 @@ private:
     void FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace);
 
 private:
-    static constexpr char *TAG = "Preprocessor";
+    static const char *TAG;
 };
 } // namespace HDI
 } // namespace OHOS

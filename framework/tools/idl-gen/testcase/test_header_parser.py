@@ -1,18 +1,19 @@
-# !/usr/bin/env python3
-# coding=utf-8
-"""
-* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
-*
-* HDF is dual licensed: you can use it either under the terms of
-* the GPL, or the BSD license, at your option.
-* See the LICENSE file in the root of this repository for complete details.
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+#
+# HDF is dual licensed: you can use it either under the terms of
+# the GPL, or the BSD license, at your option.
+# See the LICENSE file in the root of this repository for complete details.
+
 import json
 import sys
 import unittest
 from os import remove
 
 import CppHeaderParser
+
 
 sys.path.insert(0, '..')
 

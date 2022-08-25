@@ -23,12 +23,13 @@ def translate_file_name(file_name, is_interface_type_file):
     name = file_name
     if is_interface_type_file:
         name = file_name[1:] if file_name.startswith("I") else file_name
+    under_line = '_'
     translate_name = ""
     num = 0
     for c in name:
         if c >= 'A' and c <= 'Z':
             if num > 1:
-                translate_name += "_"
+                translate_name += under_line
             translate_name += c.lower()
         else:
             translate_name += c
@@ -38,9 +39,8 @@ def translate_file_name(file_name, is_interface_type_file):
 
 def get_idl_file_type(file_path):
     idl_type = IdlType.TYPES
-    idl_file = open(file_path, "r")
-    file_str = idl_file.read()
-    idl_file.close()
+    with open(file_path, 'r') as idl_file:
+        file_str = idl_file.read()
 
     # delete comment information
     file_str = re.sub(r'//[^\r\n]*', "\n", file_str)
@@ -246,12 +246,12 @@ def get_output_files(argv):
 # parse package name of this idl file
 def parse_file_package(file_path):
     package_str = ""
-    idl_file = open(file_path, "r")
-    file_str = idl_file.read()
+    file_str = ""
+    with open(file_path, 'r') as idl_file:
+        file_str = idl_file.read()
     result = re.findall(r'package\s(\w+(?:\.\w+)*);', file_str)
     if (len(result) > 0):
         package_str = result[0]
-    idl_file.close()
     return package_str
 
 

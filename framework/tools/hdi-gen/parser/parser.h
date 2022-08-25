@@ -182,7 +182,7 @@ private:
 
     void ShowError();
 
-    static constexpr char *TAG = "Parser";
+    static const char *TAG;
 
     Lexer lexer_;
     std::vector<std::string> errors_;
