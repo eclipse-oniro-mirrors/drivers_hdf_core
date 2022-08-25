@@ -10,8 +10,6 @@
 
 namespace OHOS {
 namespace HDI {
-const char *ASTNode::TAB = "    ";
-
 ASTNode::~ASTNode() {}
 
 std::string ASTNode::ToString() const

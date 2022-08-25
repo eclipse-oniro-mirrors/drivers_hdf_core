@@ -59,9 +59,6 @@ private:
     void PrintCyclefInfo(FileDetailMap &allFileDetails);
 
     void FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace);
-
-private:
-    static const char *TAG;
 };
 } // namespace HDI
 } // namespace OHOS

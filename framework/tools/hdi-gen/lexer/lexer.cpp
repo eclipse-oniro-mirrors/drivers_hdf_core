@@ -73,8 +73,6 @@ Lexer::StrTokenTypeMap Lexer::symbols_ = {
     {"--", TokenType::MMINUS              },
 };
 
-const char *Lexer::TAG = "Lexer";
-
 Lexer::Lexer() : filePath_(), file_(nullptr), mode_(ParseMode::DECL_MODE), havePeek_(false), curToken_() {}
 
 bool Lexer::Reset(const std::string &filePath)

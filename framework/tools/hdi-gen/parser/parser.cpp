@@ -36,8 +36,6 @@ static const std::regex rePackage(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|
 static const std::regex reImport(
     RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]" RE_DIGIT "_" RE_DIGIT "." RE_IDENTIFIER);
 
-const char *Parser::TAG = "Parser";
-
 bool Parser::Parse(const std::vector<std::string> &sourceFiles)
 {
     for (const auto &file : sourceFiles) {
