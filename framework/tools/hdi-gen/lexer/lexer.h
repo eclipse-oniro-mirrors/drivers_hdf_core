@@ -92,7 +92,6 @@ private:
     void ReadSymbolToken(Token &token);
 
 private:
-    static const char *TAG;
     std::string filePath_;
     std::unique_ptr<File> file_;
 

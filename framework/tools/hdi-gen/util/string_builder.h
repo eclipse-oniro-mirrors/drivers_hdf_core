@@ -30,7 +30,6 @@ public:
 private:
     bool Grow(size_t size);
 
-    static const char* TAG;
     char* buffer_ = nullptr;
     size_t position_ = 0;
     size_t capacity_ = 0;
