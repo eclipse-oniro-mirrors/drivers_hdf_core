@@ -283,8 +283,6 @@ static int32_t GpioParseHcs(const struct DeviceResourceIface *dri,
 #define PLATFORM_GPIO_CONFIG HCS_NODE(HCS_NODE(HCS_ROOT, platform), gpio_config)
 static uint32_t GetGpioDeviceResource(GpioDevice *device)
 {
-    uint32_t relPin;
-    int32_t ret;
     GpioResource *resource = NULL;
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
@@ -495,7 +493,6 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
     (void)cntlr;
     uint16_t realPin = g_gpioPinsMap[gpio].realPin;
     uint32_t pinReg = g_stmRealPinMaps[realPin];
-    uint16_t value = 0;
     if (pinReg > LL_GPIO_PIN_15 || pinReg < LL_GPIO_PIN_0) {
         HDF_LOGE("%s %d, error pin:%d", __func__, __LINE__, realPin);
         return HDF_ERR_NOT_SUPPORT;
