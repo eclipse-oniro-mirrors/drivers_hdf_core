@@ -11,8 +11,8 @@
 using namespace std;
 
 namespace {
-const int32_t BUS_NUM = 6;
-const uint16_t BUF_LEN = 7;
+constexpr int32_t BUS_NUM = 6;
+constexpr uint16_t BUF_LEN = 7;
 }
 
 struct AllParameters {
@@ -22,47 +22,52 @@ struct AllParameters {
 };
 
 namespace OHOS {
-    bool I2cFuzzTest(const uint8_t *data, size_t size)
-    {
-        DevHandle handle = nullptr;
-        struct AllParameters params;
-        struct I2cMsg msg;
+static bool I2cFuzzTest(const uint8_t *data, size_t size)
+{
+    DevHandle handle = nullptr;
+    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    struct I2cMsg msg;
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-        if (memcpy_s((void *)&params, sizeof(params), data, sizeof(params)) != EOK) {
-            HDF_LOGE("%{public}s:memcpy data failed", __func__);
-            return false;
-        }
-
-        handle = I2cOpen(BUS_NUM);
-        if (handle == nullptr) {
-            HDF_LOGE("%{public}s:handle is null", __func__);
-            return false;
-        }
-        msg.addr = params.addr;
-        msg.flags = params.flags;
-        msg.len = BUF_LEN;
-        msg.buf = (uint8_t *)malloc(BUF_LEN);
-        if (memcpy_s(msg.buf, BUF_LEN, params.buf, BUF_LEN) != EOK) {
-            HDF_LOGE("%{public}s:memcpy buf failed", __func__);
-            free(msg.buf);
-            return false;
-        }
-        I2cTransfer(handle, &msg, 1);
-        free(msg.buf);
-        I2cClose(handle);
-
-        return true;
+    handle = I2cOpen(BUS_NUM);
+    if (handle == nullptr) {
+        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        return false;
     }
+    msg.addr = params->addr;
+    msg.flags = params->flags;
+    msg.len = BUF_LEN;
+    msg.buf = nullptr;
+    msg.buf = (uint8_t *)malloc(BUF_LEN);
+    if (msg.buf == nullptr) {
+        HDF_LOGE("%{public}s:malloc buf failed", __func__);
+        return false;
+    }
+    if (memcpy_s(msg.buf, BUF_LEN, params->buf, BUF_LEN) != EOK) {
+        HDF_LOGE("%{public}s:memcpy buf failed", __func__);
+        free(msg.buf);
+        return false;
+    }
+    I2cTransfer(handle, &msg, 1);
+    free(msg.buf);
+    I2cClose(handle);
+
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return 0;
+    }
+
+    if (size < sizeof(struct AllParameters)) {
+        HDF_LOGE("%{public}s:size is small", __func__);
+        return 0;
+    }
     OHOS::I2cFuzzTest(data, size);
     return 0;
 }

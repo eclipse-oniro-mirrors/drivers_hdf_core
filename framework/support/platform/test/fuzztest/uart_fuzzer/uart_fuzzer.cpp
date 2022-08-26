@@ -19,7 +19,7 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 2;
-const int32_t UART_FUZZ_PORT = 1;
+constexpr int32_t UART_FUZZ_PORT = 1;
 }
 
 struct AllParameters {
@@ -29,46 +29,49 @@ struct AllParameters {
 };
 
 namespace OHOS {
-    bool UartFuzzTest(const uint8_t *data, size_t size)
-    {
-        int32_t number;
-        DevHandle handle = nullptr;
-        struct AllParameters params;
+static bool UartFuzzTest(const uint8_t *data, size_t size)
+{
+    int32_t number;
+    DevHandle handle = nullptr;
+    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-
-        if (memcpy_s((void *)&params, sizeof(params), data, sizeof(params)) != EOK) {
-            HDF_LOGE("%{public}s:memcpy data failed", __func__);
-            return false;
-        }
-
-        number = randNum(MIN, MAX);
-        handle = UartOpen(UART_FUZZ_PORT);
-        switch (static_cast<ApiTestCmd>(number)) {
-            case ApiTestCmd::UART_FUZZ_SET_BAUD:
-                UartSetBaud(handle, params.desBaudRate);
-                break;
-            case ApiTestCmd::UART_FUZZ_SET_ATTRIBUTE:
-                UartSetAttribute(handle, &params.paraAttribute);
-                break;
-            case ApiTestCmd::UART_FUZZ_SET_TRANSMODE:
-                UartSetTransMode(handle, (enum UartTransMode)params.paraMode);
-                break;
-            default:
-                break;
-        }
-        UartClose(handle);
-        return true;
+    number = randNum(MIN, MAX);
+    handle = UartOpen(UART_FUZZ_PORT);
+    if (handle == nullptr) {
+        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        return false;
     }
+    switch (static_cast<ApiTestCmd>(number)) {
+        case ApiTestCmd::UART_FUZZ_SET_BAUD:
+            UartSetBaud(handle, params->desBaudRate);
+            break;
+        case ApiTestCmd::UART_FUZZ_SET_ATTRIBUTE:
+            UartSetAttribute(handle, const_cast<struct UartAttribute *>(&(params->paraAttribute)));
+            break;
+        case ApiTestCmd::UART_FUZZ_SET_TRANSMODE:
+            UartSetTransMode(handle, static_cast<enum UartTransMode>(params->paraMode));
+            break;
+        default:
+            break;
+    }
+    UartClose(handle);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return 0;
+    }
+
+    if (size < sizeof(struct AllParameters)) {
+        HDF_LOGE("%{public}s:size is small", __func__);
+        return 0;
+    }
     OHOS::UartFuzzTest(data, size);
     return 0;
 }

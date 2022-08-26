@@ -19,7 +19,7 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 4;
-const uint8_t RTC_USER_INDEX = 8;
+constexpr uint8_t RTC_USER_INDEX = 8;
 }
 
 struct AllParameters {
@@ -31,54 +31,55 @@ struct AllParameters {
 };
 
 namespace OHOS {
-    bool RtcFuzzTest(const uint8_t *data, size_t size)
-    {
-        int32_t number;
-        DevHandle handle = nullptr;
-        struct AllParameters params;
+static bool RtcFuzzTest(const uint8_t *data, size_t size)
+{
+    int32_t number;
+    DevHandle handle = nullptr;
+    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-
-        if (memcpy_s((void *)&params, sizeof(params), data, sizeof(params)) != EOK) {
-            HDF_LOGE("%{public}s:memcpy data failed", __func__);
-            return false;
-        }
-
-        number = randNum(MIN, MAX);
-        handle = RtcOpen();
-        switch (static_cast<ApiTestCmd>(number)) {
-            case ApiTestCmd::RTC_FUZZ_WRITETIME:
-                RtcWriteTime(handle, &params.paraTime);
-                break;
-            case ApiTestCmd::RTC_FUZZ_WRITEALARM:
-                RtcWriteAlarm(handle, (enum RtcAlarmIndex)params.paraAlarmIndex,
-                    &params.paraTime);
-                break;
-            case ApiTestCmd::RTC_FUZZ_ALARMINTERRUPTENABLE:
-                RtcAlarmInterruptEnable(handle, (enum RtcAlarmIndex)params.paraAlarmIndex,
-                    params.desEnable);
-                break;
-            case ApiTestCmd::RTC_FUZZ_SETFREQ:
-                RtcSetFreq(handle, params.desFreq);
-                break;
-            case ApiTestCmd::RTC_FUZZ_WRITEREG:
-                RtcWriteReg(handle, RTC_USER_INDEX, params.desValue);
-                break;
-            default:
-                break;
-        }
-        RtcClose(handle);
-        return true;
+    number = randNum(MIN, MAX);
+    handle = RtcOpen();
+    if (handle == nullptr) {
+        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        return false;
     }
+    switch (static_cast<ApiTestCmd>(number)) {
+        case ApiTestCmd::RTC_FUZZ_WRITETIME:
+            RtcWriteTime(handle, &params->paraTime);
+            break;
+        case ApiTestCmd::RTC_FUZZ_WRITEALARM:
+            RtcWriteAlarm(handle, (enum RtcAlarmIndex)params->paraAlarmIndex, &params->paraTime);
+            break;
+        case ApiTestCmd::RTC_FUZZ_ALARMINTERRUPTENABLE:
+            RtcAlarmInterruptEnable(handle, (enum RtcAlarmIndex)params->paraAlarmIndex, params->desEnable);
+            break;
+        case ApiTestCmd::RTC_FUZZ_SETFREQ:
+            RtcSetFreq(handle, params->desFreq);
+            break;
+        case ApiTestCmd::RTC_FUZZ_WRITEREG:
+            RtcWriteReg(handle, RTC_USER_INDEX, params->desValue);
+            break;
+        default:
+            break;
+    }
+    RtcClose(handle);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return 0;
+    }
+
+    if (size < sizeof(struct AllParameters)) {
+        HDF_LOGE("%{public}s:size is small", __func__);
+        return 0;
+    }
     OHOS::RtcFuzzTest(data, size);
     return 0;
 }
