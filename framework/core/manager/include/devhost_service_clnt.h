@@ -12,6 +12,7 @@
 #include "devhost_service_if.h"
 #include "hdf_slist.h"
 #include "hdf_map.h"
+#include "osal_mutex.h"
 
 struct DevHostServiceClnt {
     struct DListHead node;
@@ -20,6 +21,7 @@ struct DevHostServiceClnt {
     struct HdfSList dynamicDevInfos;
     Map *deviceHashMap;
     struct IDevHostService *hostService;
+    struct OsalMutex hostLock;
     uint16_t devCount;
     uint16_t hostId;
     int hostPid;
