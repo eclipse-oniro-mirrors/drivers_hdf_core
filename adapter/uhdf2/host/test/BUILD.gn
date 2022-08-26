@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf/devmgr"
+module_output_path = "hdf_core/devmgr"
 
 ###########################palTest###########################
 ohos_unittest("DevMgrTest") {

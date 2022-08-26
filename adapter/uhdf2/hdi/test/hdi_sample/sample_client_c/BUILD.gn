@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf/hdi"
+module_output_path = "hdf_core/hdi"
 
 ohos_unittest("HdiSampleTestC") {
   module_out_path = module_output_path
