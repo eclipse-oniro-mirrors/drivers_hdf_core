@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-module_output_path = "hdf/manager"
+module_output_path = "hdf_core/manager"
 ohos_unittest("hdf_adapter_uhdf_test_manager") {
   module_out_path = module_output_path
   include_dirs = [
@@ -46,7 +46,7 @@ ohos_unittest("hdf_adapter_uhdf_test_manager") {
   }
 }
 
-module_output_path = "hdf/ioservice"
+module_output_path = "hdf_core/ioservice"
 ohos_unittest("hdf_adapter_uhdf_test_ioservice") {
   module_out_path = module_output_path
   include_dirs = [
@@ -73,7 +73,7 @@ ohos_unittest("hdf_adapter_uhdf_test_ioservice") {
     external_deps = [ "hilog:libhilog" ]
   }
 }
-module_output_path = "hdf/sbuf"
+module_output_path = "hdf_core/sbuf"
 ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
   module_out_path = module_output_path
   include_dirs = [
@@ -96,7 +96,7 @@ ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
     external_deps = [ "hilog:libhilog" ]
   }
 }
-module_output_path = "hdf/pm"
+module_output_path = "hdf_core/pm"
 ohos_unittest("hdf_adapter_uhdf_test_pm") {
   module_out_path = module_output_path
   include_dirs = [
@@ -118,7 +118,7 @@ ohos_unittest("hdf_adapter_uhdf_test_pm") {
   }
 }
 
-module_output_path = "hdf/uevent"
+module_output_path = "hdf_core/uevent"
 ohos_unittest("hdf_adapter_uhdf_test_uevent") {
   module_out_path = module_output_path
   include_dirs = [ "//drivers/hdf_core/framework/core/shared/include" ]

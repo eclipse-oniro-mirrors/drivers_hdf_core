@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf/config"
+module_output_path = "hdf_core/config"
 ohos_unittest("hdf_adapter_uhdf_test_config") {
   module_out_path = module_output_path
   include_dirs = [ "//drivers/hdf_core/framework/test/unittest/include" ]

@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-module_output_path = "hdf/osal"
+module_output_path = "hdf_core/osal"
 ohos_unittest("hdf_adapter_uhdf_test_osal") {
   module_out_path = module_output_path
 
