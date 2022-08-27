@@ -304,8 +304,11 @@ static int HdfVNodeAdapterReadDevEvent(struct HdfVNodeAdapterClient *client, uns
 static void HdfVnodeAdapterDropOldEventLocked(struct HdfVNodeAdapterClient *client)
 {
     struct HdfDevEvent *dropEvent = CONTAINER_OF(client->eventQueue.next, struct HdfDevEvent, listNode);
+    if (client->adapter != NULL) {
+        const char *nodePath = client->adapter->vNodePath;
+        HDF_LOGE("dev(%{public}s) event queue full, drop old one", nodePath == NULL ? "unknown" : nodePath);
+    }
 
-    HDF_LOGE("dev event queue full, drop old one");
     DListRemove(&dropEvent->listNode);
     DevEventFree(dropEvent);
     client->eventQueueSize--;
