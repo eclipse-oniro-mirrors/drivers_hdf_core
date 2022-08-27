@@ -101,6 +101,9 @@ protected:
      */
     std::string EmitVersionHeaderName(const std::string &name);
 
+    // log tag macro of hdf
+    void EmitLogTagMacro(StringBuilder &sb, const std::string &name);
+
     // file_name -> FILE_NAME
     std::string ConstantName(const std::string &name);
 

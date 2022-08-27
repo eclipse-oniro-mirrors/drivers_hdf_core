@@ -76,12 +76,6 @@ public:
     static constexpr unsigned int WRITE = 0x2;
     static constexpr unsigned int APPEND = 0x4;
 
-#ifndef __MINGW32__
-    static constexpr char separator = '/';
-#else
-    static constexpr char separator = '\\';
-#endif
-
 private:
     size_t Read();
 

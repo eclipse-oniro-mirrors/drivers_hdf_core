@@ -38,6 +38,17 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
+    // get or release method for driver interface object
+    void EmitExternalMethodImpl(StringBuilder &sb);
+
+    void EmitGetMethodImpl(StringBuilder &sb);
+
+    void EmitGetInstanceMehtodImpl(StringBuilder &sb);
+
+    void EmitReleaseMethodImpl(StringBuilder &sb);
+
+    void EmitReleaseInstanceMethodImpl(StringBuilder &sb);
+
     void EmitServiceStubMethodImpls(StringBuilder &sb, const std::string &prefix);
 
     void EmitServiceStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
@@ -65,11 +76,21 @@ private:
 
     void EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix);
 
+    void EmitKernelStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
+
+    void EmitKernelStubConstruct(StringBuilder &sb);
+
     void EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubGetMethodImpl(StringBuilder &sb);
+    void EmitStubRemoteDispatcher(StringBuilder &sb);
 
-    void EmitStubReleaseImpl(StringBuilder &sb);
+    void EmitStubNewInstance(StringBuilder &sb);
+
+    void EmitStubReleaseMethod(StringBuilder &sb);
+
+    void EmitStubConstructor(StringBuilder &sb);
+
+    void EmitStubRegAndUnreg(StringBuilder &sb);
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 };

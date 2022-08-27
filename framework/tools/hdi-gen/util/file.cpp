@@ -194,7 +194,7 @@ bool File::CreateParentDir(const std::string &path)
     }
 
     size_t pos = 1;
-    while ((pos = path.find(File::separator, pos)) != std::string::npos) {
+    while ((pos = path.find(SEPARATOR, pos)) != std::string::npos) {
         std::string partPath = StringHelper::SubStr(path, 0, pos);
         struct stat st;
         if (stat(partPath.c_str(), &st) < 0) {
@@ -230,7 +230,7 @@ std::string File::AdapterPath(const std::string &path)
     bool hasSep = false;
     for (size_t i = 0; i < newPath.size(); i++) {
         char c = newPath[i];
-        if (c == File::separator) {
+        if (c == SEPARATOR) {
             if (hasSep) {
                 continue;
             }
