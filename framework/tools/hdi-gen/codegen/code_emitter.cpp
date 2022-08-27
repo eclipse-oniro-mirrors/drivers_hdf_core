@@ -15,8 +15,6 @@
 
 namespace OHOS {
 namespace HDI {
-const char *CodeEmitter::TAB = "    ";
-
 bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode)
 {
     if (!Reset(ast, targetDirectory, isKernelCode)) {

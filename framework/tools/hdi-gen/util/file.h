@@ -86,7 +86,6 @@ private:
     size_t Read();
 
     static constexpr int BUFFER_SIZE = 1024;
-    static const char *TAG;
 
     char buffer_[BUFFER_SIZE] = {0};
     size_t size_ = 0;

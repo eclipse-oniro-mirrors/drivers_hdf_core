@@ -14,8 +14,6 @@
 
 namespace OHOS {
 namespace HDI {
-const char *StringHelper::TAG = "StringHelper";
-
 std::vector<std::string> StringHelper::Split(std::string sources, const std::string &limit)
 {
     std::vector<std::string> result;

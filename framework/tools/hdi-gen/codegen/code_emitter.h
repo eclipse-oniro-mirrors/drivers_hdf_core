@@ -116,7 +116,6 @@ protected:
         StringBuilder &sb, const std::string &prefix, const UtilMethodMap &methods, bool isDecl);
 
 protected:
-    static const char *TAB;
     bool isKernelCode_ = false;
     AutoPtr<AST> ast_ = nullptr;
     AutoPtr<ASTInterfaceType> interface_ = nullptr;
