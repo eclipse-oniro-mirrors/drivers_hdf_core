@@ -79,7 +79,7 @@ if (defined(ohos_lite)) {
     part_name = "hdf_core"
   }
 } else {
-  config("libhdf_utils_pub_config") {
+  config("libhdf_utils_all_dependent_config") {
     visibility = [ ":*" ]
 
     include_dirs = [
@@ -104,7 +104,7 @@ if (defined(ohos_lite)) {
   }
 
   ohos_shared_library("libhdf_utils") {
-    public_configs = [ ":libhdf_utils_pub_config" ]
+    all_dependent_configs = [ ":libhdf_utils_all_dependent_config" ]
     sources = [
       "$hdf_framework_path/core/adapter/syscall/src/hdf_devmgr_adapter.c",
       "$hdf_framework_path/core/adapter/syscall/src/hdf_syscall_adapter.c",
