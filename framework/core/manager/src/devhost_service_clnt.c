@@ -26,9 +26,10 @@ int DevHostServiceClntInstallDriver(struct DevHostServiceClnt *hostClnt)
         HDF_LOGE("failed to install driver, hostClnt is null");
         return HDF_FAILURE;
     }
-
+    OsalMutexLock(&hostClnt->hostLock);
     devHostSvcIf = (struct IDevHostService *)hostClnt->hostService;
     if (devHostSvcIf == NULL || devHostSvcIf->AddDevice == NULL) {
+        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGE("devHostSvcIf or devHostSvcIf->AddDevice is null");
         return HDF_FAILURE;
     }
@@ -57,31 +58,42 @@ int DevHostServiceClntInstallDriver(struct DevHostServiceClnt *hostClnt)
         HdfDeviceInfoFreeInstance(deviceInfo);
 #endif
     }
+    OsalMutexUnlock(&hostClnt->hostLock);
     return HDF_SUCCESS;
 }
 
-static void DevHostServiceClntConstruct(struct DevHostServiceClnt *hostClnt)
+static int32_t DevHostServiceClntConstruct(struct DevHostServiceClnt *hostClnt)
 {
     HdfSListInit(&hostClnt->devices);
+    HdfSListInit(&hostClnt->unloadDevInfos);
+    HdfSListInit(&hostClnt->dynamicDevInfos);
     hostClnt->deviceHashMap = (Map *)OsalMemCalloc(sizeof(Map));
     if (hostClnt->deviceHashMap == NULL) {
         HDF_LOGE("%s:failed to malloc deviceHashMap", __func__);
-        return;
+        return HDF_ERR_MALLOC_FAIL;
+    }
+    if (OsalMutexInit(&hostClnt->hostLock) != HDF_SUCCESS) {
+        OsalMemFree(hostClnt->deviceHashMap);
+        return HDF_FAILURE;
     }
     MapInit(hostClnt->deviceHashMap);
+    return HDF_SUCCESS;
 }
 
 struct DevHostServiceClnt *DevHostServiceClntNewInstance(uint16_t hostId, const char *hostName)
 {
-    struct DevHostServiceClnt *hostClnt =
-        (struct DevHostServiceClnt *)OsalMemCalloc(sizeof(struct DevHostServiceClnt));
-    if (hostClnt != NULL) {
-        hostClnt->hostId = hostId;
-        hostClnt->hostName = hostName;
-        hostClnt->devCount = 0;
-        hostClnt->hostPid = -1;
-        hostClnt->stopFlag = false;
-        DevHostServiceClntConstruct(hostClnt);
+    struct DevHostServiceClnt *hostClnt = (struct DevHostServiceClnt *)OsalMemCalloc(sizeof(struct DevHostServiceClnt));
+    if (hostClnt == NULL) {
+        return NULL;
+    }
+    hostClnt->hostId = hostId;
+    hostClnt->hostName = hostName;
+    hostClnt->devCount = 0;
+    hostClnt->hostPid = -1;
+    hostClnt->stopFlag = false;
+    if (DevHostServiceClntConstruct(hostClnt) != HDF_SUCCESS) {
+        OsalMemFree(hostClnt);
+        hostClnt = NULL;
     }
     return hostClnt;
 }
@@ -93,6 +105,7 @@ void DevHostServiceClntFreeInstance(struct DevHostServiceClnt *hostClnt)
         HdfSListFlush(&hostClnt->unloadDevInfos, HdfDeviceInfoDelete);
         HdfSListFlush(&hostClnt->dynamicDevInfos, HdfDeviceInfoDelete);
         OsalMemFree(hostClnt->deviceHashMap);
+        OsalMutexDestroy(&hostClnt->hostLock);
         OsalMemFree(hostClnt);
     }
 }

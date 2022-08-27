@@ -32,6 +32,7 @@ static Map g_hostMap = {0};
 
 static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt)
 {
+    OsalMutexLock(&hostClnt->hostLock);
     hostClnt->hostPid = INVALID_PID;
     if (hostClnt->hostService != NULL) {
         struct DevHostServiceProxy *hostProxy = (struct DevHostServiceProxy *)hostClnt->hostService;
@@ -40,6 +41,7 @@ static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt)
     }
 
     HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
+    OsalMutexUnlock(&hostClnt->hostLock);
 }
 
 static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *hostClnt)
