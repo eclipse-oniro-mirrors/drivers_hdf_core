@@ -29,9 +29,9 @@ ohos_shared_library("libbufferhandle_parcelable") {
   public_configs = [ ":bufferhandle_parcelable_config" ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
-    "utils_base:utils",
   ]
 
   install_images = [ chipset_base_dir ]
