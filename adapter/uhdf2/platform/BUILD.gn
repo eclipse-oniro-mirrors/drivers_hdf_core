@@ -51,11 +51,7 @@ ohos_shared_library("libhdf_platform") {
     "$HDF_FRAMEWORKS/support/platform/include/fwk",
   ]
 
-  deps = [
-    "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
-    "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
-    "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
-  ]
+  deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
 
   defines = [ "__USER__" ]
 
