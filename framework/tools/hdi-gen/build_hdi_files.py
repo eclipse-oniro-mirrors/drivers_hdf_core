@@ -24,17 +24,17 @@ def translate_file_name(file_name, is_interface_type_file):
     if is_interface_type_file:
         name = file_name[1:] if file_name.startswith("I") else file_name
     under_line = '_'
-    translate_name = ""
+    translate_name_list = []
     num = 0
     for c in name:
         if c >= 'A' and c <= 'Z':
             if num > 1:
-                translate_name += under_line
-            translate_name += c.lower()
+                translate_name_list.append(under_line)
+            translate_name_list.append(c.lower())
         else:
-            translate_name += c
+            translate_name_list.append(c)
         num += 1
-    return translate_name
+    return "".join(translate_name_list)
 
 
 def get_idl_file_type(file_path):
