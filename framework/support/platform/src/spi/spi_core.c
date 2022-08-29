@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -10,6 +10,7 @@
 #include "hdf_log.h"
 #include "osal_mem.h"
 #include "spi_if.h"
+#include "spi_service.h"
 
 #define HDF_LOG_TAG spi_core
 
@@ -113,34 +114,73 @@ int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     return ret;
 }
 
+static int32_t SpiMsgsRwProcess(
+    struct HdfSBuf *data, uint32_t count, uint8_t *tmpFlag, struct SpiMsg *msgs, uint32_t *lenReply)
+{
+    int32_t i;
+    uint32_t len;
+    uint8_t *buf = NULL;
+    uint32_t rbufLen;
+    struct SpiUserMsg *userMsg = NULL;
+
+    for (i = 0; i < count; i++) {
+        if ((!HdfSbufReadBuffer(data, (const void **)&userMsg, &len)) || (userMsg == NULL) ||
+            (len != sizeof(struct SpiUserMsg))) {
+            HDF_LOGE("%s: read msg[%d] userMsg fail!", __func__, i);
+            return HDF_ERR_IO;
+        }
+
+        msgs[i].len = userMsg->len;
+        msgs[i].speed = userMsg->speed;
+        msgs[i].delayUs = userMsg->delayUs;
+        msgs[i].keepCs = userMsg->keepCs;
+        msgs[i].rbuf = NULL;
+        msgs[i].wbuf = NULL;
+        if ((userMsg->rwFlag & SPI_USER_MSG_READ) == SPI_USER_MSG_READ) {
+            (*lenReply) += msgs[i].len;
+            msgs[i].rbuf = tmpFlag; // tmpFlag is not mainpulated, only to mark rbuf not NULL
+        }
+        if ((userMsg->rwFlag & SPI_USER_MSG_WRITE) == SPI_USER_MSG_WRITE) {
+            if ((!HdfSbufReadBuffer(data, (const void **)&buf, &len)) || (buf == NULL) || (len != msgs[i].len)) {
+                HDF_LOGE("%s: read msg[%d] wbuf fail, len[%u], msgs[i].len[%u]!", __func__, i, len, msgs[i].len);
+            } else {
+                msgs[i].wbuf = buf;
+            }
+        }
+    }
+
+    if ((!HdfSbufReadUint32(data, &rbufLen)) || (rbufLen != *lenReply)) {
+        HDF_LOGE("%s: read rbufLen failed %u != %u!", __func__, rbufLen, *lenReply);
+        return HDF_ERR_IO;
+    }
+
+    return HDF_SUCCESS;
+}
+
+// data format:csNum -- count -- count data records:SpiUserMsg( if write data has write buffer data) -- rbufLen
 static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppmsgs, uint32_t *pcount, uint8_t **ppbuf)
 {
     uint32_t count;
     int32_t i;
-    uint32_t len;
     uint32_t lenReply = 0;
     uint8_t *buf = NULL;
+    uint8_t tmpFlag = 0;
     uint8_t *bufReply = NULL;
     struct SpiMsg *msgs = NULL;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&msgs, &len) || msgs == NULL || len == 0) {
-        HDF_LOGE("%s: read msgs fail!", __func__);
+    if (!HdfSbufReadUint32(data, &count) || (count == 0)) {
+        HDF_LOGE("%s: read count failed!", __func__);
         return HDF_ERR_IO;
     }
 
-    count = (uint32_t)len / (uint32_t)sizeof(struct SpiMsg);
-    for (i = 0; i < count; i++) {
-        if (msgs[i].rbuf != NULL) {
-            lenReply += msgs[i].len;
-        }
-        if (msgs[i].wbuf == NULL) {
-            continue;
-        }
-        if (!HdfSbufReadBuffer(data, (const void **)&buf, &len)) {
-            HDF_LOGE("%s: read msg[%d] buf fail!", __func__, i);
-        } else {
-            msgs[i].wbuf = buf;
-        }
+    msgs = OsalMemCalloc(sizeof(struct SpiMsg) * count);
+    if (msgs == NULL) {
+        return HDF_ERR_MALLOC_FAIL;
+    }
+
+    if (SpiMsgsRwProcess(data, count, &tmpFlag, msgs, &lenReply) != HDF_SUCCESS) {
+        HDF_LOGE("%s: SpiMsgsRwProcess fail!", __func__);
+        return HDF_FAILURE;
     }
 
     if (lenReply > 0) {
@@ -149,7 +189,7 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
             return HDF_ERR_MALLOC_FAIL;
         }
         for (i = 0, buf = bufReply; i < count && buf < (bufReply + lenReply); i++) {
-            if (msgs[i].rbuf != NULL) {
+            if (msgs[i].rbuf == &tmpFlag) {
                 msgs[i].rbuf = buf;
                 buf += msgs[i].len;
             }
@@ -204,12 +244,11 @@ static int32_t SpiIoTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct HdfS
         goto EXIT;
     }
 
-    ret =  SpiTransferWriteBackMsgs(reply, msgs, count);
+    ret = SpiTransferWriteBackMsgs(reply, msgs, count);
 
 EXIT:
-    if (bufReply != NULL) {
-        OsalMemFree(bufReply);
-    }
+    OsalMemFree(bufReply);
+    OsalMemFree(msgs);
     return ret;
 }
 
@@ -253,8 +292,7 @@ static int32_t SpiIoGetConfig(struct SpiCntlr *cntlr, uint32_t csNum, struct Hdf
     return HDF_SUCCESS;
 }
 
-static int32_t SpiIoDispatch(struct HdfDeviceIoClient *client, int cmd,
-    struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t SpiIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret;
     uint32_t csNum;
