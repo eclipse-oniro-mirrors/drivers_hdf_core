@@ -64,6 +64,7 @@ typedef int32_t (*RtcAlarmCallback)(enum RtcAlarmIndex);
  * The RTC information includes the year, month, day, day of the week, hour, minute, second, and millisecond.
  * The start time is 1970/01/01 Thursday 00:00:00 (UTC).
  */
+#pragma pack(push, 4)
 struct RtcTime {
     uint8_t second;       /**< Second. The value ranges from 0 to 59. */
     uint8_t minute;       /**< Minute. The value ranges from 0 to 59. */
@@ -74,6 +75,7 @@ struct RtcTime {
     uint16_t year;        /**< Year. The value is greater than or equal to 1970. */
     uint16_t millisecond; /**< Millisecond. The value ranges from 0 to 990, with a precision of 10 milliseconds. */
 };
+#pragma pack(pop)
 
 /**
  * @brief Enumerates RTC I/O commands.

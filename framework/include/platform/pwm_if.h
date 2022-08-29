@@ -87,6 +87,7 @@ enum PwmIoCmd {
  *
  * @since 1.0
  */
+#pragma pack(push, 4)
 struct PwmConfig {
     uint32_t duty;    /**< Duty cycle, in nanoseconds */
     uint32_t period;  /**< PWM period, in nanoseconds */
@@ -105,6 +106,7 @@ struct PwmConfig {
                        * PWM_ENABLE_STATUS  | Enabled
                        */
 };
+#pragma pack(pop)
 
 /**
  * @brief Obtains the PWM device handle.

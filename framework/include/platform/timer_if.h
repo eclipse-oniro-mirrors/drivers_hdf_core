@@ -104,11 +104,13 @@ enum TimerIoCmd {
     TIMER_IO_GET,      /**< Get the TIMER info. */
 };
 
+#pragma pack(push, 4)
 struct TimerConfig {
     uint32_t number;
     uint32_t useconds;
     bool isPeriod;
 };
+#pragma pack(pop)
 
 #ifdef __cplusplus
 #if __cplusplus
