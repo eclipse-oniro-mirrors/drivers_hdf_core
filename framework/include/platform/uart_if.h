@@ -46,6 +46,7 @@ extern "C" {
  *
  * @since 1.0
  */
+#pragma pack(push, 4)
 struct UartAttribute {
     /**
      * Data Bit | Description
@@ -224,6 +225,7 @@ struct UartAttribute {
     /** Reserved bits */
     unsigned int reserved : 16;
 };
+#pragma pack(pop)
 
 /**
  * @brief Enumerates UART transmission modes.
