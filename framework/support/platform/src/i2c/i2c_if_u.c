@@ -10,6 +10,7 @@
 #include "hdf_io_service_if.h"
 #include "hdf_log.h"
 #include "i2c_if.h"
+#include "i2c_service.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG i2c_if_u
@@ -106,22 +107,29 @@ void I2cClose(DevHandle handle)
     HdfSbufRecycle(data);
 }
 
-static int32_t I2cMsgWriteArray(DevHandle handle, struct HdfSBuf *data, struct I2cMsg *msgs, int16_t count)
+static int32_t I2cMsgWriteArray(struct HdfSBuf *data, struct I2cMsg *msgs, int16_t count, uint32_t *recvLen)
 {
     int16_t i;
+    struct I2cUserMsg userMsgs = {0};
+    *recvLen = 0;
 
-    if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("I2cMsgWriteArray: write handle fail!");
-        return HDF_ERR_IO;
-    }
-
-    if (!HdfSbufWriteBuffer(data, (uint8_t *)msgs, sizeof(*msgs) * count)) {
-        HDF_LOGE("I2cMsgWriteArray: write msgs array fail!");
+    if (!HdfSbufWriteInt16(data, count)) {
+        HDF_LOGE("I2cMsgWriteArray: write count fail!");
         return HDF_ERR_IO;
     }
 
     for (i = 0; i < count; i++) {
-        if ((msgs[i].flags & I2C_FLAG_READ) != 0) {
+        userMsgs.addr = msgs[i].addr;
+        userMsgs.len = msgs[i].len;
+        userMsgs.flags = msgs[i].flags;
+        if (!HdfSbufWriteBuffer(data, &userMsgs, sizeof(struct I2cUserMsg))) {
+            HDF_LOGE("I2cMsgWriteArray: write userMsgs[%hd] buf fail!", i);
+            return HDF_ERR_IO;
+        }
+        (void)memset_s(&userMsgs, sizeof(struct I2cUserMsg), 0, sizeof(struct I2cUserMsg));
+
+        if ((msgs[i].flags & I2C_FLAG_READ) != 0) { // this buffer use to recv data after read data from kernel
+            *recvLen += msgs[i].len + sizeof(uint64_t);
             continue;
         }
         if (!HdfSbufWriteBuffer(data, (uint8_t *)msgs[i].buf, msgs[i].len)) {
@@ -174,9 +182,9 @@ static int32_t I2cMsgReadArray(struct HdfSBuf *reply, struct I2cMsg *msgs, int16
     return HDF_SUCCESS;
 }
 
+// user data format:handle---count---count data records of I2cUserMsg;
 static int32_t I2cServiceTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t count)
 {
-    int16_t i;
     int32_t ret;
     uint32_t recvLen = 0;
     struct HdfSBuf *data = NULL;
@@ -189,15 +197,17 @@ static int32_t I2cServiceTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    ret = I2cMsgWriteArray(handle, data, msgs, count);
+    if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
+        HDF_LOGE("I2cServiceTransfer: write handle fail!");
+        HdfSbufRecycle(data);
+        return HDF_FAILURE;
+    }
+    ret = I2cMsgWriteArray(data, msgs, count, &recvLen);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("I2cServiceTransfer: failed to write msgs!");
         goto EXIT;
     }
 
-    for (i = 0; i < count; i++) {
-        recvLen += ((msgs[i].flags & I2C_FLAG_READ) == 0) ? 0 : (msgs[i].len + sizeof(uint64_t));
-    }
     reply = (recvLen == 0) ? HdfSbufObtainDefaultSize() : HdfSbufObtain(recvLen);
     if (reply == NULL) {
         HDF_LOGE("I2cServiceTransfer: failed to obtain reply!");
@@ -223,12 +233,8 @@ static int32_t I2cServiceTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t
 
     ret = count;
 EXIT:
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
+    HdfSbufRecycle(data);
+    HdfSbufRecycle(reply);
     return ret;
 }
 

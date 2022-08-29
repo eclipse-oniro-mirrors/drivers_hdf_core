@@ -11,8 +11,9 @@
 #include "osal_mem.h"
 #include "securec.h"
 #include "spi_if.h"
+#include "spi_service.h"
 
-#define HDF_LOG_TAG spi_if_u
+#define HDF_LOG_TAG   spi_if_u
 #define HOST_NAME_LEN 32
 
 struct SpiClient {
@@ -36,29 +37,64 @@ static struct HdfIoService *SpiGetCntlrByBusNum(uint32_t num)
     return service;
 }
 
-static int32_t SpiMsgWriteArray(struct SpiClient *client, struct HdfSBuf *data, struct SpiMsg *msgs, uint32_t count)
+static int32_t SpiMsgSetDataHead(struct HdfSBuf *data, uint32_t csNum, uint32_t count)
 {
-    uint32_t i;
-
-    if (!HdfSbufWriteUint32(data, client->csNum)) {
+    if (!HdfSbufWriteUint32(data, csNum)) {
         HDF_LOGE("%s: write csNum failed!", __func__);
         return HDF_ERR_IO;
     }
-
-    if (!HdfSbufWriteBuffer(data, (uint8_t *)msgs, sizeof(*msgs) * count)) {
-        HDF_LOGE("%s: write msgs array failed!", __func__);
+    if (!HdfSbufWriteUint32(data, count)) {
+        HDF_LOGE("%s: write count failed!", __func__);
         return HDF_ERR_IO;
     }
 
-    for (i = 0; i < count; i++) {
-        if (msgs[i].wbuf == NULL) {
-            continue;
-        }
+    return HDF_SUCCESS;
+}
 
-        if (!HdfSbufWriteBuffer(data, (uint8_t *)msgs[i].wbuf, msgs[i].len)) {
-            HDF_LOGE("%s: write msg[%u] buf failed!", __func__, i);
+// data format:csNum -- count -- count data records:SpiUserMsg( if write data has write buffer data) -- rbufLen
+static int32_t SpiMsgWriteArray(struct HdfSBuf *data, struct SpiMsg *msgs, uint32_t count, struct HdfSBuf **reply)
+{
+    uint32_t i;
+    uint32_t replyLen = 0;
+    uint32_t rbufLen = 0;
+    struct SpiUserMsg userMsg = {0};
+
+    for (i = 0; i < count; i++) {
+        if (msgs[i].rbuf != NULL) {
+            userMsg.rwFlag |= SPI_USER_MSG_READ;
+            replyLen += msgs[i].len + sizeof(uint64_t);
+            rbufLen += msgs[i].len;
+        }
+        if (msgs[i].wbuf != NULL) {
+            userMsg.rwFlag |= SPI_USER_MSG_WRITE;
+        }
+        userMsg.len = msgs[i].len;
+        userMsg.speed = msgs[i].speed;
+        userMsg.delayUs = msgs[i].delayUs;
+        userMsg.keepCs = msgs[i].keepCs;
+        if (!HdfSbufWriteBuffer(data, &userMsg, sizeof(struct SpiUserMsg))) {
+            HDF_LOGE("%s: write userMsgs[%u] buf fail!", __func__, i);
             return HDF_ERR_IO;
         }
+        (void)memset_s(&userMsg, sizeof(struct SpiUserMsg), 0, sizeof(struct SpiUserMsg));
+
+        if (msgs[i].wbuf != NULL) {
+            if (!HdfSbufWriteBuffer(data, (uint8_t *)msgs[i].wbuf, msgs[i].len)) {
+                HDF_LOGE("%s: write msg[%u] buf failed!", __func__, i);
+                return HDF_ERR_IO;
+            }
+        }
+    }
+
+    if (!HdfSbufWriteUint32(data, rbufLen)) {
+        HDF_LOGE("%s: write count failed!", __func__);
+        return HDF_ERR_IO;
+    }
+
+    *reply = (replyLen == 0) ? HdfSbufObtainDefaultSize() : HdfSbufObtain(replyLen);
+    if (*reply == NULL) {
+        HDF_LOGE("%s: failed to obtain reply!", __func__);
+        return HDF_ERR_IO;
     }
 
     return HDF_SUCCESS;
@@ -107,8 +143,6 @@ static int32_t SpiMsgReadArray(struct HdfSBuf *reply, struct SpiMsg *msgs, uint3
 int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
 {
     int32_t ret;
-    uint32_t i;
-    uint32_t len = 0;
     struct HdfSBuf *data = NULL;
     struct HdfSBuf *reply = NULL;
     struct HdfIoService *service = NULL;
@@ -120,26 +154,17 @@ int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
     }
     client = (struct SpiClient *)handle;
 
-    for (i = 0; i < count; i++) {
-        len += ((msgs[i].wbuf == NULL) ? 0 : msgs[i].len) + sizeof(uint64_t) + sizeof(*msgs) + sizeof(uint32_t);
-    }
-    data = HdfSbufObtain(len);
+    data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("%s: failed to obtain data!", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
-
-    for (i = 0; i < count; i++) {
-        len += (msgs[i].rbuf == NULL) ? 0 : (msgs[i].len + sizeof(uint64_t));
-    }
-    reply = (len == 0) ? HdfSbufObtainDefaultSize() : HdfSbufObtain(len);
-    if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply!", __func__);
-        ret = HDF_ERR_MALLOC_FAIL;
+    ret = SpiMsgSetDataHead(data, client->csNum, count);
+    if (ret != HDF_SUCCESS) {
         goto EXIT;
     }
 
-    ret = SpiMsgWriteArray(client, data, msgs, count);
+    ret = SpiMsgWriteArray(data, msgs, count, &reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: failed to write msgs!", __func__);
         goto EXIT;
@@ -148,7 +173,7 @@ int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
     service = (struct HdfIoService *)client->cntlr;
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
-        ret =  HDF_FAILURE;
+        ret = HDF_FAILURE;
         goto EXIT;
     }
     ret = service->dispatcher->Dispatch(&service->object, SPI_IO_TRANSFER, data, reply);
@@ -361,7 +386,7 @@ DevHandle SpiOpen(const struct SpiDevInfo *info)
         return NULL;
     }
 
-    if (service == NULL ||service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         HdfIoServiceRecycle(service);
