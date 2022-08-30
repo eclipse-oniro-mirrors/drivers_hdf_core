@@ -276,7 +276,7 @@ static int32_t HalSpiRecv(const SpiDevice *spiDevice, uint8_t *data, uint16_t si
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    memset_s(cmd, len, resource->dummyByte, len);
+    (void)memset_s(cmd, len, resource->dummyByte, len);
 
     if (resource->transMode == SPI_TRANSFER_DMA) {
         return HDF_ERR_INVALID_PARAM; // unsupport now
