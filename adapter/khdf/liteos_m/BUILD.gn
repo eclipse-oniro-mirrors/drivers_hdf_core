@@ -54,7 +54,7 @@ config("public") {
 config("hdf_config") {
   configs = [ ":public" ]
   include_dirs = [
-    "//utils/native/lite/include",
+    "//commonlibrary/utils_lite/include",
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
     "osal/include",
     "$HDF_FRAMEWORKS_PATH/include",
