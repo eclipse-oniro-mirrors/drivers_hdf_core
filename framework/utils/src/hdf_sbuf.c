@@ -307,6 +307,7 @@ bool HdfSbufReadFloat(struct HdfSBuf *sbuf, float *data)
 struct HdfSBuf *HdfSbufTypedObtainCapacity(uint32_t type, size_t capacity)
 {
     struct HdfSBuf *sbuf = NULL;
+#ifndef __KERNEL__
     const struct HdfSbufConstructor *constructor = HdfSbufConstructorGet(type);
     if (constructor == NULL) {
         HDF_LOGE("sbuf constructor %u not implement", type);
@@ -316,14 +317,22 @@ struct HdfSBuf *HdfSbufTypedObtainCapacity(uint32_t type, size_t capacity)
         HDF_LOGE("sbuf constructor %u obtain method not implement", type);
         return NULL;
     }
-
+#endif
     sbuf = (struct HdfSBuf *)OsalMemAlloc(sizeof(struct HdfSBuf));
     if (sbuf == NULL) {
         HDF_LOGE("instance sbuf failure");
         return NULL;
     }
-
+#ifdef __KERNEL__
+    if (type != SBUF_RAW) {
+        OsalMemFree(sbuf);
+        HDF_LOGE("failed to obtain sbuf, unknown type %u", type);
+        return NULL;
+    }
+    sbuf->impl = SbufObtainRaw(capacity);
+#else
     sbuf->impl = constructor->obtain(capacity);
+#endif
     if (sbuf->impl == NULL) {
         OsalMemFree(sbuf);
         HDF_LOGE("sbuf obtain fail, size=%u", (uint32_t)capacity);
@@ -359,6 +368,7 @@ struct HdfSBuf *HdfSbufTypedObtain(uint32_t type)
 struct HdfSBuf *HdfSbufTypedBind(uint32_t type, uintptr_t base, size_t size)
 {
     struct HdfSBuf *sbuf = NULL;
+#ifndef __KERNEL__
     const struct HdfSbufConstructor *constructor = HdfSbufConstructorGet(type);
     if (constructor == NULL) {
         HDF_LOGE("sbuf constructor %u not implement", type);
@@ -369,14 +379,22 @@ struct HdfSBuf *HdfSbufTypedBind(uint32_t type, uintptr_t base, size_t size)
         HDF_LOGE("sbuf constructor %u bind method not implement", type);
         return NULL;
     }
-
+#endif
     sbuf = (struct HdfSBuf *)OsalMemAlloc(sizeof(struct HdfSBuf));
     if (sbuf == NULL) {
         HDF_LOGE("instance sbuf failure");
         return NULL;
     }
-
+#ifdef __KERNEL__
+    if (type != SBUF_RAW) {
+        OsalMemFree(sbuf);
+        HDF_LOGE("failed to bind sbuf, unknown type %u", type);
+        return NULL;
+    }
+    sbuf->impl = SbufBindRaw(base, size);
+#else
     sbuf->impl = constructor->bind(base, size);
+#endif
     if (sbuf->impl == NULL) {
         OsalMemFree(sbuf);
         HDF_LOGE("sbuf bind fail");
