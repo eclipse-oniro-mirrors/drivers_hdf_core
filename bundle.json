@@ -3,6 +3,12 @@
   "description": "device driver framework",
   "version": "3.1",
   "license": "Apache License 2.0",
+  "publishAs": "code-segment",
+  "segment": {
+    "destPath": "drivers/hdf_core"
+  },
+  "dirs": {},
+  "scripts": {},
   "component": {
     "name": "hdf_core",
     "subsystem": "hdf",
@@ -19,7 +25,7 @@
         "samgr",
         "selinux"
       ],
-      "third_part": [
+      "third_party": [
         "bounds_checking_function"
       ]
     },
