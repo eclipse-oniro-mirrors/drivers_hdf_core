@@ -17,7 +17,7 @@ visual studio code 版本需1.62.0及以上。
 
 下面地址中下载hcsView_output.zip，解压即可得到工具使用插件。
 
-[工具下载链接](http://ftpkaihongdigi.i234.me:5000/fsdownload/PPVcNMgVv/2022-06-13)
+[工具下载链接](http://ftp.kaihongdigi.com:5000/fsdownload/QnB83qj3Q/hcsView-0.0.1)
 
 ### 步骤
 
