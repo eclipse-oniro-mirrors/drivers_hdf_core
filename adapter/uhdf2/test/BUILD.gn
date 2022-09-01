@@ -11,18 +11,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-group("hdf_test_uhdf") {
-  testonly = true
-  deps = [
-    "fuzztest:hdf_platform_test",
-    "unittest/config:hdf_adapter_uhdf_test_config",
-    "unittest/manager:hdf_adapter_uhdf_test_ioservice",
-    "unittest/manager:hdf_adapter_uhdf_test_manager",
-    "unittest/manager:hdf_adapter_uhdf_test_pm",
-    "unittest/manager:hdf_adapter_uhdf_test_sbuf",
-    "unittest/manager:hdf_adapter_uhdf_test_uevent",
-    "unittest/osal:hdf_adapter_uhdf_test_osal",
-    "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-    "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
-  ]
+declare_args() {
+  hdf_core_khdf_test_support = true
+}
+
+if (hdf_core_khdf_test_support) {
+  group("hdf_test_uhdf") {
+    testonly = true
+    deps = [
+      "fuzztest:hdf_platform_test",
+      "unittest/config:hdf_adapter_uhdf_test_config",
+      "unittest/manager:hdf_adapter_uhdf_test_ioservice",
+      "unittest/manager:hdf_adapter_uhdf_test_manager",
+      "unittest/manager:hdf_adapter_uhdf_test_pm",
+      "unittest/manager:hdf_adapter_uhdf_test_sbuf",
+      "unittest/manager:hdf_adapter_uhdf_test_uevent",
+      "unittest/osal:hdf_adapter_uhdf_test_osal",
+      "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
+      "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
+    ]
+  }
+} else {
+  group("hdf_test_uhdf") {
+    testonly = true
+    deps = [
+      "fuzztest:hdf_platform_test",
+      "unittest/manager:hdf_adapter_uhdf_test_sbuf",
+      "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
+      "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
+    ]
+  }
 }
