@@ -148,7 +148,7 @@ static int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t s
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    memset_s(cmd, len, 0, len);
+    (void)memset_s(cmd, len, 0, len);
 
     status = OsalMutexLock(&spiDevice->mutex);
     if (HDF_SUCCESS != status) {

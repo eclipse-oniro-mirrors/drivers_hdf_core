@@ -153,7 +153,7 @@ static void Uart1DmaRxHandler(uint32_t xferSize, int dmaError, union HAL_UART_IR
         HDF_LOGE("%s ringbuf is full have %d need %d\r", __FUNCTION__, (int)len, (int)xferSize);
         return;
     }
-    memset_s(g_uartCtx[HAL_UART_ID_1].buffer, UART_DMA_RING_BUFFER_SIZE, 0, UART_DMA_RING_BUFFER_SIZE);
+    (void)memset_s(g_uartCtx[HAL_UART_ID_1].buffer, UART_DMA_RING_BUFFER_SIZE, 0, UART_DMA_RING_BUFFER_SIZE);
     OsalSemPost(&g_uartCtx[HAL_UART_ID_1].rxSem);
     HalUartStartDmaRx(HAL_UART_ID_1);
 }
@@ -176,7 +176,7 @@ static void Uart2DmaRxHandler(uint32_t xferSize, int dmaError, union HAL_UART_IR
         return;
     }
 
-    memset_s(g_uartCtx[HAL_UART_ID_2].buffer, UART_DMA_RING_BUFFER_SIZE, 0, UART_DMA_RING_BUFFER_SIZE);
+    (void)memset_s(g_uartCtx[HAL_UART_ID_2].buffer, UART_DMA_RING_BUFFER_SIZE, 0, UART_DMA_RING_BUFFER_SIZE);
     OsalSemPost(&g_uartCtx[HAL_UART_ID_2].rxSem);
     HalUartStartDmaRx(HAL_UART_ID_2);
 }
@@ -289,7 +289,7 @@ static int32_t InitUartCtxCfg(const struct UartDevice *device)
         HDF_LOGE("%s %d NOT SUPPORT \r\n", __FILE__, __LINE__);
         return HDF_ERR_NOT_SUPPORT;
     }
-    memset_s(&g_uartCtx[uartId], sizeof(struct UART_CTX_OBJ), 0, sizeof(struct UART_CTX_OBJ));
+    (void)memset_s(&g_uartCtx[uartId], sizeof(struct UART_CTX_OBJ), 0, sizeof(struct UART_CTX_OBJ));
     g_uartCtx[uartId].txDMA = uartCfg->dma_tx;
     g_uartCtx[uartId].rxDMA = uartCfg->dma_rx;
 

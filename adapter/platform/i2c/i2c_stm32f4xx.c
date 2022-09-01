@@ -149,7 +149,7 @@ static int32_t AttachI2cDevice(struct I2cCntlr *host, const struct HdfDeviceObje
         HDF_LOGE("[%s]: OsalMemAlloc RealI2cResource fail\r\n", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
-    memset_s(i2cResource, sizeof(struct RealI2cResource), 0, sizeof(struct RealI2cResource));
+    (void)memset_s(i2cResource, sizeof(struct RealI2cResource), 0, sizeof(struct RealI2cResource));
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
     ret = GetI2cDeviceResource(i2cResource, device->deviceMatchAttr);
 #else
@@ -227,7 +227,7 @@ static int32_t I2cDriverInit(struct HdfDeviceObject *device)
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    memset_s(host, sizeof(struct I2cCntlr), 0, sizeof(struct I2cCntlr));
+    (void)memset_s(host, sizeof(struct I2cCntlr), 0, sizeof(struct I2cCntlr));
     host->ops = &gI2cHostMethod;
     device->priv = (void *)host;
 

@@ -89,8 +89,8 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     char *p;
     int error;
 
-    memset_s(rdbuf, sizeof(rdbuf), NUM_0, sizeof(rdbuf));
-    memset_s(touch_fw_version, sizeof(touch_fw_version), NUM_0, sizeof(touch_fw_version));
+    (void)memset_s(rdbuf, sizeof(rdbuf), NUM_0, sizeof(rdbuf));
+    (void)memset_s(touch_fw_version, sizeof(touch_fw_version), NUM_0, sizeof(touch_fw_version));
 
     error = InputI2cRead(i2cClient, "\xbb", NUM_1, rdbuf, EDT_NAME_LEN - NUM_1);
     if (error != HDF_SUCCESS) {
