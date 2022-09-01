@@ -11,23 +11,23 @@
 using namespace std;
 
 namespace OHOS {
-    bool WatchdogFuzzTest(const uint8_t *data, size_t size)
-    {
-        DevHandle handle = nullptr;
+static bool WatchdogFuzzTest(const uint8_t *data, size_t size)
+{
+    DevHandle handle = nullptr;
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-        if (WatchdogOpen(0, &handle) != HDF_SUCCESS) {
-            HDF_LOGE("%{public}s:open handle failed", __func__);
-            return false;
-        }
-        WatchdogSetTimeout(handle, *(uint32_t *)data);
-        WatchdogClose(handle);
-        return true;
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return false;
     }
+    if (WatchdogOpen(0, &handle) != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s:open handle failed", __func__);
+        return false;
+    }
+    WatchdogSetTimeout(handle, *(uint32_t *)data);
+    WatchdogClose(handle);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)

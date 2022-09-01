@@ -19,7 +19,7 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 2;
-const uint16_t gpioTestNum = 3;
+constexpr uint16_t gpioTestNum = 3;
 }
 
 struct AllParameters {
@@ -36,42 +36,43 @@ static int32_t GpioTestIrqHandler(uint16_t gpio, void *data)
 }
 
 namespace OHOS {
-    bool GpioFuzzTest(const uint8_t *data, size_t size)
-    {
-        int32_t number;
-        struct AllParameters params;
+static bool GpioFuzzTest(const uint8_t *data, size_t size)
+{
+    int32_t number;
+    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-
-        if (memcpy_s((void *)&params, sizeof(params), data, sizeof(params)) != EOK) {
-            HDF_LOGE("%{public}s:memcpy data failed", __func__);
-            return false;
-        }
-        number = randNum(MIN, MAX);
-        switch (static_cast<ApiTestCmd>(number)) {
-            case ApiTestCmd::GPIO_FUZZ_WRITE:
-                GpioWrite(gpioTestNum, params.descVal);
-                break;
-            case ApiTestCmd::GPIO_FUZZ_SET_DIR:
-                GpioSetDir(gpioTestNum, params.descDir);
-                break;
-            case ApiTestCmd::GPIO_FUZZ_SET_IRQ:
-                GpioSetIrq(gpioTestNum, params.descMode, GpioTestIrqHandler, &data);
-                break;
-            default:
-                break;
-        }
-        return true;
+    number = randNum(MIN, MAX);
+    switch (static_cast<ApiTestCmd>(number)) {
+        case ApiTestCmd::GPIO_FUZZ_WRITE:
+            GpioWrite(gpioTestNum, params->descVal);
+            break;
+        case ApiTestCmd::GPIO_FUZZ_SET_DIR:
+            GpioSetDir(gpioTestNum, params->descDir);
+            break;
+        case ApiTestCmd::GPIO_FUZZ_SET_IRQ:
+            GpioSetIrq(gpioTestNum, params->descMode, GpioTestIrqHandler, &data);
+            break;
+        default:
+            break;
     }
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return 0;
+    }
+
+    if (size < sizeof(struct AllParameters)) {
+        HDF_LOGE("%{public}s:size is small", __func__);
+        return 0;
+    }
+
     OHOS::GpioFuzzTest(data, size);
     return 0;
 }

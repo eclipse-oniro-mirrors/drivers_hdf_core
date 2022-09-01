@@ -19,9 +19,9 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 2;
-const int32_t busTestNum = 0;
-const int32_t csTestNum = 0;
-const uint32_t SPI_BUF_SIZE = 8;
+constexpr int32_t busTestNum = 0;
+constexpr int32_t csTestNum = 0;
+constexpr uint32_t SPI_BUF_SIZE = 8;
 }
 
 struct AllParameters {
@@ -36,78 +36,87 @@ struct AllParameters {
 };
 
 namespace OHOS {
-    bool SpiFuzzTest(const uint8_t *data, size_t size)
-    {
-        int32_t number;
-        DevHandle handle = nullptr;
-        struct SpiMsg msg;
-        struct SpiCfg cfg;
-        struct SpiDevInfo info;
-        struct AllParameters params;
+static void SpiFuzzDoTest(DevHandle handle, struct SpiDevInfo *info, struct SpiMsg *msg, struct SpiCfg *cfg)
+{
+    int32_t number;
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-        if (memcpy_s ((void *)&params, sizeof(params), data, sizeof(params)) != EOK) {
-            HDF_LOGE("%{public}s:memcpy data failed", __func__);
-            return false;
-        }
-
-        info.busNum = busTestNum;
-        info.csNum = csTestNum;
-        msg.speed = params.descSpeed;
-        msg.delayUs = params.descDelay;
-        msg.keepCs = params.descKeep;
-        msg.len = SPI_BUF_SIZE;
-        msg.rbuf = (uint8_t *)malloc(SPI_BUF_SIZE);
-        if (msg.rbuf == nullptr) {
-            HDF_LOGE("%{public}s:malloc rbuf failed", __func__);
-            return false;
-        }
-        msg.wbuf = (uint8_t *)malloc(SPI_BUF_SIZE);
-        if (msg.wbuf == nullptr) {
-            HDF_LOGE("%{public}s:malloc wbuf failed", __func__);
-            free(msg.rbuf);
-            return false;
-        }
-        if (memcpy_s((void *)msg.wbuf, SPI_BUF_SIZE, params.buf, SPI_BUF_SIZE) != EOK) {
-            free(msg.rbuf);
-            free(msg.wbuf);
-            HDF_LOGE("%{public}s:memcpy buf failed", __func__);
-            return false;
-        }
-        cfg.maxSpeedHz = params.desMaxSpeedHz;
-        cfg.mode = params.desMode;
-        cfg.transferMode = params.desTransferMode;
-        cfg.bitsPerWord = params.desBitsPerWord;
-
-        handle = SpiOpen(&info);
-        number = randNum(MIN, MAX);
-        switch (static_cast<ApiNumber>(number)) {
-            case ApiNumber::SPI_FUZZ_TRANSFER:
-                SpiTransfer(handle, &msg, SPI_BUF_SIZE);
-                break;
-            case ApiNumber::SPI_FUZZ_WRITE:
-                SpiWrite(handle, msg.wbuf, SPI_BUF_SIZE);
-                break;
-            case ApiNumber::SPI_FUZZ_SETCFG:
-                SpiSetCfg(handle, &cfg);
-                break;
-            default:
-                break;
-        }
-        free(msg.rbuf);
-        free(msg.wbuf);
-        SpiClose(handle);
-        return true;
+    number = randNum(MIN, MAX);
+    switch (static_cast<ApiNumber>(number)) {
+        case ApiNumber::SPI_FUZZ_TRANSFER:
+            SpiTransfer(handle, msg, SPI_BUF_SIZE);
+            break;
+        case ApiNumber::SPI_FUZZ_WRITE:
+            SpiWrite(handle, msg->wbuf, SPI_BUF_SIZE);
+            break;
+        case ApiNumber::SPI_FUZZ_SETCFG:
+            SpiSetCfg(handle, cfg);
+            break;
+        default:
+            break;
     }
 }
+
+static bool SpiFuzzTest(const uint8_t *data, size_t size)
+{
+    struct SpiMsg msg;
+    struct SpiCfg cfg;
+    DevHandle handle = nullptr;
+    struct SpiDevInfo info;
+    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+
+    info.busNum = busTestNum;
+    info.csNum = csTestNum;
+    msg.speed = params->descSpeed;
+    msg.delayUs = params->descDelay;
+    msg.keepCs = params->descKeep;
+    msg.len = SPI_BUF_SIZE;
+    msg.rbuf = (uint8_t *)malloc(SPI_BUF_SIZE);
+    if (msg.rbuf == nullptr) {
+        HDF_LOGE("%{public}s:malloc rbuf failed", __func__);
+        return false;
+    }
+    msg.wbuf = (uint8_t *)malloc(SPI_BUF_SIZE);
+    if (msg.wbuf == nullptr) {
+        HDF_LOGE("%{public}s:malloc wbuf failed", __func__);
+        free(msg.rbuf);
+        return false;
+    }
+    if (memcpy_s((void *)msg.wbuf, SPI_BUF_SIZE, params->buf, SPI_BUF_SIZE) != EOK) {
+        free(msg.rbuf);
+        free(msg.wbuf);
+        HDF_LOGE("%{public}s:memcpy buf failed", __func__);
+        return false;
+    }
+    cfg.maxSpeedHz = params->desMaxSpeedHz;
+    cfg.mode = params->desMode;
+    cfg.transferMode = params->desTransferMode;
+    cfg.bitsPerWord = params->desBitsPerWord;
+    handle = SpiOpen(&info);
+    if (handle == nullptr) {
+        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        return false;
+    }
+    SpiFuzzDoTest(handle, &info, &msg, &cfg);
+    free(msg.rbuf);
+    free(msg.wbuf);
+    SpiClose(handle);
+    return true;
+}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return 0;
+    }
+
+    if (size < sizeof(struct AllParameters)) {
+        HDF_LOGE("%{public}s:size is small", __func__);
+        return 0;
+    }
     OHOS::SpiFuzzTest(data, size);
     return 0;
 }

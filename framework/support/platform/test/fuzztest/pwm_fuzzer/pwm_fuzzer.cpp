@@ -19,7 +19,7 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 2;
-const int32_t PWM_FUZZ_NUM = 1;
+constexpr int32_t PWM_FUZZ_NUM = 1;
 }
 
 struct AllParameters {
@@ -29,46 +29,49 @@ struct AllParameters {
 };
 
 namespace OHOS {
-    bool PwmFuzzTest(const uint8_t *data, size_t size)
-    {
-        int32_t number;
-        DevHandle handle = nullptr;
-        struct AllParameters params;
+static bool PwmFuzzTest(const uint8_t *data, size_t size)
+{
+    int32_t number;
+    DevHandle handle = nullptr;
+    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
 
-        if (data == nullptr) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-
-        if (memcpy_s((void *)&params, sizeof(params), data, sizeof(params)) != EOK) {
-            HDF_LOGE("%{public}s:data is null", __func__);
-            return false;
-        }
-
-        number = randNum(MIN, MAX);
-        handle = PwmOpen(PWM_FUZZ_NUM);
-        switch (static_cast<ApiTestCmd>(number)) {
-            case ApiTestCmd::PWM_FUZZ_SET_PERIOD:
-                PwmSetPeriod(handle, params.descPer);
-                break;
-            case ApiTestCmd::PWM_FUZZ_SET_DUTY:
-                PwmSetDuty(handle, params.descDuty);
-                break;
-            case ApiTestCmd::PWM_FUZZ_SET_POLARITY:
-                PwmSetPolarity(handle, params.descPolar);
-                break;
-            default:
-                break;
-        }
-        PwmClose(handle);
-        return true;
+    number = randNum(MIN, MAX);
+    handle = PwmOpen(PWM_FUZZ_NUM);
+    if (handle == nullptr) {
+        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        return false;
     }
+    switch (static_cast<ApiTestCmd>(number)) {
+        case ApiTestCmd::PWM_FUZZ_SET_PERIOD:
+            PwmSetPeriod(handle, params->descPer);
+            break;
+        case ApiTestCmd::PWM_FUZZ_SET_DUTY:
+            PwmSetDuty(handle, params->descDuty);
+            break;
+        case ApiTestCmd::PWM_FUZZ_SET_POLARITY:
+            PwmSetPolarity(handle, params->descPolar);
+            break;
+        default:
+            break;
+    }
+    PwmClose(handle);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    if (data == nullptr) {
+        HDF_LOGE("%{public}s:data is null", __func__);
+        return 0;
+    }
+
+    if (size < sizeof(struct AllParameters)) {
+        HDF_LOGE("%{public}s:size is small", __func__);
+        return 0;
+    }
     OHOS::PwmFuzzTest(data, size);
     return 0;
 }
