@@ -19,6 +19,7 @@ void HdfTestOpenService(void)
 {
     g_testService = HdfIoServiceBind(HDF_TEST_SERVICE_NAME);
     if (g_testService == NULL) {
+        printf("%s HdfIoServiceBind %s failed\n\r", __func__, HDF_TEST_SERVICE_NAME);
         return;
     }
     g_msg = HdfSbufObtainDefaultSize();
@@ -55,9 +56,7 @@ int HdfTestSendMsgToService(struct HdfTestMsg *msg)
     int ret;
     struct HdfTestMsg *testReply = NULL;
     unsigned int len;
-    if (g_testService == NULL) {
-        return HDF_SUCCESS;
-    }
+    CHECK_TEST_NULL_PTR_RETURN(g_testService);
     CHECK_TEST_NULL_PTR_RETURN(g_msg);
     CHECK_TEST_NULL_PTR_RETURN(g_reply);
     CHECK_TEST_NULL_PTR_RETURN(msg);

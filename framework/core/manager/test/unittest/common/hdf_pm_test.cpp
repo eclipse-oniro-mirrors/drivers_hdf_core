@@ -26,17 +26,13 @@ struct HdfIoService *HdfPmTest::ioService = nullptr;
 void HdfPmTest::SetUpTestCase()
 {
     ioService = HdfIoServiceBind("pm_ut_service");
-    if (ioService == nullptr) {
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
     ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_BEGEN, nullptr, nullptr);
 }
 
 void HdfPmTest::TearDownTestCase()
 {
-    if (ioService == nullptr) {
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
     ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_END, nullptr, nullptr);
     HdfIoServiceRecycle(ioService);
 }
@@ -57,10 +53,7 @@ void HdfPmTest::TearDown()
   */
 HWTEST_F(HdfPmTest, HdfPmTestOneDriverOnce, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_ONE_DRIVER_ONCE, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -74,10 +67,7 @@ HWTEST_F(HdfPmTest, HdfPmTestOneDriverOnce, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestOneDriverTwice, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_ONE_DRIVER_TWICE, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -91,10 +81,7 @@ HWTEST_F(HdfPmTest, HdfPmTestOneDriverTwice, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestOneDriverTen, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_ONE_DRIVER_TEN, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -108,10 +95,7 @@ HWTEST_F(HdfPmTest, HdfPmTestOneDriverTen, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestOneDriverHundred, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_ONE_DRIVER_HUNDRED, nullptr, nullptr);
@@ -126,10 +110,7 @@ HWTEST_F(HdfPmTest, HdfPmTestOneDriverHundred, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestOneDriverThousand, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_ONE_DRIVER_THOUSAND, nullptr, nullptr);
@@ -144,10 +125,7 @@ HWTEST_F(HdfPmTest, HdfPmTestOneDriverThousand, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestTwoDriverOnce, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_TWO_DRIVER_ONCE, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -161,10 +139,7 @@ HWTEST_F(HdfPmTest, HdfPmTestTwoDriverOnce, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestTwoDriverTwice, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_TWO_DRIVER_TWICE, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -178,10 +153,7 @@ HWTEST_F(HdfPmTest, HdfPmTestTwoDriverTwice, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestTwoDriverTen, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_TWO_DRIVER_TEN, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -195,10 +167,7 @@ HWTEST_F(HdfPmTest, HdfPmTestTwoDriverTen, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestTwoDriverHundred, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_TWO_DRIVER_HUNDRED, nullptr, nullptr);
@@ -213,10 +182,7 @@ HWTEST_F(HdfPmTest, HdfPmTestTwoDriverHundred, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestTwoDriverThousand, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_TWO_DRIVER_THOUSAND, nullptr, nullptr);
@@ -231,10 +197,7 @@ HWTEST_F(HdfPmTest, HdfPmTestTwoDriverThousand, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverOnce, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_THREE_DRIVER_ONCE, nullptr, nullptr);
@@ -249,10 +212,7 @@ HWTEST_F(HdfPmTest, HdfPmTestThreeDriverOnce, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverTwice, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_THREE_DRIVER_TWICE, nullptr, nullptr);
@@ -267,10 +227,7 @@ HWTEST_F(HdfPmTest, HdfPmTestThreeDriverTwice, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverTen, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(&ioService->object, HDF_PM_TEST_THREE_DRIVER_TEN, nullptr, nullptr);
     EXPECT_TRUE(ret == HDF_SUCCESS);
@@ -284,10 +241,7 @@ HWTEST_F(HdfPmTest, HdfPmTestThreeDriverTen, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverHundred, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_THREE_DRIVER_HUNDRED, nullptr, nullptr);
@@ -302,10 +256,7 @@ HWTEST_F(HdfPmTest, HdfPmTestThreeDriverHundred, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverThousand, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_THREE_DRIVER_THOUSAND, nullptr, nullptr);
@@ -320,10 +271,7 @@ HWTEST_F(HdfPmTest, HdfPmTestThreeDriverThousand, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverSeqHundred, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_THREE_DRIVER_SEQ_HUNDRED, nullptr, nullptr);
@@ -338,10 +286,7 @@ HWTEST_F(HdfPmTest, HdfPmTestThreeDriverSeqHundred, TestSize.Level3)
   */
 HWTEST_F(HdfPmTest, HdfPmTestThreeDriverHundredWithSync, TestSize.Level3)
 {
-    if (ioService == nullptr) {
-        ASSERT_TRUE(true);
-        return;
-    }
+    ASSERT_TRUE(ioService != nullptr);
 
     int32_t ret = ioService->dispatcher->Dispatch(
         &ioService->object, HDF_PM_TEST_THREE_DRIVER_HUNDRED_WITH_SYNC, nullptr, nullptr);
