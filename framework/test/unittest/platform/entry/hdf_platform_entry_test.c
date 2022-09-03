@@ -57,7 +57,9 @@ int32_t HdfPlatformManagerTestEntry(HdfTestMsg *msg)
 int32_t HdfPlatformDumperTestEntry(HdfTestMsg *msg)
 {
     if (msg != NULL) {
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER) || defined(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER)
         msg->result = PlatformDumperTestExecute(msg->subCmd);
+#endif
     }
     return HDF_SUCCESS;
 }

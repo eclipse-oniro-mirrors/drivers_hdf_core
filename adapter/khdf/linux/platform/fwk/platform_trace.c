@@ -53,7 +53,7 @@ void PlatformTraceAddMsg(const char *module, const char *moduleFun, const char *
     trace_platfrom_trace_record_messages(messages);
 }
 
-void PlatformTraceAddUintMsg(int module, int moduleFun, uint infos[], uint8_t size)
+void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint8_t size)
 {
     int ret;
     int i;

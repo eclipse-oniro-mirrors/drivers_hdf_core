@@ -114,6 +114,27 @@ config DRIVERS_HDF_PLATFORM_TRACE
     help
       Answer Y to enable HDF platform trace driver.
 
+config DRIVERS_HDF_PLATFORM_DUMPER
+    bool "Enable HDF platform dumper driver"
+    default n
+    depends on DRIVERS_HDF_PLATFORM
+    help
+      Answer Y to enable HDF platform dumper driver.
+
+config DRIVERS_HDF_PLATFORM_DUMPER_WRITE
+    bool "Enable HDF platform dumper write file"
+    default n
+    depends on DRIVERS_HDF_PLATFORM_DUMPER
+    help
+      Answer Y to enable HDF platform dumper  write file.
+
+config DRIVERS_HDF_PLATFORM_DUMPER_PRINT
+    bool "Enable HDF platform dumper printf"
+    default n
+    depends on DRIVERS_HDF_PLATFORM_DUMPER
+    help
+      Answer Y to enable HDF platform dumper printf.
+
 config IMX8MM_EMMC
     bool "Enable HDF imx8mm emmc driver"
     default n

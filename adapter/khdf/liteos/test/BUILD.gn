@@ -82,7 +82,6 @@ hdf_driver(module_name) {
     sources += [
       "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_device_test.c",
       "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_driver_test.c",
-      "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_dumper_test.c",
       "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_event_test.c",
       "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_manager_test.c",
       "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_queue_test.c",
@@ -92,6 +91,11 @@ hdf_driver(module_name) {
     if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_TRACE)) {
       sources +=
           [ "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_trace_test.c" ]
+    }
+
+    if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER)) {
+      sources +=
+          [ "$HDF_TEST_FRAMWORK_ROOT/platform/common/platform_dumper_test.c" ]
     }
 
     if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_GPIO)) {

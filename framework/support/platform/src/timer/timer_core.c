@@ -12,6 +12,7 @@
 #include "osal_mem.h"
 #include "osal_time.h"
 #include "platform_listener_common.h"
+#include "platform_trace.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG timer_core
@@ -24,7 +25,10 @@ struct TimerManager {
 };
 
 static struct TimerManager *g_timerManager = NULL;
-#define TIMER_HANDLE_SHIFT ((uintptr_t)(-1) << 16)
+#define TIMER_HANDLE_SHIFT          ((uintptr_t)(-1) << 16)
+#define TIMER_TRACE_PARAM_NUM       5
+#define TIMER_TRACE_BASIC_PARAM_NUM 3
+#define TIMER_TRACE_PARAM_STOP_NUM  3
 
 struct TimerCntrl *TimerCntrlOpen(const uint32_t number)
 {
@@ -131,6 +135,19 @@ int32_t TimerCntrlStart(struct TimerCntrl *cntrl)
         (void)OsalMutexUnlock(&cntrl->lock);
         return HDF_FAILURE;
     }
+
+    int32_t ret = PlatformTraceStart();
+    if (ret == HDF_SUCCESS) {
+        uint infos[TIMER_TRACE_BASIC_PARAM_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntrl->info.number;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntrl->info.useconds;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_3 - 1] = cntrl->info.isPeriod;
+        PlatformTraceAddUintMsg(
+            PLATFORM_TRACE_MODULE_TIMER, PLATFORM_TRACE_MODULE_TIMER_FUN_START, infos, TIMER_TRACE_BASIC_PARAM_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
+
     (void)OsalMutexUnlock(&cntrl->lock);
     return HDF_SUCCESS;
 }
@@ -149,6 +166,15 @@ int32_t TimerCntrlStop(struct TimerCntrl *cntrl)
         return HDF_FAILURE;
     }
 
+    int32_t ret = PlatformTraceStart();
+    if (ret == HDF_SUCCESS) {
+        uint infos[TIMER_TRACE_PARAM_STOP_NUM];
+        infos[0] = cntrl->info.number;
+        PlatformTraceAddUintMsg(
+            PLATFORM_TRACE_MODULE_TIMER, PLATFORM_TRACE_MODULE_TIMER_FUN_STOP, infos, TIMER_TRACE_PARAM_STOP_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
     (void)OsalMutexUnlock(&cntrl->lock);
     return HDF_SUCCESS;
 }
