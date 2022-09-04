@@ -48,6 +48,9 @@ typedef enum {
     PLATFORM_TRACE_MODULE_PWM_FUN_SET_CONFIG,
     PLATFORM_TRACE_MODULE_TIMER_FUN = PLATFORM_TRACE_MODULE_PWM_FUN + 50,
     PLATFORM_TRACE_MODULE_TIMER_FUN_SET,
+    PLATFORM_TRACE_MODULE_TIMER_FUN_ADD,
+    PLATFORM_TRACE_MODULE_TIMER_FUN_START,
+    PLATFORM_TRACE_MODULE_TIMER_FUN_STOP,
     PLATFORM_TRACE_MODULE_UNITTEST_FUN = PLATFORM_TRACE_MODULE_TIMER_FUN + 50,
     PLATFORM_TRACE_MODULE_UNITTEST_FUN_TEST,
     PLATFORM_TRACE_MODULE_MAX_FUN = 5000,
@@ -70,7 +73,7 @@ void PlatformTraceReset(void);
 
 void __attribute__((format(printf, 3, 4))) PlatformTraceAddMsg(const char *module, const char *moduleFun,
     const char *fmt, ...);
-void PlatformTraceAddUintMsg(int module, int moduleFun, uint infos[], uint8_t size);
+void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint8_t size);
 
 #ifdef __cplusplus
 }
