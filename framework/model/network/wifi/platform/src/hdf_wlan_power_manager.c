@@ -98,12 +98,12 @@ static int32_t HdfWlanChipPowerOn(struct PowerManager* powerMgr)
     ret = HdfWlanSinglePowerActive(&powerMgrimpl->powerDatas.power0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: HdfWlanMainPowerOn fail! ret:%d\n", __func__, ret);
-        (void)HdfWlanSingleDeActive(&powerMgrimpl->powerDatas.power0);
         return HDF_FAILURE;
     }
-    ret = HdfWlanSinglePowerActive((struct HdfConfigWlanPower*)&powerMgrimpl->powerDatas.power1);
+    ret = HdfWlanSinglePowerActive(&powerMgrimpl->powerDatas.power1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: HdfWlanPowerActive fail! ret:%d\n", __func__, ret);
+        (void)HdfWlanSingleDeActive(&powerMgrimpl->powerDatas.power0);
         return HDF_FAILURE;
     }
     HDF_LOGI("%s: HdfWlanChipPowerOn successful!", __func__);
@@ -124,7 +124,7 @@ static int32_t HdfWlanChipPowerOff(struct PowerManager* powerMgr)
         HDF_LOGE("%s: the main power off fail", __func__);
         return HDF_FAILURE;
     }
-    ret = HdfWlanSingleDeActive((struct HdfConfigWlanPower*)&powerMgrimpl->powerDatas.power1);
+    ret = HdfWlanSingleDeActive(&powerMgrimpl->powerDatas.power1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: the standby power off fail", __func__);
         return ret;
