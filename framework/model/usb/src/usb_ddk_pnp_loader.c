@@ -14,6 +14,8 @@
 #include "hcs_tree_if.h"
 #include "hdf_attribute_manager.h"
 #include "hdf_base.h"
+#include "hdf_cstring.h"
+#include "hdf_device_node.h"
 #include "hdf_device_object.h"
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
@@ -144,15 +146,21 @@ static int32_t UsbPnpManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *manag
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
+    struct HdfDeviceNode *devNode = CONTAINER_OF(devObj, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("%s: failed to alloc device node object", __func__);
+        HdfDeviceObjectRelease(devObj);
+        return HDF_DEV_ERR_NO_DEVICE;
+    }
+    devNode->policy = SERVICE_POLICY_CAPACITY;
+    devNode->servName = HdfStringCopy(managerInfo->serviceName);
+    if (devNode->servName == NULL) {
+        HdfDeviceObjectRelease(devObj);
+        return HDF_DEV_ERR_NO_MEMORY;
+    }
+
     devObj->priv = (void *)managerInfo->privateData;
     ret = HdfDeviceObjectRegister(devObj);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to register device %s", __func__, managerInfo->serviceName);
-        HdfDeviceObjectRelease(devObj);
-        return ret;
-    }
-    ret = HdfDeviceObjectPublishService(devObj, managerInfo->serviceName, SERVICE_POLICY_CAPACITY,
-        OSAL_S_IREAD | OSAL_S_IWRITE | OSAL_S_IRGRP | OSAL_S_IWGRP | OSAL_S_IROTH);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: failed to register device %s", __func__, managerInfo->serviceName);
         HdfDeviceObjectRelease(devObj);
