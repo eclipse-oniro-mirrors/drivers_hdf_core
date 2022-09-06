@@ -66,7 +66,6 @@ enum tls_io_name g_gpioPinReflectionMap[WM_IO_MAX_GPIO_PIN_NUM] = {0};
 static struct wmGpioIrqHandler g_wmGpioIrqHandler[WM_IO_MAX_GPIO_PIN_NUM] = {0};
 enum tls_gpio_irq_trig g_gpioIrqCfg[WM_IO_MAX_GPIO_PIN_NUM] = {0};
 
-
 static GpioIrqFunc GpioIrqHdl()
 {
     uint16_t ret;
@@ -159,6 +158,9 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
         case GPIO_DIR_IN:
             dir = WM_GPIO_DIR_INPUT;
             break;
+        default:
+            HDF_LOGE("%s: invalid dir", __func__);
+            return HDF_ERR_INVALID_PARAM;
     }
 
     tls_gpio_cfg((enum tls_io_name)wmGpio, (enum tls_gpio_dir)dir, WM_GPIO_ATTR_FLOATING);
@@ -191,6 +193,9 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
         case OSAL_IRQF_TRIGGER_LOW:
             g_gpioIrqCfg[wmGpio] = WM_GPIO_IRQ_TRIG_LOW_LEVEL;
             break;
+        default:
+            HDF_LOGE("%s: invalid mode", __func__);
+            return HDF_ERR_INVALID_PARAM;
     }
 
     return HDF_SUCCESS;

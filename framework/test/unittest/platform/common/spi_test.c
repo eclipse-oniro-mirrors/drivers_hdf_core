@@ -343,7 +343,7 @@ static int32_t SpiSetDmaIntMsg(struct SpiMsg *msg, uint32_t len)
     msg->wbuf = wbuf;
     msg->rbuf = rbuf;
     msg->len = len;
-    msg->keepCs= 0,  // switch off the CS after transfer
+    msg->keepCs = 0,  // switch off the CS after transfer
     msg->delayUs = 0;
     msg->speed = 0;    // using default speed
     return HDF_SUCCESS;

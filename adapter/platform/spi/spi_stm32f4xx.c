@@ -205,7 +205,7 @@ static void EnableSpiClock(uint32_t spiNum)
     }
 }
 
-static SPI_CONTEXT_T spiContext[SPI_PORT3] = {
+static SPI_CONTEXT_T g_spiContext[SPI_PORT3] = {
     {
         .sem = {NULL},
         .mutex = {NULL},
@@ -245,7 +245,7 @@ static int32_t HalSpiSend(const SpiDevice *spiDevice, const uint8_t *data, uint1
     } else {
         uint8_t readData;
         while (size--) {
-            readData = LL_SPI_Transmit(spiContext[spiId].spix, *data);
+            readData = LL_SPI_Transmit(g_spiContext[spiId].spix, *data);
             data++;
         }
     }
@@ -282,7 +282,7 @@ static int32_t HalSpiRecv(const SpiDevice *spiDevice, uint8_t *data, uint16_t si
         return HDF_ERR_INVALID_PARAM; // unsupport now
     } else {
         while (len--) {
-            *data = LL_SPI_Transmit(spiContext[spiId].spix, *cmd);
+            *data = LL_SPI_Transmit(g_spiContext[spiId].spix, *cmd);
             data++;
             cmd++;
         }
@@ -308,7 +308,7 @@ static int32_t HalSpiSendRecv(const SpiDevice *spiDevice, uint8_t *txData,
         return HDF_ERR_INVALID_PARAM; // unsupport now
     } else {
         while (rxSize--) {
-            *rxData = LL_SPI_Transmit(spiContext[spiId].spix, *txData);
+            *rxData = LL_SPI_Transmit(g_spiContext[spiId].spix, *txData);
             rxData++;
             txData++;
         }
@@ -389,7 +389,7 @@ static int32_t InitSpiDevice(const SpiDevice *spiDevice)
     InitSpiInitStruct(&spiInitStruct, resource);
     SPI_TypeDef* spix = g_spiGroupMaps[resource->spix];
 
-    spiContext[spiPort].spix = spix;
+    g_spiContext[spiPort].spix = spix;
     LL_SPI_Disable(spix);
     uint8_t ret = LL_SPI_Init(spix, &spiInitStruct);
     if (ret != 0) {

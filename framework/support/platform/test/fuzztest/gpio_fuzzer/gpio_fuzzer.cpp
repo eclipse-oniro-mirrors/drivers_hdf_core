@@ -19,7 +19,7 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 2;
-constexpr uint16_t gpioTestNum = 3;
+constexpr uint16_t GPIO_TEST_NUM = 3;
 }
 
 struct AllParameters {
@@ -44,13 +44,13 @@ static bool GpioFuzzTest(const uint8_t *data, size_t size)
     number = randNum(MIN, MAX);
     switch (static_cast<ApiTestCmd>(number)) {
         case ApiTestCmd::GPIO_FUZZ_WRITE:
-            GpioWrite(gpioTestNum, params->descVal);
+            GpioWrite(GPIO_TEST_NUM, params->descVal);
             break;
         case ApiTestCmd::GPIO_FUZZ_SET_DIR:
-            GpioSetDir(gpioTestNum, params->descDir);
+            GpioSetDir(GPIO_TEST_NUM, params->descDir);
             break;
         case ApiTestCmd::GPIO_FUZZ_SET_IRQ:
-            GpioSetIrq(gpioTestNum, params->descMode, GpioTestIrqHandler, &data);
+            GpioSetIrq(GPIO_TEST_NUM, params->descMode, GpioTestIrqHandler, &data);
             break;
         default:
             break;
