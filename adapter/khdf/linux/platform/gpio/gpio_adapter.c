@@ -38,7 +38,7 @@ static int32_t LinuxGpioWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t 
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    gpio_set_value(cntlr->start + local, val);
+    gpio_set_value_cansleep(cntlr->start + local, val);
     return HDF_SUCCESS;
 }
 
