@@ -599,6 +599,17 @@ AutoPtr<ASTParameter> Parser::ParseParam()
         lexer_.GetToken();
     }
 
+    if (paramType != nullptr && paramType->IsInterfaceType()) {
+        AutoPtr<ASTInterfaceType> ifaceType = dynamic_cast<ASTInterfaceType *>(paramType.Get());
+        if (ifaceType->IsCallback() && paramAttr->value_ != ParamAttr::PARAM_IN) {
+            LogError(token, StringHelper::Format("'%s' parameter of callback interface type must be 'in' attribute",
+                paramName.c_str()));
+        } else if (!ifaceType->IsCallback() && paramAttr->value_ != ParamAttr::PARAM_OUT) {
+            LogError(token, StringHelper::Format("'%s' parameter of interface type must be 'out' attribute",
+                paramName.c_str()));
+        }
+    }
+
     return new ASTParameter(paramName, paramAttr, paramType);
 }
 
@@ -1524,7 +1535,7 @@ bool Parser::CheckPackageName(const std::string &filePath, const std::string &pa
 {
     std::string pkgToPath = Options::GetInstance().GetPackagePath(packageName);
 
-    size_t index = filePath.rfind(File::separator);
+    size_t index = filePath.rfind(SEPARATOR);
     if (index == std::string::npos) {
         return false;
     }

@@ -46,6 +46,8 @@ void CppServiceDriverCodeEmitter::EmitDriverSourceFile()
     EmitLicense(sb);
     EmitDriverInclusions(sb);
     sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(baseName_ + "Driver"));
+    sb.Append("\n");
     EmitDriverUsings(sb);
     sb.Append("\n");
     EmitDriverServiceDecl(sb);

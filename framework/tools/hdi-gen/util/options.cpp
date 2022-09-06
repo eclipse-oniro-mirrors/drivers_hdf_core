@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "util/common.h"
 #include "util/file.h"
 #include "util/string_helper.h"
 
@@ -287,15 +288,15 @@ std::string Options::GetPackagePath(const std::string &package)
 
     if (rootPackage.empty()) {
         // The current path is the root path
-        std::string curPath = File::AdapterPath(StringHelper::Replace(package, '.', File::separator));
+        std::string curPath = File::AdapterPath(StringHelper::Replace(package, '.', SEPARATOR));
         return File::AdapterRealPath(curPath);
     }
 
-    if (StringHelper::EndWith(rootPath, File::separator)) {
+    if (StringHelper::EndWith(rootPath, SEPARATOR)) {
         rootPath = rootPath.substr(0, rootPath.size() - 1);
     }
 
-    std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', File::separator);
+    std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', SEPARATOR);
     return File::AdapterPath(rootPath + "/" + subPath);
 }
 
@@ -313,7 +314,7 @@ std::string Options::GetImportFilePath(const std::string &import)
 
     std::string dir = GetPackagePath(StringHelper::SubStr(import, 0, index));
     std::string ClassName = import.substr(index + 1);
-    return StringHelper::Format("%s%c%s.idl", dir.c_str(), File::separator, ClassName.c_str());
+    return StringHelper::Format("%s%c%s.idl", dir.c_str(), SEPARATOR, ClassName.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

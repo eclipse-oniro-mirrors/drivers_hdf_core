@@ -154,6 +154,8 @@ void CppServiceStubCodeEmitter::EmitStubSourceFile()
     EmitLicense(sb);
     EmitStubSourceInclusions(sb);
     sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(stubName_));
+    sb.Append("\n");
     EmitBeginNamespace(sb);
     UtilMethodMap utilMethods;
     GetUtilMethods(utilMethods);

@@ -44,8 +44,6 @@ protected:
 
     void EmitTailExternC(StringBuilder &sb);
 
-    std::string EmitDescMacroName();
-
     std::string MacroName(const std::string &name);
 
     std::string ConstantName(const std::string &name);

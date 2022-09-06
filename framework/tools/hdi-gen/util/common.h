@@ -13,6 +13,12 @@ namespace OHOS {
 namespace HDI {
     constexpr const char *TAB = "    ";
     constexpr const char *TAG = "HDI-GEN";
+
+#ifndef __MINGW32__
+    constexpr char SEPARATOR = '/';
+#else
+    constexpr char SEPARATOR = '\\';
+#endif
 }
 }
 

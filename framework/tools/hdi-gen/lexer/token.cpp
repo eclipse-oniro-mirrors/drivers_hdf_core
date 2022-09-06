@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 
+#include "util/common.h"
 #include "util/file.h"
 #include "util/string_builder.h"
 #include "util/string_helper.h"
@@ -26,7 +27,7 @@ std::string Token::Dump()
 
 std::string LocInfo(const Token &token)
 {
-    size_t index = token.location_.filePath_.rfind(File::separator);
+    size_t index = token.location_.filePath_.rfind(SEPARATOR);
     std::string fileName =
         (index == std::string::npos) ? token.location_.filePath_ : token.location_.filePath_.substr(index + 1);
     return StringHelper::Format("%s:%u:%u", fileName.c_str(), token.location_.row_, token.location_.col_);

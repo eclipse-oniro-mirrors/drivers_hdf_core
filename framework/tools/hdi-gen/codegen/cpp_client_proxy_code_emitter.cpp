@@ -146,12 +146,14 @@ void CppClientProxyCodeEmitter::EmitProxyMethodParameter(
 void CppClientProxyCodeEmitter::EmitProxySourceFile()
 {
     std::string filePath =
-        File::AdapterPath(StringHelper::Format("%s/%s.cpp", directory_.c_str(), FileName(baseName_ + "Proxy").c_str()));
+        File::AdapterPath(StringHelper::Format("%s/%s.cpp", directory_.c_str(), FileName(proxyName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
     EmitLicense(sb);
     EmitProxySourceInclusions(sb);
+    sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(proxyName_));
     sb.Append("\n");
     EmitBeginNamespace(sb);
     sb.Append("\n");

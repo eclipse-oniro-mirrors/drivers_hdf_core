@@ -50,8 +50,10 @@ void CServiceStubCodeEmitter::EmitServiceStubHeaderFile()
     EmitHeadExternC(sb);
     sb.Append("\n");
     EmitCbServiceStubDef(sb);
-    sb.Append("\n");
-    EmitCbServiceStubMethodsDcl(sb);
+    if (isKernelCode_) {
+        sb.Append("\n");
+        EmitCbServiceStubMethodsDcl(sb);
+    }
     sb.Append("\n");
     EmitTailExternC(sb);
     sb.Append("\n");
@@ -70,7 +72,7 @@ void CServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
     headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
 
-    if (interface_->IsSerializable()) {
+    if (!isKernelCode_) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_remote_service");
     }
 
@@ -81,28 +83,22 @@ void CServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
 
 void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb)
 {
-    sb.AppendFormat("struct %sStub\n", baseName_.c_str());
-    sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("struct %s interface;\n", interfaceName_.c_str());
-
-    if (interface_->IsSerializable()) {
-        sb.Append(TAB).Append("struct HdfRemoteService *remote;\n");
-        sb.Append(TAB).Append("struct HdfRemoteDispatcher dispatcher;\n");
-    } else {
+    sb.AppendFormat("struct %sStub {\n", baseName_.c_str());
+    if (isKernelCode_) {
+        sb.Append(TAB).AppendFormat("struct %s interface;\n", interfaceName_.c_str());
         sb.Append(TAB).AppendFormat("int32_t (*OnRemoteRequest)(struct %s *serviceImpl, ", interfaceName_.c_str());
         sb.Append("int code, struct HdfSBuf *data, struct HdfSBuf *reply);\n");
+    } else {
+        sb.Append(TAB).Append("struct HdfRemoteService *remote;\n");
+        sb.Append(TAB).AppendFormat("struct %s *interface;\n", interfaceName_.c_str());
+        sb.Append(TAB).Append("struct HdfRemoteDispatcher dispatcher;\n");
     }
-
     sb.Append("};\n");
 }
 
 void CServiceStubCodeEmitter::EmitCbServiceStubMethodsDcl(StringBuilder &sb)
 {
     sb.AppendFormat("bool %sStubConstruct(struct %sStub *stub);\n", baseName_.c_str(), baseName_.c_str());
-
-    if (interface_->IsSerializable()) {
-        sb.AppendFormat("void %sStubRelease(struct %sStub *stub);\n", baseName_.c_str(), baseName_.c_str());
-    }
 }
 
 void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
@@ -115,20 +111,40 @@ void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
     EmitLicense(sb);
     EmitStubSourceInclusions(sb);
     sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(stubName_));
+    if (!isKernelCode_ && !interface_->IsSerializable()) {
+        sb.Append("\n");
+        EmitExternalMethodImpl(sb);
+    }
+    sb.Append("\n");
     UtilMethodMap utilMethods;
     GetUtilMethods(utilMethods);
     EmitUtilMethods(sb, "", utilMethods, true);
     sb.Append("\n");
     EmitUtilMethods(sb, "", utilMethods, false);
     EmitServiceStubMethodImpls(sb, "");
-    sb.Append("\n");
-    EmitStubOnRequestMethodImpl(sb, "");
-    sb.Append("\n");
-    EmitStubGetMethodImpl(sb);
 
-    if (!isKernelCode_ && interface_->IsSerializable()) {
+    if (isKernelCode_) {
         sb.Append("\n");
-        EmitStubReleaseImpl(sb);
+        EmitKernelStubOnRequestMethodImpl(sb, "");
+        sb.Append("\n");
+        EmitKernelStubConstruct(sb);
+    } else {
+        sb.Append("\n");
+        EmitStubOnRequestMethodImpl(sb, "");
+        if (!interface_->IsSerializable()) {
+            sb.Append("\n");
+            EmitStubRemoteDispatcher(sb);
+        }
+
+        sb.Append("\n");
+        EmitStubNewInstance(sb);
+        sb.Append("\n");
+        EmitStubReleaseMethod(sb);
+        sb.Append("\n");
+        EmitStubConstructor(sb);
+        sb.Append("\n");
+        EmitStubRegAndUnreg(sb);
     }
 
     std::string data = sb.ToString();
@@ -153,6 +169,12 @@ void CServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFile
 {
     if (!isKernelCode_) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
+        headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_dlist");
+        headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "stub_collector");
+
+        if (!interface_->IsSerializable()) {
+            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_support");
+        }
     } else {
         const AST::TypeStringMap &types = ast_->GetTypes();
         for (const auto &pair : types) {
@@ -164,13 +186,72 @@ void CServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFile
         }
     }
 
-    if (interface_->IsSerializable()) {
-        headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_dlist");
-    }
-
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
+}
+
+void CServiceStubCodeEmitter::EmitExternalMethodImpl(StringBuilder &sb)
+{
+    EmitGetMethodImpl(sb);
+    sb.Append("\n");
+    EmitGetInstanceMehtodImpl(sb);
+    sb.Append("\n");
+    EmitReleaseMethodImpl(sb);
+    sb.Append("\n");
+    EmitReleaseInstanceMethodImpl(sb);
+}
+
+void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb)
+{
+    sb.AppendFormat("struct %s *%sGet(bool isStub)\n", interfaceName_.c_str(), interfaceName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).AppendFormat(
+        "return %sGetInstance(\"%s\", isStub);\n", interfaceName_.c_str(), FileName(implName_).c_str());
+    sb.Append("}\n");
+}
+
+void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb)
+{
+    sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub)\n", interfaceName_.c_str(),
+        interfaceName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).Append("if (!isStub) {\n");
+    sb.Append(TAB).Append(TAB).Append("return NULL;\n");
+    sb.Append(TAB).Append("}\n\n");
+    sb.Append(TAB).AppendFormat("const char *instName = serviceName;\n");
+    sb.Append(TAB).AppendFormat("if (strcmp(serviceName, \"%s\") == 0) {\n", FileName(implName_).c_str());
+    sb.Append(TAB).Append(TAB).Append("instName = \"service\";\n");
+    sb.Append(TAB).Append("}\n");
+    sb.Append(TAB).AppendFormat("return (struct %s *)LoadHdiImpl(%s, instName);\n",
+        interfaceName_.c_str(), interface_->EmitDescMacroName().c_str());
+    sb.Append("}\n");
+}
+
+void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb)
+{
+    sb.AppendFormat(
+        "void %sRelease(struct %s *instance, bool isStub)\n", interfaceName_.c_str(), interfaceName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).AppendFormat(
+        "%sReleaseInstance(\"%s\", instance, isStub);\n", interfaceName_.c_str(), FileName(implName_).c_str());
+    sb.Append("}\n");
+}
+
+void CServiceStubCodeEmitter::EmitReleaseInstanceMethodImpl(StringBuilder &sb)
+{
+    sb.AppendFormat("void %sReleaseInstance(const char *serviceName, struct %s *instance, bool isStub)\n",
+        interfaceName_.c_str(), interfaceName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).Append("if (serviceName == NULL || !isStub || instance == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("return;\n");
+    sb.Append(TAB).Append("}\n");
+    sb.Append(TAB).Append("const char *instName = serviceName;\n");
+    sb.Append(TAB).AppendFormat("if (strcmp(serviceName, \"%s\") == 0) {\n", FileName(implName_).c_str());
+    sb.Append(TAB).Append(TAB).Append("instName = \"service\";\n");
+    sb.Append(TAB).Append("}\n");
+    sb.Append(TAB).AppendFormat("UnloadHdiImpl(%s, instName, instance);\n", interface_->EmitDescMacroName().c_str());
+    sb.Append("}\n");
 }
 
 void CServiceStubCodeEmitter::EmitServiceStubMethodImpls(StringBuilder &sb, const std::string &prefix)
@@ -447,12 +528,12 @@ void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, cons
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CServiceStubCodeEmitter::EmitKernelStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
     std::string remoteName = "remote";
     std::string implName = "serviceImpl";
     std::string codeName = "code";
-    std::string funcName = StringHelper::Format("%sOnRemoteRquest", baseName_.c_str());
+    std::string funcName = StringHelper::Format("%sOnRemoteRequest", baseName_.c_str());
     if (interface_->IsSerializable()) {
         sb.Append(prefix).AppendFormat(
             "static int32_t %s(struct HdfRemoteService *%s, ", funcName.c_str(), remoteName.c_str());
@@ -462,17 +543,6 @@ void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, con
     }
     sb.AppendFormat("int %s, struct HdfSBuf *data, struct HdfSBuf *reply)\n", codeName.c_str());
     sb.Append(prefix).Append("{\n");
-
-    if (interface_->IsSerializable()) {
-        sb.Append(prefix + TAB).AppendFormat("struct %s *%s = (struct %s*)%s;\n", interfaceName_.c_str(),
-            implName.c_str(), interfaceName_.c_str(), remoteName.c_str());
-        sb.Append(prefix + TAB).AppendFormat("if (!HdfRemoteServiceCheckInterfaceToken(%s->AsObject(%s), data)) {\n",
-            implName.c_str(), implName.c_str());
-        sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: interface token check failed\", __func__);\n");
-        sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
-        sb.Append(prefix + TAB).Append("}\n\n");
-    }
-
     sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.c_str());
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -480,7 +550,6 @@ void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, con
         sb.Append(prefix + TAB + TAB + TAB)
             .AppendFormat("return SerStub%s(%s, data, reply);\n", method->GetName().c_str(), implName.c_str());
     }
-
     AutoPtr<ASTMethod> getVerMethod = interface_->GetVersionMethod();
     sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).c_str());
     sb.Append(prefix + TAB + TAB + TAB)
@@ -495,60 +564,152 @@ void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, con
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubGetMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitKernelStubConstruct(StringBuilder &sb)
 {
     std::string stubTypeName = StringHelper::Format("%sStub", baseName_.c_str());
     std::string objName = "stub";
-    std::string funcName = StringHelper::Format("%sOnRemoteRquest", baseName_.c_str());
+    std::string funcName = StringHelper::Format("%sOnRemoteRequest", baseName_.c_str());
 
-    sb.AppendFormat("bool %sConstruct(struct %s *%s)\n", stubTypeName.c_str(), stubTypeName.c_str(), objName.c_str());
+    sb.AppendFormat(
+        "bool %sConstruct(struct %s *%s)\n", stubTypeName.c_str(), stubTypeName.c_str(), objName.c_str());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: stub is null!\", __func__);\n");
     sb.Append(TAB).Append(TAB).Append("return false;\n");
     sb.Append(TAB).Append("}\n\n");
-
-    if (interface_->IsSerializable()) {
-        sb.Append(TAB).AppendFormat("%s->dispatcher.Dispatch = %s;\n", objName.c_str(), funcName.c_str());
-        sb.Append(TAB).AppendFormat("%s->remote = HdfRemoteServiceObtain((struct HdfObject*)%s, &(%s->dispatcher));\n",
-            objName.c_str(), objName.c_str(), objName.c_str());
-        sb.Append(TAB).AppendFormat("if (%s->remote == NULL) {\n", objName.c_str());
-        sb.Append(TAB).Append(TAB).AppendFormat(
-            "HDF_LOGE(\"%%{public}s: %s->remote is null\", __func__);\n", objName.c_str());
-        sb.Append(TAB).Append(TAB).Append("return false;\n");
-        sb.Append(TAB).Append("}\n\n");
-
-        sb.Append(TAB).AppendFormat(
-            "if (!HdfRemoteServiceSetInterfaceDesc(%s->remote, %s)) {\n", objName.c_str(), EmitDescMacroName().c_str());
-        sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: ");
-        sb.Append("failed to set remote service interface descriptor\", __func__);\n");
-        sb.Append(TAB).Append(TAB).AppendFormat("%sRelease(%s);\n", stubTypeName.c_str(), objName.c_str());
-        sb.Append(TAB).Append(TAB).Append("return false;\n");
-        sb.Append(TAB).Append("}\n\n");
-    } else {
-        sb.Append(TAB).AppendFormat("%s->OnRemoteRequest = %s;\n", objName.c_str(), funcName.c_str());
-    }
-
-    if (!isKernelCode_) {
-        sb.Append(TAB).AppendFormat("%s->interface.AsObject = %sAsObject;\n", objName.c_str(), stubTypeName.c_str());
-    }
+    sb.Append(TAB).AppendFormat("%s->OnRemoteRequest = %s;\n", objName.c_str(), funcName.c_str());
     sb.Append(TAB).Append("return true;\n");
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubReleaseImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
-    std::string objName = "stub";
-    std::string stubTypeName = StringHelper::Format("%sStub", baseName_.c_str());
-    sb.AppendFormat("void %sRelease(struct %s *%s)\n", stubTypeName.c_str(), stubTypeName.c_str(), objName.c_str());
+    std::string remoteName = "remote";
+    std::string implName = "serviceImpl";
+    std::string codeName = "code";
+    std::string funcName = StringHelper::Format("%sOnRemoteRequest", baseName_.c_str());
+    sb.Append(prefix).AppendFormat("static int32_t %s(struct HdfRemoteService *%s, ", funcName.c_str(),
+        remoteName.c_str());
+    sb.AppendFormat("int %s, struct HdfSBuf *data, struct HdfSBuf *reply)\n", codeName.c_str());
+    sb.Append(prefix).Append("{\n");
+
+    sb.Append(prefix + TAB).AppendFormat("struct %s *stub = (struct %s*)%s;\n", stubName_.c_str(),
+        stubName_.c_str(), remoteName.c_str());
+    sb.Append(prefix + TAB).Append("if (stub == NULL || stub->remote == NULL || stub->interface == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid stub object\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_OBJECT;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    sb.Append(prefix + TAB).AppendFormat("if (!HdfRemoteServiceCheckInterfaceToken(stub->%s, data)) {\n",
+        remoteName.c_str());
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: interface token check failed\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.c_str());
+    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
+        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+        sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
+        sb.Append(prefix + TAB + TAB + TAB)
+            .AppendFormat("return SerStub%s(stub->interface, data, reply);\n", method->GetName().c_str());
+    }
+
+    AutoPtr<ASTMethod> getVerMethod = interface_->GetVersionMethod();
+    sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).c_str());
+    sb.Append(prefix + TAB + TAB + TAB)
+        .AppendFormat("return SerStub%s(stub->interface, data, reply);\n", getVerMethod->GetName().c_str());
+
+    sb.Append(prefix + TAB + TAB).Append("default: {\n");
+    sb.Append(prefix + TAB + TAB + TAB)
+        .AppendFormat("HDF_LOGE(\"%%{public}s: not support cmd %%{public}d\", __func__, %s);\n", codeName.c_str());
+    sb.Append(prefix + TAB + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix + TAB + TAB).Append("}\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append("}\n");
+}
+
+void CServiceStubCodeEmitter::EmitStubRemoteDispatcher(StringBuilder &sb)
+{
+    std::string dispatcherName = StringHelper::Format("g_%sDispatcher", StringHelper::StrToLower(baseName_).c_str());
+    sb.AppendFormat("static struct HdfRemoteDispatcher %s = {\n", dispatcherName.c_str());
+    sb.Append(TAB).AppendFormat(".Dispatch = %sOnRemoteRequest,\n", baseName_.c_str());
+    sb.Append(TAB).Append(".DispatchAsync = NULL,\n");
+    sb.Append("};\n");
+}
+
+void CServiceStubCodeEmitter::EmitStubNewInstance(StringBuilder &sb)
+{
+    std::string dispatcherName = StringHelper::Format("g_%sDispatcher", StringHelper::StrToLower(baseName_).c_str());
+    sb.AppendFormat("static struct HdfRemoteService **%sNewInstance(void *impl)\n", stubName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
-    sb.Append(TAB).Append(TAB).Append("return;\n");
+    sb.Append(TAB).Append("if (impl == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: impl is null\", __func__);\n");
+    sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
 
-    sb.Append(TAB).AppendFormat("HdfRemoteServiceRecycle(%s->remote);\n", objName.c_str());
-    sb.Append(TAB).AppendFormat("%s->remote = NULL;\n", objName.c_str());
-    sb.Append("}");
+    sb.Append(TAB).AppendFormat("struct %s *serviceImpl = (struct %s *)impl;\n", interfaceName_.c_str(),
+        interfaceName_.c_str());
+    sb.Append(TAB).AppendFormat("struct %s *stub = OsalMemCalloc(sizeof(struct %s));\n", stubName_.c_str(),
+        stubName_.c_str());
+    sb.Append(TAB).Append("if (stub == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: failed to malloc stub object\", __func__);\n");
+    sb.Append(TAB).Append(TAB).Append("return NULL;\n");
+    sb.Append(TAB).Append("}\n");
+
+    if (interface_->IsSerializable()) {
+        sb.Append(TAB).Append("stub->remote = HdfRemoteServiceObtain((struct HdfObject *)stub, &stub->dispatcher);\n");
+    } else {
+        sb.Append(TAB).AppendFormat("stub->remote = HdfRemoteServiceObtain((struct HdfObject *)stub, &%s);\n",
+            dispatcherName.c_str());
+    }
+
+    sb.Append(TAB).Append("if (stub->remote == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("OsalMemFree(stub);\n");
+    sb.Append(TAB).Append(TAB).Append("return NULL;\n");
+    sb.Append(TAB).Append("}\n");
+    sb.Append(TAB).AppendFormat("(void)HdfRemoteServiceSetInterfaceDesc(stub->remote, %s);\n",
+        interface_->EmitDescMacroName().c_str());
+    sb.Append(TAB).AppendFormat("stub->dispatcher.Dispatch = %sOnRemoteRequest;\n", baseName_.c_str());
+    sb.Append(TAB).Append("stub->interface = serviceImpl;\n");
+    sb.Append(TAB).AppendFormat("stub->interface->AsObject = %sStubAsObject;\n", baseName_.c_str());
+    sb.Append(TAB).Append("return &stub->remote;\n");
+    sb.Append("}\n");
+}
+
+void CServiceStubCodeEmitter::EmitStubReleaseMethod(StringBuilder &sb)
+{
+    sb.AppendFormat("static void %sRelease(struct HdfRemoteService **remote)\n", stubName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).Append("if (remote == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("return;\n");
+    sb.Append(TAB).Append("}\n");
+    sb.Append(TAB).AppendFormat("struct %s *stub = CONTAINER_OF(remote, struct %s, remote);\n",
+        stubName_.c_str(), stubName_.c_str());
+    sb.Append(TAB).Append("HdfRemoteServiceRecycle(stub->remote);\n");
+    sb.Append(TAB).Append("OsalMemFree(stub);\n");
+    sb.Append("}\n");
+}
+
+void CServiceStubCodeEmitter::EmitStubConstructor(StringBuilder &sb)
+{
+    std::string constructorName = StringHelper::Format("g_%sConstructor", StringHelper::StrToLower(baseName_).c_str());
+    sb.AppendFormat("__attribute__((unused)) static struct StubConstructor %s = {\n", constructorName.c_str());
+    sb.Append(TAB).AppendFormat(".constructor = %sNewInstance,\n", stubName_.c_str());
+    sb.Append(TAB).AppendFormat(".destructor = %sRelease,\n", stubName_.c_str());
+    sb.Append("};\n");
+}
+
+void CServiceStubCodeEmitter::EmitStubRegAndUnreg(StringBuilder &sb)
+{
+    std::string constructorName = StringHelper::Format("g_%sConstructor", StringHelper::StrToLower(baseName_).c_str());
+    sb.AppendFormat("__attribute__((constructor)) static void %sRegister(void)\n", stubName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).AppendFormat(
+        "HDF_LOGI(\"%%{public}s: register stub constructor of '%%{public}s'\", __func__, %s);\n",
+        interface_->EmitDescMacroName().c_str());
+    sb.Append(TAB).AppendFormat("StubConstructorRegister(%s, &%s);\n", interface_->EmitDescMacroName().c_str(),
+        constructorName.c_str());
+    sb.Append("}\n");
 }
 
 void CServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)

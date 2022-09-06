@@ -109,7 +109,7 @@ bool Preprocessor::ParseFileDetail(const std::string &sourceFile, FileDetail &in
     }
 
     info.filePath_ = lexer.GetFilePath();
-    size_t startIndex = info.filePath_.rfind(File::separator);
+    size_t startIndex = info.filePath_.rfind(SEPARATOR);
     size_t endIndex = info.filePath_.rfind(".idl");
     if (startIndex == std::string::npos || endIndex == std::string::npos || (startIndex >= endIndex)) {
         Logger::E(TAG, "failed to get file name from '%s'.", info.filePath_.c_str());
