@@ -66,6 +66,9 @@ function activate(context) {
                     break;
                 case 'open_page':
                     break;
+                case 'error':
+                    vscode.window.showErrorMessage(msg.data);
+                    break
                 default:
                     vscode.window.showInformationMessage(msg.type);
                     vscode.window.showInformationMessage(msg.data);

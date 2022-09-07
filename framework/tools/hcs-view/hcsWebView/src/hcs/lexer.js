@@ -140,8 +140,8 @@ class Lexer {
             } else if (c[0] == -1) {
                 token.type = -1;
                 break;
-            } else{
-                NapiLog.logError("can not recognized character '" + toStr(c) + "'" + this.bufferStart_);
+            } else {
+                dealWithError("can not recognized character '" + toStr(c) + "'" + this.bufferStart_);
                 return false;
             }
         } while (true);
@@ -313,7 +313,7 @@ class Lexer {
         }
 
         if (errno != 0) {
-            NapiLog.logError("illegal number: " + param.value)
+            dealWithError("illegal number: " + param.value)
             return false;
         }
         token.type = TokenType.NUMBER;
@@ -332,7 +332,7 @@ class Lexer {
         }
 
         if (c != code('"')) {
-            NapiLog.logError("unterminated string");
+            dealWithError("unterminated string");
             return false;
         }
         token.type = TokenType.STRING;
@@ -344,7 +344,7 @@ class Lexer {
         let c = [];
         this.consumeChar();// skip first '/'
         if (!this.getChar(c, true)) {
-            NapiLog.logError("unterminated comment");
+            dealWithError("unterminated comment");
             return false;
         }
 
@@ -353,7 +353,7 @@ class Lexer {
                 if(!this.getChar(c, true)) break;
             }
             if (c[0] != code('\n') && c[0] != TokenType.EOF) {
-                NapiLog.logError("unterminated signal line comment");
+                dealWithError("unterminated signal line comment");
                 return false;
             }
         } else if (c[0] == code('*')) {
@@ -363,15 +363,20 @@ class Lexer {
                 }
             }
             if (c[0] != code('/')) {
-                NapiLog.logError("unterminated multi-line comment");
+                dealWithError("unterminated multi-line comment");
                 return false;
             }
         } else {
-            NapiLog.logError("invalid character");
+            dealWithError("invalid character");
             return false;
         }
 
         return true;
+    }
+
+    dealWithError(message) {
+        XMessage.gi().send("error", message);
+        NapiLog.logError(message + '\'');
     }
 }
 Lexer.FILE_AND_DATA = {};
