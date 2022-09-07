@@ -45,10 +45,31 @@ static int32_t GetAllLightInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
             continue;
         }
         lightInfo.lightId = i;
-        lightInfo.reserved = 0;
 
-        if (!HdfSbufWriteBuffer(reply, &lightInfo, sizeof(lightInfo))) {
-            HDF_LOGE("%s: write sbuf failed", __func__);
+        if (!HdfSbufWriteUint32(reply, lightInfo.lightId)) {
+            HDF_LOGE("%s: write lightId failed", __func__);
+            return HDF_FAILURE;
+        }
+
+        if (strcpy_s(lightInfo.lightName, NAME_MAX_LEN, drvData->info[i]->lightInfo.lightName) != EOK) {
+            HDF_LOGE("%s:copy lightName failed!", __func__);
+            return HDF_FAILURE;
+        }
+
+        if (!HdfSbufWriteString(reply, (const char *)lightInfo.lightName)) {
+            HDF_LOGE("%s: write lightName failed", __func__);
+            return HDF_FAILURE;
+        }
+
+        lightInfo.lightNumber = drvData->info[i]->lightInfo.lightNumber;
+        if (!HdfSbufWriteUint32(reply, lightInfo.lightNumber)) {
+            HDF_LOGE("%s: write lightNumber failed", __func__);
+            return HDF_FAILURE;
+        }
+
+        lightInfo.reserved = 0;
+        if (!HdfSbufWriteUint32(reply, lightInfo.reserved)) {
+            HDF_LOGE("%s: write reserved failed", __func__);
             return HDF_FAILURE;
         }
     }
@@ -183,7 +204,17 @@ static int32_t TurnOnLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBu
         return HDF_FAILURE;
     }
 
-    drvData->info[lightId]->lightBrightness = buf->lightBrightness;
+    if (buf->lightColor.colorValue.rgbColor.r != 0) {
+        drvData->info[lightId]->lightBrightness |= 0X00FF0000;
+    }
+
+    if (buf->lightColor.colorValue.rgbColor.g != 0) {
+        drvData->info[lightId]->lightBrightness |= 0X0000FF00;
+    }
+
+    if (buf->lightColor.colorValue.rgbColor.b != 0) {
+        drvData->info[lightId]->lightBrightness |= 0X000000FF;
+    }
 
     if (buf->flashEffect.flashMode == LIGHT_FLASH_NONE) {
         return UpdateLight(lightId, LIGHT_STATE_START);
@@ -209,6 +240,15 @@ static int32_t TurnOnLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBu
     return HDF_SUCCESS;
 }
 
+static int32_t TurnOnMultiLights(uint32_t lightId, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    (void)lightId;
+    (void)data;
+    (void)reply;
+    HDF_LOGI("%s: temporarily not supported turn on multi lights ", __func__);
+    return HDF_SUCCESS;
+}
+
 static int32_t TurnOffLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)data;
@@ -229,6 +269,7 @@ static int32_t TurnOffLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSB
     }
 
     drvData->info[lightId]->lightState = LIGHT_STATE_STOP;
+    drvData->info[lightId]->lightBrightness = 0;
 
     if (drvData->timer.realTimer != NULL) {
         if (OsalTimerDelete(&drvData->timer) != HDF_SUCCESS) {
@@ -243,6 +284,7 @@ static int32_t TurnOffLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSB
 static struct LightCmdHandleList g_lightCmdHandle[] = {
     {LIGHT_OPS_IO_CMD_ENABLE, TurnOnLight},
     {LIGHT_OPS_IO_CMD_DISABLE, TurnOffLight},
+    {LIGHT_OPS_IO_CMD_ENABLE_MULTI_LIGHTS, TurnOnMultiLights},
 };
 
 static int32_t DispatchCmdHandle(uint32_t lightId, struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -320,6 +362,7 @@ static int32_t GetLightBaseConfigData(const struct DeviceResourceNode *node, con
     int32_t ret;
     uint32_t *defaultBrightness = NULL;
     struct LightDriverData *drvData = NULL;
+    const char *name = NULL;
 
     drvData = GetLightDrvData();
     CHECK_LIGHT_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
@@ -345,6 +388,23 @@ static int32_t GetLightBaseConfigData(const struct DeviceResourceNode *node, con
     ret = parser->GetUint32(node, "busBNum", (uint32_t *)&drvData->info[lightId]->busBNum, 0);
     if (ret != HDF_SUCCESS) {
         drvData->info[lightId]->busBNum = LIGHT_INVALID_GPIO;
+    }
+
+    ret = parser->GetString(node, "lightName", &name, NULL);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s:get lightName failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (strcpy_s(drvData->info[lightId]->lightInfo.lightName, NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy lightName failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetUint32(node, "lightNumber", (uint32_t *)&drvData->info[lightId]->lightInfo.lightNumber, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s:get lightNumber failed!", __func__);
+        return HDF_FAILURE;
     }
 
     defaultBrightness = (uint32_t *)&drvData->info[lightId]->defaultBrightness;

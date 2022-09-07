@@ -25,7 +25,9 @@
 
 #define LIGHT_INVALID_GPIO    (-1)
 
-#define LIGHT_ID_NUM      4
+#define LIGHT_ID_NUM    4
+
+#define NAME_MAX_LEN    16
 
 #define CHECK_LIGHT_NULL_PTR_RETURN_VALUE(ptr, ret) do { \
     if ((ptr) == NULL) { \
@@ -55,8 +57,9 @@ enum LightIoCmd {
 };
 
 enum LightOpsCmd {
-    LIGHT_OPS_IO_CMD_ENABLE        = 0,
-    LIGHT_OPS_IO_CMD_DISABLE       = 1,
+    LIGHT_OPS_IO_CMD_ENABLE              = 0,
+    LIGHT_OPS_IO_CMD_DISABLE             = 1,
+    LIGHT_OPS_IO_CMD_ENABLE_MULTI_LIGHTS = 2,
     LIGHT_OPS_IO_CMD_END,
 };
 
@@ -86,13 +89,37 @@ struct LightFlashEffect {
     uint32_t offTime;
 };
 
+struct WRGBColor {
+    int w;
+    int r;
+    int g;
+    int b;
+};
+struct RGBColor {
+    int brightness;
+    int r;
+    int g;
+    int b;
+};
+
+union ColorValue {
+    struct RGBColor rgbColor;
+    struct WRGBColor wrgbColor;
+};
+
+struct LightColor {
+    union ColorValue colorValue;
+};
+
 struct LightEffect {
-    uint32_t lightBrightness;
+    struct LightColor lightColor;
     struct LightFlashEffect flashEffect;
 };
 
 struct LightInfo {
+    char lightName[NAME_MAX_LEN];
     uint32_t lightId;
+    uint32_t lightNumber;
     int32_t reserved;
 };
 
@@ -105,6 +132,7 @@ struct LightDeviceInfo {
     uint32_t defaultBrightness;
     uint32_t onTime;
     uint32_t offTime;
+    struct LightInfo lightInfo;
 };
 
 struct LightDriverData {
