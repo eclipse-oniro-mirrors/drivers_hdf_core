@@ -65,7 +65,6 @@ static int32_t I2cTestGetConfig(struct I2cTestConfig *config)
     }
 
     if (len != sizeof(*config)) {
-        HDF_LOGE("I2cTestGetConfig: config size:%u, but read size:%u!", sizeof(*config), len);
         ret = HDF_ERR_IO;
         goto EXIT;
     }
@@ -348,8 +347,7 @@ static int32_t I2cTestPeformance(void)
 
     if (handle != NULL) {
         useTime = endMs - startMs;
-        HDF_LOGI("----->interface performance test:[start:%lld(ms) - end:%lld(ms) = %lld (ms)] < 1ms[%d]\r\n",
-            startMs, endMs, useTime, useTime < 1 ? true : false);
+	HDF_LOGI("----->interface performance test:[start - end] < 1ms[%d]\r\n", useTime < 1 ? true : false);
         I2cClose(handle);
         return HDF_SUCCESS;
     }
