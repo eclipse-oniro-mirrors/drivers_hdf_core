@@ -45,6 +45,7 @@ std::string TokenTypeToString(TokenType type)
         {TokenType::DOUBLE,               "double"        },
         {TokenType::FD,                   "FileDescriptor"},
         {TokenType::ASHMEM,               "Ashmem"        },
+        {TokenType::BUFFER_HANDLE,        "BufferHandle"  },
         {TokenType::LIST,                 "List"          },
         {TokenType::MAP,                  "Map"           },
         {TokenType::SMQ,                  "SharedMemQueue"},
