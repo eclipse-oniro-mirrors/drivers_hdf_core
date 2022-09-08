@@ -1075,8 +1075,13 @@ static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
 
     int32_t ret = -1;
     uint8_t writeBuf[3]; // 3: buffer size
+    uint16_t intGpioNum;
     TouchDriver *touchDriver = (TouchDriver *)device->priv;
-    uint16_t intGpioNum = touchDriver->device->boardCfg->pins.intGpio;
+    if (touchDriver == NULL || touchDriver->device == NULL || touchDriver->device->boardCfg == NULL) {
+        HDF_LOGE("%s: invalid parameter.", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    intGpioNum = touchDriver->device->boardCfg->pins.intGpio;
 
     GpioSetDir(intGpioNum, 1);
     GpioWrite(intGpioNum, 0);
