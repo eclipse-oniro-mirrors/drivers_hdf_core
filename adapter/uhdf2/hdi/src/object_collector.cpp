@@ -22,10 +22,11 @@
 
 using namespace OHOS::HDI;
 
+ObjectCollector *ObjectCollector::instance_ = new ObjectCollector();
+
 ObjectCollector &ObjectCollector::GetInstance()
 {
-    static ObjectCollector mapper;
-    return mapper;
+    return *instance_;
 }
 
 bool ObjectCollector::ConstructorRegister(const std::u16string &interfaceName, const Constructor &constructor)

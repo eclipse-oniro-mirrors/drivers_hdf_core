@@ -660,6 +660,7 @@ AutoPtr<ASTType> Parser::ParseType()
         case TokenType::DOUBLE:
         case TokenType::FD:
         case TokenType::ASHMEM:
+        case TokenType::BUFFER_HANDLE:
         case TokenType::UNSIGNED:
             type = ParseBasicType();
             break;
@@ -1391,13 +1392,9 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
     }
 
     if (Options::GetInstance().GetTargetLanguage() == Options::Language::C) {
-        if (type->IsSequenceableType()) {
-            LogError(token, StringHelper::Format("The sequenceable type is not supported by c language."));
-            return false;
-        }
-
-        if (type->IsSmqType()) {
-            LogError(token, StringHelper::Format("The smq type is not supported by c language."));
+        if (type->IsSequenceableType() || type->IsSmqType() || type->IsAshmemType()) {
+            LogError(token, StringHelper::Format("The %s type is not supported by c language.",
+                type->ToString().c_str()));
             return false;
         }
 
