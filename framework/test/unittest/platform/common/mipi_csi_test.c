@@ -394,15 +394,17 @@ static int32_t MipiCsiSetExtDataTypeTest(struct MipiCsiTest *test)
     ExtDataType dataType;
     dataType.devno = 0;
     dataType.num = 0;
+    uint8_t i = 0;
 
     // extDataBitWidth set 8, 10, 12, 14 or 16.
-    dataType.extDataBitWidth[0] = 12; /* 12:magic bit width */
-    dataType.extDataBitWidth[1] = 12; /* 12:magic bit width */
-    dataType.extDataBitWidth[2] = 12; /* 12:magic bit width */
+    dataType.extDataBitWidth[i++] = 12; /* 12:magic bit width */
+    dataType.extDataBitWidth[i++] = 12; /* 12:magic bit width */
+    dataType.extDataBitWidth[i] = 12;   /* 12:magic bit width */
 
-    dataType.extDataType[0] = 0x39; /* 0x39 -- data type reserved */
-    dataType.extDataType[1] = 0x39; /* 0x39 -- data type reserved */
-    dataType.extDataType[2] = 0x39; /* 0x39 -- data type reserved */
+    i = 0;
+    dataType.extDataType[i++] = 0x39; /* 0x39 -- data type reserved */
+    dataType.extDataType[i++] = 0x39; /* 0x39 -- data type reserved */
+    dataType.extDataType[i] = 0x39;   /* 0x39 -- data type reserved */
     test->dataType = dataType;
 
     ret = MipiCsiSetExtDataType(test->handle, &test->dataType);

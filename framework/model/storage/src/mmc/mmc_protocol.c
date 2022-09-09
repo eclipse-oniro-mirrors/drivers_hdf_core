@@ -2510,6 +2510,7 @@ static int32_t SdSetBusSpeedMode(struct MmcCntlr *cntlr)
         HDF_LOGE("SdSetBusSpeedMode: swutch func group 1 fail!");
         return err;
     }
+    /* 16: The lower four bits of the 16th byte indicate the speed mode */
     if ((status[16] & 0xF) != dev->busSpeedMode) {
         HDF_LOGD("SdSetBusSpeedMode: status not match!");
     } else {
@@ -2591,6 +2592,7 @@ static int32_t SdSwitchHighSpeed(struct MmcCntlr *cntlr)
         HDF_LOGE("SdSwitchHighSpeed: switch func group 1 fail!");
         return err;
     }
+    /* 16: The lower four bits of the 16th byte indicate the speed mode */
     if ((status[16] & 0xF) != SD_BUS_SPEED_MODE_HS) {
         return HDF_ERR_NOT_SUPPORT;
     }

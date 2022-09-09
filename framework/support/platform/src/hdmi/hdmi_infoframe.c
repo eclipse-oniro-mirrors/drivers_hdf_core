@@ -535,6 +535,7 @@ static void HdmiFillAudioInfoFrame(struct HdmiAudioInfoFrame *audio, const struc
         HDF_LOGI("audio channel refer to stream.");
     } else {
         HDF_LOGI("audio channel %u \n", audioAttr->channels);
+        // 2 means the number of channels
         audio->channelCount = (audioAttr->channels >= 2) ? (audioAttr->channels - 1) : 0;
     }
 

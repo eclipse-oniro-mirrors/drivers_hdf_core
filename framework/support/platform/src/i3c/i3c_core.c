@@ -81,7 +81,7 @@ static struct DListHead *I3cDeviceListGet(void)
     static struct DListHead *head = NULL;
 
     head = &g_i3cDeviceList;
-    while (OsalSpinLock(&g_listLock));
+    while (OsalSpinLock(&g_listLock)) { }
 
     return head;
 }

@@ -342,20 +342,20 @@ static void HdfI2cWrite(I2C_HANDLE i2cx, unsigned char devAddr, const unsigned c
         return;
     }
 
-    while (LL_I2C_IsActiveFlag_BUSY(myI2c));
+    while (LL_I2C_IsActiveFlag_BUSY(myI2c)) { }
 
     LL_I2C_GenerateStartCondition(myI2c);
-    while (LL_I2C_IsActiveFlag_SB(myI2c) == RESET);
+    while (LL_I2C_IsActiveFlag_SB(myI2c) == RESET) { }
 
     LL_I2C_TransmitData8(myI2c, (devAddr << 1));
-    while (LL_I2C_IsActiveFlag_TXE(myI2c) == RESET);
+    while (LL_I2C_IsActiveFlag_TXE(myI2c) == RESET) { }
 
     LL_I2C_ClearFlag_ADDR(myI2c);
-    while (LL_I2C_IsActiveFlag_TXE(myI2c) == RESET);
+    while (LL_I2C_IsActiveFlag_TXE(myI2c) == RESET) { }
 
     for (unsigned int i = 0; i < len; i++) {
         LL_I2C_TransmitData8(myI2c, buf[i]);
-        while (LL_I2C_IsActiveFlag_TXE(myI2c) == RESET);
+        while (LL_I2C_IsActiveFlag_TXE(myI2c) == RESET) { }
     }
 
     LL_I2C_GenerateStopCondition(myI2c);
@@ -373,14 +373,14 @@ static void HdfI2cRead(I2C_HANDLE i2cx, unsigned char devAddr, unsigned char *bu
         return;
     }
 
-    while (LL_I2C_IsActiveFlag_BUSY(myI2c));
+    while (LL_I2C_IsActiveFlag_BUSY(myI2c)) { }
 
     LL_I2C_GenerateStartCondition(myI2c);
-    while (LL_I2C_IsActiveFlag_SB(myI2c) == RESET);
+    while (LL_I2C_IsActiveFlag_SB(myI2c) == RESET) { }
 
     LL_I2C_TransmitData8(myI2c, ((devAddr << 1) | 1));
     while ((LL_I2C_IsActiveFlag_ADDR(myI2c) == RESET) || (LL_I2C_IsActiveFlag_MSL(myI2c) == RESET) ||
-        (LL_I2C_IsActiveFlag_BUSY(myI2c) == RESET));
+        (LL_I2C_IsActiveFlag_BUSY(myI2c) == RESET)) { }
 
     for (unsigned int i = 0; i < len; i++) {
         if (i < len - 1) {
@@ -388,7 +388,7 @@ static void HdfI2cRead(I2C_HANDLE i2cx, unsigned char devAddr, unsigned char *bu
         } else {
             LL_I2C_AcknowledgeNextData(myI2c, LL_I2C_NACK);
         }
-        while (LL_I2C_IsActiveFlag_RXNE(myI2c) == RESET);
+        while (LL_I2C_IsActiveFlag_RXNE(myI2c) == RESET) { }
         buf[i] = LL_I2C_ReceiveData8(myI2c);
     }
     LL_I2C_GenerateStopCondition(myI2c);

@@ -108,7 +108,8 @@ static void HdmiUserTest(void)
     DevHandle handle = nullptr;
     int32_t ret;
     enum HdmiDeepColor color = HDMI_DEEP_COLOR_24BITS;
-    uint8_t data[128] = {0};
+    constexpr uint32_t HDMI_EDID_DATA_LENGTH = 128;
+    uint8_t data[HDMI_EDID_DATA_LENGTH] = {0};
     struct HdmiHpdCallbackInfo callback;
 
     handle = HdmiOpen(0);
@@ -141,10 +142,11 @@ static void HdmiUserTest(void)
     if (ret != HDF_SUCCESS) {
         printf("HdmiStart fail.");
     }
-    ret = HdmiReadSinkEdid(handle, data, 128);
+    ret = HdmiReadSinkEdid(handle, data, HDMI_EDID_DATA_LENGTH);
     if (ret < 0) {
         printf("HdmiReadSinkEdid fail.");
     }
+    /* 6 and 8 represent data length */
     printf("HdmiReadSinkEdid success, data[6] = %d, data[8] = %d.", data[6], data[8]);
     ret = HdmiStop(handle);
     if (ret != HDF_SUCCESS) {

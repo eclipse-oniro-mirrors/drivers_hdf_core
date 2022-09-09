@@ -19,8 +19,8 @@ using namespace std;
 namespace {
 constexpr int32_t MIN = 0;
 constexpr int32_t MAX = 2;
-constexpr int32_t busTestNum = 0;
-constexpr int32_t csTestNum = 0;
+constexpr int32_t BUS_TEST_NUM = 0;
+constexpr int32_t CS_TEST_NUM = 0;
 constexpr uint32_t SPI_BUF_SIZE = 8;
 }
 
@@ -64,8 +64,8 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     struct SpiDevInfo info;
     const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
 
-    info.busNum = busTestNum;
-    info.csNum = csTestNum;
+    info.busNum = BUS_TEST_NUM;
+    info.csNum = CS_TEST_NUM;
     msg.speed = params->descSpeed;
     msg.delayUs = params->descDelay;
     msg.keepCs = params->descKeep;

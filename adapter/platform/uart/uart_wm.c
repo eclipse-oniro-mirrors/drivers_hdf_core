@@ -498,7 +498,7 @@ static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t si
         ret = recvSize;
     } else {
         if (g_uartCtx[uartId].isBlock) {
-            while (tls_uart_try_read(uartId, 1) == 0);
+            while (tls_uart_try_read(uartId, 1) == 0) { }
             ret = tls_uart_read(uartId, data, 1);
         } else {
             ret = tls_uart_read(uartId, data, 1);

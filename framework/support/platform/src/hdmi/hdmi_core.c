@@ -638,7 +638,7 @@ static void HdmiVideoAttrInit(struct HdmiCntlr *cntlr)
 
     videoAttr->pixelRepeat = 1;
     if (videoAttr->timing == HDMI_VIDEO_TIMING_1440X480I60 || videoAttr->timing == HDMI_VIDEO_TIMING_1440X576I50) {
-        videoAttr->pixelRepeat = 2;
+        videoAttr->pixelRepeat = 2; // 2 means the number of repetitions for each pixel
     }
 
     if (videoAttr->timing <= HDMI_VIDEO_TIMING_640X480P60) {
@@ -1089,17 +1089,31 @@ static void HdmiFillVideoAttrFromHardwareStatus(
     rgb = ((hwStatus->videoStatus.rgb2Ycbcr) ||
         ((!hwStatus->videoStatus.ycbcr2Rgb) && (hwStatus->videoStatus.outColorSpace == HDMI_COLOR_SPACE_RGB)));
     videoAttr->colorSpace = (rgb == true) ? HDMI_COLOR_SPACE_RGB : HDMI_COLOR_SPACE_YCBCR444;
-
+    /*
+     * avi[0]: Packet Type = 0x82
+     * avi[1]: Version = 0x02
+     * avi[2]: BIT[7:5]: 0, BIT[4:0]: Length = 0x0D
+     * avi[3]: CheckSum
+     * avi[4]: BIT[7]: Reserved, BIT[6:5]: RGB or YCbCr indicator, BIT[4]: Active information present
+     *         BIT[3:2]: Bar info data valid, BIT[1:0]: Scan information
+     * avi[5]: BIT[7:6]: Colorimetry, BIT[5:4]: Picture aspect ratio, BIT[3:0]: Active format aspect ratio
+     * avi[6]: BIT[7]: IT content, BIT[6:4]: Extended colorimetry, BIT[3:2]: Quantization range,
+     *         BIT[1:0]: Non-uniform picture scaling
+     * avi[7]: BIT[7]: Reserved, BIT[6:0]: Video format identification code
+     * avi[8]: BIT[7:6]: YCC quantization range, BIT[5:4]: Content type, BIT[3:0]: Picture repetition factor
+     * ...
+     */
     if (hwStatus->infoFrameStatus.aviEnable) {
         vic = hwStatus->infoFrameStatus.avi[7];
         /*
          * when the timing is 4096*2160, the aspect ratio in AVI infoFrame is 0
          * (but the real aspect ratio is 256:135<0x04>, the video_code is 0)
+         * vsif[8] is HDMI_VIC. 0x04: 4K*2K @24Hz(SMPTE)
          */
         aspectIs256 = (((vic == 0) && (hwStatus->infoFrameStatus.vsif[8] == 0x04)) ||
             ((vic >= HDMI_VIC_4096X2160P25_256_135) && (vic <= HDMI_VIC_4096X2160P60_256_135)));
         videoAttr->aspect = (aspectIs256 == true) ? HDMI_PICTURE_ASPECT_256_135 :
-                                                    ((hwStatus->infoFrameStatus.avi[5] >> 4) & 0x3); /* 4'b, BIT[2:1] */
+            ((hwStatus->infoFrameStatus.avi[5] >> 4) & 0x3);                        /* 4'b, BIT[2:1] */
         videoAttr->activeAspect = hwStatus->infoFrameStatus.avi[5] & 0xf;
         videoAttr->colorimetry = (hwStatus->infoFrameStatus.avi[5] >> 6) & 0x3;     /* 6'b, BIT[2:1] */
         videoAttr->quantization = (hwStatus->infoFrameStatus.avi[6] >> 2) & 0x3;    /* 2'b, BIT[2:1] */
@@ -1110,8 +1124,8 @@ static void HdmiFillVideoAttrFromHardwareStatus(
         if ((!hwStatus->infoFrameStatus.vsifEnable) && (!vic)) {
             videoAttr->timing = HDMI_VIDEO_TIMING_NONE;
         }
-        commAttr->quantization =
-            (commAttr->colorSpace == HDMI_COLOR_SPACE_RGB) ? videoAttr->quantization : (videoAttr->yccQuantization + 1);
+        commAttr->quantization = (commAttr->colorSpace == HDMI_COLOR_SPACE_RGB) ?
+            videoAttr->quantization : (videoAttr->yccQuantization + 1);
     }
 
     videoAttr->_3dStruct = HDMI_VS_VIDEO_3D_BUTT;
