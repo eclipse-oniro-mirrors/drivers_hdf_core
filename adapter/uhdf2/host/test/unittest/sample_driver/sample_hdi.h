@@ -69,7 +69,7 @@ int32_t SampleServiceOnRemoteRequest(struct HdfDeviceIoClient *client, int cmdId
 static inline void DataBlockFree(struct DataBlock *dataBlock)
 {
     if (dataBlock != nullptr) {
-        OsalMemFree((void *)dataBlock->str);
+        OsalMemFree(const_cast<void *>(static_cast<const void *>(dataBlock->str)));
         OsalMemFree(dataBlock);
     }
 }
@@ -79,7 +79,7 @@ static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data
     const struct DataBlock *block = nullptr;
     uint32_t readSize = 0;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&block, &readSize)) {
+    if (!HdfSbufReadBuffer(data, reinterpret_cast<const void **>(&block), &readSize)) {
         HDF_LOGE("%{public}s: failed to read dataBlock", __func__);
         return nullptr;
     }
@@ -89,7 +89,7 @@ static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data
         return nullptr;
     }
 
-    struct DataBlock *dataBlock = (struct DataBlock *)OsalMemAlloc(sizeof(struct DataBlock));
+    struct DataBlock *dataBlock = static_cast<struct DataBlock *>(OsalMemAlloc(sizeof(*dataBlock)));
     if (dataBlock == nullptr) {
         return nullptr;
     }
@@ -99,7 +99,7 @@ static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data
     }
 
     const char *str = nullptr;
-    if (!HdfSbufReadBuffer(data, (const void **)&str, &readSize)) {
+    if (!HdfSbufReadBuffer(data, reinterpret_cast<const void **>(&str), &readSize)) {
         HDF_LOGE("%{public}s: failed to read dataBlock.str", __func__);
         return nullptr;
     }

@@ -23,7 +23,7 @@ static int OnDevEventReceived(
 
 static struct Eventlistener g_listener0 = {
     .listener.onReceive = OnDevEventReceived,
-    .listener.priv = (void *)"listener0",
+    .listener.priv = const_cast<void *>(static_cast<const void *>("listener0")),
     .eventCount = 0,
 };
 

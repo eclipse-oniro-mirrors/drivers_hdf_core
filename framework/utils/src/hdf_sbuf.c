@@ -320,7 +320,7 @@ struct HdfSBuf *HdfSbufTypedObtainCapacity(uint32_t type, size_t capacity)
 #endif
     sbuf = (struct HdfSBuf *)OsalMemAlloc(sizeof(struct HdfSBuf));
     if (sbuf == NULL) {
-        HDF_LOGE("instance sbuf failure");
+        HDF_LOGE("HdfSbufTypedObtainCapacity OsalMemAlloc failure");
         return NULL;
     }
 #ifdef __KERNEL__
@@ -382,7 +382,7 @@ struct HdfSBuf *HdfSbufTypedBind(uint32_t type, uintptr_t base, size_t size)
 #endif
     sbuf = (struct HdfSBuf *)OsalMemAlloc(sizeof(struct HdfSBuf));
     if (sbuf == NULL) {
-        HDF_LOGE("instance sbuf failure");
+        HDF_LOGE("HdfSbufTypedBind OsalMemAlloc failure");
         return NULL;
     }
 #ifdef __KERNEL__

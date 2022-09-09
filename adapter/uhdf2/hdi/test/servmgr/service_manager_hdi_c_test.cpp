@@ -30,6 +30,7 @@
 
 #define HDF_LOG_TAG service_manager_test
 
+namespace OHOS {
 using namespace testing::ext;
 
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
@@ -339,7 +340,7 @@ struct ServiceStatusData {
 
 static void TestOnServiceStatusReceived(struct ServiceStatusListener *listener, struct ServiceStatus *servstat)
 {
-    struct ServiceStatusData *ssd = (struct ServiceStatusData *)listener->priv;
+    struct ServiceStatusData *ssd = static_cast<struct ServiceStatusData *>(listener->priv);
     if (ssd == nullptr) {
         return;
     }
@@ -372,7 +373,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest008, TestSize.Level1)
     ssd.waitStatus = SERVIE_STATUS_START;
     struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
     listener->callback = TestOnServiceStatusReceived;
-    listener->priv = (void *)&ssd;
+    listener->priv = static_cast<void *>(&ssd);
 
     int status = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
@@ -442,7 +443,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest009, TestSize.Level1)
     struct ServiceStatusData ssd;
     struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
     listener->callback = TestOnServiceStatusReceived;
-    listener->priv = (void *)&ssd;
+    listener->priv = static_cast<void *>(&ssd);
 
     int status = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
@@ -503,7 +504,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest010, TestSize.Level1)
     ssd.waitStatus = SERVIE_STATUS_START;
     struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
     listener->callback = TestOnServiceStatusReceived;
-    listener->priv = (void *)&ssd;
+    listener->priv = static_cast<void *>(&ssd);
 
     int status = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
@@ -549,7 +550,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest011, TestSize.Level1)
     void *ptr = mmap(nullptr, mapSize, PROT_READ | PROT_WRITE, MAP_SHARED, memFd, 0);
     ASSERT_NE(ptr, MAP_FAILED);
 
-    uint8_t *data = reinterpret_cast<uint8_t *>(ptr);
+    uint8_t *data = static_cast<uint8_t *>(ptr);
     for (int i = 0; i < mapSize; i++) {
         data[i] = i;
     }
@@ -563,3 +564,4 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest011, TestSize.Level1)
 
     close(memFd);
 }
+} // namespace OHOS
