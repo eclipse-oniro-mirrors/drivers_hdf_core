@@ -57,10 +57,10 @@ struct Eventlistener IoServiceTest::listener1;
 void IoServiceTest::SetUpTestCase()
 {
     listener0.listener.onReceive = OnDevEventReceived;
-    listener0.listener.priv = (void *)"listener0";
+    listener0.listener.priv = const_cast<void *>(static_cast<const void *>("listener0"));
 
     listener1.listener.onReceive = OnDevEventReceived;
-    listener1.listener.priv = (void *)"listener1";
+    listener1.listener.priv = const_cast<void *>(static_cast<const void *>("listener1"));
 }
 
 void IoServiceTest::TearDownTestCase()
@@ -169,7 +169,7 @@ HWTEST_F(IoServiceTest, HdfIoService002, TestSize.Level0)
 {
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv0";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv0"));
 
     struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
     ASSERT_NE(group, nullptr);
@@ -219,11 +219,11 @@ HWTEST_F(IoServiceTest, HdfIoService003, TestSize.Level0)
 {
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv0";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv0"));
 
     struct HdfIoService *serv1 = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv1, nullptr);
-    serv1->priv = (void *)"serv1";
+    serv1->priv = const_cast<void *>(static_cast<const void *>("serv1"));
 
     struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
     ASSERT_NE(group, nullptr);
@@ -274,7 +274,7 @@ HWTEST_F(IoServiceTest, HdfIoService004, TestSize.Level0)
 {
     struct HdfIoService *serv1 = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv1, nullptr);
-    serv1->priv = (void *)"serv1";
+    serv1->priv = const_cast<void *>(static_cast<const void *>("serv1"));
 
     int ret = HdfDeviceRegisterEventListener(serv1, &listener0.listener);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -299,7 +299,7 @@ HWTEST_F(IoServiceTest, HdfIoService005, TestSize.Level0)
 {
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
     ASSERT_NE(group, nullptr);
@@ -342,11 +342,11 @@ HWTEST_F(IoServiceTest, HdfIoService006, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     struct HdfIoService *serv1 = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv1, nullptr);
-    serv1->priv = (void *)"serv1";
+    serv1->priv = const_cast<void *>(static_cast<const void *>("serv1"));
 
     int ret = HdfIoServiceGroupAddService(group, serv);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -410,7 +410,7 @@ HWTEST_F(IoServiceTest, HdfIoService007, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     int ret = HdfIoServiceGroupAddService(group, serv);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -447,7 +447,7 @@ HWTEST_F(IoServiceTest, HdfIoService008, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     int ret = HdfIoServiceGroupAddService(group, serv);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -484,7 +484,7 @@ HWTEST_F(IoServiceTest, HdfIoService009, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     int ret = HdfIoServiceGroupAddService(group, serv);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -521,7 +521,7 @@ HWTEST_F(IoServiceTest, HdfIoService010, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     int ret = HdfIoServiceGroupAddService(group, serv);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -558,7 +558,7 @@ HWTEST_F(IoServiceTest, HdfIoService011, TestSize.Level0)
 {
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     int ret = HdfDeviceRegisterEventListener(serv, &listener0.listener);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -587,7 +587,7 @@ HWTEST_F(IoServiceTest, HdfIoService012, TestSize.Level0)
 {
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     int ret = HdfDeviceRegisterEventListener(serv, &listener0.listener);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -655,11 +655,11 @@ HWTEST_F(IoServiceTest, HdfIoService014, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     struct HdfIoService *serv1 = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv1, nullptr);
-    serv1->priv = (void *)"serv1";
+    serv1->priv = const_cast<void *>(static_cast<const void *>("serv1"));
 
     int ret = HdfDeviceRegisterEventListener(serv, &listener0.listener);
     ASSERT_EQ(ret, HDF_SUCCESS);
@@ -771,12 +771,12 @@ HWTEST_F(IoServiceTest, HdfIoService015, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     struct IoServiceStatusData issd;
     struct ServiceStatusListener *listener = IoServiceStatusListenerNewInstance();
     listener->callback = TestOnServiceStatusReceived;
-    listener->priv = (void *)&issd;
+    listener->priv = static_cast<void *>(&issd);
 
     int status = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
@@ -803,12 +803,12 @@ HWTEST_F(IoServiceTest, HdfIoService016, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     struct IoServiceStatusData issd;
     struct ServiceStatusListener *listener = IoServiceStatusListenerNewInstance();
     listener->callback = TestOnServiceStatusReceived;
-    listener->priv = (void *)&issd;
+    listener->priv = static_cast<void *>(&issd);
 
     int status = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
@@ -856,12 +856,12 @@ HWTEST_F(IoServiceTest, HdfIoService017, TestSize.Level0)
 
     struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
     ASSERT_NE(serv, nullptr);
-    serv->priv = (void *)"serv";
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv"));
 
     struct IoServiceStatusData issd;
     struct ServiceStatusListener *listener = IoServiceStatusListenerNewInstance();
     listener->callback = TestOnServiceStatusReceived;
-    listener->priv = (void *)&issd;
+    listener->priv = static_cast<void *>(&issd);
 
     HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
     int status = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);

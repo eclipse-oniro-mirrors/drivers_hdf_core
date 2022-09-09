@@ -23,9 +23,9 @@ struct Eventlistener {
 static int OnDevEventReceived(
     struct HdfDevEventlistener *listener, struct HdfIoService *service, uint32_t id, struct HdfSBuf *data);
 
-static struct Eventlistener listener0 = {
+static struct Eventlistener g_listener0 = {
     .listener.onReceive = OnDevEventReceived,
-    .listener.priv = (void *)"listener0",
+    .listener.priv = const_cast<void *>(static_cast<const void *>("listener0")),
     .eventCount = 0,
 };
 
@@ -57,8 +57,8 @@ bool IoserviceListenFuzzTest(const uint8_t *data, size_t size)
         HDF_LOGE("%{public}s: HdfIoServiceBind failed!", __func__);
         return false;
     }
-    if (HdfDeviceRegisterEventListener(serv, &listener0.listener) == HDF_SUCCESS) {
-        int ret = HdfDeviceUnregisterEventListener(serv, &listener0.listener);
+    if (HdfDeviceRegisterEventListener(serv, &g_listener0.listener) == HDF_SUCCESS) {
+        int ret = HdfDeviceUnregisterEventListener(serv, &g_listener0.listener);
         if (ret != HDF_SUCCESS) {
             HdfIoServiceRecycle(serv);
             return false;

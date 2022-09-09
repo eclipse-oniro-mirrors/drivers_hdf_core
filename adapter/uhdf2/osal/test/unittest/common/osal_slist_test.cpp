@@ -129,7 +129,7 @@ HWTEST_F(HdfOsalSlistTest, SlistSearchTest001, TestSize.Level1)
     int totalCount = 0;
     HdfOsalSlistTestInit(&list, totalCount, HdfSListAdd);
     struct HdfSListNode *resultNode = HdfSListSearch(&list, 5, HdfTestSListSearchCompare);
-    EXPECT_TRUE(resultNode != NULL);
+    EXPECT_TRUE(resultNode != nullptr);
     EXPECT_EQ(5, static_cast<int>((reinterpret_cast<struct TestList *>(resultNode))->data));
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));
@@ -147,14 +147,14 @@ HWTEST_F(HdfOsalSlistTest, SlistGetTest001, TestSize.Level1)
     int totalCount = 0;
     HdfOsalSlistTestInit(&list, totalCount, HdfSListAdd);
     struct HdfSListNode *resultNode = HdfSListGetLast(&list);
-    EXPECT_TRUE(resultNode != NULL);
+    EXPECT_TRUE(resultNode != nullptr);
     EXPECT_EQ(3, static_cast<int>((reinterpret_cast<struct TestList *>(resultNode))->data));
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));
 
     HdfOsalSlistTestInit(&list, totalCount, HdfSListAddTail);
     resultNode = HdfSListGetLast(&list);
-    EXPECT_TRUE(resultNode != NULL);
+    EXPECT_TRUE(resultNode != nullptr);
     EXPECT_EQ(5, static_cast<int>((reinterpret_cast<struct TestList *>(resultNode))->data));
     HdfSListFlush(&list, TestListDeleter);
     EXPECT_EQ(0, HdfSListCount(&list));

@@ -29,6 +29,7 @@
 
 #define HDF_LOG_TAG service_manager_test_cpp
 
+namespace OHOS {
 using namespace testing::ext;
 using OHOS::IRemoteObject;
 using OHOS::sptr;
@@ -648,3 +649,4 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
     status = servmgr->UnregisterServiceStatusListener(listener);
     ASSERT_EQ(status, HDF_SUCCESS);
 }
+} // namespace OHOS

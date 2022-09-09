@@ -82,7 +82,7 @@ static int32_t SampleServiceRegisterDevice(struct HdfDeviceObject *device, const
     }
 
     HDF_LOGE("publish device service %{public}s success", servName);
-    struct SampleDevice *sampleDev = (struct SampleDevice *)OsalMemAlloc(sizeof(struct SampleDevice));
+    struct SampleDevice *sampleDev = static_cast<struct SampleDevice *>(OsalMemAlloc(sizeof(*sampleDev)));
     if (sampleDev == nullptr) {
         HdfDeviceObjectRelease(dev);
         return HDF_DEV_ERR_NO_MEMORY;
@@ -170,7 +170,7 @@ static int32_t SampleServiceTansSmq(
             for (size_t i = 0; i < elemLocal; i++) {
                 HDF_LOGI(
                     "read message from smq, info[%{public}zu]:%{public}d, %{public}llu",
-                    i, t[i].data32, (unsigned long long)t[i].data64);
+                    i, t[i].data32, static_cast<unsigned long long>(t[i].data64));
             }
         }
     });

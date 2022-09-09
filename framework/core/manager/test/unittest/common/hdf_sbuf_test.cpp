@@ -14,6 +14,8 @@
 #include <cstring>
 #include <gtest/gtest.h>
 #include <hdf_sbuf.h>
+
+namespace OHOS {
 using namespace testing::ext;
 
 static const int DEFAULT_SBUF_SIZE = 256;
@@ -304,7 +306,7 @@ HWTEST_F(HdfSBufTest, SbufTestReadUint64Loop004, TestSize.Level1)
         val = 0;
         auto ret = HdfSbufReadUint64(readBuf, &val);
         ASSERT_EQ(ret, true);
-        ASSERT_EQ(val, (uint64_t)INT64_MAX);
+        ASSERT_EQ(val, static_cast<uint64_t>INT64_MAX);
     }
     auto ret = HdfSbufReadUint64(readBuf, &val);
     ASSERT_EQ(ret, false);
@@ -587,7 +589,7 @@ HWTEST_F(HdfSBufTest, SbufTestNullString013, TestSize.Level1)
     ret = HdfSbufWriteInt32(sBuf, INT32_MIN);
     ASSERT_EQ(true, ret);
     size_t dataSize = HdfSbufGetDataSize(sBuf);
-    ASSERT_NE((size_t)0, dataSize);
+    ASSERT_NE(static_cast<size_t>(0), dataSize);
     HdfSBuf *readBuf = HdfSbufBind((uintptr_t)HdfSbufGetData(sBuf), HdfSbufGetDataSize(sBuf));
     ASSERT_NE(readBuf, nullptr);
     auto val = HdfSbufReadString(readBuf);
@@ -648,16 +650,16 @@ HWTEST_F(HdfSBufTest, SbufTestNullBuffer015, TestSize.Level1)
     ret = HdfSbufWriteInt16(sBuf, INT16_MIN);
     ASSERT_EQ(true, ret);
     size_t dataSize = HdfSbufGetDataSize(sBuf);
-    ASSERT_NE((size_t)0, dataSize);
+    ASSERT_NE(static_cast<size_t>(0), dataSize);
     HdfSBuf *readBuf = HdfSbufBind((uintptr_t)HdfSbufGetData(sBuf), HdfSbufGetDataSize(sBuf));
     ASSERT_NE(readBuf, nullptr);
     const uint8_t *buffVal = nullptr;
     uint32_t buffLen = 0;
     ret = HdfSbufReadBuffer(readBuf, (const void **)(&buffVal), &buffLen);
     ASSERT_EQ(true, ret);
-    ASSERT_EQ((uint32_t)0, buffLen);
+    ASSERT_EQ(static_cast<uint32_t>(0), buffLen);
     dataSize = HdfSbufGetDataSize(sBuf);
-    ASSERT_NE((size_t)0, dataSize);
+    ASSERT_NE(static_cast<size_t>(0), dataSize);
     int16_t intVal = 0;
     ret = HdfSbufReadInt16(readBuf, &intVal);
     ASSERT_EQ(true, ret);
@@ -808,3 +810,4 @@ HWTEST_F(HdfSBufTest, SbufTestSbufMoveHalf019, TestSize.Level1)
     HdfSbufRecycle(sBuf);
     HdfSbufRecycle(readBuf);
 }
+} // namespace OHOS
