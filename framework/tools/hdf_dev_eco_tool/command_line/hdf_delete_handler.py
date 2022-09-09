@@ -66,8 +66,9 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
             if key.split("_")[-1] == "name":
                 pass
             elif key == "driver_file_path":
+                split_str = '/%s/driver' % model
                 driver_file = os.path.join(
-                    root, path_value.split(model)[0], model)
+                    root, path_value.rsplit(split_str, 1)[0], model)
                 if os.path.exists(driver_file):
                     shutil.rmtree(driver_file)
             else:
