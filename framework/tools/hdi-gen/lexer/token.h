@@ -27,6 +27,7 @@ enum class TokenType {
     DOUBLE,  // "double"
     FD,      // "FileDescriptor"
     ASHMEM,  // "Ashmem"
+    BUFFER_HANDLE, // "BufferHandle"
     LIST,    // "List"
     MAP,     // "Map"
     SMQ,     // "SharedMemQueue"

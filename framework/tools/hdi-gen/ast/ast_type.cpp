@@ -150,6 +150,11 @@ bool ASTType::IsAshmemType()
     return false;
 }
 
+bool ASTType::IsBufferHandleType()
+{
+    return false;
+}
+
 bool ASTType::IsPod() const
 {
     return isPod_;

@@ -15,21 +15,22 @@
 namespace OHOS {
 namespace HDI {
 AST::TypeStringMap AST::basicTypes_ = {
-    {"boolean",        new ASTBooleanType()},
-    {"byte",           new ASTByteType()   },
-    {"short",          new ASTShortType()  },
-    {"int",            new ASTIntegerType()},
-    {"long",           new ASTLongType()   },
-    {"float",          new ASTFloatType()  },
-    {"double",         new ASTDoubleType() },
-    {"String",         new ASTStringType() },
-    {"unsigned char",  new ASTUcharType()  },
-    {"unsigned short", new ASTUshortType() },
-    {"unsigned int",   new ASTUintType()   },
-    {"unsigned long",  new ASTUlongType()  },
-    {"void",           new ASTVoidType()   },
-    {"FileDescriptor", new ASTFdType()     },
-    {"Ashmem",         new ASTAshmemType() },
+    {"boolean",        new ASTBooleanType()     },
+    {"byte",           new ASTByteType()        },
+    {"short",          new ASTShortType()       },
+    {"int",            new ASTIntegerType()     },
+    {"long",           new ASTLongType()        },
+    {"float",          new ASTFloatType()       },
+    {"double",         new ASTDoubleType()      },
+    {"String",         new ASTStringType()      },
+    {"unsigned char",  new ASTUcharType()       },
+    {"unsigned short", new ASTUshortType()      },
+    {"unsigned int",   new ASTUintType()        },
+    {"unsigned long",  new ASTUlongType()       },
+    {"void",           new ASTVoidType()        },
+    {"FileDescriptor", new ASTFdType()          },
+    {"Ashmem",         new ASTAshmemType()      },
+    {"BufferHandle",   new ASTBufferHandleType()},
 };
 
 void AST::SetIdlFile(const std::string &idlFile)
