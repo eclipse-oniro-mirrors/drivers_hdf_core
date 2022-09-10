@@ -80,9 +80,6 @@ void *PopQueue(HdfWlanQueue *queue)
         return NULL;
     }
     impl = (HdfWlanQueueImpl *)queue;
-    if (queue == NULL) {
-        return NULL;
-    }
     ret = OsalMutexLock(&impl->lock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:Get lock failed!ret=%d", __func__, ret);
