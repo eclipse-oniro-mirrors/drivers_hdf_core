@@ -132,25 +132,27 @@ template("hdi") {
       public_configs = [ ":$idl_headers_config" ]
       deps = [ "$hdi_gen" ]
 
-      public_deps = [ "$hdf_uhdf_path/hdi:libhdi" ]
-
-      if (defined(invoker.sequenceable)) {
-        public_deps += invoker.sequenceable
-      }
-
       if (is_standard_system) {
+        if (defined(invoker.sequenceable)) {
+          public_deps = invoker.sequenceable
+        }
+
         external_deps = [
           "c_utils:utils",
-          "hdf_core:libhdf_ipc_adapter",
-          "hdf_core:libhdf_utils",
+          "hdf_core:libhdi",
           "hiviewdfx_hilog_native:libhilog",
         ]
+
+        if (invoker.language == "c") {
+          external_deps += [
+            "hdf_core:libhdf_ipc_adapter",
+            "hdf_core:libhdf_utils",
+          ]
+        } else if (invoker.language == "cpp") {
+          external_deps += [ "ipc:ipc_single" ]
+        }
       } else {
         external_deps = [ "hilog:libhilog" ]
-      }
-
-      if (invoker.language == "cpp") {
-        external_deps += [ "ipc:ipc_single" ]
       }
 
       install_images = [ system_base_dir ]
@@ -182,28 +184,27 @@ template("hdi") {
       public_configs = [ ":$idl_headers_config" ]
 
       deps = [ "$hdi_gen" ]
-
-      public_deps = [ "$hdf_uhdf_path/hdi:libhdi" ]
-
-      if (defined(invoker.sequenceable)) {
-        public_deps += invoker.sequenceable
-      }
-
       if (is_standard_system) {
+        if (defined(invoker.sequenceable)) {
+          public_deps = invoker.sequenceable
+        }
+
         external_deps = [
           "c_utils:utils",
-          "hdf_core:libhdf_ipc_adapter",
-          "hdf_core:libhdf_utils",
+          "hdf_core:libhdi",
           "hiviewdfx_hilog_native:libhilog",
         ]
+
+        if (invoker.language == "c") {
+          external_deps += [
+            "hdf_core:libhdf_ipc_adapter",
+            "hdf_core:libhdf_utils",
+          ]
+        } else if (invoker.language == "cpp") {
+          external_deps += [ "ipc:ipc_single" ]
+        }
       } else {
         external_deps = [ "hilog:libhilog" ]
-      }
-
-      if (invoker.language == "c") {
-        deps += [ "$hdf_uhdf_path/host:libhdf_host" ]
-      } else if (invoker.language == "cpp") {
-        external_deps += [ "ipc:ipc_single" ]
       }
 
       install_images = [ chipset_base_dir ]

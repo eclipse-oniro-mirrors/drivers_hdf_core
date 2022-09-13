@@ -24,20 +24,15 @@ config("camera_sequenceable_config") {
 ohos_shared_library("libbuffer_producer_sequenceable_1.0") {
   sources = [ "buffer_producer_sequenceable.cpp" ]
 
-  public_configs = [ ":camera_sequenceable_config" ]
+  all_dependent_configs = [ ":camera_sequenceable_config" ]
 
   public_deps = [ "//foundation/graphic/graphic_2d/frameworks/surface:surface" ]
 
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_host",
-    "hdf_core:libhdf_ipc_adapter",
-    "hdf_core:libhdf_utils",
-    "hdf_core:libhdi",
+    "ipc:ipc_single",
 
     #"graphic_chipsetsdk:surface",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_single",
   ]
 
   install_images = [ chipset_base_dir ]
