@@ -12,13 +12,7 @@
 #include "devmgr_service_if.h"
 #include "hdf_usb_pnp_manage.h"
 
-#define USB_PNP_NOTIFY_SERVICE_NAME "hdf_usb_pnp_notify_service"
-
-typedef enum {
-    USB_PNP_NORMAL_STATUS,
-    USB_PNP_ADD_STATUS,
-    USB_PNP_REMOVE_STATUS
-} UsbPnpDriverStatus;
+typedef enum { USB_PNP_NORMAL_STATUS, USB_PNP_ADD_STATUS, USB_PNP_REMOVE_STATUS } UsbPnpDriverStatus;
 
 struct UsbPnpMatchIdTable {
     const char *moduleName;
