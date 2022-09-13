@@ -51,7 +51,7 @@ def audio_build_file_operation(path, args_tuple):
     third_line = '    include_dirs += [ "$${file_parent_path}/${head_path}" ]\n'
     four_line = "  }\n"
     if len(source_path) > 1:
-        sources_line = ""
+        sources_line = []
         multi_resource = "    sources += [ \n"
         multi_end = "    ]\n"
         temp_line = r'      "$${file_parent_path}/${source_path}",'
@@ -59,9 +59,10 @@ def audio_build_file_operation(path, args_tuple):
             temp_handle = Template(temp_line.replace("\"$", "temp_flag"))
             parent_temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
-            sources_line += temp_handle.substitute(
-                parent_temp_dict).replace("temp_flag", "\"$") + "\n"
-        build_resource = multi_resource + sources_line + multi_end
+            sources_line.append(temp_handle.substitute(
+                parent_temp_dict).replace("temp_flag", "\"$") + "\n")
+        sources_str = ''.join(sources_line)
+        build_resource = ''.join([multi_resource, sources_str, multi_end])
     else:
         build_resource = '    sources += [ "$${file_parent_path}/${source_path}" ]\n'
         for source in source_path:
@@ -70,7 +71,7 @@ def audio_build_file_operation(path, args_tuple):
                 date_lines, source, "", devices, root)
             build_resource = temp_handle.substitute(
                 temp_dict).replace("temp_flag", "\"$")
-    build_add_template = first_line + build_resource + third_line + four_line
+    build_add_template = ''.join([first_line, build_resource, third_line, four_line])
     build_replace_dict = analyze_parent_path(
         date_lines, "", head_path[0], devices, root, kernel_type=kernel)
     temp_handle = Template(build_add_template.replace("\"$", "temp_flag"))
@@ -167,7 +168,7 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
         result_tuple = find_build_file_end_index(date_lines, model_name=module)
         end_index, frameworks_name, frameworks_value = result_tuple
         build_add_template = template_str_splice(type_name="framework")
-        include_model_info = frameworks_value.split("model")[-1].strip('"')+"/"
+        include_model_info = frameworks_value.split("model")[-1].strip('"') + "/"
         build_gn_path_config = source_file_path.split(include_model_info)
         temp_handle = Template(
             build_add_template.replace("$FRAMEWORKS", "FRAMEWORKS"))
@@ -187,7 +188,7 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
         end_index, frameworks_name, frameworks_value = result_tuple
         build_add_template = template_str_splice(type_name=" ")
         include_model_info = frameworks_value.split("/")[-1].strip("\"")
-        build_gn_path_config = source_file_path.split(include_model_info+"/", 1)
+        build_gn_path_config = source_file_path.split(include_model_info + "/", 1)
         temp_handle = Template(
             build_add_template.replace("$PERIPHERAL", "PERIPHERAL"))
 
@@ -202,8 +203,7 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
         }
         new_line = temp_handle.substitute(
             temp_replace).replace("PERIPHERAL", "$PERIPHERAL")
-
-    date_lines = date_lines[:end_index]+[new_line]+date_lines[end_index:]
+    date_lines = date_lines[:end_index] + [new_line] + date_lines[end_index:]
     hdf_utils.write_file_lines(build_gn_path, date_lines)
 
 

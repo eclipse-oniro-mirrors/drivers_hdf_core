@@ -23,12 +23,10 @@ from .hdf_liteos_scann import HdfLiteScan
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_module_kconfig_file import HdfModuleKconfigFile
 from .hdf_driver_config_file import HdfDriverConfigFile
+from ..hdf_tool_version import GetToolVersion
 
 
 class HdfGetHandler(HdfCommandHandlerBase):
-    HDF_VERSION_MAJOR = 0
-    HDF_VERSION_MINOR = 1
-
     def __init__(self, args):
         super(HdfGetHandler, self).__init__()
         self.cmd = 'get'
@@ -165,8 +163,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
     def __get_version(self):
         version_end = "\nCopyright (c) 2020-2021 Huawei Device Co., Ltd."
         version_head = "hdf_dev_eco_tool version : "
-        return version_head + str(self.HDF_VERSION_MAJOR) \
-               + "." + str(self.HDF_VERSION_MINOR) + version_end
+        return version_head + GetToolVersion().get_version() + version_end
 
     def _mode_scan(self):
         self.check_arg_raise_if_not_exist("root_dir")
