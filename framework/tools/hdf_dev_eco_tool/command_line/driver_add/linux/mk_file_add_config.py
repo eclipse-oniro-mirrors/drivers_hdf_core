@@ -50,7 +50,12 @@ def audio_linux_makefile_operation(path, args_tuple):
             temp_handle = Template(temp_line.replace("$(", "temp_flag"))
             temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
-            temp_dict['source_path'] = temp_dict['source_path'].strip(".c")
+            try:
+                temp_dict['source_path'] = temp_dict['source_path'].strip(".c")
+            except KeyError as _:
+                continue
+            finally:
+                pass
             if source == source_path[-1]:
                 sources_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(") + "\n"
             else:
@@ -124,7 +129,7 @@ def linux_makefile_operation(path, driver_file_path, head_path, module, driver):
         second_line = "              $(${model_name_upper}_ROOT_DIR)/${source_file_path}\n"
         third_line = "ccflags-y += -I$(srctree)/drivers/hdf/framework/model/${head_file_path}\n"
         makefile_add_template = first_line + second_line + third_line
-        include_model_info = model_dir_value.split("model")[-1].strip('"')+"/"
+        include_model_info = model_dir_value.split("model")[-1].strip('"') + "/"
         makefile_path_config = source_file_path.split(include_model_info)
         temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))
         temp_replace = {

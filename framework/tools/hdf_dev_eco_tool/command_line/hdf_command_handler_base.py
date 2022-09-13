@@ -73,7 +73,7 @@ class HdfCommandHandlerBase(object):
             if arg == "runmode":
                 value = self._get_arg(arg)
                 if value:
-                    board_index = args.index('board_name')+1
+                    board_index = args.index('board_name') + 1
                     ret[board_index] = '_'.join([ret[board_index], value])
             else:
                 res_value = self.board_args_format_operation(arg)

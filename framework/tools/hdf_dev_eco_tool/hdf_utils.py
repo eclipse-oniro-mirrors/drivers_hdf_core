@@ -433,11 +433,11 @@ def ini_file_write_operation(model, operation_object, model_child_dir_list):
 def judge_enable_line(enable_line, device_base):
     if isinstance(enable_line, bytes):
         if enable_line.find((device_base + " ").encode("utf-8")) == -1 and \
-                enable_line.find((device_base+"=").encode("utf-8")) == -1:
+                enable_line.find((device_base + "=").encode("utf-8")) == -1:
             return enable_line
     else:
         if enable_line.find(device_base + " ") == -1 and \
-                enable_line.find(device_base+"=") == -1:
+                enable_line.find(device_base + "=") == -1:
             return enable_line
 
 

@@ -299,7 +299,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         else:
             driver_file_name = "//" + user_file_path.replace("\\", "/")
         data_model = {
-            "model_path": "//drivers/hdf_core/adapter/uhdf2/" + module,
+            "model_path": os.path.join("//drivers/hdf_core/adapter/uhdf2/", module),
             "driver_file_name": driver_file_name,
             "model_name": module,
         }
