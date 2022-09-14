@@ -45,6 +45,13 @@ config DRIVERS_AP6212
     help
       Answer Y to enable ap6212 wifi chip driver.
 
+config DRIVERS_AP6256
+    bool "Enable ap6256"
+    default n
+    depends on DRIVERS_HDF_WIFI
+    help
+      Answer Y to enable ap62256 wifi chip driver.
+
 config DRIVERS_HDF_IMX8MM_ETHERNET
     bool "Enable imx8mm ethernet"
     default n

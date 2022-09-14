@@ -18,6 +18,13 @@ config DRIVERS_HDF_AUDIO_RK3568
     help
         Answer Y to choice HDF Audio Codec driver.
 
+config DRIVERS_HDF_AUDIO_RK3566
+    bool "Enable HDF Audio Codec driver"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice HDF Audio Codec driver.
+
 config DRIVERS_HDF_AUDIO_ANA_HEADSET
     bool "Audio Headset support"
     default n
@@ -27,6 +34,15 @@ config DRIVERS_HDF_AUDIO_ANA_HEADSET
             support hook interrupt mode.
             support hook adc mode.
 
+config DRIVERS_HDF_AUDIO_ANA_HEADSET_RK3566
+    bool "Audio Headset support"
+    default n
+    depends on DRIVERS_HDF_AUDIO_RK3566
+    help
+        Audio Headset support:
+            support hook interrupt mode.
+            support hook adc mode.
+	    
 config DRIVERS_HDF_AUDIO_CAP_REPORT
     bool "Audio capture event report"
     default n
