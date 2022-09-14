@@ -81,17 +81,15 @@ static int32_t VirtualReadConfigFromHcs(struct VirtualCanCntlr *virtualCan)
 
 static int32_t VirtualCanMsgLoopBack(struct VirtualCanCntlr *virtualCan, const struct CanMsg *msg)
 {
-    struct CanMsg *new = NULL;
+    struct CanMsg new;
 
-    new = CanMsgObtain();
-    if (new == NULL) {
-        return HDF_ERR_MALLOC_FAIL;
-    }
+    HDF_LOGI("VirtualCanMsgLoopBack: begin");
 
-    *new = *msg; // Yeah! this is loop back ...
+    new = *msg; // Yeah! this is loop back ...
 
     virtualCan->busState = CAN_BUS_READY;
-    return CanCntlrOnNewMsg(&virtualCan->cntlr, new);
+    HDF_LOGI("VirtualCanMsgLoopBack: end");
+    return CanCntlrOnNewMsg(&virtualCan->cntlr, &new);
 }
 
 static int32_t VirtualCanSendMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)

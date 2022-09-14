@@ -12,6 +12,14 @@
 #include "hdf_log.h"
 #include "osal_mem.h"
 
+#define HDF_LOG_TAG can_mail
+
+struct CanFilterNode {
+    const struct CanFilter *filter;
+    struct DListHead node;
+    bool active;
+};
+
 struct CanRxBox *CanRxBoxCreate()
 {
     struct CanRxBox *rbox = NULL;

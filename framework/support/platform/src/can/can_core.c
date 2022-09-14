@@ -47,44 +47,6 @@ int32_t CanCntlrWriteMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)
     return ret;
 }
 
-int32_t CanCntlrAddFilter(struct CanCntlr *cntlr, struct CanFilter *filter)
-{
-    int32_t ret;
-
-    if (cntlr == NULL) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    if (cntlr->ops == NULL || cntlr->ops->addFilter == NULL) {
-        return HDF_ERR_NOT_SUPPORT;
-    }
-
-    if ((ret = CanCntlrLock(cntlr)) != HDF_SUCCESS) {
-        return ret;
-    }
-    ret = cntlr->ops->addFilter(cntlr, filter);
-    CanCntlrUnlock(cntlr);
-    return ret;
-}
-
-int32_t CanCntlrDelFilter(struct CanCntlr *cntlr, struct CanFilter *filter)
-{
-    int32_t ret;
-
-    if (cntlr == NULL) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    if (cntlr->ops == NULL || cntlr->ops->delFilter == NULL) {
-        return HDF_ERR_NOT_SUPPORT;
-    }
-
-    if ((ret = CanCntlrLock(cntlr)) != HDF_SUCCESS) {
-        return ret;
-    }
-    ret = cntlr->ops->delFilter(cntlr, filter);
-    CanCntlrUnlock(cntlr);
-    return ret;
-}
-
 int32_t CanCntlrSetCfg(struct CanCntlr *cntlr, const struct CanConfig *cfg)
 {
     int32_t ret;
@@ -195,5 +157,21 @@ static int32_t CanCntlrMsgDispatch(struct CanCntlr *cntlr, struct CanMsg *msg)
 
 int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, struct CanMsg *msg)
 {
-    return CanCntlrMsgDispatch(cntlr, msg); // gona call in thread context later ...
+    struct CanMsg *copy = NULL;
+
+    if (cntlr == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (msg == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    copy = CanMsgPoolObtainMsg(cntlr->msgPool);
+    if (copy == NULL) {
+        return HDF_FAILURE;
+    }
+    *copy = *msg;
+
+    return CanCntlrMsgDispatch(cntlr, copy); // gona call in thread context later ...
 }

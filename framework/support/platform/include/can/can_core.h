@@ -35,27 +35,25 @@ struct CanCntlrMethod {
     int32_t (*setCfg)(struct CanCntlr *cntlr, const struct CanConfig *cfg);
     int32_t (*getCfg)(struct CanCntlr *cntlr, struct CanConfig *cfg);
     int32_t (*getState)(struct CanCntlr *cntlr);
-    int32_t (*addFilter)(struct CanCntlr *cntlr, struct CanFilter *filter);
-    int32_t (*delFilter)(struct CanCntlr *cntlr, struct CanFilter *filter);
 };
 
 struct CanCntlr {
-    struct PlatformDevice device; // common father
-    struct OsalMutex lock;        // running lock
     int32_t number;               // bus number
     int32_t speed;                // bit rate
     int32_t state;                // bus status
     int32_t mode;                 // work mode
+    size_t msgPoolSize;           // size of msg pool
+    /* 
+     * the members below are used by framework 
+     * don't init or modify them
+     */
     struct CanCntlrMethod *ops;
+    struct PlatformDevice device;
+    struct OsalMutex lock;
     struct DListHead filters;
     struct DListHead rxBoxList;
     struct OsalMutex rboxListLock;
-};
-
-struct CanFilterNode {
-    const struct CanFilter *filter;
-    struct DListHead node;
-    bool active;
+    struct CanMsgPool *msgPool;
 };
 
 enum CanErrState {
@@ -84,10 +82,6 @@ static inline struct CanCntlr *CanCntlrFromHdfDev(const struct HdfDeviceObject *
 
 // CAN BUS operations
 int32_t CanCntlrWriteMsg(struct CanCntlr *cntlr, const struct CanMsg *msg);
-
-int32_t CanCntlrAddFilter(struct CanCntlr *cntlr, struct CanFilter *filter);
-
-int32_t CanCntlrDelFilter(struct CanCntlr *cntlr, struct CanFilter *filter);
 
 int32_t CanCntlrSetCfg(struct CanCntlr *cntlr, const struct CanConfig *cfg);
 

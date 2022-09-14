@@ -8,43 +8,91 @@
 
 #include "can/can_msg.h"
 #include "hdf_dlist.h"
+#include "hdf_log.h"
+#include "osal_atomic.h"
 #include "osal_mem.h"
+#include "osal_time.h"
+#include "securec.h"
+
+#define HDF_LOG_TAG can_msg
+
+#define CAN_MSG_POOL_SIZE_MAX 32
 
 struct CanMsgHolder {
-    struct HdfSRef ref;
     struct CanMsg cmsg;
+    struct HdfSRef ref;
+    OsalAtomic available;
 };
 
-struct CanClient {
-    struct CanCntlr *cntlr;
-    struct CanRxBox *rxBox; // receive message box
+struct CanMsgPool {
+    size_t size;
+    struct CanMsgHolder *holders;
 };
+
+static struct CanMsgHolder *CanMsgPoolAcquireHolder(struct CanMsgPool *pool)
+{
+    size_t i;
+    struct CanMsgHolder *holder = NULL;
+
+    for (i = 0; i < pool->size; i++) {
+        holder = &pool->holders[i];
+        if (OsalAtomicRead(&holder->available) < 1) {
+            continue;
+        }
+        if (OsalAtomicDecReturn(&holder->available) != 0) {
+            OsalAtomicInc(&holder->available);
+            continue;
+        }
+        (void)memset_s(holder, sizeof(*holder), 0, sizeof(*holder));
+        return holder;
+    }
+    return NULL;
+}
+
+static void CanMsgPoolRecycleHolder(struct CanMsgHolder *holder)
+{
+    if (holder == NULL) {
+        return;
+    }
+    OsalAtomicInc(&holder->available);
+}
+
+void CanMsgGet(const struct CanMsg *msg)
+{
+    struct CanMsgHolder *holder = NULL;
+
+    if (msg == NULL) {
+        return;
+    }
+    holder = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
+    HdfSRefAcquire(&holder->ref);
+}
+
+void CanMsgPut(const struct CanMsg *msg)
+{
+    struct CanMsgHolder *holder = NULL;
+
+    if (msg == NULL) {
+        return;
+    }
+    holder = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
+    HdfSRefRelease(&holder->ref);
+}
 
 static void CanMsgHolderOnFirstGet(struct HdfSRef *sref)
 {
     (void)sref;
 }
 
-static void CanMsgDoRecycle(const struct CanMsg *msg)
-{
-    struct CanMsgHolder *msgExt = NULL;
-
-    if (msg == NULL) {
-        return;
-    }
-    msgExt = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
-    OsalMemFree(msgExt);
-}
-
 static void CanMsgHolderOnLastPut(struct HdfSRef *sref)
 {
-    struct CanMsgHolder *msgExt = NULL;
+    struct CanMsgHolder *holder = NULL;
 
     if (sref == NULL) {
         return;
     }
-    msgExt = CONTAINER_OF(sref, struct CanMsgHolder, ref);
-    CanMsgDoRecycle(&msgExt->cmsg);
+    holder = CONTAINER_OF(sref, struct CanMsgHolder, ref);
+    CanMsgPoolRecycleHolder(holder);
 }
 
 struct IHdfSRefListener g_canMsgExtListener = {
@@ -52,37 +100,67 @@ struct IHdfSRefListener g_canMsgExtListener = {
     .OnLastRelease = CanMsgHolderOnLastPut,
 };
 
-struct CanMsg *CanMsgObtain(void)
+struct CanMsg *CanMsgPoolObtainMsg(struct CanMsgPool *pool)
 {
-    struct CanMsgHolder *msgExt = NULL;
+    struct CanMsgHolder *holder = NULL;
 
-    msgExt = (struct CanMsgHolder *)OsalMemCalloc(sizeof(*msgExt));
-    if (msgExt == NULL) {
+    if (pool == NULL) {
         return NULL;
     }
-    HdfSRefConstruct(&msgExt->ref, &g_canMsgExtListener);
-    CanMsgGet(&msgExt->cmsg);
-    return &msgExt->cmsg;
+
+    holder = CanMsgPoolAcquireHolder(pool);
+    if (holder == NULL) {
+        return NULL;
+    }
+
+    HdfSRefConstruct(&holder->ref, &g_canMsgExtListener);
+    CanMsgGet(&holder->cmsg);
+    return &holder->cmsg;
 }
 
-void CanMsgGet(const struct CanMsg *msg)
+struct CanMsgPool *CanMsgPoolCreate(size_t size)
 {
-    struct CanMsgHolder *msgExt = NULL;
+    size_t i;
+    struct CanMsgPool *pool = NULL;
 
-    if (msg == NULL) {
-        return;
+    if (size > CAN_MSG_POOL_SIZE_MAX) {
+        HDF_LOGE("CanMsgPoolCreate: invalid pool size %zu", size);
+        return NULL;
     }
-    msgExt = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
-    HdfSRefAcquire(&msgExt->ref);
+    pool = OsalMemCalloc(sizeof(*pool) + sizeof(struct CanMsgHolder) * size);
+    if (pool == NULL) {
+        HDF_LOGE("CanMsgPoolCreate: alloc pool mem failed");
+        return NULL;
+    }
+
+    pool->size = size;
+    pool->holders = (struct CanMsgHolder *)((uint8_t *)pool + sizeof(*pool));
+    for (i = 0; i < size; i++) {
+        OsalAtomicSet(&pool->holders[i].available, 1);
+    }
+
+    HDF_LOGI("CanMsgPoolCreate: pool = %p", pool);
+    return pool;
 }
 
-void CanMsgPut(const struct CanMsg *msg)
+void CanMsgPoolDestroy(struct CanMsgPool *pool)
 {
-    struct CanMsgHolder *msgExt = NULL;
+    size_t drain;
+    struct CanMsgHolder *holder = NULL;
 
-    if (msg == NULL) {
+    if (pool == NULL) {
         return;
     }
-    msgExt = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
-    HdfSRefRelease(&msgExt->ref);
+    drain = pool->size;
+    while (drain > 0) {
+        holder = CanMsgPoolAcquireHolder(pool);
+        if (holder == NULL) {
+            HDF_LOGI("CanMsgPoolDestroy: wait pool, drain = %zu", drain);
+            OsalMSleep(200); //wait for 200 ms
+            continue;
+        }
+        drain--;
+    };
+    HDF_LOGI("CanMsgPoolDestroy: pool = %p", pool);
+    OsalMemFree(pool);
 }

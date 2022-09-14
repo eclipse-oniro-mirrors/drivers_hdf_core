@@ -17,13 +17,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
-struct CanMsg *CanMsgObtain(void);
-
-void CanMsgRecycle(struct CanMsg *msg);
+struct CanMsgPool;
 
 void CanMsgGet(const struct CanMsg *msg);
 
 void CanMsgPut(const struct CanMsg *msg);
+
+struct CanMsg *CanMsgPoolObtainMsg(struct CanMsgPool *pool);
+
+struct CanMsgPool *CanMsgPoolCreate(size_t size);
+
+void CanMsgPoolDestroy(struct CanMsgPool *pool);
 
 #ifdef __cplusplus
 }
