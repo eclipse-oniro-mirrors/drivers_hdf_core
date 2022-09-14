@@ -22,11 +22,11 @@ int32_t CanCntlrAdd(struct CanCntlr *cntlr);
 
 int32_t CanCntlrDel(struct CanCntlr *cntlr);
 
-void CanCntlrPut(struct CanCntlr *cntlr);
-
 struct CanCntlr *CanCntlrGetByName(const char *name);
 
 struct CanCntlr *CanCntlrGetByNumber(int32_t number);
+
+void CanCntlrPut(struct CanCntlr *cntlr);
 
 #ifdef __cplusplus
 }
