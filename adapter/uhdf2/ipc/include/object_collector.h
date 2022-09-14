@@ -40,6 +40,7 @@ public:
 private:
     ObjectCollector() = default;
     sptr<IRemoteObject> NewObjectLocked(const sptr<HdiBase> &interface, const std::u16string &interfaceName);
+    static ObjectCollector *instance_;
     std::map<const std::u16string, const Constructor> constructorMapper_;
     std::map<HdiBase *, IRemoteObject *> interfaceObjectCollector_;
     std::mutex mutex_;

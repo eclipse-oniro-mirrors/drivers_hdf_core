@@ -46,6 +46,7 @@ enum class TypeKind {
     TYPE_UNION,
     TYPE_SMQ,
     TYPE_ASHMEM,
+    TYPE_BUFFER_HANDLE,
 };
 
 enum class TypeMode {
@@ -126,6 +127,8 @@ public:
     virtual bool IsSmqType();
 
     virtual bool IsAshmemType();
+
+    virtual bool IsBufferHandleType();
 
     bool IsPod() const;
 

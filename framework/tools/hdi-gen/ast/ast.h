@@ -14,6 +14,7 @@
 
 #include "ast/ast_array_type.h"
 #include "ast/ast_boolean_type.h"
+#include "ast/ast_buffer_handle_type.h"
 #include "ast/ast_byte_type.h"
 #include "ast/ast_double_type.h"
 #include "ast/ast_enum_type.h"
