@@ -22,26 +22,9 @@ need %s module, try install first:
     exit()
 
 
-try:
-    import CppHeaderParser
-    from _header_parser import HeaderParser
-except ImportError:
-    pip.main(["--disable-pip-version-check", "install", "robotpy-cppheaderparser"])
-    try:
-        import CppHeaderParser
-        from _header_parser import HeaderParser
-    except ImportError:
-        HeaderParser = None
-        lost_module("robotpy-cppheaderparser")
-    finally:
-        pass
-finally:
-    pass
-
-
 class IDLGenerator:
     def __init__(self):
-        self._idl = ""
+        self._idl = []
         self._output_path = ""
         self._file_list = []
         self._key_list = {}
@@ -91,8 +74,8 @@ class IDLGenerator:
             if result is None:
                 continue
             self._parse_results[result.get("name")] = result
-            for file_name in result["import"]:  # 把include的文件加入列表
-                if file_name in self._parse_results:  # 解析过的不重复解析
+            for file_name in result.get("import", None):  # 把include的文件加入列表
+                if file_name in self._parse_results and file_name != None:  # 解析过的不重复解析
                     continue
                 file_path = self._search_file(root_path, file_name)
                 if file_path is not None:
@@ -151,24 +134,25 @@ class IDLGenerator:
             original_idl = self._idl
             for file_name in header["import"]:
                 if file_name not in self._parse_results:
-                    self._idl += "// can't import %s\n" % file_name
+                    self._idl.append("// can't import %s\n" % file_name)
                     print("[IDLGenerator]: %s[line ?] can't find %s"
                           % (os.path.normpath(header["path"] + "/" + header["name"]), file_name))
                     continue
                 include_file = self._parse_results[file_name]
                 if self._has_user_define_type(include_file):
-                    tt = re.search("import\\s+\\S+.Types", self._idl)
+                    tt = re.search("import\\s+\\S+.Types", "".join(self._idl))
                     if tt is None:
-                        self._idl += "import " + self._get_package(include_file['path']) + ".Types;\n"
+                        self._idl.append("import %s.Types;\n" % self._get_package(include_file['path']))
                 for iface in include_file["interface"]:
-                    self._idl += "import " + self._get_package(include_file['path']) + ".%s;\n" % iface["name"]
+                    self._idl.append("import %s.%s;\n" % (self._get_package(include_file['path']), iface["name"]))
+                    # self._idl += 
                 for cb in include_file["callback"]:
-                    self._idl += "import " + self._get_package(include_file['path']) + ".%s;\n" % cb["name"]
+                    self._idl.append("import %s.%s;\n" % (self._get_package(include_file['path']), cb["name"]))
             for cb in header['callback']:
-                self._idl += "import " + self._get_package(header['path']) + ".%s;\n" % cb["name"]
+                self._idl.append("import %s.%s;\n" % (self._get_package(header['path']), cb["name"]))
 
-            if original_idl != self._idl:
-                self._idl += "\n"
+            if original_idl != "".join(self._idl):
+                self._idl.append("\n")
         except KeyError:
             pass
         finally:
@@ -176,32 +160,32 @@ class IDLGenerator:
 
     def _install_enum(self, enums):
         for enum in enums:
-            self._idl += "enum %s {\n" % enum["name"]
+            self._idl.append("enum %s {\n" % enum["name"])
             for member in enum["members"]:
-                self._idl += "    %s = %s,\n" % (member["name"], member["value"])
-            self._idl += "};\n"
+                self._idl.append("    %s = %s,\n" % (member["name"], member["value"]))
+            self._idl.append("};\n")
 
     def _install_stack(self, stacks):
         for stack in stacks:
-            self._idl += stack["type"] + " %s {\n" % stack["name"]
+            self._idl.append(stack["type"] + " %s {\n" % stack["name"])
             for member in stack["members"]:
                 param_type = self._swap_type_c2idl(member["type"])
                 if "unknown type" in param_type:
                     print("[IDLGenerator]: %s[line %d] %s" % (
                         os.path.normpath(member["file_name"]), member["line_number"], param_type))
-                self._idl += "    %s %s;\n" % (param_type, member["name"])
-            self._idl += "};\n"
+                self._idl.append("    %s %s;\n" % (param_type, member["name"]))
+            self._idl.append("};\n")
 
     def _install_interface(self, iface):
         if re.search("[Cc]all[Bb]ack", iface["name"]):
-            self._idl += "[callback] "
-        self._idl += "interface %s {\n" % iface["name"]
+            self._idl.append("[callback] ")
+        self._idl.append("interface %s {\n" % iface["name"])
         for member in iface["members"]:
             self._install_function(iface["name"], member)
-        self._idl += "}\n"
+        self._idl.append("}\n")
 
     def _install_function(self, iface_name, member):
-        self._idl += "    %s(" % member["name"]
+        self._idl.append("    %s(" % member["name"])
         for i, param in enumerate(member["params"]):
             tt = re.fullmatch(r"(enum)*(union)*(struct)* *%s *\** * *\**" % iface_name, param["type"])
             if tt:
@@ -210,14 +194,14 @@ class IDLGenerator:
             if "unknown type" in param_type:
                 print("[IDLGenerator]: %s[line %d] %s" % (
                     os.path.normpath(member["file_name"]), member["line_number"], param_type))
-            self._idl += "%s %s %s," % (
+            self._idl.append("%s %s %s," % (
                 '* *' in param["type"] and "[out]" or "[in]",
                 param_type,
-                param["name"])
-        if self._idl.endswith(','):
-            self._idl = self._idl[:-1] + ");\n"
+                param["name"]))
+        if "".join(self._idl).endswith(','):
+            self._idl = ["".join(self._idl)[:-1], ");\n"]
         else:
-            self._idl += ");\n"
+            self._idl.append(");\n")
 
     @staticmethod
     def _convert_basic_type(c_type):
@@ -310,9 +294,9 @@ class IDLGenerator:
     def _write_file(self, file_path, file_name):
         file = os.path.join(self._make_output_dir(file_path), file_name).replace('\\', '/')
         with open(file, "w", encoding="utf8") as fp:
-            fp.write(self._idl)
+            fp.write("".join(self._idl))
         print("Generate: --------------------- %s ---------------------\n" % os.path.normpath(file))
-        self._idl = ""
+        self._idl = []
 
     @staticmethod
     def _split_path(file_path):
@@ -347,5 +331,20 @@ class IDLGenerator:
 
 
 if __name__ == "__main__":
+    try:
+        import CppHeaderParser
+        from _header_parser import HeaderParser
+    except ImportError:
+        pip.main(["--disable-pip-version-check", "install", "robotpy-cppheaderparser"])
+        try:
+            import CppHeaderParser
+            from _header_parser import HeaderParser
+        except ImportError:
+            HeaderParser = None
+            lost_module("robotpy-cppheaderparser")
+        finally:
+            pass
+    finally:
+        pass
     generator = IDLGenerator()
     generator.generate()

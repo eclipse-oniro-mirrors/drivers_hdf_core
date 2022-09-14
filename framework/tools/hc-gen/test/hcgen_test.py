@@ -37,7 +37,6 @@ import sys
 import time
 import base64
 
-SOURCE_ROOT = "../../"
 CMAKE_GEN_PATH = "cmake-build-debug"
 WORK_DIR = ""
 HCGEN = ""
@@ -78,7 +77,6 @@ def exec_command(command):
 
 
 def setup_hcgen_compiler():
-    global SOURCE_ROOT
     global CMAKE_GEN_PATH
     global HCGEN
 
