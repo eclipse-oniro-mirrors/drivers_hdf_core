@@ -42,6 +42,12 @@ private:
 
     void EmitProxyMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
 
+    void EmitPassthroughProxySourceFile();
+
+    void EmitPassthroughProxySourceInclusions(StringBuilder &sb);
+
+    void EmitPassthroughGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix);
+
     void EmitProxySourceFile();
 
     void EmitProxySourceInclusions(StringBuilder &sb);

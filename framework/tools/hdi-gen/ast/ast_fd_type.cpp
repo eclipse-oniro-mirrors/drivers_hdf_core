@@ -256,7 +256,7 @@ void ASTFdType::EmitCReadMethods(
 
     sb.Append(prefix + TAB).Append("*fd = -1;\n");
     sb.Append(prefix + TAB).Append("bool fdValied = false;\n");
-    sb.Append(prefix + TAB).Append("if (!HdfSbufReadInt8(data, (int8_t*)& fdValied)) {\n");
+    sb.Append(prefix + TAB).Append("if (!HdfSbufReadInt8(data, (int8_t*)&fdValied)) {\n");
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to read fdValied\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return false;\n");
     sb.Append(prefix + TAB).Append("}\n");

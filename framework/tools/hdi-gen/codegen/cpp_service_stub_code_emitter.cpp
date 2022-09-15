@@ -30,8 +30,10 @@ bool CppServiceStubCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppServiceStubCodeEmitter::EmitCode()
 {
-    EmitStubHeaderFile();
-    EmitStubSourceFile();
+    if (!Options::GetInstance().DoPassthrough()) {
+        EmitStubHeaderFile();
+        EmitStubSourceFile();
+    }
 }
 
 void CppServiceStubCodeEmitter::EmitStubHeaderFile()
