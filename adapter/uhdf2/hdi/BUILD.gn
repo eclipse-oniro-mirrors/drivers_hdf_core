@@ -57,7 +57,7 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/manager/include",
       "$hdf_uhdf_path/include/host",
     ]
-    public_configs = [ ":libhdi_pub_config" ]
+    all_dependent_configs = [ ":libhdi_pub_config" ]
     sources = [
       "$hdf_framework_path/core/shared/src/service_status.c",
       "src/devmgr_client.c",
