@@ -31,9 +31,9 @@
 
 namespace OHOS {
 namespace HDI {
-static const std::regex rePackage(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]"
+static const std::regex RE_PACKAGE(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]"
                                                 "(" RE_DIGIT ")_(" RE_DIGIT ")");
-static const std::regex reImport(
+static const std::regex RE_IMPORT(
     RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]" RE_DIGIT "_" RE_DIGIT "." RE_IDENTIFIER);
 
 bool Parser::Parse(const std::vector<std::string> &sourceFiles)
@@ -155,7 +155,7 @@ bool Parser::ParsePackage()
 bool Parser::ParserPackageInfo(const std::string &packageName)
 {
     std::cmatch result;
-    if (!std::regex_match(packageName.c_str(), result, rePackage)) {
+    if (!std::regex_match(packageName.c_str(), result, RE_PACKAGE)) {
         return false;
     }
 
@@ -1543,7 +1543,7 @@ bool Parser::CheckPackageName(const std::string &filePath, const std::string &pa
 
 bool Parser::CheckImport(const std::string &importName)
 {
-    if (!std::regex_match(importName.c_str(), reImport)) {
+    if (!std::regex_match(importName.c_str(), RE_IMPORT)) {
         LogError(StringHelper::Format("invalid impirt name '%s'", importName.c_str()));
         return false;
     }
