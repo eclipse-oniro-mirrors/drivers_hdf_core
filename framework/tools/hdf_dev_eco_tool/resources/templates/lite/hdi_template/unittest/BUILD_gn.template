@@ -1,0 +1,34 @@
+import("//build/test.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+
+module_output_path = "${peripheral_name}/"
+
+ohos_unittest("${peripheral_name}_hdi_1.0_test") {
+  module_out_path = module_output_path
+  sources = [ 
+    "unittest/hdf_${peripheral_name}_test.cpp",
+    "unittest/${peripheral_name}_callback_impl.h",
+    "unittest/${peripheral_name}_callback_impl.cpp",
+     ]
+
+  include_dirs = [
+    "//drivers/peripheral/${peripheral_name}/hdi_service",
+  ]
+
+  deps = [ "//utils/native/base:utils" ]
+
+  external_deps = [
+    "drivers_interface_${peripheral_name}:lib${peripheral_name}_proxy_1.0",
+    "hdf_core:libhdf_host",
+    "hdf_core:libhdf_ipc_adapter",
+    "hdf_core:libhdf_utils",
+    "hdf_core:libhdi",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+  external_deps += [ "ipc:ipc_single" ]
+}
+
+group("${peripheral_name}_unittest") {
+  testonly = true
+  deps = [ ":${peripheral_name}_hdi_1.0_test" ]
+}

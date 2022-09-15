@@ -49,13 +49,14 @@ class HdfToolSettings(object):
         self.supported_boards_key = 'supported_boards'
         self.drivers_path_key_framework = 'drivers_path_relative_framework'
         self.drivers_path_key_peripheral = 'drivers_path_relative_peripheral'
+        self.drivers_path_key_interface = 'drivers_path_relative_interface'
         self.drivers_adapter_path_key = 'drivers_path_relative_adapter'
         self.user_adapter_path_key = 'user_model_path_relative_adapter'
         self.dot_configs_key = 'dot_configs'
         self.board_path_key = 'board_parent_path'
         self.dot_config_path_key = 'dot_config_path'
         self.template_path_key = 'template_file_path'
-        self.module_save_path = 'create_file_save_path'
+        self.hdi_config_key = "hdi_config"
 
     def get_supported_boards(self):
         key = self.supported_boards_key
@@ -78,6 +79,10 @@ class HdfToolSettings(object):
 
     def get_drivers_path_peripheral(self):
         key = self.drivers_path_key_peripheral
+        return self.settings.get(key, 'hdf')
+
+    def get_drivers_path_interface(self):
+        key = self.drivers_path_key_interface
         return self.settings.get(key, 'hdf')
 
     def get_drivers_path_adapter(self):
@@ -117,6 +122,79 @@ class HdfToolSettings(object):
         key = self.user_adapter_path_key
         return self.settings.get(key, 'hdf')
 
-    def get_module_save_path(self):
-        key = self.module_save_path
+    def get_hdi_config(self):
+        key = self.hdi_config_key
         return self.settings.get(key, 'hdf')
+
+    def get_hdi_file_path(self):
+        cur_dir = os.path.realpath(os.path.dirname(__file__))
+        return os.path.join(cur_dir, 'resources')
+
+
+@singleton
+class HdiToolConfig(object):
+    def __init__(self):
+        hdf_tool = HdfToolSettings()
+        hdi_config_path = hdf_tool.get_hdi_config()["config_path"]
+        cur_dir = os.path.realpath(os.path.dirname(__file__))
+        self.hdi_file_path = os.path.join(cur_dir, hdi_config_path)
+        if not os.path.exists(self.hdi_file_path):
+            raise HdfToolException('file: %s file not exist!' % self.hdi_file_path,
+                                   CommandErrorCode.TARGET_NOT_EXIST)
+        with open(self.hdi_file_path, "r") as hdi_file_read:
+            try:
+                self.hdi_settings = json.load(hdi_file_read)
+            except ValueError as exc:
+                raise HdfToolException('file: %s format wrong, %s' %
+                                       (self.file_path, str(exc)),
+                                       CommandErrorCode.FILE_FORMAT_WRONG)
+        self.passwd_key = 'passwd'
+        self.group_key = 'group'
+        self.selinux_key = 'selinux'
+        self.selinux_type_key = 'type.te'
+        self.selinux_hdf_service_key = 'hdf_service.te'
+        self.selinux_hdf_service_contexts_key = 'hdf_service_contexts'
+        self.selinux_hdf_host_key = 'hdf_host.te'
+        self.selinux_peripheral_key = "peripheral_config"
+
+    def get_hdi_passwd(self):
+        key = self.passwd_key
+        return self.hdi_settings.get(key, 'hdi')
+
+    def get_hdi_group(self):
+        key = self.group_key
+        return self.hdi_settings.get(key, 'hdi')
+
+    def _get_hdi_selinux(self):
+        key = self.selinux_key
+        return self.hdi_settings.get(key, 'hdi')
+
+    def get_hdi_selinux_type(self):
+        key = self.selinux_type_key
+        selinux_config_info = self._get_hdi_selinux()
+        parent_path = selinux_config_info.get("pre_path")
+        return parent_path, selinux_config_info.get(key, 'hdi')
+
+    def get_hdi_selinux_hdf_service(self):
+        key = self.selinux_hdf_service_key
+        selinux_config_info = self._get_hdi_selinux()
+        parent_path = selinux_config_info.get("pre_path")
+        return parent_path, selinux_config_info.get(key, 'hdi')
+
+    def get_hdi_selinux_hdf_service_contexts(self):
+        key = self.selinux_hdf_service_contexts_key
+        selinux_config_info = self._get_hdi_selinux()
+        parent_path = selinux_config_info.get("pre_path")
+        return parent_path, selinux_config_info.get(key, 'hdi')
+
+    def get_hdi_selinux_hdf_host(self):
+        key = self.selinux_hdf_host_key
+        selinux_config_info = self._get_hdi_selinux()
+        parent_path = selinux_config_info.get("pre_path")
+        return parent_path, selinux_config_info.get(key, 'hdi')
+
+    def get_selinux_peripheral_hdf_host(self):
+        key = self.selinux_peripheral_key
+        selinux_config_info = self._get_hdi_selinux()
+        parent_path = selinux_config_info.get("pre_path")
+        return parent_path, selinux_config_info.get(key, 'hdi')

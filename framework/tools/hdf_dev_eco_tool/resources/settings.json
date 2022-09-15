@@ -35,8 +35,24 @@
     },
     "drivers_path_relative_framework": "drivers/hdf_core/framework",
     "drivers_path_relative_peripheral": "drivers/peripheral",
+    "drivers_path_relative_interface": "drivers/interface",
     "drivers_path_relative_adapter": "drivers/hdf_core/adapter/khdf",
     "user_model_path_relative_adapter": "drivers/hdf_core/adapter/uhdf2",
     "template_file_path": "tools/hdf_dev_eco_tool/resources/templates/lite",
-    "create_file_save_path": "tools/hdf_dev_eco_tool/resources/create_model.config"
+    "hdi_config": {
+        "interface":"productdefine/common/inherit/rich.json",
+        "peripheral":"productdefine/common/inherit/chipset_common.json",
+        "peripheral_folder": {
+            "unittest_path": "test/unittest",
+            "hdi_path": "hdi_service"
+        },
+        "output_path": "out/{product}/gen/drivers/interface/{interface_name}",
+        "move_list": [
+            "{interface_name}_service.h",
+            "{interface_name}_driver.cpp",
+            "{interface_name}_service.cpp"
+        ],
+        "config_path": "resources/templates/lite/hdi_template/create_idl_hdi.json",
+        "out_config_name": "create_idl_hdi.config"
+    }
 }
