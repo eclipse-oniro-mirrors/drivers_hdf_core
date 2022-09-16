@@ -14,7 +14,8 @@ import unittest
 import CppHeaderParser
 
 
-sys.path.insert(0, '..')
+def insert_sys_path():
+    sys.path.insert(0, '..')
 try:
     from _header_parser import HeaderParser
     from idl_generator import IDLGenerator
@@ -26,19 +27,19 @@ class IDLGeneratorTestCase(unittest.TestCase):
     def test_install_package(self):
         generator = IDLGenerator()
         generator._install_package("\\h\\audio\\test")
-        self.assertEqual(generator._idl, "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package(".\\h\\audio\\test")
-        self.assertEqual(generator._idl, "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package("C:\\h\\audio\\test")
-        self.assertEqual(generator._idl, "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package("./h/audio/test")
-        self.assertEqual(generator._idl, "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
 
     def test_install_import_interface(self):
         generator = IDLGenerator()
@@ -60,7 +61,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.audio.AudioRender;\n\n")
+        self.assertEqual("".join(generator._idl), "import include.audio.AudioRender;\n\n")
 
     def test_install_import_interfaces(self):
         generator = IDLGenerator()
@@ -89,7 +90,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.audio.AudioRender;\n"
+        self.assertEqual("".join(generator._idl), "import include.audio.AudioRender;\n"
                                          "import include.audio.adapter.AudioAdapter;\n\n")
 
     def test_install_import_multiple_interfaces(self):
@@ -115,7 +116,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.AudioInterfaceOne;\nimport include.AudioInterfaceTwo;\n\n")
+        self.assertEqual("".join(generator._idl),  "import include.AudioInterfaceOne;\nimport include.AudioInterfaceTwo;\n\n")
 
     def test_install_import_types(self):
         generator = IDLGenerator()
@@ -137,7 +138,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results["audio_test.h"]
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.Types;\n\n")
+        self.assertEqual("".join(generator._idl), "import include.Types;\n\n")
 
     def test_install_import_merge_types(self):
         generator = IDLGenerator()
@@ -166,7 +167,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.Types;\n\n")
+        self.assertEqual("".join(generator._idl), "import include.Types;\n\n")
 
     def test_install_import_types_and_interfaces(self):
         generator = IDLGenerator()
@@ -195,7 +196,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.Types;\nimport include.audio.adapter.AudioAdapter;\n\n")
+        self.assertEqual("".join(generator._idl), "import include.Types;\nimport include.audio.adapter.AudioAdapter;\n\n")
 
     def test_install_import_callback(self):
         generator = IDLGenerator()
@@ -213,7 +214,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual(generator._idl, "import include.audio.HotPlugCallback;\n"
+        self.assertEqual("".join(generator._idl), "import include.audio.HotPlugCallback;\n"
                                          "import include.audio.VBlankCallback;\n\n")
 
     def test_install_enum(self):
@@ -226,7 +227,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
             ]}
         ]
         generator._install_enum(enum)
-        self.assertEqual(generator._idl, "enum AudioPortDirection {\n"
+        self.assertEqual("".join(generator._idl), "enum AudioPortDirection {\n"
                                          "    PORT_OUT = 1,\n"
                                          "    PORT_IN = - 2 // unexpected '-',\n"
                                          "};\n")
@@ -240,7 +241,11 @@ class IDLGeneratorTestCase(unittest.TestCase):
                       {'name': 'desc', 'type': 'const char *'}
                   ]}]
         generator._install_stack(union)
-        self.assertEqual(generator._idl, "union SceneDesc {\n"
+        print("-------------------------------------------------")
+        print("-------------------------------------------------")
+        print("-------------------------------------------------")
+        print("".join(generator._idl) )
+        self.assertEqual("".join(generator._idl), "union SceneDesc {\n"
                                          "    unsigned int id;\n"
                                          "    byte[] desc;\n"
                                          "};\n")
@@ -254,7 +259,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
                        {'name': 'desc', 'type': 'const char *'}
                    ]}]
         generator._install_stack(struct)
-        self.assertEqual(generator._idl, "struct SceneDesc {\n"
+        self.assertEqual("".join(generator._idl), "struct SceneDesc {\n"
                                          "    unsigned int id;\n"
                                          "    byte[] desc;\n"
                                          "};\n")
@@ -273,7 +278,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         generator._key_list["InputController"] = "struct"
         generator._key_list["InputControllerDesc"] = "struct"
         generator._install_interface(parser._header_dict.get("interface")[0])
-        self.assertEqual(generator._idl, "interface InputController {\n"
+        self.assertEqual("".join(generator._idl),  "interface InputController {\n"
                                          "    RunExtraCommand([in] unsigned int devIndex,[out] unsigned int cmd);\n"
                                          "    RunExtra([in] struct InputControllerDesc desc);\n"
                                          "}\n")
@@ -289,7 +294,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         parser._extract_interface(hjson["classes"]["InputController"])
         generator = IDLGenerator()
         generator._install_interface(parser._header_dict.get("interface")[0])
-        self.assertEqual(generator._idl, "interface InputController {\n"
+        self.assertEqual("".join(generator._idl), "interface InputController {\n"
                                          "    RunExtra([in] /* unknown type: [InputControllerDesc] */ desc);\n"
                                          "}\n")
 
@@ -304,7 +309,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         parser._extract_interface(hjson["classes"]["IFooCallback"])
         generator = IDLGenerator()
         generator._install_interface(parser._header_dict.get("interface")[0])
-        self.assertEqual(generator._idl, "[callback] interface IFooCallback {\n"
+        self.assertEqual("".join(generator._idl), "[callback] interface IFooCallback {\n"
                                          "    PushData([in] byte[] message);\n"
                                          "}\n")
 

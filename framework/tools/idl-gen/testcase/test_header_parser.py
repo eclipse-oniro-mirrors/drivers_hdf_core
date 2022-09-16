@@ -15,8 +15,8 @@ from os import remove
 import CppHeaderParser
 
 
-sys.path.insert(0, '..')
-
+def insert_sys_path():
+    sys.path.insert(0, '..')
 try:
     from _header_parser import HeaderParser
 finally:
