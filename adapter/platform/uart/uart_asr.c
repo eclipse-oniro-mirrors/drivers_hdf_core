@@ -227,8 +227,6 @@ static int32_t Asr582xUartConfig(struct UartDriverData *udd)
 
 static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t size)
 {
-    int32_t ret;
-    uint32_t uwRet = 0;
     uint32_t recv_len = 0;
     struct UartDriverData *udd = NULL;
     uint8_t port = 0;
