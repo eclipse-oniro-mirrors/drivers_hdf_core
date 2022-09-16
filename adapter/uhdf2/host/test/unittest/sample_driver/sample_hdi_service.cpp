@@ -149,7 +149,7 @@ static int32_t SampleServiceTansSmq(
         return HDF_FAILURE;
     }
     static size_t elem = static_cast<size_t>(element);
-    std::thread t([&]() {
+    std::thread t([]() {
         HDF_LOGI("SampleServiceTansSmq:smq read thread start, elem=%{public}zu", elem);
         std::shared_ptr<SharedMemQueue<SampleSmqElement>> smqLocal = smq;
         size_t elemLocal = elem;
