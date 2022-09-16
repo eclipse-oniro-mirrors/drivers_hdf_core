@@ -224,5 +224,9 @@ template("hdi") {
   group("$target_name" + "_idl_headers") {
     public_configs = [ ":$idl_headers_config" ]
     deps = [ ":hdi_gen" ]
+
+    if (defined(invoker.sequenceable)) {
+      public_deps = invoker.sequenceable
+    }
   }
 }

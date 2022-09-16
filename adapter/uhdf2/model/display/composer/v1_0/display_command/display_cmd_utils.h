@@ -17,8 +17,8 @@
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_CMD_UTILS_H
 
 #include "buffer_handle_utils.h"
-#include "command_data_packer.h"
-#include "command_data_unpacker.h"
+#include "command_pack/command_data_packer.h"
+#include "command_pack/command_data_unpacker.h"
 #include "v1_0/display_composer_type.h"
 
 namespace OHOS {
@@ -37,22 +37,22 @@ public:
     static constexpr uint32_t INIT_ELEMENT_COUNT = 32 * 1024;
 
     #define SWITCHCASE(x) case (x): {return #x;}
-    #define PARCEL_OPS_CHECK_RET(fn, arg)                                                        \
-    do {                                                                                         \
-        bool ret = fn(arg);                                                                      \
-        if (ret == false) {                                                                      \
-            HDF_LOG("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
-            return HDF_FAILURE;                                                                  \
-        }                                                                                        \
+    #define PARCEL_OPS_CHECK_RET(fn, arg)                                                                   \
+    do {                                                                                                    \
+        bool ret = fn(arg);                                                                                 \
+        if (ret == false) {                                                                                 \
+            HILOG_ERROR(LOG_CORE, "%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);  \
+            return HDF_FAILURE;                                                                             \
+        }                                                                                                   \
     } while (0)
 
-    #define PARCEL_OPS_CHECK_WITHOUT_RET(fn, arg, ret)                                           \
-    do {                                                                                         \
-        if (ret) {                                                                               \
-            ret = fn(arg);                                                                       \
-        } else {                                                                                 \
-            HDF_LOG("%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);     \
-        }                                                                                        \
+    #define PARCEL_OPS_CHECK_WITHOUT_RET(fn, arg, ret)                                                      \
+    do {                                                                                                    \
+        if (ret) {                                                                                          \
+            ret = fn(arg);                                                                                  \
+        } else {                                                                                            \
+            HILOG_ERROR(LOG_CORE, "%{public}s: parcel ops failed, line = %{public}d", __func__, __LINE__);  \
+        }                                                                                                   \
     } while (0)
 
     static const char *CommandToString(int32_t cmdId)
@@ -165,7 +165,7 @@ public:
         hdifdInfo.id = GenerateHdifdSeqid();
         hdifdInfo.hdiFd = new HdifdParcelable();
         if (hdifdInfo.hdiFd == nullptr) {
-            HDF_LOGE("%{public}s: new HdifdParcelable failed", __func__);
+            HILOG_ERROR(LOG_CORE, "%{public}s: new HdifdParcelable failed", __func__);
             ec = HDF_FAILURE;
         } else {
             if (fd >= 0) {
@@ -174,14 +174,14 @@ public:
                     hdiFds.push_back(hdifdInfo);
                     ec = packer->WriteInt32(hdifdInfo.id) ? HDF_SUCCESS : HDF_FAILURE;
                 } else {
-                    HDF_LOGE("%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
+                    HILOG_ERROR(LOG_CORE, "%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
                     ec = HDF_FAILURE;
                 }
             } else {
                 // A illegal fd is transfered by smq directly.
-                ec = packer->WriteInt32(fd);
-                if (ec != HDF_SUCCESS {
-                    HDF_LOGE("%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
+                ec = packer->WriteInt32(fd) ? HDF_SUCCESS : HDF_FAILURE;
+                if (ec != HDF_SUCCESS) {
+                    HILOG_ERROR(LOG_CORE, "%{public}s: WriteInt32 failed, line=%{public}d", __func__, __LINE__);
                 }
             }
         }
@@ -207,7 +207,7 @@ public:
         PARCEL_OPS_CHECK_RET(packer->WriteInt32, buffer.key);
 
         bool retVal = true;
-        int32_t i = 0;
+        uint32_t i = 0;
         for (i = 0; i < buffer.reserveFds; i++) {
             ec = FileDescriptorPack(buffer.reserve[i], packer, hdiFds);
             if (ec != HDF_SUCCESS) {
@@ -215,7 +215,7 @@ public:
                 break;
             }
         }
-        for (int32_t j = 0; j < buffer.reserveInts; j++) {
+        for (uint32_t j = 0; j < buffer.reserveInts; j++) {
             retVal = packer->WriteInt32(buffer.reserve[i++]);
             if (!retVal) {
                 break;
@@ -282,11 +282,12 @@ public:
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->stride, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->height, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->size, retVal);
+        PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->format, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadUint64, handle->usage, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadUint64, handle->phyAddr, retVal);
         PARCEL_OPS_CHECK_WITHOUT_RET(unpacker->ReadInt32, handle->key, retVal);
         if (retVal) {
-            int32_t i = 0;
+            uint32_t i = 0;
             for (i = 0; i < handle->reserveFds; i++) {
                 ec = FileDescriptorUnpack(unpacker, hdiFds, handle->reserve[i]);
                 if (ec != HDF_SUCCESS) {
@@ -294,7 +295,7 @@ public:
                     break;
                 }
             }
-            for (int32_t j = 0; j < handle->reserveInts; j++) {
+            for (uint32_t j = 0; j < handle->reserveInts; j++) {
                 retVal = unpacker->ReadInt32(handle->reserve[i++]);
                 if (!retVal) {
                     break;
@@ -306,7 +307,7 @@ public:
                 FreeBufferHandle(handle);
                 handle = nullptr;
             }
-            HDF_LOGE("%{public}s: buffer handle unpack failed", __func__);
+            HILOG_ERROR(LOG_CORE, "%{public}s: buffer handle unpack failed", __func__);
         }
         buffer = handle;
         return retVal ? HDF_SUCCESS : HDF_FAILURE;

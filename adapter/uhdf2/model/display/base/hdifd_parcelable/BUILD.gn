@@ -17,9 +17,6 @@ import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 config("hdifd_parcelable_config") {
   include_dirs = [
     "//drivers/hdf_core/adapter/uhdf2/model/display/base/hdifd_parcelable",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/adapter/uhdf2/osal/include",
-    "//drivers/peripheral/base",
   ]
 }
 

@@ -17,7 +17,7 @@
 #define DISPLAY_COMMAND_DATA_UNPACKER_H_
 
 #include <memory>
-#include "hdf_log.h"
+#include "hilog/log.h"
 
 namespace OHOS {
 namespace HDI {
@@ -94,7 +94,7 @@ public:
             ret = (magic == SECTION_END_MAGIC ? true : false);
         }
         if (ret == true && !(ReadInt32(cmdId) && ReadUint32(curSecLen_))) {
-            HDF_LOGE("error: cmdId=%{public}d or curSecLen_=%{public}d error.", cmdId, curSecLen_);
+            HILOG_ERROR(LOG_CORE, "error: cmdId=%{public}d or curSecLen_=%{public}d error.", cmdId, curSecLen_);
             ret = false;
         }
         return ret;
@@ -113,7 +113,8 @@ public:
         if ((ret == true) && (readPos_ == packSize_)) {
             ret = true;
         } else {
-            HDF_LOGE("error: readPos_(%{public}zu) > packSize_(%{public}zu), read overflow.", readPos_, curSecOffset_);
+            HILOG_ERROR(LOG_CORE, "error: readPos_(%{public}zu) > packSize_(%{public}zu), read overflow.",
+                readPos_, curSecOffset_);
             ret = false;
         }
         return ret;
@@ -121,26 +122,26 @@ public:
 
     void Dump()
     {
-        HDF_LOGI("---------------------------------------------\n");
-        HDF_LOGI("SECTION_END_MAGIC =0x%{public}x\n", SECTION_END_MAGIC);
-        HDF_LOGI("COMMAND_ID_SIZE   =%{public}d\n", COMMAND_ID_SIZE);
-        HDF_LOGI("packSize_         =%{public}zu\n", packSize_);
-        HDF_LOGI("readPos_          =%{public}zu\n", readPos_);
-        HDF_LOGI("curSecOffset_     =%{public}zu\n", curSecOffset_);
-        HDF_LOGI("curSecLen_        =%{public}d\n", curSecLen_);
-        HDF_LOGI("data_             =%{public}p\n", data_);
+        HILOG_INFO(LOG_CORE, "---------------------------------------------\n");
+        HILOG_INFO(LOG_CORE, "SECTION_END_MAGIC =0x%{public}x\n", SECTION_END_MAGIC);
+        HILOG_INFO(LOG_CORE, "COMMAND_ID_SIZE   =%{public}d\n", COMMAND_ID_SIZE);
+        HILOG_INFO(LOG_CORE, "packSize_         =%{public}zu\n", packSize_);
+        HILOG_INFO(LOG_CORE, "readPos_          =%{public}zu\n", readPos_);
+        HILOG_INFO(LOG_CORE, "curSecOffset_     =%{public}zu\n", curSecOffset_);
+        HILOG_INFO(LOG_CORE, "curSecLen_        =%{public}d\n", curSecLen_);
+        HILOG_INFO(LOG_CORE, "data_             =%{public}p\n", data_);
         uint32_t i = 0;
         for (; sizeof(int32_t) * i < packSize_;) {
-            HDF_LOGI("%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));
+            HILOG_INFO(LOG_CORE, "%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));
             i++;
             if (i % DUMP_LINE_LEN == 0) {
-                HDF_LOGI("\n");
+                HILOG_INFO(LOG_CORE, "\n");
             } else if (i % SECTION_LEN_ALIGN == 0) {
-                HDF_LOGI(" ");
+                HILOG_INFO(LOG_CORE, " ");
             } else {
             }
         }
-        HDF_LOGI("\n");
+        HILOG_INFO(LOG_CORE, "\n");
     }
 
 private:
@@ -150,8 +151,8 @@ private:
         size_t dataSize = sizeof(T);
 
         if (readPos_ + dataSize > packSize_) {
-            HDF_LOGE("Read overflow, readPos=%{public}zu + %{public}zu}, packSize=%{public}zu.", readPos_, dataSize,
-                packSize_);
+            HILOG_ERROR(LOG_CORE, "Read overflow, readPos=%{public}zu + %{public}zu}, packSize=%{public}zu.",
+                readPos_, dataSize, packSize_);
             return false;
         }
 

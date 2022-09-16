@@ -18,7 +18,7 @@
 
 #include <string>
 #include <vector>
-#include <message_parcel.h>
+#include <parcel.h>
 #include "buffer_handle.h"
 
 namespace OHOS {

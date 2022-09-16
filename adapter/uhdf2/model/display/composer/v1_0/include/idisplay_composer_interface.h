@@ -17,7 +17,7 @@
 #define OHOS_HDI_DISPLAY_V1_0_IDISPLAY_COMPOSER_INTERFACE_H
 
 #include <vector>
-#include "display_common.h"
+#include "common/include/display_common.h"
 #include "v1_0/display_composer_type.h"
 
 namespace OHOS {
@@ -30,8 +30,9 @@ using namespace OHOS::HDI::Display::Composer::V1_0;
 class IDisplayComposerInterface {
 public:
     virtual ~IDisplayComposerInterface() = default;
+    static IDisplayComposerInterface* Get();
     /* device func */
-    virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void *data) = 0;
+    virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void* data) = 0;
     virtual int32_t GetDisplayCapability(uint32_t devId, DisplayCapability& info) = 0;
     virtual int32_t GetDisplaySupportedModes(uint32_t devId, std::vector<DisplayModeInfo>& modes) = 0;
     virtual int32_t GetDisplayMode(uint32_t devId, uint32_t& modeId) = 0;
@@ -56,6 +57,14 @@ public:
     virtual int32_t SetVirtualDisplayBuffer(uint32_t devId, const BufferHandle& buffer, const int32_t fence) = 0;
     virtual int32_t SetDisplayProperty(uint32_t devId, uint32_t id, uint64_t value) = 0;
     virtual int32_t Commit(uint32_t devId, int32_t& fence) = 0;
+    virtual int32_t GetDisplaySupportedColorGamuts(uint32_t devId, std::vector<ColorGamut>& gamuts) = 0;
+    virtual int32_t GetDisplayColorGamut(uint32_t devId, ColorGamut& gamut) = 0;
+    virtual int32_t SetDisplayColorGamut(uint32_t devId, const ColorGamut& gamut) = 0;
+    virtual int32_t GetDisplayGamutMap(uint32_t devId, GamutMap& gamutMap) = 0;
+    virtual int32_t SetDisplayGamutMap(uint32_t devId, const GamutMap& gamutMap) = 0;
+    virtual int32_t SetDisplayColorTransform(uint32_t devId, const std::vector<float>& matrix) = 0;
+    virtual int32_t GetHDRCapabilityInfos(uint32_t devId, HDRCapability& info) = 0;
+    virtual int32_t GetSupportedMetadataKey(uint32_t devId, std::vector<HDRMetadataKey>& keys) = 0;
     /* layer func */
     virtual int32_t CreateLayer(uint32_t devId, const LayerInfo& layerInfo, uint32_t& layerId) = 0;
     virtual int32_t DestroyLayer(uint32_t devId, uint32_t layerId) = 0;
@@ -68,10 +77,19 @@ public:
     virtual int32_t SetTransformMode(uint32_t devId, uint32_t layerId, TransformType type) = 0;
     virtual int32_t SetLayerDirtyRegion(uint32_t devId, uint32_t layerId, const IRect& region) = 0;
     virtual int32_t SetLayerVisibleRegion(uint32_t devId, uint32_t layerId, std::vector<IRect>& rects) = 0;
-    virtual int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, BufferHandle& buffer, int32_t fence) = 0;
+    virtual int32_t SetLayerBuffer(uint32_t devId, uint32_t layerId, const BufferHandle& buffer, int32_t fence) = 0;
     virtual int32_t SetLayerCompositionType(uint32_t devId, uint32_t layerId, CompositionType type) = 0;
     virtual int32_t SetLayerBlendType(uint32_t devId, uint32_t layerId, BlendType type) = 0;
     virtual int32_t SetLayerVisible(uint32_t devId, uint32_t layerId, bool visible) = 0;
+    virtual int32_t SetLayerColorTransform(uint32_t devId, uint32_t layerId, const std::vector<float>& matrix) = 0;
+    virtual int32_t SetLayerColorDataSpace(uint32_t devId, uint32_t layerId, const ColorDataSpace colorSpace) = 0;
+    virtual int32_t GetLayerColorDataSpace(uint32_t devId, uint32_t layerId, ColorDataSpace& colorSpace) = 0;
+    virtual int32_t SetLayerMetaData(uint32_t devId, uint32_t layerId, const std::vector<HDRMetaData>& metaData) = 0;
+    virtual int32_t SetLayerMetaDataSet(uint32_t devId, uint32_t layerId, HDRMetadataKey key,
+         const std::vector<uint8_t>& metaData) = 0;
+    virtual int32_t GetSupportedPresentTimestamp(uint32_t devId, uint32_t layerId, PresentTimestampType& type) = 0;
+    virtual int32_t GetHwPresentTimestamp(uint32_t devId, uint32_t layerId, PresentTimestamp& pts) = 0;
+    virtual int32_t SetLayerTunnelHandle(uint32_t devId, uint32_t layerId, const ExtDataHandle& handle) = 0;
 };
 } // V1_0
 } // Composer

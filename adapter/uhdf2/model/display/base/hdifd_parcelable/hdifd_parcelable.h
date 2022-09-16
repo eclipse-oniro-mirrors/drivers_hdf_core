@@ -18,8 +18,7 @@
 
 #include <string>
 #include <vector>
-#include <message_parcel.h>
-#include "buffer_handle.h"
+#include <parcel.h>
 
 namespace OHOS {
 namespace HDI {

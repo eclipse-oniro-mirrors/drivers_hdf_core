@@ -13,22 +13,29 @@
 
 import("//drivers/hdf_core/adapter/uhdf2/hdi.gni")
 
-config("libdisplay_buffer_hdi_impl_config") {
+config("libdisplay_composer_hdi_impl_config") {
   include_dirs = [
-    "//drivers/hdf_core/adapter/uhdf2/model/display/buffer",
+    "//drivers/hdf_core/adapter/uhdf2/model/display/composer",
   ]
 }
-ohos_shared_library("libdisplay_buffer_hdi_impl") {
-  sources = [ "hdi_impl/display_buffer_hdi_impl.cpp" ]
 
-  public_configs = [ ":libdisplay_buffer_hdi_impl_config" ]
-
-  include_dirs = [
-    "//drivers/hdf_core/adapter/uhdf2/model/display/buffer",
-    "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable",
+ohos_shared_library("libdisplay_composer_hdi_impl") {
+  sources = [
+    "hdi_impl/display_composer_interface.cpp",
   ]
 
-  deps = [ "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable:libbufferhandle_parcelable" ]
+  public_configs = [ ":libdisplay_composer_hdi_impl_config" ]
+
+  include_dirs = [
+    "//drivers/hdf_core/adapter/uhdf2/model/display/composer",
+    "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable",
+    "//drivers/hdf_core/adapter/uhdf2/model/display/base/hdifd_parcelable",
+  ]
+
+  deps = [
+    "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable:libbufferhandle_parcelable",
+    "//drivers/hdf_core/adapter/uhdf2/model/display/base/hdifd_parcelable:libhdifd_parcelable",
+  ]
 
   public_deps = [ "//foundation/graphic/graphic_2d/utils/buffer_handle:buffer_handle" ]
 
@@ -36,7 +43,7 @@ ohos_shared_library("libdisplay_buffer_hdi_impl") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "utils_base:utils",
-    "drivers_interface_display:libdisplay_buffer_proxy_1.0",
+    "drivers_interface_display:libdisplay_composer_proxy_1.0",
   ]
 
   install_images = [ chipset_base_dir ]

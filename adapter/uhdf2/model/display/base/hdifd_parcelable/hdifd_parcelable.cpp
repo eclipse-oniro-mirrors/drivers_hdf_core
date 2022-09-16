@@ -14,9 +14,10 @@
  */
 
 #include "hdifd_parcelable.h"
+#include <unistd.h>
 #include <sstream>
 #include "securec.h"
-#include "hdf_log.h"
+#include "hilog/log.h"
 #include "ipc_file_descriptor.h"
 
 namespace OHOS {
@@ -34,7 +35,7 @@ HdifdParcelable::HdifdParcelable(int32_t fd)
 
 HdifdParcelable::~HdifdParcelable()
 {
-    if ((init_ != false) && (hdiFd_ < 0)) {
+    if ((init_ != false) && (hdiFd_ >= 0)) {
         close(hdiFd_);
     }
 }
@@ -44,7 +45,7 @@ bool HdifdParcelable::Init(int32_t fd)
     bool ret = true;
 
     if (init_ == true) {
-        HDF_LOGI("%{public}s: fd parcelable have been initialized", __func__);
+        HILOG_INFO(LOG_CORE, "%{public}s: fd parcelable have been initialized", __func__);
         ret = false;
     } else {
         if (fd < 0) {
@@ -73,7 +74,7 @@ bool HdifdParcelable::WriteFileDescriptor(const int fd, Parcel& parcel)
 
     sptr<IPCFileDescriptor> descriptor = new (std::nothrow) IPCFileDescriptor(dupFd);
     if (descriptor == nullptr) {
-        HDF_LOGE("%{public}s: create IPCFileDescriptor object failed", __func__);
+        HILOG_ERROR(LOG_CORE, "%{public}s: create IPCFileDescriptor object failed", __func__);
         return false;
     }
     return parcel.WriteObject<IPCFileDescriptor>(descriptor);
@@ -96,11 +97,11 @@ bool HdifdParcelable::Marshalling(Parcel& parcel) const
 {
     bool validFlag = (hdiFd_ >= 0);
     if (!parcel.WriteBool(validFlag)) {
-        HDF_LOGE("%{public}s: parcel.WriteBool failed", __func__);
+        HILOG_ERROR(LOG_CORE, "%{public}s: parcel.WriteBool failed", __func__);
         return false;
     }
     if (validFlag && !WriteFileDescriptor(hdiFd_, parcel)) {
-        HDF_LOGE("%{public}s: parcel.WriteFileDescriptor fd failed", __func__);
+        HILOG_ERROR(LOG_CORE, "%{public}s: parcel.WriteFileDescriptor fd failed", __func__);
         return false;
     }
     return true;
@@ -110,14 +111,14 @@ sptr<HdifdParcelable> HdifdParcelable::Unmarshalling(Parcel& parcel)
 {
     bool validFlag = false;
     if (!parcel.ReadBool(validFlag)) {
-        HDF_LOGE("%{public}s: ReadBool validFlag failed", __func__);
+        HILOG_ERROR(LOG_CORE, "%{public}s: ReadBool validFlag failed", __func__);
         return nullptr;
     }
     int32_t fd = -1;
     if (validFlag) {
         fd = ReadFileDescriptor(parcel);
         if (fd < 0) {
-            HDF_LOGE("%{public}s: ReadFileDescriptor fd failed", __func__);
+            HILOG_ERROR(LOG_CORE, "%{public}s: ReadFileDescriptor fd failed", __func__);
             return nullptr;
         }
     }
