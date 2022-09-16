@@ -108,7 +108,14 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
         HDF_LOGW("failed to start device host(%{public}s, %{public}u)", hostClnt->hostName, hostClnt->hostId);
         return HDF_FAILURE;
     }
+    OsalMutexLock(&hostClnt->hostLock);
+    if (hostClnt->hostService == NULL || hostClnt->hostService->AddDevice == NULL) {
+        OsalMutexUnlock(&hostClnt->hostLock);
+        HDF_LOGE("%{public}s load %{public}s failed, hostService is null", __func__, serviceName);
+        return HDF_FAILURE;
+    }
     ret = hostClnt->hostService->AddDevice(hostClnt->hostService, deviceInfo);
+    OsalMutexUnlock(&hostClnt->hostLock);
     if (ret == HDF_SUCCESS) {
         deviceInfo->status = HDF_SERVICE_USABLE;
     }
@@ -143,11 +150,14 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
         HDF_LOGE("device %{public}s not in configed dynamic device list", serviceName);
         return HDF_DEV_ERR_NO_DEVICE;
     }
-
-    if (hostClnt->hostService == NULL) {
+    OsalMutexLock(&hostClnt->hostLock);
+    if (hostClnt->hostService == NULL || hostClnt->hostService->DelDevice == NULL) {
+        OsalMutexUnlock(&hostClnt->hostLock);
+        HDF_LOGE("%{public}s unload %{public}s failed, hostService is null", __func__, serviceName);
         return HDF_FAILURE;
     }
     ret = hostClnt->hostService->DelDevice(hostClnt->hostService, deviceInfo->deviceId);
+    OsalMutexUnlock(&hostClnt->hostLock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGI("%{public}s:unload service %{public}s delDevice failed", __func__, serviceName);
         return ret;
