@@ -28,9 +28,11 @@ if (hdf_core_khdf_test_support) {
       "unittest/manager:hdf_adapter_uhdf_test_uevent",
       "unittest/osal:hdf_adapter_uhdf_test_osal",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-      "unittest/platform:hdf_adapter_uhdf_test_platform",
       "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
     ]
+    if (product_name == "rk3568") {
+      deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
+    }
   }
 } else {
   group("hdf_test_uhdf") {
@@ -39,8 +41,10 @@ if (hdf_core_khdf_test_support) {
       "fuzztest:hdf_platform_test",
       "unittest/manager:hdf_adapter_uhdf_test_sbuf",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-      "unittest/platform:hdf_adapter_uhdf_test_platform",
       "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
     ]
+    if (product_name == "rk3568") {
+      deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
+    }
   }
 }
