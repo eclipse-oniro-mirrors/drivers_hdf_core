@@ -461,7 +461,7 @@ static void GpioDriverRelease(struct HdfDeviceObject *device)
     gpioCntlr = GpioCntlrFromHdfDev(device);
     if (gpioCntlr == NULL) {
         HDF_LOGE("GpioCntlrFromHdfDev fail\r\n");
-        return HDF_DEV_ERR_NO_DEVICE_SERVICE;
+        return;
     }
 
     (void)OsalMemFree(gpioCntlr->priv);
