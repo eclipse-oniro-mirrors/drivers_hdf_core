@@ -207,13 +207,13 @@ bool HdiBufferHandle::WriteReserveData(MessageParcel &messageParcel, const Buffe
 {
     for (uint32_t i = 0; i < handle.reserveFds; i++) {
         if (!messageParcel.WriteFileDescriptor(handle.reserve[i])) {
-            HDF_LOGE("%{public}s: failed to write reserve[%{public}zu]", __func__, i);
+            HDF_LOGE("%{public}s: failed to write reserved fd value", __func__);
             return false;
         }
     }
     for (uint32_t j = 0; j < handle.reserveInts; j++) {
         if (!messageParcel.WriteInt32(handle.reserve[handle.reserveFds + j])) {
-            HDF_LOGE("%{public}s: failed to write reserve[%{public}zu]", __func__, j);
+            HDF_LOGE("%{public}s: failed to write reserved integer value", __func__);
             return false;
         }
     }
@@ -225,13 +225,13 @@ bool HdiBufferHandle::ReadReserveData(MessageParcel &messageParcel, BufferHandle
     for (uint32_t i = 0; i < handle.reserveFds; i++) {
         handle.reserve[i] = messageParcel.ReadFileDescriptor();
         if (handle.reserve[i] == -1) {
-            HDF_LOGE("%{public}s: failed to read fd of reserve[%{public}zu]", __func__, i);
+            HDF_LOGE("%{public}s: failed to read reserved fd value", __func__);
             return false;
         }
     }
     for (uint32_t j = 0; j < handle.reserveInts; j++) {
         if (!messageParcel.ReadInt32(handle.reserve[handle.reserveFds + j])) {
-            HDF_LOGE("%{public}s: failed to read int32 of reserve[%{public}zu]", __func__, j);
+            HDF_LOGE("%{public}s: failed to read reserved integer value", __func__);
             return false;
         }
     }
