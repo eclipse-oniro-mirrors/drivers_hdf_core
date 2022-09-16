@@ -30,6 +30,10 @@ bool CServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CServiceDriverCodeEmitter::EmitCode()
 {
+    if (Options::GetInstance().DoPassthrough()) {
+        return;
+    }
+
     // the callback interface or interface as method parameter have no driver file.
     if (isKernelCode_ || !interface_->IsSerializable()) {
         EmitDriverSourceFile();

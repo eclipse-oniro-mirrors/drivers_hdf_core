@@ -24,6 +24,14 @@ private:
 
     void EmitCode() override;
 
+    void EmitPassthroughProxySourceFile();
+
+    void EmitPassthroughProxyInclusions(StringBuilder &sb);
+
+    void EmitPassthroughGetInstanceMethod(StringBuilder &sb);
+
+    void EmitPassthroughReleaseInstanceMethod(StringBuilder &sb);
+
     void EmitProxySourceFile();
 
     void EmitProxyDefinition(StringBuilder &sb);

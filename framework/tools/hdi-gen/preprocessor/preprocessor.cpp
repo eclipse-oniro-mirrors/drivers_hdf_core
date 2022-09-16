@@ -170,6 +170,11 @@ bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
             return false;
         }
 
+        if (!File::CheckValid(Options::GetInstance().GetImportFilePath(token.value_))) {
+            Logger::E(TAG, "%s: import invalid package '%s'", LocInfo(token).c_str(), token.value_.c_str());
+            return false;
+        }
+
         info.imports_.emplace(token.value_);
         lexer.GetToken();
 

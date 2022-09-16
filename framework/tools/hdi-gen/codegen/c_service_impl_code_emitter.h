@@ -46,6 +46,8 @@ private:
 
     void EmitKernelServiceImplGetMethod(StringBuilder &sb);
 
+    void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix);
+
     void EmitServiceImplGetMethod(StringBuilder &sb);
 
     void EmitKernelServiceImplReleaseMethod(StringBuilder &sb);

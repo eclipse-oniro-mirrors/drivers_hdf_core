@@ -176,18 +176,21 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, cons
             sb.Append("\n");
         }
     }
+
+    sb.Append("\n");
+    EmitServiceImplGetVersionMethod(sb, prefix);
 }
 
 void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     if (method->GetParameterNumber() == 0) {
-        sb.Append(prefix).AppendFormat(
-            "int32_t %s%s(struct %s *self)\n", baseName_.c_str(), method->GetName().c_str(), interfaceName_.c_str());
+        sb.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self)\n", baseName_.c_str(),
+            method->GetName().c_str(), interfaceName_.c_str());
     } else {
         StringBuilder paramStr;
-        paramStr.Append(prefix).AppendFormat(
-            "int32_t %s%s(struct %s *self, ", baseName_.c_str(), method->GetName().c_str(), interfaceName_.c_str());
+        paramStr.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self, ", baseName_.c_str(),
+            method->GetName().c_str(), interfaceName_.c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             EmitInterfaceMethodParameter(param, paramStr, "");
@@ -202,6 +205,28 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
     }
 
     sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("return HDF_SUCCESS;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void CServiceImplCodeEmitter::EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix)
+{
+    AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
+    sb.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self, ", baseName_.c_str(),
+        method->GetName().c_str(), interfaceName_.c_str());
+    for (size_t i = 0; i < method->GetParameterNumber(); i++) {
+        AutoPtr<ASTParameter> param = method->GetParameter(i);
+        EmitInterfaceMethodParameter(param, sb, "");
+        if (i + 1 < method->GetParameterNumber()) {
+            sb.Append(", ");
+        }
+    }
+    sb.Append(")\n");
+    sb.Append(prefix).Append("{\n");
+    AutoPtr<ASTParameter> majorParam = method->GetParameter(0);
+    sb.Append(prefix + TAB).AppendFormat("*%s = %s;\n", majorParam->GetName().c_str(), majorVerName_.c_str());
+    AutoPtr<ASTParameter> minorParam = method->GetParameter(1);
+    sb.Append(prefix + TAB).AppendFormat("*%s = %s;\n", minorParam->GetName().c_str(), minorVerName_.c_str());
     sb.Append(prefix + TAB).Append("return HDF_SUCCESS;\n");
     sb.Append(prefix).Append("}\n");
 }
@@ -257,6 +282,12 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
 
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+        sb.Append(TAB).AppendFormat("%s->interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
+            baseName_.c_str(), method->GetName().c_str());
+    }
+
+    if (Options::GetInstance().DoPassthrough()) {
+        AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
         sb.Append(TAB).AppendFormat("%s->interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
             baseName_.c_str(), method->GetName().c_str());
     }

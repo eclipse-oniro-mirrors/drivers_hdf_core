@@ -46,23 +46,23 @@ void CInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitImportInclusions(sb);
     sb.Append("\n");
     EmitHeadExternC(sb);
-    sb.Append("\n");
-    EmitPreDeclaration(sb);
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitPreDeclaration(sb);
+    }
     sb.Append("\n");
     EmitInterfaceDesc(sb);
     sb.Append("\n");
     EmitInterfaceVersionMacro(sb);
-    sb.Append("\n");
-    EmitInterfaceBuffSizeMacro(sb);
-    sb.Append("\n");
-    EmitInterfaceMethodCommands(sb, "");
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitInterfaceBuffSizeMacro(sb);
+        sb.Append("\n");
+        EmitInterfaceMethodCommands(sb, "");
+    }
     sb.Append("\n");
     EmitInterfaceDefinition(sb);
-    sb.Append("\n");
-    EmitInterfaceGetMethodDecl(sb);
-    sb.Append("\n");
-    EmitInterfaceReleaseMethodDecl(sb);
-    sb.Append("\n");
+    EmitExternalMethod(sb);
     EmitTailExternC(sb);
     sb.Append("\n");
     EmitTailMacro(sb, interfaceFullName_);
@@ -130,8 +130,7 @@ void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::s
     }
 
     EmitInterfaceMethod(interface_->GetVersionMethod(), sb, prefix);
-
-    if (!isKernelCode_) {
+    if (!isKernelCode_ && !Options::GetInstance().DoPassthrough()) {
         sb.Append("\n");
         EmitAsObjectMethod(sb, TAB);
     }
@@ -164,6 +163,18 @@ void CInterfaceCodeEmitter::EmitInterfaceMethod(
 void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.c_str());
+}
+
+void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb)
+{
+    if (Options::GetInstance().DoPassthrough() && interface_->IsSerializable()) {
+        return;
+    }
+
+    sb.Append("\n");
+    EmitInterfaceGetMethodDecl(sb);
+    sb.Append("\n");
+    EmitInterfaceReleaseMethodDecl(sb);
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb)

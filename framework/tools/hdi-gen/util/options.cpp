@@ -33,6 +33,7 @@ static struct option g_longOpts[] = {
     {"gen-hash",     no_argument,       nullptr, 'H'},
     {"build-target", required_argument, nullptr, 'p'},
     {"module-name",  required_argument, nullptr, 'N'},
+    {"passthrough",  no_argument,       nullptr, 'T'},
     {"kernel",       no_argument,       nullptr, 'K'},
     {"dump-ast",     no_argument,       nullptr, 'D'},
     {nullptr,        0,                 nullptr, 0  }
@@ -83,8 +84,7 @@ void Options::SetOptionData(char op)
             doModeKernel_ = true;
             break;
         case 'N':
-            doSetModuleName_ = true;
-            moduleName_ = optarg;
+            SetModuleName(optarg);
             break;
         case 'C':
             SetLanguage(Language::C);
@@ -97,6 +97,9 @@ void Options::SetOptionData(char op)
             break;
         case 'p':
             SetCodePart(optarg);
+            break;
+        case 'T':
+            doPassthrough_ = true;
             break;
         case 'H':
             doGetHashKey_ = true;
@@ -135,6 +138,12 @@ void Options::AddPackagePath(const std::string &packagePath)
     }
 
     packagePath_[package] = path;
+}
+
+void Options::SetModuleName(const std::string &moduleName)
+{
+    doSetModuleName_ = true;
+    moduleName_ = moduleName;
 }
 
 void Options::SetLanguage(Language kind)
@@ -215,6 +224,7 @@ void Options::ShowUsage() const
            "  --gen-java                      Generate Java code\n"
            "  --kernel                        Generate kernel-mode ioservice stub code,"
            "default user-mode ioservice stub code\n"
+           "  --passthrough                   Generate code that only supports pass through mode"
            "  --module-name <module name>     Set driver module name\n"
            "  --build-target <target name>    Generate client code, server code or all code\n"
            "  -d <directory>                  Place generated codes into <directory>\n");

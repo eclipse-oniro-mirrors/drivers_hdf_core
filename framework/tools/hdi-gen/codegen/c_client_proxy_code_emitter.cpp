@@ -30,7 +30,71 @@ bool CClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CClientProxyCodeEmitter::EmitCode()
 {
-    EmitProxySourceFile();
+    if (Options::GetInstance().DoPassthrough()) {
+        if (!interface_->IsSerializable()) {
+            EmitPassthroughProxySourceFile();
+        }
+    } else {
+        EmitProxySourceFile();
+    }
+}
+
+void CClientProxyCodeEmitter::EmitPassthroughProxySourceFile()
+{
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.c", directory_.c_str(), FileName(proxyName_).c_str()));
+    File file(filePath, File::WRITE);
+    StringBuilder sb;
+
+    EmitLicense(sb);
+    EmitPassthroughProxyInclusions(sb);
+    sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(proxyName_));
+    sb.Append("\n");
+    EmitProxyGetMethodImpl(sb);
+    sb.Append("\n");
+    EmitPassthroughGetInstanceMethod(sb);
+    sb.Append("\n");
+    EmitProxyReleaseMethodImpl(sb);
+    sb.Append("\n");
+    EmitPassthroughReleaseInstanceMethod(sb);
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
+    file.Flush();
+    file.Close();
+}
+
+void CClientProxyCodeEmitter::EmitPassthroughProxyInclusions(StringBuilder &sb)
+{
+    HeaderFile::HeaderFileSet headerFiles;
+    headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_support");
+
+    for (const auto &file : headerFiles) {
+        sb.AppendFormat("%s\n", file.ToString().c_str());
+    }
+}
+
+void CClientProxyCodeEmitter::EmitPassthroughGetInstanceMethod(StringBuilder &sb)
+{
+    sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub)\n",
+        interfaceName_.c_str(), interfaceName_.c_str());
+    sb.Append("{\n");
+    EmitProxyLoadHdiImpl("serviceName", sb, TAB);
+    sb.Append(TAB).Append("return NULL;\n");
+    sb.Append("}\n");
+}
+
+void CClientProxyCodeEmitter::EmitPassthroughReleaseInstanceMethod(StringBuilder &sb)
+{
+    sb.AppendFormat("void %sReleaseInstance(const char *serviceName, struct %s *instance, bool isStub)\n",
+        interfaceName_.c_str(), interfaceName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).Append("if (instance == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("return;\n");
+    sb.Append(TAB).Append("}\n\n");
+    EmitProxyUnLoadHdiImpl("serviceName", sb, TAB);
+    sb.Append("}\n");
 }
 
 void CClientProxyCodeEmitter::EmitProxySourceFile()
