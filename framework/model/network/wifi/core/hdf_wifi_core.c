@@ -553,6 +553,10 @@ static int32_t HdfWlanMainInit(struct HdfDeviceObject *device)
     }
     /* feature init */
     rootConfig = HdfWlanGetModuleConfigRoot();
+    if (rootConfig == NULL) {
+        HDF_LOGE("%s: HdfWlanGetModuleConfigRoot get failed", __func__);
+        return HDF_FAILURE;
+    }
     moduleConfig = &rootConfig->wlanConfig.moduleConfig;
     if (HdfWlanInitProduct(device, moduleConfig) != HDF_SUCCESS) {
         HDF_LOGE("%s:HdfWlanInitProduct failed!", __func__);
