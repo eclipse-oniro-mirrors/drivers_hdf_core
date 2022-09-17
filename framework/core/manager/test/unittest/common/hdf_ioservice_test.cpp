@@ -83,8 +83,8 @@ int IoServiceTest::OnDevEventReceived(
 {
     OsalTimespec time;
     OsalGetTime(&time);
-    HDF_LOGE("%s: received event[%d] from %s at %" PRIu64 ".%" PRIu64 "", (char *)listener->priv, eventCount++,
-        (char *)service->priv, time.sec, time.usec);
+    HDF_LOGE("%s: received event[%d] from %s at %" PRIu64 ".%" PRIu64 "", static_cast<char *>(listener->priv),
+        eventCount++, static_cast<char *>(service->priv), time.sec, time.usec);
 
     const char *string = HdfSbufReadString(data);
     if (string == nullptr) {
@@ -93,7 +93,7 @@ int IoServiceTest::OnDevEventReceived(
     }
     struct Eventlistener *l = CONTAINER_OF(listener, struct Eventlistener, listener);
     l->eventCount++;
-    HDF_LOGE("%s: dev event received: %u %s", (char *)service->priv, id, string);
+    HDF_LOGE("%s: dev event received: %u %s", static_cast<char *>(service->priv), id, string);
     return 0;
 }
 
@@ -701,7 +701,7 @@ struct IoServiceStatusData {
 
 static void TestOnServiceStatusReceived(struct ServiceStatusListener *listener, struct ServiceStatus *servstat)
 {
-    struct IoServiceStatusData *issd = (struct IoServiceStatusData *)listener->priv;
+    struct IoServiceStatusData *issd = static_cast<struct IoServiceStatusData *>(listener->priv);
     if (issd == nullptr) {
         return;
     }
