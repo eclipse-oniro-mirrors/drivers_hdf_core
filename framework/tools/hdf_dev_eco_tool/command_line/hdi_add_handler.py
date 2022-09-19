@@ -92,36 +92,64 @@ class HdiAddHandler(HdfCommandHandlerBase):
                         pre_root, folder_name, temp_folder_name)
         return hdi_template_path
 
+    def _check_arg(self, temp_type):
+        if temp_type == "interface":
+            self.check_arg_raise_if_not_exist('root_dir')
+            self.check_arg_raise_if_not_exist('interface_name')
+            self.check_arg_raise_if_not_exist('board_name')
+            self.check_arg_raise_if_not_exist('version_number')
+            interface_name = self.args.interface_name
+            root = self.args.root_dir
+            version = "v" + str(self.args.version_number).replace(".", "_")
+            interface_converter = hdf_utils.WordsConverter(interface_name)
+            return root, version, interface_converter, interface_name
+        elif temp_type == "peripheral":
+            self.check_arg_raise_if_not_exist('root_dir')
+            self.check_arg_raise_if_not_exist('peripheral_name')
+            self.check_arg_raise_if_not_exist('board_name')
+            self.check_arg_raise_if_not_exist('version_number')
+            version = "v" + str(self.args.version_number).replace(".", "_")
+            peripheral_name = self.args.peripheral_name
+            root = self.args.root_dir
+            board = self.args.board_name
+            peripheral_converter = hdf_utils.WordsConverter(peripheral_name)
+            return root, version, peripheral_converter, peripheral_name, board
+        elif temp_type == "unittest":
+            self.check_arg_raise_if_not_exist('root_dir')
+            self.check_arg_raise_if_not_exist('peripheral_name')
+            self.check_arg_raise_if_not_exist('board_name')
+            self.check_arg_raise_if_not_exist('version_number')
+            peripheral_name = self.args.peripheral_name
+            root = self.args.root_dir
+            peripheral_converter = hdf_utils.WordsConverter(peripheral_name)
+            replace_data = {
+                "peripheral_name": peripheral_converter.lower_case(),
+                "peripheral_name_capital_letters": peripheral_converter.upper_camel_case(),
+                "peripheral_name_upper": peripheral_converter.upper_case(),
+            }
+            return peripheral_name, root, peripheral_converter, replace_data
+
     def _add_interface_handler(self):
-        self.check_arg_raise_if_not_exist('root_dir')
-        self.check_arg_raise_if_not_exist('interface_name')
-        self.check_arg_raise_if_not_exist('board_name')
-        self.check_arg_raise_if_not_exist('version_number')
-        interface_name = self.args.interface_name
-        root = self.args.root_dir
-        version = "v" + str(self.args.version_number).replace(".", "_")
-        interface_converter = hdf_utils.WordsConverter(interface_name)
+        root, version, interface_converter, interface_name = \
+            self._check_arg(temp_type="interface")
         hdi_template_path = self.get_template_file_folder(
             temp_folder_name="interface")
         interface_path = self.set_config.get_drivers_path_interface()
         interface_folder_path = os.path.join(
             self.args.root_dir, interface_path, self.args.interface_name)
         if os.path.exists(interface_folder_path):
-            raise HdfToolException(
-                '"%s" is path exist' %
-                interface_folder_path, CommandErrorCode.TARGET_NOT_EXIST)
-        else:
-            os.makedirs(interface_folder_path)
+            raise HdfToolException('"%s" is path exist' %
+                    interface_folder_path, CommandErrorCode.TARGET_NOT_EXIST)
+        os.makedirs(interface_folder_path)
         inter_name_version = os.path.join(interface_folder_path, version)
         os.makedirs(inter_name_version)
         replace_data = {
             "interface_name": interface_converter.lower_case(),
-            "interface_name_capital_letters":
-                interface_converter.upper_camel_case(),
+            "interface_name_capital_letters": interface_converter.upper_camel_case(),
             "interface_name_upper": interface_converter.upper_case(),
         }
         for file in os.listdir(hdi_template_path):
-            file_src = copy.deepcopy(file)
+            file_src = file
             if file.startswith("I"):
                 file = file.replace("interface",
                                     interface_converter.upper_camel_case())
@@ -153,15 +181,8 @@ class HdiAddHandler(HdfCommandHandlerBase):
         return json.dumps(self.result_json, indent=4)
 
     def _add_peripheral_handler(self):
-        self.check_arg_raise_if_not_exist('root_dir')
-        self.check_arg_raise_if_not_exist('peripheral_name')
-        self.check_arg_raise_if_not_exist('board_name')
-        self.check_arg_raise_if_not_exist('version_number')
-        version = "v" + str(self.args.version_number).replace(".", "_")
-        peripheral_name = self.args.peripheral_name
-        root = self.args.root_dir
-        board = self.args.board_name
-        peripheral_converter = hdf_utils.WordsConverter(peripheral_name)
+        root, version, peripheral_converter, peripheral_name, board = \
+            self._check_arg(temp_type="peripheral")
         replace_data = {
             "peripheral_name": peripheral_converter.lower_case(),
             "peripheral_name_capital_letters": peripheral_converter.upper_camel_case(),
@@ -182,7 +203,6 @@ class HdiAddHandler(HdfCommandHandlerBase):
             os.makedirs(peripheral_folder)
         if not os.path.exists(hid_service_folder):
             os.makedirs(hid_service_folder)
-
         # Copy the file to the current location
         if os.path.exists(full_out_path):
             for file_name_template in hdi_config_arg["move_list"]:
@@ -197,6 +217,17 @@ class HdiAddHandler(HdfCommandHandlerBase):
                     shutil.copyfile(target_file_path, dst_file_path)
                 temp_create = self.format_file_path(dst_file_path, root)
                 self.result_json["create_file"].append(temp_create)
+        self._option_peripheral_config(board, root, replace_data,
+                                       hid_service_folder, peripheral_folder)
+        path_test = hdi_config_arg.get("peripheral", "")
+        operation_file = os.path.join(root, path_test.strip("/"))
+        self._hdi_config_operation(opt_type="peripheral", config_path=operation_file)
+        self.format_result_json(hdi_config_arg, create_type="peripheral",
+                                target_name=peripheral_name)
+        return json.dumps(self.result_json, indent=4)
+
+    def _option_peripheral_config(self, board, root, replace_data,
+                                  hid_service_folder, peripheral_folder):
         hdi_template_path = self.get_template_file_folder(
             temp_folder_name="peripheral")
         for template_file_name in os.listdir(hdi_template_path):
@@ -211,31 +242,17 @@ class HdiAddHandler(HdfCommandHandlerBase):
                 target_file_name = template_file_name.split(
                     ".")[0].replace("_", ".")
                 target_file_path = os.path.join(
-                    target_location, str(target_file_name)
-                )
-                if not os.path.exists(target_file_path):
-                    file_info = self.template_replace(src_path, replace_data)
-                    self._write_file(target_file_path, file_info)
-                temp_config = self.format_file_path(target_file_path, root)
-                self.result_json["config"].append(temp_config)
+                    target_location, str(target_file_name))
             else:
                 target_file_name = template_file_name.split(
                     ".")[0].replace("_", ".")
-                target_peripheral_path = os.path.join(
-                    peripheral_folder, target_file_name
-                )
-                if not os.path.exists(target_peripheral_path):
-                    file_info = self.template_replace(src_path, replace_data)
-                    self._write_file(target_peripheral_path, file_info)
-                temp_config = self.format_file_path(target_peripheral_path, root)
-                self.result_json["config"].append(temp_config)
-
-        path_test = hdi_config_arg.get("peripheral", "")
-        operation_file = os.path.join(root, path_test.strip("/"))
-        self._hdi_config_operation(opt_type="peripheral", config_path=operation_file)
-        self.format_result_json(hdi_config_arg, create_type="peripheral",
-                                target_name=peripheral_name)
-        return json.dumps(self.result_json, indent=4)
+                target_file_path = os.path.join(
+                    peripheral_folder, target_file_name)
+            if not os.path.exists(target_file_path):
+                file_info = self.template_replace(src_path, replace_data)
+                self._write_file(target_file_path, file_info)
+            temp_config = self.format_file_path(target_file_path, root)
+            self.result_json["config"].append(temp_config)
 
     def _hdi_server_config(self, config_path, board_name,
                            root_path, replace_data):
@@ -273,7 +290,9 @@ class HdiAddHandler(HdfCommandHandlerBase):
             hdf_utils.write_file_lines(hcs_target_file, new_data)
         temp_config = self.format_file_path(hcs_target_file, root_path)
         self.result_json["config"].append(temp_config)
+        self.config_group_passwd(root_path, replace_data)
 
+    def config_group_passwd(self, root_path, replace_data):
         hdi_config = hdf_tool_settings.HdiToolConfig()
         # group
         hdi_group_info = hdi_config.get_hdi_group()
@@ -316,7 +335,9 @@ class HdiAddHandler(HdfCommandHandlerBase):
             hdf_utils.write_file_lines(passwd_file_path, passwd_info_lines)
         temp_config = self.format_file_path(passwd_file_path, root_path)
         self.result_json["config"].append(temp_config)
+        self.config_selinux(hdi_config, root_path, replace_data)
 
+    def config_selinux(self, hdi_config, root_path, replace_data):
         # selinux --- type.te
         pre_path, selinux_type_info = hdi_config.get_hdi_selinux_type()
         temp_type_path = self._selinux_file_fill(
@@ -381,18 +402,8 @@ class HdiAddHandler(HdfCommandHandlerBase):
             self.result_json["create_file"].append(temp_create)
 
     def create_unittest(self):
-        self.check_arg_raise_if_not_exist('root_dir')
-        self.check_arg_raise_if_not_exist('peripheral_name')
-        self.check_arg_raise_if_not_exist('board_name')
-        self.check_arg_raise_if_not_exist('version_number')
-        peripheral_name = self.args.peripheral_name
-        root = self.args.root_dir
-        peripheral_converter = hdf_utils.WordsConverter(peripheral_name)
-        replace_data = {
-            "peripheral_name": peripheral_converter.lower_case(),
-            "peripheral_name_capital_letters": peripheral_converter.upper_camel_case(),
-            "peripheral_name_upper": peripheral_converter.upper_case(),
-        }
+        peripheral_name, root, peripheral_converter, replace_data =\
+            self._check_arg(temp_type="unittest")
         pre_path = self.set_config.get_drivers_path_peripheral()
         peripheral_folder = os.path.join(root, pre_path, peripheral_name)
         hdi_config_arg = self.set_config.get_hdi_config()
@@ -403,7 +414,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
         unittest_template_path = self.get_template_file_folder(
             temp_folder_name="unittest")
         for template_file in os.listdir(unittest_template_path):
-            template_file_src = copy.deepcopy(template_file)
+            template_file_src = template_file
             template_file = template_file.replace(
                 "name", peripheral_converter.lower_case())
             template_file = '.'.join(template_file.split('.')[0].rsplit('_', 1))
@@ -428,12 +439,11 @@ class HdiAddHandler(HdfCommandHandlerBase):
                 file_info_str = hdf_utils.read_file(config_json_path)
                 file_info_json = json.loads(file_info_str)
                 pre_dict = file_info_json['component']["build"]
-                key_list = list(pre_dict.keys())
-                temp_str = pre_dict[key_list[0]][0].split(":")[0]
+                temp_str = pre_dict[list(pre_dict.keys())[0]][0].split(":")[0]
                 result_test_str = "/".join([temp_str, "test:{peripheral_name}_unittest".
                                            format(peripheral_name=peripheral_name)])
-                if result_test_str not in pre_dict[key_list[1]]:
-                    pre_dict[key_list[1]].append(result_test_str)
+                if result_test_str not in pre_dict[list(pre_dict.keys())[1]]:
+                    pre_dict[list(pre_dict.keys())[1]].append(result_test_str)
                 hdf_utils.write_file(config_json_path,
                                      content=json.dumps(file_info_json, indent=4))
                 temp_create = self.format_file_path(config_json_path, root)

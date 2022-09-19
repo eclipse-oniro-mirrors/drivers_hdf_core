@@ -90,7 +90,7 @@ private:
         FATAL,
     } level_;
 
-    void ShowLevel()
+    void ShowLevel() const
     {
         static ::std::map<LogLevel, ::std::string> levelStrMap = {
             {NONE,    ""       },

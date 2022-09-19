@@ -224,7 +224,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
             {"module_upper_case": converter.upper_case()})
         for dot_file in dot_file_list:
             file_lines = hdf_utils.read_file_lines(dot_file)
-            file_lines[-1] = file_lines[-1].strip() + "\n"
+            file_lines[-1] = "{}\n".format(file_lines[-1].strip())
             if new_demo_config != file_lines[-1]:
                 file_lines.append(new_demo_config)
                 hdf_utils.write_file_lines(dot_file, file_lines)

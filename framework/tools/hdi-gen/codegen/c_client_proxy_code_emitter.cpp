@@ -80,7 +80,7 @@ void CClientProxyCodeEmitter::EmitPassthroughGetInstanceMethod(StringBuilder &sb
     sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub)\n",
         interfaceName_.c_str(), interfaceName_.c_str());
     sb.Append("{\n");
-    EmitProxyLoadHdiImpl("serviceName", sb, TAB);
+    EmitProxyLoadOrUnLoadHdiImpl("serviceName", true, sb, TAB);
     sb.Append(TAB).Append("return NULL;\n");
     sb.Append("}\n");
 }
@@ -93,7 +93,7 @@ void CClientProxyCodeEmitter::EmitPassthroughReleaseInstanceMethod(StringBuilder
     sb.Append(TAB).Append("if (instance == NULL) {\n");
     sb.Append(TAB).Append(TAB).Append("return;\n");
     sb.Append(TAB).Append("}\n\n");
-    EmitProxyUnLoadHdiImpl("serviceName", sb, TAB);
+    EmitProxyLoadOrUnLoadHdiImpl("serviceName", false, sb, TAB);
     sb.Append("}\n");
 }
 
@@ -639,7 +639,7 @@ void CClientProxyCodeEmitter::EmitProxyGetInstanceMethodImpl(const std::string &
     sb.AppendFormat("struct %s *%sGetInstance(const char *%s, bool isStub)\n", interfaceName_.c_str(),
         interfaceName_.c_str(), serviceName.c_str());
     sb.Append("{\n");
-    EmitProxyLoadHdiImpl(serviceName, sb, TAB);
+    EmitProxyLoadOrUnLoadHdiImpl(serviceName, true, sb, TAB);
     sb.Append("\n");
     EmitProxyGetRemoteService(remoteName, serviceName, sb, TAB);
     sb.Append("\n");
@@ -651,21 +651,6 @@ void CClientProxyCodeEmitter::EmitProxyGetInstanceMethodImpl(const std::string &
     sb.Append("\n");
     sb.Append(TAB).AppendFormat("return %s;\n", objName.c_str());
     sb.Append("}\n");
-}
-
-void CClientProxyCodeEmitter::EmitProxyLoadHdiImpl(const std::string &serviceName, StringBuilder &sb,
-    const std::string &prefix)
-{
-    std::string instName = "instName";
-    sb.Append(prefix).Append("if (isStub) {\n");
-    sb.Append(prefix + TAB).AppendFormat("const char *%s = %s;\n", instName.c_str(), serviceName.c_str());
-    sb.Append(prefix + TAB)
-        .AppendFormat("if (strcmp(%s, \"%s\") == 0) {\n", instName.c_str(), FileName(implName_).c_str());
-    sb.Append(prefix + TAB + TAB).AppendFormat("%s = \"service\";\n", instName.c_str());
-    sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB)
-        .AppendFormat("return LoadHdiImpl(%s, %s);\n", interface_->EmitDescMacroName().c_str(), instName.c_str());
-    sb.Append(prefix).Append("}\n");
 }
 
 void CClientProxyCodeEmitter::EmitProxyGetRemoteService(
@@ -778,7 +763,7 @@ void CClientProxyCodeEmitter::EmitProxyReleaseInstanceMethodImpl(const std::stri
     sb.Append(TAB).Append("if (instance == NULL) {\n");
     sb.Append(TAB).Append(TAB).Append("return;\n");
     sb.Append(TAB).Append("}\n\n");
-    EmitProxyUnLoadHdiImpl(serviceName, sb, TAB);
+    EmitProxyLoadOrUnLoadHdiImpl(serviceName, false, sb, TAB);
     sb.Append("\n");
     sb.Append(TAB).AppendFormat("struct %sProxy *proxy = CONTAINER_OF(instance, struct %sProxy, impl);\n",
         baseName_.c_str(), baseName_.c_str());
@@ -787,7 +772,7 @@ void CClientProxyCodeEmitter::EmitProxyReleaseInstanceMethodImpl(const std::stri
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyUnLoadHdiImpl(const std::string &serviceName, StringBuilder &sb,
+void CClientProxyCodeEmitter::EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad, StringBuilder &sb,
     const std::string &prefix)
 {
     std::string instName = "instName";
@@ -797,9 +782,14 @@ void CClientProxyCodeEmitter::EmitProxyUnLoadHdiImpl(const std::string &serviceN
         .AppendFormat("if (strcmp(%s, \"%s\") == 0) {\n", instName.c_str(), FileName(implName_).c_str());
     sb.Append(prefix + TAB + TAB).AppendFormat("%s = \"service\";\n", instName.c_str());
     sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB)
-        .AppendFormat("UnloadHdiImpl(%s, %s, instance);\n", interface_->EmitDescMacroName().c_str(), instName.c_str());
-    sb.Append(prefix + TAB).Append("return;\n");
+    if (isLoad) {
+        sb.Append(prefix + TAB).AppendFormat("return LoadHdiImpl(%s, %s);\n",
+            interface_->EmitDescMacroName().c_str(), instName.c_str());
+    } else {
+        sb.Append(prefix + TAB).AppendFormat("UnloadHdiImpl(%s, %s, instance);\n",
+            interface_->EmitDescMacroName().c_str(), instName.c_str());
+        sb.Append(prefix + TAB).Append("return;\n");
+    }
     sb.Append(prefix).Append("}\n");
 }
 

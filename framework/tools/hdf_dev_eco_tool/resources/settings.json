@@ -39,6 +39,7 @@
     "drivers_path_relative_adapter": "drivers/hdf_core/adapter/khdf",
     "user_model_path_relative_adapter": "drivers/hdf_core/adapter/uhdf2",
     "template_file_path": "tools/hdf_dev_eco_tool/resources/templates/lite",
+    "module_save_path": "tools/hdf_dev_eco_tool/resources/create_model.config",
     "hdi_config": {
         "interface":"productdefine/common/inherit/rich.json",
         "peripheral":"productdefine/common/inherit/chipset_common.json",

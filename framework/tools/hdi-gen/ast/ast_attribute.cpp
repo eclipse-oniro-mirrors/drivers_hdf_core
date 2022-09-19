@@ -11,7 +11,7 @@
 
 namespace OHOS {
 namespace HDI {
-static void AttributesFormat(StringBuilder &sb, const std::vector<std::string> attrs)
+static void AttributesFormat(StringBuilder &sb, const std::vector<std::string> &attrs)
 {
     if (attrs.empty()) {
         return;

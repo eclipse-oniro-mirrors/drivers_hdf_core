@@ -41,7 +41,7 @@ public:
 private:
     static constexpr int BUFFER_SIZE = (1024 * 1024);
 
-    void InitToken(Token &token);
+    void InitToken(Token &token) const;
 
     bool GetChar(char &c, bool skipSpace = true);
 

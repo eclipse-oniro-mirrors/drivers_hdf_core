@@ -116,7 +116,10 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual("".join(generator._idl),  "import include.AudioInterfaceOne;\nimport include.AudioInterfaceTwo;\n\n")
+        self.assertEqual(
+            "".join(generator._idl),
+            "import include.AudioInterfaceOne;\nimport include.AudioInterfaceTwo;\n\n"
+        )
 
     def test_install_import_types(self):
         generator = IDLGenerator()
@@ -244,7 +247,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         print("-------------------------------------------------")
         print("-------------------------------------------------")
         print("-------------------------------------------------")
-        print("".join(generator._idl) )
+        print("".join(generator._idl))
         self.assertEqual("".join(generator._idl), "union SceneDesc {\n"
                                          "    unsigned int id;\n"
                                          "    byte[] desc;\n"

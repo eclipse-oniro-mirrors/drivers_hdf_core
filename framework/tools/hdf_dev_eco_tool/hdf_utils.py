@@ -402,7 +402,7 @@ def judge_file_path_exists(temp_path):
 def write_config(root_path, config_file_json, config_name):
     if platform.system() == "Windows":
         config_file_replace = json.dumps(config_file_json, indent=4). \
-            replace(root_path.replace('\\', '\\\\') + '\\\\', "")
+            replace("{}\\\\".format(root_path.replace('\\', '\\\\')), "")
         write_file(os.path.join('resources', config_name),
                    config_file_replace.replace('\\\\', '/'))
     if platform.system() == "Linux":

@@ -235,7 +235,7 @@ std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const Lexer &p)
     return stream << p.GetSourceName()->data() << ":" << p.GetLineno() << ":" << p.GetLineLoc() << ": ";
 }
 
-void Lexer::InitToken(Token &token)
+void Lexer::InitToken(Token &token) const
 {
     token.type = 0;
     token.numval = 0;
