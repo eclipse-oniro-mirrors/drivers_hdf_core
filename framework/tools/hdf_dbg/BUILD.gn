@@ -19,7 +19,7 @@ ohos_executable("hdf_dbg") {
     ]
   }
 
-  install_enable = true
+  install_enable = false
   install_images = [ chipset_base_dir ]
   subsystem_name = "hdf"
   part_name = "hdf_core"
