@@ -76,7 +76,7 @@ static struct PlatformDumperData g_datas[] = {
     {"arrayDumperTestchar",   PLATFORM_DUMPER_CHAR,   &g_charTest  }
 };
 
-static int32_t PlatformDumperTestAddatas()
+static int32_t PlatformDumperTestAddatas(void)
 {
     int32_t ret;
     ret = PlatformDumperAddDatas(g_dumperTest, g_datas, sizeof(g_datas) / sizeof(g_datas[0]));
