@@ -29,6 +29,7 @@ if (hdf_core_khdf_test_support) {
       "unittest/osal:hdf_adapter_uhdf_test_osal",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
       "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
+      "//drivers/hdf_core/framework/test/fuzztest/hdi_fuzzer:HdiFuzzTest",
     ]
     if (product_name == "rk3568") {
       deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]

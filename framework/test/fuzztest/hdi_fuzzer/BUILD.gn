@@ -11,27 +11,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/features.gni")
+import("//build/ohos.gni")
 import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
-
 module_output_path = "hdf_core/hdi"
 
-ohos_unittest("HdiSampleTestCC") {
+ohos_fuzztest("HdiFuzzTest") {
   module_out_path = module_output_path
-  sources = [ "sample_client_cpp_test.cpp" ]
+
+  fuzz_config_file = "//drivers/hdf_core/framework/test/fuzztest/hdi_fuzzer"
+
+  include_dirs = [ "//drivers/hdf_core/adapter/uhdf2/hdi/include/hdi" ]
+
+  sources = [ "hdi_fuzzer.cpp" ]
 
   deps = [
-    "$hdf_uhdf_path/hdi:libhdi",
-    "$hdf_uhdf_path/utils:libhdf_utils",
-    "unittest:libsample_client_cpp",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
+    "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
+    "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
+    "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
   ]
 
   external_deps = [
     "c_utils:utils",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
-    "samgr:samgr_proxy",
   ]
+}
+
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [ ":HdiFuzzTest" ]
 }
