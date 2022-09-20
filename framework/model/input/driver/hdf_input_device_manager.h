@@ -166,7 +166,7 @@ enum TouchIoctlCmd {
     INPUT_IOCTL_RUN_EXTRA_CMD,
 };
 InputManager* GetInputManager(void);
-int32_t RegisterInputDevice(InputDevice *device);
+int32_t RegisterInputDevice(InputDevice *inputDev);
 void UnregisterInputDevice(InputDevice *inputDev);
 
 #endif
