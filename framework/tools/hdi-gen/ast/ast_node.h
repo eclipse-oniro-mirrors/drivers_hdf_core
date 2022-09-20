@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "util/common.h"
 #include "util/light_refcount_base.h"
 #include "util/string_helper.h"
 
@@ -23,9 +24,6 @@ public:
     virtual std::string ToString() const;
 
     virtual std::string Dump(const std::string &prefix);
-
-protected:
-    static constexpr char *TAB = "    ";
 };
 } // namespace HDI
 } // namespace OHOS

@@ -18,13 +18,14 @@ config("bufferhandle_parcelable_config") {
   include_dirs = [
     "//drivers/peripheral/base",
     "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable",
+    "./",
   ]
 }
 
 ohos_shared_library("libbufferhandle_parcelable") {
   sources = [ "buffer_handle_parcelable.cpp" ]
 
-  public_configs = [ ":bufferhandle_parcelable_config" ]
+  all_dependent_configs = [ ":bufferhandle_parcelable_config" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

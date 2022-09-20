@@ -36,19 +36,23 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
+    void EmitKernelServiceImplDef(StringBuilder &sb);
+
     void EmitServiceImplDef(StringBuilder &sb);
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
     void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
+    void EmitKernelServiceImplGetMethod(StringBuilder &sb);
+
+    void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix);
+
     void EmitServiceImplGetMethod(StringBuilder &sb);
 
+    void EmitKernelServiceImplReleaseMethod(StringBuilder &sb);
+
     void EmitServiceImplReleaseMethod(StringBuilder &sb);
-
-    void EmitServiceImplInstance(StringBuilder &sb);
-
-    void EmitServiceImplRelease(StringBuilder &sb);
 };
 } // namespace HDI
 } // namespace OHOS

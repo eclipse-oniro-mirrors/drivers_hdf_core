@@ -70,26 +70,16 @@ public:
 
     static bool CheckValid(const std::string &path);
 
-    // "FileName" -> "file_name"
-    static std::string Pascal2UnderScoreCase(const std::string &name);
-
     size_t GetHashKey();
 
     static constexpr unsigned int READ = 0x1;
     static constexpr unsigned int WRITE = 0x2;
     static constexpr unsigned int APPEND = 0x4;
 
-#ifndef __MINGW32__
-    static constexpr char separator = '/';
-#else
-    static constexpr char separator = '\\';
-#endif
-
 private:
     size_t Read();
 
     static constexpr int BUFFER_SIZE = 1024;
-    static const char *TAG;
 
     char buffer_[BUFFER_SIZE] = {0};
     size_t size_ = 0;

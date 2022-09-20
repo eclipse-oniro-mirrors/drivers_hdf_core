@@ -30,8 +30,48 @@ bool CCustomTypesCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CCustomTypesCodeEmitter::EmitCode()
 {
-    EmitCustomTypesHeaderFile();
-    EmitCustomTypesSourceFile();
+    if (Options::GetInstance().DoPassthrough()) {
+        EmitPassthroughCustomTypesHeaderFile();
+    } else {
+        EmitCustomTypesHeaderFile();
+        EmitCustomTypesSourceFile();
+    }
+}
+
+void CCustomTypesCodeEmitter::EmitPassthroughCustomTypesHeaderFile()
+{
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(baseName_).c_str()));
+    File file(filePath, File::WRITE);
+    StringBuilder sb;
+
+    EmitLicense(sb);
+    EmitHeadMacro(sb, baseName_);
+    sb.Append("\n");
+    EmitPassthroughHeaderInclusions(sb);
+    sb.Append("\n");
+    EmitHeadExternC(sb);
+    sb.Append("\n");
+    EmitCustomTypeDecls(sb);
+    EmitTailExternC(sb);
+    sb.Append("\n");
+    EmitTailMacro(sb, baseName_);
+
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
+    file.Flush();
+    file.Close();
+}
+
+void CCustomTypesCodeEmitter::EmitPassthroughHeaderInclusions(StringBuilder &sb)
+{
+    HeaderFile::HeaderFileSet headerFiles;
+    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
+    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
+
+    for (const auto &file : headerFiles) {
+        sb.AppendFormat("%s\n", file.ToString().c_str());
+    }
 }
 
 void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()

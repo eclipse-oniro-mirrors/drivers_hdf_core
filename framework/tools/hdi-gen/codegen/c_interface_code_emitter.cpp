@@ -46,23 +46,23 @@ void CInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitImportInclusions(sb);
     sb.Append("\n");
     EmitHeadExternC(sb);
-    sb.Append("\n");
-    EmitPreDeclaration(sb);
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitPreDeclaration(sb);
+    }
     sb.Append("\n");
     EmitInterfaceDesc(sb);
     sb.Append("\n");
     EmitInterfaceVersionMacro(sb);
-    sb.Append("\n");
-    EmitInterfaceBuffSizeMacro(sb);
-    sb.Append("\n");
-    EmitInterfaceMethodCommands(sb, "");
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitInterfaceBuffSizeMacro(sb);
+        sb.Append("\n");
+        EmitInterfaceMethodCommands(sb, "");
+    }
     sb.Append("\n");
     EmitInterfaceDefinition(sb);
-    sb.Append("\n");
-    EmitInterfaceGetMethodDecl(sb);
-    sb.Append("\n");
-    EmitInterfaceReleaseMethodDecl(sb);
-    sb.Append("\n");
+    EmitExternalMethod(sb);
     EmitTailExternC(sb);
     sb.Append("\n");
     EmitTailMacro(sb, interfaceFullName_);
@@ -89,6 +89,7 @@ void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSe
 {
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
+        headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
     }
 }
 
@@ -99,7 +100,7 @@ void CInterfaceCodeEmitter::EmitPreDeclaration(StringBuilder &sb)
 
 void CInterfaceCodeEmitter::EmitInterfaceDesc(StringBuilder &sb)
 {
-    sb.AppendFormat("#define %s \"%s\"\n", EmitDescMacroName().c_str(), interfaceFullName_.c_str());
+    sb.AppendFormat("#define %s \"%s\"\n", interface_->EmitDescMacroName().c_str(), interfaceFullName_.c_str());
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb)
@@ -129,8 +130,7 @@ void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::s
     }
 
     EmitInterfaceMethod(interface_->GetVersionMethod(), sb, prefix);
-
-    if (!isKernelCode_) {
+    if (!isKernelCode_ && !Options::GetInstance().DoPassthrough()) {
         sb.Append("\n");
         EmitAsObjectMethod(sb, TAB);
     }
@@ -165,22 +165,62 @@ void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::str
     sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.c_str());
 }
 
+void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb)
+{
+    if (Options::GetInstance().DoPassthrough() && interface_->IsSerializable()) {
+        return;
+    }
+
+    sb.Append("\n");
+    EmitInterfaceGetMethodDecl(sb);
+    sb.Append("\n");
+    EmitInterfaceReleaseMethodDecl(sb);
+}
+
 void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb)
 {
-    if (interface_->IsSerializable()) {
-        sb.AppendFormat(
-            "struct %s *%sGet(struct HdfRemoteService *remote);\n", interfaceName_.c_str(), baseName_.c_str());
-    } else {
-        sb.AppendFormat("struct %s *%sGet(void);\n", interfaceName_.c_str(), baseName_.c_str());
+    if (isKernelCode_) {
+        sb.AppendFormat("struct %s *%sGet(void);\n", interfaceName_.c_str(), interfaceName_.c_str());
         sb.Append("\n");
         sb.AppendFormat(
-            "struct %s *%sGetInstance(const char *instanceName);\n", interfaceName_.c_str(), baseName_.c_str());
+            "struct %s *%sGetInstance(const char *instanceName);\n", interfaceName_.c_str(), interfaceName_.c_str());
+        return;
+    }
+
+    if (interface_->IsSerializable()) {
+        sb.Append("// no external method used to create client object, it only support ipc mode\n");
+        sb.AppendFormat("struct %s *%sGet(struct HdfRemoteService *remote);\n", interfaceName_.c_str(),
+            interfaceName_.c_str());
+    } else {
+        sb.Append("// external method used to create client object, it support ipc and passthrought mode\n");
+        sb.AppendFormat("struct %s *%sGet(bool isStub);\n", interfaceName_.c_str(), interfaceName_.c_str());
+        sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub);\n", interfaceName_.c_str(),
+            interfaceName_.c_str());
     }
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceReleaseMethodDecl(StringBuilder &sb)
 {
-    sb.AppendFormat("void %sRelease(struct %s *instance);\n", baseName_.c_str(), interfaceName_.c_str());
+    if (isKernelCode_) {
+        sb.AppendFormat("void %sRelease(struct %s *instance);\n", interfaceName_.c_str(), interfaceName_.c_str());
+        return;
+    }
+
+    if (interface_->IsCallback()) {
+        sb.Append("// external method used to release client object, it support ipc and passthrought mode\n");
+        sb.AppendFormat("void %sRelease(struct %s *instance);\n", interfaceName_.c_str(),
+            interfaceName_.c_str());
+    } else if (interface_->IsSerializable()) {
+        sb.Append("// external method used to release client object, it support ipc and passthrought mode\n");
+        sb.AppendFormat("void %sRelease(struct %s *instance, bool isStub);\n", interfaceName_.c_str(),
+            interfaceName_.c_str());
+    } else {
+        sb.Append("// external method used to create release object, it support ipc and passthrought mode\n");
+        sb.AppendFormat("void %sRelease(struct %s *instance, bool isStub);\n", interfaceName_.c_str(),
+            interfaceName_.c_str());
+        sb.AppendFormat("void %sReleaseInstance(const char *serviceName, struct %s *instance, bool isStub);\n",
+            interfaceName_.c_str(), interfaceName_.c_str());
+    }
 }
 } // namespace HDI
 } // namespace OHOS

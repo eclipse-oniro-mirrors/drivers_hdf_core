@@ -37,7 +37,7 @@ void CppServiceImplCodeEmitter::EmitCode()
 void CppServiceImplCodeEmitter::EmitImplHeaderFile()
 {
     std::string filePath =
-        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(baseName_ + "Service").c_str()));
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(implName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -126,12 +126,14 @@ void CppServiceImplCodeEmitter::EmitServiceImplMethodDecl(
 void CppServiceImplCodeEmitter::EmitImplSourceFile()
 {
     std::string filePath = File::AdapterPath(
-        StringHelper::Format("%s/%s.cpp", directory_.c_str(), FileName(baseName_ + "Service").c_str()));
+        StringHelper::Format("%s/%s.cpp", directory_.c_str(), FileName(implName_).c_str()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
     EmitLicense(sb);
     EmitImplSourceInclusions(sb);
+    sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(implName_));
     sb.Append("\n");
     EmitBeginNamespace(sb);
     EmitServiceImplGetMethodImpl(sb, "");

@@ -69,6 +69,11 @@ public:
         return doModeKernel_;
     }
 
+    inline bool DoPassthrough() const
+    {
+        return doPassthrough_;
+    }
+
     inline bool HasErrors() const
     {
         return !errors_.empty();
@@ -138,13 +143,16 @@ private:
         doModeKernel_(false),
         doGeneratePart_(false),
         doSetModuleName_(false),
-        doOutDir_(false)
+        doOutDir_(false),
+        doPassthrough_(false)
     {
     }
 
     void SetOptionData(char op);
 
     void AddPackagePath(const std::string &packagePath);
+
+    void SetModuleName(const std::string &moduleName);
 
     void SetLanguage(Language language);
 
@@ -178,6 +186,7 @@ private:
     bool doGeneratePart_;
     bool doSetModuleName_;
     bool doOutDir_;
+    bool doPassthrough_;
 };
 } // namespace HDI
 } // namespace OHOS
