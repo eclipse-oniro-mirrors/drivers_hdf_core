@@ -14,7 +14,7 @@
 
 #define TRACE_UNIT_INFO_TEST_SIZE 6
 static uint g_infos[TRACE_UNIT_INFO_TEST_SIZE] = {100, 200, 300, 400, 500, 600};
-static int32_t PlatformTraceSetUintptrInfoTest()
+static int32_t PlatformTraceSetUintptrInfoTest(void)
 {
     int i = 0;
     int32_t ret = PlatformTraceStart();
@@ -32,7 +32,7 @@ static int32_t PlatformTraceSetUintptrInfoTest()
     return HDF_SUCCESS;
 }
 
-static int32_t PlatformTraceFmtInfoTest()
+static int32_t PlatformTraceFmtInfoTest(void)
 {
     int32_t ret = PlatformTraceStart();
     if (ret != HDF_SUCCESS) {
@@ -46,7 +46,7 @@ static int32_t PlatformTraceFmtInfoTest()
     return HDF_SUCCESS;
 }
 
-static int32_t PlatformTraceTestReliability()
+static int32_t PlatformTraceTestReliability(void)
 {
     PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_MAX, PLATFORM_TRACE_MODULE_MAX_FUN, NULL, 0);
     PlatformTraceAddMsg(NULL, "TraceTestModuleFun", ":%d-%d-%s-%s",

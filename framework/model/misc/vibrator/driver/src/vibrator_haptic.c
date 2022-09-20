@@ -375,7 +375,7 @@ EXIT:
     return HDF_FAILURE;
 }
 
-static void FreeHapticConfig()
+static void FreeHapticConfig(void)
 {
     struct VibratorHapticData *hapticData = GetHapticData();
     struct VibratorEffectNode *pos = NULL;

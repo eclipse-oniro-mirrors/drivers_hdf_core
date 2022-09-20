@@ -99,7 +99,7 @@ void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint
     return;
 }
 
-static bool TraceIsOpen()
+static bool TraceIsOpen(void)
 {
 #ifndef CONFIG_TRACING
     return false;
