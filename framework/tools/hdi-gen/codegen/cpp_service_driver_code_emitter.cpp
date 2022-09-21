@@ -112,11 +112,11 @@ void CppServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb)
     sb.Append(TAB).Append("OHOS::MessageOption option;\n\n");
 
     sb.Append(TAB).Append("if (SbufToParcel(data, &dataParcel) != HDF_SUCCESS) {\n");
-    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s:invalid data sbuf object to dispatch\", __func__);\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: invalid data sbuf object to dispatch\", __func__);\n");
     sb.Append(TAB).Append(TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(TAB).Append("}\n");
     sb.Append(TAB).Append("if (SbufToParcel(reply, &replyParcel) != HDF_SUCCESS) {\n");
-    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s:invalid reply sbuf object to dispatch\", __func__);\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: invalid reply sbuf object to dispatch\", __func__);\n");
     sb.Append(TAB).Append(TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(TAB).Append("}\n\n");
 
@@ -129,7 +129,7 @@ void CppServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb)
 {
     sb.AppendFormat("static int Hdf%sDriverInit(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("HDF_LOGI(\"Hdf%sDriverInit enter\");\n", baseName_.c_str());
+    sb.Append(TAB).Append("HDF_LOGI(\"%{public}s: driver init start\", __func__);\n");
     sb.Append(TAB).Append("return HDF_SUCCESS;\n");
     sb.Append("}\n");
 }
@@ -139,7 +139,7 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
     std::string objName = StringHelper::Format("hdf%sHost", baseName_.c_str());
     sb.AppendFormat("static int Hdf%sDriverBind(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("HDF_LOGI(\"Hdf%sDriverBind enter\");\n\n", baseName_.c_str());
+    sb.Append(TAB).Append("HDF_LOGI(\"%{public}s: driver bind start\", __func__);\n");
 
     sb.Append(TAB).AppendFormat("auto *%s = new (std::nothrow) Hdf%sHost;\n", objName.c_str(), baseName_.c_str());
     sb.Append(TAB).AppendFormat("if (%s == nullptr) {\n", objName.c_str());
@@ -176,16 +176,17 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
 void CppServiceDriverCodeEmitter::EmitDriverRelease(StringBuilder &sb)
 {
     std::string objName = StringHelper::Format("hdf%sHost", baseName_.c_str());
-    sb.AppendFormat("static void Hdf%sDriverRelease(struct HdfDeviceObject *deviceObject)", baseName_.c_str());
+    sb.AppendFormat("static void Hdf%sDriverRelease(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("HDF_LOGI(\"Hdf%sDriverRelease enter\");\n", baseName_.c_str());
+    sb.Append(TAB).Append("HDF_LOGI(\"%{public}s: driver release start\", __func__);\n");
     sb.Append(TAB).AppendFormat("if (deviceObject->service == nullptr) {\n");
-    sb.Append(TAB).Append(TAB).AppendFormat("HDF_LOGE(\"Hdf%sDriverRelease not initted\");\n", baseName_.c_str());
     sb.Append(TAB).Append(TAB).AppendFormat("return;\n");
     sb.Append(TAB).Append("}\n\n");
     sb.Append(TAB).AppendFormat("auto *%s = CONTAINER_OF(", objName.c_str());
     sb.AppendFormat("deviceObject->service, struct Hdf%sHost, ioService);\n", baseName_.c_str());
-    sb.Append(TAB).AppendFormat("delete %s;\n", objName.c_str());
+    sb.Append(TAB).AppendFormat("if (%s != nullptr) {\n", objName.c_str());
+    sb.Append(TAB).Append(TAB).AppendFormat("delete %s;\n", objName.c_str());
+    sb.Append(TAB).Append("}\n");
     sb.Append("}\n");
 }
 
@@ -197,8 +198,7 @@ void CppServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb)
     sb.Append(TAB).AppendFormat(".Bind = Hdf%sDriverBind,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Init = Hdf%sDriverInit,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Release = Hdf%sDriverRelease,\n", baseName_.c_str());
-    sb.Append("};\n");
-    sb.Append("\n");
+    sb.Append("};\n\n");
     EmitHeadExternC(sb);
     sb.AppendFormat("HDF_INIT(g_%sDriverEntry);\n", StringHelper::StrToLower(baseName_).c_str());
     EmitTailExternC(sb);

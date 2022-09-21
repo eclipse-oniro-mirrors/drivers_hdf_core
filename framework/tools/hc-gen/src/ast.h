@@ -109,7 +109,7 @@ public:
 
     virtual const std::string &Name();
 
-    const std::string &StringValue();
+    const std::string &StringValue() const;
 
     uint64_t IntegerValue() const;
 
@@ -162,7 +162,7 @@ public:
 
     uint32_t GetNodeType() const;
 
-    const std::string &GetRefPath();
+    const std::string &GetRefPath() const;
 
     void SetNodeType(uint32_t nodeType);
 
@@ -180,7 +180,7 @@ public:
 
     bool Move(std::shared_ptr<AstObject> src) override;
 
-    bool Compare(ConfigNode &other);
+    bool Compare(ConfigNode &other) const;
 
     bool IsBaseNode();
 
@@ -192,7 +192,7 @@ public:
 
     void SetTemplateSignNum(uint32_t sigNum);
 
-    const std::list<AstObject *> &SubClasses();
+    const std::list<AstObject *> &SubClasses() const;
 
 private:
     bool NodeRefExpand(const std::shared_ptr<AstObject> &ref);
@@ -442,7 +442,7 @@ private:
 
     bool InheritExpand();
 
-    std::list<std::string> SplitNodePath(const std::string &path, char separator) const;
+    static std::list<std::string> SplitNodePath(const std::string &path, char separator);
 
     std::shared_ptr<AstObject> astRoot_;
     bool redefineChecked_;

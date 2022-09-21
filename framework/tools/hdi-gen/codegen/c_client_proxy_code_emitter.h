@@ -103,8 +103,6 @@ private:
         const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
         StringBuilder &sb);
 
-    void EmitProxyLoadHdiImpl(const std::string &serviceName, StringBuilder &sb, const std::string &prefix);
-
     void EmitProxyGetRemoteService(
         const std::string &remoteName, const std::string &serviceName, StringBuilder &sb, const std::string &prefix);
 
@@ -123,7 +121,8 @@ private:
     void EmitProxyReleaseInstanceMethodImpl(const std::string &serviceName, const std::string &remoteName,
         const std::string &recycleFuncName, StringBuilder &sb);
 
-    void EmitProxyUnLoadHdiImpl(const std::string &serviceName, StringBuilder &sb, const std::string &prefix);
+    void EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad, StringBuilder &sb,
+        const std::string &prefix);
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 

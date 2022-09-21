@@ -48,19 +48,19 @@ public:
 
     bool ShouldDecompile() const;
 
-    std::string GetSymbolPrefix();
+    std::string GetSymbolPrefix() const;
 
-    std::string GetSourceName();
+    std::string GetSourceName() const;
 
-    std::string GetSourceNameBase();
+    std::string GetSourceNameBase() const;
 
-    std::string GetOutputName();
+    std::string GetOutputName() const;
 
     void GetVersion(uint32_t &minor, uint32_t &major) const;
 
     bool VerboseLog() const;
 
-    std::string GetSourceDir();
+    std::string GetSourceDir() const;
 
     static std::string RealPathSourcePath(const char *path);
 

@@ -52,6 +52,7 @@ class HdfToolSettings(object):
         self.drivers_path_key_interface = 'drivers_path_relative_interface'
         self.drivers_adapter_path_key = 'drivers_path_relative_adapter'
         self.user_adapter_path_key = 'user_model_path_relative_adapter'
+        self.module_save_path_key = "module_save_path"
         self.dot_configs_key = 'dot_configs'
         self.board_path_key = 'board_parent_path'
         self.dot_config_path_key = 'dot_config_path'
@@ -129,6 +130,10 @@ class HdfToolSettings(object):
     def get_hdi_file_path(self):
         cur_dir = os.path.realpath(os.path.dirname(__file__))
         return os.path.join(cur_dir, 'resources')
+
+    def get_module_save_path(self):
+        key = self.module_save_path_key
+        return self.settings.get(key, 'hdf')
 
 
 @singleton

@@ -271,7 +271,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb, c
         type->EmitCType().c_str(), objName.c_str());
     sb.Append("{\n");
     EmitMarshallingVarDecl(type, objName, sb, TAB);
-    EmitMarshallingParamCheck(objName, sb, TAB);
+    EmitParamCheck(objName, sb, TAB);
+    sb.Append("\n");
     if (type->IsPod()) {
         if (Options::GetInstance().DoGenerateKernelCode()) {
             sb.Append(TAB).AppendFormat("if (!HdfSbufWriteBuffer(data, (const void *)%s, sizeof(%s))) {\n",
@@ -305,7 +306,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &sb,
         type->EmitCType().c_str(), objName.c_str());
     sb.Append("{\n");
     EmitUnmarshallingVarDecl(type, objName, sb, TAB);
-    EmitUnmarshallingParamCheck(objName, sb, TAB);
+    EmitParamCheck(objName, sb, TAB);
+    sb.Append("\n");
     if (type->IsPod()) {
         EmitPodTypeUnmarshalling(type, objName, sb, TAB);
     } else {
@@ -357,22 +359,17 @@ void CCustomTypesCodeEmitter::EmitUnmarshallingVarDecl(
     }
 }
 
-void CCustomTypesCodeEmitter::EmitMarshallingParamCheck(
-    const std::string &name, StringBuilder &sb, const std::string &prefix)
+void CCustomTypesCodeEmitter::EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat("if (data == NULL || %s == NULL) {\n", name.c_str());
-    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf or data block\", __func__);\n");
+    sb.Append(prefix).Append("if (data == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n\n");
-}
 
-void CCustomTypesCodeEmitter::EmitUnmarshallingParamCheck(
-    const std::string &name, StringBuilder &sb, const std::string &prefix)
-{
-    sb.Append(prefix).AppendFormat("if (data == NULL || %s == NULL) {\n", name.c_str());
-    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf or data block\", __func__);\n");
-    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", errorsLabelName_);
-    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid data block\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void CCustomTypesCodeEmitter::EmitPodTypeUnmarshalling(

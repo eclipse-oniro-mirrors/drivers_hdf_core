@@ -10,12 +10,15 @@
 
 import os
 import json
+import sys
+sys.path.append("..")
 
 import hdf_utils
 import hdf_tool_version
 from command_line.hdf_command_error_code import CommandErrorCode
 from hdf_tool_settings import HdfToolSettings
 from hdf_tool_exception import HdfToolException
+from hdf_tool_version import GetToolVersion
 from .hdf_command_handler_base import HdfCommandHandlerBase
 from .hdf_linux_scann import HdfLinuxScan
 from .hdf_lite_mk_file import HdfLiteMkFile
@@ -23,7 +26,6 @@ from .hdf_liteos_scann import HdfLiteScan
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_module_kconfig_file import HdfModuleKconfigFile
 from .hdf_driver_config_file import HdfDriverConfigFile
-from ..hdf_tool_version import GetToolVersion
 
 
 class HdfGetHandler(HdfCommandHandlerBase):

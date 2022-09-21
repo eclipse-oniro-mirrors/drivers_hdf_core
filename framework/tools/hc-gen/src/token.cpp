@@ -63,12 +63,12 @@ bool Token::operator!=(int32_t otherType) const
 {
     return otherType != type;
 }
-bool Token::operator==(Token &token) const
+bool Token::operator==(const Token &token) const
 {
     return token.type == type && token.numval == numval && token.strval == strval;
 }
 
-bool Token::operator!=(Token &token) const
+bool Token::operator!=(const Token &token) const
 {
     return token.type != type || token.numval != numval || token.strval != strval;
 }

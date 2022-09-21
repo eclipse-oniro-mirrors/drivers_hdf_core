@@ -9,15 +9,16 @@
 
 from asyncio import subprocess
 
-# development production
-subprocess.run(["npx", "webpack", "--mode=development"])
-with open(r".\..\hcsVSCode\editor.html", "r", encoding="utf8") as file:
-    ss = file.read()
-i1 = ss.index("// update js code begin") + len("// update js code begin") + 1
-i2 = ss.index("// update js code end") - 1
-with open(r".\dist\main.js", "r", encoding="utf8") as file:
-    destss = file.read()
-ss = ss[:i1] + destss + ss[i2:]
-with open(r".\..\hcsVSCode\editor.html", "w", encoding="utf8") as file:
-    file.write(ss)
-print("replaced")
+if __name__ == "__main__":
+    # development production
+    subprocess.run(["npx", "webpack", "--mode=development"])
+    with open(r".\..\hcsVSCode\editor.html", "r", encoding="utf8") as file:
+        ss = file.read()
+    i1 = ss.index("// update js code begin") + len("// update js code begin") + 1
+    i2 = ss.index("// update js code end") - 1
+    with open(r".\dist\main.js", "r", encoding="utf8") as file:
+        destss = file.read()
+    ss = ss[:i1] + destss + ss[i2:]
+    with open(r".\..\hcsVSCode\editor.html", "w", encoding="utf8") as file:
+        file.write(ss)
+    print("replaced")
