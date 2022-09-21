@@ -92,7 +92,6 @@ private:
     void ReadSymbolToken(Token &token);
 
 private:
-    static constexpr char *TAG = "Lexer";
     std::string filePath_;
     std::unique_ptr<File> file_;
 

@@ -132,11 +132,6 @@ void CCodeEmitter::EmitTailExternC(StringBuilder &sb)
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-std::string CCodeEmitter::EmitDescMacroName()
-{
-    return StringHelper::Format("%s_INTERFACE_DESC", StringHelper::StrToUpper(interfaceName_).c_str());
-}
-
 std::string CCodeEmitter::MacroName(const std::string &name)
 {
     if (name.empty()) {

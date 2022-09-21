@@ -75,6 +75,11 @@ std::string ASTInterfaceType::GetFullName() const
     return namespace_->ToString() + name_;
 }
 
+std::string ASTInterfaceType::EmitDescMacroName() const
+{
+    return StringHelper::Format("%s_INTERFACE_DESC", StringHelper::StrToUpper(name_).c_str());
+}
+
 std::string ASTInterfaceType::EmitCType(TypeMode mode) const
 {
     switch (mode) {
@@ -115,8 +120,8 @@ std::string ASTInterfaceType::EmitJavaType(TypeMode mode, bool isInnerType) cons
 void ASTInterfaceType::EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
     const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("if (HdfSbufWriteRemoteService(%s, %s->AsObject(%s)) != 0) {\n", parcelName.c_str(),
-        name.c_str(), name.c_str());
+    sb.Append(prefix).AppendFormat("if (!WriteInterface(%s, %s, %s)) {\n", parcelName.c_str(),
+        EmitDescMacroName().c_str(), name.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
@@ -126,34 +131,23 @@ void ASTInterfaceType::EmitCWriteVar(const std::string &parcelName, const std::s
 void ASTInterfaceType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
     const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    std::string remoteName = StringHelper::Format("%sRemote", name.c_str());
-    std::string baseName = StringHelper::StartWith(name_, "I") ? name_.substr(1) : name_;
-
-    sb.Append(prefix).AppendFormat(
-        "struct HdfRemoteService *%s = HdfSbufReadRemoteService(%s);\n", remoteName.c_str(), parcelName.c_str());
-    sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", remoteName.c_str());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", remoteName.c_str());
+    sb.Append(prefix).AppendFormat("*%s = Read%s(%s);\n", name.c_str(), name_.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("if (*%s == NULL) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
-
-    sb.Append(prefix).AppendFormat("*%s = %sGet(%s);\n", name.c_str(), baseName.c_str(), remoteName.c_str());
 }
 
 void ASTInterfaceType::EmitCStubReadVar(const std::string &parcelName, const std::string &name,
     const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    std::string remoteName = StringHelper::Format("%sRemote", name.c_str());
-    std::string baseName = StringHelper::StartWith(name_, "I") ? name_.substr(1) : name_;
-
-    sb.Append(prefix).AppendFormat(
-        "struct HdfRemoteService *%s = HdfSbufReadRemoteService(%s);\n", remoteName.c_str(), parcelName.c_str());
-    sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", remoteName.c_str());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", remoteName.c_str());
+    sb.Append(prefix).AppendFormat("%s = Read%s(%s);\n", name.c_str(), name_.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
-    sb.Append(prefix).AppendFormat("%s = %sGet(%s);\n", name.c_str(), baseName.c_str(), remoteName.c_str());
 }
 
 void ASTInterfaceType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
@@ -199,6 +193,84 @@ void ASTInterfaceType::EmitJavaReadInnerVar(const std::string &parcelName, const
     std::string stubName = StringHelper::StartWith(name_, "I") ? (name_.substr(1) + "Stub") : (name_ + "Stub");
     sb.Append(prefix).AppendFormat("%s %s = %s.asInterface(%s.readRemoteObject());\n",
         EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(), stubName.c_str(), parcelName.c_str());
+}
+
+void ASTInterfaceType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    using namespace std::placeholders;
+    std::string methodName = "WriteInterface";
+    switch (language) {
+        case Options::Language::C:
+            methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
+            break;
+        default:
+            break;
+    }
+}
+
+void ASTInterfaceType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+{
+    using namespace std::placeholders;
+    std::string methodName = StringHelper::Format("Read%s", name_.c_str());
+    switch (language) {
+        case Options::Language::C:
+            methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCReadMethods, this, _1, _2, _3, _4));
+            break;
+        default:
+            break;
+    }
+}
+
+void ASTInterfaceType::EmitCWriteMethods(StringBuilder &sb, const std::string &prefix,
+    const std::string &methodPrefix, bool isDecl) const
+{
+    std::string methodName = StringHelper::Format("%sWriteInterface", methodPrefix.c_str());
+    if (isDecl) {
+        sb.Append(prefix).AppendFormat("static bool %s(struct HdfSBuf *parcel, const char *desc, void *interface);\n",
+            methodName.c_str());
+        return;
+    }
+    sb.Append(prefix).AppendFormat("static bool %s(struct HdfSBuf *parcel, const char *desc, void *interface)\n",
+        methodName.c_str());
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("if (interface == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid interface object\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("struct HdfRemoteService **stub = StubCollectorGetOrNewObject(desc, interface);\n");
+    sb.Append(prefix + TAB).Append("if (stub == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append(
+        "HDF_LOGE(\"%{public}s: failed to get stub of '%{public}s'\", __func__, desc);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("if (HdfSbufWriteRemoteService(parcel, *stub) != HDF_SUCCESS) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to write remote service\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTInterfaceType::EmitCReadMethods(StringBuilder &sb, const std::string &prefix,
+    const std::string &methodPrefix, bool isDecl) const
+{
+    std::string methodName = StringHelper::Format("%sRead%s", methodPrefix.c_str(), name_.c_str());
+    if (isDecl) {
+        sb.Append(prefix).AppendFormat("static struct %s *%s(struct HdfSBuf *parcel);\n", name_.c_str(),
+            methodName.c_str());
+        return;
+    }
+    sb.Append(prefix).AppendFormat("static struct %s *%s(struct HdfSBuf *parcel)\n", name_.c_str(),
+        methodName.c_str());
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("struct HdfRemoteService *remote = HdfSbufReadRemoteService(parcel);\n");
+    sb.Append(prefix + TAB).Append("if (remote == NULL) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: ");
+    sb.AppendFormat(" failed to read remote service of '%s'\", __func__);\n", name_.c_str());
+    sb.Append(prefix + TAB + TAB).Append("return NULL;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).AppendFormat("return %sGet(remote);\n", name_.c_str());
+    sb.Append(prefix).Append("}\n");
 }
 } // namespace HDI
 } // namespace OHOS

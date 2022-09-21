@@ -31,7 +31,7 @@ bool CppServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDire
 void CppServiceDriverCodeEmitter::EmitCode()
 {
     // the callback interface have no driver file.
-    if (!interface_->IsSerializable()) {
+    if (!Options::GetInstance().DoPassthrough() && !interface_->IsSerializable()) {
         EmitDriverSourceFile();
     }
 }
@@ -45,6 +45,8 @@ void CppServiceDriverCodeEmitter::EmitDriverSourceFile()
 
     EmitLicense(sb);
     EmitDriverInclusions(sb);
+    sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(baseName_ + "Driver"));
     sb.Append("\n");
     EmitDriverUsings(sb);
     sb.Append("\n");

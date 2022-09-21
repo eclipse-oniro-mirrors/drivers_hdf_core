@@ -44,8 +44,6 @@ public:
 
     static std::string Format(const char *format, ...);
 
-    static const char *TAG;
-
     static constexpr size_t LINE_MAX_SIZE = 1024; // 1KB
     static constexpr size_t MAX_SIZE = 262144;    // 8KB
 };

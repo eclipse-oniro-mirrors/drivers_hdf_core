@@ -26,6 +26,10 @@ private:
 
     void EmitCode() override;
 
+    void EmitPassthroughCustomTypesHeaderFile();
+
+    void EmitPassthroughHeaderInclusions(StringBuilder &sb);
+
     void EmitCustomTypesHeaderFile();
 
     void EmitHeaderInclusions(StringBuilder &sb);

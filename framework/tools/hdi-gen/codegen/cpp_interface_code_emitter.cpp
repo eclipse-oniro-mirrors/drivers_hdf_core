@@ -49,8 +49,10 @@ void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     sb.Append("\n");
     EmitBeginNamespace(sb);
     EmitUsingNamespace(sb);
-    sb.Append("\n");
-    EmitInterfaceMethodCommands(sb, "");
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitInterfaceMethodCommands(sb, "");
+    }
     sb.Append("\n");
     EmitInterfaceDefinition(sb);
     EmitEndNamespace(sb);

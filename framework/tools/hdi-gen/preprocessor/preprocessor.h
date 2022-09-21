@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace HDI {
-struct FileDetail {
+class FileDetail {
 public:
     inline std::string GetFullName() const
     {
@@ -59,9 +59,6 @@ private:
     void PrintCyclefInfo(FileDetailMap &allFileDetails);
 
     void FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace);
-
-private:
-    static constexpr char *TAG = "Preprocessor";
 };
 } // namespace HDI
 } // namespace OHOS

@@ -17,14 +17,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "util/common.h"
 #include "util/logger.h"
 #include "util/string_helper.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
 namespace HDI {
-const char *File::TAG = "File";
-
 File::File(const std::string &path, unsigned int mode) : mode_(mode)
 {
     if (path.empty()) {
@@ -195,7 +194,7 @@ bool File::CreateParentDir(const std::string &path)
     }
 
     size_t pos = 1;
-    while ((pos = path.find(File::separator, pos)) != std::string::npos) {
+    while ((pos = path.find(SEPARATOR, pos)) != std::string::npos) {
         std::string partPath = StringHelper::SubStr(path, 0, pos);
         struct stat st;
         if (stat(partPath.c_str(), &st) < 0) {
@@ -231,7 +230,7 @@ std::string File::AdapterPath(const std::string &path)
     bool hasSep = false;
     for (size_t i = 0; i < newPath.size(); i++) {
         char c = newPath[i];
-        if (c == File::separator) {
+        if (c == SEPARATOR) {
             if (hasSep) {
                 continue;
             }
@@ -283,29 +282,6 @@ bool File::CheckValid(const std::string &path)
     }
 
     return true;
-}
-
-std::string File::Pascal2UnderScoreCase(const std::string &name)
-{
-    if (name.empty()) {
-        return name;
-    }
-
-    StringBuilder sb;
-    for (size_t i = 0; i < name.size(); i++) {
-        char c = name[i];
-        if (isupper(c) != 0) {
-            // 2->Index of the last char array.
-            if (i > 1) {
-                sb.Append('_');
-            }
-            sb.Append(tolower(c));
-        } else {
-            sb.Append(c);
-        }
-    }
-
-    return sb.ToString();
 }
 
 size_t File::GetHashKey()

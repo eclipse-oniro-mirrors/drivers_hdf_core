@@ -106,8 +106,7 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
     return false;
 }
 
-/**
- * ForExample:
+/*
  * -r option: -r ohos.hdi:./drivers/interface
  * outDir: ./out
  * package: ohos.hdi.foo.v1_0
@@ -117,9 +116,9 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
  */
 std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
 {
-    std::string outPath = StringHelper::EndWith(outDir, File::separator) ? outDir.substr(0, outDir.size() - 1) : outDir;
+    std::string outPath = StringHelper::EndWith(outDir, SEPARATOR) ? outDir.substr(0, outDir.size() - 1) : outDir;
     std::string subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());
-    std::string subPath = StringHelper::Replace(subPackage, '.', File::separator);
+    std::string subPath = StringHelper::Replace(subPackage, '.', SEPARATOR);
     if (subPath.empty()) {
         return File::AdapterPath(StringHelper::Format("%s/", outPath.c_str(), subPath.c_str()));
     } else {
@@ -134,7 +133,7 @@ std::string CodeEmitter::PackageToFilePath(const std::string &packageName)
     for (auto iter = packageVec.begin(); iter != packageVec.end(); iter++) {
         filePath.Append(FileName(*iter));
         if (iter != packageVec.end() - 1) {
-            filePath.Append(File::separator);
+            filePath.Append(SEPARATOR);
         }
     }
 
@@ -161,6 +160,11 @@ void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::stri
 std::string CodeEmitter::EmitVersionHeaderName(const std::string &name)
 {
     return StringHelper::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).c_str());
+}
+
+void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name)
+{
+    sb.AppendFormat("#define HDF_LOG_TAG    %s\n", name.c_str());
 }
 
 std::string CodeEmitter::ConstantName(const std::string &name)

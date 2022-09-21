@@ -93,13 +93,16 @@ protected:
 
     void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
 
-    /* ForExample:
+    /* add version prefix
      * MajorVersion: 1
      * MinorVersion: 0
      * name: IFoo
      * result: v1_0/ifoo.h
      */
     std::string EmitVersionHeaderName(const std::string &name);
+
+    // log tag macro of hdf
+    void EmitLogTagMacro(StringBuilder &sb, const std::string &name);
 
     // file_name -> FILE_NAME
     std::string ConstantName(const std::string &name);
@@ -116,7 +119,6 @@ protected:
         StringBuilder &sb, const std::string &prefix, const UtilMethodMap &methods, bool isDecl);
 
 protected:
-    static constexpr char *TAB = "    ";
     bool isKernelCode_ = false;
     AutoPtr<AST> ast_ = nullptr;
     AutoPtr<ASTInterfaceType> interface_ = nullptr;

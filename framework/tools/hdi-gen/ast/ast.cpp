@@ -75,8 +75,8 @@ std::string AST::GetPackageName()
 AutoPtr<ASTNamespace> AST::ParseNamespace(const std::string &nspaceStr)
 {
     AutoPtr<ASTNamespace> currNspace;
-    int begin = 0;
-    int index = 0;
+    size_t begin = 0;
+    size_t index = 0;
     while ((index = nspaceStr.find('.', begin)) != std::string::npos) {
         std::string ns = StringHelper::SubStr(nspaceStr, begin, index);
         AutoPtr<ASTNamespace> nspace;

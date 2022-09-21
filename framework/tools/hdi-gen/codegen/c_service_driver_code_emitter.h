@@ -32,11 +32,17 @@ private:
 
     void EmitDriverServiceDecl(StringBuilder &sb);
 
+    void EmitKernelDriverDispatch(StringBuilder &sb);
+
     void EmitDriverDispatch(StringBuilder &sb);
 
     void EmitDriverInit(StringBuilder &sb);
 
+    void EmitKernelDriverBind(StringBuilder &sb);
+
     void EmitDriverBind(StringBuilder &sb);
+
+    void EmitKernelDriverRelease(StringBuilder &sb);
 
     void EmitDriverRelease(StringBuilder &sb);
 

@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "util/common.h"
 #include "util/file.h"
 #include "util/string_helper.h"
 
@@ -32,6 +33,7 @@ static struct option g_longOpts[] = {
     {"gen-hash",     no_argument,       nullptr, 'H'},
     {"build-target", required_argument, nullptr, 'p'},
     {"module-name",  required_argument, nullptr, 'N'},
+    {"passthrough",  no_argument,       nullptr, 'T'},
     {"kernel",       no_argument,       nullptr, 'K'},
     {"dump-ast",     no_argument,       nullptr, 'D'},
     {nullptr,        0,                 nullptr, 0  }
@@ -82,8 +84,7 @@ void Options::SetOptionData(char op)
             doModeKernel_ = true;
             break;
         case 'N':
-            doSetModuleName_ = true;
-            moduleName_ = optarg;
+            SetModuleName(optarg);
             break;
         case 'C':
             SetLanguage(Language::C);
@@ -96,6 +97,9 @@ void Options::SetOptionData(char op)
             break;
         case 'p':
             SetCodePart(optarg);
+            break;
+        case 'T':
+            doPassthrough_ = true;
             break;
         case 'H':
             doGetHashKey_ = true;
@@ -134,6 +138,12 @@ void Options::AddPackagePath(const std::string &packagePath)
     }
 
     packagePath_[package] = path;
+}
+
+void Options::SetModuleName(const std::string &moduleName)
+{
+    doSetModuleName_ = true;
+    moduleName_ = moduleName;
 }
 
 void Options::SetLanguage(Language kind)
@@ -214,13 +224,13 @@ void Options::ShowUsage() const
            "  --gen-java                      Generate Java code\n"
            "  --kernel                        Generate kernel-mode ioservice stub code,"
            "default user-mode ioservice stub code\n"
+           "  --passthrough                   Generate code that only supports pass through mode"
            "  --module-name <module name>     Set driver module name\n"
            "  --build-target <target name>    Generate client code, server code or all code\n"
            "  -d <directory>                  Place generated codes into <directory>\n");
 }
 
 /*
- * For Example
  * -r option: -r ohos.hdi:./drivers/interface
  * package:ohos.hdi.foo.v1_0
  * rootPackage:ohos.hdi
@@ -238,7 +248,6 @@ std::string Options::GetRootPackage(const std::string &package)
 }
 
 /*
- * For Example
  * -r option: -r ohos.hdi:./drivers/interface
  * package:ohos.hdi.foo.v1_0
  * rootPath:./drivers/interface
@@ -256,7 +265,6 @@ std::string Options::GetRootPath(const std::string &package)
 }
 
 /*
- * For Example
  * -r option: -r ohos.hdi:./drivers/interface
  * package:ohos.hdi.foo.v1_0
  * subPackage:foo.v1_0
@@ -272,7 +280,6 @@ std::string Options::GetSubPackage(const std::string &package)
 }
 
 /*
- * For Example
  * -r option: -r ohos.hdi:./drivers/interface
  * package:ohos.hdi.foo.v1_0
  * packagePath:./drivers/interface/foo/v1_0
@@ -291,20 +298,19 @@ std::string Options::GetPackagePath(const std::string &package)
 
     if (rootPackage.empty()) {
         // The current path is the root path
-        std::string curPath = File::AdapterPath(StringHelper::Replace(package, '.', File::separator));
+        std::string curPath = File::AdapterPath(StringHelper::Replace(package, '.', SEPARATOR));
         return File::AdapterRealPath(curPath);
     }
 
-    if (StringHelper::EndWith(rootPath, File::separator)) {
+    if (StringHelper::EndWith(rootPath, SEPARATOR)) {
         rootPath = rootPath.substr(0, rootPath.size() - 1);
     }
 
-    std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', File::separator);
+    std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', SEPARATOR);
     return File::AdapterPath(rootPath + "/" + subPath);
 }
 
 /*
- * For Example
  * -r option: -r ohos.hdi:./drivers/interface
  * import: ohos.hdi.foo.v1_0.MyTypes
  * packagePath:./drivers/interface/foo/v1_0/MyTypes.idl
@@ -318,7 +324,7 @@ std::string Options::GetImportFilePath(const std::string &import)
 
     std::string dir = GetPackagePath(StringHelper::SubStr(import, 0, index));
     std::string ClassName = import.substr(index + 1);
-    return StringHelper::Format("%s%c%s.idl", dir.c_str(), File::separator, ClassName.c_str());
+    return StringHelper::Format("%s%c%s.idl", dir.c_str(), SEPARATOR, ClassName.c_str());
 }
 } // namespace HDI
 } // namespace OHOS
