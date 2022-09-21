@@ -347,7 +347,7 @@ static int32_t I2cTestPeformance(void)
 
     if (handle != NULL) {
         useTime = endMs - startMs;
-	HDF_LOGI("----->interface performance test:[start - end] < 1ms[%d]\r\n", useTime < 1 ? true : false);
+        HDF_LOGI("----->interface performance test:[start - end] < 1ms[%s]\r\n", useTime < 1 ? "yes" : "no");
         I2cClose(handle);
         return HDF_SUCCESS;
     }
