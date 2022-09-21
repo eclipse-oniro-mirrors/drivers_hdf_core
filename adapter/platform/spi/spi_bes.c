@@ -453,9 +453,11 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const char *dev
 #if HCS_NODE_EXISTS(PLATFORM_SPI_CONFIG)
     HCS_FOREACH_CHILD_VARGS(PLATFORM_SPI_CONFIG, SPI_FIND_CONFIG, deviceMatchAttr, resource);
 #endif
+    spiDevice->spiId = resource->num;
     if (result != HDF_SUCCESS) {
         HDF_LOGE("resourceNode %s is NULL\r\n", deviceMatchAttr);
     }
+    
     return result;
 }
 #else
