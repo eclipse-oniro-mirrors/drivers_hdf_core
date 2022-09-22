@@ -1108,7 +1108,13 @@ static void HdmiFillVideoAttrFromHardwareStatus(
         /*
          * when the timing is 4096*2160, the aspect ratio in AVI infoFrame is 0
          * (but the real aspect ratio is 256:135<0x04>, the video_code is 0)
-         * vsif[8] is HDMI_VIC. 0x04: 4K*2K @24Hz(SMPTE)
+         * vsif[0]: Packet Type = 0x81
+         * vsif[1]: Version = 0x01
+         * vsif[2]: BIT[7:5]: 0, Bit[4:0]: Length, defines the length of HDMI vendor specific infoFrame payload.
+         * vsif[3]: Checksum.
+         * vsif[4]--vsif[6]: 24bit IEEE Registration Identifier(0x000C03)(least significant byte first).
+         * vsif[7]: BIT[7]: reserved for future, BIT[6:5]: HDMI_Video_Format, BIT[4:0]: reserved.
+         * vsif[8]: HDMI_VIC, 0x04: 4K*2K @24Hz(SMPTE).
          */
         aspectIs256 = (((vic == 0) && (hwStatus->infoFrameStatus.vsif[8] == 0x04)) ||
             ((vic >= HDMI_VIC_4096X2160P25_256_135) && (vic <= HDMI_VIC_4096X2160P60_256_135)));
