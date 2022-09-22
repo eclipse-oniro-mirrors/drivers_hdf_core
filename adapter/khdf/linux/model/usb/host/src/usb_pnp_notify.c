@@ -3,7 +3,7 @@
  *
  * usb pnp notify adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -56,7 +56,6 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
 {
     struct UsbPnpDeviceInfo *infoTemp = NULL;
     static int32_t idNum = 1;
-    int32_t ret;
 
     infoTemp = (struct UsbPnpDeviceInfo *)OsalMemCalloc(sizeof(struct UsbPnpDeviceInfo));
     if (infoTemp == NULL) {
@@ -495,17 +494,18 @@ static int32_t GadgetPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceO
         return HDF_ERR_INVALID_PARAM;
     }
 
-    struct HdfSBuf *data = NULL;
-    data = HdfSbufObtainDefaultSize();
+    struct HdfSBuf *data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("%s:%d InitDataBlock failed", __func__, __LINE__);
         return HDF_FAILURE;
     }
+
     if (!HdfSbufWriteUint8(data, g_gadgetPnpNotifyType)) {
         HDF_LOGE("%s, UsbEcmRead HdfSbufWriteInt8 error", __func__);
         HdfSbufRecycle(data);
         return HDF_FAILURE;
     }
+
     int32_t ret = HdfDeviceSendEvent(deviceObject, g_gadgetPnpNotifyType, data);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:%d HdfDeviceSendEvent ret = %d", __func__, __LINE__, ret);
@@ -731,34 +731,23 @@ static void UsbPnpNotifyReadPnpInfo(struct HdfSBuf *data)
 
 static int32_t UsbPnpGetDevices(struct HdfSBuf *reply)
 {
-    int32_t ret = HDF_SUCCESS;
     struct UsbPnpDeviceInfo *infoPos = NULL;
     struct UsbPnpDeviceInfo *infoTemp = NULL;
+    if (!HdfSbufWriteInt32(reply, DListGetCount(&g_usbPnpInfoListHead))) {
+        HDF_LOGE("%s write list count failed", __func__);
+        return HDF_ERR_IO;
+    }
 
     if (DListIsEmpty(&g_usbPnpInfoListHead) == true) {
-        return ret;
+        return HDF_SUCCESS;
     }
     DLIST_FOR_EACH_ENTRY_SAFE(infoPos, infoTemp, &g_usbPnpInfoListHead, struct UsbPnpDeviceInfo, list) {
-        if (!HdfSbufWriteInt32(reply, infoPos->info.busNum)) {
-            break;
-        }
-        if (!HdfSbufWriteInt32(reply, infoPos->info.devNum)) {
-            break;
-        }
-        if (!HdfSbufWriteUint8(reply, infoPos->info.deviceInfo.deviceClass)) {
-            break;
-        }
-        if (!HdfSbufWriteUint8(reply, infoPos->info.deviceInfo.deviceSubClass)) {
-            break;
-        }
-        if (!HdfSbufWriteUint8(reply, infoPos->info.deviceInfo.deviceProtocol)) {
-            break;
-        }
-        if (!HdfSbufWriteUint8(reply, infoPos->status)) {
-            break;
+        if (!HdfSbufWriteBuffer(reply, &infoPos->info, sizeof(struct UsbPnpNotifyMatchInfoTable))) {
+            HDF_LOGE("%s write buffer failed", __func__);
+            return HDF_ERR_IO;
         }
     }
-    return ret;
+    return HDF_SUCCESS;
 }
 
 static int32_t UsbPnpNotifyDispatch(
