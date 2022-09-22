@@ -252,9 +252,9 @@ void Preprocessor::PrintCyclefInfo(FileDetailMap &allFileDetails)
 {
     for (FileDetailMap::iterator it = allFileDetails.begin(); it != allFileDetails.end();) {
         if (it->second.imports_.size() == 0) {
-            allFileDetails.erase(it++);
+            it = allFileDetails.erase(it);
         } else {
-            it++;
+            ++it;
         }
     }
 
@@ -266,7 +266,7 @@ void Preprocessor::PrintCyclefInfo(FileDetailMap &allFileDetails)
 
 void Preprocessor::FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace)
 {
-    auto iter = std::find_if(trace.begin(), trace.end(), [curNode](std::string name) {
+    auto iter = std::find_if(trace.begin(), trace.end(), [curNode](const std::string name) {
         return name == curNode;
     });
     if (iter != trace.end()) {

@@ -15,7 +15,7 @@ namespace OHOS {
 namespace HDI {
 class CServiceDriverCodeEmitter : public CCodeEmitter {
 public:
-    CServiceDriverCodeEmitter() : CCodeEmitter() {}
+    CServiceDriverCodeEmitter();
 
     virtual ~CServiceDriverCodeEmitter() = default;
 
@@ -47,6 +47,8 @@ private:
     void EmitDriverRelease(StringBuilder &sb);
 
     void EmitDriverEntryDefinition(StringBuilder &sb);
+private:
+    std::string hostName_;
 };
 } // namespace HDI
 } // namespace OHOS

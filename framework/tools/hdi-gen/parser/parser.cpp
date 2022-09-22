@@ -979,7 +979,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
         lexer_.GetToken();
     } else {
         lexer_.GetToken();
-        AutoPtr<ASTType> baseType = ast_->FindType("int");
+        baseType = ast_->FindType("int");
     }
     return baseType;
 }

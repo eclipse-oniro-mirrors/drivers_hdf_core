@@ -402,7 +402,7 @@ def judge_file_path_exists(temp_path):
 def write_config(root_path, config_file_json, config_name):
     if platform.system() == "Windows":
         config_file_replace = json.dumps(config_file_json, indent=4). \
-            replace(root_path.replace('\\', '\\\\') + '\\\\', "")
+            replace("{}\\\\".format(root_path.replace('\\', '\\\\')), "")
         write_file(os.path.join('resources', config_name),
                    config_file_replace.replace('\\\\', '/'))
     if platform.system() == "Linux":
@@ -433,11 +433,11 @@ def ini_file_write_operation(model, operation_object, model_child_dir_list):
 def judge_enable_line(enable_line, device_base):
     if isinstance(enable_line, bytes):
         if enable_line.find((device_base + " ").encode("utf-8")) == -1 and \
-                enable_line.find((device_base+"=").encode("utf-8")) == -1:
+                enable_line.find((device_base + "=").encode("utf-8")) == -1:
             return enable_line
     else:
         if enable_line.find(device_base + " ") == -1 and \
-                enable_line.find(device_base+"=") == -1:
+                enable_line.find(device_base + "=") == -1:
             return enable_line
 
 

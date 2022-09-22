@@ -23,7 +23,6 @@ void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 void CCodeEmitter::EmitInterfaceMethodParameter(
     const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix)
 {
-    AutoPtr<ASTType> type = parameter->GetType();
     sb.Append(prefix).Append(parameter->EmitCParameter());
 }
 

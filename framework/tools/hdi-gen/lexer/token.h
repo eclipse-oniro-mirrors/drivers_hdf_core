@@ -107,10 +107,6 @@ struct TokenTypeCompare {
 };
 
 std::string LocInfo(const Token &token);
-
-std::string TokenTypeToString(TokenType type);
-
-int TokenTypeToChar(TokenType type);
 } // namespace HDI
 } // namespace OHOS
 

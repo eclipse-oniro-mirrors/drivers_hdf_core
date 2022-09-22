@@ -130,37 +130,6 @@ BufferHandle *HdiBufferHandle::Move()
     return handlePtr;
 }
 
-std::string HdiBufferHandle::Dump() const
-{
-    std::stringstream os;
-    os << "{";
-    if (handle_ != nullptr) {
-        os << "fd:" << handle_->fd << ", ";
-        os << "width:" << handle_->width << ", ";
-        os << "stride:" << handle_->stride << ", ";
-        os << "height:" << handle_->height << ", ";
-        os << "size:" << handle_->size << ", ";
-        os << "format:" << handle_->format << ", ";
-        os << "usage:" << handle_->usage << ", ";
-        os << "phyAddr:" << handle_->phyAddr << ", ";
-        os << "key:" << handle_->key << ", ";
-        os << "}\nreserveFds[" << handle_->reserveFds << "]:{";
-
-        uint32_t i = 0;
-        for (; i < handle_->reserveFds; i++) {
-            os << handle_->reserve[i] << ", ";
-        }
-        os << "},\nreserveInts[" << handle_->reserveInts << "]:{";
-
-        uint32_t n = 0;
-        for (; n < handle_->reserveInts; n++) {
-            os << handle_->reserve[i + n] << ", ";
-        }
-    }
-    os << "}\n";
-    return os.str();
-}
-
 bool HdiBufferHandle::ExtractFromParcel(Parcel &parcel)
 {
     MessageParcel &messageParcel = static_cast<MessageParcel &>(parcel);

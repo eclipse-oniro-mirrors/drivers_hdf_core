@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef DISPLAY_COMMAND_DATA_PACKER_H_
-#define DISPLAY_COMMAND_DATA_PACKER_H_
+#ifndef DISPLAY_COMMAND_DATA_PACKER_H
+#define DISPLAY_COMMAND_DATA_PACKER_H
 
 #include <memory>
 #include <securec.h>
@@ -230,4 +230,4 @@ private:
 } // namespace Display
 } // namespace HDI
 } // namespace OHOS
-#endif // DISPLAY_COMMAND_DATA_PACKER_H_
+#endif // DISPLAY_COMMAND_DATA_PACKER_H

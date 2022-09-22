@@ -6,6 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <algorithm>
 #include <string>
 
 #include "file.h"
@@ -21,7 +22,7 @@ constexpr static const char *FILE_HEAD_COMMENT =
 
 MacroGen::MacroGen(std::shared_ptr<Ast> ast) : Generator(ast) {}
 
-const std::string &MacroGen::ToUpperString(std::string &str) const
+const std::string &MacroGen::ToUpperString(std::string &str)
 {
     for (char &c : str) {
         c = static_cast<char>(toupper(c));
@@ -206,11 +207,7 @@ std::string MacroGen::GenRefObjName(int32_t depth, const std::shared_ptr<AstObje
     if (name.find(".") == std::string::npos) {
         name = GenFullName(depth - 1, object, "_").append(object->StringValue());
     } else {
-        for (char &c : name) {
-            if (c == '.') {
-                c = '_';
-            }
-        }
+        std::replace(name.begin(), name.end(), '.', '_');
     }
     return name;
 }

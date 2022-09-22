@@ -63,12 +63,10 @@ void Options::SetOptionData(char op)
 {
     switch (op) {
         case 'c':
-            doCompile_ = true;
-            sourceFiles_.push_back(optarg);
+            AddSources(optarg);
             break;
         case 'd':
-            doOutDir_ = true;
-            generationDirectory_ = optarg;
+            SetOutDir(optarg);
             break;
         case 'h':
             doShowUsage_ = true;
@@ -135,6 +133,18 @@ void Options::AddPackagePath(const std::string &packagePath)
     }
 
     packagePath_[package] = path;
+}
+
+void Options::AddSources(const std::string &sourceFile)
+{
+    doCompile_ = true;
+    sourceFiles_.push_back(sourceFile);
+}
+
+void Options::SetOutDir(const std::string &dir)
+{
+    doOutDir_ = true;
+    generationDirectory_ = dir;
 }
 
 void Options::SetLanguage(Language kind)

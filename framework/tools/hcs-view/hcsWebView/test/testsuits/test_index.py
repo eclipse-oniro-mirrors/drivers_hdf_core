@@ -7,16 +7,17 @@
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
-from asyncio import subprocess
-import time
 import os
+import time
 import easyocr
 import pytest
+import warnings
+
+from asyncio import subprocess
 from PIL import Image
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-from public_moudle.Base import Base
-import warnings
+from public_moudle.base import Base
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -26,8 +27,10 @@ class TestHcsTool:
     test = Base(driver)
     url = test.getfiledir()
 
-    def setup_class(self):
-        # Determine whether the index.html file in the local project can be opened and used before executing the use case
+    @staticmethod
+    def setup_class():
+        # Determine whether the index.html file in the local project
+        # can be opened and used before executing the use case
         filelist = os.listdir('../../dist')
         if len(filelist) < 2:
             os.chdir('../../')

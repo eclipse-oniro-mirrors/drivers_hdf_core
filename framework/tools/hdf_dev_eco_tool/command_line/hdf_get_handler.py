@@ -10,12 +10,15 @@
 
 import os
 import json
+import sys
+sys.path.append("..")
 
 import hdf_utils
 import hdf_tool_version
 from command_line.hdf_command_error_code import CommandErrorCode
 from hdf_tool_settings import HdfToolSettings
 from hdf_tool_exception import HdfToolException
+from hdf_tool_version import GetToolVersion
 from .hdf_command_handler_base import HdfCommandHandlerBase
 from .hdf_linux_scann import HdfLinuxScan
 from .hdf_lite_mk_file import HdfLiteMkFile
@@ -26,9 +29,6 @@ from .hdf_driver_config_file import HdfDriverConfigFile
 
 
 class HdfGetHandler(HdfCommandHandlerBase):
-    HDF_VERSION_MAJOR = 0
-    HDF_VERSION_MINOR = 1
-
     def __init__(self, args):
         super(HdfGetHandler, self).__init__()
         self.cmd = 'get'
@@ -165,8 +165,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
     def __get_version(self):
         version_end = "\nCopyright (c) 2020-2021 Huawei Device Co., Ltd."
         version_head = "hdf_dev_eco_tool version : "
-        return version_head + str(self.HDF_VERSION_MAJOR) \
-               + "." + str(self.HDF_VERSION_MINOR) + version_end
+        return version_head + GetToolVersion().get_version() + version_end
 
     def _mode_scan(self):
         self.check_arg_raise_if_not_exist("root_dir")

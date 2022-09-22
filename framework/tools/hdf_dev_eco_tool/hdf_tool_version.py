@@ -7,9 +7,11 @@
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
+class GetToolVersion(object):
+    def __init__(self):
+        self.hdf_version_major = 0
+        self.hdf_version_minor = 1
 
-HDF_TOOL_VERSION = '1.0.0'
-
-
-def get_version():
-    return HDF_TOOL_VERSION
+    def get_version(self):
+        HDF_TOOL_VERSION = "%s.%s" % (self.HDF_VERSION_MAJOR, self.HDF_VERSION_MINOR)
+        return "{}.{}".format(self.hdf_version_major, self.hdf_version_minor)

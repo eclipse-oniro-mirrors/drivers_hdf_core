@@ -39,7 +39,7 @@ private:
 
     uint32_t CloseBrace(const std::shared_ptr<AstObject> &astObj, int32_t walkDepth);
 
-    const std::string fileHeader_ = "/*\n * HDF decompile hcs file\n */\n\n";
+    const std::string fileHeader_;
     std::string outPutFileName_;
     std::ofstream file_;
     std::shared_ptr<Ast> ast_;
