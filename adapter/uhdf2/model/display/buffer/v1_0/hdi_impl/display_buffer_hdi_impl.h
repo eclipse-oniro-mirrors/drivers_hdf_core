@@ -32,15 +32,15 @@ public:
     explicit DisplayBufferHdiImpl(bool isAllocLocal = false);
     virtual ~DisplayBufferHdiImpl() = default;
 
-    virtual int32_t AllocMem(const AllocInfo &info, BufferHandle *&handle) const override;
-    virtual void FreeMem(const BufferHandle &handle) const override;
-    virtual void *Mmap(const BufferHandle &handle) const override;
-    virtual void *MmapCache(const BufferHandle &handle) const override;
-    virtual int32_t Unmap(const BufferHandle &handle) const override;
-    virtual int32_t FlushCache(const BufferHandle &handle) const override;
-    virtual int32_t FlushMCache(const BufferHandle &handle) const override;
-    virtual int32_t InvalidateCache(const BufferHandle &handle) const override;
-    virtual int32_t IsSupportedAlloc(
+    int32_t AllocMem(const AllocInfo &info, BufferHandle *&handle) const override;
+    void FreeMem(const BufferHandle &handle) const override;
+    void *Mmap(const BufferHandle &handle) const override;
+    void *MmapCache(const BufferHandle &handle) const override;
+    int32_t Unmap(const BufferHandle &handle) const override;
+    int32_t FlushCache(const BufferHandle &handle) const override;
+    int32_t FlushMCache(const BufferHandle &handle) const override;
+    int32_t InvalidateCache(const BufferHandle &handle) const override;
+    int32_t IsSupportedAlloc(
         const std::vector<VerifyAllocInfo> &infos, std::vector<bool> &supporteds) const override;
 
 private:

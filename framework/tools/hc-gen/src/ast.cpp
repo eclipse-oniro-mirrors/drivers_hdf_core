@@ -372,7 +372,7 @@ const std::string &AstObject::Name()
     return name_;
 }
 
-const std::string &AstObject::StringValue()
+const std::string &AstObject::StringValue() const
 {
     return stringValue_;
 }
@@ -492,7 +492,7 @@ uint32_t ConfigNode::GetNodeType() const
     return nodeType_;
 }
 
-const std::string &ConfigNode::GetRefPath()
+const std::string &ConfigNode::GetRefPath() const
 {
     return refNodePath_;
 }
@@ -650,7 +650,7 @@ bool ConfigNode::NodeCopyExpand(const std::shared_ptr<AstObject> &ref)
     return Copy(ref, false);
 }
 
-bool ConfigNode::Compare(ConfigNode &other)
+bool ConfigNode::Compare(ConfigNode &other) const
 {
     auto objChild = child_;
     while (objChild != nullptr) {
@@ -688,7 +688,7 @@ void ConfigNode::SetTemplateSignNum(uint32_t sigNum)
     templateSignNum_ = sigNum;
 }
 
-const std::list<AstObject *> &ConfigNode::SubClasses()
+const std::list<AstObject *> &ConfigNode::SubClasses() const
 {
     return subClasses_;
 }
@@ -1119,7 +1119,6 @@ std::shared_ptr<AstObject> Ast::Lookup(const std::shared_ptr<AstObject> &startOb
     splitPath.erase(splitPath.begin());
 
     std::shared_ptr<AstObject> target = astRoot_;
-    std::shared_ptr<AstObject> child = astRoot_->Child();
     for (auto &it : splitPath) {
         // look up children
         target = target->Lookup(it);
@@ -1131,7 +1130,7 @@ std::shared_ptr<AstObject> Ast::Lookup(const std::shared_ptr<AstObject> &startOb
     return target;
 }
 
-std::list<std::string> Ast::SplitNodePath(const std::string &path, char separator) const
+std::list<std::string> Ast::SplitNodePath(const std::string &path, char separator)
 {
     std::list<std::string> splitList;
     std::string temp;

@@ -224,7 +224,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
             {"module_upper_case": converter.upper_case()})
         for dot_file in dot_file_list:
             file_lines = hdf_utils.read_file_lines(dot_file)
-            file_lines[-1] = file_lines[-1].strip() + "\n"
+            file_lines[-1] = "{}\n".format(file_lines[-1].strip())
             if new_demo_config != file_lines[-1]:
                 file_lines.append(new_demo_config)
                 hdf_utils.write_file_lines(dot_file, file_lines)
@@ -299,7 +299,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         else:
             driver_file_name = "//" + user_file_path.replace("\\", "/")
         data_model = {
-            "model_path": "//drivers/hdf_core/adapter/uhdf2/" + module,
+            "model_path": os.path.join("//drivers/hdf_core/adapter/uhdf2/", module),
             "driver_file_name": driver_file_name,
             "model_name": module,
         }

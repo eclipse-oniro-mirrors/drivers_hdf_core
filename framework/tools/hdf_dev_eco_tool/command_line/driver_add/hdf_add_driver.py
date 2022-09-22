@@ -94,7 +94,7 @@ class HdfAddDriver(object):
                     file_lines.append(device_enable)
             else:
                 file_lines = file_lines_old
-            file_lines[-1] = file_lines[-1].strip() + "\n"
+            file_lines[-1] = "{}\n".format(file_lines[-1].strip())
             if new_demo_config not in file_lines:
                 file_lines.append(new_demo_config)
             hdf_utils.write_file_lines(dot_file, file_lines)

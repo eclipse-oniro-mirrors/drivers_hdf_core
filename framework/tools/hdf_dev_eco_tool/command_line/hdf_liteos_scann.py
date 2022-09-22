@@ -79,7 +79,7 @@ class HdfLiteScan(object):
                     end_index = index + 1
 
         model_list = []
-        for i in self.contents[start_index+1: end_index-1]:
+        for i in self.contents[start_index + 1: end_index - 1]:
             model_name = re.compile(self.re_temp_model).match(i.strip())
             if model_name:
                 model_list.append(i.strip())

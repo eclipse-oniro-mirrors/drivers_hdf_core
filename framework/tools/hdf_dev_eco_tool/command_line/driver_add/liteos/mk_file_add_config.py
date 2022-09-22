@@ -59,9 +59,12 @@ def audio_makefile_file_operation(path, args_tuple):
             temp_dict = analyze_parent_path(
                     date_lines, source, "", devices, root)
             if source == source_path[-1]:
-                sources_line += len(multi_resource)*" " + temp_handle.substitute(temp_dict).replace("temp_flag", "$(")+"\n"
+                sources_line += len(multi_resource)*" " + \
+                                temp_handle.substitute(temp_dict).replace(
+                                    "temp_flag", "$(") + "\n"
             else:
-                sources_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(")+" \\"+"\n"
+                sources_line += temp_handle.substitute(temp_dict).replace(
+                    "temp_flag", "$(") + " \\" + "\n"
         build_resource = multi_resource + sources_line
     else:
         build_resource = "LOCAL_SRCS += $(${file_parent_path})/${source_path}\n"
@@ -80,7 +83,7 @@ def audio_makefile_file_operation(path, args_tuple):
     }
     makefile_replace_dict.update(model_dict)
     new_line = temp_handle.substitute(makefile_replace_dict).replace("temp_flag", "$(")
-    date_lines = date_lines[:end_index-1] + [new_line] + date_lines[end_index-1:]
+    date_lines = date_lines[:end_index - 1] + [new_line] + date_lines[end_index - 1:]
     hdf_utils.write_file_lines(makefile_gn_path, date_lines)
 
 

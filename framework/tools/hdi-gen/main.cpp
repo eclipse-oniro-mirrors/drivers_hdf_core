@@ -18,15 +18,15 @@ using namespace OHOS::HDI;
 static bool GetHashKey()
 {
     Options &options = Options::GetInstance();
-    for (const auto &sourceFile : options.GetSourceFiles()) {
+    for (const auto &sourceFile : Options::GetInstance().GetSourceFiles()) {
         std::unique_ptr<File> idlFile = std::make_unique<File>(sourceFile, int(File::READ));
         if (!idlFile->IsValid()) {
             Logger::E("hdi-gen", "failed to open idl file");
-            return -1;
+            return false;
         }
         printf("%s:%lu\n", idlFile->GetPath().c_str(), idlFile->GetHashKey());
     }
-    return 0;
+    return true;
 }
 int main(int argc, char **argv)
 {
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         return 0;
     }
     if (options.DoGetHashKey()) {
-        return GetHashKey();
+        return GetHashKey() ? 0 : -1;
     }
 
     Preprocessor preprocessor;

@@ -113,7 +113,7 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     ofs_ << '\n';
 }
 
-void StartupCfgGen::InitHostInfo(HostInfo &hostData) const
+void StartupCfgGen::InitHostInfo(HostInfo &hostData)
 {
     hostData.dynamicLoad = true;
     hostData.hostCaps = "";
@@ -158,7 +158,7 @@ void StartupCfgGen::HostInfosOutput()
     }
 }
 
-void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config) const
+void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
     if (term == nullptr) {
         return;
@@ -184,7 +184,7 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
     }
 }
 
-void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData) const
+void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData)
 {
     uint32_t preload;
     std::shared_ptr<AstObject> current = nullptr;

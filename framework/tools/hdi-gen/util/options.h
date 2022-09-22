@@ -146,6 +146,10 @@ private:
 
     void AddPackagePath(const std::string &packagePath);
 
+    void AddSources(const std::string &sourceFile);
+
+    void SetOutDir(const std::string &dir);
+
     void SetLanguage(Language language);
 
     void SetCodePart(const std::string &part);

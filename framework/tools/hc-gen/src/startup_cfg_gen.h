@@ -43,7 +43,7 @@ public:
 private:
     bool Initialize();
 
-    void InitHostInfo(HostInfo &hostData) const;
+    static void InitHostInfo(HostInfo &hostData);
 
     bool TemplateNodeSeparate();
 
@@ -57,9 +57,9 @@ private:
 
     void HostInfosOutput();
 
-    void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config) const;
+    static void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
 
-    void GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData) const;
+    static void GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData);
 
     void GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name) const;
 

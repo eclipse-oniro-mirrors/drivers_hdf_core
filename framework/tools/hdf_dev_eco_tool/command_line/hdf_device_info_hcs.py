@@ -101,7 +101,7 @@ class HdfDeviceInfoHcsFile(object):
                                      'User_device_info_hcs.template')
         lines = list(map(lambda x: "\t\t" + x,
                          hdf_utils.read_file_lines(template_path)))
-        lines[-1] = "\t\t"+lines[-1].strip()+"\n"
+        lines[-1] = "\t\t" + lines[-1].strip() + "\n"
         old_lines = list(filter(lambda x: x != "\n",
                                 hdf_utils.read_file_lines(self.hcspath)))
 

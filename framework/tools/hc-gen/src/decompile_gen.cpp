@@ -13,9 +13,12 @@
 
 using namespace OHOS::Hardware;
 
-DecompileGen::DecompileGen(std::shared_ptr<Ast> ast, std::string outPutFileName) : ast_(ast)
+DecompileGen::DecompileGen(std::shared_ptr<Ast> ast, std::string outPutFileName)
+    : fileHeader_("/*\n * HDF decompile hcs file\n */\n\n"),
+      outPutFileName_(Util::File::StripSuffix(std::move(outPutFileName)).append(".d.hcs")),
+      file_(),
+      ast_(ast)
 {
-    outPutFileName_ = Util::File::StripSuffix(std::move(outPutFileName)).append(".d.hcs");
     Logger().Debug() << "Decompile gen file: " << outPutFileName_;
 }
 
@@ -125,7 +128,6 @@ uint32_t DecompileGen::OutPutWalk(const std::shared_ptr<AstObject> &astObj, int3
     if (astObj->Type() != PARSEROP_CONFNODE && astObj->Type() != PARSEROP_CONFTERM) {
         return NOERR;
     }
-    int ret;
     std::string tabStr = std::string(TAB_SIZE * walkDepth, ' ');
     if (walkDepth != 0) {
         WriteFile(tabStr);
@@ -140,15 +142,16 @@ uint32_t DecompileGen::OutPutWalk(const std::shared_ptr<AstObject> &astObj, int3
                 WriteFile(tabStr);
             }
             break;
-        case PARSEROP_CONFTERM:
+        case PARSEROP_CONFTERM: {
             str = astObj->Name() + " = ";
             WriteFile(str);
-            ret = PrintBaseType(astObj->Child());
+            uint32_t ret = PrintBaseType(astObj->Child());
             if (ret != NOERR) {
                 return ret;
             }
             WriteFile(";\n");
             break;
+        }
         default:
             return EOUTPUT;
     }

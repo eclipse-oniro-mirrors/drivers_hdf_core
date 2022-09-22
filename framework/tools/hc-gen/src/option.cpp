@@ -199,7 +199,7 @@ bool Option::ShouldGenStartConfig() const
     return genStartCfg_;
 }
 
-std::string Option::GetSymbolPrefix()
+std::string Option::GetSymbolPrefix() const
 {
     return symbolNamePrefix_;
 }
@@ -215,22 +215,22 @@ void Option::SetOptionError(bool shouldShowUsage)
     optionError_ = true;
 }
 
-std::string Option::GetSourceName()
+std::string Option::GetSourceName() const
 {
     return sourceName_;
 }
 
-std::string Option::GetSourceNameBase()
+std::string Option::GetSourceNameBase() const
 {
     return sourceNameBase_;
 }
 
-std::string Option::GetOutputName()
+std::string Option::GetOutputName() const
 {
     return outputName_;
 }
 
-std::string Option::GetSourceDir()
+std::string Option::GetSourceDir() const
 {
     return sourceDir_;
 }
