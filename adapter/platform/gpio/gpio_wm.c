@@ -116,12 +116,14 @@ struct GpioMethod g_GpioCntlrMethod = {
 /* dev api */
 static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val)
 {
+    uint16_t wmGpio;
+
     (void)cntlr;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error wmGpio:%d", __func__, __LINE__, wmGpio);
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio= g_gpioPinReflectionMap[gpio];
 
     tls_gpio_write((enum tls_io_name)wmGpio, val);
     return HDF_SUCCESS;
@@ -129,13 +131,15 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
 
 static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
-    (void)cntlr;
     uint16_t value;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error wmGpio:%d", __func__, __LINE__, wmGpio);
+    uint16_t wmGpio;
+
+    (void)cntlr;
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio = g_gpioPinReflectionMap[gpio];
 
     value = tls_gpio_read((enum tls_io_name)wmGpio);
     *val = value;
@@ -144,12 +148,14 @@ static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val
 
 static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t dir)
 {
+    uint16_t wmGpio;
+
     (void)cntlr;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error wmGpio:%d", __func__, __LINE__, wmGpio);
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio = g_gpioPinReflectionMap[gpio];
 
     switch (dir) {
         case GPIO_DIR_OUT:
@@ -170,12 +176,14 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
 
 static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mode)
 {
+    uint16_t wmGpio;
+
     (void)cntlr;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error wmGpio:%d", __func__, __LINE__, wmGpio);
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio= g_gpioPinReflectionMap[gpio];
 
     g_wmGpioIrqHandler[wmGpio].port = gpio;
     tls_gpio_isr_register((enum tls_io_name)wmGpio, (tls_gpio_irq_callback)GpioIrqHdl, NULL);
@@ -203,23 +211,27 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
 
 static int32_t GpioDevUnSetIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
+    uint16_t wmGpio;
+
     (void)cntlr;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error wmGpio:%d", __func__, __LINE__, wmGpio);
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio= g_gpioPinReflectionMap[gpio];
     return HDF_SUCCESS;
 }
 
 static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
+    uint16_t wmGpio;
+
     (void)cntlr;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error pin:%d", __func__, __LINE__, wmGpio);
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio= g_gpioPinReflectionMap[gpio];
 
     // config gpio interrupt
     tls_gpio_irq_enable((enum tls_io_name)wmGpio, g_gpioIrqCfg[wmGpio]);
@@ -228,24 +240,24 @@ static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 
 static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
+    uint16_t wmGpio;
+
     (void)cntlr;
-    uint16_t wmGpio = g_gpioPinReflectionMap[gpio];
-    if ((enum tls_io_name)wmGpio > WM_IO_MAX_GPIO_PIN_NUM) {
-        HDF_LOGE("%s %d, error pin:%d", __func__, __LINE__, wmGpio);
+    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+        HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
+    wmGpio= g_gpioPinReflectionMap[gpio];
 
     tls_gpio_irq_disable((enum tls_io_name)wmGpio);
     return HDF_SUCCESS;
 }
 
-static uint32_t GetGpioDeviceResource(struct GpioDevice *device,
-    const struct DeviceResourceNode *resourceNode)
+static uint32_t GetGpioDeviceResource(struct GpioDevice *device, const struct DeviceResourceNode *resourceNode)
 {
-    uint32_t relPin;
-    int32_t ret;
     struct GpioResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
+
     if (device == NULL || resourceNode == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -256,7 +268,7 @@ static uint32_t GetGpioDeviceResource(struct GpioDevice *device,
         return HDF_ERR_INVALID_OBJECT;
     }
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
-    if (dri == NULL || dri->GetUint32 == NULL) {
+    if (dri == NULL || dri->GetUint32 == NULL || dri->GetUint32ArrayElem == NULL) {
         HDF_LOGE("DeviceResourceIface is invalid");
         return HDF_ERR_INVALID_OBJECT;
     }

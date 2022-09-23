@@ -416,7 +416,7 @@ static int32_t UartHostDevSetTransMode(struct UartHost *host, enum UartTransMode
 
 static int32_t UartDevSemInit(uint32_t id)
 {
-    uint32_t uwRet = 0;
+    uint32_t uwRet;
 
     uwRet = LOS_MuxCreate(&g_uartTxMutex[id]);
     if (uwRet != LOS_OK) {
@@ -448,7 +448,7 @@ static void UartDevSemDeinit(uint32_t id)
 static int32_t UartHostDevInit(struct UartHost *host)
 {
     struct UartDriverData *udd = NULL;
-    uint32_t ret = 0;
+    uint32_t ret;
     uint8_t *ptxBuf = NULL;
 
     if (host == NULL || host->priv == NULL) {

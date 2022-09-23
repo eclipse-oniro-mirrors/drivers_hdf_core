@@ -58,7 +58,7 @@ DevHandle SdioOpen(int16_t mmcBusNum, struct SdioFunctionConfig *config)
         return NULL;
     }
     cntlr = (struct MmcCntlr *)handle;
-    if (cntlr != NULL && cntlr->ops != NULL && cntlr->ops->rescanSdioDev != NULL) {
+    if (cntlr->ops != NULL && cntlr->ops->rescanSdioDev != NULL) {
         ret = cntlr->ops->rescanSdioDev(cntlr);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioOpen: sdio rescan fail!");

@@ -665,9 +665,8 @@ static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
     spiCfg->maxSpeedHz = spiDevice->resource.baudRate;
     spiCfg->mode = spiDevice->resource.clkMode;
     spiCfg->transferMode = spiDevice->resource.transMode;
-    spiCfg->bitsPerWord = spiDevice->resource.dataWidth;
 
-    if (spiDevice->resource.dataWidth) {
+    if (spiDevice->resource.dataWidth == SPI_DATA_WIDTH_16) {
         spiCfg->bitsPerWord = BITWORD_SIXTEEN;
     } else {
         spiCfg->bitsPerWord = BITWORD_EIGHT;

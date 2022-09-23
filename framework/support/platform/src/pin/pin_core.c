@@ -153,7 +153,7 @@ struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc)
     head = PinCntlrListGet();
 
     DLIST_FOR_EACH_ENTRY_SAFE(cntlr, tmp, head, struct PinCntlr, node) {
-        for (num = 0; num <cntlr->pinCount; num++) {
+        for (num = 0; num < cntlr->pinCount; num++) {
             if (desc == &cntlr->pins[num]) {
                 PinCntlrListPut();
                 HDF_LOGI("%s: get cntlr by desc success!", __func__);
