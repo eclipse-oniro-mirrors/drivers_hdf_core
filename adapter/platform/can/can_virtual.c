@@ -199,12 +199,14 @@ static int32_t VirtualCanSetCfg(struct CanCntlr *cntlr, const struct CanConfig *
     }
 
     virtualCan->busState = CAN_BUS_RESET;
-    if ((ret = VirtualCanSetBitRate(virtualCan, cfg->speed) != HDF_SUCCESS)) {
+    ret = VirtualCanSetBitRate(virtualCan, cfg->speed);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set speed failed", __func__);
         return ret;
     }
 
-    if ((ret = VirtualCanSetMode(virtualCan, cfg->mode) != HDF_SUCCESS)) {
+    ret = VirtualCanSetMode(virtualCan, cfg->mode);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set mode failed", __func__);
         return ret;
     }
@@ -266,12 +268,14 @@ static int32_t VirtualCanInit(struct VirtualCanCntlr *virtualCan)
         HDF_LOGW("VirtualUartInit: read hcs config failed");
     }
 
-    if ((ret = VirtualCanSetBitRate(virtualCan, virtualCan->bitRate) != HDF_SUCCESS)) {
+    ret = VirtualCanSetBitRate(virtualCan, virtualCan->bitRate);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set bit rate failed", __func__);
         return ret;
     }
 
-    if ((ret = VirtualCanSetMode(virtualCan, virtualCan->workMode) != HDF_SUCCESS)) {
+    ret = VirtualCanSetMode(virtualCan, virtualCan->workMode);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set mode failed", __func__);
         return ret;
     }

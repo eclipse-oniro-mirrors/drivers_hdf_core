@@ -330,6 +330,7 @@ static int32_t PwmDriverBind(struct HdfDeviceObject *device)
     devService = (struct PwmDev *)OsalMemCalloc(sizeof(struct PwmDev));
     if (devService == NULL) {
         HDF_LOGE("malloc pwmDev failed\n");
+        return HDF_ERR_MALLOC_FAIL;
     }
     device->service = &devService->service;
     devService->device = device;

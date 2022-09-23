@@ -326,7 +326,6 @@ static uint32_t GetGpioDeviceResource(GpioDevice *device)
 #else
 static int32_t GetGpioDeviceResource(GpioDevice *device, const struct DeviceResourceNode *resourceNode)
 {
-    int32_t ret;
     struct DeviceResourceIface *dri = NULL;
     if (device == NULL || resourceNode == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);

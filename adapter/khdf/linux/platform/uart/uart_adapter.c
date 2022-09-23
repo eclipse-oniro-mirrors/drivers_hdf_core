@@ -290,14 +290,20 @@ static int32_t UartAdapterSetBaud(struct UartHost *host, uint32_t baudRate)
     termios.c_cflag |= BaudRateToCflag(baudRate);
     termios.c_cc[VMIN] = 0;
     termios.c_cc[VTIME] = 0;
-    ret = UartAdapterIoctlInner(fp, TCSETS, (unsigned long)&termios);
+    if (UartAdapterIoctlInner(fp, TCSETS, (unsigned long)&termios) < 0) {
+        HDF_LOGE("tcgets fail");
+        return HDF_FAILURE;
+    }
     /* Set low latency */
     if (UartAdapterIoctlInner(fp, TIOCGSERIAL, (unsigned long)&serial) < 0) {
-        HDF_LOGE("tiocgserial fail");
+        HDF_LOGE("tiocgserial fail %d", __LINE__);
         return HDF_FAILURE;
     }
     serial.flags |= ASYNC_LOW_LATENCY;
     ret = UartAdapterIoctlInner(fp, TIOCSSERIAL, (unsigned long)&serial);
+    if (ret < 0) {
+        HDF_LOGE("tiocgserial fail %d", __LINE__);
+    }
     return ret;
 }
 
