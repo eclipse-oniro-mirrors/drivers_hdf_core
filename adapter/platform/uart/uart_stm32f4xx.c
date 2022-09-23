@@ -323,7 +323,7 @@ struct UartHostMethod g_uartHostMethod = {
 
 static int InitUartDevice(struct UartHost *host)
 {
-    uint8_t initRet = 0;
+    uint8_t initRet;
     UartDevice *uartDevice = NULL;
     LL_USART_InitTypeDef *initTypedef = NULL;
     UartResource *resource = NULL;
@@ -555,7 +555,6 @@ static int32_t AttachUartDevice(struct UartHost *uartHost, struct HdfDeviceObjec
 
 static int32_t UartDriverBind(struct HdfDeviceObject *device)
 {
-    struct UartHost *devService;
     if (device == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -691,7 +690,6 @@ static int32_t UartHostDevWrite(struct UartHost *host, uint8_t *data, uint32_t s
 
 static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t size)
 {
-    uint32_t recvSize = 0;
     int32_t ret;
     uint32_t uartId;
     UartDevice *uartDevice = NULL;

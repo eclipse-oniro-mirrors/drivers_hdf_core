@@ -48,7 +48,7 @@ DevHandle UartOpen(uint32_t port)
     }
 
     struct HdfIoService *service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         UartPutObjByPointer(handle);
         return NULL;
@@ -73,7 +73,7 @@ void UartClose(DevHandle handle)
     }
 
     struct HdfIoService *service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         UartPutObjByPointer(handle);
         return;

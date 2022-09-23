@@ -20,7 +20,7 @@
 #define IO_NUM_MSIO        5
 #define IO_NUM_MAX         (IO_NUM_GPIO + IO_NUM_AON + IO_NUM_MSIO)
 
-#define IO_BASE_GPIO       0
+#define IO_BASE_GPIO       0U
 #define IO_BASE_AON        IO_NUM_GPIO
 #define IO_BASE_MSIO       (IO_NUM_GPIO + IO_NUM_AON)
 
@@ -314,6 +314,11 @@ static uint16_t GetGpioResourceData(const struct DeviceResourceNode *node, const
     int32_t ret;
     uint16_t resData;
     struct DeviceResourceIface *drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+
+    if (drsOps == NULL || drsOps->GetUint16ArrayElem == NULL) {
+        HDF_LOGE("%s: invalid drsOps!", __func__);
+        return HDF_FAILURE;
+    }
 
     ret = drsOps->GetUint16ArrayElem(node, resName, index, &resData, 0);
     if (ret != HDF_SUCCESS) {

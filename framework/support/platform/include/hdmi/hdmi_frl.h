@@ -202,6 +202,8 @@ void HdmiFrlEnable(struct HdmiFrl *frl, bool enable);
 bool HdmiFrlSupport(struct HdmiFrl *frl);
 int32_t HdmiFrlModeSelect(struct HdmiFrl *frl);
 bool HdmiFrlModeChanged(struct HdmiFrl *frl);
+void HdmiFrlTrainingStateMachineHandle(struct HdmiFrl *frl);
+void HdmiFrlTrainingStateMachineTimeoutHandle(struct HdmiFrl *frl);
 
 #ifdef __cplusplus
 #if __cplusplus

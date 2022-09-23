@@ -43,8 +43,8 @@ struct CanCntlr {
     int32_t state;                // bus status
     int32_t mode;                 // work mode
     size_t msgPoolSize;           // size of msg pool
-    /* 
-     * the members below are used by framework 
+    /*
+     * the members below are used by framework
      * don't init or modify them
      */
     struct CanCntlrMethod *ops;

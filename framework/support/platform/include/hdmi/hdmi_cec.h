@@ -1733,6 +1733,91 @@ void HdmiCecEncodingTimerStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecT
 void HdmiCecEncodingTunerDeviceStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTunerDeviceInfo *info);
 void HdmiCecEncodingUserControlPrtessedMsg(struct HdmiCecMsg *msg, const struct HdmiCecUiCmd *cmd);
 
+void HdmiCdcEncodingHecDiscoverMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr, bool response);
+void HdmiCdcEncodingHecInquireStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
+    uint16_t phyAddr1, uint16_t phyAddr2, bool response);
+void HdmiCdcEncodingHecNotifyAliveMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr);
+void HdmiCdcEncodingHecReportStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
+    uint16_t phyAddr, const struct HdmiCdcHecState *state);
+void HdmiCdcEncodingHecSetStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
+    struct HemiCdcHecStateInfo *info, bool response);
+void HdmiCdcEncodingHpdReportStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
+    uint8_t hpdState, uint8_t errCode);
+void HdmiCdcEncodingHpdSetStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
+    uint8_t portNum, uint8_t hpdState, bool response);
+void HdmiCecEncodingAbortMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingActiveSourceMsg(struct HdmiCecMsg *msg, uint16_t phyAddr);
+void HdmiCecEncodingClearAnalogueTimerMsg(struct HdmiCecMsg *msg, struct HdmiCecAnalogueTimerInfo *info,
+    bool response);
+void HdmiCecEncodingClearDigitalTimerMsg(struct HdmiCecMsg *msg, struct HdmiCecDigitalTimerInfo *info, bool response);
+void HdmiCecEncodingClearExternalTimerMsg(struct HdmiCecMsg *msg, struct HdmiCecExternalTimerInfo *info,
+    bool response);
+void HdmiCecEncodingDeckControlMsg(struct HdmiCecMsg *msg, uint8_t mode);
+void HdmiCecEncodingDeckStatusMsg(struct HdmiCecMsg *msg, uint8_t info);
+void HdmiCecEncodingGetCecVersionMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGetMenuLanguageMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGetPhyAddressMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveAudioStatusMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveDeckStatusMsg(struct HdmiCecMsg *msg, uint8_t statusReq, bool response);
+void HdmiCecEncodingGiveDevicePowerStatusMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveDeviceVendorIdMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveFeaturesMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveOsdNameMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveSystemAudioModeMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingGiveTunerDeviceStatusMsg(struct HdmiCecMsg *msg, uint8_t statusReq, bool response);
+void HdmiCecEncodingImageViewOnMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingInactiveSourceMsg(struct HdmiCecMsg *msg, uint16_t phyAddr);
+void HdmiCecEncodingInitiateArcMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingMenuRequestMsg(struct HdmiCecMsg *msg, uint8_t menuReq, bool response);
+void HdmiCecEncodingMenuStatusMsg(struct HdmiCecMsg *msg, uint8_t menuStatus);
+void HdmiCecEncodingPlayMsg(struct HdmiCecMsg *msg, uint8_t playMode);
+void HdmiCecEncodingRecordOffMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingRecordOnMsg(struct HdmiCecMsg *msg, struct HdmiCecRecordSource *src, bool response);
+void HdmiCecEncodingRecordStatusMsg(struct HdmiCecMsg *msg, uint8_t recordStatusInfo);
+void HdmiCecEncodingRecordTvScreenMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingReportArcInitiatedMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingReportArcTerminationMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingReportAudioStatusMsg(struct HdmiCecMsg *msg, uint8_t audioMuteStatus, uint8_t audioVolumeStatus);
+void HdmiCecEncodingReportCurrentLatencyMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, struct HdmiCecLatencyInfo *info);
+void HdmiCecEncodingReportDevicePowerStatusMsg(struct HdmiCecMsg *msg, uint8_t powerStatus);
+void HdmiCecEncodingReportShortAudioDescriptorMsg(struct HdmiCecMsg *msg, uint32_t *descriptor, uint32_t len);
+void HdmiCecEncodingRequestActiveSourceMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingRequestArcInitiationMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingRequestArcTerminationMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingRequestCurrentLatencyMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, bool response);
+void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg, uint8_t *id, uint8_t *code,
+    uint32_t len, bool response);
+void HdmiCecEncodingRoutingChangeMsg(struct HdmiCecMsg *msg, uint16_t orgAddr, uint16_t newAddr, bool response);
+void HdmiCecEncodingRoutingInfomationMsg(struct HdmiCecMsg *msg, uint16_t phyAddr);
+void HdmiCecEncodingSelectAnalogueServiceMsg(struct HdmiCecMsg *msg, uint8_t anaBcastType, uint16_t anaFreq,
+    uint8_t bcstSystem);
+void HdmiCecEncodingSelectDigitalServiceMsg(struct HdmiCecMsg *msg, struct HdmiCecDigitalServiceId *digital);
+void HdmiCecEncodingSetAnalogueTimerMsg(struct HdmiCecMsg *msg, struct HdmiCecAnalogueTimerInfo *info, bool response);
+void HdmiCecEncodingSetAudioRateMsg(struct HdmiCecMsg *msg, uint8_t rate);
+void HdmiCecEncodingSetDigitalTimerMsg(struct HdmiCecMsg *msg, struct HdmiCecDigitalTimerInfo *info, bool response);
+void HdmiCecEncodingSetExternalTimerMsg(struct HdmiCecMsg *msg, struct HdmiCecExternalTimerInfo *info, bool response);
+void HdmiCecEncodingSetMenuLanguageMsg(struct HdmiCecMsg *msg, uint8_t *language, uint32_t len);
+void HdmiCecEncodingSetOsdStringMsg(struct HdmiCecMsg *msg, uint8_t dispControl, uint8_t *str, uint32_t len);
+void HdmiCecEncodingSetStreamPathMsg(struct HdmiCecMsg *msg, uint16_t phyAddr);
+void HdmiCecEncodingSetSystemAudioModeMsg(struct HdmiCecMsg *msg, uint8_t status);
+void HdmiCecEncodingSetTimerProgramTitleMsg(struct HdmiCecMsg *msg, uint8_t *title, uint32_t len);
+void HdmiCecEncodingStandbyMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingSystemAudioModeRequestMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, bool response);
+void HdmiCecEncodingSystemAudioModeStatusMsg(struct HdmiCecMsg *msg, uint8_t status);
+void HdmiCecEncodingTerminateArcMsg(struct HdmiCecMsg *msg, bool response);
+void HdmiCecEncodingTextViewOnMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingTimerClearedStatusMsg(struct HdmiCecMsg *msg, uint8_t status);
+void HdmiCecEncodingTimerStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTimerStatusData *status);
+void HdmiCecEncodingTunerDeviceStatusMsg(struct HdmiCecMsg *msg, const struct HdmiCecTunerDeviceInfo *info);
+void HdmiCecEncodingTunerStepDecrementMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingTunerStepIncrementMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingUserControlPrtessedMsg(struct HdmiCecMsg *msg, const struct HdmiCecUiCmd *cmd);
+void HdmiCecEncodingUserControlReleasedMsg(struct HdmiCecMsg *msg);
+void HdmiCecEncodingVendorCommandMsg(struct HdmiCecMsg *msg, uint8_t *data, uint32_t len);
+void HdmiCecEncodingVendorCommandWithIdMsg(struct HdmiCecMsg *msg, uint32_t vendorId, uint8_t *data, uint32_t len);
+void HdmiCecEncodingVendorRemoteButtonDownMsg(struct HdmiCecMsg *msg, uint8_t *rcCode, uint32_t len);
+void HdmiCecEncodingVendorRemoteButtonUpMsg(struct HdmiCecMsg *msg);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

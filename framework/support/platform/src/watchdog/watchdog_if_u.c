@@ -57,7 +57,7 @@ int32_t WatchdogOpen(int16_t wdtId, DevHandle *handle)
         return HDF_FAILURE;
     }
 
-    if (service == NULL ||service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfIoServiceRecycle(service);
         return HDF_FAILURE;
@@ -121,7 +121,7 @@ int32_t WatchdogGetStatus(DevHandle handle, int32_t *status)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -242,7 +242,7 @@ int32_t WatchdogGetTimeout(DevHandle handle, uint32_t *seconds)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }

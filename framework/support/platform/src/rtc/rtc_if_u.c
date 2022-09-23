@@ -12,6 +12,7 @@
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 #include "platform_listener_u.h"
+#include "rtc_base.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG rtc_if_u_c
@@ -74,7 +75,7 @@ int32_t RtcReadTime(DevHandle handle, struct RtcTime *time)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         ret = HDF_ERR_MALLOC_FAIL;
         goto EXIT;
@@ -120,6 +121,11 @@ int32_t RtcWriteTime(DevHandle handle, const struct RtcTime *time)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    if (RtcIsInvalid(time) == RTC_TRUE) {
+        HDF_LOGE("%s: time invalid", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("%s: fail to obtain data", __func__);
@@ -133,7 +139,7 @@ int32_t RtcWriteTime(DevHandle handle, const struct RtcTime *time)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
@@ -184,7 +190,7 @@ int32_t RtcReadAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, struct Rtc
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         ret = HDF_ERR_MALLOC_FAIL;
         goto EXIT;
@@ -231,6 +237,11 @@ int32_t RtcWriteAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, const str
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    if (RtcIsInvalid(time) == RTC_TRUE) {
+        HDF_LOGE("%s: time invalid", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("%s: fail to obtain data", __func__);
@@ -250,7 +261,7 @@ int32_t RtcWriteAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, const str
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
@@ -311,7 +322,7 @@ int32_t RtcRegisterAlarmCallback(DevHandle handle, enum RtcAlarmIndex alarmIndex
         return HDF_ERR_IO;
     }
 
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
@@ -366,7 +377,7 @@ int32_t RtcAlarmInterruptEnable(DevHandle handle, enum RtcAlarmIndex alarmIndex,
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
@@ -401,7 +412,7 @@ int32_t RtcGetFreq(DevHandle handle, uint32_t *freq)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         ret = HDF_ERR_MALLOC_FAIL;
         goto EXIT;
@@ -447,7 +458,7 @@ int32_t RtcSetFreq(DevHandle handle, uint32_t freq)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
@@ -521,7 +532,7 @@ int32_t RtcReadReg(DevHandle handle, uint8_t usrDefIndex, uint8_t *value)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         ret = HDF_ERR_MALLOC_FAIL;
         goto EXIT;
@@ -575,7 +586,7 @@ int32_t RtcWriteReg(DevHandle handle, uint8_t usrDefIndex, uint8_t value)
     }
 
     service = (struct HdfIoService *)handle;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+    if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;

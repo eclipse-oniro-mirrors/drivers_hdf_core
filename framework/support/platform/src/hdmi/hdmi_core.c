@@ -613,7 +613,6 @@ static void HdmiVideoAttrInit(struct HdmiCntlr *cntlr)
     struct HdmiVideoAttr *videoAttr = &(cntlr->attr.videoAttr);
     bool colorimetry601;
 
-    videoAttr->colorSpace = (enum HdmiColorSpace)cntlr->cap.colorSpace;
     videoAttr->colorimetry = (enum HdmiColorimetry)cntlr->cap.colorimetry;
     videoAttr->timing = (enum HdmiVideoTiming)cntlr->cap.videoTiming;
     colorimetry601 = ((videoAttr->timing == HDMI_VIDEO_TIMING_720X480P60) ||
@@ -1080,8 +1079,8 @@ static void HdmiHdrModeCheck(
 static void HdmiFillVideoAttrFromHardwareStatus(
     struct HdmiVideoAttr *videoAttr, const struct HdmiHardwareStatus *hwStatus, struct HdmiCommonAttr *commAttr)
 {
-    bool rgb = false;
-    bool aspectIs256 = false;
+    bool rgb;
+    bool aspectIs256;
     uint8_t vic;
     enum HdmiVsVideoFormat format;
     enum Hdmi4kVic vic4k;

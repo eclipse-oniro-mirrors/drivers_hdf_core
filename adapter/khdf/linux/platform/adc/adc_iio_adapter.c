@@ -81,7 +81,7 @@ static int32_t AdcIioRead(struct AdcDevice *device, uint32_t channel, uint32_t *
 
 static int32_t AdcIioStop(struct AdcDevice *device)
 {
-    int ret = HDF_FAILURE;
+    int ret;
     uint32_t i;
     struct AdcIioDevice *adcDevice = NULL;
 
@@ -143,7 +143,6 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
     int32_t ret;
     const char *drName = NULL;
     char channelName[ADC_CHANNEL_NAME_LEN] = {0};
-    int32_t drNameLen;
     struct DeviceResourceIface *drsOps = NULL;
     uint32_t i;
 

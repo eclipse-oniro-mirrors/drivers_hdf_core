@@ -194,6 +194,8 @@ int32_t RegulatorNodeGetStatus(struct RegulatorNode *node, uint32_t *status);
  */
 int32_t RegulatorNodeRegisterStatusChangeCb(struct RegulatorNode *node, RegulatorStatusChangecb cb);
 int32_t RegulatorNodeStatusCb(struct RegulatorNode *node);
+void RegulatorNodeListPrint(void);
+int32_t RegulatorTreeInfoInit(struct RegulatorNode *node);
 
 #ifdef __cplusplus
 #if __cplusplus

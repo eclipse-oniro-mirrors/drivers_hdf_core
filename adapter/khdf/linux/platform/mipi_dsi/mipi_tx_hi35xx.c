@@ -129,7 +129,7 @@ static void MipiTxDrvGetPhyPllSet1Set5(unsigned int phyDataRate,
 {
     int dataRateClk;
     int pllRef;
-    uint64_t int_multiplication;
+    int64_t int_multiplication;
 
     dataRateClk = (int)(phyDataRate + MIPI_TX_REF_CLK - 1) / MIPI_TX_REF_CLK;
 

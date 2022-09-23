@@ -106,7 +106,6 @@ int32_t PlatformQueueStart(struct PlatformQueue *queue)
 
     ret = OsalThreadCreate(&queue->thread, (OsalThreadEntry)PlatformQueueWorker, (void *)queue);
     (void)PlatformQueueWorker;
-    ret = HDF_SUCCESS;
     if (ret != HDF_SUCCESS) {
         PLAT_LOGE("PlatformQueueStart: create thread fail!");
         return ret;
@@ -117,7 +116,6 @@ int32_t PlatformQueueStart(struct PlatformQueue *queue)
     cfg.stackSize = PLAT_QUEUE_THREAD_STAK;
     ret = OsalThreadStart(&queue->thread, &cfg);
     (void)cfg;
-    ret = HDF_SUCCESS;
     if (ret != HDF_SUCCESS) {
         OsalThreadDestroy(&queue->thread);
         PLAT_LOGE("PlatformQueueStart: start thread fail:%d", ret);
