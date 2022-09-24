@@ -896,29 +896,31 @@ static int32_t UsbDdkPnpLoaderRemoveDevice(
     DLIST_FOR_EACH_ENTRY_SAFE(
         deviceListTablePos, deviceListTableTemp, &g_usbPnpDeviceTableListHead, struct UsbPnpDeviceListTable, list) {
         if (deviceListTablePos->usbDevAddr == removeInfo.usbDevAddr) {
-            if (removeInfo.removeType == USB_PNP_NOTIFY_REMOVE_INTERFACE_NUM) {
-                for (i = 0; i < deviceListTablePos->interfaceLength; i++) {
-                    if (deviceListTablePos->interfaceNumber[i] == removeInfo.interfaceNum) {
-                        break;
-                    }
-                }
+            continue;
+        }
 
-                if (i >= deviceListTablePos->interfaceLength) {
-                    continue;
+        if (removeInfo.removeType == USB_PNP_NOTIFY_REMOVE_INTERFACE_NUM) {
+            for (i = 0; i < deviceListTablePos->interfaceLength; i++) {
+                if (deviceListTablePos->interfaceNumber[i] == removeInfo.interfaceNum) {
+                    break;
                 }
             }
-            findFlag = true;
 
-            ret = UsbDdkPnpLoaderRemoveHandle(usbPnpManager, deviceListTablePos);
-            if (ret != HDF_SUCCESS) {
-                break;
+            if (i >= deviceListTablePos->interfaceLength) {
+                continue;
             }
+        }
+        findFlag = true;
 
-            if (cmdId != USB_PNP_NOTIFY_REMOVE_INTERFACE) {
-                DListRemove(&deviceListTablePos->list);
-                OsalMemFree(deviceListTablePos);
-                deviceListTablePos = NULL;
-            }
+        ret = UsbDdkPnpLoaderRemoveHandle(usbPnpManager, deviceListTablePos);
+        if (ret != HDF_SUCCESS) {
+            break;
+        }
+
+        if (cmdId != USB_PNP_NOTIFY_REMOVE_INTERFACE) {
+            DListRemove(&deviceListTablePos->list);
+            OsalMemFree(deviceListTablePos);
+            deviceListTablePos = NULL;
         }
     }
 

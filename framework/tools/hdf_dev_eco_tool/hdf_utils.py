@@ -355,13 +355,24 @@ def template_filename_filtrate(dir_path, kernal):
     return filename_list
 
 
-def model_info(path_dict, root, model_file_path, key):
-    if isinstance(path_dict, dict):
-        for k_filename, file_path in path_dict.items():
-            if not os.path.exists(os.path.join(root, file_path)):
+def type_judge(file_path, root, model_file_path, k_filename, path_dict):
+    if isinstance(file_path, list):
+        for file_name in file_path:
+            if not os.path.exists(os.path.join(root, file_name)):
                 model_file_path[k_filename] = " "
             else:
                 model_file_path[k_filename] = path_dict[k_filename]
+    else:
+        if not os.path.exists(os.path.join(root, file_path)):
+            model_file_path[k_filename] = " "
+        else:
+            model_file_path[k_filename] = path_dict[k_filename]
+
+
+def model_info(path_dict, root, model_file_path, key):
+    if isinstance(path_dict, dict):
+        for k_filename, file_path in path_dict.items():
+            type_judge(file_path, root, model_file_path, k_filename, path_dict)
     else:
         hcs_file_path = os.path.join(root, path_dict)
         if not os.path.exists(hcs_file_path):
@@ -442,4 +453,4 @@ def judge_enable_line(enable_line, device_base):
 
 
 def get_passwd_group_path(root_path):
-    return os.path.join(root_path, "base", "startup", "init_lite", "services", "etc")
+    return os.path.join(root_path, "base", "startup", "init", "services", "etc")

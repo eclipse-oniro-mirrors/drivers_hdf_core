@@ -51,7 +51,7 @@ def audio_makefile_file_operation(path, args_tuple):
     four_line = "endif\n"
 
     if len(source_path) > 1:
-        sources_line = ""
+        sources_line_items = []
         multi_resource = "LOCAL_SRCS += "
         temp_line = r'$(${file_parent_path})/${source_path}'
         for source in source_path:
@@ -59,13 +59,13 @@ def audio_makefile_file_operation(path, args_tuple):
             temp_dict = analyze_parent_path(
                     date_lines, source, "", devices, root)
             if source == source_path[-1]:
-                sources_line += len(multi_resource)*" " + \
-                                temp_handle.substitute(temp_dict).replace(
-                                    "temp_flag", "$(") + "\n"
+                sources_line_items.append(len(multi_resource) * " ")
+                sources_line_items.append(temp_handle.substitute(temp_dict).replace("temp_flag", "$("))
+                sources_line_items.append("\n")
             else:
-                sources_line += temp_handle.substitute(temp_dict).replace(
-                    "temp_flag", "$(") + " \\" + "\n"
-        build_resource = multi_resource + sources_line
+                sources_line_items.append(temp_handle.substitute(temp_dict).replace("temp_flag", "$("))
+                sources_line_items.append(" \\\n")
+        build_resource = "{}{}".format(multi_resource, "".join(sources_line_items))
     else:
         build_resource = "LOCAL_SRCS += $(${file_parent_path})/${source_path}\n"
         for source in source_path:
@@ -73,7 +73,7 @@ def audio_makefile_file_operation(path, args_tuple):
             temp_dict = analyze_parent_path(
                     date_lines, source, "", devices, root)
             build_resource = temp_handle.substitute(temp_dict).replace("temp_flag", "$(")
-    makefile_add_template = first_line + build_resource + third_line + four_line
+    makefile_add_template = "{}{}{}{}".format(first_line, build_resource, third_line, four_line)
     makefile_replace_dict = analyze_parent_path(
         date_lines, "", head_path[0], devices, root, kernel_type=kernel)
     temp_handle = Template(makefile_add_template.replace("$(", "temp_flag"))

@@ -18,8 +18,8 @@
 using namespace OHOS::Hardware;
 static constexpr int HCS_COMPILER_VERSION_MAJOR = 00;
 static constexpr int HCS_COMPILER_VERSION_MINOR = 7;
-
 static constexpr int ARG_COUNT_MIN = 2;
+static constexpr int SPACE_WIDTH = 12;
 
 Option &Option::Instance()
 {
@@ -140,7 +140,7 @@ void Option::ShowUsage() const
 
 void Option::ShowOption(const ::std::string &option, const ::std::string &helpInfo)
 {
-    Logger() << "  " << ::std::setw(12) << ::std::left << option << "  " << helpInfo;
+    Logger() << "  " << ::std::setw(SPACE_WIDTH) << ::std::left << option << "  " << helpInfo;
 }
 
 bool Option::ShouldShowUsage() const

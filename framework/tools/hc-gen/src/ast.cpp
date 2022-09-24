@@ -16,6 +16,8 @@
 
 using namespace OHOS::Hardware;
 
+static constexpr int FOUR_MULTIPLE = 4;
+
 AstObject::AstObject(const AstObject &obj) : AstObject(obj.name_, obj.type_, obj.stringValue_)
 {
     integerValue_ = obj.integerValue_;
@@ -923,7 +925,7 @@ void Ast::Dump(const std::string &prefix)
 {
     Logger().Debug() << "Dump " << prefix << " AST:";
     WalkForward([](const std::shared_ptr<AstObject> &current, int32_t walkDepth) -> int32_t {
-        Logger().Debug() << ::std::setw(walkDepth * 4) << " " << *current;
+        Logger().Debug() << ::std::setw(walkDepth * FOUR_MULTIPLE) << " " << *current;
         return NOERR;
     });
 }
