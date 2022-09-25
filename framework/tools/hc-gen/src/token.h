@@ -34,6 +34,8 @@ struct Token {
     uint64_t numval;
     std::shared_ptr<std::string> src;
     int32_t lineNo;
+
+    Token();
     bool operator==(const Token &token) const;
     bool operator!=(const Token &token) const;
     bool operator==(int32_t otherType) const;
