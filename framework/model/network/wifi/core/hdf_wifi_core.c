@@ -120,33 +120,6 @@ static struct HdfConfigWlanDeviceList *HdfWlanGetDeviceList(void)
     return &rootConfig->wlanConfig.deviceList;
 }
 
-/* CreatePowerMgrByConfig,call by HdfWlanMainInit */
-struct PowerManager *HdfWlanCreatePowerMgrByConfig(void)
-{
-    struct HdfConfWlanPowers *powerConfig = NULL;
-    struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
-    if (rootConfig == NULL) {
-        HDF_LOGE("%s: HdfWlanGetModuleConfigRoot get failed", __func__);
-        return NULL;
-    }
-    powerConfig = &rootConfig->wlanConfig.deviceList.deviceInst[0].powers;
-    return HdfWlanCreatePowerManager(powerConfig);
-}
-
-struct ResetManager *CreateResetMgrByConfig(void)
-{
-    uint8_t bootUpTimeOut;
-    struct HdfConfWlanRest *resetConfig = NULL;
-    struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
-    if (rootConfig == NULL) {
-        HDF_LOGE("%s: HdfWlanGetModuleConfigRoot get failed", __func__);
-        return NULL;
-    }
-    resetConfig = &rootConfig->wlanConfig.deviceList.deviceInst[0].reset;
-    bootUpTimeOut = rootConfig->wlanConfig.deviceList.deviceInst[0].bootUpTimeOut;
-    return HdfWlanCreateResetManager(resetConfig, bootUpTimeOut);
-}
-
 /* get wlan related config */
 static int32_t HdfWlanGetConfig(const struct HdfDeviceObject *device)
 {
@@ -553,6 +526,10 @@ static int32_t HdfWlanMainInit(struct HdfDeviceObject *device)
     }
     /* feature init */
     rootConfig = HdfWlanGetModuleConfigRoot();
+    if (rootConfig == NULL) {
+        HDF_LOGE("%s: HdfWlanGetModuleConfigRoot get failed", __func__);
+        return HDF_FAILURE;
+    }
     moduleConfig = &rootConfig->wlanConfig.moduleConfig;
     if (HdfWlanInitProduct(device, moduleConfig) != HDF_SUCCESS) {
         HDF_LOGE("%s:HdfWlanInitProduct failed!", __func__);
