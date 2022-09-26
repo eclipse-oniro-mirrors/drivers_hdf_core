@@ -29,7 +29,7 @@ static bool GetHashKey()
 }
 int main(int argc, char **argv)
 {
-    Options &options = Options::GetInstance().Parse(argc, argv);
+    const Options &options = Options::GetInstance().Parse(argc, argv);
     if (options.HasErrors()) {
         options.ShowErrors();
         return 0;

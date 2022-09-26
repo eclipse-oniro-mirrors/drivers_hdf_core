@@ -587,7 +587,6 @@ void CServiceStubCodeEmitter::EmitKernelStubConstruct(StringBuilder &sb)
 void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
     std::string remoteName = "remote";
-    std::string implName = "serviceImpl";
     std::string codeName = "code";
     std::string funcName = StringHelper::Format("%sOnRemoteRequest", baseName_.c_str());
     sb.Append(prefix).AppendFormat("static int32_t %s(struct HdfRemoteService *%s, ", funcName.c_str(),

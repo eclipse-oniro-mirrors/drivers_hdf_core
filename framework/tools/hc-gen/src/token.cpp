@@ -54,6 +54,8 @@ std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const OHOS::Hardw
     return stream;
 }
 
+Token::Token() : type(0), strval(), numval(0), src(), lineNo(0) {}
+
 bool Token::operator==(int32_t otherType) const
 {
     return otherType == type;

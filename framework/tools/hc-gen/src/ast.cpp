@@ -18,53 +18,57 @@ using namespace OHOS::Hardware;
 
 static constexpr int FOUR_MULTIPLE = 4;
 
-AstObject::AstObject(const AstObject &obj) : AstObject(obj.name_, obj.type_, obj.stringValue_)
-{
-    integerValue_ = obj.integerValue_;
-    src_ = obj.src_;
-}
-
-AstObject::AstObject(std::string name, uint32_t type, uint64_t value)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, std::string strValue, uint32_t lineno,
+    const std::shared_ptr<std::string> &src)
     : type_(type),
       name_(std::move(name)),
       parent_(nullptr),
-      lineno_(0),
+      next_(nullptr),
+      child_(nullptr),
+      lineno_(lineno),
+      src_(src),
       opCode_(0),
       size_(0),
       subSize_(0),
       hash_(0),
-      integerValue_(value)
+      integerValue_(integerValue),
+      stringValue_(strValue)
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string value)
-    : AstObject(std::move(name), type, 0)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t intValue)
+    : AstObject(std::move(name), type, intValue, "", 0, nullptr)
 {
-    stringValue_ = std::move(value);
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t value, const Token &bindToken)
-    : AstObject(std::move(name), type, value)
+AstObject::AstObject(std::string name, uint32_t type, std::string strValue)
+    : AstObject(std::move(name), type, 0, strValue, 0, nullptr)
 {
-    lineno_ = bindToken.lineNo;
-    src_ = bindToken.src;
+}
 
+AstObject::AstObject(std::string name, uint32_t type, uint64_t intValue, const Token &bindToken)
+    : AstObject(std::move(name), type, intValue, "", bindToken.lineNo, bindToken.src)
+{
     switch (type) {
         case PARSEROP_UINT8:  /* fall-through */
         case PARSEROP_UINT16: /* fall-through */
         case PARSEROP_UINT32: /* fall-through */
         case PARSEROP_UINT64:
-            this->type_ = FitIntegerValueType(value);
+            this->type_ = FitIntegerValueType(intValue);
             break;
         default:
             break;
     }
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string value, const Token &bindToken)
-    : AstObject(std::move(name), type, 0, bindToken)
+AstObject::AstObject(std::string name, uint32_t type, std::string strValue, const Token &bindToken)
+    : AstObject(std::move(name), type, 0, strValue, bindToken.lineNo, bindToken.src)
 {
-    stringValue_ = std::move(value);
+}
+
+AstObject::AstObject(const AstObject &obj)
+    : AstObject(obj.name_, obj.type_, obj.integerValue_, obj.stringValue_, 0, obj.src_)
+{
 }
 
 AstObject::~AstObject()

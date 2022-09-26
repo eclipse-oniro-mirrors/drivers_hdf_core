@@ -772,8 +772,8 @@ void CClientProxyCodeEmitter::EmitProxyReleaseInstanceMethodImpl(const std::stri
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad, StringBuilder &sb,
-    const std::string &prefix)
+void CClientProxyCodeEmitter::EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad,
+    StringBuilder &sb, const std::string &prefix)
 {
     std::string instName = "instName";
     sb.Append(prefix).Append("if (isStub) {\n");
