@@ -291,7 +291,7 @@ static uint32_t GetUartDeviceResource(struct UartDevice *device, const struct De
         return HDF_FAILURE;
     }
 
-    HDF_LOGI("%d, %d, %d, %d", resource->num, resource->baudRate, resource->parity);
+    HDF_LOGI("%d, %d, %d", resource->num, resource->baudRate, resource->parity);
 
     // copy config
     device->uartId = resource->num;
