@@ -730,14 +730,13 @@ static int32_t UsbDdkPnpLoaderDeviceListAdd(
 static struct UsbPnpDeviceListTable *UsbDdkPnpLoaderAddInterface(
     const struct UsbPnpNotifyMatchInfoTable *info, const struct UsbPnpMatchIdTable *idTable)
 {
-    struct UsbPnpDeviceListTable *deviceListTablePos = NULL;
-    struct UsbPnpDeviceListTable *deviceListTableTemp = NULL;
-
     if (DListIsEmpty(&g_usbPnpDeviceTableListHead) == true) {
         HDF_LOGE("%s:%d g_usbPnpDeviceTableListHead is empty. ", __func__, __LINE__);
         return NULL;
     }
 
+    struct UsbPnpDeviceListTable *deviceListTablePos = NULL;
+    struct UsbPnpDeviceListTable *deviceListTableTemp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(
         deviceListTablePos, deviceListTableTemp, &g_usbPnpDeviceTableListHead, struct UsbPnpDeviceListTable, list) {
         if ((strcmp(deviceListTablePos->moduleName, idTable->moduleName) == 0) &&
@@ -758,29 +757,25 @@ static struct UsbPnpDeviceListTable *UsbDdkPnpLoaderAddInterface(
 static int32_t UsbDdkPnpLoaderrAddPnpDevice(struct HdfDeviceObject *usbPnpManagerDevice,
     const struct UsbPnpNotifyMatchInfoTable *infoTable, const struct UsbPnpMatchIdTable *idTable, uint32_t cmdId)
 {
-    int32_t ret;
-    struct HdfSBuf *pnpData = NULL;
-    struct UsbPnpNotifyServiceInfo serviceInfo;
-    struct UsbPnpDeviceListTable *deviceListTable = NULL;
-
-    deviceListTable = UsbDdkPnpLoaderAddInterface(infoTable, idTable);
+    struct UsbPnpDeviceListTable *deviceListTable = UsbDdkPnpLoaderAddInterface(infoTable, idTable);
     if ((deviceListTable != NULL) && (deviceListTable->status != USB_PNP_REMOVE_STATUS)) {
         return HDF_SUCCESS;
     }
 
+    struct UsbPnpNotifyServiceInfo serviceInfo;
     serviceInfo.length =
         sizeof(struct UsbPnpNotifyServiceInfo) - (USB_PNP_INFO_MAX_INTERFACES - idTable->interfaceLength);
     serviceInfo.devNum = infoTable->devNum;
     serviceInfo.busNum = infoTable->busNum;
     serviceInfo.interfaceLength = idTable->interfaceLength;
-    ret = memcpy_s(serviceInfo.interfaceNumber, USB_PNP_INFO_MAX_INTERFACES, idTable->interfaceNumber,
+    int32_t ret = memcpy_s(serviceInfo.interfaceNumber, USB_PNP_INFO_MAX_INTERFACES, idTable->interfaceNumber,
         USB_PNP_INFO_MAX_INTERFACES);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%{public}s:%{public}d memcpy_s failed", __func__, __LINE__);
         return ret;
     }
 
-    pnpData =
+    struct HdfSBuf *pnpData =
         UsbDdkPnpLoaderBufCreate(idTable->moduleName, idTable->serviceName, idTable->deviceMatchAttr, serviceInfo);
     if (pnpData == NULL) {
         ret = HDF_FAILURE;
