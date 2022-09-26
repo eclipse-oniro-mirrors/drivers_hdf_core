@@ -32,7 +32,7 @@
 
 #define HDF_LOG_TAG hdf_uart_adapter
 #define UART_NAME_LEN 20
-#define UART_PATHNAME_LEN (UART_NAME_LEN + 15)
+#define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
 
 static char g_driverName[UART_NAME_LEN];
 
