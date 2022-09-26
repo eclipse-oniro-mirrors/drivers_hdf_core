@@ -45,12 +45,11 @@ static int32_t HdfObtainDeviceInfo(struct DeviceInfoList *list, struct HdfSBuf *
 {
     struct DeviceInfoNode *node = NULL;
     const char *svrName = NULL;
-    int32_t svrNameLen;
     char *base = NULL;
     int32_t deviceType;
 
     while ((svrName = HdfSbufReadString(reply))) {
-        svrNameLen = strlen(svrName) + 1;
+        const size_t svrNameLen = strlen(svrName) + 1;
         base = (char *)OsalMemCalloc(sizeof(*node) + svrNameLen);
         if (base == NULL) {
             DevmgrFreeQueryDeviceListImpl(list);

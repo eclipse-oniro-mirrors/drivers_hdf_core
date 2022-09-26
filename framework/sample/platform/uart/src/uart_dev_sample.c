@@ -53,7 +53,6 @@ static int32_t UartSampleRelease(struct file *filep)
 
 static ssize_t UartSampleRead(struct file *filep, char *buf, size_t count)
 {
-    int32_t ret;
     uint8_t *tmpBuf = NULL;
     struct UartHost *host = NULL;
 
@@ -69,7 +68,7 @@ static ssize_t UartSampleRead(struct file *filep, char *buf, size_t count)
             HDF_LOGE("%s: OsalMemCalloc error", __func__);
             return HDF_ERR_MALLOC_FAIL;
         }
-        ret = UartHostRead(host, tmpBuf, count);
+        int32_t ret = UartHostRead(host, tmpBuf, count);
         if (ret == HDF_SUCCESS) {
             ret = LOS_ArchCopyToUser(buf, tmpBuf, count);
         }
@@ -82,7 +81,6 @@ static ssize_t UartSampleRead(struct file *filep, char *buf, size_t count)
 
 static ssize_t UartSampleWrite(struct file *filep, const char *buf, size_t count)
 {
-    int32_t ret;
     uint8_t *tmpBuf = NULL;
     struct UartHost *host = NULL;
 
@@ -98,7 +96,7 @@ static ssize_t UartSampleWrite(struct file *filep, const char *buf, size_t count
             HDF_LOGE("%s: OsalMemCalloc error", __func__);
             return HDF_ERR_MALLOC_FAIL;
         }
-        ret = LOS_ArchCopyFromUser(tmpBuf, buf, count);
+        int32_t ret = LOS_ArchCopyFromUser(tmpBuf, buf, count);
         if (ret != LOS_OK) {
             OsalMemFree(tmpBuf);
             return ret;

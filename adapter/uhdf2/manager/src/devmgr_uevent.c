@@ -109,7 +109,8 @@ static void DevMgrUeventReplaceLineFeed(char *str, const char *subStr, char c)
     while ((ptr = strstr(str, subStr)) != NULL) {
         ptr[0] = c;
         uint32_t i = 1;
-        for (; i < (strlen(ptr) - 1); i++) {
+        const size_t len = strlen(ptr) - 1;
+        for (; i < len; i++) {
             ptr[i] = ptr[i + 1];
         }
         ptr[i] = '\0';
@@ -410,10 +411,9 @@ static bool DevMgrUeventMatchRule(struct DListHead *keyList, struct DListHead *r
 {
     struct DevMgrMatchKey *key = NULL;
     struct DevMgrMatchKey *keyMsg = NULL;
-    bool match = false;
 
     DLIST_FOR_EACH_ENTRY(key, ruleKeyList, struct DevMgrMatchKey, entry) {
-        match = false;
+        bool match = false;
         DLIST_FOR_EACH_ENTRY(keyMsg, keyList, struct DevMgrMatchKey, entry) {
             if (strcmp(key->key, keyMsg->key) == 0) {
                 if (strcmp(key->value, keyMsg->value) == 0) {
