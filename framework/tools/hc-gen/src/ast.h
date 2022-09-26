@@ -45,15 +45,18 @@ class AstObject {
 public:
     friend class Ast;
 
-    AstObject(const AstObject &obj);
+    AstObject(std::string name, uint32_t type, uint64_t integerValue, std::string strValue, uint32_t lineno,
+        const std::shared_ptr<std::string> &src);
 
-    AstObject(std::string name, uint32_t type, uint64_t value);
+    AstObject(std::string name, uint32_t type, uint64_t integerValue);
 
-    AstObject(std::string name, uint32_t type, std::string value);
+    AstObject(std::string name, uint32_t type, std::string strValue);
 
     AstObject(std::string name, uint32_t type, uint64_t value, const Token &bindToken);
 
     AstObject(std::string name, uint32_t type, std::string value, const Token &bindToken);
+
+    AstObject(const AstObject &obj);
 
     virtual ~AstObject();
 

@@ -25,6 +25,7 @@ static constexpr uint32_t PARA_CNT_IDX = 6;
 static constexpr uint32_t PARA_MULTIPLE = 2;
 static constexpr uint32_t WAIT_TIME = 100;
 static constexpr uint32_t HELP_INFO_PARA_CNT = 2;
+static constexpr uint32_t GET_INFO_FUNC_NUMS = 5;
 static constexpr int32_t DBG_HDI_PARA_MIN_LEN = 7;
 static constexpr int32_t DBG_HDI_SERVICE_LOAD_IDX = 2;
 static constexpr int32_t QUERY_INFO_PARA_CNT = 3;
@@ -52,7 +53,7 @@ static void GetAllDeviceUserSpace();
 static void GetAllDeviceKernelSpace();
 static void GetAllInformation();
 
-GetInfoFunc g_getInfoFuncs[] = {
+GetInfoFunc g_getInfoFuncs[GET_INFO_FUNC_NUMS] = {
     GetAllServiceKernelSpace,
     GetAllServiceUserSpace,
     GetAllDeviceKernelSpace,
@@ -389,14 +390,13 @@ int main(int argc, char **argv)
             return HDF_FAILURE;
         }
 
-        uint32_t funcCnt = sizeof(g_getInfoFuncs) / sizeof(g_getInfoFuncs[0]);
         if (argc == QUERY_INFO_PARA_CNT - 1) {
-            g_getInfoFuncs[funcCnt - 1]();
+            g_getInfoFuncs[GET_INFO_FUNC_NUMS - 1]();
             return HDF_SUCCESS;
         }
 
         uint32_t queryIdx = static_cast<uint32_t>(atoi(argv[QUERY_INFO_PARA_CNT - 1]));
-        if (queryIdx < funcCnt - 1) {
+        if (queryIdx < GET_INFO_FUNC_NUMS - 1) {
             g_getInfoFuncs[queryIdx]();
         } else {
             PrintHelp();

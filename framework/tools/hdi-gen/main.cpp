@@ -17,7 +17,6 @@ using namespace OHOS::HDI;
 
 static bool GetHashKey()
 {
-    Options &options = Options::GetInstance();
     for (const auto &sourceFile : Options::GetInstance().GetSourceFiles()) {
         std::unique_ptr<File> idlFile = std::make_unique<File>(sourceFile, int(File::READ));
         if (!idlFile->IsValid()) {
@@ -30,7 +29,7 @@ static bool GetHashKey()
 }
 int main(int argc, char **argv)
 {
-    Options &options = Options::GetInstance().Parse(argc, argv);
+    const Options &options = Options::GetInstance().Parse(argc, argv);
     if (options.HasErrors()) {
         options.ShowErrors();
         return 0;
