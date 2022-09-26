@@ -490,7 +490,6 @@ static int32_t ParseAudioAttr(const struct DeviceResourceIface *parser, const st
 
 int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData)
 {
-    uint16_t index;
     const struct DeviceResourceNode *regCfgNode = NULL;
     const struct DeviceResourceAttr *regAttr = NULL;
     const struct DeviceResourceNode *idNode = NULL;
@@ -527,7 +526,7 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
             return HDF_FAILURE;
         }
 
-        index = GetAudioRegGroupNameIndex(regAttr->name);
+        uint16_t index = GetAudioRegGroupNameIndex(regAttr->name);
         if (index >= AUDIO_GROUP_MAX) {
             continue;
         }

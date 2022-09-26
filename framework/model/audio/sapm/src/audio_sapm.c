@@ -461,7 +461,6 @@ static void MuxValueSetPathStatus(const struct AudioSapmComponent *sapmComponent
 {
     int32_t ret;
     uint32_t val = 0;
-    uint32_t item;
     uint32_t shift;
     if (sapmComponent == NULL || sapmComponent->codec == NULL) {
         ADM_LOG_ERR("input muxValueSet params check error: cpt=%p.", sapmComponent);
@@ -486,6 +485,7 @@ static void MuxValueSetPathStatus(const struct AudioSapmComponent *sapmComponent
     path->connect = UNCONNECT_SINK_AND_SOURCE;
 
     if (enumKtl->values != NULL && enumKtl->texts != NULL) {
+        uint32_t item;
         for (item = 0; item < enumKtl->max; item++) {
             if (val == enumKtl->values[item]) {
                 break;
@@ -512,7 +512,6 @@ static void MuxValueSetPathStatus(const struct AudioSapmComponent *sapmComponent
 static void MixerSetPathStatus(const struct AudioSapmComponent *sapmComponent, struct AudioSapmpath *path,
     const struct AudioMixerControl *mixerCtrl)
 {
-    int32_t ret;
     uint32_t reg;
     uint32_t mask;
     uint32_t shift;
@@ -538,7 +537,7 @@ static void MixerSetPathStatus(const struct AudioSapmComponent *sapmComponent, s
     invert = mixerCtrl->invert;
 
     if (sapmComponent->codec != NULL) {
-        ret = AudioCodecReadReg(sapmComponent->codec, reg, &curValue);
+        int32_t ret = AudioCodecReadReg(sapmComponent->codec, reg, &curValue);
         if (ret != HDF_SUCCESS) {
             ADM_LOG_ERR("read reg fail!");
             return;
@@ -1076,7 +1075,6 @@ static void AudioSapmPowerComponents(struct AudioCard *audioCard)
 
 static void ReadInitComponentPowerStatus(struct AudioSapmComponent *sapmComponent)
 {
-    int32_t ret;
     uint32_t regVal = 0;
 
     if (sapmComponent == NULL || sapmComponent->codec == NULL) {
@@ -1085,7 +1083,7 @@ static void ReadInitComponentPowerStatus(struct AudioSapmComponent *sapmComponen
     }
 
     if (sapmComponent->reg != AUDIO_NO_SAPM_REG) {
-        ret = AudioCodecReadReg(sapmComponent->codec, sapmComponent->reg, &regVal);
+        int32_t ret = AudioCodecReadReg(sapmComponent->codec, sapmComponent->reg, &regVal);
         if (ret != HDF_SUCCESS) {
             ADM_LOG_ERR("read reg fail!");
             return;
@@ -1353,7 +1351,6 @@ int32_t AudioCodecSapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const str
     uint32_t pathStatus = 0;
     struct CodecDevice *codec = NULL;
     struct AudioMixerControl *mixerCtrl = NULL;
-    struct AudioCard *audioCard = NULL;
     if ((kcontrol == NULL) || (kcontrol->privateValue <= 0) || (kcontrol->pri == NULL)) {
         ADM_LOG_ERR("input params: kcontrol is NULL.");
         return HDF_ERR_INVALID_OBJECT;
@@ -1362,7 +1359,6 @@ int32_t AudioCodecSapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const str
         ADM_LOG_ERR("input params: elemValue is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-    audioCard = (struct AudioCard *)((volatile uintptr_t)(kcontrol->pri));
 
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
     if (AudioSapmSetCtrlOps(kcontrol, elemValue, &value, &pathStatus) != HDF_SUCCESS) {
