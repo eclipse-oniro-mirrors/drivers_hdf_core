@@ -213,9 +213,7 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
-        if (holder->remote_ != nullptr) {
-            holder->remote_ = nullptr;
-        }
+        holder->remote_ = nullptr;
         delete holder;
     }
 }
@@ -350,7 +348,7 @@ bool HdfRemoteAdapterCheckInterfaceToken(struct HdfRemoteService *service, struc
         return false;
     }
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
-    if (holder == nullptr || holder->remote_ == nullptr) {
+    if (holder->remote_ == nullptr) {
         return false;
     }
     OHOS::MessageParcel *parcel = nullptr;
