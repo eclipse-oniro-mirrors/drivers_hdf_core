@@ -25,7 +25,6 @@ static void UartPl011UpdateLcr(struct UartRegisterMap *regMap)
     bool uartEnabled = UartPl011IsEnabled(regMap);
     /* UART must be disabled before UARTLCR_H are reprogrammed */
     UartPl011Disable(regMap);
-    regMap->lcr = regMap->lcr;
     /* restore uart enable state */
     if (uartEnabled) {
         UartPl011Enable(regMap);

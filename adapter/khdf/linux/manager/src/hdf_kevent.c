@@ -237,7 +237,7 @@ static int32_t KeventPmNotifierFn(struct notifier_block *nb, unsigned long actio
 
     ret = SendKevent(keventModule, HDF_SYSEVENT_CLASS_POWER, powerEvent, NULL, sync);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to notify userspace pm status");
+        HDF_LOGE("%s: failed to notify userspace pm status", __func__);
     }
 
     return KernalSpacePmNotify(powerEvent);
@@ -278,7 +278,7 @@ static int32_t KeventFbNotifierFn(struct notifier_block *nb, unsigned long event
 
     ret = SendKevent(keventModule, HDF_SYSEVENT_CLASS_POWER, powerEvent, NULL, sync);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to notify userspace pm status");
+        HDF_LOGE("%s: failed to notify userspace pm status", __func__);
     }
 
     return KernalSpacePmNotify(powerEvent);

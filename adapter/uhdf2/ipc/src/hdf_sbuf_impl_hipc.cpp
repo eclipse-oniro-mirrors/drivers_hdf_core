@@ -334,10 +334,7 @@ static int32_t SbufMParcelImplWriteRemoteService(struct HdfSBufImpl *sbuf, const
     }
     MessageParcel *parcel = MParcelCast(sbuf);
     const struct HdfRemoteServiceHolder *holder = reinterpret_cast<const struct HdfRemoteServiceHolder *>(service);
-    if (holder != nullptr) {
-        return parcel->WriteRemoteObject(holder->remote_) ? HDF_SUCCESS : HDF_FAILURE;
-    }
-    return HDF_FAILURE;
+    return parcel->WriteRemoteObject(holder->remote_) ? HDF_SUCCESS : HDF_FAILURE;
 }
 
 static struct HdfRemoteService *SbufMParcelImplReadRemoteService(struct HdfSBufImpl *sbuf)
