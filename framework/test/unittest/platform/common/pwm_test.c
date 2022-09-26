@@ -306,23 +306,28 @@ static int32_t PwmReliabilityTest(struct PwmTester *tester)
 
     (void)PwmSetConfig(tester->handle, &(tester->config.cfg));
     (void)PwmSetConfig(tester->handle, NULL);
+    (void)PwmSetConfig(NULL, &(tester->config.cfg));
     (void)PwmGetConfig(tester->handle, &cfg);
     (void)PwmGetConfig(tester->handle, NULL);
+    (void)PwmGetConfig(NULL, &cfg);
 
     (void)PwmSetPeriod(tester->handle, 0);
     (void)PwmSetPeriod(tester->handle, TEST_PERIOD);
+    (void)PwmSetPeriod(NULL, TEST_PERIOD);
 
     (void)PwmSetDuty(tester->handle, 0);
     (void)PwmSetDuty(tester->handle, TEST_DUTY);
+    (void)PwmSetDuty(NULL, TEST_DUTY);
 
     (void)PwmSetPolarity(tester->handle, 0);
     (void)PwmSetPolarity(tester->handle, TEST_POLARITY);
+    (void)PwmSetPolarity(NULL, TEST_POLARITY);
 
     (void)PwmEnable(tester->handle);
-    (void)PwmEnable(tester->handle);
+    (void)PwmEnable(NULL);
 
     (void)PwmDisable(tester->handle);
-    (void)PwmDisable(tester->handle);
+    (void)PwmDisable(NULL);
     HDF_LOGI("%s: success.", __func__);
     return HDF_SUCCESS;
 }
