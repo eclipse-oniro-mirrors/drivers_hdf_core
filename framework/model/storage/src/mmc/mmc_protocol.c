@@ -1199,7 +1199,7 @@ static int32_t EmmcSelectHs400es(struct MmcCntlr *cntlr, struct EmmcDevice *emmc
     MmcCntlrSetClock(cntlr, EMMC_EXT_CSD_HIGH_SPEED_200);
     /* Set host controller to HS400 timing and frequency. */
     MmcCntlrSetBusTiming(cntlr, BUS_TIMING_MMC_HS400);
-    MmcCntlrSetEnhanceSrobe(cntlr, true);
+    MmcCntlrSetEnhanceStrobe(cntlr, true);
     return EmmcCheckSwitchStatus(cntlr);
 }
 
