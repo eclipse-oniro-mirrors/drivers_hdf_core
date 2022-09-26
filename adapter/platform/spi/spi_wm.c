@@ -224,7 +224,6 @@ static int32_t InitSpiDevice(struct SpiDevice *spiDevice)
 /* get spi config from hcs file */
 static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct DeviceResourceNode *resourceNode)
 {
-    uint32_t relPin;
     struct SpiResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
     if (spiDevice == NULL || resourceNode == NULL) {
@@ -394,7 +393,6 @@ static void SpiDriverRelease(struct HdfDeviceObject *device)
 static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
 {
     HDF_LOGI("Enter %s\r\n", __func__);
-    int ret;
     struct SpiDevice *spiDevice = NULL;
     struct SpiResource *resource = NULL;
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
@@ -420,7 +418,6 @@ static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
 
 static int32_t SpiDevClose(struct SpiCntlr *spiCntlr)
 {
-    int ret;
     struct SpiDevice *spiDevice = NULL;
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);

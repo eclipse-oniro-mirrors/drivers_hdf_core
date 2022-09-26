@@ -680,7 +680,7 @@ static void HdmiFrlTrainingResultCheckTimeout(struct HdmiFrl *frl)
 static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
 {
     uint64_t curTime;
-    bool frlStart = false;
+    bool frlStart;
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
 
     if (cntlr == NULL || cntlr->ops == NULL) {

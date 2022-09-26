@@ -204,7 +204,6 @@ static void HalUartStartRx(uint32_t uartId)
 
 static int32_t HalUartSend(uint32_t uartId, const void *data, uint32_t size, uint32_t timeOut)
 {
-    int32_t ret;
     struct HAL_DMA_DESC_T dmaSescTx;
     uint32_t descCnt;
     if (data == NULL || size == 0) {
@@ -265,9 +264,7 @@ static int32_t HalUartRecv(uint8_t uartId, void *data, uint32_t expectSize,
         }
     } while (true);
 
-    if (recvSize != NULL) {
-        *recvSize = recvedLen;
-    }
+    *recvSize = recvedLen;
     return HDF_SUCCESS;
 }
 

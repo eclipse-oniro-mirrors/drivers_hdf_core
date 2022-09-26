@@ -130,6 +130,11 @@ static int32_t RtcAlarmServiceCallback(enum RtcAlarmIndex index)
         return HDF_ERR_IO;
     }
     ret = HdfDeviceSendEvent(host->device, PLATFORM_LISTENER_EVENT_RTC_ALARM_NOTIFY, data);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s:send event failed, ret=%d", __func__, ret);
+        HdfSbufRecycle(data);
+        return ret;
+    }
     HdfSbufRecycle(data);
     return HDF_SUCCESS;
 }

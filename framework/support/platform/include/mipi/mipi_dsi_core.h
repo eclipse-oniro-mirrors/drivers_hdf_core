@@ -173,6 +173,10 @@ int32_t MipiDsiCntlrAttach(struct MipiDsiCntlr *cntlr, uint8_t *name);
  */
 int32_t MipiDsiCntlrSetDrvData(struct MipiDsiCntlr *cntlr, void *panelData);
 
+void MipiDsiCntlrEnterUlps(struct MipiDsiCntlr *cntlr);
+void MipiDsiCntlrExitUlps(struct MipiDsiCntlr *cntlr);
+int32_t MipiDsiCntlrPowerControl(struct MipiDsiCntlr *cntlr, uint8_t enable);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

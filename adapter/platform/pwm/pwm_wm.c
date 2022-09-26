@@ -64,7 +64,6 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 static uint32_t GetPwmDeviceResource(
     struct PwmDevice *device, const struct DeviceResourceNode *resourceNode)
 {
-    uint32_t tempPin = 0;
     struct DeviceResourceIface *dri = NULL;
     struct PwmResource *resource = NULL;
     if (device == NULL || resourceNode == NULL) {

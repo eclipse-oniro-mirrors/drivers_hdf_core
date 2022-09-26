@@ -15,6 +15,7 @@
 #ifndef REGULATOR_ADAPTER_CONSUMER_H
 #define REGULATOR_ADAPTER_CONSUMER_H
 #include "hdf_base.h"
+
 int RegulatorAdapterConsumerInit(void);
 
 #endif /* REGULATOR_ADAPTER_CONSUMER_H */

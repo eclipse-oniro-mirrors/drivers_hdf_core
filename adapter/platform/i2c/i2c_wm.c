@@ -61,7 +61,6 @@ struct I2cMethod g_i2cHostMethod = {
 
 static int32_t InitI2cDevice(struct I2cDevice *device)
 {
-    int32_t ret = -1;
     uint32_t i2cPort;
     struct I2cResource *resource = NULL;
     
@@ -104,7 +103,6 @@ static int32_t InitI2cDevice(struct I2cDevice *device)
 
 static int32_t HostRestI2cDevice(struct I2cDevice *device)
 {
-    int32_t ret = -1;
     struct I2cResource *resource = NULL;
     uint32_t i2cPort;
     
@@ -278,7 +276,7 @@ static int32_t i2c_send(struct I2cMsg *msg)
     len = msg->len;
     ifstop = 0;
     if (msg->flags & I2C_FLAG_READ) {
-        ifack = msg->flags & I2C_FLAG_READ_NO_ACK ? 0 : 1;
+        ifack = (msg->flags & I2C_FLAG_READ_NO_ACK) ? 0 : 1;
         for (int32_t j = 0; j < len; j++) {
             if (((msg->flags & I2C_FLAG_STOP) && j) == (len - 1)) {
                 ifstop = 1;
@@ -286,7 +284,7 @@ static int32_t i2c_send(struct I2cMsg *msg)
             msg->buf[j] = tls_i2c_read_byte(ifack, ifstop);
         }
     } else {
-        ifack = msg->flags & I2C_FLAG_IGNORE_NO_ACK ? 0 : 1;
+        ifack = (msg->flags & I2C_FLAG_IGNORE_NO_ACK) ? 0 : 1;
         for (int32_t j = 0; j < len; j++) {
             if (((msg->flags & I2C_FLAG_NO_START) == 0) && (j == 0)) {
                 ifstart = 1;
@@ -301,7 +299,6 @@ static int32_t i2c_send(struct I2cMsg *msg)
 
 static int32_t i2c_transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16_t count)
 {
-    int ret;
     struct I2cMsg *msg = NULL;
     
     uint32_t i2cPort;

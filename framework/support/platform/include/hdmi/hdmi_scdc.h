@@ -315,6 +315,7 @@ void HdmiScdcReset(struct HdmiScdc *scdc);
 int32_t HdmiScdcOptMsgHandle(const struct HdmiScdc *scdc, enum HdmiScdcOptMsg msg, uint8_t *buffer, uint32_t len);
 int32_t HdmiScdcFillScrambleCap(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *scramble,
     enum HdmiTmdsModeType *tmdsMode);
+int32_t HdmiScdcRrDisable(struct HdmiScdc *scdc);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -116,8 +116,7 @@ static int32_t HalUartSend(uint32_t uartId, const uint8_t *data, uint32_t size, 
 static int32_t HalUartRecv(uint8_t uartId, uint8_t *data, uint32_t expectSize,
     uint32_t *recvSize, uint32_t timeOut)
 {
-    int32_t ret = HDF_FAILURE;
-    uint32_t fifoPopLen = 0;
+    uint32_t fifoPopLen;
     uint32_t recvedLen = 0;
     uint32_t expectLen = expectSize;
     OsalTimespec hdfTs1 = { 0, 0 };
@@ -150,9 +149,7 @@ static int32_t HalUartRecv(uint8_t uartId, uint8_t *data, uint32_t expectSize,
         }
     } while (true);
 
-    if (recvSize != NULL) {
-        *recvSize = recvedLen;
-    }
+    *recvSize = recvedLen;
     return HDF_SUCCESS;
 }
 
