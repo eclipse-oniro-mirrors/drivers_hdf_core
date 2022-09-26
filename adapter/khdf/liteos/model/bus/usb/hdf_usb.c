@@ -99,13 +99,10 @@ static int GetUsbControllerParam(const struct DeviceResourceIface *instance, con
 static int ProcControllorParam(const struct DeviceResourceIface *instance, const struct DeviceResourceNode *node,
     const char *name, add_res_callback_t callback, struct UsbInfo *info)
 {
-    int32_t ret;
-    const struct DeviceResourceNode *subNode = NULL;
     const char *ctrlName = NULL;
     uint32_t index = 0;
-    struct UsbConfig *cfg = NULL;
 
-    subNode = node->child;
+    const struct DeviceResourceNode *subNode = node->child;
     if (subNode == NULL) {
         return HDF_FAILURE;
     }
@@ -115,8 +112,8 @@ static int ProcControllorParam(const struct DeviceResourceIface *instance, const
             break;
         }
 
-        cfg = &(info->cfg[index]);
-        ret = instance->GetString(subNode, "controller", &ctrlName, NULL);
+        struct UsbConfig *cfg = &(info->cfg[index]);
+        int32_t ret = instance->GetString(subNode, "controller", &ctrlName, NULL);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: read res_type fail", __func__);
             return HDF_FAILURE;
@@ -141,34 +138,28 @@ static int ProcControllorParam(const struct DeviceResourceIface *instance, const
 
 static void HdfUsbInitParam(device_t dev, add_res_callback_t callback)
 {
-    const struct DeviceResourceIface *devResInstance = NULL;
-    const struct DeviceResourceNode *hdfUsbNode = NULL;
-    const char *ctrlName = NULL;
-    int32_t ret;
-    int32_t count;
-    int32_t i;
-    struct UsbInfo info = {0};
-
-    devResInstance = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    const struct DeviceResourceIface *devResInstance = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (devResInstance == NULL) {
         HDF_LOGE("%s get devResInstance node is null", __func__);
         return;
     }
-    hdfUsbNode = GetHdfUsbNode(devResInstance);
+    const struct DeviceResourceNode *hdfUsbNode = GetHdfUsbNode(devResInstance);
     if (hdfUsbNode == NULL) {
         HDF_LOGE("%s get hdf usb node is null", __func__);
         return;
     }
 
-    count = devResInstance->GetElemNum(hdfUsbNode, USB_CONTROLLER_LIST_NAME);
+    int32_t count = devResInstance->GetElemNum(hdfUsbNode, USB_CONTROLLER_LIST_NAME);
     if ((count <= 0) || (count > USB_MAX_CFG_LEN / USB_CFG_UNIT)) {
         HDF_LOGE("%s get elemnum failed", __func__);
         return;
     }
 
+    struct UsbInfo info = {0};
     info.len = USB_MAX_CFG_LEN;
-    for (i = 0; i < count; i++) {
-        ret = devResInstance->GetStringArrayElem(hdfUsbNode, USB_CONTROLLER_LIST_NAME, i, &ctrlName, NULL);
+    const char *ctrlName = NULL;
+    for (int32_t i = 0; i < count; i++) {
+        int32_t ret = devResInstance->GetStringArrayElem(hdfUsbNode, USB_CONTROLLER_LIST_NAME, i, &ctrlName, NULL);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s get hdf usb list name fail", __func__);
             return;
