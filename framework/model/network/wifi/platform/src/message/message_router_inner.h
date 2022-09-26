@@ -50,7 +50,7 @@ typedef struct RemoteService {
     INHERT_REMOTE_SERVICE;
 } RemoteService;
 
-RemoteService *RefRemoteService(ServiceId id);
+RemoteService *RefRemoteService(ServiceId serviceId);
 
 ErrorCode SendMessage(MessageContext *context);
 

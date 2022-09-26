@@ -624,7 +624,7 @@ ErrorCode StartMessageRouter(uint8_t nodesConfig)
     HDF_STATUS status;
     ErrorCode errCode;
     if (g_routerMutex.realMutex == NULL) {
-        HDF_STATUS status = OsalMutexInit(&g_routerMutex);
+        status = OsalMutexInit(&g_routerMutex);
         if (status != HDF_SUCCESS) {
             HDF_LOGE("%s: Init mutex failed! status=%d", __func__, status);
             return ME_ERROR_OPER_MUTEX_FAILED;
