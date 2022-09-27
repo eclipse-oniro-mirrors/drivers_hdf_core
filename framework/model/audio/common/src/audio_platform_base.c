@@ -243,6 +243,7 @@ int32_t AudioSetCaptureBufInfo(struct PlatformData *data, const struct AudioPcmH
 static int32_t AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStreamType streamType)
 {
     uint32_t dataAvailable;
+    uint32_t residual;
     uint32_t pointer = 0;
     uint32_t wptr;
     uint32_t rptr;
@@ -261,7 +262,7 @@ static int32_t AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStream
         data->renderBufInfo.pointer = pointer;
         rptr = data->renderBufInfo.pointer * data->renderPcmInfo.frameSize;
         dataAvailable = (data->renderBufInfo.wbufOffSet - rptr) % data->renderBufInfo.cirBufSize;
-        uint32_t residual = data->renderBufInfo.cirBufSize - dataAvailable;
+        residual = data->renderBufInfo.cirBufSize - dataAvailable;
         if ((residual > data->renderBufInfo.trafBufSize)) {
             AUDIO_DRIVER_LOG_DEBUG("rptr: %d wptr: %d trafBufSize: %d ",
                 rptr, dataAvailable, data->renderBufInfo.trafBufSize);
@@ -356,6 +357,7 @@ static int32_t PcmReadData(struct PlatformData *data, struct AudioRxData *rxData
 {
     uint32_t wptr;
     uint32_t rptr;
+    uint32_t validDataSize;
 
     if (data == NULL || rxData == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is null.");
@@ -367,7 +369,7 @@ static int32_t PcmReadData(struct PlatformData *data, struct AudioRxData *rxData
     rptr = data->captureBufInfo.rptrOffSet;
     data->captureBufInfo.curTrafSize = data->captureBufInfo.trafBufSize;
     if (rptr > wptr) {
-        uint32_t validDataSize = data->captureBufInfo.cirBufSize - rptr;
+        validDataSize = data->captureBufInfo.cirBufSize - rptr;
         if (validDataSize < data->captureBufInfo.trafBufSize) {
             data->captureBufInfo.curTrafSize = validDataSize;
         }
@@ -580,6 +582,7 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
 {
     uint32_t wPtr;
     uint32_t rPtr;
+    uint32_t validDataSize;
 
     if (data == NULL || rxMmapData == NULL) {
         AUDIO_DRIVER_LOG_ERR("data is null.");
@@ -589,7 +592,7 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
     rPtr = data->captureBufInfo.rptrOffSet;
     wPtr = data->captureBufInfo.pointer * data->capturePcmInfo.frameSize;
     if (rPtr > wPtr) {
-        uint32_t validDataSize = data->captureBufInfo.cirBufSize - rPtr;
+        validDataSize = data->captureBufInfo.cirBufSize - rPtr;
         if (validDataSize < data->captureBufInfo.trafBufSize) {
             data->captureBufInfo.curTrafSize = validDataSize;
         }

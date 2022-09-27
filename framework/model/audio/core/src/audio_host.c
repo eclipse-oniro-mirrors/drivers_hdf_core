@@ -200,7 +200,7 @@ static int32_t AudioDspDaiDevInit(struct AudioCard *audioCard)
 {
     struct AudioRuntimeDeivces *rtd = NULL;
     struct DaiDevice *dspDai = NULL;
-
+    int32_t ret;
     if (audioCard == NULL) {
         ADM_LOG_ERR("audioCard is NULL.");
         return HDF_ERR_IO;
@@ -215,7 +215,7 @@ static int32_t AudioDspDaiDevInit(struct AudioCard *audioCard)
 
     dspDai = rtd->dspDai;
     if (dspDai != NULL && dspDai->devData != NULL && dspDai->devData->DaiInit != NULL) {
-        int32_t ret = dspDai->devData->DaiInit(audioCard, dspDai);
+        ret = dspDai->devData->DaiInit(audioCard, dspDai);
         if (ret != HDF_SUCCESS) {
             ADM_LOG_ERR("dsp dai initialization fail ret=%d", ret);
             return HDF_ERR_IO;

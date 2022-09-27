@@ -896,6 +896,7 @@ int32_t AudioSetCtrlOpsReg(const struct AudioKcontrol *kcontrol, const struct Au
 int32_t AudioSetCtrlOpsRReg(const struct AudioCtrlElemValue *elemValue,
     struct AudioMixerControl *mixerCtrl, uint32_t *rvalue, bool *updateRReg)
 {
+    uint32_t rshift;
     if (elemValue == NULL || mixerCtrl == NULL || rvalue == NULL || updateRReg == NULL) {
         ADM_LOG_ERR("Audio input param is NULL.");
         return HDF_ERR_INVALID_OBJECT;
@@ -911,7 +912,6 @@ int32_t AudioSetCtrlOpsRReg(const struct AudioCtrlElemValue *elemValue,
         if (mixerCtrl->invert) {
             *rvalue = mixerCtrl->max - *rvalue;
         }
-        uint32_t rshift;
         if (mixerCtrl->reg == mixerCtrl->rreg) {
             rshift = mixerCtrl->rshift;
         } else {
