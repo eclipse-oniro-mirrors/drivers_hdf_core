@@ -619,7 +619,7 @@ int32_t HcsWalkAst(ParserObject *start, uint32_t walkDirection, AstWalkCallBack 
     backwardCallback = backwardCallback ? backwardCallback : AstWalkCallBackDefault;
     ParserObject *startObj = start ? start : g_parserRoot;
 
-    int32_t ret;
+    int32_t ret = EFAIL;
     switch (walkDirection) {
         case AST_WALK_FORWARD:
             ret = HcsForwardWalkAst(startObj, forwardCallback);

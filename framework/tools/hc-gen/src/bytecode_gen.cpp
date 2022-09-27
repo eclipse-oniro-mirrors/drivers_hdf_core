@@ -128,11 +128,11 @@ void ByteCodeGen::Write(T &data)
 void ByteCodeGen::Write(const char *data, uint32_t size)
 {
     FsWrite(data, size);
-    static char stubData[ALIGN_SIZE] = {0};
     auto alignSize = Align(size);
     auto stubSize = alignSize - size;
 
     if (stubSize != 0) {
+        static char stubData[ALIGN_SIZE] = {0};
         FsWrite(stubData, stubSize);
     }
 

@@ -448,7 +448,6 @@ int32_t HcsFormatOutputWrite(const char *format, ...)
     va_start(argList, format);
     int length = vsprintf_s(writeBuffer, WRITE_MAX_PER_TIME, format, argList);
     va_end(argList);
-    (void)argList;
 
     if (length < 0) {
         HCS_ERROR("Output too long in one time");

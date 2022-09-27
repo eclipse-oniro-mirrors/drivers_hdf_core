@@ -170,6 +170,11 @@ bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
             return false;
         }
 
+        if (!File::CheckValid(Options::GetInstance().GetImportFilePath(token.value_))) {
+            Logger::E(TAG, "%s: import invalid package '%s'", LocInfo(token).c_str(), token.value_.c_str());
+            return false;
+        }
+
         info.imports_.emplace(token.value_);
         lexer.GetToken();
 
@@ -266,7 +271,7 @@ void Preprocessor::PrintCyclefInfo(FileDetailMap &allFileDetails)
 
 void Preprocessor::FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace)
 {
-    auto iter = std::find_if(trace.begin(), trace.end(), [curNode](const std::string name) {
+    auto iter = std::find_if(trace.begin(), trace.end(), [curNode](const std::string &name) {
         return name == curNode;
     });
     if (iter != trace.end()) {

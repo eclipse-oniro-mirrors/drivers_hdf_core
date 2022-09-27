@@ -9,7 +9,7 @@ BUILD_DIR := build
 TARGET := $(BUILD_DIR)/hc-gen
 
 CXX := c++
-CXX_FLAGS := -std=gnu++14
+CXX_FLAGS := -std=gnu++14 -s
 CXX_LD_FLAGS := -lstdc++
 
 SRCS := $(wildcard src/*.cpp)

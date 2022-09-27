@@ -145,19 +145,18 @@ void CServiceDriverCodeEmitter::EmitKernelDriverDispatch(StringBuilder &sb)
 
 void CServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb)
 {
-    std::string hostName = StringHelper::StrToLower(baseName_) + "Host";
     sb.AppendFormat(
         "static int32_t %sDriverDispatch(struct HdfDeviceIoClient *client, int cmdId,\n", baseName_.c_str());
     sb.Append(TAB).Append("struct HdfSBuf *data, struct HdfSBuf *reply)\n");
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("struct Hdf%sHost *%s = CONTAINER_OF(", baseName_.c_str(), hostName.c_str());
+    sb.Append(TAB).AppendFormat("struct Hdf%sHost *%s = CONTAINER_OF(", baseName_.c_str(), hostName_.c_str());
     sb.AppendFormat("client->device->service, struct Hdf%sHost, ioService);\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("if (%s->service == NULL || %s->stubObject == NULL) {\n",
-        hostName.c_str(), hostName.c_str());
+        hostName_.c_str(), hostName_.c_str());
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: invalid service obj\", __func__);\n");
     sb.Append(TAB).Append(TAB).Append("return HDF_ERR_INVALID_OBJECT;\n");
     sb.Append(TAB).Append("}\n\n");
-    sb.Append(TAB).AppendFormat("struct HdfRemoteService *stubObj = *%s->stubObject;\n", hostName.c_str());
+    sb.Append(TAB).AppendFormat("struct HdfRemoteService *stubObj = *%s->stubObject;\n", hostName_.c_str());
     sb.Append(TAB).AppendFormat("if (stubObj == NULL || stubObj->dispatcher == NULL || ");
     sb.Append("stubObj->dispatcher->Dispatch == NULL) {\n");
     sb.Append(TAB).Append(TAB).Append("return HDF_ERR_INVALID_OBJECT;\n");

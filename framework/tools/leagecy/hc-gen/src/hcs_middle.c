@@ -443,13 +443,13 @@ int32_t HcsDoOptimize(void)
 
     /* redefine check */
     int32_t ret = HcsWalkAst(root, AST_WALK_BACKEND, NULL, HcsMiddleRedefineCheckCallback);
-    if (ret) {
+    if (ret != NOERR) {
         return ret;
     }
 
     /* merge multi file objects */
     ret = HcsMiddleMerge(&root);
-    if (ret) {
+    if (ret != NOERR) {
         return ret;
     }
 
@@ -460,12 +460,12 @@ int32_t HcsDoOptimize(void)
     HCS_DEBUG("compile module : %s", moduleName);
     /* expend node ref and node copy */
     ret = HcsWalkAst(root, AST_WALK_BACKEND, NULL, HcsMiddleProcessCallback);
-    if (ret) {
+    if (ret != NOERR) {
         return ret;
     }
 
     ret = HcsWalkAst(root, AST_WALK_FORWARD, HcsMiddleInheritExpandCallback, NULL);
-    if (ret) {
+    if (ret != NOERR) {
         return ret;
     }
 
