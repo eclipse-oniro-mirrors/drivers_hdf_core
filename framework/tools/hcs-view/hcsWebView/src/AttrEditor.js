@@ -12,6 +12,7 @@
 * See the License for the specific language governing permissions and 
 * limitations under the License. 
 */
+
 const { AttributeArea } = require("./attr/AttributeArea");
 const { ModifyNode } = require("./hcs/ModifyNode");
 const { DataType, NodeType } = require("./hcs/NodeTools");

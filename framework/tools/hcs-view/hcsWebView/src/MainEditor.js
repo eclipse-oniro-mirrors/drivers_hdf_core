@@ -12,6 +12,7 @@
 * See the License for the specific language governing permissions and 
 * limitations under the License. 
 */
+
 const { XMessage } = require("./message/XMessage");
 const { Lexer } = require("./hcs/lexer");
 const { Generator } = require("./hcs/Generator");
