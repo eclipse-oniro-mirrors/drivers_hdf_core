@@ -36,7 +36,7 @@ uint32_t g_osalTestCases[OSAL_TEST_CASE_CNT];
 OsalTimespec g_hdfTestBegin;
 OsalTimespec g_hdfTestEnd;
 static int32_t g_waitMutexTime = 3100;
-static int32_t g_threadTest1Flag = true;
+static bool g_threadTest1Flag = true;
 OSAL_DECLARE_THREAD(thread1);
 OSAL_DECLARE_THREAD(thread2);
 OSAL_DECLARE_THREAD(thread);
@@ -47,8 +47,8 @@ OSAL_DECLARE_SPINLOCK(g_spinTest);
 #define HDF_THREAD_TEST_SLEEP_US 600
 #define HDF_THREAD_TEST_SLEEP_MS 300
 #define HDF_THREAD_TEST_MUX_CNT 20
-static int g_thread1RunFlag;
-static int g_threadMuxLockFlag;
+static bool g_thread1RunFlag;
+static bool g_threadMuxLockFlag;
 static int32_t g_test1Para = 120;
 static int32_t g_test2Para = 123;
 #define TIME_RANGE 200000
@@ -83,7 +83,7 @@ static int ThreadTest1(void *arg)
             g_waitMutexTime = HDF_WAIT_FOREVER;
         }
         ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
-        if (g_threadMuxLockFlag == true) {
+        if (g_threadMuxLockFlag) {
             UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
         } else {
             UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
@@ -113,8 +113,8 @@ static int ThreadTest1(void *arg)
     return 0;
 }
 
-static int g_thread2RunFlag;
-static int32_t g_threadTest2Flag = true;
+static bool g_thread2RunFlag;
+static bool g_threadTest2Flag = true;
 static int ThreadTest2(void *arg)
 {
     static int cnt = 0;
@@ -141,7 +141,7 @@ static int ThreadTest2(void *arg)
 
         cnt++;
         ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
-        if (g_threadMuxLockFlag == true) {
+        if (g_threadMuxLockFlag) {
             UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
         } else {
             UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
@@ -192,7 +192,7 @@ static int32_t g_timerPeriod2Modify = 750;
 #define HDF_TEST_TIMER_MODIFY 2
 #define HDF_TEST_TIMER_END 3
 
-static int g_timerLoop1RunFlag;
+static bool g_timerLoop1RunFlag;
 static int g_timer1Cnt = 0;
 static void TimerLoopTest1(uintptr_t arg)
 {
@@ -238,7 +238,7 @@ static void TimerLoopTest1(uintptr_t arg)
     g_timerLoop1RunFlag = true;
 }
 
-static int g_timerLoop2RunFlag;
+static bool g_timerLoop2RunFlag;
 static int g_timer2Cnt = 0;
 static void TimerLoopTest2(uintptr_t arg)
 {
@@ -284,7 +284,7 @@ static void TimerLoopTest2(uintptr_t arg)
     g_timerLoop2RunFlag = true;
 }
 
-static int g_timerOnceRunFlag;
+static int g_timerOnceRunCnt = 0;
 static void TimerOnceTest(uintptr_t arg)
 {
     int32_t para;
@@ -292,7 +292,7 @@ static void TimerOnceTest(uintptr_t arg)
 
     HDF_LOGE("%s %d", __func__, para);
     UT_TEST_CHECK_RET(para != g_timerPeriod3, OSAL_TIMER_PARA_CHECK);
-    g_timerOnceRunFlag++;
+    g_timerOnceRunCnt++;
 }
 
 static void OsaTimerTest(void)
@@ -397,15 +397,15 @@ static void OsaCheckRun(int cnt)
     OsalTimespec diffTime = { 0, 0 };
 
     if (cnt == THREAD_TEST_TIMER_RUN) {
-        UT_TEST_CHECK_RET(g_timerOnceRunFlag == 0, OSAL_TIMER_RUN_CHECK);
-        UT_TEST_CHECK_RET(g_timerLoop2RunFlag == false, OSAL_TIMER_RUN_CHECK);
-        UT_TEST_CHECK_RET(g_timerLoop1RunFlag == false, OSAL_TIMER_RUN_CHECK);
+        UT_TEST_CHECK_RET(g_timerOnceRunCnt == 0, OSAL_TIMER_RUN_CHECK);
+        UT_TEST_CHECK_RET(!g_timerLoop2RunFlag, OSAL_TIMER_RUN_CHECK);
+        UT_TEST_CHECK_RET(!g_timerLoop1RunFlag, OSAL_TIMER_RUN_CHECK);
         HDF_LOGI("[OSAL_UT_TEST]%s timer run end", __func__);
     }
 
     if (cnt == THREAD_TEST_TIMER_STOP) {
-        UT_TEST_CHECK_RET(g_timerOnceRunFlag != 1, OSAL_TIMER_STOP_CHECK);
-        UT_TEST_CHECK_RET(g_timerLoop2RunFlag != false, OSAL_TIMER_STOP_CHECK);
+        UT_TEST_CHECK_RET(g_timerOnceRunCnt != 1, OSAL_TIMER_STOP_CHECK);
+        UT_TEST_CHECK_RET(g_timerLoop2RunFlag, OSAL_TIMER_STOP_CHECK);
         HDF_LOGI("[OSAL_UT_TEST]%s timer stop end", __func__);
     }
     if (cnt == THREAD_TEST_TIMER_STOP) {
@@ -502,8 +502,8 @@ static void OsaIrqTest(void)
 #define THREAD_TEST_MUX_BEGIN 3
 #define THREAD_TEST_MUX_END 5
 #define THREAD_TEST_SLEEP_MS 1
-static int g_thread3RunFlag;
-static int32_t g_threadTestFlag = true;
+static bool g_thread3RunFlag;
+static bool g_threadTestFlag = true;
 static int ThreadTest(void *arg)
 {
     static int cnt = 0;
@@ -795,9 +795,9 @@ static void OsaSpinTest(void)
 
 static void OsaCheckThreadRun(void)
 {
-    UT_TEST_CHECK_RET(g_thread1RunFlag == 0, OSAL_THREAD_RUN_CHECK);
-    UT_TEST_CHECK_RET(g_thread1RunFlag == 0, OSAL_THREAD_RUN_CHECK);
-    UT_TEST_CHECK_RET(g_thread1RunFlag == 0, OSAL_THREAD_RUN_CHECK);
+    UT_TEST_CHECK_RET(!g_thread1RunFlag, OSAL_THREAD_RUN_CHECK);
+    UT_TEST_CHECK_RET(!g_thread2RunFlag, OSAL_THREAD_RUN_CHECK);
+    UT_TEST_CHECK_RET(!g_thread3RunFlag, OSAL_THREAD_RUN_CHECK);
     HDF_LOGI("[OSAL_UT_TEST]%s end", __func__);
 }
 

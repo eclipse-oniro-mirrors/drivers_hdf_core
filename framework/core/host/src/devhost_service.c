@@ -159,7 +159,7 @@ static int DevHostServiceStartService(struct IDevHostService *service)
 static int ApplyDevicesPowerState(struct HdfDevice *device, uint32_t state)
 {
     struct HdfDeviceNode *deviceNode = NULL;
-    int ret = HDF_SUCCESS;
+    int ret;
 
     /* The power management strategy is to ignore devices that fail to
      operate and avoid more devices that fail to sleep or wake up */

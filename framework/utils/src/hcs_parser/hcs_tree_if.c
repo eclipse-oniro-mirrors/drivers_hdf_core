@@ -116,7 +116,7 @@ static const char *GetArrayElem(const struct DeviceResourceAttr *attr, uint32_t 
         return NULL;
     }
     if (index >= count) {
-        HDF_LOGE("%s failed, index: %u >= count: %u", __func__, index, count);
+        HDF_LOGE("%s failed, index: %u >= count: %hu", __func__, index, count);
         return NULL;
     }
     for (i = 0; i < index; i++) {
