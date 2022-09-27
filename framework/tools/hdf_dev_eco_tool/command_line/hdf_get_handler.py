@@ -150,8 +150,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
         json_type = json.loads(data)
         if not json_type:
             return out_model_list
-        file_key_list = list(list(json_type.
-                                  items())[0][-1].keys())[:-1]
+        file_key_list = list(list(json_type.items())[0][-1].keys())
         for k, _ in json_type.items():
             model_file_path = {}
             for key in file_key_list:
@@ -160,7 +159,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
                     model_file_path = hdf_utils.model_info(
                         path_dict, root, model_file_path, key)
             out_model_list.append({k: model_file_path})
-        return out_model_list
+        return json.dumps(out_model_list, indent=4)
 
     def __get_version(self):
         version_end = "\nCopyright (c) 2020-2021 Huawei Device Co., Ltd."

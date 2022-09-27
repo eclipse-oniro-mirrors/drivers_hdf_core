@@ -250,7 +250,7 @@ class HdfAddDriver(object):
                                  templates_list, target_path, *args_tuple):
         # find model template .c
         source_statu_exist = False
-        root, vendor, module, driver, board, kernel, device = args_tuple
+        root, vendor, module, driver, board, kernel, device = args_tuple[0]
         if module == "audio" or module == "display":
             if board.startswith("rk3568"):
                 source_file_template_list = list(
@@ -293,7 +293,7 @@ class HdfAddDriver(object):
                           templates_list, target_path, *args_tuple):
         # find model template .h
         head_statu_exist = False
-        root, vendor, module, driver, board, kernel, device = args_tuple
+        root, vendor, module, driver, board, kernel, device = args_tuple[0]
         if module == "audio":
             if board.startswith("rk3568"):
                 head_file_template_list = list(filter(

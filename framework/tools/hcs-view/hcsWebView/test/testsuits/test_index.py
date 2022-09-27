@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.

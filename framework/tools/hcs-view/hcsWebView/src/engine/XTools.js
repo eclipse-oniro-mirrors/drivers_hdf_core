@@ -12,6 +12,7 @@
 * See the License for the specific language governing permissions and 
 * limitations under the License. 
 */
+
 export function fAngle(x,y)
 {
     return Math.atan2(-y,x)*180/Math.PI
