@@ -88,7 +88,7 @@ static int DevHostServiceFullDelDevice(struct IDevHostService *devHostService, d
 static int DevHostServiceFullDispatchPowerState(struct HdfDevice *device, uint32_t state)
 {
     struct HdfDeviceNode *deviceNode = NULL;
-    int ret = HDF_SUCCESS;
+    int ret;
     int result = HDF_SUCCESS;
 
     if (IsPowerWakeState(state)) {
