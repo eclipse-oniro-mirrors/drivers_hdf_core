@@ -37,7 +37,7 @@ void ReleaseMessageMapper(struct ServiceDef *mapper);
 void ReleaseMessageContext(MessageContext *context);
 void SetToResponse(MessageContext *context);
 
-struct MessageDef* GetMsgDef(const struct ServiceDef *mapper, uint32_t commandID);
+struct MessageDef *GetMsgDef(const struct ServiceDef *serviceDef, uint32_t commandId);
 
 ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const DispatcherConfig *config);
 
