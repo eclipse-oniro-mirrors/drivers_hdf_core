@@ -145,7 +145,7 @@ uint32_t DecompileGen::OutPutWalk(const std::shared_ptr<AstObject> &astObj, int3
         case PARSEROP_CONFTERM: {
             str = astObj->Name() + " = ";
             WriteFile(str);
-            uint32_t ret = PrintBaseType(astObj->Child());
+            int32_t ret = PrintBaseType(astObj->Child());
             if (ret != NOERR) {
                 return ret;
             }

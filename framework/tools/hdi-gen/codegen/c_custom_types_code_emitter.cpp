@@ -365,7 +365,6 @@ void CCustomTypesCodeEmitter::EmitParamCheck(const std::string &name, StringBuil
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n\n");
-
     sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", name.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid data block\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
