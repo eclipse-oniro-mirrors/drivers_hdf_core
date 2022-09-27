@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2020-2021 Huawei Device Co., Ltd.
-# 
+#
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
@@ -20,6 +20,8 @@ from .hdf_command_error_code import CommandErrorCode
 
 class HdfDeviceInfoHcsFile(object):
     def __init__(self, root, vendor, module, board, driver, path):
+        self.model_space_num = " " * 8
+        self.driver_space_num = " " * 12
         if not path:
             self.module = module
             self.vendor = vendor
@@ -83,7 +85,7 @@ class HdfDeviceInfoHcsFile(object):
     def add_model_hcs_file_config(self):
         template_path = os.path.join(self.file_path,
                                      'device_info_hcs.template')
-        lines = list(map(lambda x: "\t\t" + x,
+        lines = list(map(lambda x: self.model_space_num + x,
                          hdf_utils.read_file_lines(template_path)))
         old_lines = list(filter(lambda x: x != "\n",
                                 hdf_utils.read_file_lines(self.hcspath)))
@@ -99,9 +101,9 @@ class HdfDeviceInfoHcsFile(object):
     def add_model_hcs_file_config_user(self):
         template_path = os.path.join(self.file_path,
                                      'User_device_info_hcs.template')
-        lines = list(map(lambda x: "\t\t" + x,
+        lines = list(map(lambda x: self.model_space_num + x,
                          hdf_utils.read_file_lines(template_path)))
-        lines[-1] = "\t\t" + lines[-1].strip() + "\n"
+        lines[-1] = self.model_space_num + lines[-1].strip() + "\n"
         old_lines = list(filter(lambda x: x != "\n",
                                 hdf_utils.read_file_lines(self.hcspath)))
 
@@ -116,7 +118,7 @@ class HdfDeviceInfoHcsFile(object):
     def add_hcs_config_to_exists_model(self, device):
         template_path = os.path.join(self.file_path,
                                      'exists_model_hcs_info.template')
-        lines = list(map(lambda x: "\t\t\t" + x,
+        lines = list(map(lambda x: self.driver_space_num + x,
                          hdf_utils.read_file_lines(template_path)))
         old_lines = list(filter(lambda x: x != "\n",
                                 hdf_utils.read_file_lines(self.hcspath)))
@@ -134,7 +136,6 @@ class HdfDeviceInfoHcsFile(object):
         self.data.update(temp_replace_dict)
         for index, _ in enumerate(lines):
             lines[index] = Template(lines[index]).substitute(self.data)
-
         self.lines = old_lines[:end_index] + lines + old_lines[end_index:]
         self._save()
         return self.hcspath
@@ -147,7 +148,6 @@ class HdfDeviceInfoHcsFile(object):
         for index, old_line in enumerate(old_lines):
             if old_line.strip().startswith(self.module) and start_state == False:
                 model_start_index = index
-                count += 1
                 start_state = True
             if start_state and old_line.find("{") != -1:
                 count += 1

@@ -244,9 +244,6 @@ class IDLGeneratorTestCase(unittest.TestCase):
                       {'name': 'desc', 'type': 'const char *'}
                   ]}]
         generator._install_stack(union)
-        print("-------------------------------------------------")
-        print("-------------------------------------------------")
-        print("-------------------------------------------------")
         print("".join(generator._idl))
         self.assertEqual("".join(generator._idl), "union SceneDesc {\n"
                                          "    unsigned int id;\n"
