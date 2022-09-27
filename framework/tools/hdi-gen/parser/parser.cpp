@@ -994,7 +994,6 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         token = lexer_.PeekToken();
         if (token.kind_ == TokenType::ASSIGN) {
             lexer_.GetToken();
-            token = lexer_.PeekToken();
             enumValue->SetExprValue(ParseExpr());
         }
 

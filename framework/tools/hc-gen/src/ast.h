@@ -52,9 +52,9 @@ public:
 
     AstObject(std::string name, uint32_t type, std::string strValue);
 
-    AstObject(std::string name, uint32_t type, uint64_t value, const Token &bindToken);
+    AstObject(std::string name, uint32_t type, uint64_t integerValue, const Token &bindToken);
 
-    AstObject(std::string name, uint32_t type, std::string value, const Token &bindToken);
+    AstObject(std::string name, uint32_t type, std::string strValue, const Token &bindToken);
 
     AstObject(const AstObject &obj);
 
