@@ -36,8 +36,8 @@ AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, std
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t intValue)
-    : AstObject(std::move(name), type, intValue, "", 0, nullptr)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue)
+    : AstObject(std::move(name), type, integerValue, "", 0, nullptr)
 {
 }
 
@@ -46,15 +46,15 @@ AstObject::AstObject(std::string name, uint32_t type, std::string strValue)
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t intValue, const Token &bindToken)
-    : AstObject(std::move(name), type, intValue, "", bindToken.lineNo, bindToken.src)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, const Token &bindToken)
+    : AstObject(std::move(name), type, integerValue, "", bindToken.lineNo, bindToken.src)
 {
     switch (type) {
         case PARSEROP_UINT8:  /* fall-through */
         case PARSEROP_UINT16: /* fall-through */
         case PARSEROP_UINT32: /* fall-through */
         case PARSEROP_UINT64:
-            this->type_ = FitIntegerValueType(intValue);
+            this->type_ = FitIntegerValueType(integerValue);
             break;
         default:
             break;
