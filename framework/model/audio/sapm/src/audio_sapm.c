@@ -1353,7 +1353,6 @@ int32_t AudioCodecSapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const str
     uint32_t pathStatus = 0;
     struct CodecDevice *codec = NULL;
     struct AudioMixerControl *mixerCtrl = NULL;
-    struct AudioCard *audioCard = NULL;
     if ((kcontrol == NULL) || (kcontrol->privateValue <= 0) || (kcontrol->pri == NULL)) {
         ADM_LOG_ERR("input params: kcontrol is NULL.");
         return HDF_ERR_INVALID_OBJECT;
@@ -1362,7 +1361,6 @@ int32_t AudioCodecSapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const str
         ADM_LOG_ERR("input params: elemValue is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-    audioCard = (struct AudioCard *)((volatile uintptr_t)(kcontrol->pri));
 
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
     if (AudioSapmSetCtrlOps(kcontrol, elemValue, &value, &pathStatus) != HDF_SUCCESS) {

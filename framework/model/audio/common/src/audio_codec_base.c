@@ -458,6 +458,7 @@ static void CodecI2cRelease(struct I2cMsg *msgs, int16_t msgSize, DevHandle i2cH
             msgs[0].buf = NULL;
         } else if (msgSize >= I2C_MSG_NUM) {
             if (msgs[0].buf != NULL) {
+                OsalMemFree(msgs[0].buf);
                 msgs[0].buf = NULL;
             }
             if (msgs[1].buf != NULL) {
@@ -542,7 +543,7 @@ static int32_t CodecI2cTransfer(struct I2cTransferParam *i2cTransferParam, struc
     (void)memset_s(msgs, sizeof(struct I2cMsg) * I2C_MSG_NUM, 0, sizeof(struct I2cMsg) * I2C_MSG_NUM);
 
     AUDIO_DRIVER_LOG_DEBUG("entry.\n");
-    if (i2cTransferParam == NULL || regAttr == NULL || rwFlag < 0 || rwFlag > 1) {
+    if (i2cTransferParam == NULL || regAttr == NULL || rwFlag > 1) {
         AUDIO_DRIVER_LOG_ERR("invalid parameter.");
         return HDF_ERR_INVALID_PARAM;
     }
