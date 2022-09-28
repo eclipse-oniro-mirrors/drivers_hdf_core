@@ -19,7 +19,7 @@ namespace Hardware {
 
 class Parser {
 public:
-    Parser();
+    Parser() = default;
 
     ~Parser() = default;
 
@@ -62,7 +62,7 @@ private:
     Token current_;
     std::shared_ptr<Ast> ast_;
     std::list<std::string> srcQueue_;
-    uint32_t errno_;
+    uint32_t errno_ = NOERR;
 };
 
 } // namespace Hardware

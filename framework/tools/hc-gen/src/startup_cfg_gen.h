@@ -61,7 +61,7 @@ private:
 
     static void GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData);
 
-    void GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name) const;
+    static void GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name);
 
     std::ofstream ofs_;
     std::string outFileName_;

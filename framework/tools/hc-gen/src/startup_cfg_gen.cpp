@@ -214,7 +214,7 @@ void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, 
 }
 
 void StartupCfgGen::GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config,
-    const std::string &name) const
+    const std::string &name)
 {
     // get array format configuration
     GetConfigArray(term, config);
