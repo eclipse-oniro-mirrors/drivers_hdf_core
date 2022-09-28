@@ -343,7 +343,7 @@ static int32_t UsbPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObje
     union UsbPnpDeviceInfoData pnpInfoData;
 
     if ((deviceObject == NULL) || (eventData == NULL)) {
-        HDF_LOGE("%s deviceObject=%p or eventData=%p is NULL", __func__, deviceObject, eventData);
+        HDF_LOGE("%s param is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
