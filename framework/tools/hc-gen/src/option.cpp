@@ -230,11 +230,6 @@ std::string Option::GetOutputName() const
     return outputName_;
 }
 
-std::string Option::GetSourceDir() const
-{
-    return sourceDir_;
-}
-
 bool Option::SetSourceOption(const char *srcName)
 {
     std::string srcAbsPath(Util::File::AbsPath(srcName));
