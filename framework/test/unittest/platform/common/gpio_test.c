@@ -305,7 +305,7 @@ static int32_t GpioTestIrqSharedFunc(struct GpioTester *tester, uint16_t mode, b
     }
 
     HDF_LOGE("%s: mark gona inverse irq ...", __func__);
-    for (timeout = 0; tester->irqCnt <= 0 && timeout <= tester->irqTimeout;
+    for (timeout = 0; tester->irqCnt == 0 && timeout <= tester->irqTimeout;
         timeout += GPIO_TEST_IRQ_DELAY) {
         if (inverse) {
             // maybe can make an inverse ...
@@ -321,7 +321,7 @@ static int32_t GpioTestIrqSharedFunc(struct GpioTester *tester, uint16_t mode, b
         return HDF_SUCCESS;
     }
 #endif
-    if (tester->irqCnt <= 0) {
+    if (tester->irqCnt == 0) {
         HDF_LOGE("%s: failed to set mode:%x on %u!", __func__, mode, tester->cfg.gpioIrq);
         return HDF_FAILURE;
     }

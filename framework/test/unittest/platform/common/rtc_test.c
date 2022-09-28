@@ -500,7 +500,7 @@ static int32_t RtcReadWriteUserRegTest(struct RtcTester *tester)
     }
 
     if (value != tester->config.userValue) {
-        HDF_LOGE("%s: value is not same. value :%u, userValue :%u", __func__, value, tester->config.userValue);
+        HDF_LOGE("%s: value is not same. value :%hhu, userValue :%u", __func__, value, tester->config.userValue);
         return HDF_FAILURE;
     }
 

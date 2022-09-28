@@ -87,15 +87,10 @@ static int32_t VirtualSendCccCmd(struct I3cCntlr *cntlr, struct I3cCccCmd *ccc)
 
 static int32_t VirtualI3cTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t count)
 {
-    struct VirtualI3cCntlr *virtual = NULL;
-
-    (void)cntlr;
-    (void)msgs;
     if (cntlr == NULL || cntlr->priv == NULL) {
         HDF_LOGE("%s: cntlr or virtual is null!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-    virtual = (struct VirtualI3cCntlr *)cntlr;
 
     if (msgs == NULL || count <= 0) {
         HDF_LOGE("%s: err params! count:%d", __func__, count);

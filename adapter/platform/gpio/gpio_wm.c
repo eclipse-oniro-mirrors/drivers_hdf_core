@@ -119,7 +119,7 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -135,7 +135,7 @@ static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -151,7 +151,7 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -179,7 +179,7 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -214,7 +214,7 @@ static int32_t GpioDevUnSetIrq(struct GpioCntlr *cntlr, uint16_t gpio)
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -227,7 +227,7 @@ static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -243,7 +243,7 @@ static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
     uint16_t wmGpio;
 
     (void)cntlr;
-    if (gpio > WM_IO_MAX_GPIO_PIN_NUM) {
+    if (gpio >= WM_IO_MAX_GPIO_PIN_NUM) {
         HDF_LOGE("%s %d, error gpio:%hu", __func__, __LINE__, gpio);
         return HDF_ERR_NOT_SUPPORT;
     }

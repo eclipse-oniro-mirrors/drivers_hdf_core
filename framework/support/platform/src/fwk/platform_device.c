@@ -74,7 +74,7 @@ int32_t PlatformDeviceSetName(struct PlatformDevice *device, const char *fmt, ..
     }
 
     realLen = strlen(tmpName);
-    if (realLen > PLATFORM_DEV_NAME_LEN) {
+    if (realLen == 0 || realLen > PLATFORM_DEV_NAME_LEN) {
         PLAT_LOGE("PlatformDeviceSetName: invalid name len:%zu", realLen);
         return HDF_ERR_INVALID_PARAM;
     }

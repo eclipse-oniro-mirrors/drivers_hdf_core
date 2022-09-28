@@ -613,7 +613,6 @@ static void HdmiVideoAttrInit(struct HdmiCntlr *cntlr)
     struct HdmiVideoAttr *videoAttr = &(cntlr->attr.videoAttr);
     bool colorimetry601;
 
-    videoAttr->colorimetry = (enum HdmiColorimetry)cntlr->cap.colorimetry;
     videoAttr->timing = (enum HdmiVideoTiming)cntlr->cap.videoTiming;
     colorimetry601 = ((videoAttr->timing == HDMI_VIDEO_TIMING_720X480P60) ||
         (videoAttr->timing == HDMI_VIDEO_TIMING_720X576P50) || (videoAttr->timing == HDMI_VIDEO_TIMING_1440X240P60) ||

@@ -65,7 +65,7 @@ void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint
         return;
     }
 
-    if (size > PLATFORM_TRACE_UINT_PARAM_SIZE_MAX) {
+    if ((size == 0) || (size > PLATFORM_TRACE_UINT_PARAM_SIZE_MAX)) {
         HDF_LOGE("PlatformTraceAddUintMsg %hhu size illegal", size);
         return;
     }
