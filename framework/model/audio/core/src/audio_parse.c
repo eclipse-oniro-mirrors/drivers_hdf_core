@@ -433,7 +433,7 @@ static int32_t ParseAudioRegGroup(const struct DeviceResourceIface *parser,
             ret = ParseAudioSapmItem(parser, regCfgNode, group);
             break;
         default:
-            ADM_LOG_ERR("parse audio config index = %d not found!", index);
+            ADM_LOG_ERR("parse audio config index = %u not found!", index);
             return HDF_FAILURE;
     }
 
