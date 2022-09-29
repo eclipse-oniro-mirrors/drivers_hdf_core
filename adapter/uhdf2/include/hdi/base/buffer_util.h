@@ -19,13 +19,19 @@
 #include "buffer_handle.h"
 #include "hdf_sbuf.h"
 
+#define MAX_RESERVE_FDS 1024
+#define MAX_RESERVE_INTS 1024
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-BufferHandle *AllocateBufferHandle(uint32_t reserveFds, uint32_t reserveInts);
-BufferHandle *CloneBufferHandle(const BufferHandle *handle);
-void FreeBufferHandle(BufferHandle *handle);
+BufferHandle *AllocateNativeBufferHandle(uint32_t reserveFds, uint32_t reserveInts);
+BufferHandle *CloneNativeBufferHandle(const BufferHandle *handle);
+void FreeNativeBufferHandle(BufferHandle *handle);
+
+bool HdfSbufWriteNativeBufferHandle(struct HdfSBuf *data, const BufferHandle *handle);
+BufferHandle *HdfSbufReadNativeBufferHandle(struct HdfSBuf *data);
 
 #ifdef __cplusplus
 }

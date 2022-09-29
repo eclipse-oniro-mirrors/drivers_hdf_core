@@ -7,6 +7,9 @@
  */
 
 #include "ast/ast_namespace.h"
+
+#include <algorithm>
+
 #include "ast/ast_interface_type.h"
 #include "ast/ast_sequenceable_type.h"
 
@@ -30,12 +33,11 @@ AutoPtr<ASTNamespace> ASTNamespace::FindNamespace(const std::string &nspaceStr)
         return nullptr;
     }
 
-    for (auto nspace : innerNamespaces_) {
-        if (nspace->name_ == nspaceStr) {
-            return nspace;
-        }
-    }
-    return nullptr;
+    auto resIter = std::find_if(
+        innerNamespaces_.begin(), innerNamespaces_.end(), [nspaceStr](const AutoPtr<ASTNamespace> &element) {
+            return element->name_ == nspaceStr;
+        });
+    return resIter != innerNamespaces_.end() ? *resIter : nullptr;
 }
 
 AutoPtr<ASTNamespace> ASTNamespace::GetNamespace(size_t index)

@@ -60,13 +60,13 @@ if (defined(ohos_lite)) {
     public_configs = [ ":libhdi_pub_config" ]
     sources = [
       "$hdf_framework_path/core/shared/src/service_status.c",
+      "src/buffer_util.c",
       "src/devmgr_client.c",
-      "src/hdi_buffer_handle.cpp",
-      "src/hdi_buffer_handle_util.c",
       "src/hdi_smq_syncer.cpp",
       "src/hdi_support.cpp",
       "src/idevmgr_client.cpp",
       "src/iservmgr_client.cpp",
+      "src/native_buffer.cpp",
       "src/object_collector.cpp",
       "src/servmgr_client.c",
       "src/servstat_listener.c",

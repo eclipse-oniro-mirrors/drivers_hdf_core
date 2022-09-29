@@ -383,6 +383,8 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
+    } else if (type->GetTypeKind() == TypeKind::TYPE_BUFFER_HANDLE) {
+        type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else {
         std::string name = StringHelper::Format("&%s", param->GetName().c_str());
         type->EmitCStubReadVar(parcelName, name, errorCodeName_, gotoLabel, sb, prefix);
@@ -587,7 +589,6 @@ void CServiceStubCodeEmitter::EmitKernelStubConstruct(StringBuilder &sb)
 void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
     std::string remoteName = "remote";
-    std::string implName = "serviceImpl";
     std::string codeName = "code";
     std::string funcName = StringHelper::Format("%sOnRemoteRequest", baseName_.c_str());
     sb.Append(prefix).AppendFormat("static int32_t %s(struct HdfRemoteService *%s, ", funcName.c_str(),

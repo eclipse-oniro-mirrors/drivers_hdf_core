@@ -300,7 +300,6 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &
 {
     std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string instName = "instance";
-    std::string objName = "service";
     sb.AppendFormat(
         "void %sRelease(struct %s *%s)\n", implTypeName.c_str(), implTypeName.c_str(), instName.c_str());
     sb.Append("{\n");

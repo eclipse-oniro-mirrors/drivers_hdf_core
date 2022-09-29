@@ -25,14 +25,6 @@ class TokenType(object):
     END_OF_FILE = 7
 
 
-key_words = {
-    "package": TokenType.PACKAGE,
-    "import": TokenType.IMPORT,
-    "interface": TokenType.INTERFACE,
-    "callback": TokenType.CALLBACK,
-}
-
-
 class Token(object):
     def __init__(self, file_name, token_type, value):
         self.token_type = token_type
@@ -61,6 +53,13 @@ class Char(object):
 
 
 class Lexer(object):
+    _key_words = {
+        "package": TokenType.PACKAGE,
+        "import": TokenType.IMPORT,
+        "interface": TokenType.INTERFACE,
+        "callback": TokenType.CALLBACK,
+    }
+
     def __init__(self, idl_file_path):
         self.have_peek = False
         with open(idl_file_path, 'r') as idl_file:
@@ -134,8 +133,8 @@ class Lexer(object):
                 continue
             break
         key = "".join(token_value)
-        if key in key_words.keys():
-            self.cur_token.token_type = key_words[key]
+        if key in self._key_words.keys():
+            self.cur_token.token_type = self._key_words[key]
         else:
             self.cur_token.token_type = TokenType.ID
         self.cur_token.value = key
@@ -184,9 +183,9 @@ class Lexer(object):
 class Option(object):
     __instance = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *option_args, **option_kwargs):
         if cls.__instance is None:
-            cls.__instance = object.__new__(cls, *args, **kwargs)
+            cls.__instance = object.__new__(cls, *option_args, **option_kwargs)
         return cls.__instance
 
     def __init__(self):
@@ -197,27 +196,27 @@ class Option(object):
         self.root_path = ""
         self.idl_sources = []
 
-    def load(self, args):
+    def load(self, opt_args):
         ret = True
-        if args.language != 'c' and args.language != 'cpp':
+        if opt_args.language != 'c' and opt_args.language != 'cpp':
             print("The language must be 'c' or 'cpp', please check input")
             ret = False
         else:
-            self.language = args.language
+            self.language = opt_args.language
 
-        if args.mode != "ipc" and args.mode != "passthrough":
+        if opt_args.mode != "ipc" and opt_args.mode != "passthrough":
             print("The hdi mode must be 'ipc' or 'passthrough', please check input")
             ret = False
         else:
-            self.mode = args.mode
+            self.mode = opt_args.mode
 
-        if args.out == "":
+        if opt_args.out == "":
             print("The gen_dir is empty, please check input")
             ret = False
         else:
-            self.gen_dir = args.out
+            self.gen_dir = opt_args.out
 
-        map_result = args.root.split(":")
+        map_result = opt_args.root.split(":")
         if len(map_result) != 2:
             print("The package path is valid, please check input")
             ret = False
@@ -225,11 +224,11 @@ class Option(object):
             self.root_package = map_result[0]
             self.root_path = map_result[1]
 
-        if len(args.file) == 0:
+        if len(opt_args.file) == 0:
             print("The idl sources is empty, please check input")
             ret = False
         else:
-            self.idl_sources = args.file
+            self.idl_sources = opt_args.file
         return ret
 
     def dump(self):
@@ -307,9 +306,9 @@ class ModuleInfo(object):
 
 
 class IdlParser(object):
-    def __init__(self, option):
+    def __init__(self, parse_option):
         self.module_info = ModuleInfo()
-        self.option = option
+        self.option = parse_option
         self.calc = Calculation(self.option)
 
     def parse(self, all_idl_files):
@@ -415,10 +414,10 @@ class IdlParser(object):
 class Calculation(object):
     __instance = None
 
-    def __init__(self, option):
-        self.option = option
+    def __init__(self, calc_option):
+        self.option = calc_option
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *calc_args, **calc_kwargs):
         if not cls.__instance:
             cls.__instance = super(Calculation, cls).__new__(cls)
             return cls.__instance
@@ -437,13 +436,13 @@ class Calculation(object):
         sub_package_dir = "{}{}".format(sub_package.replace('.', os.sep), os.sep)
         return os.path.join(self.option.gen_dir, sub_package_dir)
 
-    # package: 'ohos.hdi.foo.v1_0'
+    # package is 'ohos.hdi.foo.v1_0'
     # -r ohos.hdi:./interface
-    # sub_package: foo.v1_0
+    # sub_package is foo.v1_0
     def get_sub_package(self, package):
         if package.startswith(self.option.root_package):
             root_package_len = len(self.option.root_package)
-            return package[root_package_len+1:]
+            return package[root_package_len + 1:]
         return package
 
     # the camel name transalte under score case name
@@ -809,7 +808,6 @@ class Calculation(object):
             libstub_sources.append(types_source_file)
         elif self.option.mode == "passthrough":
             sources.append(types_header_file)
-
         return sources, libproxy_sources, libstub_sources
 
 
@@ -825,11 +823,30 @@ if __name__ == "__main__":
         description="Tools for generating compilation infomation of idl files",
     )
 
-    option_parser.add_argument("-l", "--language", action="store", help="language")
-    option_parser.add_argument("-m", "--mode", default="ipc", help="generate code of passthrough")
-    option_parser.add_argument("-o", "--out", default=".", required=True, action="store", help="direstory of generate file")
-    option_parser.add_argument("-r", "--root", required=True, action="store", help="<root package>:<path>")
-    option_parser.add_argument("-f", "--file", required=True, action="append", help="the idl file")
+    option_parser.add_argument("-l",
+                               "--language",
+                               action="store",
+                               help="language")
+    option_parser.add_argument("-m",
+                               "--mode",
+                               default="ipc",
+                               help="generate code of passthrough")
+    option_parser.add_argument("-o",
+                               "--out",
+                               default=".",
+                               required=True,
+                               action="store",
+                               help="direstory of generate file")
+    option_parser.add_argument("-r",
+                               "--root",
+                               required=True,
+                               action="store",
+                               help="<root package>:<path>")
+    option_parser.add_argument("-f",
+                               "--file",
+                               required=True,
+                               action="append",
+                               help="the idl file")
     args = option_parser.parse_args()
     option = Option()
 
