@@ -611,7 +611,7 @@ bool TextGen::OutputTemplateImpl()
     }
 
     return ast_->WalkBackward([this](const std::shared_ptr<AstObject> &object, int32_t) -> uint32_t {
-        if (!object->IsNode() || (object->IsNode() && ConfigNode::CastFrom(object)->GetNodeType() != NODE_TEMPLATE)) {
+        if (!object->IsNode() || ConfigNode::CastFrom(object)->GetNodeType() != NODE_TEMPLATE) {
             return NOERR;
         }
         auto node = ConfigNode::CastFrom(object);
@@ -641,8 +641,7 @@ bool TextGen::OutputTemplateVariablesDeclare()
     return ast_->WalkBackward([this](const std::shared_ptr<AstObject> &object, int32_t) -> uint32_t {
         if (object->IsTerm() && object->Child()->IsArray()) {
             return ArrayVariablesDeclareGen(object);
-        } else if (!object->IsNode() ||
-            (object->IsNode() && ConfigNode::CastFrom(object)->GetNodeType() != NODE_TEMPLATE)) {
+        } else if (!object->IsNode() || ConfigNode::CastFrom(object)->GetNodeType() != NODE_TEMPLATE) {
             return NOERR;
         }
         auto node = ConfigNode::CastFrom(object);

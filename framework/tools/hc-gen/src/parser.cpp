@@ -15,8 +15,6 @@
 
 using namespace OHOS::Hardware;
 
-Parser::Parser() : errno_(NOERR) {}
-
 void Parser::CleanError()
 {
     errno_ = NOERR;
