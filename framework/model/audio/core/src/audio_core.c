@@ -488,7 +488,7 @@ int32_t AudioCodecRegUpdate(struct CodecDevice *codec, struct AudioMixerControl 
 
     mixerValue = mixerCtrl->value;
     if (mixerValue < mixerCtrl->min || mixerValue > mixerCtrl->max) {
-        ADM_LOG_ERR("Audio codec invalid value=%d", mixerValue);
+        ADM_LOG_ERR("Audio codec invalid value=%u", mixerValue);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -530,7 +530,7 @@ int32_t AudioCodecMuxRegUpdate(struct CodecDevice *codec, struct AudioEnumKcontr
     }
 
     if (val[0] > enumCtrl->max) {
-        ADM_LOG_ERR("Audio invalid value=%d", val[0]);
+        ADM_LOG_ERR("Audio invalid value=%u", val[0]);
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft, val[0]);
@@ -541,7 +541,7 @@ int32_t AudioCodecMuxRegUpdate(struct CodecDevice *codec, struct AudioEnumKcontr
 
     if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
         if (val[1] > enumCtrl->max) {
-            ADM_LOG_ERR("Audio invalid value=%d", val[1]);
+            ADM_LOG_ERR("Audio invalid value=%u", val[1]);
             return HDF_ERR_INVALID_OBJECT;
         }
         ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight, val[1]);
@@ -564,7 +564,7 @@ int32_t AudioDaiRegUpdate(const struct DaiDevice *dai, struct AudioMixerControl 
 
     value = mixerCtrl->value;
     if (value < mixerCtrl->min || value > mixerCtrl->max) {
-        ADM_LOG_ERR("Audio dai invalid value=%d", value);
+        ADM_LOG_ERR("Audio dai invalid value=%u", value);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -759,7 +759,7 @@ int32_t AudioGetCtrlOpsReg(struct AudioCtrlElemValue *elemValue,
 
     curValue = (curValue >> mixerCtrl->shift) & mixerCtrl->mask;
     if (curValue > mixerCtrl->max || curValue < mixerCtrl->min) {
-        ADM_LOG_ERR("Audio invalid curValue=%d", curValue);
+        ADM_LOG_ERR("Audio invalid curValue=%u", curValue);
         return HDF_FAILURE;
     }
     if (mixerCtrl->invert) {
@@ -780,7 +780,7 @@ static int32_t AudioGetEnumCtrlOpsReg(struct AudioCtrlElemValue *elemValue,
 
     curValue = (curValue >> enumCtrl->shiftLeft) & enumCtrl->mask;
     if (curValue > enumCtrl->max) {
-        ADM_LOG_ERR("Audio invalid curValue=%d", curValue);
+        ADM_LOG_ERR("Audio invalid curValue=%u", curValue);
         return HDF_FAILURE;
     }
 
@@ -801,7 +801,7 @@ static int32_t AudioGetEnumCtrlOpsRReg(struct AudioCtrlElemValue *elemValue,
         rcurValue = (rcurValue >> enumCtrl->shiftLeft) & enumCtrl->mask;
 
         if (rcurValue > enumCtrl->max) {
-            ADM_LOG_ERR("Audio invalid rcurValue=%d", rcurValue);
+            ADM_LOG_ERR("Audio invalid rcurValue=%u", rcurValue);
             return HDF_FAILURE;
         }
 
@@ -883,7 +883,7 @@ int32_t AudioSetCtrlOpsReg(const struct AudioKcontrol *kcontrol, const struct Au
 
     *value = elemValue->value[0];
     if (*value < mixerCtrl->min || *value > mixerCtrl->max) {
-        ADM_LOG_ERR("Audio invalid value=%d", *value);
+        ADM_LOG_ERR("Audio invalid value=%u", *value);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (mixerCtrl->invert) {
@@ -986,7 +986,7 @@ static int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struc
     }
 
     if (setVal[0] > enumCtrl->max) {
-        ADM_LOG_ERR("Audio invalid value=%d", setVal[0]);
+        ADM_LOG_ERR("Audio invalid value=%u", setVal[0]);
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft, setVal[0]);
@@ -997,7 +997,7 @@ static int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struc
 
     if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
         if (setVal[1] > enumCtrl->max) {
-            ADM_LOG_ERR("Audio invalid value=%d", setVal[1]);
+            ADM_LOG_ERR("Audio invalid value=%u", setVal[1]);
             return HDF_ERR_INVALID_OBJECT;
         }
         ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight, setVal[1]);
