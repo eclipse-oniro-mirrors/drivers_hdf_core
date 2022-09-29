@@ -392,9 +392,6 @@ static int32_t HdfPmTestThreeDriver(const uint32_t times, bool sync)
 
     if (sync) {
         total += PM_TEST_COUNT_ONE;
-    }
-
-    if (sync) {
         HdfPmTestAcquireSync(PM_TEST_DRIVER);
         HdfPmTestAcquireSync(HDF_TEST_DRIVER);
         HdfPmTestAcquireSync(SAMPLE_TEST_DRIVER);
