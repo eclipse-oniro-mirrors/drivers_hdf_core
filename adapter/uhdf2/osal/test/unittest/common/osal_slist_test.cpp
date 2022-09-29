@@ -96,6 +96,7 @@ static void HdfOsalSlistTestInit(struct HdfSList *list, int &totalCount, HdfSLis
     totalCount = static_cast<int>(sizeof(insertData) / sizeof(insertData[0]));
     for (int i = 0; i < totalCount; i++) {
         struct TestList *testData = reinterpret_cast<struct TestList *>(OsalMemAlloc(sizeof(struct TestList)));
+        ASSERT_NE(testData, nullptr);
         testData->data = insertData[i];
         ops(list, &testData->entry);
     }
