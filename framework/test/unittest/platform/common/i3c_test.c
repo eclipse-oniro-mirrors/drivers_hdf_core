@@ -330,7 +330,7 @@ static int32_t I3cTestRequestIbi(void *param)
     ret = I3cRequestIbi(tester->handle, tester->config.devAddr, TestI3cIbiFunc, I3C_TEST_IBI_PAYLOAD);
     if (ret != HDF_SUCCESS) {
         *((int32_t *)param) = 1;
-        HDF_LOGE("%s: Requset IBI failed!, busId = %hu", __func__, tester->config.busId);
+        HDF_LOGE("%s: Request IBI failed!, busId = %hu", __func__, tester->config.busId);
         return HDF_FAILURE;
     }
     *((int32_t *)param) = 1;

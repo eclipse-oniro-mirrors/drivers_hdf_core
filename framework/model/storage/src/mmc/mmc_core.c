@@ -72,7 +72,7 @@ static int32_t MmcCntlrPlug(struct MmcCntlr *cntlr)
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    if (MmcCntlrDevPluged(cntlr) != true) {
+    if (MmcCntlrDevPlugged(cntlr) != true) {
         HDF_LOGD("MmcCntlrPlug: dev is not plugged!");
         return HDF_SUCCESS;
     }
@@ -377,12 +377,12 @@ void MmcCntlrSetBusTiming(struct MmcCntlr *cntlr, enum MmcBusTiming timing)
     cntlr->ops->setBusTiming(cntlr, timing);
 }
 
-void MmcCntlrSetEnhanceSrobe(struct MmcCntlr *cntlr, bool enable)
+void MmcCntlrSetEnhanceStrobe(struct MmcCntlr *cntlr, bool enable)
 {
-    if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setEnhanceSrobe == NULL) {
+    if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setEnhanceStrobe == NULL) {
         return;
     }
-    cntlr->ops->setEnhanceSrobe(cntlr, enable);
+    cntlr->ops->setEnhanceStrobe(cntlr, enable);
 }
 
 int32_t MmcCntlrSwitchVoltage(struct MmcCntlr *cntlr, enum MmcVolt voltage)
@@ -401,16 +401,16 @@ bool MmcCntlrDevReadOnly(struct MmcCntlr *cntlr)
     return cntlr->ops->devReadOnly(cntlr);
 }
 
-bool MmcCntlrDevPluged(struct MmcCntlr *cntlr)
+bool MmcCntlrDevPlugged(struct MmcCntlr *cntlr)
 {
-    if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->devPluged == NULL) {
+    if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
         return false;
     }
 
     if (cntlr->caps.bits.nonremovable > 0) {
         return true;
     }
-    return cntlr->ops->devPluged(cntlr);
+    return cntlr->ops->devPlugged(cntlr);
 }
 
 bool MmcCntlrDevBusy(struct MmcCntlr *cntlr)
@@ -471,8 +471,8 @@ void MmcCntlrPowerUp(struct MmcCntlr *cntlr)
         return;
     }
 
-    if (cntlr->ops->setEnhanceSrobe != NULL) {
-        cntlr->ops->setEnhanceSrobe(cntlr, false);
+    if (cntlr->ops->setEnhanceStrobe != NULL) {
+        cntlr->ops->setEnhanceStrobe(cntlr, false);
     }
     /* disable clock. */
     if (cntlr->ops->setClock != NULL) {
@@ -692,10 +692,10 @@ int32_t MmcCntlrAddRequestMsgToQueue(struct MmcCntlr *cntlr, struct MmcCmd *cmd)
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    if (cntlr->ops == NULL || cntlr->ops->devPluged == NULL) {
+    if (cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
         return HDF_PLT_ERR_NO_DEV;
     }
-    if (cntlr->ops->devPluged(cntlr) == false) {
+    if (cntlr->ops->devPlugged(cntlr) == false) {
         HDF_LOGE("MmcCntlrAddRequestMsgToQueue: host%d dev is unplug!", cntlr->index);
         return HDF_PLT_ERR_NO_DEV;
     }
@@ -708,15 +708,15 @@ int32_t MmcCntlrAddDetectMsgToQueue(struct MmcCntlr *cntlr)
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    if (cntlr->ops == NULL || cntlr->ops->devPluged == NULL) {
+    if (cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
         return HDF_PLT_ERR_NO_DEV;
     }
 
-    if (cntlr->ops->devPluged(cntlr) == false) {
+    if (cntlr->ops->devPlugged(cntlr) == false) {
         HDF_LOGD("MmcCntlrAddDetectMsgToQueue: host%d dev is not plugged!", cntlr->index);
         return HDF_PLT_ERR_NO_DEV;
     }
-    cntlr->devPluged = true;
+    cntlr->devPlugged = true;
     return MmcCntlrAddMsgToQueue(cntlr, NULL, MMC_MSG_PLUG, false);
 }
 
@@ -728,22 +728,22 @@ int32_t MmcCntlrAddPlugMsgToQueue(struct MmcCntlr *cntlr)
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    if (cntlr->ops == NULL || cntlr->ops->devPluged == NULL) {
+    if (cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
         return HDF_PLT_ERR_NO_DEV;
     }
 
-    curStatus = cntlr->ops->devPluged(cntlr);
-    if (curStatus == cntlr->devPluged) {
+    curStatus = cntlr->ops->devPlugged(cntlr);
+    if (curStatus == cntlr->devPlugged) {
         HDF_LOGD("MmcCntlrAddPlugMsgToQueue: dev plug srtatus not change.");
         return HDF_SUCCESS;
     }
 
     if (curStatus == true) {
-        cntlr->devPluged = true;
+        cntlr->devPlugged = true;
         code = MMC_MSG_PLUG;
         HDF_LOGD("host%d: a dev is plugged!", cntlr->index);
     } else {
-        cntlr->devPluged = false;
+        cntlr->devPlugged = false;
         code = MMC_MSG_UNPLUG;
         HDF_LOGD("host%d: a dev is unplugged!", cntlr->index);
     }
