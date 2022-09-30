@@ -281,6 +281,9 @@ int32_t MessageSingleNodeTest004(void)
     } while (false);
     errShutdown = errShutdown | OsalSemDestroy(&g_callBackSem);
     errShutdown = errShutdown | StopEnv();
+    if (errShutdown != HDF_SUCCESS) {
+        HDF_LOGE("%s:Destroy message semaphore failed! errShutdown=%d", __func__, errShutdown);
+    }
 
     return errCode;
 }
@@ -336,6 +339,9 @@ int32_t MessageSingleNodeTest005(void)
     } while (false);
     errShutdown = errShutdown | OsalSemDestroy(&g_callBackSem);
     errShutdown = errShutdown | StopEnv();
+    if (errShutdown != HDF_SUCCESS) {
+        HDF_LOGE("%s:Destroy message semaphore failed! errShutdown=%d", __func__, errShutdown);
+    }
 
     return errCode;
 }
