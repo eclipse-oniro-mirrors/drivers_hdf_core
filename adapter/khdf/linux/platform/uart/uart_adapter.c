@@ -346,10 +346,7 @@ static unsigned char PariTyToAttr(unsigned short ps)
         return UART_ATTR_PARITY_ODD;
     } else if (!(ps & PARODD) && (ps & PARENB)) {
         return UART_ATTR_PARITY_EVEN;
-    } else if (!(ps & (PARENB | PARODD))) {
-        return UART_ATTR_PARITY_NONE;
     } else {
-        /* default value */
         return UART_ATTR_PARITY_NONE;
     }
 }
@@ -358,11 +355,8 @@ static unsigned char StopBitToAttr(unsigned short st)
 {
     if (!(st & CSTOPB)) {
         return UART_ATTR_STOPBIT_1;
-    } else if ((st & CSTOPB) != 0) {
-        return UART_ATTR_STOPBIT_2;
     } else {
-        /* default value */
-        return UART_ATTR_STOPBIT_1;
+        return UART_ATTR_STOPBIT_2;
     }
 }
 

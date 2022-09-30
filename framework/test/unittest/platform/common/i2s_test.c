@@ -130,13 +130,11 @@ static int32_t I2sPlayTest(struct I2sTest *test)
         return HDF_FAILURE;
     }
 
-    int32_t totalLen = 0;
     uint32_t readBuff = I2S_WRITE_BUFF_SIZE;
     do {
         size = OsalFileRead(&file, test->wbuf, readBuff);
         printf("[%s] read file size[%d]", __func__, size);
         if (size > 0) {
-            totalLen += size;
             uint32_t wlen = 0;
             int ret = I2sWrite(test->handle, test->wbuf, size, &wlen);
             if (ret != HDF_SUCCESS) {

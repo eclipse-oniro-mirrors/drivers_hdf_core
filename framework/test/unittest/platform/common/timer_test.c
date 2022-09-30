@@ -175,7 +175,7 @@ static int32_t TimerTestMultiThread(struct TimerTest *test)
             break;
         }
         handle2 = HwTimerOpen(TIMER_TEST_TIME_ID_THREAD2);
-        if (handle1 == NULL) {
+        if (handle2 == NULL) {
             HDF_LOGE("%s: timer test get handle2 fail", __func__);
             ret = HDF_FAILURE;
             break;
