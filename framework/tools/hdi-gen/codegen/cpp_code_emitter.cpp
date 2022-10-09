@@ -45,7 +45,7 @@ void CppCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
                 break;
             }
             case TypeKind::TYPE_BUFFER_HANDLE: {
-                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_buffer_handle");
+                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "native_buffer");
                 break;
             }
             default:

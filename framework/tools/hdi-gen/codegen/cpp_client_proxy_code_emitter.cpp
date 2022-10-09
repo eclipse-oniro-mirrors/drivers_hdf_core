@@ -189,9 +189,6 @@ void CppClientProxyCodeEmitter::EmitPassthroughProxySourceInclusions(StringBuild
 
 void CppClientProxyCodeEmitter::EmitPassthroughGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
-    std::string objName = "proxy";
-    std::string SerMajorName = "serMajorVer";
-    std::string SerMinorName = "serMinorVer";
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string &serviceName, bool isStub)\n",
         interface_->GetName().c_str(), interface_->GetName().c_str());
     sb.Append(prefix).Append("{\n");

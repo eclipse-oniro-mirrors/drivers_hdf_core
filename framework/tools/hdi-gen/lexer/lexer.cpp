@@ -172,12 +172,11 @@ void Lexer::SkipEof()
 
 void Lexer::ReadToken(Token &token, bool skipComment)
 {
-    char c = 0;
     if (!file_->IsEof()) {
         InitCurToken(token);
     }
     while (!file_->IsEof()) {
-        c = file_->PeekChar();
+        char c = file_->PeekChar();
         if (isspace(c)) {
             file_->GetChar();
             continue;
@@ -287,7 +286,7 @@ void Lexer::ReadBinaryNum(Token &token)
     bool err = true;
 
     while (!file_->IsEof()) {
-        char c = file_->PeekChar();
+        c = file_->PeekChar();
         if (c == '0' || c == '1') {
             sb.Append(c);
             file_->GetChar();

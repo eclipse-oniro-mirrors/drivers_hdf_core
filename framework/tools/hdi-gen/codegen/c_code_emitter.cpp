@@ -11,6 +11,17 @@
 
 namespace OHOS {
 namespace HDI {
+void CCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+{
+    const AST::TypeStringMap &types = ast_->GetTypes();
+    for (const auto &pair : types) {
+        AutoPtr<ASTType> type = pair.second;
+        if (type->IsBufferHandleType()) {
+            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "buffer_util");
+        }
+    }
+}
+
 void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 {
     for (const auto &importPair : ast_->GetImports()) {
@@ -23,7 +34,6 @@ void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 void CCodeEmitter::EmitInterfaceMethodParameter(
     const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix)
 {
-    AutoPtr<ASTType> type = parameter->GetType();
     sb.Append(prefix).Append(parameter->EmitCParameter());
 }
 

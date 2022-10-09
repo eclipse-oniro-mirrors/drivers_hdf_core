@@ -46,6 +46,7 @@ MAIN_SOURCE := $(wildcard *.cpp)
 MAIN_OBJS := $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(MAIN_SOURCE)))
 
 all:$(TARGET)
+
 $(TARGET) : $(BOUNDS_CHECK_OBJS) $(UTIL_OBJS) $(AST_OBJS) $(LEXER_OBJS) $(PREPROCESSOR_OBJS) $(PARSER_OBJS) $(CODEGEN_OBJS) $(MAIN_OBJS)
 	$(Q) $(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 	$(Q) echo $(TARGET):build successful.

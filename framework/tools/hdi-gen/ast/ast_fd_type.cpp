@@ -230,7 +230,7 @@ void ASTFdType::EmitCWriteMethods(
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to write fd\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return false;\n");
     sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
     sb.Append(prefix).Append("}\n");
 }
 

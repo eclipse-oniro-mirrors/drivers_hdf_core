@@ -27,17 +27,35 @@ public:
 
     std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
+    void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
+
+    void EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix) const override;
+
+    void EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
+
     void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, unsigned int innerLevel = 0) const override;
 
     void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
+    void EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
+
+    void EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix, std::vector<std::string> &freeObjStatements) const override;
+
     void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, unsigned int innerLevel = 0) const override;
 
     void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
+
+    void EmitMemoryRecycle(
+        const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

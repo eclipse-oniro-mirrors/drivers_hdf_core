@@ -53,6 +53,7 @@ std::string ASTParameter::EmitCParameter()
         case TypeKind::TYPE_STRING:
         case TypeKind::TYPE_STRUCT:
         case TypeKind::TYPE_UNION:
+        case TypeKind::TYPE_BUFFER_HANDLE:
         case TypeKind::TYPE_VOID: {
             StringBuilder paramStr;
             if (attr_->value_ == ParamAttr::PARAM_IN) {
@@ -153,6 +154,7 @@ std::string ASTParameter::EmitCLocalVar()
         case TypeKind::TYPE_STRUCT:
         case TypeKind::TYPE_UNION:
         case TypeKind::TYPE_INTERFACE:
+        case TypeKind::TYPE_BUFFER_HANDLE:
             sb.Append(" = NULL");
             break;
         case TypeKind::TYPE_FILEDESCRIPTOR:
