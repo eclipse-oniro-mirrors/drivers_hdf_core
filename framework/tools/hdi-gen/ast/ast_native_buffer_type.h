@@ -6,18 +6,18 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef OHOS_HDI_BUFFER_HANDLE_H
-#define OHOS_HDI_BUFFER_HANDLE_H
+#ifndef OHOS_HDI_NATIVE_BUFFER_H
+#define OHOS_HDI_NATIVE_BUFFER_H
 
 #include "ast/ast_type.h"
 
 namespace OHOS {
 namespace HDI {
-class ASTBufferHandleType : public ASTType {
+class ASTNativeBufferType : public ASTType {
 public:
-    ASTBufferHandleType() : ASTType(TypeKind::TYPE_BUFFER_HANDLE, false) {}
+    ASTNativeBufferType() : ASTType(TypeKind::TYPE_NATIVE_BUFFER, false) {}
 
-    bool IsBufferHandleType() override;
+    bool IsNativeBufferType() override;
 
     std::string ToString() const override;
 
@@ -60,4 +60,4 @@ public:
 } // namespace HDI
 } // namespace OHOS
 
-#endif // OHOS_HDI_BUFFER_HANDLE_H
+#endif // OHOS_HDI_NATIVE_BUFFER_H

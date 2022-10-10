@@ -30,7 +30,7 @@ AST::TypeStringMap AST::basicTypes_ = {
     {"void",           new ASTVoidType()        },
     {"FileDescriptor", new ASTFdType()          },
     {"Ashmem",         new ASTAshmemType()      },
-    {"BufferHandle",   new ASTBufferHandleType()},
+    {"NativeBuffer",   new ASTNativeBufferType()},
 };
 
 void AST::SetIdlFile(const std::string &idlFile)

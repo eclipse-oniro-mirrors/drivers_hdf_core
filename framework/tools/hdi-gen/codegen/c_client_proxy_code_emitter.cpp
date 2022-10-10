@@ -425,7 +425,7 @@ void CClientProxyCodeEmitter::EmitReadProxyMethodParameter(const AutoPtr<ASTPara
         type->EmitCProxyReadVar(parcelName, cpName, false, errorCodeName_, gotoLabel, sb, prefix);
         sb.Append(prefix).AppendFormat("(void)memcpy_s(%s, sizeof(%s), %s, sizeof(%s));\n", param->GetName().c_str(),
             type->EmitCType().c_str(), cpName.c_str(), type->EmitCType().c_str());
-    } else if (type->GetTypeKind() == TypeKind::TYPE_BUFFER_HANDLE) {
+    } else if (type->GetTypeKind() == TypeKind::TYPE_NATIVE_BUFFER) {
         type->EmitCProxyReadVar(parcelName, param->GetName(), false, errorCodeName_, gotoLabel, sb, prefix);
     } else {
         type->EmitCProxyReadVar(parcelName, param->GetName(), false, errorCodeName_, gotoLabel, sb, prefix);
