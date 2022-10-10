@@ -44,7 +44,7 @@ std::string ASTArrayType::EmitCType(TypeMode mode) const
         case TypeMode::NO_MODE:
             return StringHelper::Format("%s*", elementType_->EmitCType(TypeMode::NO_MODE).c_str());
         case TypeMode::PARAM_IN: {
-            if (elementType_->IsStringType() || elementType_->IsBufferHandleType()) {
+            if (elementType_->IsStringType() || elementType_->IsNativeBufferType()) {
                 return StringHelper::Format("%s*", elementType_->EmitCType(TypeMode::NO_MODE).c_str());
             }
             return StringHelper::Format("const %s*", elementType_->EmitCType(TypeMode::NO_MODE).c_str());
@@ -183,7 +183,7 @@ void ASTArrayType::EmitCProxyReadVar(const std::string &parcelName, const std::s
     if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         std::string element = StringHelper::Format("&%s[i]", name.c_str());
         elementType_->EmitCProxyReadVar(parcelName, element, true, ecName, gotoLabel, sb, prefix + TAB);
-    } else if (elementType_->IsFdType() || elementType_->IsBufferHandleType()) {
+    } else if (elementType_->IsFdType() || elementType_->IsNativeBufferType()) {
         std::string element = StringHelper::Format("%s[i]", name.c_str());
         elementType_->EmitCProxyReadVar(parcelName, element, true, ecName, gotoLabel, sb, prefix + TAB);
     } else {
@@ -233,7 +233,7 @@ void ASTArrayType::EmitCStubReadVar(const std::string &parcelName, const std::st
     if (elementType_->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         std::string element = StringHelper::Format("&%s[i]", name.c_str());
         elementType_->EmitCStubReadVar(parcelName, element, ecName, gotoLabel, sb, prefix + TAB + TAB);
-    } else if (elementType_->IsFdType() || elementType_->IsBufferHandleType()) {
+    } else if (elementType_->IsFdType() || elementType_->IsNativeBufferType()) {
         std::string element = StringHelper::Format("%s[i]", name.c_str());
         elementType_->EmitCStubReadVar(parcelName, element, ecName, gotoLabel, sb, prefix + TAB + TAB);
     } else {
@@ -514,7 +514,7 @@ void ASTArrayType::EmitMemoryRecycle(
             return false;
         }
 
-        if (elementType_->IsStructType() || elementType_->IsStringType() || elementType_->IsBufferHandleType()) {
+        if (elementType_->IsStructType() || elementType_->IsStringType() || elementType_->IsNativeBufferType()) {
             return true;
         }
         return false;

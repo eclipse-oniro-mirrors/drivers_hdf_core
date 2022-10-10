@@ -6,26 +6,26 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "ast/ast_buffer_handle_type.h"
+#include "ast/ast_native_buffer_type.h"
 
 namespace OHOS {
 namespace HDI {
-bool ASTBufferHandleType::IsBufferHandleType()
+bool ASTNativeBufferType::IsNativeBufferType()
 {
     return true;
 }
 
-std::string ASTBufferHandleType::ToString() const
+std::string ASTNativeBufferType::ToString() const
 {
-    return "BufferHandle";
+    return "NativeBuffer";
 }
 
-TypeKind ASTBufferHandleType::GetTypeKind()
+TypeKind ASTNativeBufferType::GetTypeKind()
 {
-    return TypeKind::TYPE_BUFFER_HANDLE;
+    return TypeKind::TYPE_NATIVE_BUFFER;
 }
 
-std::string ASTBufferHandleType::EmitCType(TypeMode mode) const
+std::string ASTNativeBufferType::EmitCType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -41,7 +41,7 @@ std::string ASTBufferHandleType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTBufferHandleType::EmitCppType(TypeMode mode) const
+std::string ASTNativeBufferType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -57,17 +57,17 @@ std::string ASTBufferHandleType::EmitCppType(TypeMode mode) const
     }
 }
 
-void ASTBufferHandleType::EmitCWriteVar(const std::string &parcelName, const std::string &name,
+void ASTNativeBufferType::EmitCWriteVar(const std::string &parcelName, const std::string &name,
     const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat(
-        "if (!HdfSbufWriteNativeBufferHandle(%s, %s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteNativeBufferHandle(%s, %s)) {\n", parcelName.c_str(),
+        name.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+void ASTNativeBufferType::EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
     const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix);
@@ -82,7 +82,7 @@ void ASTBufferHandleType::EmitCProxyReadVar(const std::string &parcelName, const
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCStubReadVar(const std::string &parcelName, const std::string &name,
+void ASTNativeBufferType::EmitCStubReadVar(const std::string &parcelName, const std::string &name,
     const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("%s = HdfSbufReadNativeBufferHandle(%s);\n", name.c_str(), parcelName.c_str());
@@ -93,7 +93,7 @@ void ASTBufferHandleType::EmitCStubReadVar(const std::string &parcelName, const 
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+void ASTNativeBufferType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, unsigned int innerLevel) const
 {
     sb.Append(prefix).AppendFormat("if (!%s.WriteStrongParcelable(%s)) {\n", parcelName.c_str(), name.c_str());
@@ -102,7 +102,7 @@ void ASTBufferHandleType::EmitCppWriteVar(const std::string &parcelName, const s
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+void ASTNativeBufferType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     sb.Append(prefix);
@@ -112,7 +112,7 @@ void ASTBufferHandleType::EmitCppReadVar(const std::string &parcelName, const st
     sb.AppendFormat("%s = %s.ReadStrongParcelable<NativeBuffer>();\n", name.c_str(), parcelName.c_str());
 }
 
-void ASTBufferHandleType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
+void ASTNativeBufferType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (!HdfSbufWriteNativeBufferHandle(data, %s)) {\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
@@ -120,7 +120,7 @@ void ASTBufferHandleType::EmitCMarshalling(const std::string &name, StringBuilde
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+void ASTNativeBufferType::EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
     const std::string &prefix, std::vector<std::string> &freeObjStatements) const
 {
     sb.Append(prefix).AppendFormat("%s = HdfSbufReadNativeBufferHandle(data);\n", name.c_str());
@@ -131,7 +131,7 @@ void ASTBufferHandleType::EmitCUnMarshalling(const std::string &name, const std:
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+void ASTNativeBufferType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, unsigned int innerLevel) const
 {
     sb.Append(prefix).AppendFormat("if (!%s.WriteStrongParcelable(%s)) {\n", parcelName.c_str(), name.c_str());
@@ -140,7 +140,7 @@ void ASTBufferHandleType::EmitCppMarshalling(const std::string &parcelName, cons
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTBufferHandleType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name,
+void ASTNativeBufferType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name,
     StringBuilder &sb, const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     sb.Append(prefix);
@@ -150,7 +150,7 @@ void ASTBufferHandleType::EmitCppUnMarshalling(const std::string &parcelName, co
     sb.AppendFormat("%s = %s.ReadStrongParcelable<NativeBuffer>();\n", name.c_str(), parcelName.c_str());
 }
 
-void ASTBufferHandleType::EmitMemoryRecycle(
+void ASTNativeBufferType::EmitMemoryRecycle(
     const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", name.c_str());

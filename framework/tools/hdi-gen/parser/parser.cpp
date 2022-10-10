@@ -660,7 +660,7 @@ AutoPtr<ASTType> Parser::ParseType()
         case TokenType::DOUBLE:
         case TokenType::FD:
         case TokenType::ASHMEM:
-        case TokenType::BUFFER_HANDLE:
+        case TokenType::NATIVE_BUFFER:
         case TokenType::UNSIGNED:
             type = ParseBasicType();
             break;
