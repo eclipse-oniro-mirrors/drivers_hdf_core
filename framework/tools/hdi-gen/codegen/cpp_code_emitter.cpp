@@ -37,7 +37,7 @@ void CppCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
                 break;
             }
             case TypeKind::TYPE_SMQ: {
-                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_smq");
+                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "base/hdi_smq");
                 break;
             }
             case TypeKind::TYPE_ASHMEM: {
@@ -45,7 +45,7 @@ void CppCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
                 break;
             }
             case TypeKind::TYPE_NATIVE_BUFFER: {
-                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "native_buffer");
+                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "base/native_buffer");
                 break;
             }
             default:
