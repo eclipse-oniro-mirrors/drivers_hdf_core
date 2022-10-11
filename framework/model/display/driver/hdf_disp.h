@@ -168,7 +168,7 @@ struct DispManager {
     struct DispEsd *esd;
 };
 
-int32_t RegisterPanel(struct PanelData *data);
+int32_t RegisterPanel(struct PanelData *panel);
 struct PanelManager *GetPanelManager(void);
 struct DispManager *GetDispManager(void);
 
