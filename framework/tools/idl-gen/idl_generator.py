@@ -75,7 +75,7 @@ class IDLGenerator:
                 continue
             self._parse_results[result.get("name")] = result
             for file_name in result.get("import", None):  # 把include的文件加入列表
-                if file_name in self._parse_results and file_name != None:  # 解析过的不重复解析
+                if file_name in self._parse_results and file_name is not None:  # 解析过的不重复解析
                     continue
                 file_path = self._search_file(root_path, file_name)
                 if file_path is not None:

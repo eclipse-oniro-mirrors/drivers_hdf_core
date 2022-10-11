@@ -582,30 +582,30 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         interface_name, proxy_name, stub_name, service_name, driver_name = self.get_interface_names(idl_detail.name)
 
-        iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
-        client_proxy_source_file = os.path.join(file_dir, self.c_source_file(proxy_name))
-        server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
-        server_stub_source_file = os.path.join(file_dir, self.c_source_file(stub_name))
-        server_impl_source_file = os.path.join(file_dir, self.c_source_file(service_name))
-        server_driver_source_file = os.path.join(file_dir, self.c_source_file(driver_name))
+        c_iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
+        c_client_proxy_source_file = os.path.join(file_dir, self.c_source_file(proxy_name))
+        c_server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
+        c_server_stub_source_file = os.path.join(file_dir, self.c_source_file(stub_name))
+        c_server_impl_source_file = os.path.join(file_dir, self.c_source_file(service_name))
+        c_server_driver_source_file = os.path.join(file_dir, self.c_source_file(driver_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_stub_header_file)
-            sources.append(server_stub_source_file)
-            sources.append(server_impl_source_file)
-            sources.append(server_driver_source_file)
-            libproxy_sources.append(client_proxy_source_file)
-            libstub_sources.append(server_stub_source_file)
+            sources.append(c_iface_header_file)
+            sources.append(c_client_proxy_source_file)
+            sources.append(c_server_stub_header_file)
+            sources.append(c_server_stub_source_file)
+            sources.append(c_server_impl_source_file)
+            sources.append(c_server_driver_source_file)
+            libproxy_sources.append(c_client_proxy_source_file)
+            libstub_sources.append(c_server_stub_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_impl_source_file)
-            libproxy_sources.append(client_proxy_source_file)
+            sources.append(c_iface_header_file)
+            sources.append(c_client_proxy_source_file)
+            sources.append(c_server_impl_source_file)
+            libproxy_sources.append(c_client_proxy_source_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -613,29 +613,29 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         interface_name, proxy_name, stub_name, service_name = self.get_call_interface_names(idl_detail.name)
 
-        iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
-        client_proxy_source_file = os.path.join(file_dir, self.c_source_file(proxy_name))
-        server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
-        server_stub_source_file = os.path.join(file_dir, self.c_source_file(stub_name))
-        server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
-        server_impl_source_file = os.path.join(file_dir, self.c_source_file(service_name))
+        c_call_iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
+        c_call_client_proxy_source_file = os.path.join(file_dir, self.c_source_file(proxy_name))
+        c_call_server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
+        c_call_server_stub_source_file = os.path.join(file_dir, self.c_source_file(stub_name))
+        c_call_server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
+        c_call_server_impl_source_file = os.path.join(file_dir, self.c_source_file(service_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_stub_header_file)
-            sources.append(server_stub_source_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
-            libproxy_sources.append(client_proxy_source_file)
-            libstub_sources.append(server_stub_source_file)
+            sources.append(c_call_iface_header_file)
+            sources.append(c_call_client_proxy_source_file)
+            sources.append(c_call_server_stub_header_file)
+            sources.append(c_call_server_stub_source_file)
+            sources.append(c_call_server_impl_header_file)
+            sources.append(c_call_server_impl_source_file)
+            libproxy_sources.append(c_call_client_proxy_source_file)
+            libstub_sources.append(c_call_server_stub_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(iface_header_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
+            sources.append(c_call_iface_header_file)
+            sources.append(c_call_server_impl_header_file)
+            sources.append(c_call_server_impl_source_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -643,29 +643,29 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         interface_name, proxy_name, stub_name, service_name = self.get_callback_interface_names(idl_detail.name)
 
-        iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
-        client_proxy_source_file = os.path.join(file_dir, self.c_source_file(proxy_name))
-        server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
-        server_stub_source_file = os.path.join(file_dir, self.c_source_file(stub_name))
-        server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
-        server_impl_source_file = os.path.join(file_dir, self.c_source_file(service_name))
+        c_cb_iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
+        c_cb_client_proxy_source_file = os.path.join(file_dir, self.c_source_file(proxy_name))
+        c_cb_server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
+        c_cb_server_stub_source_file = os.path.join(file_dir, self.c_source_file(stub_name))
+        c_cb_server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
+        c_cb_server_impl_source_file = os.path.join(file_dir, self.c_source_file(service_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_stub_header_file)
-            sources.append(server_stub_source_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
-            libproxy_sources.append(server_stub_source_file)
-            libstub_sources.append(client_proxy_source_file)
+            sources.append(c_cb_iface_header_file)
+            sources.append(c_cb_client_proxy_source_file)
+            sources.append(c_cb_server_stub_header_file)
+            sources.append(c_cb_server_stub_source_file)
+            sources.append(c_cb_server_impl_header_file)
+            sources.append(c_cb_server_impl_source_file)
+            libproxy_sources.append(c_cb_server_stub_source_file)
+            libstub_sources.append(c_cb_client_proxy_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(iface_header_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
+            sources.append(c_cb_iface_header_file)
+            sources.append(c_cb_server_impl_header_file)
+            sources.append(c_cb_server_impl_source_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -673,19 +673,19 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         base_name = self.get_type_names(idl_detail.name)
 
-        types_header_file = os.path.join(file_dir, self.header_file(base_name))
-        types_source_file = os.path.join(file_dir, self.c_source_file(base_name))
+        c_types_header_file = os.path.join(file_dir, self.header_file(base_name))
+        c_types_source_file = os.path.join(file_dir, self.c_source_file(base_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(types_header_file)
-            sources.append(types_source_file)
-            libproxy_sources.append(types_source_file)
-            libstub_sources.append(types_source_file)
+            sources.append(c_types_header_file)
+            sources.append(c_types_source_file)
+            libproxy_sources.append(c_types_source_file)
+            libstub_sources.append(c_types_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(types_header_file)
+            sources.append(c_types_header_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -694,35 +694,35 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         interface_name, proxy_name, stub_name, service_name, driver_name = self.get_interface_names(idl_detail.name)
 
-        iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
-        client_proxy_header_file = os.path.join(file_dir, self.header_file(proxy_name))
-        client_proxy_source_file = os.path.join(file_dir, self.cpp_source_file(proxy_name))
-        server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
-        server_stub_source_file = os.path.join(file_dir, self.cpp_source_file(stub_name))
-        server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
-        server_impl_source_file = os.path.join(file_dir, self.cpp_source_file(service_name))
-        server_driver_source_file = os.path.join(file_dir, self.cpp_source_file(driver_name))
+        cpp_iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
+        cpp_client_proxy_header_file = os.path.join(file_dir, self.header_file(proxy_name))
+        cpp_client_proxy_source_file = os.path.join(file_dir, self.cpp_source_file(proxy_name))
+        cpp_server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
+        cpp_server_stub_source_file = os.path.join(file_dir, self.cpp_source_file(stub_name))
+        cpp_server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
+        cpp_server_impl_source_file = os.path.join(file_dir, self.cpp_source_file(service_name))
+        cpp_server_driver_source_file = os.path.join(file_dir, self.cpp_source_file(driver_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_stub_header_file)
-            sources.append(server_stub_source_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
-            sources.append(server_driver_source_file)
-            libproxy_sources.append(client_proxy_source_file)
-            libstub_sources.append(server_stub_source_file)
+            sources.append(cpp_iface_header_file)
+            sources.append(cpp_client_proxy_header_file)
+            sources.append(cpp_client_proxy_source_file)
+            sources.append(cpp_server_stub_header_file)
+            sources.append(cpp_server_stub_source_file)
+            sources.append(cpp_server_impl_header_file)
+            sources.append(cpp_server_impl_source_file)
+            sources.append(cpp_server_driver_source_file)
+            libproxy_sources.append(cpp_client_proxy_source_file)
+            libstub_sources.append(cpp_server_stub_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
-            libproxy_sources.append(client_proxy_source_file)
+            sources.append(cpp_iface_header_file)
+            sources.append(cpp_client_proxy_source_file)
+            sources.append(cpp_server_impl_header_file)
+            sources.append(cpp_server_impl_source_file)
+            libproxy_sources.append(cpp_client_proxy_source_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -730,31 +730,31 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         interface_name, proxy_name, stub_name, service_name = self.get_call_interface_names(idl_detail.name)
 
-        iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
-        client_proxy_header_file = os.path.join(file_dir, self.header_file(proxy_name))
-        client_proxy_source_file = os.path.join(file_dir, self.cpp_source_file(proxy_name))
-        server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
-        server_stub_source_file = os.path.join(file_dir, self.cpp_source_file(stub_name))
-        server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
-        server_impl_source_file = os.path.join(file_dir, self.cpp_source_file(service_name))
+        cpp_call_iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
+        cpp_call_client_proxy_header_file = os.path.join(file_dir, self.header_file(proxy_name))
+        cpp_call_client_proxy_source_file = os.path.join(file_dir, self.cpp_source_file(proxy_name))
+        cpp_call_server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
+        cpp_call_server_stub_source_file = os.path.join(file_dir, self.cpp_source_file(stub_name))
+        cpp_call_server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
+        cpp_call_server_impl_source_file = os.path.join(file_dir, self.cpp_source_file(service_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_stub_header_file)
-            sources.append(server_stub_source_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
-            libproxy_sources.append(client_proxy_source_file)
-            libstub_sources.append(server_stub_source_file)
+            sources.append(cpp_call_iface_header_file)
+            sources.append(cpp_call_client_proxy_header_file)
+            sources.append(cpp_call_client_proxy_source_file)
+            sources.append(cpp_call_server_stub_header_file)
+            sources.append(cpp_call_server_stub_source_file)
+            sources.append(cpp_call_server_impl_header_file)
+            sources.append(cpp_call_server_impl_source_file)
+            libproxy_sources.append(cpp_call_client_proxy_source_file)
+            libstub_sources.append(cpp_call_server_stub_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(iface_header_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
+            sources.append(cpp_call_iface_header_file)
+            sources.append(cpp_call_server_impl_header_file)
+            sources.append(cpp_call_server_impl_source_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -762,32 +762,32 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         interface_name, proxy_name, stub_name, service_name = self.get_callback_interface_names(idl_detail.name)
 
-        iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
-        client_proxy_header_file = os.path.join(file_dir, self.header_file(proxy_name))
-        client_proxy_source_file = os.path.join(file_dir, self.cpp_source_file(proxy_name))
+        cpp_cb_iface_header_file = os.path.join(file_dir, self.header_file(interface_name))
+        cpp_cb_client_proxy_header_file = os.path.join(file_dir, self.header_file(proxy_name))
+        cpp_cb_client_proxy_source_file = os.path.join(file_dir, self.cpp_source_file(proxy_name))
 
-        server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
-        server_stub_source_file = os.path.join(file_dir, self.cpp_source_file(stub_name))
-        server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
-        server_impl_source_file = os.path.join(file_dir, self.cpp_source_file(service_name))
+        cpp_cb_server_stub_header_file = os.path.join(file_dir, self.header_file(stub_name))
+        cpp_cb_server_stub_source_file = os.path.join(file_dir, self.cpp_source_file(stub_name))
+        cpp_cb_server_impl_header_file = os.path.join(file_dir, self.header_file(service_name))
+        cpp_cb_server_impl_source_file = os.path.join(file_dir, self.cpp_source_file(service_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(iface_header_file)
-            sources.append(client_proxy_header_file)
-            sources.append(client_proxy_source_file)
-            sources.append(server_stub_header_file)
-            sources.append(server_stub_source_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
-            libproxy_sources.append(server_stub_source_file)
-            libstub_sources.append(client_proxy_source_file)
+            sources.append(cpp_cb_iface_header_file)
+            sources.append(cpp_cb_client_proxy_header_file)
+            sources.append(cpp_cb_client_proxy_source_file)
+            sources.append(cpp_cb_server_stub_header_file)
+            sources.append(cpp_cb_server_stub_source_file)
+            sources.append(cpp_cb_server_impl_header_file)
+            sources.append(cpp_cb_server_impl_source_file)
+            libproxy_sources.append(cpp_cb_server_stub_source_file)
+            libstub_sources.append(cpp_cb_client_proxy_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(iface_header_file)
-            sources.append(server_impl_header_file)
-            sources.append(server_impl_source_file)
+            sources.append(cpp_cb_iface_header_file)
+            sources.append(cpp_cb_server_impl_header_file)
+            sources.append(cpp_cb_server_impl_source_file)
 
         return sources, libproxy_sources, libstub_sources
 
@@ -795,19 +795,19 @@ class Calculation(object):
         file_dir = self.get_source_file_dir(idl_detail.package)
         base_name = self.get_type_names(idl_detail.name)
 
-        types_header_file = os.path.join(file_dir, self.header_file(base_name))
-        types_source_file = os.path.join(file_dir, self.cpp_source_file(base_name))
+        cpp_types_header_file = os.path.join(file_dir, self.header_file(base_name))
+        cpp_types_source_file = os.path.join(file_dir, self.cpp_source_file(base_name))
 
         sources = []
         libproxy_sources = []
         libstub_sources = []
         if self.option.mode == "ipc":
-            sources.append(types_header_file)
-            sources.append(types_source_file)
-            libproxy_sources.append(types_source_file)
-            libstub_sources.append(types_source_file)
+            sources.append(cpp_types_header_file)
+            sources.append(cpp_types_source_file)
+            libproxy_sources.append(cpp_types_source_file)
+            libstub_sources.append(cpp_types_source_file)
         elif self.option.mode == "passthrough":
-            sources.append(types_header_file)
+            sources.append(cpp_types_header_file)
         return sources, libproxy_sources, libstub_sources
 
 

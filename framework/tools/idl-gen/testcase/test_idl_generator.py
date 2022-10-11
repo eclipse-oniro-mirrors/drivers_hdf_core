@@ -13,9 +13,7 @@ import unittest
 
 import CppHeaderParser
 
-
-def insert_sys_path():
-    sys.path.insert(0, '..')
+sys.path.insert(0, '..')
 try:
     from _header_parser import HeaderParser
     from idl_generator import IDLGenerator
@@ -199,7 +197,10 @@ class IDLGeneratorTestCase(unittest.TestCase):
         }
         header = generator._parse_results['audio_test.h']
         generator._install_import(header)
-        self.assertEqual("".join(generator._idl), "import include.Types;\nimport include.audio.adapter.AudioAdapter;\n\n")
+        self.assertEqual(
+            "".join(generator._idl),
+            "import include.Types;\nimport include.audio.adapter.AudioAdapter;\n\n"
+        )
 
     def test_install_import_callback(self):
         generator = IDLGenerator()

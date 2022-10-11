@@ -36,16 +36,16 @@ import subprocess
 import sys
 import base64
 
-CMAKE_GEN_PATH = "cmake-build-debug/"
-WORK_DIR = ""
-ERROR_COLOR_PREFIX = "\033[31m"
-ERROR_COLOR_END = "\033[0m"
-ALIGNED_PARM = ''
+
+class TestConfig(object):
+    CMAKE_GEN_PATH = "cmake-build-debug/"
+    WORK_DIR = ""
+    ERROR_COLOR_PREFIX = "\033[31m"
+    ERROR_COLOR_END = "\033[0m"
+    ALIGNED_PARM = ''
 
 
 def setup_hcgen_compiler():
-    global CMAKE_GEN_PATH
-
     if len(sys.argv) > 1:
         hcgen_path = os.path.abspath(sys.argv[1])
         if hcgen_path.find('hc-gen') >= 0 and os.access(hcgen_path, os.X_OK):
@@ -58,10 +58,10 @@ def setup_hcgen_compiler():
         source_root = source_root.replace("/", "\\")
         compiler_name += ".exe"
 
-    source_root = os.path.abspath(os.path.join(WORK_DIR, source_root))
+    source_root = os.path.abspath(os.path.join(TestConfig.WORK_DIR, source_root))
     hcgen_path = os.path.join(source_root, compiler_name)
     if not os.access(hcgen_path, os.X_OK):
-        hcgen_path = os.path.join(source_root, CMAKE_GEN_PATH, compiler_name)
+        hcgen_path = os.path.join(source_root, TestConfig.CMAKE_GEN_PATH, compiler_name)
         if not os.access(hcgen_path, os.X_OK):
             print("Error: hcgen not found, please make first")
             exit(1)
@@ -79,7 +79,7 @@ def index_case(case_path):
 
 
 def save_compile_result(mode, case_name, status, output):
-    result_file_name = os.path.join(WORK_DIR, case_name,
+    result_file_name = os.path.join(TestConfig.WORK_DIR, case_name,
                                     'golden_%s_compile_result.txt' % mode)
     with open(result_file_name, 'w') as result_output:
         status_str = "[compile exit status]:" + str(status)
@@ -89,8 +89,8 @@ def save_compile_result(mode, case_name, status, output):
 
 
 def gen_decompile_golden(hcgen_path, case_name):
-    source_file = os.path.join(WORK_DIR, case_name, 'golden.hcb')
-    target_file = os.path.join(WORK_DIR, case_name, 'golden')
+    source_file = os.path.join(TestConfig.WORK_DIR, case_name, 'golden.hcb')
+    target_file = os.path.join(TestConfig.WORK_DIR, case_name, 'golden')
     command = "%s -o %s -d %s" % (hcgen_path, target_file, source_file)
     status, output = subprocess.getstatusoutput(command)
     if status:
@@ -112,10 +112,10 @@ def recode_hcb_file(file_path):
 
 
 def build_binary(hcgen_path, case_name):
-    source_file = os.path.join(WORK_DIR, case_name, 'case.hcs')
-    target_file = os.path.join(WORK_DIR, case_name, 'golden')
+    source_file = os.path.join(TestConfig.WORK_DIR, case_name, 'case.hcs')
+    target_file = os.path.join(TestConfig.WORK_DIR, case_name, 'golden')
     command = "%s %s -o %s %s" % \
-              (hcgen_path, ALIGNED_PARM, target_file, source_file)
+              (hcgen_path, TestConfig.ALIGNED_PARM, target_file, source_file)
     status, output = subprocess.getstatusoutput(command)
     if case_name.endswith('_ei'):
         if status == 0:
@@ -126,9 +126,9 @@ def build_binary(hcgen_path, case_name):
         print("CASE_ERROR:case " + case_name
               + " expect build success but failed at binary mode")
         return False
-    output = output.replace(WORK_DIR, ".").replace('\\', '/') \
-        .replace(ERROR_COLOR_PREFIX, "") \
-        .replace(ERROR_COLOR_END, "").strip()
+    output = output.replace(TestConfig.WORK_DIR, ".").replace('\\', '/') \
+        .replace(TestConfig.ERROR_COLOR_PREFIX, "") \
+        .replace(TestConfig.ERROR_COLOR_END, "").strip()
 
     save_compile_result('binary', case_name, status, output)
 
@@ -141,8 +141,8 @@ def build_binary(hcgen_path, case_name):
 
 
 def build_text(hcgen_path, case_name):
-    source_file = os.path.join(WORK_DIR, case_name, 'case.hcs')
-    target_file = os.path.join(WORK_DIR, case_name, 'golden')
+    source_file = os.path.join(TestConfig.WORK_DIR, case_name, 'case.hcs')
+    target_file = os.path.join(TestConfig.WORK_DIR, case_name, 'golden')
     command = "%s -t -o %s %s" % (hcgen_path, target_file, source_file)
     status, output = subprocess.getstatusoutput(command)
     if case_name.endswith('_ei') or case_name.find('node_duplicate_name') >= 0:
@@ -156,9 +156,9 @@ def build_text(hcgen_path, case_name):
               + " expect build success but failed at text mode")
         print(output)
         return False
-    output = output.replace(WORK_DIR, ".").replace('\\', '/') \
-        .replace(ERROR_COLOR_PREFIX, "") \
-        .replace(ERROR_COLOR_END, "").strip()
+    output = output.replace(TestConfig.WORK_DIR, ".").replace('\\', '/') \
+        .replace(TestConfig.ERROR_COLOR_PREFIX, "") \
+        .replace(TestConfig.ERROR_COLOR_END, "").strip()
 
     save_compile_result('text', case_name, status, output)
 
@@ -169,8 +169,8 @@ def build_text(hcgen_path, case_name):
 
 
 def build_macro(hcgen_path, case_name):
-    source_file = os.path.join(WORK_DIR, case_name, 'case.hcs')
-    target_file = os.path.join(WORK_DIR, case_name, 'macro')
+    source_file = os.path.join(TestConfig.WORK_DIR, case_name, 'case.hcs')
+    target_file = os.path.join(TestConfig.WORK_DIR, case_name, 'macro')
     command = "%s -m -o %s %s" % (hcgen_path, target_file, source_file)
     status, output = subprocess.getstatusoutput(command)
     if case_name.endswith('_ei'):
@@ -184,9 +184,9 @@ def build_macro(hcgen_path, case_name):
               + " expect build success but failed at macro mode")
         print(output)
         return False
-    output = output.replace(WORK_DIR, ".").replace('\\', '/') \
-        .replace(ERROR_COLOR_PREFIX, "") \
-        .replace(ERROR_COLOR_END, "").strip()
+    output = output.replace(TestConfig.WORK_DIR, ".").replace('\\', '/') \
+        .replace(TestConfig.ERROR_COLOR_PREFIX, "") \
+        .replace(TestConfig.ERROR_COLOR_END, "").strip()
 
     save_compile_result('macro', case_name, status, output)
 
@@ -216,30 +216,29 @@ def build_cases(hcgen_path, cases):
 
 
 def setup_work_dir():
-    global WORK_DIR
     pwd = os.path.abspath(sys.argv[0])
     pwd = pwd[:pwd.rfind(os.sep)]
-    WORK_DIR = pwd
+    TestConfig.WORK_DIR = pwd
 
 
 def clean_up():
-    list_dirs = os.walk(WORK_DIR)
+    list_dirs = os.walk(TestConfig.WORK_DIR)
     for root, dirs, files in list_dirs:
         for file in files:
             if file.startswith('golden'):
                 os.remove(os.path.join(root, file))
 
-    temp_dir = os.path.join(WORK_DIR, 'temp')
+    temp_dir = os.path.join(TestConfig.WORK_DIR, 'temp')
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[-1] == '--align':
-        ALIGNED_PARM = ' -a '
+        TestConfig.ALIGNED_PARM = ' -a '
     setup_work_dir()
     hc_gen = setup_hcgen_compiler()
     clean_up()
     print("hc-gen path : " + hc_gen)
-    test_case_list = index_case(WORK_DIR)
+    test_case_list = index_case(TestConfig.WORK_DIR)
     build_cases(hc_gen, test_case_list)

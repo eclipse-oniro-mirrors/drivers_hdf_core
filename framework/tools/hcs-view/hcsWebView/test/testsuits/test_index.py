@@ -7,17 +7,17 @@
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
+from asyncio import subprocess
 import os
 import time
+import warnings
 
 import easyocr
 import pytest
-import warnings
-
-from asyncio import subprocess
 from PIL import Image
 from selenium import webdriver
 from selenium.webdriver import ActionChains
+
 from public_moudle.base import Base
 
 warnings.filterwarnings("ignore", category=UserWarning)

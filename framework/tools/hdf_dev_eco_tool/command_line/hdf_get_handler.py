@@ -2,16 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2020-2021 Huawei Device Co., Ltd.
-# 
+#
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
-
 import os
 import json
-import sys
-sys.path.append("..")
 
 import hdf_utils
 import hdf_tool_version

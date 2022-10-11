@@ -24,6 +24,7 @@ def check_python_version():
 
 
 def main():
+    sys.path.append("..")
     check_python_version()
     commands = HdfToolCommands()
     help_info = 'Tools backend for hdf driver development.'
