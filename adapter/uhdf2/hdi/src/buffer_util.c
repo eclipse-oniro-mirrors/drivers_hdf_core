@@ -69,6 +69,8 @@ BufferHandle *CloneNativeBufferHandle(const BufferHandle *other)
     handle->height = other->height;
     handle->size = other->size;
     handle->format = other->format;
+    handle->usage = other->usage;
+    handle->phyAddr = other->phyAddr;
     handle->key = other->key;
 
     for (uint32_t i = 0; i < handle->reserveFds; i++) {
@@ -128,7 +130,8 @@ bool HdfSbufWriteNativeBufferHandle(struct HdfSBuf *data, const BufferHandle *ha
     if (!HdfSbufWriteUint32(data, handle->reserveFds) || !HdfSbufWriteUint32(data, handle->reserveInts) ||
         !HdfSbufWriteInt32(data, handle->width) || !HdfSbufWriteInt32(data, handle->stride) ||
         !HdfSbufWriteInt32(data, handle->height) || !HdfSbufWriteInt32(data, handle->size) ||
-        !HdfSbufWriteInt32(data, handle->format) || !HdfSbufWriteInt32(data, handle->key)) {
+        !HdfSbufWriteInt32(data, handle->format) || !HdfSbufWriteUint64(data, handle->usage) ||
+        !HdfSbufWriteUint64(data, handle->phyAddr) || !HdfSbufWriteInt32(data, handle->key)) {
         HDF_LOGE("%{public}s a lot failed", __func__);
         return false;
     }
@@ -198,7 +201,8 @@ BufferHandle *HdfSbufReadNativeBufferHandle(struct HdfSBuf *data)
 
     if (!HdfSbufReadInt32(data, &handle->width) || !HdfSbufReadInt32(data, &handle->stride) ||
         !HdfSbufReadInt32(data, &handle->height) || !HdfSbufReadInt32(data, &handle->size) ||
-        !HdfSbufReadInt32(data, &handle->format) || !HdfSbufReadInt32(data, &handle->key)) {
+        !HdfSbufReadInt32(data, &handle->format) || !HdfSbufReadUint64(data, &handle->usage) ||
+        !HdfSbufReadUint64(data, &handle->phyAddr) || !HdfSbufReadInt32(data, &handle->key)) {
         HDF_LOGE("%{public}s: failed to read a lot", __func__);
         FreeNativeBufferHandle(handle);
         return NULL;

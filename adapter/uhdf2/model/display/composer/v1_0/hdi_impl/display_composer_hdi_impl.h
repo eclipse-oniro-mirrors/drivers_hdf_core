@@ -201,11 +201,11 @@ public:
     {
         int32_t ret = DISPLAY_SUCCESS;
 
-        sptr<BufferHandleParcelable> hdiBuffer(new BufferHandleParcelable());
-        bool bRet = hdiBuffer->Init(buffer);
-        if (bRet == false) {
+        sptr<NativeBuffer> hdiBuffer = new NativeBuffer();
+        if (hdiBuffer == nullptr) {
             ret = DISPLAY_FAILURE;
         } else {
+            hdiBuffer->SetBufferHandle(const_cast<BufferHandle*>(&buffer));
             sptr<HdifdParcelable> hdiFence(new HdifdParcelable);
             hdiFence->Init(fence);
             ret = ToDispErrCode(hdi_->SetVirtualDisplayBuffer(devId, hdiBuffer, hdiFence));

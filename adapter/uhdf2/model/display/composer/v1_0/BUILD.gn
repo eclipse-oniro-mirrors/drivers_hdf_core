@@ -29,11 +29,9 @@ ohos_shared_library("libdisplay_composer_hdi_impl") {
 
   include_dirs = [
     "//drivers/hdf_core/adapter/uhdf2/model/display/composer",
-    "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable",
   ]
 
   deps = [
-    "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable:libbufferhandle_parcelable",
     "//drivers/hdf_core/adapter/uhdf2/model/display/base/hdifd_parcelable:libhdifd_parcelable",
   ]
 
