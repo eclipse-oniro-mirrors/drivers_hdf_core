@@ -150,7 +150,7 @@ bool ASTType::IsAshmemType()
     return false;
 }
 
-bool ASTType::IsBufferHandleType()
+bool ASTType::IsNativeBufferType()
 {
     return false;
 }
