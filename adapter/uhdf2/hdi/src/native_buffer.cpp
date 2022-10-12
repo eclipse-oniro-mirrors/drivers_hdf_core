@@ -94,8 +94,7 @@ bool NativeBuffer::Marshalling(Parcel &parcel) const
     if (!messageParcel.WriteUint32(handle_->reserveFds) || !messageParcel.WriteUint32(handle_->reserveInts) ||
         !messageParcel.WriteInt32(handle_->width) || !messageParcel.WriteInt32(handle_->stride) ||
         !messageParcel.WriteInt32(handle_->height) || !messageParcel.WriteInt32(handle_->size) ||
-        !messageParcel.WriteInt32(handle_->format) || !messageParcel.WriteUint64(handle_->usage) ||
-        !messageParcel.WriteUint64(handle_->phyAddr) || !messageParcel.WriteInt32(handle_->key)) {
+        !messageParcel.WriteInt32(handle_->format) || !messageParcel.WriteUint64(handle_->usage)) {
         HDF_LOGE("%{public}s: a lot failed", __func__);
         return false;
     }
@@ -211,7 +210,6 @@ bool NativeBuffer::ExtractFromParcel(Parcel &parcel)
     if (!messageParcel.ReadInt32(handle_->width) || !messageParcel.ReadInt32(handle_->stride) ||
         !messageParcel.ReadInt32(handle_->height) || !messageParcel.ReadInt32(handle_->size) ||
         !messageParcel.ReadInt32(handle_->format) || !messageParcel.ReadUint64(handle_->usage) ||
-        !messageParcel.ReadUint64(handle_->phyAddr) || !messageParcel.ReadInt32(handle_->key) ||
         !messageParcel.ReadBool(validFd)) {
         HDF_LOGE("%{public}s: failed to parcel read", __func__);
         return false;
