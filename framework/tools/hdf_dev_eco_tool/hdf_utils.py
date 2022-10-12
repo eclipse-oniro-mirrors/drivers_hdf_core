@@ -453,4 +453,4 @@ def judge_enable_line(enable_line, device_base):
 
 
 def get_passwd_group_path(root_path):
-    return os.path.join(root_path, "base", "startup", "init_lite", "services", "etc")
+    return os.path.join(root_path, "base", "startup", "init", "services", "etc")

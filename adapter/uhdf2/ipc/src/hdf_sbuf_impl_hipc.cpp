@@ -197,7 +197,7 @@ static bool SbufMParcelImplReadDouble(struct HdfSBufImpl *sbuf, double *value)
 static int SbufMParcelImplReadFileDescriptor(struct HdfSBufImpl *sbuf)
 {
     if (sbuf == nullptr) {
-        return false;
+        return -1;
     }
     return MParcelCast(sbuf)->ReadFileDescriptor();
 }

@@ -37,14 +37,16 @@ import sys
 import time
 import base64
 
-CMAKE_GEN_PATH = "cmake-build-debug"
-WORK_DIR = ""
-HCGEN = ""
-TEMP_DIR = 'temp'
-ERROR_COLOR_PREFIX = "\033[31m"
-ERROR_COLOR_END = "\033[0m"
-SHOULD_CLEAN_TEMP = True
-PERFORMANCE_MAX_COMPILE_TIME_MS = 1000
+
+class TestConfig(object):
+    CMAKE_GEN_PATH = "cmake-build-debug"
+    WORK_DIR = ""
+    HCGEN = ""
+    TEMP_DIR = 'temp'
+    ERROR_COLOR_PREFIX = "\033[31m"
+    ERROR_COLOR_END = "\033[0m"
+    SHOULD_CLEAN_TEMP = True
+    PERFORMANCE_MAX_COMPILE_TIME_MS = 1000
 
 
 def text_file_compare(file_a, file_target):
@@ -77,13 +79,10 @@ def exec_command(command):
 
 
 def setup_hcgen_compiler():
-    global CMAKE_GEN_PATH
-    global HCGEN
-
     if len(sys.argv) > 1:
         hcgen_path = os.path.abspath(sys.argv[1])
         if hcgen_path.find('hc-gen') >= 0 and os.access(hcgen_path, os.X_OK):
-            HCGEN = hcgen_path
+            TestConfig.HCGEN = hcgen_path
             print('use specified hsc:' + hcgen_path)
             return
 
@@ -93,14 +92,14 @@ def setup_hcgen_compiler():
         source_root = source_root.replace("/", "\\")
         compiler_name += ".exe"
 
-    source_root = os.path.abspath(os.path.join(WORK_DIR, source_root))
+    source_root = os.path.abspath(os.path.join(TestConfig.WORK_DIR, source_root))
     hcgen = os.path.join(source_root, compiler_name)
     if not os.access(hcgen, os.X_OK):
-        hcgen = os.path.join(source_root, CMAKE_GEN_PATH, compiler_name)
+        hcgen = os.path.join(source_root, TestConfig.CMAKE_GEN_PATH, compiler_name)
         if not os.access(hcgen, os.X_OK):
             print("Error: hcgen not found, please make first")
             exit(1)
-    HCGEN = hcgen
+    TestConfig.HCGEN = hcgen
 
 
 def index_case(case_path):
@@ -113,7 +112,7 @@ def index_case(case_path):
 
 
 def get_golden_compile_result(mode, case_name):
-    result_file_name = os.path.join(WORK_DIR, case_name,
+    result_file_name = os.path.join(TestConfig.WORK_DIR, case_name,
                                     'golden_%s_compile_result.txt' % mode)
     status_prefix = '[compile exit status]:'
     output_prefix = '[compile console output]:\n'
@@ -134,17 +133,17 @@ def compile_status_to_str(status):
 
 
 def test_compile(case_name, mode):
-    output_dir = os.path.join(WORK_DIR, TEMP_DIR, case_name)
+    output_dir = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR, case_name)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     output_file = os.path.join(output_dir, 'golden')
-    source_file = os.path.join(WORK_DIR, case_name, 'case.hcs')
-    temp_dir = os.path.join(WORK_DIR, TEMP_DIR)
+    source_file = os.path.join(TestConfig.WORK_DIR, case_name, 'case.hcs')
+    temp_dir = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR)
 
     if mode == 'text':
-        command = "%s -o %s -t  %s" % (HCGEN, output_file, source_file)
+        command = "%s -o %s -t  %s" % (TestConfig.HCGEN, output_file, source_file)
     else:
-        command = "%s -o %s %s" % (HCGEN, output_file, source_file)
+        command = "%s -o %s %s" % (TestConfig.HCGEN, output_file, source_file)
 
     status, output = exec_command(command)
     golden_status, golden_output = get_golden_compile_result(mode, case_name)
@@ -155,9 +154,9 @@ def test_compile(case_name, mode):
         print("Console output :\n" + output)
         return False
 
-    output = output.replace(temp_dir, ".").replace(WORK_DIR, "."). \
-        replace('\\', '/').replace(ERROR_COLOR_PREFIX, ""). \
-        replace(ERROR_COLOR_END, "")
+    output = output.replace(temp_dir, ".").replace(TestConfig.WORK_DIR, "."). \
+        replace('\\', '/').replace(TestConfig.ERROR_COLOR_PREFIX, ""). \
+        replace(TestConfig.ERROR_COLOR_END, "")
     if output.strip() != golden_output:
         print("output is different with golden for %s compile:" % mode)
         print("EXPECT:\n" + golden_output)
@@ -174,8 +173,8 @@ def binary_code_compile(case_name):
 
     compile_start_time = get_current_time_ms()
 
-    case_hcb = os.path.join(WORK_DIR, TEMP_DIR, case_name, 'golden.hcb')
-    golden_hcb = os.path.join(WORK_DIR, case_name, 'golden.hcb')
+    case_hcb = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR, case_name, 'golden.hcb')
+    golden_hcb = os.path.join(TestConfig.WORK_DIR, case_name, 'golden.hcb')
     hcb_header_size = 20  # hcb compare skip hcb header
     output_compare = \
         binary_file_compare(case_hcb, golden_hcb, hcb_header_size, True)
@@ -185,9 +184,9 @@ def binary_code_compile(case_name):
 
     compile_finish_time = get_current_time_ms()
     compile_used_time = compile_finish_time - compile_start_time
-    if compile_used_time > PERFORMANCE_MAX_COMPILE_TIME_MS:
+    if compile_used_time > TestConfig.PERFORMANCE_MAX_COMPILE_TIME_MS:
         print('Error: compile time %d, out of threshold %d ms'
-              % (compile_used_time, PERFORMANCE_MAX_COMPILE_TIME_MS))
+              % (compile_used_time, TestConfig.PERFORMANCE_MAX_COMPILE_TIME_MS))
         return False
 
     decompile_result = test_decompile(case_name)
@@ -200,14 +199,14 @@ def test_text_code_compile(case_name):
     if not compile_result:
         return False
 
-    case_c_file = os.path.join(WORK_DIR, TEMP_DIR, case_name, 'golden.c')
-    golden_c_file = os.path.join(WORK_DIR, case_name, 'golden.c.gen')
+    case_c_file = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR, case_name, 'golden.c')
+    golden_c_file = os.path.join(TestConfig.WORK_DIR, case_name, 'golden.c.gen')
     c_file_compare = text_file_compare(case_c_file, golden_c_file)
     if not c_file_compare:
         print("Error: The generated C file mismatch with golden")
 
-    case_header_file = os.path.join(WORK_DIR, TEMP_DIR, case_name, 'golden.h')
-    golden_header_file = os.path.join(WORK_DIR, case_name, 'golden.h.gen')
+    case_header_file = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR, case_name, 'golden.h')
+    golden_header_file = os.path.join(TestConfig.WORK_DIR, case_name, 'golden.h.gen')
     header_file_compare = \
         text_file_compare(case_header_file, golden_header_file)
     if not header_file_compare:
@@ -217,14 +216,14 @@ def test_text_code_compile(case_name):
 
 def test_decompile(case_name):
     golden_decompile_file_name = \
-        os.path.join(WORK_DIR, case_name, 'golden.d.hcs')
+        os.path.join(TestConfig.WORK_DIR, case_name, 'golden.d.hcs')
     if not os.path.exists(golden_decompile_file_name):
         return True
 
-    output_dir = os.path.join(WORK_DIR, TEMP_DIR, case_name)
+    output_dir = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR, case_name)
     output_file = os.path.join(output_dir, 'case.hcs')
     source_file = os.path.join(output_dir, 'golden.hcb')
-    command = "%s -o %s -d %s" % (HCGEN, output_file, source_file)
+    command = "%s -o %s -d %s" % (TestConfig.HCGEN, output_file, source_file)
 
     status, output = exec_command(command)
     if status != 0:
@@ -246,7 +245,6 @@ def get_current_time_ms():
 
 
 def test_cases(cases):
-    global SHOULD_CLEAN_TEMP
     print('[==========] running %d cases form hcgen test' % len(cases))
     failed_cases = []
     test_start_time = get_current_time_ms()
@@ -267,36 +265,34 @@ def test_cases(cases):
           % (len(cases), test_finish_time - test_start_time))
     print('[  PASSED  ] %d cases' % (len(cases) - len(failed_cases)))
     if len(failed_cases) > 0:
-        SHOULD_CLEAN_TEMP = False
+        TestConfig.SHOULD_CLEAN_TEMP = False
         print('[  FAILED  ] %d cases, list below:' % len(failed_cases))
         for case in failed_cases:
             print('[  FAILED  ] %s' % case)
 
 
 def setup_work_dir():
-    global WORK_DIR
     pwd = os.path.abspath(sys.argv[0])
     pwd = pwd[:pwd.rfind(os.sep)]
-    WORK_DIR = pwd
+    TestConfig.WORK_DIR = pwd
 
 
 def test_setup():
-    temp_dir = os.path.join(WORK_DIR, TEMP_DIR)
+    temp_dir = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR)
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
 
 def test_teardown():
-    global SHOULD_CLEAN_TEMP
-    if not SHOULD_CLEAN_TEMP:
+    if not TestConfig.SHOULD_CLEAN_TEMP:
         return
-    temp_dir = os.path.join(WORK_DIR, TEMP_DIR)
+    temp_dir = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR)
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
 
 def clean_up():
-    temp_dir = os.path.join(WORK_DIR, TEMP_DIR)
+    temp_dir = os.path.join(TestConfig.WORK_DIR, TestConfig.TEMP_DIR)
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
@@ -305,8 +301,8 @@ if __name__ == "__main__":
     setup_work_dir()
     clean_up()
     setup_hcgen_compiler()
-    print("hcgen path : " + HCGEN)
-    cases_list = index_case(WORK_DIR)
+    print("hcgen path : " + TestConfig.HCGEN)
+    cases_list = index_case(TestConfig.WORK_DIR)
     test_setup()
     test_cases(cases_list)
     test_teardown()

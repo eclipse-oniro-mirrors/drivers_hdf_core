@@ -29,6 +29,10 @@ void ServStatListenerFuzzer::OnReceive(const ServiceStatus &status)
 
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
+constexpr size_t ZEROTH_DIGIT_OFFSET = 24;
+constexpr size_t FIRST_DIGIT_OFFSET = 16;
+constexpr size_t SECOND_DIGIT_OFFSET = 8;
+
 constexpr int32_t OFFSET = 4;
 const std::u16string DECLARE_INTERFACE_DESCRIPTOR = u"HDI.IServiceStatusListener.V1_0";
 
@@ -41,7 +45,7 @@ uint32_t Convert2Uint32(const uint8_t *ptr)
      * Move the 0th digit 24 to the left, the first digit 16 to the left, the second digit 8 to the left,
      * and the third digit no left
      */
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    return (ptr[0] << ZEROTH_DIGIT_OFFSET) | (ptr[1] << FIRST_DIGIT_OFFSET) | (ptr[2] << SECOND_DIGIT_OFFSET) | ptr[3];
 }
 
 bool HdiFuzzTest(const uint8_t *rawData, size_t size)
