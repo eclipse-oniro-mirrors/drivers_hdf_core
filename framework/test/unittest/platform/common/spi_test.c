@@ -16,7 +16,6 @@
 #include "osal_time.h"
 #include "spi_if.h"
 
-
 #define HDF_LOG_TAG spi_test_c
 
 #define SPI_TEST_4BITS  4
