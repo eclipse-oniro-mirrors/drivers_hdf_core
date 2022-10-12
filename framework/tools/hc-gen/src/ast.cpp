@@ -18,10 +18,10 @@ using namespace OHOS::Hardware;
 
 static constexpr int FOUR_MULTIPLE = 4;
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, std::string strValue, uint32_t lineno,
-    const std::shared_ptr<std::string> &src)
+AstObject::AstObject(const std::string &name, uint32_t type, uint64_t integerValue, const std::string &strValue,
+    uint32_t lineno, const std::shared_ptr<std::string> &src)
     : type_(type),
-      name_(std::move(name)),
+      name_(name),
       parent_(nullptr),
       next_(nullptr),
       child_(nullptr),
@@ -36,18 +36,18 @@ AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, std
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue)
-    : AstObject(std::move(name), type, integerValue, "", 0, nullptr)
+AstObject::AstObject(const std::string &name, uint32_t type, uint64_t integerValue)
+    : AstObject(name, type, integerValue, "", 0, nullptr)
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string strValue)
-    : AstObject(std::move(name), type, 0, strValue, 0, nullptr)
+AstObject::AstObject(const std::string &name, uint32_t type, const std::string &strValue)
+    : AstObject(name, type, 0, strValue, 0, nullptr)
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, const Token &bindToken)
-    : AstObject(std::move(name), type, integerValue, "", bindToken.lineNo, bindToken.src)
+AstObject::AstObject(const std::string &name, uint32_t type, uint64_t integerValue, const Token &bindToken)
+    : AstObject(name, type, integerValue, "", bindToken.lineNo, bindToken.src)
 {
     switch (type) {
         case PARSEROP_UINT8:  /* fall-through */
@@ -61,8 +61,8 @@ AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, con
     }
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string strValue, const Token &bindToken)
-    : AstObject(std::move(name), type, 0, strValue, bindToken.lineNo, bindToken.src)
+AstObject::AstObject(const std::string &name, uint32_t type, const std::string &strValue, const Token &bindToken)
+    : AstObject(name, type, 0, strValue, bindToken.lineNo, bindToken.src)
 {
 }
 
@@ -434,9 +434,9 @@ ConfigNode::ConfigNode(const ConfigNode &node) : ConfigNode(node.name_, node.nod
     }
 }
 
-ConfigNode::ConfigNode(std::string name, uint32_t nodeType, std::string refName)
-    : AstObject(std::move(name), PARSEROP_CONFNODE, ""),
-      refNodePath_(std::move(refName)),
+ConfigNode::ConfigNode(const std::string &name, uint32_t nodeType, const std::string &refName)
+    : AstObject(name, PARSEROP_CONFNODE, ""),
+      refNodePath_(refName),
       nodeType_(nodeType),
       inheritIndex_(0),
       inheritCount_(0),
@@ -444,9 +444,9 @@ ConfigNode::ConfigNode(std::string name, uint32_t nodeType, std::string refName)
 {
 }
 
-ConfigNode::ConfigNode(Token &name, uint32_t nodeType, std::string refName)
+ConfigNode::ConfigNode(Token &name, uint32_t nodeType, const std::string &refName)
     : AstObject(name.strval, PARSEROP_CONFNODE, 0, name),
-      refNodePath_(std::move(refName)),
+      refNodePath_(refName),
       nodeType_(nodeType),
       inheritIndex_(0),
       inheritCount_(0),
@@ -483,8 +483,8 @@ const std::string &ConfigNode::NodeTypeToStr(uint32_t type)
 
 std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const ConfigNode &t)
 {
-    stream << "[node] " << t.name_.data() << " " << ConfigNode::NodeTypeToStr(t.nodeType_).data() << " "
-           << t.refNodePath_.data();
+    stream << "[node] " << t.name_ << " " << ConfigNode::NodeTypeToStr(t.nodeType_) << " "
+           << t.refNodePath_;
     return stream;
 }
 
@@ -545,9 +545,9 @@ void ConfigNode::SetNodeType(uint32_t nodeType)
     nodeType_ = nodeType;
 }
 
-void ConfigNode::SetRefPath(std::string ref)
+void ConfigNode::SetRefPath(const std::string &ref)
 {
-    refNodePath_ = std::move(ref);
+    refNodePath_ = ref;
 }
 
 bool ConfigNode::HasDuplicateChild()
@@ -724,7 +724,7 @@ ConfigTerm::ConfigTerm(const ConfigTerm &term) : ConfigTerm(term.name_, nullptr)
 }
 
 ConfigTerm::ConfigTerm(std::string name, const std::shared_ptr<AstObject> &value)
-    : AstObject(std::move(name), PARSEROP_CONFTERM, 0), signNum_(0)
+    : AstObject(name, PARSEROP_CONFTERM, 0), signNum_(0)
 {
     if (value != nullptr) {
         child_ = value;
@@ -753,7 +753,7 @@ ConfigTerm &ConfigTerm::operator=(const ConfigTerm &term)
 
 std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const ConfigTerm &t)
 {
-    stream << "[term] " << t.name_.data();
+    stream << "[term] " << t.name_;
     return stream;
 }
 

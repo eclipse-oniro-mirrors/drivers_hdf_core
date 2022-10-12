@@ -56,7 +56,7 @@ bool CodeGenerator::Generate()
     bool isModeKernel = options.DoGenerateKernelCode();
     std::string codePart = options.GetCodePart();
 
-    for (auto &astPair : allAst_) {
+    for (const auto &astPair : allAst_) {
         AutoPtr<AST> ast = astPair.second;
         switch (language) {
             case Options::Language::C:

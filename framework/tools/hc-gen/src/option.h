@@ -24,9 +24,9 @@ public:
 
     Option &Parse(int argc, char *argv[]);
 
-    void ShowUsage() const;
+    static void ShowUsage();
 
-    void ShowVersion() const;
+    static void ShowVersion();
 
     bool ShouldShowUsage() const;
 
@@ -56,7 +56,7 @@ public:
 
     std::string GetOutputName() const;
 
-    void GetVersion(uint32_t &minor, uint32_t &major) const;
+    static void GetVersion(uint32_t &minor, uint32_t &major);
 
     bool VerboseLog() const;
 

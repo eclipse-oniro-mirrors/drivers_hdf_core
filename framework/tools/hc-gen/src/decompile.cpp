@@ -14,7 +14,7 @@
 
 using namespace OHOS::Hardware;
 
-Decompile::Decompile(std::string fileName) : isAlign_(false), fileName_(std::move(fileName)) {}
+Decompile::Decompile(const std::string &fileName) : isAlign_(false), fileName_(fileName) {}
 
 bool Decompile::InitDecompileFile()
 {
@@ -236,9 +236,6 @@ std::shared_ptr<AstObject> Decompile::RebuildArray()
         return nullptr;
     }
     auto array = std::make_shared<AstObject>(std::string(), PARSEROP_ARRAY, 0);
-    if (array == nullptr) {
-        return nullptr;
-    }
     for (uint16_t i = 0; i < arraySize; i++) {
         uint32_t opCode = 0;
         if (!GetNextByteCode(opCode)) {

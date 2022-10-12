@@ -45,16 +45,16 @@ class AstObject {
 public:
     friend class Ast;
 
-    AstObject(std::string name, uint32_t type, uint64_t integerValue, std::string strValue, uint32_t lineno,
-        const std::shared_ptr<std::string> &src);
+    AstObject(const std::string &name, uint32_t type, uint64_t integerValue, const std::string &strValue,
+        uint32_t lineno, const std::shared_ptr<std::string> &src);
 
-    AstObject(std::string name, uint32_t type, uint64_t integerValue);
+    AstObject(const std::string &name, uint32_t type, uint64_t integerValue);
 
-    AstObject(std::string name, uint32_t type, std::string strValue);
+    AstObject(const std::string &name, uint32_t type, const std::string &strValue);
 
-    AstObject(std::string name, uint32_t type, uint64_t integerValue, const Token &bindToken);
+    AstObject(const std::string &name, uint32_t type, uint64_t integerValue, const Token &bindToken);
 
-    AstObject(std::string name, uint32_t type, std::string strValue, const Token &bindToken);
+    AstObject(const std::string &name, uint32_t type, const std::string &strValue, const Token &bindToken);
 
     AstObject(const AstObject &obj);
 
@@ -149,9 +149,9 @@ class ConfigNode : public AstObject {
 public:
     ConfigNode(const ConfigNode &node);
 
-    ConfigNode(std::string name, uint32_t nodeType, std::string refName);
+    ConfigNode(const std::string &name, uint32_t nodeType, const std::string &refName);
 
-    ConfigNode(Token &name, uint32_t nodeType, std::string refName);
+    ConfigNode(Token &name, uint32_t nodeType, const std::string &refName);
 
     ~ConfigNode() override = default;
 
@@ -169,7 +169,7 @@ public:
 
     void SetNodeType(uint32_t nodeType);
 
-    void SetRefPath(std::string ref);
+    void SetRefPath(const std::string &ref);
 
     static const std::string &NodeTypeToStr(uint32_t type);
 
@@ -281,8 +281,6 @@ public:
 
 class Ast {
 public:
-    Ast() = default;
-
     explicit Ast(std::shared_ptr<AstObject> astRoot) : astRoot_(std::move(astRoot)), redefineChecked_(false) {}
 
     ~Ast() = default;

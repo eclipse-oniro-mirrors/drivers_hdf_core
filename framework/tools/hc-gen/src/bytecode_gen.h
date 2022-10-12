@@ -17,7 +17,7 @@ namespace Hardware {
 struct OpCode {
     OpCode() : opCode(0), size(0) {}
 
-    OpCode(uint8_t code, uint32_t s, std::string str) : opCode(code), size(s), opStr(std::move(str)) {}
+    OpCode(uint8_t code, uint32_t s, const std::string &str) : opCode(code), size(s), opStr(str) {}
 
     ~OpCode() = default;
 

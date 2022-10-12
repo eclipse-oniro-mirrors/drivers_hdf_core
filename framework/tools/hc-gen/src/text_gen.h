@@ -76,7 +76,7 @@ private:
     std::string GenTemplateVariableName(const std::shared_ptr<AstObject> &object);
 
     struct Symbol {
-        Symbol(std::shared_ptr<AstObject> obj, uint32_t c) : object(std::move(obj)), duplicateCount(c) {};
+        Symbol(const std::shared_ptr<AstObject> &obj, uint32_t c) : object(obj), duplicateCount(c) {}
         ~Symbol() = default;
         std::shared_ptr<AstObject> object;
         uint32_t duplicateCount;

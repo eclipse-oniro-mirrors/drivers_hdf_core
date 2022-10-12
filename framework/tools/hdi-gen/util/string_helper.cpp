@@ -56,6 +56,9 @@ bool StringHelper::StartWith(const std::string &value, const std::string &prefix
 
 bool StringHelper::EndWith(const std::string &value, char suffix)
 {
+    if (value.empty()) {
+        return false;
+    }
     return value.back() == suffix;
 }
 

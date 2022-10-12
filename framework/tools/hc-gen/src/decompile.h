@@ -18,7 +18,7 @@ namespace OHOS {
 namespace Hardware {
 class Decompile {
 public:
-    explicit Decompile(std::string fileName);
+    explicit Decompile(const std::string &fileName);
 
     ~Decompile() = default;
 

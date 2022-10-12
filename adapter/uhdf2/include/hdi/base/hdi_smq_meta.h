@@ -42,8 +42,8 @@ struct MemZone {
 template <typename T>
 class SharedMemQueueMeta {
 public:
-    SharedMemQueueMeta() : SharedMemQueueMeta(-1, 0, 0) {};
-    SharedMemQueueMeta(size_t elementCount, SmqType type) : SharedMemQueueMeta(-1, elementCount, type) {};
+    SharedMemQueueMeta() : SharedMemQueueMeta(-1, 0, 0) {}
+    SharedMemQueueMeta(size_t elementCount, SmqType type) : SharedMemQueueMeta(-1, elementCount, type) {}
     SharedMemQueueMeta(int fd, size_t elementCount, SmqType type);
     SharedMemQueueMeta(const SharedMemQueueMeta<T> &other);
     ~SharedMemQueueMeta() = default;
