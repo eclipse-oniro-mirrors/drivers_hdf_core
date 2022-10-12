@@ -9,8 +9,11 @@
 #include "i2s_core.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
+#include "platform_trace.h"
 
 #define HDF_LOG_TAG i2s_core
+#define I2S_TRACE_BASIC_PARAM_NUM  2
+#define I2S_TRACE_PARAM_WRITE_NUM  2
 
 int32_t I2sCntlrOpen(struct I2sCntlr *cntlr)
 {
@@ -96,12 +99,20 @@ int32_t I2sCntlrStartRead(struct I2sCntlr *cntlr)
         HDF_LOGE("%s: Open not support", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
+
     (void)OsalMutexLock(&(cntlr->lock));
     ret = cntlr->method->StartRead(cntlr);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[I2S_TRACE_BASIC_PARAM_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->irqNum;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_I2S, PLATFORM_TRACE_MODULE_I2S_READ_DATA,
+            infos, I2S_TRACE_BASIC_PARAM_NUM);
+        PlatformTraceStop();
+    }
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
-
 
 int32_t I2sCntlrStopRead(struct I2sCntlr *cntlr)
 {
@@ -135,6 +146,15 @@ int32_t I2sCntlrStartWrite(struct I2sCntlr *cntlr)
     }
     (void)OsalMutexLock(&(cntlr->lock));
     ret = cntlr->method->StartWrite(cntlr);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[I2S_TRACE_PARAM_WRITE_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->irqNum;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_I2S, PLATFORM_TRACE_MODULE_I2S_WRITE_DATA,
+            infos, I2S_TRACE_PARAM_WRITE_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }

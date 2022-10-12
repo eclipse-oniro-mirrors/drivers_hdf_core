@@ -10,10 +10,13 @@
 #include "hdf_log.h"
 #include "osal_mem.h"
 #include "pin_if.h"
+#include "platform_trace.h"
 
 #define HDF_LOG_TAG pin_core
 
-#define PIN_MAX_CNT_PER_CNTLR    32
+#define PIN_TRACE_BASIC_PARAM_NUM  2
+#define PIN_TRACE_PARAM_GET_NUM    2
+#define PIN_MAX_CNT_PER_CNTLR      32
 
 struct PinManager {
     struct IDeviceIoService service;
@@ -219,6 +222,14 @@ int32_t PinCntlrSetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
     ret = cntlr->method->SetPinPull(cntlr, index, pullType);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[PIN_TRACE_BASIC_PARAM_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->number;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->pinCount;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_PIN, PLATFORM_TRACE_MODULE_PIN_FUN_SET,
+            infos, PIN_TRACE_BASIC_PARAM_NUM);
+        PlatformTraceStop();
+    }
     (void)OsalSpinUnlockIrqRestore(&cntlr->spin, &g_pinmanager->irqSave);
     return ret;
 }
@@ -256,8 +267,16 @@ int32_t PinCntlrGetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
     ret = cntlr->method->GetPinPull(cntlr, index, pullType);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[PIN_TRACE_PARAM_GET_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->number;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->pinCount;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_PIN, PLATFORM_TRACE_MODULE_PIN_FUN_GET,
+            infos, PIN_TRACE_PARAM_GET_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
     (void)OsalSpinUnlockIrqRestore(&cntlr->spin, &g_pinmanager->irqSave);
-
     return ret;
 }
 
