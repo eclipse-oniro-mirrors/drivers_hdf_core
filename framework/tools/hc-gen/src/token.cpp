@@ -45,9 +45,9 @@ std::string OHOS::Hardware::TokenType2String(int32_t type)
 
 std::ostream &OHOS::Hardware::operator<<(std::ostream &stream, const OHOS::Hardware::Token &token)
 {
-    stream << "Token: type: " << std::setw(WIDTH_EIGHT) << ::std::left << TokenType2String(token.type).data();
+    stream << "Token: type: " << std::setw(WIDTH_EIGHT) << ::std::left << TokenType2String(token.type);
     stream << " value: " << std::setw(WIDTH_EIGHT) << ::std::left;
-    token.type != NUMBER ? stream << std::setw(WIDTH_TWENTY) << token.strval.data()
+    token.type != NUMBER ? stream << std::setw(WIDTH_TWENTY) << token.strval
                      : stream << std::setw(WIDTH_ZERO) << "0x" << std::setw(WIDTH_EIGHTEEN) <<
                        std::hex << token.numval;
     stream << " lineno:" << token.lineNo;

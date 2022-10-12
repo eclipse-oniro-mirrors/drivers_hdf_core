@@ -233,15 +233,14 @@ void CServiceImplCodeEmitter::EmitServiceImplGetVersionMethod(StringBuilder &sb,
 
 void CServiceImplCodeEmitter::EmitKernelServiceImplGetMethod(StringBuilder &sb)
 {
-    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string objName = "service";
-    sb.AppendFormat("struct %s *%sGet(void)\n", implName_.c_str(), implTypeName.c_str());
+    sb.AppendFormat("struct %s *%sGet(void)\n", implName_.c_str(), implName_.c_str());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("struct %s *%s = (struct %s *)OsalMemCalloc(sizeof(struct %s));\n",
-        implTypeName.c_str(), objName.c_str(), implTypeName.c_str(), implTypeName.c_str());
+        implName_.c_str(), objName.c_str(), implName_.c_str(), implName_.c_str());
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).AppendFormat(
-        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implTypeName.c_str());
+        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implName_.c_str());
     sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
     sb.Append(TAB).AppendFormat("if (!%sStubConstruct(&%s->stub)) {\n", baseName_.c_str(), objName.c_str());
@@ -263,7 +262,6 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplGetMethod(StringBuilder &sb)
 
 void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
 {
-    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string objName = "service";
     if (interface_->IsSerializable()) {
         sb.AppendFormat("struct %s *%sServiceGet(void)\n", interfaceName_.c_str(), baseName_.c_str());
@@ -273,10 +271,10 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
 
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("struct %s *%s = (struct %s *)OsalMemCalloc(sizeof(struct %s));\n",
-        implTypeName.c_str(), objName.c_str(), implTypeName.c_str(), implTypeName.c_str());
+        implName_.c_str(), objName.c_str(), implName_.c_str(), implName_.c_str());
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).AppendFormat(
-        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implTypeName.c_str());
+        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implName_.c_str());
     sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
 
@@ -298,10 +296,9 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
 
 void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &sb)
 {
-    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string instName = "instance";
     sb.AppendFormat(
-        "void %sRelease(struct %s *%s)\n", implTypeName.c_str(), implTypeName.c_str(), instName.c_str());
+        "void %sRelease(struct %s *%s)\n", implName_.c_str(), implName_.c_str(), instName.c_str());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", instName.c_str());
     sb.Append(TAB).Append(TAB).Append("return;\n");
@@ -312,7 +309,6 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &
 
 void CServiceImplCodeEmitter::EmitServiceImplReleaseMethod(StringBuilder &sb)
 {
-    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     if (interface_->IsSerializable()) {
         sb.AppendFormat("void %sServiceRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
     } else {

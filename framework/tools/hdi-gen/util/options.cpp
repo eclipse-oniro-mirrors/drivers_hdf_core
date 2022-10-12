@@ -313,7 +313,7 @@ std::string Options::GetPackagePath(const std::string &package)
     }
 
     if (StringHelper::EndWith(rootPath, SEPARATOR)) {
-        rootPath = rootPath.substr(0, rootPath.size() - 1);
+        rootPath.pop_back();
     }
 
     std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', SEPARATOR);

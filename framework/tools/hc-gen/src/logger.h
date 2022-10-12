@@ -20,7 +20,7 @@ namespace Hardware {
 
 class Logger {
 public:
-    Logger() : level_(INFO) {};
+    Logger() : level_(INFO) {}
 
     inline ~Logger()
     {

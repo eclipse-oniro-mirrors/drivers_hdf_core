@@ -532,17 +532,11 @@ void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, cons
 
 void CServiceStubCodeEmitter::EmitKernelStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
-    std::string remoteName = "remote";
     std::string implName = "serviceImpl";
     std::string codeName = "code";
     std::string funcName = StringHelper::Format("%sOnRemoteRequest", baseName_.c_str());
-    if (interface_->IsSerializable()) {
-        sb.Append(prefix).AppendFormat(
-            "static int32_t %s(struct HdfRemoteService *%s, ", funcName.c_str(), remoteName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat(
-            "static int32_t %s(struct %s *%s, ", funcName.c_str(), interfaceName_.c_str(), implName.c_str());
-    }
+    sb.Append(prefix).AppendFormat("static int32_t %s(struct %s *%s, ", funcName.c_str(), interfaceName_.c_str(),
+        implName.c_str());
     sb.AppendFormat("int %s, struct HdfSBuf *data, struct HdfSBuf *reply)\n", codeName.c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.c_str());
