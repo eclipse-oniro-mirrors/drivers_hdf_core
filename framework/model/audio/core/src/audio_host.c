@@ -422,9 +422,7 @@ static void AudioDriverRelease(struct HdfDeviceObject *device)
         }
     }
 
-    if (audioHost != NULL) {
-        OsalMemFree(audioHost);
-    }
+    OsalMemFree(audioHost);
     ADM_LOG_INFO("success.");
 }
 

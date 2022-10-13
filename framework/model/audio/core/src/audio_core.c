@@ -597,7 +597,7 @@ struct CodecDevice *AudioKcontrolGetCodec(const struct AudioKcontrol *kcontrol)
     }
 
     audioCard = (struct AudioCard *)((volatile uintptr_t)(kcontrol->pri));
-    if (audioCard == NULL || audioCard->rtd == NULL) {
+    if (audioCard->rtd == NULL) {
         ADM_LOG_ERR("Get audio card or rtd fail.");
         return NULL;
     }
@@ -614,7 +614,7 @@ struct DaiDevice *AudioKcontrolGetCpuDai(const struct AudioKcontrol *kcontrol)
     }
 
     audioCard = (struct AudioCard *)((volatile uintptr_t)(kcontrol->pri));
-    if (audioCard == NULL || audioCard->rtd == NULL) {
+    if (audioCard->rtd == NULL) {
         ADM_LOG_ERR("Get audio card or rtd fail.");
         return NULL;
     }
@@ -823,7 +823,7 @@ int32_t AudioCodecGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioC
     }
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
     codec = AudioKcontrolGetCodec(kcontrol);
-    if (mixerCtrl == NULL || codec == NULL) {
+    if (codec == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");
         return HDF_FAILURE;
     }
@@ -853,7 +853,7 @@ int32_t AudioCodecGetEnumCtrlOps(const struct AudioKcontrol *kcontrol, struct Au
     }
     enumCtrl = (struct AudioEnumKcontrol *)((volatile uintptr_t)kcontrol->privateValue);
     codec = AudioKcontrolGetCodec(kcontrol);
-    if (enumCtrl == NULL || codec == NULL) {
+    if (codec == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");
         return HDF_FAILURE;
     }
@@ -967,7 +967,7 @@ int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct 
 }
 
 static int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struct AudioEnumKcontrol *enumCtrl,
-    uint32_t *value)
+    const uint32_t *value)
 {
     uint32_t setVal[2];
     int32_t ret;
@@ -1086,7 +1086,7 @@ int32_t AudioCpuDaiGetCtrlOps(const struct AudioKcontrol *kcontrol, struct Audio
     }
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
     dai = AudioKcontrolGetCpuDai(kcontrol);
-    if (mixerCtrl == NULL || dai == NULL) {
+    if (dai == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");
         return HDF_FAILURE;
     }
