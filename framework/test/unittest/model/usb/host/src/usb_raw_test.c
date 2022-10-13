@@ -307,216 +307,164 @@ int32_t CheckRawSdkIfFreeRequest006(void)
 int32_t CheckRawSdkIfFillIsoRequest001(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->isoEp.addr;
-        reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback = AcmWriteIsoCallback;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = (unsigned char *)sendData;
-        reqData.length = size;
-        ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, &reqData);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    reqData.endPoint = rawAcm->isoEp.addr;
+    reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
+    reqData.callback = AcmWriteIsoCallback;
+    reqData.timeout = USB_CTRL_SET_TIMEOUT;
+    reqData.buffer = (unsigned char *)sendData;
+    reqData.length = size;
+    int32_t ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, &reqData);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillIsoRequest002(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
 
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->isoEp.addr;
-        reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback = AcmWriteIsoCallback;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = (unsigned char *)sendData;
-        reqData.length = size;
-        ret = UsbRawFillIsoRequest(NULL, rawAcm->devHandle, &reqData);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    reqData.endPoint = rawAcm->isoEp.addr;
+    reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
+    reqData.callback = AcmWriteIsoCallback;
+    reqData.timeout = USB_CTRL_SET_TIMEOUT;
+    reqData.buffer = (unsigned char *)sendData;
+    reqData.length = size;
+
+    int32_t ret = UsbRawFillIsoRequest(NULL, rawAcm->devHandle, &reqData);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillIsoRequest003(void)
 {
-    struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->isoEp.addr;
-        reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback = AcmWriteIsoCallback;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = (unsigned char *)sendData;
-        reqData.length = size;
-        ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, NULL);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    int32_t ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, NULL);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillIsoRequest004(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->isoEp.addr;
-        reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback = AcmWriteIsoCallback;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = (unsigned char *)sendData;
-        reqData.length = size;
-        ret = UsbRawFillIsoRequest(rawAcm->isoReq, NULL, &reqData);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    reqData.endPoint = rawAcm->isoEp.addr;
+    reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
+    reqData.callback = AcmWriteIsoCallback;
+    reqData.timeout = USB_CTRL_SET_TIMEOUT;
+    reqData.buffer = (unsigned char *)sendData;
+    reqData.length = size;
+    int32_t ret = UsbRawFillIsoRequest(rawAcm->isoReq, NULL, &reqData);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillIsoRequest005(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->isoEp.addr;
-        reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback = AcmWriteIsoCallback;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = (unsigned char *)sendData;
-        reqData.length = size;
-        ret = UsbRawFillIsoRequest(NULL, NULL, &reqData);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    reqData.endPoint = rawAcm->isoEp.addr;
+    reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
+    reqData.callback = AcmWriteIsoCallback;
+    reqData.timeout = USB_CTRL_SET_TIMEOUT;
+    reqData.buffer = (unsigned char *)sendData;
+    reqData.length = size;
+    int32_t ret = UsbRawFillIsoRequest(NULL, NULL, &reqData);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillIsoRequest006(void)
 {
-    struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->isoEp.addr;
-        reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback = AcmWriteIsoCallback;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = (unsigned char *)sendData;
-        reqData.length = size;
-        ret = UsbRawFillIsoRequest(NULL, NULL, NULL);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    int32_t ret = UsbRawFillIsoRequest(NULL, NULL, NULL);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 int32_t CheckRawSdkIfFreeRequest001(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NW; i++) {
-        ret = UsbRawFreeRequest(rawAcm->wb[i].request);
-        if (ret) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
+        int32_t ret = UsbRawFreeRequest(rawAcm->wb[i].request);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
         rawAcm->wb[i].request = NULL;
     }
     AcmWriteBufFree(rawAcm);
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFreeRequest002(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NW; i++) {
-        ret = UsbRawFreeRequest(rawAcm->readReq[i]);
-        if (ret) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
+        int32_t ret = UsbRawFreeRequest(rawAcm->readReq[i]);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
         rawAcm->readReq[i] = NULL;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFreeRequest003(void)
 {
-    int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-
-    ret = UsbRawFreeRequest(rawAcm->ctrlReq);
-    if (ret) {
+    int32_t ret = UsbRawFreeRequest(rawAcm->ctrlReq);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
     rawAcm->ctrlReq = NULL;
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -904,24 +852,19 @@ int32_t CheckRawSdkIfGetDescriptor013(void)
 
 int32_t CheckRawSdkIfGetDescriptor014(void)
 {
-    int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-
-    ret = UsbRawGetDescriptor(NULL, rawAcm->devHandle, NULL, NULL);
+    int32_t ret = UsbRawGetDescriptor(NULL, rawAcm->devHandle, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfGetDescriptor015(void)
 {
-    int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-
-    ret = UsbRawGetDescriptor(rawAcm->ctrlReq, NULL, NULL, NULL);
+    int32_t ret = UsbRawGetDescriptor(rawAcm->ctrlReq, NULL, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
@@ -932,22 +875,17 @@ int32_t CheckRawSdkIfGetDescriptor015(void)
 
 int32_t CheckRawSdkIfGetDescriptor016(void)
 {
-    int32_t ret;
-
-    ret = UsbRawGetDescriptor(NULL, NULL, NULL, NULL);
+    int32_t ret = UsbRawGetDescriptor(NULL, NULL, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillBulkRequest001(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -955,57 +893,48 @@ int32_t CheckRawSdkIfFillBulkRequest001(void)
     printf("---size:%u\n", size);
 
     size = (size > rawAcm->dataOutEp.maxPacketSize) ? rawAcm->dataOutEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
-        struct RawWb *snd = &rawAcm->wb[i];
-        snd->len = (int)size;
-        ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
-        if (ret) {
-            HDF_LOGE("%s: memcpy_s fail", __func__);
-            return HDF_FAILURE;
-        }
-        rawAcm->transmitting++;
-
-        reqData.endPoint = rawAcm->dataOutEp.addr;
-        reqData.numIsoPackets = 0;
-        reqData.callback = AcmWriteBulkCallback;
-        reqData.userData = (void *)snd;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer = snd->buf;
-        reqData.length = snd->len;
-        printf("maxPacketSize:%d\n", rawAcm->dataOutEp.maxPacketSize);
-        ret = UsbRawFillBulkRequest(snd->request, rawAcm->devHandle, &reqData);
-        if (ret) {
-            printf("%s: error++ret=%d\n", __func__, ret);
-            return HDF_FAILURE;
-        }
+    struct RawWb *snd = &rawAcm->wb[0];
+    snd->len = (int)size;
+    int32_t ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
+    if (ret != EOK) {
+        HDF_LOGE("%s: memcpy_s fail", __func__);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
+    rawAcm->transmitting++;
+    reqData.endPoint = rawAcm->dataOutEp.addr;
+    reqData.numIsoPackets = 0;
+    reqData.callback = AcmWriteBulkCallback;
+    reqData.userData = (void *)snd;
+    reqData.timeout = USB_CTRL_SET_TIMEOUT;
+    reqData.buffer = snd->buf;
+    reqData.length = snd->len;
+    printf("maxPacketSize:%d\n", rawAcm->dataOutEp.maxPacketSize);
+    ret = UsbRawFillBulkRequest(snd->request, rawAcm->devHandle, &reqData);
+    if (ret != HDF_SUCCESS) {
+        printf("%s: error++ret=%d\n", __func__, ret);
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillBulkRequest002(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->dataInEp.addr;
-        reqData.numIsoPackets = 0;
-        reqData.callback = AcmReadBulkCallback;
-        reqData.userData = (void *)rawAcm;
-        reqData.timeout = USB_CTRL_SET_TIMEOUT;
-        reqData.length = size;
+    reqData.endPoint = rawAcm->dataInEp.addr;
+    reqData.numIsoPackets = 0;
+    reqData.callback = AcmReadBulkCallback;
+    reqData.userData = (void *)rawAcm;
+    reqData.timeout = USB_CTRL_SET_TIMEOUT;
+    reqData.length = size;
 
-        ret = UsbRawFillBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, &reqData);
-        if (ret) {
-            HDF_LOGE("%s: error", __func__);
-            return HDF_FAILURE;
-        }
+    int32_t ret = UsbRawFillBulkRequest(rawAcm->readReq[0], rawAcm->devHandle, &reqData);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: error", __func__);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -1080,24 +1009,12 @@ int32_t CheckRawSdkIfFillInterruptRequest003(void)
 
 int32_t CheckRawSdkIfFillInterruptRequest004(void)
 {
-    struct UsbRawFillRequestData fillRequestData;
-    int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    uint32_t size = rawAcm->notifyEp.maxPacketSize;
-
-    fillRequestData.endPoint = rawAcm->notifyEp.addr;
-    fillRequestData.length = size;
-    fillRequestData.numIsoPackets = 0;
-    fillRequestData.callback = AcmNotifyReqCallback;
-    fillRequestData.userData = (void *)rawAcm;
-    fillRequestData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-
-    ret = UsbRawFillInterruptRequest(rawAcm->notifyReq, rawAcm->devHandle, NULL);
+    int32_t ret = UsbRawFillInterruptRequest(rawAcm->notifyReq, rawAcm->devHandle, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -1163,80 +1080,49 @@ int32_t CheckRawSdkIfFillControlRequest003(void)
 
 int32_t CheckRawSdkIfFillControlRequest004(void)
 {
-    struct UsbRawFillRequestData fillRequestData;
-    int32_t ret;
-    int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-
-    fillRequestData.callback = AcmCtrlReqCallback;
-    fillRequestData.userData = &completed;
-    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
-
-    ret = UsbRawFillControlRequest(rawAcm->ctrlReq, rawAcm->devHandle, NULL);
+    int32_t ret = UsbRawFillControlRequest(rawAcm->ctrlReq, rawAcm->devHandle, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillControlRequest005(void)
 {
-    struct UsbRawFillRequestData fillRequestData;
-    int32_t ret;
-    int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-
-    fillRequestData.callback = AcmCtrlReqCallback;
-    fillRequestData.userData = &completed;
-    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
-
-    ret = UsbRawFillControlRequest(NULL, rawAcm->devHandle, NULL);
+    int32_t ret = UsbRawFillControlRequest(NULL, rawAcm->devHandle, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillControlRequest006(void)
 {
-    struct UsbRawFillRequestData fillRequestData;
-    int32_t ret;
-    int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
+    if (rawAcm == NULL) {
+        HDF_LOGE("%s: get io acm failed", __func__);
+        return HDF_FAILURE;
+    }
 
-    fillRequestData.callback = AcmCtrlReqCallback;
-    fillRequestData.userData = &completed;
-    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
-
-    ret = UsbRawFillControlRequest(rawAcm->ctrlReq, NULL, NULL);
+    int32_t ret = UsbRawFillControlRequest(rawAcm->ctrlReq, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillControlRequest007(void)
 {
-    struct UsbRawFillRequestData fillRequestData;
-    int32_t ret;
-    int32_t completed = 0;
-
-    fillRequestData.callback = AcmCtrlReqCallback;
-    fillRequestData.userData = &completed;
-    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
-
-    ret = UsbRawFillControlRequest(NULL, NULL, NULL);
+    int32_t ret = UsbRawFillControlRequest(NULL, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -1561,101 +1447,72 @@ int32_t CheckRawSdkIfSendBulkRequest001(void)
 int32_t CheckRawSdkIfSendBulkRequest002(void)
 {
     struct UsbRequestData reqData;
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->dataInEp.addr;
-        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length = size;
-        reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
-        reqData.requested = (int32_t *)&size;
-    }
+    reqData.endPoint = rawAcm->dataInEp.addr;
+    reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+    reqData.length = size;
+    reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[0])->buffer;
+    reqData.requested = (int32_t *)&size;
 
-    for (i = 0; i < 1; i++) {
-        printf("UsbRawSendBulkRequest i = [%d]\n", i);
-        ret = UsbRawSendBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, &reqData);
-        if (ret) {
-            HDF_LOGE("%s: error", __func__);
-            return HDF_FAILURE;
-        }
+    int32_t ret = UsbRawSendBulkRequest(rawAcm->readReq[0], rawAcm->devHandle, &reqData);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: error", __func__);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfSendBulkRequest003(void)
 {
     struct UsbRequestData reqData;
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->dataInEp.addr;
-        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length = size;
-        reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
-        reqData.requested = (int32_t *)&size;
-    }
+    reqData.endPoint = rawAcm->dataInEp.addr;
+    reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+    reqData.length = size;
+    reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[0])->buffer;
+    reqData.requested = (int32_t *)&size;
 
-    for (i = 0; i < 1; i++) {
-        printf("UsbRawSendBulkRequest i = [%d]\n", i);
-        ret = UsbRawSendBulkRequest(NULL, rawAcm->devHandle, &reqData);
-        if (ret != HDF_ERR_INVALID_PARAM) {
-            HDF_LOGE("%s: error", __func__);
-            return HDF_FAILURE;
-        }
+    int32_t ret = UsbRawSendBulkRequest(NULL, rawAcm->devHandle, &reqData);
+    if (ret != HDF_ERR_INVALID_PARAM) {
+        HDF_LOGE("%s: error", __func__);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfSendBulkRequest004(void)
 {
     struct UsbRequestData reqData;
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
-    for (i = 0; i < 1; i++) {
-        reqData.endPoint = rawAcm->dataInEp.addr;
-        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length = size;
-        reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
-        reqData.requested = (int32_t *)&size;
+    reqData.endPoint = rawAcm->dataInEp.addr;
+    reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+    reqData.length = size;
+    reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[0])->buffer;
+    reqData.requested = (int32_t *)&size;
+
+    int32_t ret = UsbRawSendBulkRequest(rawAcm->readReq[0], NULL, &reqData);
+    if (ret != HDF_ERR_INVALID_PARAM) {
+        HDF_LOGE("%s: error", __func__);
+        return HDF_FAILURE;
     }
-    for (i = 0; i < 1; i++) {
-        printf("UsbRawSendBulkRequest i = [%d]\n", i);
-        ret = UsbRawSendBulkRequest(rawAcm->readReq[i], NULL, &reqData);
-        if (ret != HDF_ERR_INVALID_PARAM) {
-            HDF_LOGE("%s: error", __func__);
-            return HDF_FAILURE;
-        }
-    }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfSendBulkRequest005(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < 1; i++) {
-        printf("UsbRawSendBulkRequest i = [%d]\n", i);
-        ret = UsbRawSendBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, NULL);
-        if (ret != HDF_ERR_INVALID_PARAM) {
-            HDF_LOGE("%s: error", __func__);
-            return HDF_FAILURE;
-        }
+    int32_t ret = UsbRawSendBulkRequest(rawAcm->readReq[0], rawAcm->devHandle, NULL);
+    if (ret != HDF_ERR_INVALID_PARAM) {
+        HDF_LOGE("%s: error", __func__);
+        return HDF_FAILURE;
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -1741,19 +1598,17 @@ int32_t CheckRawSdkIfSendInterruptRequest004(void)
 int32_t CheckRawSdkIfFillBulkRequest003(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
     size = (size > rawAcm->dataOutEp.maxPacketSize) ? rawAcm->dataOutEp.maxPacketSize : size;
 
-    for (i = 0; i < ACM_NW; i++) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
         struct RawWb *snd = &rawAcm->wb[i];
         snd->len = (int)size;
-        ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
-        if (ret) {
+        int32_t ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
+        if (ret != EOK) {
             HDF_LOGE("%s: memcpy_s fail", __func__);
             return HDF_FAILURE;
         }
@@ -1768,37 +1623,33 @@ int32_t CheckRawSdkIfFillBulkRequest003(void)
         reqData.length = snd->len;
 
         ret = UsbRawFillBulkRequest(snd->request, rawAcm->devHandle, &reqData);
-        if (ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfFillBulkRequest004(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
-    for (i = 0; i < ACM_NW; i++) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
         reqData.endPoint = rawAcm->dataInEp.addr;
         reqData.numIsoPackets = 0;
         reqData.callback = AcmReadBulkCallback;
         reqData.userData = (void *)rawAcm;
         reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         reqData.length = size;
-        ret = UsbRawFillBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, &reqData);
-        if (ret) {
+        int32_t ret = UsbRawFillBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, &reqData);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -1825,38 +1676,32 @@ int32_t CheckRawSdkIfFillInterruptRequest005(void)
 
 int32_t CheckRawSdkIfSubmitRequest001(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NW; i++) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
         struct RawWb *snd = &rawAcm->wb[i];
         printf("UsbRawSubmitRequest i = [%d]\n", i);
-        ret = UsbRawSubmitRequest(snd->request);
-        if (ret) {
+        int32_t ret = UsbRawSubmitRequest(snd->request);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfSubmitRequest002(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NW; i++) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
         printf("UsbRawSubmitRequest i = [%d]\n", i);
-        ret = UsbRawSubmitRequest(rawAcm->readReq[i]);
-        if (ret) {
+        int32_t ret = UsbRawSubmitRequest(rawAcm->readReq[i]);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
@@ -1889,32 +1734,27 @@ int32_t CheckRawSdkIfSubmitRequest004(void)
 
 int32_t CheckRawSdkIfCancelRequest001(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NW; i++) {
+    for (int32_t i = 0; i < ACM_NW; i++) {
         struct RawWb *snd = &rawAcm->wb[i];
-        ret = UsbRawCancelRequest(snd->request);
-        if (ret) {
+        int32_t ret = UsbRawCancelRequest(snd->request);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
     }
-    HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t CheckRawSdkIfCancelRequest002(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NR; i++) {
-        ret = UsbRawCancelRequest(rawAcm->readReq[i]);
+    for (int32_t i = 0; i < ACM_NR; i++) {
+        int32_t ret = UsbRawCancelRequest(rawAcm->readReq[i]);
         printf("%s+%d+ret:%d\n", __func__, __LINE__, ret);
-        if (ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }

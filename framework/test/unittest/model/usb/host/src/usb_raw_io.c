@@ -307,18 +307,16 @@ static void AcmParaseInterfaceClass(
 int32_t UsbParseConfigDescriptor(struct AcmRawDevice *acm, struct UsbRawConfigDescriptor *config)
 {
     uint8_t numInterfaces;
-    uint8_t i;
-    int32_t ret;
     const struct UsbRawInterface *interface = NULL;
 
     numInterfaces = config->configDescriptor.bNumInterfaces;
     printf("------numInterfaces = [%hhu]------\n", numInterfaces);
-    for (i = 0; i < numInterfaces; i++) {
+    for (uint8_t i = 0; i < numInterfaces; i++) {
         interface = config->interface[i];
 
         printf("------UsbRawClaimInterface start------\n");
-        ret = UsbRawClaimInterface(acm->devHandle, i);
-        if (ret) {
+        int32_t ret = UsbRawClaimInterface(acm->devHandle, i);
+        if (ret != HDF_SUCCESS) {
             printf("%s:%d claim interface %hhu failed\n", __func__, __LINE__, i);
             continue;
         }
@@ -552,10 +550,8 @@ int32_t CheckRawSdkIfInit002(void)
 
 int32_t CheckRawSdkIfExit002(void)
 {
-    int32_t ret;
-
-    ret = UsbRawExit(NULL);
-    if (ret) {
+    int32_t ret = UsbRawExit(NULL);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
@@ -565,18 +561,15 @@ int32_t CheckRawSdkIfExit002(void)
 
 int32_t CheckRawSdkIfInit003(void)
 {
-    int32_t ret;
-    int32_t i;
-
-    for (i = 0; i < USB_LOOP_NUM; i++) {
-        ret = UsbRawInit(&g_session);
-        if (ret) {
+    for (int32_t i = 0; i < USB_LOOP_NUM; i++) {
+        int32_t ret = UsbRawInit(&g_session);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
         g_acm->session = g_session;
         ret = UsbRawExit(g_acm->session);
-        if (ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
@@ -589,17 +582,14 @@ int32_t CheckRawSdkIfInit003(void)
 
 int32_t CheckRawSdkIfInit004(void)
 {
-    int32_t ret;
-    int32_t i;
-
-    for (i = 0; i < USB_LOOP_NUM; i++) {
-        ret = UsbRawInit(NULL);
-        if (ret) {
+    for (int32_t i = 0; i < USB_LOOP_NUM; i++) {
+        int32_t ret = UsbRawInit(NULL);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
         ret = UsbRawExit(NULL);
-        if (ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
@@ -610,10 +600,8 @@ int32_t CheckRawSdkIfInit004(void)
 
 int32_t CheckRawSdkIfInit005(void)
 {
-    int32_t ret;
-
-    ret = UsbRawInit(&g_session);
-    if (ret) {
+    int32_t ret = UsbRawInit(&g_session);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
