@@ -309,19 +309,18 @@ int32_t CheckRawSdkIfFillIsoRequest001(void)
     struct UsbRawFillRequestData reqData;
     int32_t ret;
     int32_t i;
-    uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    size = strlen(sendData) + 1;
+    uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->isoEp.addr;
+        reqData.endPoint = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback      = AcmWriteIsoCallback;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = size;
+        reqData.callback = AcmWriteIsoCallback;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = (unsigned char *)sendData;
+        reqData.length = size;
         ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, &reqData);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -337,19 +336,19 @@ int32_t CheckRawSdkIfFillIsoRequest002(void)
     struct UsbRawFillRequestData reqData;
     int32_t ret;
     int32_t i;
-    uint32_t size;
+
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    size = strlen(sendData) + 1;
+    uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->isoEp.addr;
+        reqData.endPoint = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback      = AcmWriteIsoCallback;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = size;
+        reqData.callback = AcmWriteIsoCallback;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = (unsigned char *)sendData;
+        reqData.length = size;
         ret = UsbRawFillIsoRequest(NULL, rawAcm->devHandle, &reqData);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -365,19 +364,18 @@ int32_t CheckRawSdkIfFillIsoRequest003(void)
     struct UsbRawFillRequestData reqData;
     int32_t ret;
     int32_t i;
-    uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    size = strlen(sendData) + 1;
+    uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->isoEp.addr;
+        reqData.endPoint = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback      = AcmWriteIsoCallback;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = size;
+        reqData.callback = AcmWriteIsoCallback;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = (unsigned char *)sendData;
+        reqData.length = size;
         ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, NULL);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -393,19 +391,18 @@ int32_t CheckRawSdkIfFillIsoRequest004(void)
     struct UsbRawFillRequestData reqData;
     int32_t ret;
     int32_t i;
-    uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    size = strlen(sendData) + 1;
+    uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->isoEp.addr;
+        reqData.endPoint = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback      = AcmWriteIsoCallback;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = size;
+        reqData.callback = AcmWriteIsoCallback;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = (unsigned char *)sendData;
+        reqData.length = size;
         ret = UsbRawFillIsoRequest(rawAcm->isoReq, NULL, &reqData);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -428,12 +425,12 @@ int32_t CheckRawSdkIfFillIsoRequest005(void)
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->isoEp.addr;
+        reqData.endPoint = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback      = AcmWriteIsoCallback;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = size;
+        reqData.callback = AcmWriteIsoCallback;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = (unsigned char *)sendData;
+        reqData.length = size;
         ret = UsbRawFillIsoRequest(NULL, NULL, &reqData);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -456,12 +453,12 @@ int32_t CheckRawSdkIfFillIsoRequest006(void)
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->isoEp.addr;
+        reqData.endPoint = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
-        reqData.callback      = AcmWriteIsoCallback;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = size;
+        reqData.callback = AcmWriteIsoCallback;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = (unsigned char *)sendData;
+        reqData.length = size;
         ret = UsbRawFillIsoRequest(NULL, NULL, NULL);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -951,11 +948,10 @@ int32_t CheckRawSdkIfFillBulkRequest001(void)
     struct UsbRawFillRequestData reqData;
     int32_t ret;
     int32_t i;
-    uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    size = strlen(sendData) + 1;
+    uint32_t size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
 
     size = (size > rawAcm->dataOutEp.maxPacketSize) ? rawAcm->dataOutEp.maxPacketSize : size;
@@ -969,13 +965,13 @@ int32_t CheckRawSdkIfFillBulkRequest001(void)
         }
         rawAcm->transmitting++;
 
-        reqData.endPoint      = rawAcm->dataOutEp.addr;
+        reqData.endPoint = rawAcm->dataOutEp.addr;
         reqData.numIsoPackets = 0;
-        reqData.callback      = AcmWriteBulkCallback;
-        reqData.userData      = (void *)snd;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = snd->buf;
-        reqData.length        = snd->len;
+        reqData.callback = AcmWriteBulkCallback;
+        reqData.userData = (void *)snd;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = snd->buf;
+        reqData.length = snd->len;
         printf("maxPacketSize:%d\n", rawAcm->dataOutEp.maxPacketSize);
         ret = UsbRawFillBulkRequest(snd->request, rawAcm->devHandle, &reqData);
         if (ret) {
@@ -996,12 +992,12 @@ int32_t CheckRawSdkIfFillBulkRequest002(void)
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->dataInEp.addr;
+        reqData.endPoint = rawAcm->dataInEp.addr;
         reqData.numIsoPackets = 0;
-        reqData.callback      = AcmReadBulkCallback;
-        reqData.userData      = (void *)rawAcm;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.length        = size;
+        reqData.callback = AcmReadBulkCallback;
+        reqData.userData = (void *)rawAcm;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.length = size;
 
         ret = UsbRawFillBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, &reqData);
         if (ret) {
@@ -1112,9 +1108,9 @@ int32_t CheckRawSdkIfFillControlRequest001(void)
     int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(rawAcm->ctrlReq, rawAcm->devHandle, &fillRequestData);
     if (ret) {
@@ -1132,9 +1128,9 @@ int32_t CheckRawSdkIfFillControlRequest002(void)
     int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(NULL, rawAcm->devHandle, &fillRequestData);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1152,9 +1148,9 @@ int32_t CheckRawSdkIfFillControlRequest003(void)
     int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(rawAcm->ctrlReq, NULL, &fillRequestData);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1172,9 +1168,9 @@ int32_t CheckRawSdkIfFillControlRequest004(void)
     int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(rawAcm->ctrlReq, rawAcm->devHandle, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1192,9 +1188,9 @@ int32_t CheckRawSdkIfFillControlRequest005(void)
     int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(NULL, rawAcm->devHandle, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1212,9 +1208,9 @@ int32_t CheckRawSdkIfFillControlRequest006(void)
     int32_t completed = 0;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(rawAcm->ctrlReq, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1231,9 +1227,9 @@ int32_t CheckRawSdkIfFillControlRequest007(void)
     int32_t ret;
     int32_t completed = 0;
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(NULL, NULL, NULL);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1250,9 +1246,9 @@ int32_t CheckRawSdkIfFillControlRequest008(void)
     int32_t ret;
     int32_t completed = 0;
 
-    fillRequestData.callback  = AcmCtrlReqCallback;
-    fillRequestData.userData  = &completed;
-    fillRequestData.timeout   = USB_CTRL_SET_TIMEOUT;
+    fillRequestData.callback = AcmCtrlReqCallback;
+    fillRequestData.userData = &completed;
+    fillRequestData.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlRequest(NULL, NULL, &fillRequestData);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1275,12 +1271,12 @@ int32_t CheckRawSdkIfFillControlSetup001(void)
     rawAcm->lineCoding.bDataBits = DATA_BITS_LENGTH;
 
     ctrlReq.requestType = USB_DDK_DIR_OUT | USB_DDK_TYPE_CLASS | USB_DDK_RECIP_INTERFACE;
-    ctrlReq.requestCmd  = USB_DDK_CDC_REQ_SET_LINE_CODING;
-    ctrlReq.value       = CPU_TO_LE16(0);
-    ctrlReq.index       = 0;
-    ctrlReq.data        = (unsigned char *)&rawAcm->lineCoding;
-    ctrlReq.length      = sizeof(struct UsbCdcLineCoding);
-    ctrlReq.timeout     = USB_CTRL_SET_TIMEOUT;
+    ctrlReq.requestCmd = USB_DDK_CDC_REQ_SET_LINE_CODING;
+    ctrlReq.value = CPU_TO_LE16(0);
+    ctrlReq.index = 0;
+    ctrlReq.data = (unsigned char *)&rawAcm->lineCoding;
+    ctrlReq.length = sizeof(struct UsbCdcLineCoding);
+    ctrlReq.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawFillControlSetup(NULL, &ctrlReq);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1343,12 +1339,12 @@ int32_t CheckRawSdkIfFillControlSetup004(void)
     rawAcm->lineCoding.bDataBits = DATA_BITS_LENGTH;
 
     ctrlReq.requestType = USB_DDK_DIR_OUT | USB_DDK_TYPE_CLASS | USB_DDK_RECIP_INTERFACE;
-    ctrlReq.requestCmd  = USB_DDK_CDC_REQ_SET_LINE_CODING;
-    ctrlReq.value       = CPU_TO_LE16(0);
-    ctrlReq.index       = 0;
-    ctrlReq.data        = (unsigned char *)&rawAcm->lineCoding;
-    ctrlReq.length      = sizeof(struct UsbCdcLineCoding);
-    ctrlReq.timeout     = USB_CTRL_SET_TIMEOUT;
+    ctrlReq.requestCmd = USB_DDK_CDC_REQ_SET_LINE_CODING;
+    ctrlReq.value = CPU_TO_LE16(0);
+    ctrlReq.index = 0;
+    ctrlReq.data = (unsigned char *)&rawAcm->lineCoding;
+    ctrlReq.length = sizeof(struct UsbCdcLineCoding);
+    ctrlReq.timeout = USB_CTRL_SET_TIMEOUT;
 
     setup = OsalMemCalloc(USB_BUFFER_MAX_SIZE);
     if (setup == NULL) {
@@ -1382,12 +1378,12 @@ int32_t CheckRawSdkIfSendControlRequest001(void)
     rawAcm->lineCoding.bParityType = USB_CDC_NO_PARITY;
     rawAcm->lineCoding.bDataBits = DATA_BITS_LENGTH;
     ctrlReq.requestType = USB_DDK_DIR_OUT | USB_DDK_TYPE_CLASS | USB_DDK_RECIP_INTERFACE;
-    ctrlReq.requestCmd  = USB_DDK_CDC_REQ_SET_LINE_CODING;
-    ctrlReq.value       = CPU_TO_LE16(0);
-    ctrlReq.index       = 0;
-    ctrlReq.data        = (unsigned char *)&rawAcm->lineCoding;
-    ctrlReq.length      = sizeof(struct UsbCdcLineCoding);
-    ctrlReq.timeout     = USB_CTRL_SET_TIMEOUT;
+    ctrlReq.requestCmd = USB_DDK_CDC_REQ_SET_LINE_CODING;
+    ctrlReq.value = CPU_TO_LE16(0);
+    ctrlReq.index = 0;
+    ctrlReq.data = (unsigned char *)&rawAcm->lineCoding;
+    ctrlReq.length = sizeof(struct UsbCdcLineCoding);
+    ctrlReq.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawSendControlRequest(NULL, rawAcm->devHandle, &ctrlReq);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1409,12 +1405,12 @@ int32_t CheckRawSdkIfSendControlRequest002(void)
     rawAcm->lineCoding.bParityType = USB_CDC_NO_PARITY;
     rawAcm->lineCoding.bDataBits = DATA_BITS_LENGTH;
     ctrlReq.requestType = USB_DDK_DIR_OUT | USB_DDK_TYPE_CLASS | USB_DDK_RECIP_INTERFACE;
-    ctrlReq.requestCmd  = USB_DDK_CDC_REQ_SET_LINE_CODING;
-    ctrlReq.value       = CPU_TO_LE16(0);
-    ctrlReq.index       = 0;
-    ctrlReq.data        = (unsigned char *)&rawAcm->lineCoding;
-    ctrlReq.length      = sizeof(struct UsbCdcLineCoding);
-    ctrlReq.timeout     = USB_CTRL_SET_TIMEOUT;
+    ctrlReq.requestCmd = USB_DDK_CDC_REQ_SET_LINE_CODING;
+    ctrlReq.value = CPU_TO_LE16(0);
+    ctrlReq.index = 0;
+    ctrlReq.data = (unsigned char *)&rawAcm->lineCoding;
+    ctrlReq.length = sizeof(struct UsbCdcLineCoding);
+    ctrlReq.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawSendControlRequest(rawAcm->ctrlReq, NULL, &ctrlReq);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1449,12 +1445,12 @@ int32_t CheckRawSdkIfSendControlRequest004(void)
     rawAcm->lineCoding.bParityType = USB_CDC_NO_PARITY;
     rawAcm->lineCoding.bDataBits = DATA_BITS_LENGTH;
     ctrlReq.requestType = USB_DDK_DIR_OUT | USB_DDK_TYPE_CLASS | USB_DDK_RECIP_INTERFACE;
-    ctrlReq.requestCmd  = USB_DDK_CDC_REQ_SET_LINE_CODING;
-    ctrlReq.value       = CPU_TO_LE16(0);
-    ctrlReq.index       = 2;
-    ctrlReq.data        = (unsigned char *)&rawAcm->lineCoding;
-    ctrlReq.length      = sizeof(struct UsbCdcLineCoding);
-    ctrlReq.timeout     = USB_CTRL_SET_TIMEOUT;
+    ctrlReq.requestCmd = USB_DDK_CDC_REQ_SET_LINE_CODING;
+    ctrlReq.value = CPU_TO_LE16(0);
+    ctrlReq.index = 2;
+    ctrlReq.data = (unsigned char *)&rawAcm->lineCoding;
+    ctrlReq.length = sizeof(struct UsbCdcLineCoding);
+    ctrlReq.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawSendControlRequest(rawAcm->ctrlReq, rawAcm->devHandle, &ctrlReq);
     if (ret < 0) {
@@ -1476,12 +1472,12 @@ int32_t CheckRawSdkIfSendControlRequest005(void)
     rawAcm->lineCoding.bParityType = USB_CDC_NO_PARITY;
     rawAcm->lineCoding.bDataBits = DATA_BITS_LENGTH;
     ctrlReq.requestType = USB_DDK_DIR_OUT | USB_DDK_TYPE_CLASS | USB_DDK_RECIP_INTERFACE;
-    ctrlReq.requestCmd  = USB_DDK_CDC_REQ_SET_LINE_CODING;
-    ctrlReq.value       = CPU_TO_LE16(0);
-    ctrlReq.index       = 0;
-    ctrlReq.data        = (unsigned char *)&rawAcm->lineCoding;
-    ctrlReq.length      = sizeof(struct UsbCdcLineCoding);
-    ctrlReq.timeout     = USB_CTRL_SET_TIMEOUT;
+    ctrlReq.requestCmd = USB_DDK_CDC_REQ_SET_LINE_CODING;
+    ctrlReq.value = CPU_TO_LE16(0);
+    ctrlReq.index = 0;
+    ctrlReq.data = (unsigned char *)&rawAcm->lineCoding;
+    ctrlReq.length = sizeof(struct UsbCdcLineCoding);
+    ctrlReq.timeout = USB_CTRL_SET_TIMEOUT;
 
     ret = UsbRawSendControlRequest(NULL, NULL, &ctrlReq);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1542,11 +1538,11 @@ int32_t CheckRawSdkIfSendBulkRequest001(void)
         }
         rawAcm->transmitting++;
 
-        reqData.endPoint      = rawAcm->dataOutEp.addr;
-        reqData.timeout       = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.data        = snd->buf;
-        reqData.length        = snd->len;
-        reqData.requested   = (int32_t *)&size;
+        reqData.endPoint = rawAcm->dataOutEp.addr;
+        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+        reqData.data = snd->buf;
+        reqData.length = snd->len;
+        reqData.requested = (int32_t *)&size;
     }
 
     for (i = 0; i < 1; i++) {
@@ -1571,11 +1567,11 @@ int32_t CheckRawSdkIfSendBulkRequest002(void)
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->dataInEp.addr;
-        reqData.timeout       = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length        = size;
-        reqData.data        = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
-        reqData.requested      = (int32_t *)&size;
+        reqData.endPoint = rawAcm->dataInEp.addr;
+        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+        reqData.length = size;
+        reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
+        reqData.requested = (int32_t *)&size;
     }
 
     for (i = 0; i < 1; i++) {
@@ -1599,11 +1595,11 @@ int32_t CheckRawSdkIfSendBulkRequest003(void)
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->dataInEp.addr;
-        reqData.timeout       = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length        = size;
-        reqData.data        = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
-        reqData.requested      = (int32_t *)&size;
+        reqData.endPoint = rawAcm->dataInEp.addr;
+        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+        reqData.length = size;
+        reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
+        reqData.requested = (int32_t *)&size;
     }
 
     for (i = 0; i < 1; i++) {
@@ -1627,11 +1623,11 @@ int32_t CheckRawSdkIfSendBulkRequest004(void)
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
-        reqData.endPoint      = rawAcm->dataInEp.addr;
-        reqData.timeout       = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length        = size;
-        reqData.data        = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
-        reqData.requested      = (int32_t *)&size;
+        reqData.endPoint = rawAcm->dataInEp.addr;
+        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+        reqData.length = size;
+        reqData.data = ((struct UsbRawRequest *)rawAcm->readReq[i])->buffer;
+        reqData.requested = (int32_t *)&size;
     }
     for (i = 0; i < 1; i++) {
         printf("UsbRawSendBulkRequest i = [%d]\n", i);
@@ -1673,8 +1669,8 @@ int32_t CheckRawSdkIfSendInterruptRequest001(void)
     reqData.endPoint = rawAcm->notifyEp.addr;
     reqData.length = size;
     reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-    reqData.data        = ((struct UsbRawRequest *)rawAcm->notifyReq)->buffer;
-    reqData.requested      = (int32_t *)&size;
+    reqData.data = ((struct UsbRawRequest *)rawAcm->notifyReq)->buffer;
+    reqData.requested = (int32_t *)&size;
     ret = UsbRawSendInterruptRequest(rawAcm->notifyReq, rawAcm->devHandle, &reqData);
     if (ret) {
         HDF_LOGE("%s: error", __func__);
@@ -1694,8 +1690,8 @@ int32_t CheckRawSdkIfSendInterruptRequest002(void)
     reqData.endPoint = rawAcm->notifyEp.addr;
     reqData.length = size;
     reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-    reqData.data        = ((struct UsbRawRequest *)rawAcm->notifyReq)->buffer;
-    reqData.requested      = (int32_t *)&size;
+    reqData.data = ((struct UsbRawRequest *)rawAcm->notifyReq)->buffer;
+    reqData.requested = (int32_t *)&size;
 
     ret = UsbRawSendInterruptRequest(NULL, rawAcm->devHandle, &reqData);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1716,8 +1712,8 @@ int32_t CheckRawSdkIfSendInterruptRequest003(void)
     reqData.endPoint = rawAcm->notifyEp.addr;
     reqData.length = size;
     reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
-    reqData.data        = ((struct UsbRawRequest *)rawAcm->notifyReq)->buffer;
-    reqData.requested      = (int32_t *)&size;
+    reqData.data = ((struct UsbRawRequest *)rawAcm->notifyReq)->buffer;
+    reqData.requested = (int32_t *)&size;
 
     ret = UsbRawSendInterruptRequest(rawAcm->notifyReq, NULL, &reqData);
     if (ret != HDF_ERR_INVALID_PARAM) {
@@ -1763,13 +1759,13 @@ int32_t CheckRawSdkIfFillBulkRequest003(void)
         }
         rawAcm->transmitting++;
 
-        reqData.endPoint      = rawAcm->dataOutEp.addr;
+        reqData.endPoint = rawAcm->dataOutEp.addr;
         reqData.numIsoPackets = 0;
-        reqData.callback      = AcmWriteBulkCallback;
-        reqData.userData      = (void *)snd;
-        reqData.timeout       = USB_CTRL_SET_TIMEOUT;
-        reqData.buffer        = snd->buf;
-        reqData.length        = snd->len;
+        reqData.callback = AcmWriteBulkCallback;
+        reqData.userData = (void *)snd;
+        reqData.timeout = USB_CTRL_SET_TIMEOUT;
+        reqData.buffer = snd->buf;
+        reqData.length = snd->len;
 
         ret = UsbRawFillBulkRequest(snd->request, rawAcm->devHandle, &reqData);
         if (ret) {
@@ -1790,12 +1786,12 @@ int32_t CheckRawSdkIfFillBulkRequest004(void)
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < ACM_NW; i++) {
-        reqData.endPoint      = rawAcm->dataInEp.addr;
+        reqData.endPoint = rawAcm->dataInEp.addr;
         reqData.numIsoPackets = 0;
-        reqData.callback      = AcmReadBulkCallback;
-        reqData.userData      = (void *)rawAcm;
-        reqData.timeout       = USB_RAW_REQUEST_TIME_ZERO_MS;
-        reqData.length        = size;
+        reqData.callback = AcmReadBulkCallback;
+        reqData.userData = (void *)rawAcm;
+        reqData.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
+        reqData.length = size;
         ret = UsbRawFillBulkRequest(rawAcm->readReq[i], rawAcm->devHandle, &reqData);
         if (ret) {
             HDF_LOGE("%s: error", __func__);
