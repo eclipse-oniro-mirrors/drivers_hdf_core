@@ -40,7 +40,7 @@ int32_t HdfWifiGetBusIdx(void)
  */
 static int HdfWlanBusInit(struct HdfWlanDevice *data, const struct HdfConfigWlanBus *busConfig)
 {
-    int ret;
+    int ret = HDF_SUCCESS;
     struct BusDev *bus = NULL;
     struct HdfConfigWlanChipList *tmpChipList = NULL;
     struct HdfConfigWlanRoot *rootConfig = NULL;
@@ -222,7 +222,7 @@ static int32_t HdfWlanDeinitInterface(struct HdfWlanDevice *device, const char *
 
 static int32_t HdfWlanInitInterface(struct HdfWlanDevice *device, struct HdfChipDriverFactory *factory, uint8_t index)
 {
-    int32_t ret;
+    int32_t ret = HDF_SUCCESS;
     NetDevice *netDev = NULL;
     struct HdfChipDriver *chipDriver = NULL;
     do {
@@ -343,7 +343,7 @@ static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConf
         return NULL;
     }
     struct HdfWlanDevice *device = NULL;
-    int32_t ret;
+    int32_t ret = HDF_SUCCESS;
     
     device = (struct HdfWlanDevice *)OsalMemCalloc(sizeof(struct HdfWlanDevice));
     if (device == NULL) {
