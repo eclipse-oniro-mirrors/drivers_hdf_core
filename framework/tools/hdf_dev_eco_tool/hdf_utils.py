@@ -13,6 +13,7 @@ import os
 import hashlib
 import platform
 import configparser
+import re
 from ast import literal_eval
 
 from hdf_tool_exception import HdfToolException
@@ -173,6 +174,18 @@ def read_file_lines(file_path, code_type="utf-8"):
     with open(file_path, encoding=code_type) as file_read:
         lines = file_read.readlines()
     return lines
+
+
+def read_file_binary(file_path):
+    with open(file_path, "rb") as file_binary_read:
+        temp_file_lines = file_binary_read.readlines()
+    file_lines = []
+    for line in temp_file_lines:
+        if line.startswith(b"#") or not (line.strip()):
+            continue
+        else:
+            file_lines.append(line.decode("utf-8"))
+    return file_lines
 
 
 def write_file(file_path, content):
@@ -452,5 +465,59 @@ def judge_enable_line(enable_line, device_base):
             return enable_line
 
 
-def get_passwd_group_path(root_path):
-    return os.path.join(root_path, "base", "startup", "init", "services", "etc")
+class GnMkFileParse(object):
+    def __init__(self, file_path, temp_re):
+        self.file = file_path
+        self.file_info = self._file_read()
+        self.import_list = []
+        self.module_switch = ""
+        self.module_name = ""
+        self.driver_dict = {}
+        self.driver_name = ""
+        self._start_index = ""
+        self._end_index = ""
+        self.driver_re = temp_re
+
+    def _file_read(self):
+        return read_file_binary(file_path=self.file)
+
+    def split_driver_start_to_end(self, flag_str):
+        count = 0
+        for index, line in enumerate(self.file_info):
+            re_result = re.search(self.driver_re, line.strip())
+            if re_result and count == 0:
+                count += 1
+                self._start_index = index
+                self.driver_name = re_result.group("name")
+                continue
+            if line.strip() == flag_str and count > 0:
+                self._end_index = index
+                count -= 1
+                if count == 0:
+                    self.driver_dict[self.driver_name] = \
+                        [self._start_index, self._end_index]
+        return self.driver_dict
+
+    def get_driver_config_str(self, driver_index):
+        return "".join(self.file_info[driver_index[0]: driver_index[-1] + 1])
+
+
+class MakefileAndKconfigFileParse(object):
+    def __init__(self, file_path, flag_str, re_name):
+        self.file = file_path
+        self.file_info = self._file_read()
+        self.driver_re_name = re_name
+        self.driver_re_flg = flag_str
+        self.driver_dict = {}
+
+    def _file_read(self):
+        return read_file_binary(file_path=self.file)
+
+    def split_driver_start_to_end(self):
+        res_list = re.split(self.driver_re_flg, "".join(self.file_info))
+        for res in res_list:
+            re_name = re.search(self.driver_re_name, res)
+            if res and re_name:
+                res_splicing = "".join([self.driver_re_flg, res])
+                self.driver_dict[re_name.group("name")] = res_splicing
+        return self.driver_dict

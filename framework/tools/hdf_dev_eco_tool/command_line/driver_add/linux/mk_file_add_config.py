@@ -50,7 +50,12 @@ def audio_linux_makefile_operation(path, args_tuple):
             temp_handle = Template(temp_line.replace("$(", "temp_flag"))
             temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
-            temp_dict['source_path'] = temp_dict.get('source_path').strip(".c")
+            try:
+                temp_dict['source_path'] = temp_dict.get('source_path').strip(".c")
+            except KeyError as _:
+                continue
+            finally:
+                pass
             if source == source_path[-1]:
                 sources_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(") + "\n"
             else:

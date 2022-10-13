@@ -58,12 +58,12 @@ class HdfDeviceInfoHcsFile(object):
                 for line in self.lines:
                     lwrite.write(line)
 
-    def delete_driver(self, module):
+    def delete_driver(self, module, temp_flag="host"):
         hcs_config = hdf_utils.read_file_lines(self.hcspath)
         index_info = {}
         count = 0
         for index, line in enumerate(hcs_config):
-            if line.find("%s :: host" % module) == -1:
+            if line.find("%s :: %s" % (module, temp_flag)) == -1:
                 continue
             index_info["start_index"] = index
             for child_index in range(
