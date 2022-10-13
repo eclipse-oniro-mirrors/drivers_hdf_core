@@ -3,9 +3,7 @@
         "hispark_taurus": {
             "board_parent_path": "vendor/hisilicon/hispark_taurus/hdf_config/device_info",
             "dot_config_path": "kernel/liteos_a/tools/build/config",
-            "dot_configs": ["hispark_taurus_debug_shell_tee.config", "hispark_taurus_debug_shell.config"
-                            ,"hispark_taurus_release_tee.config", "hispark_taurus_release.config"
-                            , "hispark_taurus_clang_release_tee.config", "hispark_taurus_clang_release.config"]
+            "patch_and_config": []
         },
         "hispark_taurus_linux": {
             "board_parent_path": "vendor/hisilicon/hispark_taurus_linux/hdf_config/device_info",
@@ -33,6 +31,16 @@
             "patch_and_config": []
         }
     },
+    "passwd_group_config": {
+        "passwd": {
+            "path": "base/startup/init/services/etc/passwd",
+            "info_temp": "${peripheral_name}_host:x:${uid}:${uid}:::/bin/false\n"
+            },
+        "group": {
+            "path": "base/startup/init/services/etc/group",
+            "info_temp": "${peripheral_name}_host:x:${gid}:\n"
+            }
+    },
     "drivers_path_relative_framework": "drivers/hdf_core/framework",
     "drivers_path_relative_peripheral": "drivers/peripheral",
     "drivers_path_relative_interface": "drivers/interface",
@@ -40,6 +48,12 @@
     "user_model_path_relative_adapter": "drivers/hdf_core/adapter/uhdf2",
     "template_file_path": "tools/hdf_dev_eco_tool/resources/templates/lite",
     "module_save_path": "tools/hdf_dev_eco_tool/resources/create_model.config",
+    "config_setting_file_info": {
+        "model_device_config_file": "config.ini",
+        "create_driver_file": "create_driver.config",
+        "create_model_file": "create_model.config",
+        "create_hdi_file": "create_idl_hdi.config"
+    },
     "hdi_config": {
         "interface":"productdefine/common/inherit/rich.json",
         "peripheral":"productdefine/common/inherit/chipset_common.json",

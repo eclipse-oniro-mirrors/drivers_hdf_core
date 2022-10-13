@@ -19,6 +19,7 @@ from .hdf_command_error_code import CommandErrorCode
 from .hdf_command_handler_base import HdfCommandHandlerBase
 from .hdf_defconfig_patch import HdfDefconfigAndPatch
 from .hdf_device_info_hcs import HdfDeviceInfoHcsFile
+from .hdf_get_handler import HdfGetHandler
 from .hdf_vendor_build_file import HdfVendorBuildFile
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_vendor_makefile import HdfVendorMakeFile
@@ -36,6 +37,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
             'vendor': self._delete_vendor_handler,
             'module': self._delete_module_handler,
             'driver': self._delete_driver_handler,
+            'module_driver': self._delete_module_driver_handler,
         }
         self.parser.add_argument("--action_type",
                                  help=' '.join(self.handlers.keys()),
@@ -46,6 +48,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         self.parser.add_argument("--driver_name")
         self.parser.add_argument("--board_name")
         self.parser.add_argument("--kernel_name")
+        self.args_original = args
         self.args = self.parser.parse_args(args)
 
     def _delete_vendor_handler(self):
@@ -124,7 +127,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         self._delete_driver(module, driver)
 
     def _delete_file_func(self, root, key, model_info, model):
-        if key == "module_level_config_path":
+        if key.startswith("module_level_config"):
             for key_name, value in model_info[key].items():
                 self._delete_config_operation(
                     key_name, value, temp_root=root, temp_model=model)
@@ -203,3 +206,159 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                     data_model="", new_demo_config=new_demo_config)
                 defconfig_patch.delete_module(
                     path=os.path.join(temp_root, dot_path))
+
+    def _delete_module_driver_handler(self):
+        self.check_arg_raise_if_not_exist("root_dir")
+        self.check_arg_raise_if_not_exist("kernel_name")
+        self.check_arg_raise_if_not_exist("module_name")
+        self.check_arg_raise_if_not_exist("driver_name")
+        self.check_arg_raise_if_not_exist("board_name")
+        root, _, module, driver, board, kernel, _ = self.get_args()
+        get_board = HdfGetHandler(self.args_original)
+        board_module_driver = get_board.delete_module_driver_list()
+        res_json_format = json.loads(board_module_driver)
+        board_name_list = list(res_json_format.keys())
+        temp_board_info = ""
+        for board_name in board_name_list:
+            board_driver = res_json_format[board_name]
+            temp_board_name = board_name.rstrip("_kernel")
+            if temp_board_name == board and kernel == "liteos":
+                self._delete_liteos_driver_config(
+                    root, model_info=board_driver, module_name=module,
+                    driver_name=driver)
+                temp_board_info = board_name
+            elif temp_board_name == board:
+                self._delete_linux_driver_config(
+                    root, model_info=board_driver, module_name=module,
+                    driver_name=driver)
+                temp_board_info = board_name
+            if len(board_driver) <= 1:
+                del res_json_format[board_name]
+        if temp_board_info:
+            get_board.format_delete_driver_file(
+                model_name=module, board_name=temp_board_info, driver_name=driver)
+        return json.dumps(res_json_format, indent=4)
+
+    def _delete_liteos_driver_config(self, root, model_info, module_name, driver_name):
+        model_info_key_list = list(model_info.keys())
+        for key_name in model_info_key_list:
+            file_list = list(model_info[key_name].keys())
+            for file_name in file_list:
+                file_path = model_info[key_name][file_name]
+                if file_name == "Makefile":
+                    mk_re_str = r"ifeq.+LOSCFG_DRIVERS_HDF_(?P<name>.+[A-Z0-9])"
+                    temp_file = hdf_utils.GnMkFileParse(
+                        file_path=file_path, temp_re=mk_re_str)
+                    driver_config_index = temp_file.split_driver_start_to_end(
+                        flag_str="endif")
+                    self.config_delete_operation_liteos(
+                        driver_name, driver_config_index, temp_file, file_path)
+                elif file_name == "BUILD.gn":
+                    mk_re_str = r"if.+LOSCFG_DRIVERS_HDF_(?P<name>.+\w)"
+                    temp_file = hdf_utils.GnMkFileParse(
+                        file_path=file_path, temp_re=mk_re_str)
+                    driver_config_index = temp_file.split_driver_start_to_end(
+                        flag_str="}")
+                    self.config_delete_operation_liteos(
+                        driver_name, driver_config_index, temp_file, file_path)
+                if file_name == driver_name:
+                    self._delete_driver_file(file_path=file_path)
+                    del model_info[key_name][file_name]
+                    if not model_info[key_name]:
+                        del model_info[key_name]
+                else:
+                    self.linux_liteos_common(
+                        file_name, root, file_path, module_name, driver_name)
+
+    def _delete_linux_driver_config(
+            self, root, model_info, module_name, driver_name):
+        model_info_key_list = list(model_info.keys())
+        for key_name in model_info_key_list:
+            file_list = list(model_info[key_name].keys())
+            for file_name in file_list:
+                file_path = model_info[key_name][file_name]
+                if file_name == "Makefile":
+                    mk_re_str = r"CONFIG_DRIVERS_HDF_(?P<name>.+[A-Z0-9])"
+                    flag_re = r"obj"
+                    temp_file = hdf_utils.MakefileAndKconfigFileParse(
+                        file_path=file_path, flag_str=flag_re, re_name=mk_re_str)
+                    driver_config_index = temp_file.split_driver_start_to_end()
+                    self.config_delete_operation_linux(
+                        driver_name, driver_config_index, file_path)
+                elif file_name == driver_name:
+                    self._delete_driver_file(file_path=file_path)
+                    del model_info[key_name][file_name]
+                    if not model_info[key_name]:
+                        del model_info[key_name]
+                else:
+                    self.linux_liteos_common(
+                        file_name, root, file_path, module_name, driver_name)
+
+    def config_delete_operation_liteos(
+            self, driver_name, driver_config_index, temp_file, file_path):
+        key_list = list(filter(
+            lambda x: x.endswith(driver_name.upper()),
+            driver_config_index.keys()))
+        if key_list:
+            key_name = key_list[0]
+            res = temp_file.get_driver_config_str(
+                driver_index=driver_config_index[key_name])
+            temp_info = hdf_utils.read_file(file_path)
+            hdf_utils.write_file(file_path, "".join(temp_info.split(res)))
+
+    def config_delete_operation_linux(
+            self, driver_name, driver_config_index, file_path):
+        key_list = list(filter(
+            lambda x: x.endswith(driver_name.upper()),
+            driver_config_index.keys()))
+        if key_list:
+            key_name = key_list[0]
+            res = driver_config_index[key_name].rstrip("endif")
+            temp_info = hdf_utils.read_file(file_path)
+            hdf_utils.write_file(file_path, "".join(temp_info.split(res)))
+
+    def linux_liteos_common(self, file_name, root, file_path,
+                            module_name, driver_name):
+        if file_name == "Kconfig":
+            config_re_str = r"DRIVERS_HDF_(?P<name>.+[A-Z0-9])"
+            flag_re = r"config"
+            temp_file = hdf_utils.MakefileAndKconfigFileParse(
+                file_path=file_path, flag_str=flag_re, re_name=config_re_str)
+            driver_config_index = temp_file.split_driver_start_to_end()
+            self.config_delete_operation_linux(
+                driver_name, driver_config_index, file_path)
+        elif file_name.endswith("hcs"):
+            HdfDeviceInfoHcsFile(
+                root=root, vendor="", module="",
+                board="", driver=" ", path=file_path). \
+                delete_driver(module=driver_name, temp_flag="device")
+        elif file_name.endswith("dot_configs"):
+            for dot_path in file_path:
+                if dot_path.split(".")[-1] == "config":
+                    template_string = \
+                        "LOSCFG_DRIVERS_HDF_${module_upper}_${driver_upper}=y\n"
+                else:
+                    template_string = \
+                        "CONFIG_DRIVERS_HDF_${module_upper}_${driver_upper}=y\n"
+                new_demo_config = Template(template_string). \
+                    substitute({
+                        "module_upper": module_name.upper(),
+                        "driver_upper": driver_name.upper(),
+                    })
+                defconfig_patch = HdfDefconfigAndPatch(
+                    root=root, vendor="", kernel="", board="",
+                    data_model="", new_demo_config=new_demo_config)
+                defconfig_patch.delete_module(
+                    path=os.path.join(root, dot_path))
+
+    def _delete_driver_file(self, file_path):
+        for file_path_info in file_path:
+            path_temp = file_path_info
+            while os.path.exists(path_temp):
+                if os.path.isfile(path_temp):
+                    os.remove(path_temp)
+                elif os.path.isdir(path_temp) and (not os.listdir(path_temp)):
+                    os.rmdir(path_temp)
+                else:
+                    break
+                path_temp = os.path.dirname(path_temp)

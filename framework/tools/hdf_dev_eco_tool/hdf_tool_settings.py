@@ -25,15 +25,15 @@ def singleton(clazz):
     return create_instance
 
 
-def get_hdf_tool_settings_path():
+def get_hdf_tool_resources_path():
     cur_dir = os.path.realpath(os.path.dirname(__file__))
-    return os.path.join(cur_dir, 'resources', 'settings.json')
+    return os.path.join(cur_dir, 'resources')
 
 
 @singleton
 class HdfToolSettings(object):
     def __init__(self):
-        self.file_path = get_hdf_tool_settings_path()
+        self.file_path = os.path.join(get_hdf_tool_resources_path(), 'settings.json')
         self.settings = {}
         if not os.path.exists(self.file_path):
             return
@@ -58,6 +58,8 @@ class HdfToolSettings(object):
         self.dot_config_path_key = 'dot_config_path'
         self.template_path_key = 'template_file_path'
         self.hdi_config_key = "hdi_config"
+        self.passwd_group_key = "passwd_group_config"
+        self.config_setting_info = "config_setting_file_info"
 
     def get_supported_boards(self):
         key = self.supported_boards_key
@@ -133,6 +135,17 @@ class HdfToolSettings(object):
 
     def get_module_save_path(self):
         key = self.module_save_path_key
+        return self.settings.get(key, 'hdf')
+
+    def get_resources_file_path(self):
+        return get_hdf_tool_resources_path()
+
+    def get_passwd_group_config(self):
+        key = self.passwd_group_key
+        return self.settings.get(key, 'hdf')
+
+    def get_config_setting_info(self):
+        key = self.config_setting_info
         return self.settings.get(key, 'hdf')
 
 

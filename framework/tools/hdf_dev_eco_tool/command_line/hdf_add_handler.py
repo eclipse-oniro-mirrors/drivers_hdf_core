@@ -8,10 +8,10 @@
 # See the LICENSE file in the root of this repository for complete details.
 
 
-import copy
-import os
 import json
 from string import Template
+import os
+
 import hdf_utils
 from hdf_tool_settings import HdfToolSettings
 from hdf_tool_exception import HdfToolException
@@ -49,6 +49,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         self.parser.add_argument("--runmode")
         self.parser.add_argument("--device_name")
         self.args = self.parser.parse_args(args)
+        self.hdf_tool = HdfToolSettings()
 
     @staticmethod
     def _render(template_path, output_path, data_model):
@@ -75,7 +76,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         os.makedirs(target_dir)
         self._file_gen_lite('hdf_vendor_kconfig.template', target_dir,
                             'Kconfig', {})
-        board_parent_path = HdfToolSettings().get_board_parent_path(board)
+        board_parent_path = self.hdf_tool.get_board_parent_path(board)
         if not board_parent_path:
             board_parent_path = 'vendor/hisilicon'
         data_model = {
@@ -92,41 +93,40 @@ class HdfAddHandler(HdfCommandHandlerBase):
         self.check_arg_raise_if_not_exist("driver_name")
         args_tuple = self.get_args()
         root, vendor, module, driver, board, kernel, _ = args_tuple
-        board_list = HdfToolSettings().get_board_list()
-        if board in board_list:
-            framework_hdf = hdf_utils.get_vendor_hdf_dir_framework(root)
-            if not os.path.exists(framework_hdf):
-                raise HdfToolException(
-                    ' framework model path  "%s" not exist' %
-                    framework_hdf, CommandErrorCode.TARGET_NOT_EXIST)
-            # framework create file .c
-            framework_drv_root_dir = hdf_utils.get_drv_root_dir(
-                root, module)
-            if os.path.exists(framework_drv_root_dir):
-                raise HdfToolException('module "%s" already exist' % module,
-                                       CommandErrorCode.TARGET_ALREADY_EXIST)
-            os.makedirs(framework_drv_root_dir)
-            # create .c template driver file
-            state, driver_file_path = self._add_driver(*args_tuple)
-            if not state:
-                raise HdfToolException(
-                    'create drivers file fail  "%s" ' %
-                    driver_file_path.split("\\")[-1])
-            config_item, config_file_out = \
-                self.diff_type_module_add_operation(
-                    framework_hdf, driver_file_path, args_tuple)
-            config_name = "create_model.config"
-            config_file = hdf_utils.read_file(
-                os.path.join('resources', config_name))
-            config_file_json = json.loads(config_file)
-            config_file_json[module] = config_file_out
-            hdf_utils.write_config(
-                root_path=root, config_file_json=config_file_json,
-                config_name=config_name)
-            return json.dumps(config_item)
-        else:
+        board_list = self.hdf_tool.get_board_list()
+        if board not in board_list:
             raise HdfToolException(
                 'supported boards name : %s not exits ' % board)
+        framework_hdf = hdf_utils.get_vendor_hdf_dir_framework(root)
+        if not os.path.exists(framework_hdf):
+            raise HdfToolException(
+                ' framework model path  "%s" not exist' %
+                framework_hdf, CommandErrorCode.TARGET_NOT_EXIST)
+        # framework create file .c
+        framework_drv_root_dir = hdf_utils.get_drv_root_dir(
+            root, module)
+        if os.path.exists(framework_drv_root_dir):
+            raise HdfToolException('module "%s" already exist' % module,
+                                   CommandErrorCode.TARGET_ALREADY_EXIST)
+        os.makedirs(framework_drv_root_dir)
+        # create .c template driver file
+        state, driver_file_path = self._add_driver(*args_tuple)
+        if not state:
+            raise HdfToolException(
+                'create drivers file fail  "%s" ' %
+                driver_file_path.split("\\")[-1])
+        config_item, config_file_out = \
+            self.diff_type_module_add_operation(
+                framework_hdf, driver_file_path, args_tuple)
+        config_name = "create_model.config"
+        config_file = hdf_utils.read_file(
+            os.path.join('resources', config_name))
+        config_file_json = json.loads(config_file)
+        config_file_json[module] = config_file_out
+        hdf_utils.write_config(
+            root_path=root, config_file_json=config_file_json,
+            config_name=config_name)
+        return json.dumps(config_item)
 
     def diff_type_module_add_operation(self, framework_hdf,
                                        driver_file_path, args_tuple):
@@ -186,7 +186,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         liteos_file_path = {}
         liteos_level_config_file_path = {}
         liteos_file_name = ['BUILD.gn', 'Kconfig', 'Makefile']
-        temp_path = HdfToolSettings().get_template_path()
+        temp_path = self.hdf_tool.get_template_path()
         template_path = os.path.join(framework_hdf, temp_path)
         for file_name in liteos_file_name:
             for i in hdf_utils.template_filename_filtrate(
@@ -237,7 +237,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         linux_file_path = {}
         linux_level_config_file_path = {}
         linux_file_name = ['Kconfig', 'Makefile']
-        temp_path = HdfToolSettings().get_template_path()
+        temp_path = self.hdf_tool.get_template_path()
         template_path = os.path.join(framework_hdf, temp_path)
         for file_name in linux_file_name:
             for i in hdf_utils.template_filename_filtrate(
@@ -286,12 +286,12 @@ class HdfAddHandler(HdfCommandHandlerBase):
         linux_level_config_file_path = {}
         # create user build.gn files
         root, vendor, module, driver, board, kernel, _ = args_tuple
-        relative_path = HdfToolSettings().get_user_adapter_path()
+        relative_path = self.hdf_tool.get_user_adapter_path()
         user_model_path = os.path.join(root, relative_path, module)
         if not os.path.exists(user_model_path):
             os.makedirs(user_model_path)
         user_model_file_path = os.path.join(user_model_path, "BUILD.gn")
-        temp_path = HdfToolSettings().get_template_path()
+        temp_path = self.hdf_tool.get_template_path()
         template_path = os.path.join(framework_hdf, temp_path)
         user_file_path = driver_file_path.split(root)[-1].replace("\\", "/")
         if user_file_path.startswith("/"):
@@ -378,50 +378,49 @@ class HdfAddHandler(HdfCommandHandlerBase):
         self.check_arg_raise_if_not_exist("board_name")
         self.check_arg_raise_if_not_exist("driver_name")
         self.check_arg_raise_if_not_exist("device_name")
-
         args_tuple = self.get_args()
         root, vendor, module, driver, board, kernel, device = args_tuple
-
-        board_list = HdfToolSettings().get_board_list()
-        if board in board_list:
-            framework_hdf = hdf_utils.get_vendor_hdf_dir_framework(root)
-            hdf_utils.judge_file_path_exists(framework_hdf)
-
-            framework_drv_root_dir = hdf_utils.get_module_dir(
-                root, module)
-            hdf_utils.judge_file_path_exists(framework_drv_root_dir)
-            add_driver = HdfAddDriver(args=args_tuple)
-            # create driver Source File (.c 、.h)
-            state, driver_file_list, driver_head_list = add_driver.add_driver(*args_tuple)
-            if board == "hispark_taurus":
-                file_path = add_driver.add_liteos(driver_file_list, driver_head_list)
-            elif board.endswith("linux"):
-                file_path = add_driver.add_linux(driver_file_list, driver_head_list)
-            elif board.startswith("rk3568"):
-                file_path = add_driver.add_kernel(driver_file_list, driver_head_list)
-            elif board.startswith("hispark_taurus_standard_kernel"):
-                file_path = add_driver.add_kernel(driver_file_list, driver_head_list)
-            else:
-                file_path = []
-
-            config_item = {
-                'module_name': module,
-                'module_path': file_path,
-                'driver_name': "%s_driver.c" % driver,
-                'driver_file_path': driver_file_list,
-                'head_file_path': driver_head_list,
-                'enabled': True
-            }
-            config_name = "create_driver.config"
-            config_file = hdf_utils.read_file(
-                os.path.join("resources", config_name))
-            config_file_json = json.loads(config_file)
-            result_config_file_json = add_driver.driver_create_info_format(
-                config_file_json, config_item, file_path)
-            hdf_utils.write_config(root_path=root,
-                                   config_file_json=result_config_file_json,
-                                   config_name=config_name)
-            return config_item
+        board_list = self.hdf_tool.get_board_list()
+        if board not in board_list:
+            raise HdfToolException(
+                'supported boards name : %s not exits ' % board)
+        framework_hdf = hdf_utils.get_vendor_hdf_dir_framework(root)
+        hdf_utils.judge_file_path_exists(framework_hdf)
+        framework_drv_root_dir = hdf_utils.get_module_dir(root, module)
+        hdf_utils.judge_file_path_exists(framework_drv_root_dir)
+        add_driver = HdfAddDriver(args=args_tuple)
+        # create driver Source File (.c 、.h)
+        state, file_list, head_list = add_driver.add_driver(*args_tuple)
+        if board == "hispark_taurus":
+            file_path = add_driver.add_liteos(file_list, head_list)
+        elif board.endswith("linux"):
+            file_path = add_driver.add_linux(file_list, head_list)
+        elif board.startswith("rk3568"):
+            file_path = add_driver.add_kernel(file_list, head_list)
+        elif board.startswith("hispark_taurus_standard_kernel"):
+            file_path = add_driver.add_kernel(file_list, head_list)
+        else:
+            file_path = []
+        config_item = {
+            'module_name': module,
+            'module_path': file_path,
+            'driver_name': driver,
+            'driver_file_path': file_list,
+            'head_file_path': head_list,
+            'enabled': "true"
+        }
+        resources_path = self.hdf_tool.get_resources_file_path()
+        config_setting_dict = self.hdf_tool.get_config_setting_info()
+        temp_file_name = config_setting_dict["create_driver_file"]
+        model_driver_file_path = os.path.join(resources_path, temp_file_name)
+        config_file = hdf_utils.read_file(model_driver_file_path)
+        config_file_json = json.loads(config_file)
+        result_config_file_json = add_driver.driver_create_info_format(
+            config_file_json, config_item, file_path)
+        hdf_utils.write_config(root_path=root,
+                               config_file_json=result_config_file_json,
+                               config_name=temp_file_name)
+        return json.dumps(config_item, indent=4)
 
     def _add_config_handler(self):
         self.check_arg_raise_if_not_exist("module_name")
@@ -434,21 +433,24 @@ class HdfAddHandler(HdfCommandHandlerBase):
 
     def revise_passwd_group_file(self, root_path, linux_file_path, model_name):
         # passwd group
-        etc_path = hdf_utils.get_passwd_group_path(root_path=root_path)
-        passwd_lines = hdf_utils.read_file_lines(os.path.join(etc_path, 'passwd'))
-        group_lines = hdf_utils.read_file_lines(os.path.join(etc_path, 'group'))
+        etc_path = self.hdf_tool.get_passwd_group_config()
+        passwd_file_path = os.path.join(root_path, etc_path["passwd"]["path"])
+        passwd_lines = hdf_utils.read_file_lines(passwd_file_path)
+        group_file_path = os.path.join(root_path, etc_path["group"]["path"])
+        group_lines = hdf_utils.read_file_lines(group_file_path)
         id_list = []
         for i in passwd_lines:
             id_list.append(int(i.split(":")[3]))
         new_uid = max(id_list) + 1
-        pwd_newline = "{model_name}_user_host:x:{uid}:{uid}:::/bin/false\n".format(
-            model_name=model_name, uid=new_uid)
-        group_newline = '{model_name}_user_host:x:{uid}:\n'.format(
-            model_name=model_name, uid=new_uid)
+        temp_name = "_".join([model_name, "user"])
+        pwd_newline = etc_path["passwd"]["info_temp"].format(
+            peripheral_name=temp_name, uid=new_uid)
+        group_newline = etc_path["group"]["info_temp"].format(
+            peripheral_name=temp_name, gid=new_uid)
         passwd_lines.append(pwd_newline)
         group_lines.append(group_newline)
-        hdf_utils.write_file_lines(os.path.join(etc_path, 'passwd'), passwd_lines)
-        hdf_utils.write_file_lines(os.path.join(etc_path, 'group'), group_lines)
-        linux_file_path["passwd"] = os.path.join(etc_path, 'passwd')
-        linux_file_path["group"] = os.path.join(etc_path, 'group')
+        hdf_utils.write_file_lines(passwd_file_path, passwd_lines)
+        hdf_utils.write_file_lines(group_file_path, group_lines)
+        linux_file_path["passwd"] = passwd_file_path
+        linux_file_path["group"] = group_file_path
         return linux_file_path

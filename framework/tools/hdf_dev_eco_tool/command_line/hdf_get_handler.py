@@ -7,6 +7,7 @@
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
+
 import os
 import json
 
@@ -39,9 +40,11 @@ class HdfGetHandler(HdfCommandHandlerBase):
             'driver_file': self._get_driver_file_handler,
             'drv_config_file': self._get_drv_config_file_handler,
             'hdf_tool_core_version': self._get_version_handler,
+            'model_device_list': self._get_model_device_list,
+            'model_driver_list': self._get_model_driver_list,
             'model_list': self._get_model_dict,
             'model_scan': self._mode_scan,
-            'version': self.__get_version,
+            'version': self._get_version,
         }
         self.parser.add_argument("--action_type",
                                  help=' '.join(self.handlers.keys()),
@@ -50,6 +53,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
         self.parser.add_argument("--vendor_name")
         self.parser.add_argument("--module_name")
         self.parser.add_argument("--driver_name")
+        self.parser.add_argument("--kernel_name")
         self.parser.add_argument("--board_name")
         self.args = self.parser.parse_args(args)
 
@@ -158,7 +162,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
             out_model_list.append({k: model_file_path})
         return json.dumps(out_model_list, indent=4)
 
-    def __get_version(self):
+    def _get_version(self):
         version_end = "\nCopyright (c) 2020-2021 Huawei Device Co., Ltd."
         version_head = "hdf_dev_eco_tool version : "
         return version_head + GetToolVersion().get_version() + version_end
@@ -174,3 +178,76 @@ class HdfGetHandler(HdfCommandHandlerBase):
         else:
             return HdfLinuxScan(
                 root=root, vendor=vendor, board=board).get_model_scan()
+
+    def _get_model_device_list(self):
+        self.check_arg_raise_if_not_exist("module_name")
+        model_device_file_path = ""
+        resources_path = HdfToolSettings().get_resources_file_path()
+        for file_name in os.listdir(resources_path):
+            if file_name.endswith("ini"):
+                model_device_file_path = os.path.join(resources_path, file_name)
+        device_list, _ = hdf_utils.ini_file_read_operation(
+            path=model_device_file_path, section_name=self.args.module_name,
+            node_name="file_dir")
+        return device_list
+
+    def _get_crate_model_driver_info(self):
+        self.check_arg_raise_if_not_exist("module_name")
+        resources_path = HdfToolSettings().get_resources_file_path()
+        config_setting_dict = HdfToolSettings().get_config_setting_info()
+        temp_file_name = config_setting_dict["create_driver_file"]
+        model_driver_file_path = os.path.join(resources_path, temp_file_name)
+        hdf_utils.judge_file_path_exists(model_driver_file_path)
+        model_driver_info = hdf_utils.read_file(model_driver_file_path)
+        model_driver_json = json.loads(model_driver_info)
+        return model_driver_json, model_driver_file_path
+
+    def _get_model_driver_list(self):
+        model_driver_json, _ = self._get_crate_model_driver_info()
+        board_list = list(model_driver_json.keys())
+        res_format_json = {}
+        for board_name in board_list:
+            board_info = model_driver_json.get(board_name)
+            if board_info and board_info.get(self.args.module_name):
+                res_format_json[board_name] = board_info.get(
+                    self.args.module_name)
+        self.format_model_driver_res(res_format_json)
+        return json.dumps(res_format_json, indent=4)
+
+    def format_model_driver_res(self, temp_driver_info):
+        type_list_config = []
+        for type_name in temp_driver_info.keys():
+            type_list_config.append(temp_driver_info[type_name])
+        for config_path in type_list_config:
+            for key_name, value in config_path["module_level_config"].items():
+                self.type_judge(value, key_name, config_path, parent_key="module_level_config")
+            for key_name, value in config_path["driver_file_list"].items():
+                self.type_judge(value, key_name, config_path, parent_key="driver_file_list")
+
+    def type_judge(self, value, key_name, config_path, parent_key):
+        if isinstance(value, list):
+            config_path[parent_key][key_name] = \
+                list(filter(lambda elem: os.path.exists(
+                    os.path.join(self.args.root_dir, elem)), value))
+            config_path[parent_key][key_name] = \
+                list(map(lambda element: os.path.join(self.args.root_dir, element),
+                         config_path[parent_key][key_name]))
+        else:
+            temp_path = os.path.join(self.args.root_dir, value)
+            if os.path.exists(temp_path):
+                config_path[parent_key][key_name] = temp_path
+            else:
+                config_path[parent_key][key_name] = ""
+
+    def delete_module_driver_list(self):
+        return self._get_model_driver_list()
+
+    def format_delete_driver_file(self, model_name, board_name, driver_name):
+        driver_json, driver_file_path = self._get_crate_model_driver_info()
+        del driver_json[board_name][model_name]["driver_file_list"][driver_name]
+        if not driver_json[board_name][model_name]["driver_file_list"]:
+            del driver_json[board_name][model_name]
+            if not driver_json[board_name]:
+                del driver_json[board_name]
+        hdf_utils.write_file(file_path=driver_file_path,
+                             content=json.dumps(driver_json, indent=4))

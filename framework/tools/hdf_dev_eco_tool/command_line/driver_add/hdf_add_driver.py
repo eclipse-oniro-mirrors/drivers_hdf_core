@@ -28,9 +28,8 @@ from ..hdf_device_info_hcs import HdfDeviceInfoHcsFile
 class HdfAddDriver(object):
     def __init__(self, args):
         super(HdfAddDriver, self).__init__()
-
-        self.root, self.vendor, self.module,\
-        self.driver, self.board, self.kernel, self.device = args
+        self.root, self.vendor, self.module, self.driver, \
+        self.board, self.kernel, self.device = args
         self.template_file_path = hdf_utils.get_template_file_path(self.root)
         if not os.path.exists(self.template_file_path):
             raise HdfToolException(
@@ -179,39 +178,41 @@ class HdfAddDriver(object):
 
     def driver_create_info_format(self, config_file_json,
                                   config_item, file_path):
-        kernel_type = config_file_json.get(self.kernel)
-        if kernel_type is None:
-            config_file_json[self.kernel] = {
+        board_type = config_file_json.get(self.board)
+        if board_type is None:
+            config_file_json[self.board] = {
                 config_item.get("module_name"): {
-                    'module_leve_config': {},
+                    'module_level_config': {},
                     "driver_file_list": {
                         config_item.get("driver_name"):
-                            config_item.get("driver_file_path")
+                            config_item.get("driver_file_path") +
+                            config_item.get("head_file_path")
                     }
                 }
             }
-            config_file_json[self.kernel][self.module]["module_leve_config"]\
+            config_file_json[self.board][self.module]["module_level_config"]\
                 .update(file_path)
         else:
-            model_type = kernel_type.get(config_item.get("module_name"))
+            model_type = board_type.get(config_item.get("module_name"))
             if model_type is None:
-                temp = config_file_json.get(self.kernel)
+                temp = config_file_json.get(self.board)
                 temp_module = config_item.get("module_name")
                 temp[temp_module] = {
-                    'module_leve_config': {},
+                    'module_level_config': {},
                     "driver_file_list": {
                         config_item.get("driver_name"):
-                            config_item.get("driver_file_path")
+                            config_item.get("driver_file_path") +
+                            config_item.get("head_file_path")
                     }
                 }
-                config_file_json.get(self.kernel).get(self.module).\
-                    get("module_leve_config").update(file_path)
+                config_file_json.get(self.board).get(self.module).\
+                    get("module_level_config").update(file_path)
             else:
-                temp = config_file_json.get(self.kernel).\
+                temp = config_file_json.get(self.board).\
                     get(config_item.get("module_name")).get("driver_file_list")
                 temp[config_item.get("driver_name")] = \
-                    config_item.get("driver_file_path")
-
+                    config_item.get("driver_file_path") + \
+                    config_item.get("head_file_path")
         return config_file_json
 
     def add_driver(self, *args_tuple):
