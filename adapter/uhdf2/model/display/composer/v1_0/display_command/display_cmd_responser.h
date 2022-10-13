@@ -20,7 +20,6 @@
 #include "hdf_base.h"
 #include "hilog/log.h"
 #include "hdi_smq.h"
-#include "buffer_handle_parcelable.h"
 #include "buffer_handle_utils.h"
 #include "command_pack/command_data_packer.h"
 #include "command_pack/command_data_unpacker.h"

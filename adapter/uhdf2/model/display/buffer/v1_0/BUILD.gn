@@ -25,10 +25,7 @@ ohos_shared_library("libdisplay_buffer_hdi_impl") {
 
   include_dirs = [
     "//drivers/hdf_core/adapter/uhdf2/model/display/buffer",
-    "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable",
   ]
-
-  deps = [ "//drivers/hdf_core/adapter/uhdf2/model/display/base/bufferhandle_parcelable:libbufferhandle_parcelable" ]
 
   public_deps = [ "//foundation/graphic/graphic_2d/utils/buffer_handle:buffer_handle" ]
 

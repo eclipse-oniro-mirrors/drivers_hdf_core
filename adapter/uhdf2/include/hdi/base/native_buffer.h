@@ -44,6 +44,10 @@ public:
     BufferHandle *Clone();
     // move own BufferHandle
     BufferHandle *Move() noexcept;
+    // Set BufferHandle, No ownership by NativeBuffer
+    void SetBufferHandle(BufferHandle *handle, bool isOwner = false);
+    // Get BufferHandle from NativeBuffer
+    BufferHandle *GetBufferHandle() noexcept;
 
     std::string Dump() const;
 private:
@@ -51,6 +55,7 @@ private:
     static bool WriteReserveData(MessageParcel &messageParcel, const BufferHandle &handle);
     static bool ReadReserveData(MessageParcel &messageParcel, BufferHandle &handle);
     BufferHandle *handle_;
+    bool isOwner_;
 };
 } // namespace Base
 } // namespace HDI

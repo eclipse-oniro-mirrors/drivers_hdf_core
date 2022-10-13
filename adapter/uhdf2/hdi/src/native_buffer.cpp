@@ -23,11 +23,11 @@
 namespace OHOS {
 namespace HDI {
 namespace Base {
-NativeBuffer::NativeBuffer() : handle_(nullptr) {}
+NativeBuffer::NativeBuffer() : handle_(nullptr), isOwner_(true) {}
 
 NativeBuffer::~NativeBuffer()
 {
-    if (handle_ != nullptr) {
+    if (handle_ != nullptr && isOwner_ == true) {
         FreeNativeBufferHandle(handle_);
     }
 }
@@ -48,16 +48,18 @@ NativeBuffer::NativeBuffer(const NativeBuffer &other) : NativeBuffer()
 NativeBuffer::NativeBuffer(NativeBuffer &&other) noexcept : NativeBuffer()
 {
     handle_ = other.handle_;
+    isOwner_ = other.isOwner_;
     other.handle_ = nullptr;
 }
 
 NativeBuffer &NativeBuffer::operator=(const NativeBuffer &other)
 {
     if (this != &other) {
-        if (handle_ != nullptr) {
+        if (handle_ != nullptr && isOwner_ == true) {
             FreeNativeBufferHandle(handle_);
         }
         handle_ = CloneNativeBufferHandle(other.handle_);
+        isOwner_ = true;
     }
     return *this;
 }
@@ -65,10 +67,11 @@ NativeBuffer &NativeBuffer::operator=(const NativeBuffer &other)
 NativeBuffer &NativeBuffer::operator=(NativeBuffer &&other) noexcept
 {
     if (this != &other) {
-        if (handle_ != nullptr) {
+        if (handle_ != nullptr && isOwner_ == true) {
             FreeNativeBufferHandle(handle_);
         }
         handle_ = other.handle_;
+        isOwner_ = other.isOwner_;
         other.handle_ = nullptr;
     }
     return *this;
@@ -91,7 +94,7 @@ bool NativeBuffer::Marshalling(Parcel &parcel) const
     if (!messageParcel.WriteUint32(handle_->reserveFds) || !messageParcel.WriteUint32(handle_->reserveInts) ||
         !messageParcel.WriteInt32(handle_->width) || !messageParcel.WriteInt32(handle_->stride) ||
         !messageParcel.WriteInt32(handle_->height) || !messageParcel.WriteInt32(handle_->size) ||
-        !messageParcel.WriteInt32(handle_->format) || !messageParcel.WriteInt32(handle_->key)) {
+        !messageParcel.WriteInt32(handle_->format) || !messageParcel.WriteUint64(handle_->usage)) {
         HDF_LOGE("%{public}s: a lot failed", __func__);
         return false;
     }
@@ -129,9 +132,27 @@ BufferHandle *NativeBuffer::Clone()
 
 BufferHandle *NativeBuffer::Move() noexcept
 {
+    if (isOwner_ == false) {
+        HDF_LOGE("%{public}s@%{public}d: isOwner_ is false, Cannot be moved", __func__, __LINE__);
+        return nullptr;
+    }
     BufferHandle *handlePtr = handle_;
     handle_ = nullptr;
     return handlePtr;
+}
+
+void NativeBuffer::SetBufferHandle(BufferHandle *handle, bool isOwner)
+{
+    if (handle_ != nullptr && isOwner_ == true) {
+        FreeNativeBufferHandle(handle_);
+    }
+    isOwner_ = isOwner;
+    handle_ = handle;
+}
+
+BufferHandle *NativeBuffer::GetBufferHandle() noexcept
+{
+    return handle_;
 }
 
 std::string NativeBuffer::Dump() const
@@ -188,7 +209,7 @@ bool NativeBuffer::ExtractFromParcel(Parcel &parcel)
     bool validFd = false;
     if (!messageParcel.ReadInt32(handle_->width) || !messageParcel.ReadInt32(handle_->stride) ||
         !messageParcel.ReadInt32(handle_->height) || !messageParcel.ReadInt32(handle_->size) ||
-        !messageParcel.ReadInt32(handle_->format) || !messageParcel.ReadInt32(handle_->key) ||
+        !messageParcel.ReadInt32(handle_->format) || !messageParcel.ReadUint64(handle_->usage) ||
         !messageParcel.ReadBool(validFd)) {
         HDF_LOGE("%{public}s: failed to parcel read", __func__);
         return false;
