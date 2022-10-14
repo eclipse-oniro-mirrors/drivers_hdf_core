@@ -64,9 +64,9 @@ IDisplayBuffer *IDisplayBuffer::Get()
 
 DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
 {
-    allocator_ = IAllocatorInterface::Get(isAllocLocal);
+    allocator_ = IAllocator::Get(isAllocLocal);
     CHECK_NULLPOINTER_RETURN(allocator_);
-    mapper_ = IMapperInterface::Get(true);
+    mapper_ = IMapper::Get(true);
     CHECK_NULLPOINTER_RETURN(mapper_);
 }
 
