@@ -23,8 +23,8 @@ extern "C" {
 extern uint32_t g_osalTestCases[OSAL_TEST_CASE_CNT];
 extern bool g_testEndFlag;
 
-#define OSAL_TEST_CASE_SET(cmd) (g_osalTestCases[(cmd) / BITS_PER_INT] |= (1 << ((cmd) % BITS_PER_INT)))
-#define OSAL_TEST_CASE_CHECK(cmd) (g_osalTestCases[(cmd) / BITS_PER_INT] & (1 << ((cmd) % BITS_PER_INT)))
+#define OSAL_TEST_CASE_SET(cmd) (g_osalTestCases[(cmd) / BITS_PER_INT] |= ((uint32_t)1 << ((cmd) % BITS_PER_INT)))
+#define OSAL_TEST_CASE_CHECK(cmd) (g_osalTestCases[(cmd) / BITS_PER_INT] & ((uint32_t)1 << ((cmd) % BITS_PER_INT)))
 
 #define UT_TEST_CHECK_RET(val, cmd) do { \
     if ((val) && (g_testEndFlag == false)) { \
