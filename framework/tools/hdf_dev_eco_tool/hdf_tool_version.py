@@ -11,6 +11,8 @@ class GetToolVersion(object):
     def __init__(self):
         self.hdf_version_major = 0
         self.hdf_version_minor = 2
+        self.hdf_version_patch = 0
 
     def get_version(self):
-        return "{}.{}".format(self.hdf_version_major, self.hdf_version_minor)
+        return "{}.{}.{}".format(
+            self.hdf_version_major, self.hdf_version_minor, self.hdf_version_patch)

@@ -41,7 +41,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
             'drv_config_file': self._get_drv_config_file_handler,
             'hdf_tool_core_version': self._get_version_handler,
             'model_device_list': self._get_model_device_list,
-            'model_driver_list': self._get_model_driver_list,
+            'model_driver_list': self._get_device_driver_list,
             'model_list': self._get_model_dict,
             'model_scan': self._mode_scan,
             'version': self._get_version,
@@ -213,6 +213,32 @@ class HdfGetHandler(HdfCommandHandlerBase):
                     self.args.module_name)
         self.format_model_driver_res(res_format_json)
         return json.dumps(res_format_json, indent=4)
+
+    def _get_device_driver_list(self):
+        temp_res = json.loads(self._get_model_driver_list())
+        board_list = list(temp_res.keys())
+        res_dict = {}
+        for board_name in board_list:
+            res_dict[board_name] = {
+                "module_level_config": temp_res.get(
+                    board_name).get("module_level_config"),
+                "driver_file_list": {}
+            }
+            board_info = temp_res.get(board_name).get("driver_file_list")
+            for driver_name, value_info in board_info.items():
+                temp_path = value_info[0]
+                file_name = temp_path.split(os.path.dirname(temp_path))[-1]
+                temp_device_name = file_name.strip(os.path.sep)
+                device_name = temp_device_name.split(driver_name)[0][0:-1]
+                temp_device = res_dict.get(board_name).get(
+                    "driver_file_list").get(device_name)
+                if temp_device:
+                    temp_device[driver_name] = value_info
+                else:
+                    res_dict.get(board_name).get("driver_file_list")[device_name] = {
+                        driver_name: value_info
+                    }
+        return json.dumps(res_dict, indent=4)
 
     def format_model_driver_res(self, temp_driver_info):
         type_list_config = []

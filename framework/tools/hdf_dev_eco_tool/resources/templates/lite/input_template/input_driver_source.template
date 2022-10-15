@@ -6,8 +6,6 @@
 #include "input_i2c_ops.h"
 #include "${include_file}"
 
-#define MAX_POINT 5
-
 static int32_t ChipInit(ChipDevice *device)
 {
     return HDF_SUCCESS;
@@ -25,105 +23,18 @@ static int32_t ChipSuspend(ChipDevice *device)
 
 static int32_t ChipDetect(ChipDevice *device)
 {
-    int32_t ret;
-    int32_t version;
-    int32_t xSolution;
-    int32_t ySolution;
-    InputI2cClient *i2cClient = &device->driver->i2cClient;
-    uint8_t buf[GT_CFG_INFO_LEN] = {0};
-    uint8_t reg[GT_ADDR_LEN] = {0};
-    reg[0] = (GT_CFG_INFO_ADDR >> ONE_BYTE_OFFSET) & ONE_BYTE_MASK;
-    reg[1] = GT_CFG_INFO_ADDR & ONE_BYTE_MASK;
-
-    ret = InputI2cRead(i2cClient, reg, GT_ADDR_LEN, buf, GT_CFG_INFO_LEN);
-    if (ret < 0) {
-        HDF_LOGE("%s: read chip version failed", __func__);
-        return HDF_FAILURE;
-    }
-
-    version = (buf[GT_FW_VER_HIGH] << ONE_BYTE_OFFSET) | buf[GT_FW_VER_LOW];
-    xSolution = (buf[GT_SOLU_X_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_X_LOW];
-    ySolution = (buf[GT_SOLU_Y_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_Y_LOW];
-#if defined(CONFIG_ARCH_ROCKCHIP)
-    if (version != 0x100 || buf[GT_PROD_ID_1ST] != '5' || buf[GT_PROD_ID_2ND] != '6') {
-        HDF_LOGE("%s: version or ID wrong", __func__);
-        return HDF_FAILURE;
-    }
-#endif
-    HDF_LOGI("%s: IC FW version is 0x%x", __func__, version);
-    if (buf[GT_FW_VER_HIGH] == 0x0) {
-        HDF_LOGI("Product ID : %c%c%c_%02x%02x, xSol = %d, ySol = %d", buf[GT_PROD_ID_1ST], buf[GT_PROD_ID_2ND],
-            buf[GT_PROD_ID_3RD], buf[GT_FW_VER_HIGH], buf[GT_FW_VER_LOW], xSolution, ySolution);
-    } else {
-        HDF_LOGI("Product_ID: %c%c%c%c_%02x%02x, x_sol = %d, y_sol = %d", buf[GT_PROD_ID_1ST], buf[GT_PROD_ID_2ND],
-            buf[GT_PROD_ID_3RD], buf[GT_PROD_ID_4TH], buf[GT_FW_VER_HIGH], buf[GT_FW_VER_LOW], xSolution, ySolution);
-    }
-
     (void)ChipInit(device);
     (void)ChipResume(device);
     (void)ChipSuspend(device);
+
     return HDF_SUCCESS;
 }
 
-static int ChipCleanBuffer(InputI2cClient *i2cClient)
+static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t pointNum)
 {
-    int32_t ret;
-    uint8_t writeBuf[GT_CLEAN_DATA_LEN];
-    writeBuf[GT_REG_HIGH_POS] = (GT_BUF_STATE_ADDR >> ONE_BYTE_OFFSET) & ONE_BYTE_MASK;
-    writeBuf[GT_REG_LOW_POS] = GT_BUF_STATE_ADDR & ONE_BYTE_MASK;
-    writeBuf[GT_CLEAN_POS] = GT_CLEAN_FLAG;
-    ret = InputI2cWrite(i2cClient, writeBuf, GT_CLEAN_DATA_LEN);
-    if (ret != HDF_SUCCESS) {
-
-        HDF_LOGE("%s: InputI2cWrite failed, ret = %d", __func__, ret);
-    }
-    return ret;
-}
-
-#define X_OFFSET    1
-
-static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
-{
-    int32_t chipVer = device->chipCfg->chipVersion;
-    int32_t resX = device->driver->boardCfg->attr.resolutionX;
-    int32_t resY = device->driver->boardCfg->attr.resolutionY;
     int32_t i;
 
     for (i = 0; i < pointNum; i++) {
-        if (chipVer == 0) {         // chipversion  A:${driver_lower_case}_zsj5p5
-            frame->fingers[i].trackId = buf[GT_POINT_SIZE * i + GT_TRACK_ID];
-#if defined(CONFIG_ARCH_SPRD)
-            frame->fingers[i].y = (resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) <<
-                                  ONE_BYTE_OFFSET))) * resY / resX;
-            frame->fingers[i].x = ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) <<
-                                  ONE_BYTE_OFFSET)) * resX / resY;
-#elif defined(CONFIG_ARCH_ROCKCHIP)
-            frame->fingers[i].x = resX - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-#else
-            frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-            frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-#endif
-            if (frame->fingers[i].x == 0) {
-                frame->fingers[i].x = X_OFFSET;
-            }
-        } else if (chipVer == 1) {  // chipversion B:${driver_lower_case}_zsj4p0
-            frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-        } else {                    // chipversion C:${driver_lower_case}_tg7p0
-            frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-        }
         frame->fingers[i].valid = true;
     }
 }
@@ -136,21 +47,9 @@ The following sample code shows the data analysis of ${driver_lower_case}
 
 static int32_t ChipDataHandle(ChipDevice *device)
 {
-    int32_t ret;
     uint8_t touchStatus = 0;
-    uint8_t pointNum;
-    uint8_t buf[GT_POINT_SIZE * MAX_SUPPORT_POINT] = {0};
-    InputI2cClient *i2cClient = &device->driver->i2cClient;
-    uint8_t reg[GT_ADDR_LEN] = {0};
+    uint8_t pointNum = 0;
     FrameData *frame = &device->driver->frameData;
-
-    /*  ${driver_lower_case} Before getting the coordinates, you need to read the status register  */
-    reg[0] = (GT_BUF_STATE_ADDR >> ONE_BYTE_OFFSET) & ONE_BYTE_MASK;
-    reg[1] = GT_BUF_STATE_ADDR & ONE_BYTE_MASK;
-    ret = InputI2cRead(i2cClient, reg, GT_ADDR_LEN, &touchStatus, 1);
-    if (ret < 0 || touchStatus == GT_EVENT_INVALID) {
-        return HDF_FAILURE;
-    }
 
     OsalMutexLock(&device->driver->mutex);
     (void)memset_s(frame, sizeof(FrameData), 0, sizeof(FrameData));
@@ -160,27 +59,13 @@ static int32_t ChipDataHandle(ChipDevice *device)
         goto EXIT;
     }
 
-    /* Read the data register data according to the value of the status register */
-    reg[0] = (GT_X_LOW_BYTE_BASE >> ONE_BYTE_OFFSET) & ONE_BYTE_MASK;
-    reg[1] = GT_X_LOW_BYTE_BASE & ONE_BYTE_MASK;
-    pointNum = touchStatus & GT_FINGER_NUM_MASK;
-    if (pointNum == 0 || pointNum > MAX_SUPPORT_POINT) {
-        HDF_LOGE("%s: pointNum is invalid, %u", __func__, pointNum);
-        (void)ChipCleanBuffer(i2cClient);
-        OsalMutexUnlock(&device->driver->mutex);
-        return HDF_FAILURE;
-    }
     frame->realPointNum = pointNum;
     frame->definedEvent = TOUCH_DOWN;
-    (void)InputI2cRead(i2cClient, reg, GT_ADDR_LEN, buf, GT_POINT_SIZE * pointNum);
     /* Parse the acquired data */
-    ParsePointData(device, frame, buf, pointNum);
+    ParsePointData(device, frame, pointNum);
 
 EXIT:
     OsalMutexUnlock(&device->driver->mutex);
-    if (ChipCleanBuffer(i2cClient) != HDF_SUCCESS) {
-        return HDF_FAILURE;
-    }
     return HDF_SUCCESS;
 }
 
@@ -217,7 +102,7 @@ static void SetAbility(ChipDevice *device)
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].min = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].max = device->boardCfg->attr.resolutionY - 1;
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].range = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_TRACKING_ID].max = MAX_POINT;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_TRACKING_ID].max = MAX_SUPPORT_POINT;
 }
 
 /* Differential interface adaptation of touch screen devices */
@@ -285,7 +170,7 @@ static void FreeChipConfig(TouchChipCfg *config)
 }
 
 /* Device layer driver initialization and registration driver to HDF framework */
-static int32_t HdfGoodixChipInit(struct HdfDeviceObject *device)
+static int32_t Hdf${driver_upper_camel_case}ChipInit(struct HdfDeviceObject *device)
 {
     TouchChipCfg *chipCfg = NULL;
     ChipDevice *chipDev = NULL;
@@ -328,26 +213,20 @@ EXIT:
     return HDF_FAILURE;
 }
 
-static int32_t HdfGoodixChipBind(struct HdfDeviceObject *deviceObject) {
-    HDF_LOGI("${driver_lower_case} driver bind success");
-    return 0;
-}
-
-static void HdfGoodixChipRelease(struct HdfDeviceObject *device)
+static void Hdf${driver_upper_camel_case}ChipRelease(struct HdfDeviceObject *device)
 {
     if (device == NULL || device->priv == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return;
     }
-    HDF_LOGI("%s: goodix chip is release", __func__);
+    HDF_LOGI("%s: ${driver_lower_case} chip is release", __func__);
 }
 
 struct HdfDriverEntry g_touchchip_${driver_lower_case}Entry = {
     .moduleVersion = 1,
     .moduleName = "${device_upper_case}_${driver_upper_case}",
-    .Bind = HdfGoodixChipBind,
-    .Init = HdfGoodixChipInit,
-    .Release = HdfGoodixChipRelease,
+    .Init = Hdf${driver_upper_camel_case}ChipInit,
+    .Release = Hdf${driver_upper_camel_case}ChipRelease,
 };
 
 /* Register device driver to HDF framework */
