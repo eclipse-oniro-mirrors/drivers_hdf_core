@@ -16,6 +16,7 @@
 #ifndef OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
 
+#include "unistd.h"
 #include "hilog/log.h"
 #include "v1_0/display_command/display_cmd_requester.h"
 #include "v1_0/display_composer_type.h"
@@ -40,12 +41,18 @@ class DisplayComposerHdiImpl : public Interface, public IHotPlugCallback, public
 public:
     static IDisplayComposerInterface* Create()
     {
-        sptr<CompHdi> hdi = CompHdi::Get();
-        if (hdi == nullptr) {
-            return nullptr;
+        sptr<CompHdi> hdi;
+        uint32_t count = 0;
+
+        while ((hdi = CompHdi::Get()) == nullptr) {
+            HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s get display_composer_service, count = %{public}d",
+                __LINE__, __func__, ++count);
+            usleep(1000);
         }
+
         std::shared_ptr<CmdReq> req = CmdReq::Create(hdi);
         if (req == nullptr) {
+            HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s Create DisplayCmdRequester failed", __LINE__, __func__);
             return nullptr;
         }
         return new DisplayComposerHdiImpl(hdi, req);
