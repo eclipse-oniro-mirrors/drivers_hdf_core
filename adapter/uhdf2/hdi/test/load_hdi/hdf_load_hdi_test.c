@@ -76,6 +76,9 @@ static void HdiOpenTest(void)
     }
     sampleA = (struct HdiSampleA *)hdi->hdiBase;
     UT_TEST_CHECK_RET(sampleA != NULL, true);
+    if (sampleA == NULL) {
+        return;
+    }
     ret = sampleA->ServiceA();
     HDF_LOGD("%{public}s %{public}d", __func__, ret);
     UT_TEST_CHECK_RET(ret == SERRVICE_A_RESULT, true);
@@ -103,6 +106,9 @@ static void HdiReCloseTest(void)
     }
     sampleA = (struct HdiSampleA *)hdi->hdiBase;
     UT_TEST_CHECK_RET(sampleA != NULL, true);
+    if (sampleA == NULL) {
+        return;
+    }
     ret = sampleA->ServiceA();
     HDF_LOGD("%{public}s %{public}d ", __func__, ret);
     UT_TEST_CHECK_RET(ret == SERRVICE_A_RESULT, true);
@@ -127,6 +133,9 @@ static void HdiOpenVersionErrorTest(void)
     }
     sampleA = (struct HdiSampleA *)hdi->hdiBase;
     UT_TEST_CHECK_RET(sampleA == NULL, true);
+    if (sampleA == NULL) {
+        return;
+    }
     ret = sampleA->ServiceA();
     HDF_LOGD("%{public}s %{public}d ", __func__, ret);
     UT_TEST_CHECK_RET(ret != SERRVICE_A_RESULT, true);
@@ -150,6 +159,9 @@ static void HdiOpenNameErrorTest(void)
     }
     sampleA = (struct HdiSampleA *)hdi->hdiBase;
     UT_TEST_CHECK_RET(sampleA == NULL, true);
+    if (sampleA == NULL) {
+        return;
+    }
     ret = sampleA->ServiceA();
     HDF_LOGD("%{public}s %{public}d ", __func__, ret);
     UT_TEST_CHECK_RET(ret != SERRVICE_A_RESULT, true);
@@ -173,6 +185,9 @@ static void HdiOpenErrorTest(void)
     }
     sampleA = (struct HdiSampleA *)hdi->hdiBase;
     UT_TEST_CHECK_RET(sampleA == NULL, true);
+    if (sampleA == NULL) {
+        return;
+    }
     ret = sampleA->ServiceA();
     HDF_LOGD("%{public}s %{public}d ", __func__, ret);
     UT_TEST_CHECK_RET(ret != SERRVICE_A_RESULT, true);
@@ -214,12 +229,14 @@ static void HdiOpenMoreTest(void)
         }
         sampleA = (struct HdiSampleA *)hdi->hdiBase;
         UT_TEST_CHECK_RET(sampleA != NULL, false);
-        ret = sampleA->ServiceA();
-        HDF_LOGD("%{public}s %{public}d ", __func__, ret);
-        UT_TEST_CHECK_RET(ret == SERRVICE_A_RESULT, false);
-        ret = sampleA->ServiceB(0);
-        HDF_LOGD("%{public}s %{public}d ", __func__, ret);
-        UT_TEST_CHECK_RET(ret == SERRVICE_B_RESULT, false);
+        if (sampleA != NULL) {
+            ret = sampleA->ServiceA();
+            HDF_LOGD("%{public}s %{public}d ", __func__, ret);
+            UT_TEST_CHECK_RET(ret == SERRVICE_A_RESULT, false);
+            ret = sampleA->ServiceB(0);
+            HDF_LOGD("%{public}s %{public}d ", __func__, ret);
+            UT_TEST_CHECK_RET(ret == SERRVICE_B_RESULT, false);
+        }
     }
     OsalGetTime(&time1);
     for (int i = 0; i < HDI_LOAD_PRESSURE_TIME; i++) {
@@ -251,6 +268,9 @@ static void HdiOpenTwoSoTest(void)
     }
     sampleA = (struct HdiSampleA *)hdiA->hdiBase;
     UT_TEST_CHECK_RET(sampleA != NULL, true);
+    if (sampleA == NULL) {
+        return;
+    }
     ret = sampleA->ServiceA();
     HDF_LOGD("%{public}s %{public}d ", __func__, ret);
     UT_TEST_CHECK_RET(ret == SERRVICE_A_RESULT, true);
@@ -265,6 +285,9 @@ static void HdiOpenTwoSoTest(void)
     }
     sampleB = (struct HdiSampleA *)hdiB->hdiBase;
     UT_TEST_CHECK_RET(sampleB != NULL, true);
+    if (sampleB == NULL) {
+        return;
+    }
     ret = sampleB->ServiceA();
     HDF_LOGD("%{public}s %{public}d ", __func__, ret);
     UT_TEST_CHECK_RET(ret == SERRVICE_A_RESULT, true);
