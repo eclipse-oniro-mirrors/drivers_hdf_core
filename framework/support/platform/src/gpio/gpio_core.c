@@ -352,7 +352,7 @@ int32_t GpioCntlrDisableIrq(struct GpioCntlr *cntlr, uint16_t local)
 
 int32_t GpioCntlrGetNumByGpioName(struct GpioCntlr *cntlr, const char *gpioName)
 {
-    uint32_t index;
+    uint16_t index;
 
     if (cntlr == NULL) {
         HDF_LOGE("%s: cntlr is NULL!", __func__);
@@ -366,8 +366,9 @@ int32_t GpioCntlrGetNumByGpioName(struct GpioCntlr *cntlr, const char *gpioName)
 
     for (index = 0; index < cntlr->count; index++) {
         if (strcmp(cntlr->ginfos[index].name, gpioName) == 0) {
-            HDF_LOGD("%s: gpioName:%s get gpio number: %u success!", __func__, gpioName, index);
-            return cntlr->start + index;
+            HDF_LOGD("%s: gpioName:%s get gpio number: %d success!", __func__, gpioName,
+                (int32_t)(cntlr->start + index));
+            return (int32_t)(cntlr->start + index);
         }
     }
     HDF_LOGE("%s: gpioName:%s failed to get gpio number!", __func__, gpioName);
