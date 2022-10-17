@@ -17,7 +17,7 @@ void CCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
     for (const auto &pair : types) {
         AutoPtr<ASTType> type = pair.second;
         if (type->IsNativeBufferType()) {
-            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "buffer_util");
+            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "base/buffer_util");
         }
     }
 }
