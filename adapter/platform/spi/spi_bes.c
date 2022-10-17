@@ -285,6 +285,7 @@ static int32_t HalSpiRecv(const struct SpiDevice *spiDevice, uint8_t *data, uint
     uint8_t *cmd = NULL;
     uint32_t spiId;
     struct SpiResource *resource = NULL;
+
     if (spiDevice == NULL || data == NULL || size == 0) {
         HDF_LOGE("spi input para err\r\n");
         return HDF_ERR_INVALID_PARAM;
@@ -341,6 +342,7 @@ static int32_t HalSpiSendRecv(const struct SpiDevice *spiDevice, uint8_t *txData
     int32_t status;
     uint32_t spiId;
     struct SpiResource *resource = NULL;
+
     if (spiDevice == NULL || txData == NULL || txSize == 0 || rxData == NULL || rxSize == 0) {
         HDF_LOGE("spi input para err\r\n");
         return HDF_ERR_INVALID_PARAM;
@@ -378,6 +380,7 @@ static int32_t InitSpiDevice(struct SpiDevice *spiDevice)
     int32_t ret;
     struct HAL_SPI_CFG_T *spiDevCfg = NULL;
     struct SpiResource *resource = NULL;
+
     if (spiDevice == NULL) {
         HDF_LOGE("%s: invalid parameter\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -445,6 +448,7 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const char *dev
 {
     int32_t result = HDF_FAILURE;
     struct SpiResource *resource = NULL;
+
     if (spiDevice == NULL || deviceMatchAttr == NULL) {
         HDF_LOGE("device or deviceMatchAttr is NULL\r\n");
         return HDF_ERR_INVALID_PARAM;
@@ -466,6 +470,7 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
     uint32_t relPin;
     struct SpiResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
+
     if (spiDevice == NULL || resourceNode == NULL) {
         HDF_LOGE("%s: PARAM is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -618,6 +623,7 @@ HDF_INIT(g_SpiDriverEntry);
 static int32_t SpiDriverBind(struct HdfDeviceObject *device)
 {
     struct SpiCntlr *spiCntlr = NULL;
+
     if (device == NULL) {
         HDF_LOGE("Sample device object is null!\r\n");
         return HDF_ERR_INVALID_PARAM;
@@ -681,9 +687,7 @@ static void SpiDriverRelease(struct HdfDeviceObject *device)
     }
 
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    if (spiDevice != NULL) {
-        OsalMemFree(spiDevice);
-    }
+    OsalMemFree(spiDevice);
     return;
 }
 
@@ -694,6 +698,7 @@ static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
     uint32_t spiPort;
     struct SpiDevice *spiDevice = NULL;
     struct HAL_SPI_CFG_T *spiDevCfg = NULL;
+
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -719,6 +724,7 @@ static int32_t SpiDevClose(struct SpiCntlr *spiCntlr)
     uint32_t spiPort;
     struct SpiDevice *spiDevice = NULL;
     struct HAL_SPI_CFG_T *spiDevCfg = NULL;
+
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -741,14 +747,12 @@ static int32_t SpiDevClose(struct SpiCntlr *spiCntlr)
 static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 {
     struct SpiDevice *spiDevice = NULL;
+
     if (spiCntlr == NULL || spiCfg == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    if (spiDevice == NULL) {
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
     spiCfg->maxSpeedHz = spiDevice->resource.speed;
     spiCfg->mode = spiDevice->resource.mode;
     spiCfg->transferMode = spiDevice->resource.transmode;
@@ -761,14 +765,12 @@ static int32_t SpiDevSetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 {
     struct SpiDevice *spiDevice = NULL;
     struct HAL_SPI_CFG_T *spiDevCfg = NULL;
+
     if (spiCntlr == NULL || spiCfg == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    if (spiDevice == NULL) {
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
     spiDevCfg = &spiDevice->spiDevCfg;
     if (spiDevCfg == NULL) {
         return HDF_ERR_INVALID_OBJECT;
@@ -787,6 +789,7 @@ static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, 
     struct SpiDevice *spiDevice = NULL;
     struct SpiMsg *msg = NULL;
     int32_t ret;
+
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;

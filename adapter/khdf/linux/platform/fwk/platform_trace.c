@@ -185,7 +185,7 @@ static int32_t TraceEventFileWrite(const char *enable)
 int32_t PlatformTraceStart(void)
 {
     if (!TraceIsOpen()) {
-        return HDF_SUCCESS;
+        return HDF_ERR_NOT_SUPPORT;
     }
     TraceEventFileWrite("1");
     return HDF_SUCCESS;
@@ -194,7 +194,7 @@ int32_t PlatformTraceStart(void)
 int32_t PlatformTraceStop(void)
 {
     if (!TraceIsOpen()) {
-        return HDF_SUCCESS;
+        return HDF_ERR_NOT_SUPPORT;
     }
     TraceEventFileWrite("0");
     return HDF_SUCCESS;

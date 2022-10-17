@@ -145,7 +145,7 @@ static void MipiTxDrvGetPhyPllSet1Set5(unsigned int phyDataRate,
     } else {
         pllRef = 1;
     }
-    int_multiplication = dataRateClk * pllRef;
+    int_multiplication = (int64_t)(dataRateClk * pllRef);
     if (int_multiplication > INT_MAX_VALUE) {
         HDF_LOGE("%s: exceeds the maximum value of type int32_t.", __func__);
         return;

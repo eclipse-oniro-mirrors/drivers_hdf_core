@@ -89,7 +89,7 @@ int32_t CanCntlrGetCfg(struct CanCntlr *cntlr, struct CanConfig *cfg);
 
 int32_t CanCntlrGetState(struct CanCntlr *cntlr);
 
-int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, struct CanMsg *msg);
+int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, const struct CanMsg *msg);
 
 int32_t CanCntlrAddRxBox(struct CanCntlr *cntlr, struct CanRxBox *rxBox);
 

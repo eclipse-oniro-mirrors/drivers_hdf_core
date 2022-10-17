@@ -73,7 +73,7 @@ static void HdmiHdrModeChangeTimerSet(struct HdmiCntlr *cntlr, bool start)
     HdmiCntlrHdrTimerSet(cntlr, &(hdrInfo->stateChangeTimer));
 }
 
-static int32_t HdmiDisableHdr(struct HdmiCntlr *cntlr, struct HdmiHdrAttr *curAttr)
+static int32_t HdmiDisableHdr(struct HdmiCntlr *cntlr, const struct HdmiHdrAttr *curAttr)
 {
     int32_t ret = HDF_SUCCESS;
     struct HdmiHdrAttr *oldAttr = &(cntlr->attr.hdrAttr);

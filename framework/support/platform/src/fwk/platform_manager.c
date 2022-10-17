@@ -194,7 +194,7 @@ int32_t PlatformManagerAddDevice(struct PlatformManager *manager, struct Platfor
     return ret;
 }
 
-static int32_t PlatformManagerDelDeviceDefault(struct PlatformManager *manager, struct PlatformDevice *device)
+static int32_t PlatformManagerDelDeviceDefault(const struct PlatformManager *manager, struct PlatformDevice *device)
 {
     if (manager == NULL || device == NULL) {
         return HDF_ERR_INVALID_OBJECT;

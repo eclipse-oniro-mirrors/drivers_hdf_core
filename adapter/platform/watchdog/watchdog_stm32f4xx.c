@@ -242,9 +242,7 @@ static void WatchdogDriverRelease(struct HdfDeviceObject *device)
     }
 
     watchdogdeviceinfo = (WatchdogDeviceInfo *)watchdogCntlr->priv;
-    if (watchdogdeviceinfo != NULL) {
-        OsalMemFree(watchdogdeviceinfo);
-    }
+    OsalMemFree(watchdogdeviceinfo);
     return;
 }
 
@@ -261,11 +259,6 @@ static int32_t WatchdogDevStart(struct WatchdogCntlr *watchdogCntlr)
     }
 
     watchdogdeviceinfo = (WatchdogDeviceInfo *)watchdogCntlr->priv;
-    if (watchdogdeviceinfo == NULL) {
-        HDF_LOGE("%s: OBJECT is NULL\r\n", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
     watchdogId = watchdogdeviceinfo->watchdogId;
     timeout = watchdogdeviceinfo->timeout;
 
@@ -310,25 +303,21 @@ static int32_t WatchdogDevStop(struct WatchdogCntlr *watchdogCntlr)
 static int32_t WatchdogDevSetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32_t seconds)
 {
     WatchdogDeviceInfo *watchdogdeviceinfo = NULL;
+
     if (watchdogCntlr == NULL || watchdogCntlr->priv == NULL) {
         HDF_LOGE("%s: watchdogCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     watchdogdeviceinfo = (WatchdogDeviceInfo *)watchdogCntlr->priv;
-    if (watchdogdeviceinfo == NULL) {
-        HDF_LOGE("%s: OBJECT is NULL\r\n", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
     watchdogdeviceinfo->timeout = seconds;
-
     return HDF_SUCCESS;
 }
 
 static int32_t WatchdogDevGetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32_t *seconds)
 {
     WatchdogDeviceInfo *watchdogdeviceinfo = NULL;
+
     if (watchdogCntlr == NULL || seconds == NULL) {
         HDF_LOGE("%s: PARAM is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;

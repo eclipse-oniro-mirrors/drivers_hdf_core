@@ -382,7 +382,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
     }
 
     host = (struct PwmDev *)device->service;
-    if (host != NULL && host->device != NULL) {
+    if (host->device != NULL) {
         host->method = NULL;
         OsalMemFree(host->device);
         OsalMemFree(host);
@@ -424,7 +424,7 @@ static int32_t InitPwmFreqAndPeriod(const struct PwmConfig *config, PwmFreqArg* 
         return HDF_FAILURE;
     }
 
-    if (config->period != 0) {
+    if (period != 0) {
         duty = (uint32_t)(((double)config->duty / (double)config->period) * period);
     } else {
         HDF_LOGE("invalid div\r\n");

@@ -654,14 +654,12 @@ static int32_t SpiDevClose(struct SpiCntlr *spiCntlr)
 static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 {
     SpiDevice *spiDevice = NULL;
+
     if (spiCntlr == NULL || spiCfg == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (SpiDevice *)spiCntlr->priv;
-    if (spiDevice == NULL) {
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
     spiCfg->maxSpeedHz = spiDevice->resource.baudRate;
     spiCfg->mode = spiDevice->resource.clkMode;
     spiCfg->transferMode = spiDevice->resource.transMode;
@@ -677,16 +675,12 @@ static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 static int32_t SpiDevSetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 {
     SpiDevice *spiDevice = NULL;
+
     if (spiCntlr == NULL || spiCfg == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (SpiDevice *)spiCntlr->priv;
-    if (spiDevice == NULL) {
-        HDF_LOGE("%s: spiDevice is NULL\r\n", __func__);
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
-
     spiDevice->resource.baudRate = spiCfg->maxSpeedHz;
     spiDevice->resource.clkMode = spiCfg->mode;
     spiDevice->resource.transMode = spiCfg->transferMode;

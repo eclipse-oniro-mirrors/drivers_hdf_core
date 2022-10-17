@@ -114,7 +114,7 @@ void MipiDsiCntlrClose(struct MipiDsiCntlr *cntlr)
     HDF_LOGI("%s: success!", __func__);
 }
 
-int32_t MipiDsiCntlrSetCfg(struct MipiDsiCntlr *cntlr, struct MipiCfg *cfg)
+int32_t MipiDsiCntlrSetCfg(struct MipiDsiCntlr *cntlr, const struct MipiCfg *cfg)
 {
     int32_t ret;
 

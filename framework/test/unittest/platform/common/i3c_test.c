@@ -363,7 +363,8 @@ static int32_t I3cTestFreeIbi(void *param)
     return HDF_SUCCESS;
 }
 
-static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2, int *count1, int *count2)
+static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2,
+    const int32_t *count1, const int32_t *count2)
 {
     int32_t ret;
     uint32_t time;

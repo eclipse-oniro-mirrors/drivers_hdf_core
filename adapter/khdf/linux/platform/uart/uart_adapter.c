@@ -392,6 +392,7 @@ static int32_t UartAdapterGetAttribute(struct UartHost *host, struct UartAttribu
     attribute->rts = CtsRtsToAttr(termios.c_cflag);
     return HDF_SUCCESS;
 }
+
 static int32_t UartAdapterSetAttribute(struct UartHost *host, struct UartAttribute *attribute)
 {
     struct termios termios;
@@ -422,17 +423,12 @@ static int32_t UartAdapterSetAttribute(struct UartHost *host, struct UartAttribu
     } else if (attribute->parity == UART_ATTR_PARITY_EVEN) {
         termios.c_cflag |= PARENB;
         termios.c_cflag &= ~PARODD;
-    } else if (attribute->parity == UART_ATTR_PARITY_NONE) {
-        termios.c_cflag &= ~(PARENB | PARODD);
-    } else { /* default value */
+    } else {
         termios.c_cflag &= ~(PARENB | PARODD);
     }
-    if (attribute->stopBits == UART_ATTR_STOPBIT_1) {
-        termios.c_cflag &= ~CSTOPB;
-    } else if (attribute->stopBits == UART_ATTR_STOPBIT_2) {
+    if (attribute->stopBits == UART_ATTR_STOPBIT_2) {
         termios.c_cflag |= CSTOPB;
     } else {
-        /* default value */
         termios.c_cflag &= ~CSTOPB;
     }
     ret = UartAdapterIoctlInner(fp, TCSETS, (unsigned long)&termios);

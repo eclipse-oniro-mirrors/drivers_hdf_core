@@ -60,16 +60,12 @@ static int InitPwmDevice(const struct PwmDev *host)
 {
     struct PwmDevice *pwmDevice = NULL;
     struct PwmResource *resource = NULL;
+
     if (host == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     pwmDevice = (struct PwmDevice *)host->priv;
-    if (pwmDevice == NULL) {
-        HDF_LOGE("pwmDevice is NULL\r\n");
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
-
     resource = &pwmDevice->resource;
     if (resource == NULL) {
         HDF_LOGE("resource is NULL\r\n");
@@ -267,7 +263,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
     }
 
     host = (struct PwmDev *)device->service;
-    if (host != NULL && host->device != NULL) {
+    if (host->device != NULL) {
         host->method = NULL;
         OsalMemFree(host->device);
         host->device = NULL;

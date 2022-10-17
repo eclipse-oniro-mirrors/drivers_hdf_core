@@ -35,7 +35,7 @@ static int32_t I2sSetCfgTest(struct I2sTest *test)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    HDF_LOGE("%s:sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
+    HDF_LOGD("%s:sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
         channelIfMode[%u], mclk[%u], bclk[%u], writeChannel[%u], i2slFsSel[%u]", __func__,
         test->sampleRate, test->type, test->channelMode, test->samplePrecision,
         test->channelIfMode, test->mclk, test->bclk, test->writeChannel, test->i2slFsSel);
@@ -66,7 +66,7 @@ static int32_t I2sGetCfgTest(struct I2sTest *test)
     struct I2sCfg cfg;
     I2sGetCfg(test->handle, &cfg);
 
-    HDF_LOGE("%s:sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
+    HDF_LOGD("%s:sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
         channelIfMode[%u], mclk[%u], bclk[%u], writeChannel[%u], i2slFsSel[%u]", __func__,
         test->sampleRate, test->type, test->channelMode, test->samplePrecision,
         test->channelIfMode, test->mclk, test->bclk, test->writeChannel, test->i2slFsSel);

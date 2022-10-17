@@ -320,7 +320,7 @@ static int32_t AdcManagerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    if (number >= ADC_DEVICES_MAX || reply == NULL) {
+    if (number >= ADC_DEVICES_MAX) {
         HDF_LOGE("%s: invalid number!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }

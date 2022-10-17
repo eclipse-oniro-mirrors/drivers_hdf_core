@@ -70,18 +70,18 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     msg.delayUs = params->descDelay;
     msg.keepCs = params->descKeep;
     msg.len = SPI_BUF_SIZE;
-    msg.rbuf = (uint8_t *)malloc(SPI_BUF_SIZE);
+    msg.rbuf = reinterpret_cast<uint8_t *>(malloc(SPI_BUF_SIZE));
     if (msg.rbuf == nullptr) {
         HDF_LOGE("%{public}s:malloc rbuf failed", __func__);
         return false;
     }
-    msg.wbuf = (uint8_t *)malloc(SPI_BUF_SIZE);
+    msg.wbuf = reinterpret_cast<uint8_t *>(malloc(SPI_BUF_SIZE));
     if (msg.wbuf == nullptr) {
         HDF_LOGE("%{public}s:malloc wbuf failed", __func__);
         free(msg.rbuf);
         return false;
     }
-    if (memcpy_s((void *)msg.wbuf, SPI_BUF_SIZE, params->buf, SPI_BUF_SIZE) != EOK) {
+    if (memcpy_s(reinterpret_cast<void *>(msg.wbuf), SPI_BUF_SIZE, params->buf, SPI_BUF_SIZE) != EOK) {
         free(msg.rbuf);
         free(msg.wbuf);
         HDF_LOGE("%{public}s:memcpy buf failed", __func__);

@@ -1780,12 +1780,12 @@ void HdmiCecEncodingReportArcTerminationMsg(struct HdmiCecMsg *msg);
 void HdmiCecEncodingReportAudioStatusMsg(struct HdmiCecMsg *msg, uint8_t audioMuteStatus, uint8_t audioVolumeStatus);
 void HdmiCecEncodingReportCurrentLatencyMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, struct HdmiCecLatencyInfo *info);
 void HdmiCecEncodingReportDevicePowerStatusMsg(struct HdmiCecMsg *msg, uint8_t powerStatus);
-void HdmiCecEncodingReportShortAudioDescriptorMsg(struct HdmiCecMsg *msg, uint32_t *descriptor, uint32_t len);
+void HdmiCecEncodingReportShortAudioDescriptorMsg(struct HdmiCecMsg *msg, const uint32_t *descriptor, uint32_t len);
 void HdmiCecEncodingRequestActiveSourceMsg(struct HdmiCecMsg *msg, bool response);
 void HdmiCecEncodingRequestArcInitiationMsg(struct HdmiCecMsg *msg, bool response);
 void HdmiCecEncodingRequestArcTerminationMsg(struct HdmiCecMsg *msg, bool response);
 void HdmiCecEncodingRequestCurrentLatencyMsg(struct HdmiCecMsg *msg, uint16_t phyAddr, bool response);
-void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg, uint8_t *id, uint8_t *code,
+void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg, const uint8_t *id, const uint8_t *code,
     uint32_t len, bool response);
 void HdmiCecEncodingRoutingChangeMsg(struct HdmiCecMsg *msg, uint16_t orgAddr, uint16_t newAddr, bool response);
 void HdmiCecEncodingRoutingInfomationMsg(struct HdmiCecMsg *msg, uint16_t phyAddr);

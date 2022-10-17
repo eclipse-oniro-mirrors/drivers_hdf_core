@@ -23,7 +23,7 @@ static bool WatchdogFuzzTest(const uint8_t *data, size_t size)
         HDF_LOGE("%{public}s:open handle failed", __func__);
         return false;
     }
-    WatchdogSetTimeout(handle, *(uint32_t *)data);
+    WatchdogSetTimeout(handle, *(reinterpret_cast<const uint32_t *>(data)));
     WatchdogClose(handle);
     return true;
 }

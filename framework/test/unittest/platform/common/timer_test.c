@@ -23,7 +23,7 @@ static bool g_theard2Flag = false;
 
 struct TimerTestFunc {
     int type;
-    int32_t (*Func)(struct TimerTest *test);
+    int32_t (*Func)(const struct TimerTest *test);
 };
 
 static int32_t TimerTestcaseCb(uint32_t number)
@@ -45,7 +45,7 @@ static int32_t TimerTestcaseOnceCb(uint32_t number)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerSetTest(struct TimerTest *test)
+static int32_t TimerSetTest(const struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -56,7 +56,7 @@ static int32_t TimerSetTest(struct TimerTest *test)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerSetOnceTest(struct TimerTest *test)
+static int32_t TimerSetOnceTest(const struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -67,7 +67,7 @@ static int32_t TimerSetOnceTest(struct TimerTest *test)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerGetTest(struct TimerTest *test)
+static int32_t TimerGetTest(const struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -86,7 +86,7 @@ static int32_t TimerGetTest(struct TimerTest *test)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerStartTest(struct TimerTest *test)
+static int32_t TimerStartTest(const struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -97,7 +97,7 @@ static int32_t TimerStartTest(struct TimerTest *test)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerStopTest(struct TimerTest *test)
+static int32_t TimerStopTest(const struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -152,7 +152,7 @@ static int TimerPeriodTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerTestMultiThread(struct TimerTest *test)
+static int32_t TimerTestMultiThread(const struct TimerTest *test)
 {
     int32_t ret;
     uint32_t time = 0;
@@ -244,7 +244,7 @@ static int32_t TimerTestMultiThread(struct TimerTest *test)
     return ret;
 }
 
-static int32_t TimerTestReliability(struct TimerTest *test)
+static int32_t TimerTestReliability(const struct TimerTest *test)
 {
     if (test == NULL || test->handle == NULL) {
         HDF_LOGE("%s: test null", __func__);
@@ -341,7 +341,7 @@ static struct TimerTest *TimerTestGet(void)
     return &tester;
 }
 
-static int32_t TimerIfPerformanceTest(struct TimerTest *test)
+static int32_t TimerIfPerformanceTest(const struct TimerTest *test)
 {
 #ifdef __LITEOS__
     // liteos the accuracy of the obtained time is too large and inaccurate.
