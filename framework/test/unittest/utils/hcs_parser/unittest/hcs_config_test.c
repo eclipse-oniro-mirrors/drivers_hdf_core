@@ -285,7 +285,7 @@ int HcsTestGetUint8ArrayElemSuccess(void)
     const struct DeviceResourceNode *dataType = NULL;
     uint8_t data[DATA_TEST_ARRAY_LENGTH] = { 0 };
     // the test data is 0, 1, 2, 3, 4, 5, 6, 7.
-    uint8_t testData[DATA_TEST_ARRAY_LENGTH] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    const uint8_t testData[DATA_TEST_ARRAY_LENGTH] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     int32_t i;
     int32_t count;
     if (!TestGetRootNode()) {
@@ -446,7 +446,7 @@ int HcsTestGetUint16ArrayElemSuccess(void)
     // the length of data is 8.
     uint16_t data[DATA_TEST_ARRAY_LENGTH] = { 0 };
     // the test data is 0, 1, 2, 3, 4, 5, 256, 257.
-    uint16_t testData[DATA_TEST_ARRAY_LENGTH] = { TEST_DATA_ZERO, TEST_DATA_ONE, TEST_DATA_TWO, TEST_DATA_THREE,
+    const uint16_t testData[DATA_TEST_ARRAY_LENGTH] = { TEST_DATA_ZERO, TEST_DATA_ONE, TEST_DATA_TWO, TEST_DATA_THREE,
                                                   TEST_DATA_FOUR, TEST_DATA_FIVE, TEST_DATA_256, TEST_DATA_257 };
     int32_t i;
     int32_t count;
@@ -600,7 +600,7 @@ int HcsTestGetUint32ArrayElemSuccess(void)
 {
     const struct DeviceResourceNode *fingerNode = NULL;
     uint32_t data[DATA_TYPE_NUM_U32] = { 0 };
-    uint32_t testData[DATA_TYPE_NUM_U32] = { U8_DATA, U16_DATA, U32_DATA };
+    const uint32_t testData[DATA_TYPE_NUM_U32] = { U8_DATA, U16_DATA, U32_DATA };
     int32_t i;
     int32_t count;
     if (!TestGetRootNode()) {
@@ -731,7 +731,7 @@ int HcsTestGetUint64ArrayElemSuccess(void)
 {
     const struct DeviceResourceNode *dataType = NULL;
     uint64_t data[DATA_TYPE_NUM_U64] = { 0 };
-    uint64_t testData[DATA_TYPE_NUM_U64] = { U8_DATA, U16_DATA, U32_DATA, U64_DATA };
+    const uint64_t testData[DATA_TYPE_NUM_U64] = { U8_DATA, U16_DATA, U32_DATA, U64_DATA };
     int32_t i;
     int32_t count;
     if (!TestGetRootNode()) {

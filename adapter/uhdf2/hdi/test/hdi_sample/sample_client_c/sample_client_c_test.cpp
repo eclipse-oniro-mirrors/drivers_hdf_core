@@ -130,6 +130,7 @@ HWTEST_F(SampleHdiCTest, HdiCTest003, TestSize.Level1)
     ASSERT_EQ(value, true);
 
     struct SampleCallbackImpl callback;
+    callback.called = false;
     callback.interface.PingTest = SampleCallbackPingTest;
     ret = sampleService->SetCallback(sampleService, &callback.interface);
 
@@ -155,6 +156,7 @@ HWTEST_F(SampleHdiCTest, HdiCTest004, TestSize.Level1)
     ASSERT_EQ(ret, 0);
     ASSERT_EQ(value, true);
     struct SampleCallbackImpl callback;
+    callback.called = false;
     callback.interface.PingTest = SampleCallbackPingTest;
     ret = sampleService->SetCallback(sampleService, &callback.interface);
     uint32_t retry = 0;

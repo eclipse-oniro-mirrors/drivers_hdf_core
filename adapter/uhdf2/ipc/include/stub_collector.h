@@ -27,7 +27,7 @@ struct StubConstructor {
     void (*destructor)(struct HdfRemoteService **);
 };
 void StubConstructorRegister(const char *ifDesc, struct StubConstructor *constructor);
-void StubConstructorUnregister(const char *ifDesc, struct StubConstructor *constructor);
+void StubConstructorUnregister(const char *ifDesc, const struct StubConstructor *constructor);
 struct HdfRemoteService **StubCollectorGetOrNewObject(const char *ifDesc, void *servPtr);
 void StubCollectorRemoveObject(const char *ifDesc, void *servPtr);
 

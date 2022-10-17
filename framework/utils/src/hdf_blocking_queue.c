@@ -76,7 +76,7 @@ void *HdfBlockingQueueFind(const struct HdfBlockingQueue *queue, long matchKey, 
     return matchData;
 }
 
-void HdfBlockingQueueRemove(struct HdfBlockingQueue *queue, void *data)
+void HdfBlockingQueueRemove(struct HdfBlockingQueue *queue, const void *data)
 {
     bool targetListChanged = false;
     struct HdfSListIterator it;

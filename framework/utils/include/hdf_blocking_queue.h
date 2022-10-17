@@ -38,7 +38,7 @@ void *HdfBlockingQueueTake(struct HdfBlockingQueue *queue);
 
 void *HdfBlockingQueueGet(struct HdfBlockingQueue *queue);
 
-void HdfBlockingQueueRemove(struct HdfBlockingQueue *queue, void *data);
+void HdfBlockingQueueRemove(struct HdfBlockingQueue *queue, const void *data);
 
 void *HdfBlockingQueuePoll(struct HdfBlockingQueue *queue, long timeout);
 

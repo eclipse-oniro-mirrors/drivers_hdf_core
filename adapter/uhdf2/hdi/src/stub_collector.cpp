@@ -38,7 +38,7 @@ void StubConstructorRegister(const char *ifDesc, struct StubConstructor *constru
     return;
 }
 
-void StubConstructorUnregister(const char *ifDesc, struct StubConstructor *constructor)
+void StubConstructorUnregister(const char *ifDesc, const struct StubConstructor *constructor)
 {
     if (ifDesc == nullptr || constructor == nullptr) {
         return;

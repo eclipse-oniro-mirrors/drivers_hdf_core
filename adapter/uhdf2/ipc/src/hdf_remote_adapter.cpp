@@ -47,7 +47,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
     struct HdfRemoteDispatcher *dispatcher = service_->dispatcher;
     if (dispatcher != nullptr && dispatcher->Dispatch != nullptr) {
-        ret = dispatcher->Dispatch((HdfRemoteService *)service_->target, code, dataSbuf, replySbuf);
+        ret = dispatcher->Dispatch(reinterpret_cast<HdfRemoteService *>(service_->target), code, dataSbuf, replySbuf);
     } else {
         HDF_LOGE("dispatcher or dispatcher->Dispatch is null, flags is: %{public}d", option.GetFlags());
     }
