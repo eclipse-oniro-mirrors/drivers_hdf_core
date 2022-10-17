@@ -469,7 +469,7 @@ static int32_t MmapWriteData(struct PlatformData *data, char *tmpBuf)
     return HDF_SUCCESS;
 }
 
-static int32_t AudioPlatformDataInit(struct PlatformData *data, uint32_t *totalSize, uint32_t *lastBuffSize,
+static int32_t AudioRenderPlatformDataInit(struct PlatformData *data, uint32_t *totalSize, uint32_t *lastBuffSize,
     uint32_t *loopTimes)
 {
     if (data == NULL) {
@@ -478,6 +478,10 @@ static int32_t AudioPlatformDataInit(struct PlatformData *data, uint32_t *totalS
     }
     if (data->renderBufInfo.virtAddr == NULL) {
         AUDIO_DRIVER_LOG_ERR("render buffer is null.");
+        return HDF_FAILURE;
+    }
+    if (data->renderBufInfo.runStatus != PCM_START) {
+        AUDIO_DRIVER_LOG_INFO("render did not start.");
         return HDF_FAILURE;
     }
 
@@ -498,7 +502,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     char *tmpBuf;
 
     struct PlatformData *data = PlatformDataFromCard(card);
-    if (AudioPlatformDataInit(data, &totalSize, &lastBuffSize, &loopTimes) == HDF_FAILURE) {
+    if (AudioRenderPlatformDataInit(data, &totalSize, &lastBuffSize, &loopTimes) == HDF_FAILURE) {
         return HDF_FAILURE;
     }
     tmpBuf = OsalMemCalloc(MIN_PERIOD_SIZE);
@@ -621,13 +625,31 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
     return HDF_SUCCESS;
 }
 
-static int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct AudioMmapData *rxMmapData)
+static int32_t AudioCapturePlatformDataInit(struct PlatformData *data, const struct AudioMmapData *rxMmapData,
+    uint32_t *totalSize)
+{
+    data->captureBufInfo.pointer = 0;
+    data->captureBufInfo.curTrafSize = data->captureBufInfo.trafBufSize;
+    if (data->captureBufInfo.virtAddr == NULL) {
+        AUDIO_DRIVER_LOG_ERR("capture buffer is null.");
+        return HDF_FAILURE;
+    }
+
+    if (data->captureBufInfo.runStatus != PCM_START) {
+        AUDIO_DRIVER_LOG_INFO("capture did not start.");
+        return HDF_FAILURE;
+    }
+
+    *totalSize = (uint32_t)rxMmapData->totalBufferFrames * data->capturePcmInfo.frameSize;
+    return HDF_SUCCESS;
+}
+
+int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct AudioMmapData *rxMmapData)
 {
     uint32_t offset = 0;
     int32_t status;
     uint32_t timeout = 0;
     struct PlatformData *data;
-    uint32_t frameSize;
     uint32_t totalSize;
 
     if (card == NULL || rxMmapData == NULL || rxMmapData->memoryAddress == NULL ||
@@ -641,16 +663,10 @@ static int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct 
         AUDIO_DRIVER_LOG_ERR("PlatformDataFromCard failed.");
         return HDF_FAILURE;
     }
-
-    frameSize = data->capturePcmInfo.frameSize;
-    totalSize = (uint32_t)rxMmapData->totalBufferFrames * frameSize;
-    data->captureBufInfo.pointer = 0;
-    data->captureBufInfo.curTrafSize = data->captureBufInfo.trafBufSize;
-    if (data->captureBufInfo.virtAddr == NULL) {
-        AUDIO_DRIVER_LOG_ERR("capture buffer is null.");
+    if (AudioCapturePlatformDataInit(data, rxMmapData, &totalSize) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("AudioCapturePlatformDataInit failed.");
         return HDF_FAILURE;
     }
-
     do {
         if (data->captureBufInfo.runStatus == PCM_PAUSE) {
             OsalMSleep(SLEEP_TIME);
