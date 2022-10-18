@@ -34,6 +34,9 @@
 #ifndef USB_GADGET_REMOVE
 #define USB_GADGET_REMOVE 0x0006
 #endif
+#ifndef BASE_CLASS_HUB
+#define BASE_CLASS_HUB 0x09
+#endif
 
 static wait_queue_head_t g_usbPnpNotifyReportWait;
 static wait_queue_head_t g_gadgetPnpNotifyReportWait;
@@ -51,6 +54,7 @@ struct DListHead g_usbPnpInfoListHead;
 #if USB_PNP_NOTIFY_TEST_MODE == true
 struct UsbPnpNotifyMatchInfoTable *g_testUsbPnpInfo = NULL;
 #endif
+static int32_t g_isGadgetAdd = 0;
 
 static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
 {
@@ -394,6 +398,36 @@ ERROR_DEVICE_INFO:
     return ret;
 }
 
+static int32_t UsbPnpNotifyFirstGetDevice(struct usb_device *usbDev, void *data)
+{
+    int32_t ret;
+    struct UsbPnpDeviceInfo *deviceInfo = NULL;
+    union UsbPnpDeviceInfoData pnpInfoData;
+    void *eventData = (void *)usbDev;
+    if (usbDev->descriptor.bDeviceClass == BASE_CLASS_HUB) {
+        return HDF_SUCCESS;
+    }
+
+    ret = UsbPnpNotifyGetDeviceInfo(eventData, &pnpInfoData, &deviceInfo);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s:%d UsbPnpNotifyGetDeviceInfo failed, ret=%d", __func__, __LINE__, ret);
+        return ret;
+    }
+    ret = UsbPnpNotifyAddInitInfo(deviceInfo, pnpInfoData);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s:%d UsbPnpNotifyAddInitInfo failed, ret=%d", __func__, __LINE__, ret);
+        return ret;
+    }
+
+    HDF_LOGI("%s:%d device information, %d usbDevAddr=%llu, devNum=%d, busNum=%d, infoTable=%d-0x%x-0x%x!",
+        __func__, __LINE__, USB_PNP_DRIVER_GETDEVICES, deviceInfo->info.usbDevAddr,
+        deviceInfo->info.devNum, deviceInfo->info.busNum, deviceInfo->info.numInfos,
+        deviceInfo->info.deviceInfo.vendorId, deviceInfo->info.deviceInfo.productId);
+    deviceInfo->status = USB_PNP_DEVICE_ADD_STATUS;
+
+    return ret;
+}
+
 #if USB_PNP_NOTIFY_TEST_MODE == true
 static void TestReadPnpInfo(struct HdfSBuf *data)
 {
@@ -655,8 +689,10 @@ static int32_t UsbPnpNotifyCallback(struct notifier_block *self, unsigned long a
                 break;
             }
             if (action == USB_GADGET_ADD) {
+                g_isGadgetAdd = 1;
                 g_gadgetPnpNotifyType = USB_PNP_DRIVER_GADGET_ADD;
             } else {
+                g_isGadgetAdd = 0;
                 g_gadgetPnpNotifyType = USB_PNP_DRIVER_GADGET_REMOVE;
             }
             OsalMutexUnlock(&g_gadgetSendEventLock);
@@ -745,11 +781,12 @@ static int32_t UsbPnpNotifyDispatch(
     struct HdfDeviceIoClient *client, int32_t cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret = HDF_SUCCESS;
+    static int32_t isFirstGetDevice = 0;
 
     HDF_LOGI("%s: received cmd = %d", __func__, cmd);
 
     OsalMutexLock(&g_usbSendEventLock);
-    if (USB_PNP_DRIVER_GETDEVICES != cmd) {
+    if (USB_PNP_DRIVER_GETDEVICES != cmd || USB_PNP_DRIVER_GET_GADGET_LINK_STATUS != cmd) {
         g_usbPnpNotifyCmdType = cmd;
     }
 
@@ -778,7 +815,14 @@ static int32_t UsbPnpNotifyDispatch(
             break;
 #endif
         case USB_PNP_DRIVER_GETDEVICES:
+            if (isFirstGetDevice == 0) {
+                usb_for_each_dev(NULL, UsbPnpNotifyFirstGetDevice);
+                isFirstGetDevice = 1;
+            }
             UsbPnpGetDevices(reply);
+            break;
+        case USB_PNP_DRIVER_GET_GADGET_LINK_STATUS:
+            HdfSbufWriteInt32(reply, g_isGadgetAdd);
             break;
         default:
             ret = HDF_ERR_NOT_SUPPORT;
