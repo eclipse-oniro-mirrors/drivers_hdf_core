@@ -31,7 +31,7 @@
 
 #define HDF_LOG_TAG NetDeviceFull
 
-static int32_t NetDevXmitCheck(struct sk_buff *skb, struct net_device *dev)
+static int32_t NetDevXmitCheck(const struct sk_buff *skb, struct net_device *dev)
 {
     struct FullNetDevicePriv *priv = NULL;
 

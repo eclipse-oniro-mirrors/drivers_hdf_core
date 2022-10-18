@@ -966,7 +966,7 @@ static int32_t WifiCmdGetDevMacAddr(const RequestContext *context, struct HdfSBu
         HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         ret = HDF_FAILURE;
     }
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t WifiCmdSetMacAddr(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -1230,7 +1230,8 @@ static int32_t WifiResetEntranceCheck(const uint8_t chipId)
     return ret;
 }
 
-static int32_t ResetParaCheck(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+static int32_t ResetParaCheck(const RequestContext *context, const struct HdfSBuf *reqData,
+    const struct HdfSBuf *rspData)
 {
     if (context == NULL || reqData == NULL || rspData == NULL) {
         HDF_LOGE("%s: para is null!", __func__);

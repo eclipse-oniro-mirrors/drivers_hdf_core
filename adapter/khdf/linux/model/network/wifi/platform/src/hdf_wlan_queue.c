@@ -100,16 +100,17 @@ void *PopQueue(HdfWlanQueue *queue)
 
 int32_t PushQueue(HdfWlanQueue *queue, void *context)
 {
-    int32_t ret;
+    int32_t ret = HDF_SUCCESS;
+    int32_t status = HDF_SUCCESS;
     HdfWlanQueueImpl *impl = NULL;
     uint16_t tailIndex;
     if (queue == NULL) {
         return HDF_FAILURE;
     }
     impl = (HdfWlanQueueImpl *)queue;
-    ret = OsalMutexLock(&impl->lock);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:Get lock failed!ret=%d", __func__, ret);
+    status = OsalMutexLock(&impl->lock);
+    if (status != HDF_SUCCESS) {
+        HDF_LOGE("%s:Get lock failed! status=%d", __func__, status);
         return HDF_FAILURE;
     }
     do {
@@ -125,9 +126,9 @@ int32_t PushQueue(HdfWlanQueue *queue, void *context)
         impl->tailIndex = ((tailIndex >= impl->maxElements) ? 0 : tailIndex);
         impl->elementCount++;
     } while (false);
-    ret = OsalMutexUnlock(&impl->lock);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:Release lock failed!ret=%d", __func__, ret);
+    status = OsalMutexUnlock(&impl->lock);
+    if (status != HDF_SUCCESS) {
+        HDF_LOGE("%s:Release lock failed!status=%d", __func__, status);
     }
     return ret;
 }

@@ -149,8 +149,8 @@ static int32_t StopEnv(void)
 // Repeated register
 int32_t MessageSingleNodeTest001(void)
 {
-    ErrorCode errCode;
-    ErrorCode errShutdown;
+    ErrorCode errCode = HDF_SUCCESS;
+    ErrorCode errShutdown = HDF_SUCCESS;
     Service *service = NULL;
 
     do {
@@ -177,8 +177,8 @@ int32_t MessageSingleNodeTest001(void)
 // Sync message test
 int32_t MessageSingleNodeTest002(void)
 {
-    ErrorCode errCode;
-    ErrorCode errShutdown;
+    ErrorCode errCode = HDF_SUCCESS;
+    ErrorCode errShutdown = HDF_SUCCESS;
     struct HdfSBuf *rspData = NULL;
 
     do {
@@ -205,8 +205,8 @@ int32_t MessageSingleNodeTest002(void)
 // Sync Perf test
 int32_t MessageSingleNodeTest003(void)
 {
-    ErrorCode errCode;
-    ErrorCode errShutdown;
+    ErrorCode errCode = HDF_SUCCESS;
+    ErrorCode errShutdown = HDF_SUCCESS;
     uint32_t i;
     struct HdfSBuf *rspData = NULL;
     struct HdfSBuf *sendData = NULL;
@@ -265,8 +265,8 @@ static void SendMessageTestCallBack(const RequestContext *context, struct HdfSBu
 
 int32_t MessageSingleNodeTest004(void)
 {
-    ErrorCode errCode;
-    ErrorCode errShutdown = 0;
+    ErrorCode errCode = HDF_SUCCESS;
+    ErrorCode errShutdown = HDF_SUCCESS;
 
     do {
         MSG_BREAK_IF_FUNCTION_FAILED(errCode, StartEnv());
@@ -279,7 +279,7 @@ int32_t MessageSingleNodeTest004(void)
 
         MSG_BREAK_IF_FUNCTION_FAILED(errCode, OsalSemWait(&g_callBackSem, COMMON_SEM_TIMEOUT));
     } while (false);
-    errShutdown = errShutdown | OsalSemDestroy(&g_callBackSem);
+    errShutdown = OsalSemDestroy(&g_callBackSem);
     errShutdown = errShutdown | StopEnv();
     if (errShutdown != HDF_SUCCESS) {
         HDF_LOGE("%s:Destroy message semaphore failed! errShutdown=%d", __func__, errShutdown);
@@ -306,8 +306,8 @@ const uint32_t PERF_TEST_COUNT = 10000;
 
 int32_t MessageSingleNodeTest005(void)
 {
-    ErrorCode errCode;
-    ErrorCode errShutdown = 0;
+    ErrorCode errCode = HDF_SUCCESS;
+    ErrorCode errShutdown = HDF_SUCCESS;
     uint32_t i;
 
     do {
@@ -337,7 +337,7 @@ int32_t MessageSingleNodeTest005(void)
         HDF_LOGW("Process time %llu \n", diffTime.sec);
         MSG_BREAK_IF(errCode, diffTime.sec > ASYNC_MESSAGE_TIMEOUT);
     } while (false);
-    errShutdown = errShutdown | OsalSemDestroy(&g_callBackSem);
+    errShutdown = OsalSemDestroy(&g_callBackSem);
     errShutdown = errShutdown | StopEnv();
     if (errShutdown != HDF_SUCCESS) {
         HDF_LOGE("%s:Destroy message semaphore failed! errShutdown=%d", __func__, errShutdown);

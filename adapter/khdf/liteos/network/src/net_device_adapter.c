@@ -126,7 +126,7 @@ static struct pbuf *ConverNetBufToPBuf(const struct NetBuf *netBuff)
     return NetBuf2Pbuf(netBuff);
 }
 
-static int32_t LwipSendCheck(struct netif *netif, struct pbuf *lwipBuf)
+static int32_t LwipSendCheck(struct netif *netif, const struct pbuf *lwipBuf)
 {
     if (netif == NULL || lwipBuf == NULL) {
         HDF_LOGE("%s : netif = NUll or lwipBuf = NULL!", __func__);

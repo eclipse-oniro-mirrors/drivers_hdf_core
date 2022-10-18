@@ -562,7 +562,7 @@ static void ReleaseNodes(void)
 static ErrorCode DoStartMessageRouter(uint8_t nodesConfig)
 {
     uint8_t i;
-    ErrorCode errCode;
+    ErrorCode errCode = ME_SUCCESS;
     if (g_routerStatus != ME_STATUS_STOPPED) {
         HDF_LOGE("Router have already started!");
         return ME_ERROR_MUTI_INIT_NOT_ALLOWED;
