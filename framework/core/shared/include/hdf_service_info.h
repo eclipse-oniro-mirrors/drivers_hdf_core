@@ -16,6 +16,7 @@ struct HdfServiceInfo {
     const char *servInfo;
     uint16_t devClass;
     devid_t devId;
+    const char *interfaceDesc;
 };
 
 static inline void HdfServiceInfoInit(struct HdfServiceInfo *info, const struct HdfDeviceNode *devNode)
@@ -24,6 +25,7 @@ static inline void HdfServiceInfoInit(struct HdfServiceInfo *info, const struct 
     info->servInfo = devNode->servInfo;
     info->devClass = devNode->deviceObject.deviceClass;
     info->devId = devNode->devId;
+    info->interfaceDesc = devNode->interfaceDesc;
 }
 
 #endif // HDF_SERVICE_INFO_H

@@ -35,6 +35,9 @@ using namespace testing::ext;
 
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC = "hdf.test.sampele_service";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "____";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_VOID = "";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_NULL = nullptr;
 static constexpr int PAYLOAD_NUM = 1234;
 static constexpr int WAIT_LOAD_UNLOAD_TIME = 300;
 class HdfServiceMangerHdiCTest : public testing::Test {
@@ -563,5 +566,72 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest011, TestSize.Level1)
     ASSERT_EQ(ret, 0);
 
     close(memFd);
+}
+
+/*
+ * Test get service collection by interfacedesc
+ */
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest012, TestSize.Level1)
+{
+    struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
+    ASSERT_TRUE(devmgr != nullptr);
+    devmgr->UnloadDevice(devmgr, TEST_SERVICE_NAME);
+    OsalMSleep(WAIT_LOAD_UNLOAD_TIME);
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService == nullptr);
+
+    int ret = devmgr->LoadDevice(devmgr, TEST_SERVICE_NAME);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    OsalMSleep(WAIT_LOAD_UNLOAD_TIME);
+    sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService != nullptr);
+
+    struct HdiServiceSet *serviceSet = nullptr;
+    ret = servmgr->ListServiceByInterfaceDesc(servmgr, TEST_SERVICE_INTERFACE_DESC, &serviceSet);
+    HDIServiceManagerRelease(servmgr);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(serviceSet != nullptr);
+    ASSERT_TRUE(serviceSet->count == 1);
+    ASSERT_TRUE(strcmp(serviceSet->serviceNames[0], TEST_SERVICE_NAME) == 0);
+    HdiServiceSetRelease(serviceSet);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest013, TestSize.Level1)
+{
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdiServiceSet *serviceSet = nullptr;
+    int32_t ret = servmgr->ListServiceByInterfaceDesc(servmgr, TEST_SERVICE_INTERFACE_DESC_INVALID, &serviceSet);
+    HDIServiceManagerRelease(servmgr);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(serviceSet == nullptr);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest014, TestSize.Level1)
+{
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdiServiceSet *serviceSet = nullptr;
+    int32_t ret = servmgr->ListServiceByInterfaceDesc(servmgr, TEST_SERVICE_INTERFACE_DESC_VOID, &serviceSet);
+    HDIServiceManagerRelease(servmgr);
+    ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
+    ASSERT_TRUE(serviceSet == nullptr);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest015, TestSize.Level1)
+{
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdiServiceSet *serviceSet = nullptr;
+    int32_t ret = servmgr->ListServiceByInterfaceDesc(servmgr, TEST_SERVICE_INTERFACE_DESC_NULL, &serviceSet);
+    HDIServiceManagerRelease(servmgr);
+    ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
+    ASSERT_TRUE(serviceSet == nullptr);
 }
 } // namespace OHOS

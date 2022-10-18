@@ -17,6 +17,7 @@
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG devsvc_manager
+#define SERVICE_LIST_MAX 16
 
 static struct DevSvcRecord *DevSvcManagerSearchService(struct IDevSvcManager *inst, uint32_t serviceKey)
 {
@@ -110,6 +111,10 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
     record->devId = servInfo->devId;
     record->servName = HdfStringCopy(servInfo->servName);
     record->servInfo = HdfStringCopy(servInfo->servInfo);
+
+    if (servInfo->interfaceDesc != NULL && strcmp(servInfo->interfaceDesc, "") != 0) {
+        record->interfaceDesc = HdfStringCopy(servInfo->interfaceDesc);
+    }
     if (record->servName == NULL) {
         DevSvcRecordFreeInstance(record);
         return HDF_ERR_MALLOC_FAIL;
@@ -257,6 +262,50 @@ void DevSvcManagerListAllService(struct IDevSvcManager *inst, struct HdfSBuf *re
     HDF_LOGI("%{public}s end ", __func__);
 }
 
+int DevSvcManagerListServiceByInterfaceDesc(
+    struct IDevSvcManager *inst, const char *interfaceDesc, struct HdfSBuf *reply)
+{
+    struct DevSvcRecord *record = NULL;
+    struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
+    int status = HDF_SUCCESS;
+    if (devSvcManager == NULL || reply == NULL) {
+        HDF_LOGE("failed to list service collection info, parameter is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+    OsalMutexLock(&devSvcManager->mutex);
+    const char *serviceNames[SERVICE_LIST_MAX];
+    uint32_t serviceNum = 0;
+    DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
+        if (record->interfaceDesc == NULL) {
+            HDF_LOGD("%{public}s interfacedesc is null", record->servName);
+            continue;
+        }
+        if (serviceNum >= SERVICE_LIST_MAX) {
+            status = HDF_ERR_OUT_OF_RANGE;
+            HDF_LOGE(
+                "%{public}s: More than %{public}d services are found, but up to %{public}d services can be returned",
+                interfaceDesc, SERVICE_LIST_MAX, SERVICE_LIST_MAX);
+            break;
+        }
+        if (strcmp(record->interfaceDesc, interfaceDesc) == 0) {
+            serviceNames[serviceNum] = record->servName;
+            serviceNum = serviceNum + 1;
+        }
+    }
+    HDF_LOGD("find %{public}u services interfacedesc is %{public}s", serviceNum, interfaceDesc);
+    if (!HdfSbufWriteUint32(reply, serviceNum)) {
+        HDF_LOGE("failed to write serviceNum to buffer, interfacedesc is %{public}s, serviceNum is %{public}d",
+            interfaceDesc, serviceNum);
+        OsalMutexUnlock(&devSvcManager->mutex);
+        return HDF_FAILURE;
+    }
+    for (uint32_t i = 0; i < serviceNum; i++) {
+        HdfSbufWriteString(reply, serviceNames[i]);
+    }
+    OsalMutexUnlock(&devSvcManager->mutex);
+    return status;
+}
+
 int DevSvcManagerRegsterServListener(struct IDevSvcManager *inst, struct ServStatListenerHolder *listenerHolder)
 {
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
@@ -302,6 +351,7 @@ bool DevSvcManagerConstruct(struct DevSvcManager *inst)
     devSvcMgrIf->GetObject = DevSvcManagerGetObject;
     devSvcMgrIf->RegsterServListener = DevSvcManagerRegsterServListener;
     devSvcMgrIf->UnregsterServListener = DevSvcManagerUnregsterServListener;
+    devSvcMgrIf->ListServiceByInterfaceDesc = DevSvcManagerListServiceByInterfaceDesc;
     if (OsalMutexInit(&inst->mutex) != HDF_SUCCESS) {
         HDF_LOGE("failed to create device service manager mutex");
         return false;

@@ -137,6 +137,7 @@ static int32_t DevSvcMgrStubGetPara(
         return HDF_FAILURE;
     }
     info->servInfo = HdfSbufReadString(data);
+    info->interfaceDesc = HdfSbufReadString(data);
     return HDF_SUCCESS;
 }
 
@@ -154,7 +155,7 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
     if (DevSvcMgrStubGetPara(data, &info, &service) != HDF_SUCCESS) {
         return ret;
     }
- 
+
     struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, info.servName, service);
     if (serviceObject == NULL) {
         return HDF_ERR_MALLOC_FAIL;
@@ -252,6 +253,29 @@ static int32_t DevSvcManagerStubListAllService(
     super->ListAllService(super, reply);
 
     return HDF_SUCCESS;
+}
+
+static int32_t DevSvcManagerStubListServiceByInterfaceDesc(
+    struct IDevSvcManager *super, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    int ret;
+    struct DevSvcManagerStub *stub = (struct DevSvcManagerStub *)super;
+    if (!HdfRemoteServiceCheckInterfaceToken(stub->remote, data)) {
+        HDF_LOGE("%{public}s: invalid interface token", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    const char *interfaceDesc = HdfSbufReadString(data);
+    if (interfaceDesc == NULL) {
+        HDF_LOGE("%{public}s failed, interfaceDesc is null", __func__);
+        return HDF_FAILURE;
+    }
+    ret = ListServicePermCheck();
+    if (ret != HDF_SUCCESS) {
+        return ret;
+    }
+    ret = super->ListServiceByInterfaceDesc(super, interfaceDesc, reply);
+
+    return ret;
 }
 
 static int32_t DevSvcManagerStubRemoveService(struct IDevSvcManager *super, struct HdfSBuf *data)
@@ -380,6 +404,9 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
             break;
         case DEVSVC_MANAGER_LIST_ALL_SERVICE:
             ret = DevSvcManagerStubListAllService(super, data, reply);
+            break;
+        case DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC:
+            ret = DevSvcManagerStubListServiceByInterfaceDesc(super, data, reply);
             break;
         default:
             HDF_LOGE("Unknown code : %{public}d", code);

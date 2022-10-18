@@ -24,6 +24,7 @@
 #include <iservmgr_hdi.h>
 #include <osal_time.h>
 #include <string>
+#include <iservmgr_hdi.h>
 
 #include "sample_hdi.h"
 
@@ -43,6 +44,10 @@ using OHOS::HDI::ServiceManager::V1_0::ServiceStatus;
 using OHOS::HDI::ServiceManager::V1_0::ServStatListenerStub;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
 static constexpr const char16_t *TEST_SERVICE_INTERFACE_DESC = u"hdf.test.sampele_service";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_N = "hdf.test.sampele_service";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "___";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_VOID = "";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_NULL = nullptr;
 static constexpr int PAYLOAD_NUM = 1234;
 static constexpr int SMQ_TEST_QUEUE_SIZE = 10;
 static constexpr int SMQ_TEST_WAIT_TIME = 100;
@@ -648,5 +653,49 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
     ASSERT_EQ(servStatus, OHOS::HDI::ServiceManager::V1_0::SERVIE_STATUS_START);
     status = servmgr->UnregisterServiceStatusListener(listener);
     ASSERT_EQ(status, HDF_SUCCESS);
+}
+
+/*
+ * Test get service collection by interfacedesc
+ */
+HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest015, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+    std::vector<std::string> serviceNames;
+    int ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_N);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_FALSE(serviceNames.empty());
+    ASSERT_TRUE(serviceNames.front().compare(TEST_SERVICE_NAME) == 0);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest016, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+    std::vector<std::string> serviceNames;
+    int ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_INVALID);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(serviceNames.empty());
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest017, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+    std::vector<std::string> serviceNames;
+    int ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_VOID);
+    ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
+    ASSERT_TRUE(serviceNames.empty());
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest018, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+    std::vector<std::string> serviceNames;
+    int ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_NULL);
+    ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
+    ASSERT_TRUE(serviceNames.empty());
 }
 } // namespace OHOS

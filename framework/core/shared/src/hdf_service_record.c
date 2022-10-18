@@ -20,6 +20,7 @@ void DevSvcRecordFreeInstance(struct DevSvcRecord *inst)
         OsalMemFree((char *)inst->servName);
         OsalMemFree((char *)inst->servInfo);
         OsalMemFree(inst);
+        OsalMemFree((char *)inst->interfaceDesc);
     }
 }
 
