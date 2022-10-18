@@ -739,10 +739,6 @@ static struct UsbPnpDeviceListTable *UsbDdkPnpLoaderAddInterface(
     struct UsbPnpDeviceListTable *deviceListTableTemp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(
         deviceListTablePos, deviceListTableTemp, &g_usbPnpDeviceTableListHead, struct UsbPnpDeviceListTable, list) {
-        if (deviceListTablePos == NULL) {
-            HDF_LOGE("deviceListTablePos is null");
-            return NULL;
-        }
         if ((strcmp(deviceListTablePos->moduleName, idTable->moduleName) == 0) &&
             (strcmp(deviceListTablePos->serviceName, idTable->serviceName) == 0) &&
             (strcmp(deviceListTablePos->deviceMatchAttr, idTable->deviceMatchAttr) == 0) &&

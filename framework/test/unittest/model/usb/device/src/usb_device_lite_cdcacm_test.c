@@ -329,7 +329,8 @@ static void ParsePipes(struct AcmDevice *acmDevice, const struct UsbFnInterface 
 {
     struct UsbFnPipeInfo pipeInfo = {0};
     for (uint32_t j = 0; j < fnIface->info.numPipes; j++) {
-        if (UsbFnGetInterfacePipeInfo((struct UsbFnInterface *)fnIface, j, &pipeInfo) != HDF_SUCCESS) {
+        int32_t ret = UsbFnGetInterfacePipeInfo((struct UsbFnInterface *)fnIface, j, &pipeInfo);
+        if (ret != HDF_SUCCESS) {
             return;
         }
         if (pipeInfo.type == USB_PIPE_TYPE_INTERRUPT) {
