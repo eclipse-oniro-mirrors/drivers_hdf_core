@@ -1324,7 +1324,7 @@ int32_t HdmiCntlrDeepColorGet(struct HdmiCntlr *cntlr, enum HdmiDeepColor *color
     return HDF_SUCCESS;
 }
 
-int32_t HdmiCntlrSetVideoAttribute(struct HdmiCntlr *cntlr, struct HdmiVideoAttr *attr)
+int32_t HdmiCntlrSetVideoAttribute(struct HdmiCntlr *cntlr, const struct HdmiVideoAttr *attr)
 {
     struct HdmiHardwareStatus hwStatus = {0};
 
@@ -1347,7 +1347,7 @@ int32_t HdmiCntlrSetVideoAttribute(struct HdmiCntlr *cntlr, struct HdmiVideoAttr
     return HdmiVedioAttrHandle(cntlr, &hwStatus);
 }
 
-int32_t HdmiCntlrSetAudioAttribute(struct HdmiCntlr *cntlr, struct HdmiAudioAttr *attr)
+int32_t HdmiCntlrSetAudioAttribute(struct HdmiCntlr *cntlr, const struct HdmiAudioAttr *attr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
         return HDF_ERR_INVALID_OBJECT;

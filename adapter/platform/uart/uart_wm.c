@@ -240,11 +240,6 @@ static int InitUartDevice(struct UartHost *host)
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: INVALID OBJECT", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
     if (!uartDevice->initFlag) {
         HDF_LOGI("uart %ld device init", uartDevice->uartId);
         HalSetUartIomux(uartDevice->uartId);
@@ -355,6 +350,7 @@ static void UartDriverRelease(struct HdfDeviceObject *device)
     uint32_t uartId;
     struct UartHost *host = NULL;
     struct UartDevice *uartDevice = NULL;
+
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
         return;
@@ -367,10 +363,6 @@ static void UartDriverRelease(struct HdfDeviceObject *device)
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: INVALID OBJECT", __func__);
-        return;
-    }
     uartId = uartDevice->uartId;
     host->method = NULL;
 
@@ -425,19 +417,15 @@ static int32_t UartHostDevDeinit(struct UartHost *host)
     HDF_LOGI("%s: Enter", __func__);
     uint32_t uartId;
     struct UartDevice *uartDevice = NULL;
+
     if (host == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: INVALID OBJECT", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartId = uartDevice->uartId;
     uartDevice->initFlag = false;
-
     return HDF_SUCCESS;
 }
 static int32_t UartHostDevWrite(struct UartHost *host, uint8_t *data, uint32_t size)
@@ -451,13 +439,7 @@ static int32_t UartHostDevWrite(struct UartHost *host, uint8_t *data, uint32_t s
     }
 
     device = (struct UartDevice *)host->priv;
-    if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
     portId = device->uartId;
-
     if (g_uartCtx[portId].txDMA) {
         return HalUartSend(portId, data, size, HDF_UART_TMO);
     } else {
@@ -465,7 +447,6 @@ static int32_t UartHostDevWrite(struct UartHost *host, uint8_t *data, uint32_t s
             return HDF_FAILURE;
         }
     }
-
     return HDF_SUCCESS;
 }
 
@@ -475,16 +456,13 @@ static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t si
     int32_t ret;
     uint32_t uartId;
     struct UartDevice *uartDevice = NULL;
+
     if (host == NULL || data == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartId = uartDevice->uartId;
     if (g_uartCtx[uartId].rxDMA) {
         ret = HalUartRecv(uartId, data, size, &recvSize, HDF_UART_TMO);
@@ -511,18 +489,14 @@ static int32_t UartHostDevSetBaud(struct UartHost *host, uint32_t baudRate)
     struct UartDevice *uartDevice = NULL;
     tls_uart_options_t *uartCfg = NULL;
     uint32_t uartId;
+
     if (host == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartId = uartDevice->uartId;
-
     uartCfg = &uartDevice->config;
     if (uartCfg == NULL) {
         HDF_LOGE("%s: device config is NULL", __func__);
@@ -541,17 +515,13 @@ static int32_t UartHostDevGetBaud(struct UartHost *host, uint32_t *baudRate)
     struct UartDevice *uartDevice = NULL;
     tls_uart_options_t *uartCfg = NULL;
     uint32_t uartId;
+
     if (host == NULL || baudRate == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartId = uartDevice->uartId;
-
     uartCfg = &uartDevice->config;
     if (uartCfg == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
@@ -566,16 +536,13 @@ static int32_t UartHostDevSetAttribute(struct UartHost *host, struct UartAttribu
     struct UartDevice *uartDevice = NULL;
     tls_uart_options_t *uartCfg = NULL;
     uint32_t uartId;
+
     if (host == NULL || attribute == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartId = uartDevice->uartId;
     uartCfg = &uartDevice->config;
     if (uartCfg == NULL) {
@@ -613,16 +580,13 @@ static int32_t UartHostDevGetAttribute(struct UartHost *host, struct UartAttribu
     HDF_LOGI("%s: Enter", __func__);
     struct UartDevice *uartDevice = NULL;
     tls_uart_options_t *uartCfg = NULL;
+
     if (host == NULL || attribute == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartCfg = &uartDevice->config;
     if (uartCfg == NULL) {
         HDF_LOGE("%s: config is NULL", __func__);
@@ -662,18 +626,14 @@ static int32_t UartHostDevSetTransMode(struct UartHost *host, enum UartTransMode
     HDF_LOGI("%s: Enter", __func__);
     struct UartDevice *uartDevice = NULL;
     uint32_t uartId;
+
     if (host == NULL || host->priv == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     uartDevice = (struct UartDevice *)host->priv;
-    if (uartDevice == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     uartId = uartDevice->uartId;
-
     switch (mode) {
         case UART_MODE_RD_BLOCK:
             g_uartCtx[uartId].isBlock = true;

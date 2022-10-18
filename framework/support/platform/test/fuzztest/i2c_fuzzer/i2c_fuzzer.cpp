@@ -37,7 +37,7 @@ static bool I2cFuzzTest(const uint8_t *data, size_t size)
     msg.flags = params->flags;
     msg.len = BUF_LEN;
     msg.buf = nullptr;
-    msg.buf = (uint8_t *)malloc(BUF_LEN);
+    msg.buf = reinterpret_cast<uint8_t *>(malloc(BUF_LEN));
     if (msg.buf == nullptr) {
         HDF_LOGE("%{public}s:malloc buf failed", __func__);
         return false;

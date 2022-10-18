@@ -240,9 +240,7 @@ static void WatchdogDriverRelease(struct HdfDeviceObject *device)
     }
 
     watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    if (watchdogDevice != NULL) {
-        OsalMemFree(watchdogDevice);
-    }
+    OsalMemFree(watchdogDevice);
     return;
 }
 

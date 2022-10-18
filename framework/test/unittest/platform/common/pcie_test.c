@@ -166,10 +166,6 @@ static int32_t PcieTestInit(struct HdfDeviceObject *device)
     }
 
     tester = (struct PcieTester *)device->service;
-    if (tester == NULL) {
-        HDF_LOGE("%s: tester is NULL", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     ret = PcieTestFillConfig(tester, device->property);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read config failed", __func__);

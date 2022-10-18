@@ -199,9 +199,9 @@ static int32_t DmacWaitM2mSendComplete(struct DmaCntlr *cntlr, struct DmacChanIn
     return DMAC_CHN_SUCCESS;
 }
 
-static uint16_t DmacAllocateChannel(struct DmaCntlr *cntlr)
+static int32_t DmacAllocateChannel(struct DmaCntlr *cntlr)
 {
-    int i;
+    uint16_t i;
     uint32_t flags;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
@@ -213,7 +213,7 @@ static uint16_t DmacAllocateChannel(struct DmaCntlr *cntlr)
         if (cntlr->channelList[i].useStatus ==  DMAC_CHN_VACANCY) {
             cntlr->channelList[i].useStatus = DMAC_CHN_ALLOCAT;
             OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
-            return i;
+            return (int32_t)i;
         }
     }
     OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
@@ -237,7 +237,7 @@ static void DmacFreeChannel(struct DmaCntlr *cntlr, uint16_t channel)
 static struct DmacChanInfo *DmacRequestChannel(struct DmaCntlr *cntlr, struct DmacMsg *msg)
 {
     int32_t ret;
-    int chan;
+    int32_t chan;
     struct DmacChanInfo *chanInfo = NULL;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS || msg == NULL) {

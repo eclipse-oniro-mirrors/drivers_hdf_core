@@ -377,16 +377,13 @@ static int32_t VirtualI3cInit(struct HdfDeviceObject *device)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = HDF_SUCCESS;
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {
         ret = VirtualI3cParseAndInit(device, childNode);
         if (ret != HDF_SUCCESS) {
             break;
         }
     }
-    ret = VirtualI3cHotJoinSimulator();
-
-    return ret;
+    return VirtualI3cHotJoinSimulator();
 }
 
 static void VirtualI3cRemoveByNode(const struct DeviceResourceNode *node)

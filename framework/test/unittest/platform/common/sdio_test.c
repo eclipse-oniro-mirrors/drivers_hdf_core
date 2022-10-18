@@ -452,10 +452,6 @@ static int32_t SdioTestInit(struct HdfDeviceObject *device)
     }
 
     tester = (struct SdioTester *)device->service;
-    if (tester == NULL) {
-        HDF_LOGE("%s: tester is NULL", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     ret = SdioTestFillConfig(tester, device->property);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read config fail!", __func__);

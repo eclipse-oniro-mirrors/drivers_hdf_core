@@ -51,7 +51,7 @@ static int32_t HdmiHdcpWrite(struct HdmiHdcp *hdcp, enum HdmiHdcpPortOffset offs
     return HdmiDdcTransfer(&(cntlr->ddc), &cfg);
 }
 
-static bool HdmiHdcpCheckKvs(uint8_t *ksv, uint32_t len)
+static bool HdmiHdcpCheckKvs(const uint8_t *ksv, uint32_t len)
 {
     uint32_t i, j;
     uint32_t cnt = 0;

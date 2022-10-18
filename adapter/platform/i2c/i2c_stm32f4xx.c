@@ -179,11 +179,6 @@ static int32_t I2cDataTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int1
     }
 
     struct RealI2cResource *device = (struct I2cDevice *)cntlr->priv;
-    if (device == NULL) {
-        HDF_LOGE("%s: I2cDevice is NULL\r\n", __func__);
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
-
     struct I2cMsg *msg = NULL;
     if (HDF_SUCCESS != OsalMutexLock(&device->mutex)) {
         HDF_LOGE("[%s]: OsalMutexLock fail\r\n", __func__);
@@ -289,7 +284,7 @@ static I2C_TypeDef *GetLLI2cHandlerMatch(I2C_HANDLE i2cx)
     }
 }
 
-static bool EnableLLI2cClock(I2C_TypeDef *i2cx)
+static bool EnableLLI2cClock(const I2C_TypeDef *i2cx)
 {
     if (i2cx == I2C1) {
         LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);

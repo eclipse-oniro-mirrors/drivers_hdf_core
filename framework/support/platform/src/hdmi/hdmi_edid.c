@@ -542,7 +542,8 @@ static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *s
     return HDF_SUCCESS;
 }
 
-static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data,
+    uint8_t len)
 {
     uint8_t i;
     uint32_t vicAll, vicLower;
@@ -586,7 +587,7 @@ static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *s
     return HDF_SUCCESS;
 }
 
-static void HdmiEdidVsdbCecPhyAddrPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static void HdmiEdidVsdbCecPhyAddrPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data, uint8_t len)
 {
     if (len >= HDMI_EDID_VSDB_MIN_LEN_FOR_CEC_PHY_ADDR) {
         sinkCap->vsdbInfo.cecAddr.phyAddrA = (data[UINT8_ARRAY_TELEMENT_3] & HDMI_UPPER_NIBBLE_MARK) >>
@@ -603,7 +604,7 @@ static void HdmiEdidVsdbCecPhyAddrPhase(struct HdmiSinkDeviceCapability *sinkCap
     }
 }
 
-static void HdmiEdidVsdbColorDepthPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static void HdmiEdidVsdbColorDepthPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data, uint8_t len)
 {
     if (len >= HDMI_EDID_VSDB_MIN_LEN_FOR_COLOR_DEPTH) {
         sinkCap->vsdbInfo.supportAi = (data[UINT8_ARRAY_TELEMENT_5] & HDMI_BIT7_MARK) ? true : false;
@@ -615,7 +616,7 @@ static void HdmiEdidVsdbColorDepthPhase(struct HdmiSinkDeviceCapability *sinkCap
     }
 }
 
-static void HdmiEdidVsdbMaxTmdsClockPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static void HdmiEdidVsdbMaxTmdsClockPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data, uint8_t len)
 {
     /*
      * This field shall be set cprrectly and non-zero if the sink support TMDS clock frequencies above 165MHz or
@@ -627,7 +628,7 @@ static void HdmiEdidVsdbMaxTmdsClockPhase(struct HdmiSinkDeviceCapability *sinkC
     }
 }
 
-static void HdmiEdidVsdbSinkPresentPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static void HdmiEdidVsdbSinkPresentPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data, uint8_t len)
 {
     if (len >= HDMI_EDID_VSDB_MIN_LEN_FOR_SINK_PRESENT) {
         sinkCap->vsdbInfo.latencyFieldsPresent = (data[UINT8_ARRAY_TELEMENT_7] & HDMI_BIT7_MARK) ? true : false;
@@ -636,7 +637,7 @@ static void HdmiEdidVsdbSinkPresentPhase(struct HdmiSinkDeviceCapability *sinkCa
     }
 }
 
-static void HdmiEdidVsdbSinkLatencyPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static void HdmiEdidVsdbSinkLatencyPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data, uint8_t len)
 {
     if (sinkCap->vsdbInfo.latencyFieldsPresent == true) {
         if (len >= HDMI_EDID_VSDB_MIN_LEN_FOR_VIDEO_LATENCY) {
@@ -657,7 +658,7 @@ static void HdmiEdidVsdbSinkLatencyPhase(struct HdmiSinkDeviceCapability *sinkCa
 }
 
 static void HdmiEdidVsdbVicInfoPhase(struct HdmiSinkDeviceCapability *sinkCap,
-    uint8_t *data, uint8_t vicLen, uint8_t *offset)
+    const uint8_t *data, uint8_t vicLen, uint8_t *offset)
 {
     uint8_t i, index;
     /* see hdmi spec 1.4 table 8-13. */
@@ -683,7 +684,7 @@ static void HdmiEdidVsdbVicInfoPhase(struct HdmiSinkDeviceCapability *sinkCap,
 }
 
 static void HdmiEdidVsdb3dStructureInfoPhase(struct HdmiSinkDeviceCapability *sinkCap,
-    uint8_t *data, uint8_t len, uint8_t *offset)
+    const uint8_t *data, uint8_t len, uint8_t *offset)
 {
     /*
      * If 3D_Multi_present is 1 or 2, 3D_Struct_ALL_15...0 is present and assigns 3D formats to
@@ -787,7 +788,7 @@ static int32_t HdmiEdidVsdbPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8
     return HDF_SUCCESS;
 }
 
-static void HdmiEdidHfVsdb21Phase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static void HdmiEdidHfVsdb21Phase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data, uint8_t len)
 {
     sinkCap->hfVsdbInfo.maxFrlRate = (data[UINT8_ARRAY_TELEMENT_6] & HDMI_UPPER_NIBBLE_MARK) >> HDMI_NIBBLE_SHIFT;
 
@@ -875,7 +876,8 @@ static int32_t HdmiEdidExtVsDataBlockPhase(struct HdmiSinkDeviceCapability *sink
     return ret;
 }
 
-static int32_t HdmiEdidExtSpeakerDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
+static int32_t HdmiEdidExtSpeakerDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data,
+    uint8_t len)
 {
     if (len < HDMI_EDID_EXTENSION_SADB_MIN_INVALID_LEN) {
         HDF_LOGD("SADB: len %hhu is too short", len);
@@ -908,7 +910,7 @@ static int32_t HdmiEdidExtSpeakerDataBlockPhase(struct HdmiSinkDeviceCapability 
 }
 
 static void HdmiEdidExtUseExtDataBlockVcdbPhase(struct HdmiSinkDeviceCapability *sinkCap,
-    uint8_t *data, uint8_t len)
+    const uint8_t *data, uint8_t len)
 {
     if (len < HDMI_EDID_VCDB_LEN) {
         HDF_LOGD("VCDB: len is too short");
@@ -920,7 +922,7 @@ static void HdmiEdidExtUseExtDataBlockVcdbPhase(struct HdmiSinkDeviceCapability 
 }
 
 static void HdmiEdidExtUseExtDataBlockCdbPhase(struct HdmiSinkDeviceCapability *sinkCap,
-    uint8_t *data, uint8_t len)
+    const uint8_t *data, uint8_t len)
 {
     if (len < HDMI_EDID_CDB_LEN) {
         HDF_LOGD("CDB: len is too short");
@@ -1003,7 +1005,7 @@ static void HdmiEdidExtUseExtDataBlockY420CmdbPhase(struct HdmiSinkDeviceCapabil
 }
 
 static void HdmiEdidExtUseExtDataBlockHdrSmdbPhase(struct HdmiSinkDeviceCapability *sinkCap,
-    uint8_t *data, uint8_t len)
+    const uint8_t *data, uint8_t len)
 {
     if (len < HDMI_EDID_HDR_SMDB_MIN_LEN) {
         HDF_LOGD("Hdr SMDB: len is too short");
@@ -1032,7 +1034,7 @@ static void HdmiEdidExtUseExtDataBlockHdrSmdbPhase(struct HdmiSinkDeviceCapabili
     }
 }
 
-static void HdmiEdidDolbyCapVersionZeroPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data)
+static void HdmiEdidDolbyCapVersionZeroPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data)
 {
     sinkCap->dolbyCap.globalDimming = (data[UINT8_ARRAY_TELEMENT_4] & HDMI_BIT2_MARK) ? true : false;
     sinkCap->dolbyCap.redX = ((data[UINT8_ARRAY_TELEMENT_5] &
@@ -1069,7 +1071,7 @@ static void HdmiEdidDolbyCapVersionZeroPhase(struct HdmiSinkDeviceCapability *si
     sinkCap->dolbyCap.dMinorVer = (data[UINT8_ARRAY_TELEMENT_20] & HDMI_LOWER_NIBBLE_MARK);
 }
 
-static void HdmiEdidDolbyCapVersionOnePhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data)
+static void HdmiEdidDolbyCapVersionOnePhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data)
 {
     sinkCap->dolbyCap.dmVer = (data[UINT8_ARRAY_TELEMENT_4] & HDMI_EDID_VSVDB_DOLBY_DM_VER_MARK) >>
                                 HDMI_EDID_VSVDB_DOLBY_DM_VER_SHIFT;

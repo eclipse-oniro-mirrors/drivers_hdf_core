@@ -1094,7 +1094,7 @@ void HdmiCecEncodingReportAudioStatusMsg(struct HdmiCecMsg *msg, uint8_t audioMu
 }
 
 void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg,
-    uint8_t *id, uint8_t *code, uint32_t len, bool response)
+    const uint8_t *id, const uint8_t *code, uint32_t len, bool response)
 {
     uint32_t num, i;
 
@@ -1114,7 +1114,7 @@ void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg,
     }
 }
 
-void HdmiCecEncodingReportShortAudioDescriptorMsg(struct HdmiCecMsg *msg, uint32_t *descriptor, uint32_t len)
+void HdmiCecEncodingReportShortAudioDescriptorMsg(struct HdmiCecMsg *msg, const uint32_t *descriptor, uint32_t len)
 {
     uint32_t num, i;
 
@@ -1334,7 +1334,7 @@ void HdmiCdcEncodingHecSetStateMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhy
 }
 
 void HdmiCdcEncodingHecRequestDeactivationMsg(struct HdmiCecMsg *msg, uint16_t initiatorPhyAddr,
-    uint16_t *phyAddr, uint32_t len, bool response)
+    const uint16_t *phyAddr, uint32_t len, bool response)
 {
     uint32_t i;
 

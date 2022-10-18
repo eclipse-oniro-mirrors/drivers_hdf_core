@@ -91,7 +91,7 @@ static int GpioExecCmd(uint16_t gpio, struct GpioBitInfo *info, int cmd)
             PLAT_LOGV("%s: gpio:%hu write:%u done!", __func__, gpio, info->value);
             break;
         default:
-            ret = -1;
+            return -1;
     }
     return 0;
 }

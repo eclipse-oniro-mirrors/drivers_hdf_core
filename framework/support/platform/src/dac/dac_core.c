@@ -334,7 +334,7 @@ static int32_t DacManagerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    if (number >= DAC_DEVICES_MAX || reply == NULL) {
+    if (number >= DAC_DEVICES_MAX) {
         HDF_LOGE("%s: invalid number %u", __func__, number);
         return HDF_ERR_INVALID_PARAM;
     }

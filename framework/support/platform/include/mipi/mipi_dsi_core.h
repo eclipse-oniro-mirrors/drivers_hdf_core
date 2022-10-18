@@ -91,7 +91,7 @@ void MipiDsiCntlrClose(struct MipiDsiCntlr *cntlr);
  *
  * @since 1.0
  */
-int32_t MipiDsiCntlrSetCfg(struct MipiDsiCntlr *cntlr, struct MipiCfg *cfg);
+int32_t MipiDsiCntlrSetCfg(struct MipiDsiCntlr *cntlr, const struct MipiCfg *cfg);
 
 /**
  * @brief Obtains the configuration parameters of a MIPI DSI device.

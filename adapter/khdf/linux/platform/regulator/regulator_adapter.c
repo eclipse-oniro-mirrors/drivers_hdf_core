@@ -466,7 +466,6 @@ static int32_t LinuxRegulatorInit(struct HdfDeviceObject *device)
 static int32_t LinuxRegulatorParseAndRelease(struct HdfDeviceObject *device, const struct DeviceResourceNode *node)
 {
     int32_t ret;
-    struct LinuxRegulatorInfo *info = NULL;
     struct DeviceResourceIface *drsOps = NULL;
     (void)device;
 
@@ -478,7 +477,7 @@ static int32_t LinuxRegulatorParseAndRelease(struct HdfDeviceObject *device, con
         return HDF_FAILURE;
     }
 
-    const char *name;
+    const char *name = NULL;
     ret = drsOps->GetString(node, "name", &(name), "ERROR");
     if ((ret != HDF_SUCCESS) || (name == NULL)) {
         HDF_LOGE("%s: read name fail!", __func__);

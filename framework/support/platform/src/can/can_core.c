@@ -155,7 +155,7 @@ static int32_t CanCntlrMsgDispatch(struct CanCntlr *cntlr, struct CanMsg *msg)
     return HDF_SUCCESS;
 }
 
-int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, struct CanMsg *msg)
+int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)
 {
     struct CanMsg *copy = NULL;
 
