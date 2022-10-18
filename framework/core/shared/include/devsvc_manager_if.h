@@ -27,6 +27,7 @@ struct IDevSvcManager {
     int (*RegsterServListener)(struct IDevSvcManager *, struct ServStatListenerHolder *);
     void (*UnregsterServListener)(struct IDevSvcManager *, struct ServStatListenerHolder *);
     void (*ListAllService)(struct IDevSvcManager *, struct HdfSBuf *);
+    int (*ListServiceByInterfaceDesc)(struct IDevSvcManager *, const char *, struct HdfSBuf *);
 };
 
 #endif /* DEVSVC_MANAGER_IF_H */

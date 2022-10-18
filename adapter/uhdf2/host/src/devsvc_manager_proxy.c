@@ -59,6 +59,11 @@ static int WriteServiceInfo(
         HDF_LOGE("Add service failed, failed to write serv info");
         return HDF_FAILURE;
     }
+    const char *interfaceDesc = servInfo->interfaceDesc != NULL ? servInfo->interfaceDesc : "";
+    if (!HdfSbufWriteString(data, interfaceDesc)) {
+        HDF_LOGE("Add service failed, failed to write interfaceDesc");
+        return HDF_FAILURE;
+    }
 
     return HDF_SUCCESS;
 }

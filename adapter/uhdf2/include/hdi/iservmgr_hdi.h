@@ -40,6 +40,7 @@ public:
     virtual int32_t ListAllService(std::vector<HdiServiceInfo> &serviceInfos) = 0;
     virtual int32_t RegisterServiceStatusListener(::OHOS::sptr<IServStatListener> listener, uint16_t deviceClass) = 0;
     virtual int32_t UnregisterServiceStatusListener(::OHOS::sptr<IServStatListener> listener) = 0;
+    virtual int32_t ListServiceByInterfaceDesc(std::vector<std::string> &serviceNames, const char *interfaceDesc) = 0;
 };
 } // namespace V1_0
 } // namespace ServiceManager

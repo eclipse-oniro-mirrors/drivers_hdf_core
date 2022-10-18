@@ -18,6 +18,7 @@
 #include <hdf_base.h>
 #include <hdf_log.h>
 #include <osal_mem.h>
+#include "hdf_cstring.h"
 #include "hdf_service_status.h"
 #include "servmgr_hdi.h"
 
@@ -36,6 +37,94 @@ static int32_t ServiceManagerHdiCall(struct HDIServiceManagerClient *servMgrClie
     }
 
     return servMgrClient->remote->dispatcher->Dispatch(servMgrClient->remote, id, data, reply);
+}
+
+static void HdiServiceSetGet(const uint32_t serviceNum, struct HdiServiceSet **serviceSet)
+{
+    *serviceSet = OsalMemAlloc(sizeof(struct HdiServiceSet));
+    if (*serviceSet == NULL) {
+        HDF_LOGE("%{public}s: OOM", __func__);
+        return;
+    }
+    (*serviceSet)->serviceNames = OsalMemCalloc(sizeof(char *) * serviceNum);
+    if ((*serviceSet)->serviceNames == NULL) {
+        HDF_LOGE("%{public}s: OOM", __func__);
+        HdiServiceSetRelease(*serviceSet);
+        return;
+    }
+    (*serviceSet)->count = serviceNum;
+}
+
+static int32_t HdiServiceSetUnMarshalling(struct HdfSBuf *buf, struct HdiServiceSet *serviceSet)
+{
+    if (serviceSet == NULL || buf == NULL) {
+        HDF_LOGE("%{public}s: HdiServiceSet unmarshalling failed", __func__);
+        HdiServiceSetRelease(serviceSet);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    for (uint32_t i = 0; i < serviceSet->count; i++) {
+        const char *serviceName = HdfSbufReadString(buf);
+        if (serviceName == NULL) {
+            break;
+        }
+        serviceSet->serviceNames[i] = HdfStringCopy(serviceName);
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t HDIServMgrListServiceByInterfaceDesc(
+    struct HDIServiceManager *iServMgr, const char *interfaceDesc, struct HdiServiceSet **serviceSet)
+{
+    if (iServMgr == NULL || interfaceDesc == NULL || serviceSet == NULL || strlen(interfaceDesc) == 0) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    struct HDIServiceManagerClient *servMgrClient = CONTAINER_OF(iServMgr, struct HDIServiceManagerClient, iservmgr);
+    struct HdfSBuf *data = NULL;
+    struct HdfSBuf *reply = NULL;
+    int status;
+    uint32_t serviceNum = 0;
+
+    do {
+        data = HdfSbufTypedObtain(SBUF_IPC);
+        reply = HdfSbufTypedObtain(SBUF_IPC);
+        if (data == NULL || reply == NULL) {
+            status = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
+        if (!HdfRemoteServiceWriteInterfaceToken(servMgrClient->remote, data) ||
+            !HdfSbufWriteString(data, interfaceDesc)) {
+            return HDF_FAILURE;
+        }
+        status = ServiceManagerHdiCall(servMgrClient, DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC, data, reply);
+        if (status != HDF_SUCCESS) {
+            HDF_LOGE("%{public}s: failed to get %{public}s service collection, the status is %{public}d", __func__,
+                interfaceDesc, status);
+            break;
+        }
+        if (!HdfSbufReadUint32(reply, &serviceNum)) {
+            status = HDF_FAILURE;
+            break;
+        }
+        if (serviceNum == 0) {
+            break;
+        }
+        HdiServiceSetGet(serviceNum, serviceSet);
+        if (*serviceSet == NULL) {
+            status = HDF_ERR_MALLOC_FAIL;
+            break;
+        }
+        status = HdiServiceSetUnMarshalling(reply, *serviceSet);
+    } while (0);
+
+    if (reply != NULL) {
+        HdfSbufRecycle(reply);
+    }
+    if (data != NULL) {
+        HdfSbufRecycle(data);
+    }
+
+    return status;
 }
 
 struct HdfRemoteService *HDIServMgrGetService(struct HDIServiceManager *iServMgr, const char* serviceName)
@@ -136,6 +225,7 @@ void HDIServiceManagerConstruct(struct HDIServiceManager *inst)
     inst->GetService = HDIServMgrGetService;
     inst->RegisterServiceStatusListener = HDIServMgrRegisterServiceStatusListener;
     inst->UnregisterServiceStatusListener = HDIServMgrUnregisterServiceStatusListener;
+    inst->ListServiceByInterfaceDesc = HDIServMgrListServiceByInterfaceDesc;
 }
 
 struct HDIServiceManager *HDIServiceManagerGet(void)
@@ -172,4 +262,18 @@ void HDIServiceManagerRelease(struct HDIServiceManager *servmgr)
     struct HDIServiceManagerClient *iServMgrClient = CONTAINER_OF(servmgr, struct HDIServiceManagerClient, iservmgr);
     HdfRemoteServiceRecycle(iServMgrClient->remote);
     OsalMemFree(iServMgrClient);
+}
+
+void HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
+{
+    if (serviceSet == NULL) {
+        return;
+    }
+    for (uint32_t i = 0; i < serviceSet->count; i++) {
+        if (serviceSet->serviceNames[i] != NULL) {
+            OsalMemFree(serviceSet->serviceNames);
+            serviceSet->serviceNames = NULL;
+        }
+    }
+    OsalMemFree(serviceSet);
 }

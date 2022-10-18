@@ -53,6 +53,7 @@ typedef enum {
     HDF_ERR_IO          = -17, /**< I/O error. */
     HDF_ERR_BAD_FD      = -18, /**< Incorrect file descriptor. */
     HDF_ERR_NOPERM      = -19, /**< No permission. */
+    HDF_ERR_OUT_OF_RANGE = -20, /**< Failed to get all result */
 
 #define HDF_BSP_ERR_START (-100) /**< Defines the start of the Board Support Package (BSP) module error codes. */
 #define HDF_BSP_ERR_NUM(v) (HDF_BSP_ERR_START + (v)) /**< Defines the BSP module error codes. */

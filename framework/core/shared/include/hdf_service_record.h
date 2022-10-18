@@ -20,6 +20,7 @@ struct DevSvcRecord {
     const char *servInfo;
     uint16_t devClass;
     devid_t devId;
+    const char *interfaceDesc;
 };
 
 struct DevSvcRecord *DevSvcRecordNewInstance(void);

@@ -19,6 +19,7 @@
 #include <iremote_stub.h>
 #include <iservice_registry.h>
 #include <object_collector.h>
+#include <string_ex.h>
 
 #include "iservmgr_hdi.h"
 
@@ -33,6 +34,7 @@ constexpr int DEVSVC_MANAGER_GET_SERVICE = 3;
 constexpr int DEVSVC_MANAGER_REGISTER_SVCLISTENER = 4;
 constexpr int DEVSVC_MANAGER_UNREGISTER_SVCLISTENER = 5;
 constexpr int DEVSVC_MANAGER_LIST_ALL_SERVICE = 6;
+constexpr int DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC = 9;
 
 class ServiceManagerProxy : public IProxyBroker<IServiceManager> {
 public:
@@ -43,6 +45,7 @@ public:
     int32_t ListAllService(std::vector<HdiServiceInfo> &serviceInfos) override;
     int32_t RegisterServiceStatusListener(sptr<IServStatListener> listener, uint16_t deviceClass) override;
     int32_t UnregisterServiceStatusListener(sptr<IServStatListener> listener) override;
+    int32_t ListServiceByInterfaceDesc(std::vector<std::string> &serviceNames, const char *interfaceDesc) override;
 
 private:
     static inline BrokerDelegator<ServiceManagerProxy> delegator_;
@@ -151,6 +154,38 @@ int32_t ServiceManagerProxy::ListAllService(std::vector<HdiServiceInfo> &service
         HdfDevMgrDbgFillServiceInfo(serviceInfos, reply);
     }
     HDF_LOGD("get all service info success");
+    return status;
+}
+
+int32_t ServiceManagerProxy::ListServiceByInterfaceDesc(
+    std::vector<std::string> &serviceNames, const char *interfaceDesc)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (interfaceDesc == nullptr || strlen(interfaceDesc) == 0) {
+        HDF_LOGE("%{public}s: invalid parameter, interfaceDesc is null or empty", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor()) || !data.WriteCString(interfaceDesc)) {
+        return HDF_FAILURE;
+    }
+
+    MessageOption option;
+    int status = Remote()->SendRequest(DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC, data, reply, option);
+    if (status != HDF_SUCCESS) {
+        HDF_LOGE("get hdi service collection by %{public}s failed, %{public}d", interfaceDesc, status);
+        return status;
+    } else {
+        const uint32_t serviceNum = reply.ReadUint32();
+        for (uint32_t i = 0; i < serviceNum; i++) {
+            const char *serviceName = reply.ReadCString();
+            if (serviceName == NULL) {
+                break;
+            }
+            serviceNames.push_back(serviceName);
+        }
+    }
+    HDF_LOGD("get hdi service collection by %{public}s successfully", interfaceDesc);
     return status;
 }
 } // namespace V1_0
