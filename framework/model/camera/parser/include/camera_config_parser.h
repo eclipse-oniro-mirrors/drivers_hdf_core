@@ -6,28 +6,31 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef CAMERA_HDF_CONFIG_H
-#define CAMERA_HDF_CONFIG_H
+#ifndef CAMERA_CONFIG_PARSER_H
+#define CAMERA_CONFIG_PARSER_H
 
 #include <utils/device_resource_if.h>
 #include <utils/hdf_base.h>
-#include <camera/camera_product.h>
 
-#define BUFFER_TYPE_COUNT 3
-#define FORMAT_TYPE_COUNT 32
-#define CAMERA_MAX_DEVICE_NUM 4
+#define BUFFER_TYPE_MAX_NUM 3
+#define FORMAT_TYPE_MAX_NUM 23
+#define CAMERA_MAX_NUM 16
+#define CAMERA_DEVICE_MAX_NUM 4
 #define CTRL_INFO_COUNT 5
-#define CTRL_ID_INDX 0
-#define CTRL_MAX_INDX 1
-#define CTRL_MIN_INDX 2
-#define CTRL_STEP_INDX 3
-#define CTRL_DEF_INDX 4
-#define CTRL_VALUE_COUNT 21
+#define CTRL_ID_INDEX 0
+#define CTRL_MAX_INDEX 1
+#define CTRL_MIN_INDEX 2
+#define CTRL_STEP_INDEX 3
+#define CTRL_DEF_INDEX 4
+#define CTRL_MAX_NUM 21
+#define CTRL_VALUE_MAX_NUM CTRL_MAX_NUM * CTRL_INFO_COUNT
+#define DEVICE_SUPPORT 1
+#define DEVICE_NOT_SUPPORT 0
 
-#define CHECK_PARSER_CONFIG_RET(ret,  str) do { \
+#define CHECK_PARSER_CONFIG_RET(ret, str) do { \
     if ((ret) != HDF_SUCCESS) { \
         HDF_LOGE("%s: get %{public}s failed, ret = %{public}d, line : %{public}d", __func__, str, ret, __LINE__); \
-        return HDF_FAILURE; \
+        return ret; \
     } \
 } while (0)
 
@@ -46,8 +49,8 @@ struct SensorDeviceConfig {
     uint8_t mirror;
     uint8_t gain;
     uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_COUNT * CTRL_INFO_COUNT];
-    struct CtrlCapInfo ctrlCap[CTRL_VALUE_COUNT];
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
 };
 
 struct LensDeviceConfig {
@@ -55,8 +58,8 @@ struct LensDeviceConfig {
     uint8_t id;
     uint8_t aperture;
     uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_COUNT * CTRL_INFO_COUNT];
-    struct CtrlCapInfo ctrlCap[CTRL_VALUE_COUNT];
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
 };
 
 struct VcmDeviceConfig {
@@ -67,8 +70,8 @@ struct VcmDeviceConfig {
     uint8_t zoom;
     uint32_t zoomMaxNum;
     uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_COUNT * CTRL_INFO_COUNT];
-    struct CtrlCapInfo ctrlCap[CTRL_VALUE_COUNT];
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
 };
 
 struct StreamDeviceConfig {
@@ -79,15 +82,15 @@ struct StreamDeviceConfig {
     uint32_t frameRateMaxNum;
     uint8_t bufferCount;
     uint32_t bufferTypeNum;
-    uint32_t bufferType[BUFFER_TYPE_COUNT];
+    uint32_t bufferType[BUFFER_TYPE_MAX_NUM];
     uint32_t formatTypeNum;
-    uint32_t formatType[FORMAT_TYPE_COUNT];
+    uint32_t formatType[FORMAT_TYPE_MAX_NUM];
 };
 
 struct CameraSensorConfig {
     uint8_t mode;
     uint16_t sensorNum;
-    struct SensorDeviceConfig sensor[CAMERA_MAX_DEVICE_NUM];
+    struct SensorDeviceConfig sensor[CAMERA_DEVICE_MAX_NUM];
 };
 
 struct CameraIspConfig {
@@ -103,20 +106,20 @@ struct CameraIspConfig {
     uint8_t gamma;
     uint8_t whiteBalance;
     uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_COUNT * CTRL_INFO_COUNT];
-    struct CtrlCapInfo ctrlCap[CTRL_VALUE_COUNT];
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
 };
 
 struct CameraLensConfig {
     uint8_t mode;
     uint16_t lensNum;
-    struct LensDeviceConfig lens[CAMERA_MAX_DEVICE_NUM];
+    struct LensDeviceConfig lens[CAMERA_DEVICE_MAX_NUM];
 };
 
 struct CameraVcmConfig {
     uint8_t mode;
     uint16_t vcmNum;
-    struct VcmDeviceConfig vcm[CAMERA_MAX_DEVICE_NUM];
+    struct VcmDeviceConfig vcm[CAMERA_DEVICE_MAX_NUM];
 };
 
 struct CameraFlashConfig {
@@ -126,14 +129,14 @@ struct CameraFlashConfig {
     uint8_t flashMode;
     uint8_t flashIntensity;
     uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_COUNT * CTRL_INFO_COUNT];
-    struct CtrlCapInfo ctrlCap[CTRL_VALUE_COUNT];
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
 };
 
-struct ConfigCameraStreamConfig {
+struct CameraStreamConfig {
     uint8_t mode;
     uint16_t streamNum;
-    struct StreamDeviceConfig stream[CAMERA_MAX_DEVICE_NUM];
+    struct StreamDeviceConfig stream[CAMERA_DEVICE_MAX_NUM];
 };
 
 struct CameraDeviceConfig {
@@ -143,16 +146,16 @@ struct CameraDeviceConfig {
     struct CameraLensConfig lens;
     struct CameraVcmConfig vcm;
     struct CameraFlashConfig flash;
-    struct ConfigCameraStreamConfig stream;
+    struct CameraStreamConfig stream;
 };
 
 struct CameraConfigRoot {
     uint8_t uvcMode;
     uint16_t deviceNum;
-    struct CameraDeviceConfig deviceConfig[CAMERA_MAX_DEVICE_NUM];
+    struct CameraDeviceConfig deviceConfig[CAMERA_MAX_NUM];
 };
 
 struct CameraConfigRoot *HdfCameraGetConfigRoot(void);
 int32_t HdfParseCameraConfig(const struct DeviceResourceNode *node);
 
-#endif  // CAMERA_HDF_CONFIG_H
+#endif  // CAMERA_CONFIG_PARSER_H
