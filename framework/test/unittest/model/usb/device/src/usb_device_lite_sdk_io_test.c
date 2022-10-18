@@ -189,7 +189,6 @@ int32_t UsbFnDviceTestRequestAsync005(void)
 {
     struct UsbFnRequest *req = NULL;
     int32_t loopTime = TEST_TIMES;
-    int32_t ret;
     struct AcmDevice *acmDevice = UsbGetAcmDevice();
 
     if (acmDevice == NULL || acmDevice->dataIface.handle == NULL) {
@@ -211,8 +210,8 @@ int32_t UsbFnDviceTestRequestAsync005(void)
             HDF_LOGE("%s:%d memcpy_s fail", __func__, __LINE__);
         }
         req->length = strlen("xyz");
-        ret = UsbFnSubmitRequestAsync(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnSubmitRequestAsync(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: async Request error", __func__);
             return HDF_FAILURE;
         }
@@ -221,7 +220,7 @@ int32_t UsbFnDviceTestRequestAsync005(void)
         }
         acmDevice->submit = 0;
         ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -355,7 +354,6 @@ int32_t UsbFnDviceTestRequestSync005(void)
 {
     struct UsbFnRequest *req = NULL;
     int32_t loopTime = TEST_TIMES;
-    int32_t ret;
     struct AcmDevice *acmDevice = UsbGetAcmDevice();
 
     if (acmDevice == NULL || acmDevice->dataIface.handle == NULL) {
@@ -374,13 +372,13 @@ int32_t UsbFnDviceTestRequestSync005(void)
             HDF_LOGE("%s:%d memcpy_s fail", __func__, __LINE__);
         }
         req->length = strlen("abcdefg");
-        ret = UsbFnSubmitRequestSync(req, 0);
-        if (HDF_SUCCESS != ret || (req->actual != strlen("abcdefg")) || (req->status != USB_REQUEST_COMPLETED)) {
+        int32_t ret = UsbFnSubmitRequestSync(req, 0);
+        if (ret != HDF_SUCCESS || (req->actual != strlen("abcdefg")) || (req->status != USB_REQUEST_COMPLETED)) {
             HDF_LOGE("%s: async Request error", __func__);
             return HDF_FAILURE;
         }
         ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
