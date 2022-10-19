@@ -272,9 +272,9 @@ int DevSvcManagerListServiceByInterfaceDesc(
         HDF_LOGE("failed to list service collection info, parameter is null");
         return HDF_ERR_INVALID_PARAM;
     }
-    OsalMutexLock(&devSvcManager->mutex);
     const char *serviceNames[SERVICE_LIST_MAX];
     uint32_t serviceNum = 0;
+    OsalMutexLock(&devSvcManager->mutex);
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
         if (record->interfaceDesc == NULL) {
             HDF_LOGD("%{public}s interfacedesc is null", record->servName);
@@ -292,17 +292,16 @@ int DevSvcManagerListServiceByInterfaceDesc(
             serviceNum = serviceNum + 1;
         }
     }
+    OsalMutexUnlock(&devSvcManager->mutex);
     HDF_LOGD("find %{public}u services interfacedesc is %{public}s", serviceNum, interfaceDesc);
     if (!HdfSbufWriteUint32(reply, serviceNum)) {
         HDF_LOGE("failed to write serviceNum to buffer, interfacedesc is %{public}s, serviceNum is %{public}d",
             interfaceDesc, serviceNum);
-        OsalMutexUnlock(&devSvcManager->mutex);
         return HDF_FAILURE;
     }
     for (uint32_t i = 0; i < serviceNum; i++) {
         HdfSbufWriteString(reply, serviceNames[i]);
     }
-    OsalMutexUnlock(&devSvcManager->mutex);
     return status;
 }
 
