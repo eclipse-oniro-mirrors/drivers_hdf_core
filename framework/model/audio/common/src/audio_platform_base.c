@@ -107,19 +107,19 @@ int32_t AudioFormatToBitWidth(enum AudioFormat format, uint32_t *bitWidth)
         return HDF_ERR_INVALID_PARAM;
     }
     switch (format) {
-        case AUDIO_FORMAT_PCM_8_BIT:
+        case AUDIO_FORMAT_TYPE_PCM_8_BIT:
             *bitWidth = DATA_BIT_WIDTH8;
             break;
 
-        case AUDIO_FORMAT_PCM_16_BIT:
+        case AUDIO_FORMAT_TYPE_PCM_16_BIT:
             *bitWidth = DATA_BIT_WIDTH16;
             break;
 
-        case AUDIO_FORMAT_PCM_24_BIT:
+        case AUDIO_FORMAT_TYPE_PCM_24_BIT:
             *bitWidth = DATA_BIT_WIDTH24;
             break;
 
-        case AUDIO_FORMAT_PCM_32_BIT:
+        case AUDIO_FORMAT_TYPE_PCM_32_BIT:
             *bitWidth = DATA_BIT_WIDTH32;
             break;
 
