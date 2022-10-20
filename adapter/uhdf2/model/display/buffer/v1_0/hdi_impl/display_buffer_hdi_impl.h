@@ -18,8 +18,8 @@
 
 #include "buffer_handle.h"
 #include "v1_0/display_buffer_type.h"
-#include "v1_0/iallocator_interface.h"
-#include "v1_0/imapper_interface.h"
+#include "v1_0/iallocator.h"
+#include "v1_0/imapper.h"
 #include "v1_0/include/idisplay_buffer.h"
 
 namespace OHOS {
@@ -44,8 +44,8 @@ public:
         const std::vector<VerifyAllocInfo> &infos, std::vector<bool> &supporteds) const override;
 
 private:
-    sptr<IAllocatorInterface> allocator_;
-    sptr<IMapperInterface> mapper_;
+    sptr<IAllocator> allocator_;
+    sptr<IMapper> mapper_;
 };
 } // namespace V1_0
 } // namespace Buffer

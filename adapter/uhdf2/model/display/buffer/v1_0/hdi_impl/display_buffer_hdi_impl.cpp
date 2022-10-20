@@ -14,6 +14,7 @@
  */
 
 #include "v1_0/hdi_impl/display_buffer_hdi_impl.h"
+#include "unistd.h"
 #include "hilog/log.h"
 
 namespace OHOS {
@@ -64,10 +65,18 @@ IDisplayBuffer *IDisplayBuffer::Get()
 
 DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
 {
-    allocator_ = IAllocatorInterface::Get(isAllocLocal);
-    CHECK_NULLPOINTER_RETURN(allocator_);
-    mapper_ = IMapperInterface::Get(true);
-    CHECK_NULLPOINTER_RETURN(mapper_);
+    uint32_t count = 0;
+    while ((allocator_ = IAllocator::Get(isAllocLocal)) == nullptr) {
+        HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s get allocator service, count = %{public}d",
+            __LINE__, __func__, ++count);
+        usleep(1000);
+    }
+    count= 0;
+    while ((mapper_ = IMapper::Get(true)) == nullptr) {
+        HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s get mapper service, count = %{public}d",
+            __LINE__, __func__, ++count);
+        usleep(1000);
+    }
 }
 
 int32_t DisplayBufferHdiImpl::AllocMem(const AllocInfo &info, BufferHandle *&handle) const
