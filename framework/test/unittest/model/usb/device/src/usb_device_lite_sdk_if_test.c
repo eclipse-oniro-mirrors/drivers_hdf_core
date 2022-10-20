@@ -189,8 +189,8 @@ int32_t UsbFnDviceTestGetDevice(void)
     const struct UsbFnDevice *device = NULL;
     const char *udcName = "100e0000.hidwc3_0";
     device = UsbFnGetDevice(udcName);
-    if (device != NULL) {
-        HDF_LOGE("%s: get device success!!", __func__);
+    if (device == NULL) {
+        HDF_LOGE("%s: get device failed", __func__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -878,6 +878,7 @@ int32_t UsbFnDviceTestAllocCtrlRequest004(void)
         return HDF_FAILURE;
     }
 
+    // 0x801: Represents the length of the requested data, testing greater than 2048.
     struct UsbFnRequest *req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle, 0x801);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req failed", __func__);
@@ -921,6 +922,7 @@ int32_t UsbFnDviceTestAllocCtrlRequest006(void)
         return HDF_FAILURE;
     }
 
+    // 0x800: Represents the length of the requested data, testing equal to 2048.
     struct UsbFnRequest *req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle, 0x800);
     if (req == NULL) {
         HDF_LOGE("%s: alloc req fail", __func__);
@@ -1300,7 +1302,7 @@ int32_t UsbFnDviceTestGetRequestStatus(void)
         return HDF_FAILURE;
     }
 
-    UsbRequestStatus status;
+    UsbRequestStatus status = 0;
     int32_t ret = UsbFnGetRequestStatus(notifyReq, &status);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
@@ -1332,7 +1334,7 @@ int32_t UsbFnDviceTestGetRequestStatus002(void)
         return HDF_FAILURE;
     }
 
-    UsbRequestStatus status;
+    UsbRequestStatus status = 0;
     int32_t ret = UsbFnGetRequestStatus(notifyReq, &status);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
@@ -1392,7 +1394,7 @@ int32_t UsbFnDviceTestGetRequestStatus004(void)
         return HDF_FAILURE;
     }
 
-    UsbRequestStatus status;
+    UsbRequestStatus status = 0;
     int32_t ret = UsbFnSubmitRequestAsync(notifyReq);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
@@ -1417,7 +1419,7 @@ int32_t UsbFnDviceTestGetRequestStatus004(void)
 
 int32_t UsbFnDviceTestGetRequestStatus005(void)
 {
-    UsbRequestStatus status;
+    UsbRequestStatus status = 0;
     struct UsbFnRequest *notifyReq = NULL;
     int32_t ret = UsbFnGetRequestStatus(notifyReq, &status);
     if (ret == HDF_SUCCESS) {
@@ -1507,6 +1509,7 @@ int32_t UsbFnDviceTestStartReceEvent(void)
         return HDF_FAILURE;
     }
 
+    // 0xff: Represents the type of event to handle and can receive all events.
     int32_t ret = UsbFnStartRecvInterfaceEvent(g_acmDevice->ctrlIface.fn, 0xff, NULL, g_acmDevice);
     if (ret == HDF_SUCCESS) {
         HDF_LOGE("%s: start receive event success!!", __func__);
