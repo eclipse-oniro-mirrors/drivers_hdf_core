@@ -35,13 +35,7 @@ def find_makefile_file_end_index(date_lines, model_name):
     return result_tuple
 
 
-def audio_linux_makefile_operation(path, args_tuple):
-    source_path, head_path, module, driver, root, devices = args_tuple
-    makefile_gn_path = path
-    date_lines = hdf_utils.read_file_lines(makefile_gn_path)
-    judge_result = judge_driver_config_exists(date_lines, driver_name=driver)
-    if judge_result:
-        return
+def formate_mk_config_build(source_path, date_lines, devices, root):
     if len(source_path) > 1:
         sources_line = ""
         obj_first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\" + "\n"
@@ -51,15 +45,18 @@ def audio_linux_makefile_operation(path, args_tuple):
             temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
             try:
-                temp_dict['source_path'] = temp_dict.get('source_path').strip(".c")
+                temp_dict['source_path'] = temp_dict.get(
+                    'source_path').strip(".c")
             except KeyError as _:
                 continue
             finally:
                 pass
             if source == source_path[-1]:
-                sources_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(") + "\n"
+                sources_line += temp_handle.substitute(
+                    temp_dict).replace("temp_flag", "$(") + "\n"
             else:
-                sources_line += temp_handle.substitute(temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
+                sources_line += temp_handle.substitute(
+                    temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
         build_resource = obj_first_line + sources_line
     else:
         build_resource = "LOCAL_SRCS += $(${file_parent_path})/${source_path}\n"
@@ -68,6 +65,17 @@ def audio_linux_makefile_operation(path, args_tuple):
             temp_dict = analyze_parent_path(
                 date_lines, source, "", devices, root)
             build_resource = temp_handle.substitute(temp_dict).replace("temp_flag", "$(")
+    return build_resource
+
+
+def audio_linux_makefile_operation(path, args_tuple):
+    source_path, head_path, module, driver, root, devices = args_tuple
+    makefile_gn_path = path
+    date_lines = hdf_utils.read_file_lines(makefile_gn_path)
+    judge_result = judge_driver_config_exists(date_lines, driver_name=driver)
+    if judge_result:
+        return
+    build_resource = formate_mk_config_build(source_path, date_lines, devices, root)
     head_line = []
     ccflags_first_line = "\nccflags-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\" + "\n"
     temp_line = "\t\t\t\t-I$(srctree)/$(${file_parent_path})/${head_path}"
@@ -76,9 +84,11 @@ def audio_linux_makefile_operation(path, args_tuple):
         temp_dict = analyze_parent_path(
             date_lines, "", head_file, devices, root)
         if head_file == head_path[-1]:
-            temp_str = "".join([temp_handle.substitute(temp_dict).replace("temp_flag", "$("), "\n"])
+            temp_str = "".join([temp_handle.substitute(
+                temp_dict).replace("temp_flag", "$("), "\n"])
         else:
-            temp_str = "".join([temp_handle.substitute(temp_dict).replace("temp_flag", "$("), " \\", "\n"])
+            temp_str = "".join([temp_handle.substitute(
+                temp_dict).replace("temp_flag", "$("), " \\", "\n"])
         head_line.append(temp_str)
     build_head = ccflags_first_line + "".join(head_line)
     makefile_add_template = build_resource + build_head
