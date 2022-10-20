@@ -214,7 +214,7 @@ class ConfigTerm : public AstObject {
 public:
     ConfigTerm(const ConfigTerm &term);
 
-    ConfigTerm(std::string name, const std::shared_ptr<AstObject> &value);
+    ConfigTerm(const std::string &name, const std::shared_ptr<AstObject> &value);
 
     ConfigTerm(Token &name, const std::shared_ptr<AstObject> &value);
 

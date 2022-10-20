@@ -34,11 +34,11 @@
     "passwd_group_config": {
         "passwd": {
             "path": "base/startup/init/services/etc/passwd",
-            "info_temp": "${peripheral_name}_host:x:${uid}:${uid}:::/bin/false\n"
+            "info_temp": "{peripheral_name}_host:x:{uid}:{uid}:::/bin/false\n"
             },
         "group": {
             "path": "base/startup/init/services/etc/group",
-            "info_temp": "${peripheral_name}_host:x:${gid}:\n"
+            "info_temp": "{peripheral_name}_host:x:{gid}:\n"
             }
     },
     "drivers_path_relative_framework": "drivers/hdf_core/framework",

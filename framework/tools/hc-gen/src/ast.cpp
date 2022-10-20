@@ -723,7 +723,7 @@ ConfigTerm::ConfigTerm(const ConfigTerm &term) : ConfigTerm(term.name_, nullptr)
     lineno_ = term.lineno_;
 }
 
-ConfigTerm::ConfigTerm(std::string name, const std::shared_ptr<AstObject> &value)
+ConfigTerm::ConfigTerm(const std::string &name, const std::shared_ptr<AstObject> &value)
     : AstObject(name, PARSEROP_CONFTERM, 0), signNum_(0)
 {
     if (value != nullptr) {
