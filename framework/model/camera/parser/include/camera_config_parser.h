@@ -27,13 +27,6 @@
 #define DEVICE_SUPPORT 1
 #define DEVICE_NOT_SUPPORT 0
 
-#define CHECK_PARSER_CONFIG_RET(ret, str) do { \
-    if ((ret) != HDF_SUCCESS) { \
-        HDF_LOGE("%s: get %{public}s failed, ret = %{public}d, line : %{public}d", __func__, str, ret, __LINE__); \
-        return ret; \
-    } \
-} while (0)
-
 struct CtrlCapInfo {
     uint8_t ctrlId;
     uint32_t max;

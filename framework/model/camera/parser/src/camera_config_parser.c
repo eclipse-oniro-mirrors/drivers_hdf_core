@@ -6,10 +6,17 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "camera_config_parser.h"
 #include <utils/hdf_log.h>
+#include "camera_config_parser.h"
 
 #define HDF_LOG_TAG HDF_CAMERA_PARSER
+
+#define CHECK_PARSER_CONFIG_RET(ret, str) do { \
+    if ((ret) != HDF_SUCCESS) { \
+        HDF_LOGE("%s: get %{public}s failed, ret = %{public}d, line : %{public}d", __func__, str, ret, __LINE__); \
+        return ret; \
+    } \
+} while (0)
 
 static struct CameraConfigRoot g_configCameraRoot;
 
