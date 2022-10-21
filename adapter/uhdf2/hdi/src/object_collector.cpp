@@ -35,7 +35,7 @@ bool ObjectCollector::ConstructorRegister(const std::u16string &interfaceName, c
         return false;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    constructorMapper_.insert({interfaceName, std::move(constructor)});
+    constructorMapper_.emplace(interfaceName, std::move(constructor));
     return true;
 }
 
