@@ -452,7 +452,6 @@ private:
 std::ostream &operator<<(std::ostream &stream, const AstObject &t);
 std::ostream &operator<<(std::ostream &stream, const ConfigNode &t);
 std::ostream &operator<<(std::ostream &stream, const ConfigTerm &t);
-
 } // namespace Hardware
 } // namespace OHOS
 
