@@ -78,6 +78,35 @@ struct AudioDaiOps {
      * @version 1.0
      */
     int32_t (*Trigger)(const struct AudioCard *audioCard, int cmd, const struct DaiDevice *dai);
+
+    /**
+     * @brief Defines Dai device shutdown function.
+     *
+     * @param audioCard Indicates an audio card device.
+     * @param dai Indicates a dai device.
+     *
+     * @return Returns <b>0</b> if dai device shutdown success; returns a non-zero value otherwise.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    int32_t (*Shutdown)(const struct AudioCard *audioCard, const struct DaiDevice *dai);
+
+    /**
+     * @brief Defines Dai device digital mute.
+     *
+     * @param audioCard Indicates an audio card device.
+     * @param dai Indicates a dai device.
+     * @param mute Indicates mute enable.
+     * @param direction Indicates render or capture.
+     *
+     * @return Returns <b>0</b> if dai device digital mute success; returns a non-zero value otherwise.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    int32_t (*MuteStream)(const struct AudioCard *audioCard, const struct DaiDevice *dai,
+        bool mute, int32_t direction);
 };
 
 /**

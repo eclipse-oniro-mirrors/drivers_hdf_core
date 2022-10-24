@@ -10,6 +10,8 @@
 #include "audio_control.h"
 #include "audio_driver_log.h"
 #include "osal_uaccess.h"
+#include "hdf_device_object.h"
+#include "devsvc_manager_clnt.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 #define MAX_USER_SPACE_SIZE 0x4000
@@ -127,6 +129,35 @@ static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
     return HDF_SUCCESS;
 }
 
+static int32_t ControlHostElemUnloadCard(const struct HdfDeviceIoClient *client,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    const char *driverName = NULL;
+    struct HdfDeviceObject *audioDriverService = NULL;
+    (void)client;
+    (void)rspData;
+
+    if (reqData == NULL) {
+        ADM_LOG_ERR("reqData is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    driverName = HdfSbufReadString(reqData);
+    if (driverName == NULL) {
+        ADM_LOG_ERR("read driver name is null!");
+        return HDF_FAILURE;
+    }
+
+    audioDriverService = DevSvcManagerClntGetDeviceObject(driverName);
+    if (audioDriverService == NULL) {
+        ADM_LOG_ERR("get hdmi device fail! %s", driverName);
+        return HDF_FAILURE;
+    }
+
+    HdfDeviceObjectRelease(audioDriverService);
+    return HDF_SUCCESS;
+}
+
 static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struct HdfSBuf *reqData,
     struct HdfSBuf *rspData)
 {
@@ -225,7 +256,7 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
 
     kctrl = AudioGetKctrlInstance(&elemValue.id);
     if (kctrl == NULL || kctrl->Set == NULL) {
-        ADM_LOG_ERR("Find kctrl or Set fail!");
+        ADM_LOG_ERR("itemname: %s iface: %d Find kctrl or Set fail!", elemValue.id.itemName, elemValue.id.iface);
         return HDF_FAILURE;
     }
 
@@ -252,12 +283,12 @@ static int32_t CodecElemListReqDataDeserialization(struct HdfSBuf *reqData, stru
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadInt32(reqData, &list->space)) {
+    if (!HdfSbufReadUint32(reqData, &list->space)) {
         ADM_LOG_ERR("Read request space failed!");
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadInt64(reqData, listAddress)) {
+    if (!HdfSbufReadUint64(reqData, listAddress)) {
         ADM_LOG_ERR("Read request space failed!");
         return HDF_FAILURE;
     }
@@ -384,6 +415,7 @@ static struct ControlDispCmdHandleList g_controlDispCmdHandle[] = {
     {AUDIODRV_CTRL_IOCTRL_ELEM_READ, ControlHostElemRead},
     {AUDIODRV_CTRL_IOCTRL_ELEM_WRITE, ControlHostElemWrite},
     {AUDIODRV_CTRL_IOCTRL_ELEM_LIST, ControlHostElemList},
+    {AUDIODRV_CTRL_IOCTRL_ELEM_HDMI, ControlHostElemUnloadCard},
 };
 
 static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int32_t cmdId,

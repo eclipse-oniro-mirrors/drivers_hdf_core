@@ -154,7 +154,7 @@ static uint32_t* GetRegArray(const struct DeviceResourceIface *parser, const str
     int32_t ret;
     int32_t index;
     int32_t num;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
     if (group == NULL || parser == NULL || regNode == NULL || indexMax == 0) {
         ADM_LOG_ERR("Input para check error");
         return NULL;
@@ -194,7 +194,7 @@ static int32_t ParseAudioRegItem(const struct DeviceResourceIface *parser, const
 {
     int32_t step;
     int32_t index;
-    int32_t *buf;
+    int32_t *buf = NULL;
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -237,7 +237,7 @@ static int32_t ParseAudioEnumRegItem(const struct DeviceResourceIface *parser, c
 {
     int32_t step;
     int32_t index;
-    int32_t *buf;
+    int32_t *buf = NULL;
 
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
@@ -281,7 +281,7 @@ static int32_t ParseAudioSapmItem(const struct DeviceResourceIface *parser, cons
 {
     int32_t step;
     int32_t index;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -323,7 +323,7 @@ static int32_t ParseAudioCtrlItem(const struct DeviceResourceIface *parser, cons
 {
     int32_t step;
     int32_t index;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
     if (parser == NULL || regNode == NULL || group == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -360,7 +360,7 @@ static int32_t ParseAudioAddrItem(const struct DeviceResourceIface *parser, cons
 {
     int32_t step;
     int32_t index;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
 
     if (parser == NULL || regNode == NULL || group == NULL) {
         ADM_LOG_ERR("Input para check error.");
@@ -488,7 +488,7 @@ static int32_t ParseAudioAttr(const struct DeviceResourceIface *parser, const st
     return ret;
 }
 
-int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData)
+int32_t AudioGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData)
 {
     uint16_t index;
     const struct DeviceResourceNode *regCfgNode = NULL;
@@ -517,7 +517,7 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
 
     regCfgNode = drsOps->GetChildNode(device->property, "regConfig");
     if (regCfgNode == NULL) {
-        ADM_LOG_ERR("CodecGetRegConfig: Read audioRegConfig fail!");
+        ADM_LOG_ERR("AudioGetRegConfig: Read audioRegConfig fail!");
         return HDF_FAILURE;
     }
 

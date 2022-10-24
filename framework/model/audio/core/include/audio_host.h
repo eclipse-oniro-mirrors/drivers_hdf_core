@@ -121,6 +121,11 @@ enum AudioStreamType {
     AUDIO_RENDER_STREAM,
 };
 
+enum AudioStreamDirection {
+    AUDIO_RENDER_STREAM_OUT = 0,
+    AUDIO_CAPTURE_STREAM_IN,
+};
+
 struct PcmInfo {
     enum AudioStreamType streamType;
     /* The number of channels in a frame */

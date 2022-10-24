@@ -27,6 +27,8 @@ int32_t AudioDmaPending(struct PlatformData *data, enum AudioStreamType streamTy
 int32_t AudioDmaPause(struct PlatformData *data, enum AudioStreamType streamType);
 int32_t AudioDmaResume(struct PlatformData *data, enum AudioStreamType streamType);
 int32_t AudioDmaPointer(struct PlatformData *data, enum AudioStreamType streamType, uint32_t *pointer);
+int32_t AudioDmaGetConfigInfo(const struct HdfDeviceObject *device, struct PlatformData *data);
+bool AudioDmaTransferStatusIsNormal(struct PlatformData *data, enum AudioStreamType streamType);
 
 #ifdef __cplusplus
 #if __cplusplus
