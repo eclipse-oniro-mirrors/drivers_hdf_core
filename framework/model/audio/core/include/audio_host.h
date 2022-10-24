@@ -30,19 +30,19 @@ extern "C" {
     struct DListHead name = AUDIO_LIST_HEAD_INIT(name)
 
 enum AudioFormat {
-    AUDIO_FORMAT_PCM_8_BIT  = 0x1u,       /**< audio 8-bit PCM */
-    AUDIO_FORMAT_PCM_16_BIT = 0x2u,       /**< audio16-bit PCM */
-    AUDIO_FORMAT_PCM_24_BIT = 0x3u,       /**< audio 24-bit PCM */
-    AUDIO_FORMAT_PCM_32_BIT = 0x4u,       /**< audio 32-bit PCM */
-    AUDIO_FORMAT_AAC_MAIN   = 0x1000001u, /**< audio AAC main */
-    AUDIO_FORMAT_AAC_LC     = 0x1000002u, /**< audio AAC LC */
-    AUDIO_FORMAT_AAC_LD     = 0x1000003u, /**< audio AAC LD */
-    AUDIO_FORMAT_AAC_ELD    = 0x1000004u, /**< audio AAC ELD */
-    AUDIO_FORMAT_AAC_HE_V1  = 0x1000005u, /**< audio AAC HE_V1 */
-    AUDIO_FORMAT_AAC_HE_V2  = 0x1000006u, /**< audio AAC HE_V2 */
-    AUDIO_FORMAT_G711A      = 0x2000001u, /**< audio G711A */
-    AUDIO_FORMAT_G711U      = 0x2000002u, /**< audio G711u */
-    AUDIO_FORMAT_G726       = 0x2000003u, /**< audio G726 */
+    AUDIO_FORMAT_TYPE_PCM_8_BIT  = 0x1u,       /**< audio 8-bit PCM */
+    AUDIO_FORMAT_TYPE_PCM_16_BIT = 0x2u,       /**< audio16-bit PCM */
+    AUDIO_FORMAT_TYPE_PCM_24_BIT = 0x3u,       /**< audio 24-bit PCM */
+    AUDIO_FORMAT_TYPE_PCM_32_BIT = 0x4u,       /**< audio 32-bit PCM */
+    AUDIO_FORMAT_TYPE_AAC_MAIN   = 0x1000001u, /**< audio AAC main */
+    AUDIO_FORMAT_TYPE_AAC_LC     = 0x1000002u, /**< audio AAC LC */
+    AUDIO_FORMAT_TYPE_AAC_LD     = 0x1000003u, /**< audio AAC LD */
+    AUDIO_FORMAT_TYPE_AAC_ELD    = 0x1000004u, /**< audio AAC ELD */
+    AUDIO_FORMAT_TYPE_AAC_HE_V1  = 0x1000005u, /**< audio AAC HE_V1 */
+    AUDIO_FORMAT_TYPE_AAC_HE_V2  = 0x1000006u, /**< audio AAC HE_V2 */
+    AUDIO_FORMAT_TYPE_G711A      = 0x2000001u, /**< audio G711A */
+    AUDIO_FORMAT_TYPE_G711U      = 0x2000002u, /**< audio G711u */
+    AUDIO_FORMAT_TYPE_G726       = 0x2000003u, /**< audio G726 */
 };
 
 typedef enum {
