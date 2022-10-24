@@ -392,7 +392,7 @@ static int32_t UsbDdkPnpLoaderParseIdInfClass(const struct DeviceResourceNode *n
         return HDF_FAILURE;
     }
     if (devResIface->GetUint8Array(
-            node, "interfaceSubClass", table->interfaceSubClass, table->interfaceSubClassLength, 0) != HDF_SUCCESS) {
+        node, "interfaceSubClass", table->interfaceSubClass, table->interfaceSubClassLength, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read interfaceSubClass fail!", __func__);
         return HDF_FAILURE;
     }
@@ -417,7 +417,7 @@ static int32_t UsbDdkPnpLoaderParseIdInferface(const struct DeviceResourceNode *
         return HDF_FAILURE;
     }
     if (devResIface->GetUint8Array(
-            node, "interfaceProtocol", table->interfaceProtocol, table->interfaceProtocolLength, 0) != HDF_SUCCESS) {
+        node, "interfaceProtocol", table->interfaceProtocol, table->interfaceProtocolLength, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read interfaceProtocol fail!", __func__);
         return HDF_FAILURE;
     }
