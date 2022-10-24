@@ -47,7 +47,8 @@ public:
         while ((hdi = CompHdi::Get()) == nullptr) {
             HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s get display_composer_service, count = %{public}d",
                 __LINE__, __func__, ++count);
-            usleep(1000);
+            // Waiting for display composer service ready
+            usleep(WAIT_TIME_INTERVAL);
         }
 
         std::shared_ptr<CmdReq> req = CmdReq::Create(hdi);
@@ -485,6 +486,7 @@ private:
     }
 
 private:
+    static constexpr uint32_t WAIT_TIME_INTERVAL = 1000;
     sptr<CompHdi> hdi_;
     std::shared_ptr<CmdReq> req_;
     HotPlugCallback hotPlugCb_;

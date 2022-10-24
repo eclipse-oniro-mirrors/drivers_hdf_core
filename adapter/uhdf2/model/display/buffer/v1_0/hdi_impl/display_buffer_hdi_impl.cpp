@@ -69,13 +69,15 @@ DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
     while ((allocator_ = IAllocator::Get(isAllocLocal)) == nullptr) {
         HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s get allocator service, count = %{public}d",
             __LINE__, __func__, ++count);
-        usleep(1000);
+        // Waiting for allocator service ready
+        usleep(WAIT_TIME_INTERVAL);
     }
     count= 0;
     while ((mapper_ = IMapper::Get(true)) == nullptr) {
         HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s get mapper service, count = %{public}d",
             __LINE__, __func__, ++count);
-        usleep(1000);
+        // Waiting for mapper IF ready
+        usleep(WAIT_TIME_INTERVAL);
     }
 }
 

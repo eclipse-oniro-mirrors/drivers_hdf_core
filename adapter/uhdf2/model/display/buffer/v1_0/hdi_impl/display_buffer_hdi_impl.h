@@ -44,6 +44,7 @@ public:
         const std::vector<VerifyAllocInfo> &infos, std::vector<bool> &supporteds) const override;
 
 private:
+    static constexpr uint32_t WAIT_TIME_INTERVAL = 1000;
     sptr<IAllocator> allocator_;
     sptr<IMapper> mapper_;
 };
