@@ -555,7 +555,7 @@ int32_t DevMgrUeventReceiveStart(void)
 
     struct OsalThreadParam threadCfg;
     (void)memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg));
-    threadCfg.name = "DevMgrUeventThread";
+    threadCfg.name = "DevMgrUevent";
     threadCfg.priority = OSAL_THREAD_PRI_HIGH;
     threadCfg.stackSize = DEVMGR_UEVENT_STACK_SIZE;
 
