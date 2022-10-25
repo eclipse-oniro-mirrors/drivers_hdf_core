@@ -13,6 +13,7 @@
 #include <limits.h>
 #include <poll.h>
 #include <securec.h>
+#include <stdatomic.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -34,6 +35,9 @@
 #define TIMEOUT_US                  100000 // 100ms
 #define LOAD_IOSERVICE_WAIT_TIME    10     // ms
 #define LOAD_IOSERVICE_WAIT_COUNT   20     // ms
+#define THREAD_NAME_LEN_MAX         16
+
+atomic_int evtListenerCount = 0;
 
 static bool HaveOnlyOneElement(const struct DListHead *head)
 {
@@ -440,9 +444,16 @@ static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
                 return HDF_ERR_IO;
             }
         }
+        evtListenerCount++;
+        char threadName[THREAD_NAME_LEN_MAX] = {0};
+        ret = sprintf_s(threadName, THREAD_NAME_LEN_MAX, "%s%d", "event_listen", evtListenerCount);
+        if (ret < 0) {
+            HDF_LOGE("%{public}s generate thread name failed", __func__);
+            return HDF_FAILURE;
+        }
 
         struct OsalThreadParam config = {
-            .name = "hdf_event_listener",
+            .name = threadName,
             .priority = OSAL_THREAD_PRI_DEFAULT,
             .stackSize = 0,
         };
