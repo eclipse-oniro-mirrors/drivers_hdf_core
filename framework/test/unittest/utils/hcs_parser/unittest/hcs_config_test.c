@@ -447,7 +447,7 @@ int HcsTestGetUint16ArrayElemSuccess(void)
     uint16_t data[DATA_TEST_ARRAY_LENGTH] = { 0 };
     // the test data is 0, 1, 2, 3, 4, 5, 256, 257.
     const uint16_t testData[DATA_TEST_ARRAY_LENGTH] = { TEST_DATA_ZERO, TEST_DATA_ONE, TEST_DATA_TWO, TEST_DATA_THREE,
-                                                  TEST_DATA_FOUR, TEST_DATA_FIVE, TEST_DATA_256, TEST_DATA_257 };
+                                                        TEST_DATA_FOUR, TEST_DATA_FIVE, TEST_DATA_256, TEST_DATA_257 };
     int32_t i;
     int32_t count;
     if (!TestGetRootNode()) {

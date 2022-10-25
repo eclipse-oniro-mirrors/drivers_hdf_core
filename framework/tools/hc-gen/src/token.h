@@ -44,9 +44,7 @@ struct Token {
 };
 
 std::ostream &operator<<(std::ostream &stream, const Token &token);
-
 std::string TokenType2String(int32_t type);
-
 } // namespace Hardware
 } // namespace OHOS
 
