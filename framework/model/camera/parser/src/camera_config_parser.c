@@ -40,7 +40,7 @@ static void SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, int *c
 static int32_t ParseCameraSensorDeviceConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct SensorDeviceConfig *sensorConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetString(node, "name", &sensorConfig->name, NULL);
     CHECK_PARSER_CONFIG_RET(ret, "name");
@@ -53,7 +53,7 @@ static int32_t ParseCameraSensorDeviceConfig(const struct DeviceResourceNode *no
     ret = drsOps->GetUint8(node, "gain", &sensorConfig->gain, 0);
     CHECK_PARSER_CONFIG_RET(ret, "gain");
     sensorConfig->ctrlValueNum = drsOps->GetElemNum(node, "ctrlValue");
-    if (sensorConfig->ctrlValueNum <= 0 || sensorConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
+    if (sensorConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
         HDF_LOGE("%s: parser ctrlValue num failed! num = %{public}d", __func__, sensorConfig->ctrlValueNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -71,7 +71,7 @@ static int32_t ParseCameraSensorDeviceConfig(const struct DeviceResourceNode *no
 static int32_t ParseCameraIspDeviceConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraIspConfig *ispConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetString(node, "name", &ispConfig->name, NULL);
     CHECK_PARSER_CONFIG_RET(ret, "name");
@@ -94,7 +94,7 @@ static int32_t ParseCameraIspDeviceConfig(const struct DeviceResourceNode *node,
     ret = drsOps->GetUint8(node, "whiteBalance", &ispConfig->whiteBalance, 0);
     CHECK_PARSER_CONFIG_RET(ret, "whiteBalance");
     ispConfig->ctrlValueNum = drsOps->GetElemNum(node, "ctrlValue");
-    if (ispConfig->ctrlValueNum <= 0 || ispConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
+    if (ispConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
         HDF_LOGE("%s: parser ctrlValue num failed! num = %{public}d", __func__, ispConfig->ctrlValueNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -108,7 +108,7 @@ static int32_t ParseCameraIspDeviceConfig(const struct DeviceResourceNode *node,
 static int32_t ParseCameraVcmDeviceConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct VcmDeviceConfig *vcmConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetString(node, "name", &vcmConfig->name, NULL);
     CHECK_PARSER_CONFIG_RET(ret, "name");
@@ -123,7 +123,7 @@ static int32_t ParseCameraVcmDeviceConfig(const struct DeviceResourceNode *node,
     ret = drsOps->GetUint32(node, "zoomMaxNum", &vcmConfig->zoomMaxNum, 0);
     CHECK_PARSER_CONFIG_RET(ret, "zoomMaxNum");
     vcmConfig->ctrlValueNum = drsOps->GetElemNum(node, "ctrlValue");
-    if (vcmConfig->ctrlValueNum <= 0 || vcmConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
+    if (vcmConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
         HDF_LOGE("%s: parser ctrlValue num failed! num = %{public}d", __func__, vcmConfig->ctrlValueNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -141,7 +141,7 @@ static int32_t ParseCameraVcmDeviceConfig(const struct DeviceResourceNode *node,
 static int32_t ParseCameraLensDeviceConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct LensDeviceConfig *lensConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetString(node, "name", &lensConfig->name, NULL);
     CHECK_PARSER_CONFIG_RET(ret, "name");
@@ -150,7 +150,7 @@ static int32_t ParseCameraLensDeviceConfig(const struct DeviceResourceNode *node
     ret = drsOps->GetUint8(node, "aperture", &lensConfig->aperture, 0);
     CHECK_PARSER_CONFIG_RET(ret, "aperture");
     lensConfig->ctrlValueNum = drsOps->GetElemNum(node, "ctrlValue");
-    if (lensConfig->ctrlValueNum <= 0 || lensConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
+    if (lensConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
         HDF_LOGE("%s: parser ctrlValue num failed! num = %{public}d", __func__, lensConfig->ctrlValueNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -166,7 +166,7 @@ static int32_t ParseCameraLensDeviceConfig(const struct DeviceResourceNode *node
 static int32_t ParseCameraFlashDeviceConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraFlashConfig *flashConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetString(node, "name", &flashConfig->name, NULL);
     CHECK_PARSER_CONFIG_RET(ret, "name");
@@ -177,7 +177,7 @@ static int32_t ParseCameraFlashDeviceConfig(const struct DeviceResourceNode *nod
     ret = drsOps->GetUint8(node, "flashIntensity", &flashConfig->flashIntensity, 0);
     CHECK_PARSER_CONFIG_RET(ret, "flashIntensity");
     flashConfig->ctrlValueNum = drsOps->GetElemNum(node, "ctrlValue");
-    if (flashConfig->ctrlValueNum <= 0 || flashConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
+    if (flashConfig->ctrlValueNum > CTRL_VALUE_MAX_NUM) {
         HDF_LOGE("%s: parser ctrlValue num failed! num = %{public}d", __func__, flashConfig->ctrlValueNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -191,7 +191,7 @@ static int32_t ParseCameraFlashDeviceConfig(const struct DeviceResourceNode *nod
 static int32_t ParseCameraStreamDeviceConfigs(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct StreamDeviceConfig *streamConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetString(node, "name", &streamConfig->name, NULL);
     CHECK_PARSER_CONFIG_RET(ret, "name");
@@ -213,12 +213,12 @@ static int32_t ParseCameraStreamDeviceConfig(const struct DeviceResourceNode *no
     struct DeviceResourceIface *drsOps, struct StreamDeviceConfig *streamConfig)
 {
     int32_t i;
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = ParseCameraStreamDeviceConfigs(node, drsOps, streamConfig);
     CHECK_PARSER_CONFIG_RET(ret, "streamStatus");
     streamConfig->bufferTypeNum = drsOps->GetElemNum(node, "bufferType");
-    if (streamConfig->bufferTypeNum <= 0 || streamConfig->bufferTypeNum > BUFFER_TYPE_MAX_NUM) {
+    if (streamConfig->bufferTypeNum == 0 || streamConfig->bufferTypeNum > BUFFER_TYPE_MAX_NUM) {
         HDF_LOGE("%s: parser bufferType element num failed! num = %{public}d", __func__, streamConfig->bufferTypeNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -230,7 +230,7 @@ static int32_t ParseCameraStreamDeviceConfig(const struct DeviceResourceNode *no
     }
 
     streamConfig->formatTypeNum = drsOps->GetElemNum(node, "formatType");
-    if (streamConfig->formatTypeNum <= 0 || streamConfig->formatTypeNum > FORMAT_TYPE_MAX_NUM) {
+    if (streamConfig->formatTypeNum == 0 || streamConfig->formatTypeNum > FORMAT_TYPE_MAX_NUM) {
         HDF_LOGE("%s: parser formatType element num failed! num = %{public}d", __func__, streamConfig->formatTypeNum);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -252,7 +252,7 @@ static int32_t ParseCameraSensorConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraSensorConfig *sensorConfig)
 {
     struct DeviceResourceNode *childNode = NULL;
-    int32_t ret = 0;
+    int32_t ret;
     uint32_t cnt = 0;
 
     ret = drsOps->GetUint8(node, "mode", &sensorConfig->mode, 0);
@@ -279,7 +279,7 @@ static int32_t ParseCameraSensorConfig(const struct DeviceResourceNode *node,
 static int32_t ParseCameraIspConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraIspConfig *ispConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetUint8(node, "mode", &ispConfig->mode, 0);
     CHECK_PARSER_CONFIG_RET(ret, "mode");
@@ -305,7 +305,7 @@ static int32_t ParseCameraLensConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraLensConfig *lensConfig)
 {
     struct DeviceResourceNode *childNode = NULL;
-    int32_t ret = 0;
+    int32_t ret;
     uint32_t cnt = 0;
 
     ret = drsOps->GetUint8(node, "mode", &lensConfig->mode, 0);
@@ -333,7 +333,7 @@ static int32_t ParseCameraVcmConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraVcmConfig *vcmConfig)
 {
     struct DeviceResourceNode *childNode = NULL;
-    int32_t ret = 0;
+    int32_t ret;
     uint32_t cnt = 0;
 
     ret = drsOps->GetUint8(node, "mode", &vcmConfig->mode, 0);
@@ -360,7 +360,7 @@ static int32_t ParseCameraVcmConfig(const struct DeviceResourceNode *node,
 static int32_t ParseCameraFlashConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraFlashConfig *flashConfig)
 {
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetUint8(node, "mode", &flashConfig->mode, 0);
     CHECK_PARSER_CONFIG_RET(ret, "mode");
@@ -384,7 +384,7 @@ static int32_t ParseCameraStreamConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraStreamConfig *streamConfig)
 {
     struct DeviceResourceNode *childNode = NULL;
-    int32_t ret = 0;
+    int32_t ret;
     uint32_t cnt = 0;
 
     ret = drsOps->GetUint8(node, "mode", &streamConfig->mode, 0);
@@ -448,7 +448,7 @@ static int32_t ParseCameraConfig(const struct DeviceResourceNode *node,
 {
     struct DeviceResourceNode *childNode = NULL;
     uint32_t cnt = 0;
-    int32_t ret = 0;
+    int32_t ret;
 
     ret = drsOps->GetUint8(node, "uvcMode", &cameraConfig->uvcMode, 0);
     CHECK_PARSER_CONFIG_RET(ret, "uvcMode");
@@ -475,7 +475,7 @@ int32_t HdfParseCameraConfig(const struct DeviceResourceNode *node)
 {
     struct DeviceResourceIface *drsOps = NULL;
     const struct DeviceResourceNode *cameraConfigNode = NULL;
-    int32_t ret = 0;
+    int32_t ret;
 
     if (node == NULL) {
         HDF_LOGE("%s: node is null!", __func__);

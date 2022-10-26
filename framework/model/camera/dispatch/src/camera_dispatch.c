@@ -72,21 +72,21 @@ static int32_t CameraOpenCamera(struct HdfDeviceIoClient *client, struct HdfSBuf
     int32_t ret;
     struct CameraDevice *camDev = NULL;
     const char *driverName = NULL;
-    const char *ifName = NULL;
+    const char *deviceName = NULL;
     struct CameraConfigRoot *rootConfig = NULL;
     rootConfig = HdfCameraGetConfigRoot();
     if (rootConfig == NULL) {
         HDF_LOGE("%s: get rootConfig failed!", __func__);
         return HDF_FAILURE;
     }
-    ifName = HdfSbufReadString(reqData);
-    if (ifName == NULL) {
-        HDF_LOGE("%s: fail to get ifName!", __func__);
+    deviceName = HdfSbufReadString(reqData);
+    if (deviceName == NULL) {
+        HDF_LOGE("%s: fail to get deviceName!", __func__);
         return HDF_FAILURE;
     }
-    CHECK_RETURN_RET(HdfScanCameraId(ifName, &camId));
+    CHECK_RETURN_RET(GetCameraId(deviceName, strlen(deviceName), &camId));
     if (camId > CAMERA_DEVICE_MAX_NUM) {
-        HDF_LOGE("%s: lengxy: wrong camId, camId = %{public}d", __func__, cmaId);
+        HDF_LOGE("%s: lengxy: wrong camId, camId = %{public}d", __func__, camId);
         return HDF_FAILURE;
     }
     driverName = HdfSbufReadString(reqData);
@@ -95,9 +95,9 @@ static int32_t CameraOpenCamera(struct HdfDeviceIoClient *client, struct HdfSBuf
         return HDF_FAILURE;
     }
 
-    camDev = CameraDeviceGetInstByName(ifName);
+    camDev = CameraDeviceGetByName(deviceName);
     if (camDev == NULL) {
-        HDF_LOGE("%s: camDev not found! ifName=%{public}s", __func__, ifName);
+        HDF_LOGE("%s: camDev not found! deviceName=%{public}s", __func__, deviceName);
         return HDF_FAILURE;
     }
 
@@ -115,6 +115,7 @@ static int32_t CameraCmdOpenCamera(struct HdfDeviceIoClient *client, struct HdfS
 {
     int32_t permissionId;
     int32_t ret;
+    uint32_t index = 0;
 
     if (client == NULL || reqData == NULL || rspData == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -123,11 +124,11 @@ static int32_t CameraCmdOpenCamera(struct HdfDeviceIoClient *client, struct HdfS
         HDF_LOGE("%s: Read request data failed! permissionId = %{public}d", __func__, permissionId);
         return HDF_FAILURE;
     }
-
-    ret = HdfCameraAddIdMap(permissionId);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdfCameraAddIdMap failed!", __func__);
-        return ret;
+    if (FindAvailableId(&index)) {
+        AddPermissionId(index, permissionId);
+    } else {
+        HDF_LOGE("%s: AddPermissionId failed!", __func__);
+        return HDF_FAILURE;
     }
 
     ret = CameraOpenCamera(client, reqData, rspData);
@@ -139,7 +140,7 @@ static int32_t CameraCmdCloseCamera(struct HdfDeviceIoClient *client, struct Hdf
 {
     int32_t permissionId;
     int32_t ret;
-    const char *ifName = NULL;
+    const char *deviceName = NULL;
 
     if (client == NULL || reqData == NULL || rspData == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -149,14 +150,14 @@ static int32_t CameraCmdCloseCamera(struct HdfDeviceIoClient *client, struct Hdf
         return HDF_FAILURE;
     }
     CHECK_RETURN_RET(CheckPermission(permissionId));
-    ifName = HdfSbufReadString(reqData);
-    if (ifName == NULL) {
-        HDF_LOGE("%s: fail to get ifName!", __func__);
+    deviceName = HdfSbufReadString(reqData);
+    if (deviceName == NULL) {
+        HDF_LOGE("%s: fail to get deviceName!", __func__);
         return HDF_FAILURE;
     }
-    ret = HdfCameraClearIdMap(permissionId);
+    ret = RemovePermissionId(permissionId);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdfCameraClearIdMap failed, ret=%{public}d", __func__, ret);
+        HDF_LOGE("%s: RemovePermissionId failed, ret=%{public}d", __func__, ret);
         return ret;
     }
 

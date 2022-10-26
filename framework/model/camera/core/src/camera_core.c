@@ -32,7 +32,7 @@ static int32_t HdfCameraGetConfig(const struct HdfDeviceObject *device)
 static struct CameraDeviceDriverFactory *HdfCameraGetDriverFactory(const char *deviceName)
 {
     struct CameraDeviceDriverManager *drvMgr = NULL;
-    drvMgr = CameraGetDeviceDriverMgr();
+    drvMgr = CameraDeviceDriverManagerGet();
     if (drvMgr == NULL) {
         HDF_LOGE("%s: drvMgr is NULL", __func__);
         return NULL;
@@ -40,32 +40,31 @@ static struct CameraDeviceDriverFactory *HdfCameraGetDriverFactory(const char *d
     return drvMgr->GetDeviceDriverFactoryByName(deviceName);
 }
 
-static int32_t HdfCameraReleaseInterface(const char *deviceName, const char *ifName,
-    struct CameraDeviceDriverFactory *factory)
+static int32_t HdfCameraReleaseInterface(const char *deviceName, struct CameraDeviceDriverFactory *factory)
 {
     int32_t ret;
     struct CameraDevice *camDev = NULL;
     struct CameraDeviceDriver *deviceDriver = NULL;
 
-    camDev = CameraDeviceGetInstByName(ifName);
+    camDev = CameraDeviceGetByName(deviceName);
     if (camDev == NULL) {
-        HDF_LOGI("%s: CameraDevice already released! ifName=%{public}s", __func__, ifName);
+        HDF_LOGI("%s: CameraDevice already released! deviceName=%{public}s", __func__, deviceName);
         return HDF_SUCCESS;
     }
     deviceDriver = GetDeviceDriver(camDev);
     if (deviceDriver == NULL) {
-        HDF_LOGE("%s: deviceDriver is NULL. ifName=%{public}s", __func__, ifName);
+        HDF_LOGE("%s: deviceDriver is NULL. deviceName=%{public}s", __func__, deviceName);
         return HDF_FAILURE;
     }
     ret = deviceDriver->deinit(deviceDriver, camDev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: device driver deinit failed! ifName=%{public}s, ret=%{public}d", __func__, ifName. ret);
+        HDF_LOGE("%s: device driver deinit failed! deviceName=%{public}s, ret=%{public}d", __func__, deviceName, ret);
         return ret;
     }
 
-    ret = ReleasePlatformCameraDevice(camDev);
+    ret = CameraDeviceRelease(camDev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: release cameradevice failed! ifName=%{public}s, ret=%{public}d", __func__, ifName, ret);
+        HDF_LOGE("%s: release cameradevice failed! deviceName=%{public}s, ret=%{public}d", __func__, deviceName, ret);
         return ret;
     }
 
@@ -93,7 +92,7 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
         ret = HDF_DEV_ERR_OP;
     }
 
-    camDev = AllocPlatformCameraDevice(deviceName);
+    camDev = CameraDeviceCreate(deviceName, strlen(deviceName));
     if (camDev == NULL) {
         HDF_LOGE("%s: allocate camera device failed!", __func__);
         ret = HDF_FAILURE;
@@ -112,7 +111,7 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
             factory->Release(deviceDriver);
         }
         if (camDev != NULL) {
-            ReleasePlatformCameraDevice(camDev);
+            CameraDeviceRelease(camDev);
         }
     }
     return ret;
@@ -121,20 +120,12 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
 static int32_t HdfCameraDeinitInterface(const char *deviceName, struct CameraDeviceDriverFactory *factory)
 {
     int32_t ret;
-    char *ifName = NULL;
 
-    ifName = HdfCameraGetIfName();
-    if (ifName == NULL) {
-        HDF_LOGE("%s: HdfCameraGetIfName failed!", __func__);
-        return HDF_FAILURE;
-    }
-
-    ret = HdfCameraReleaseInterface(deviceName, ifName, factory);
+    ret = HdfCameraReleaseInterface(deviceName, factory);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Deinit camif failed! ret=%{public}d", __func__, ret);
     }
-    OsalMemFree(ifName);
-    ifName = NULL;
+
     HDF_LOGI("%s: camera deinit interface finished!", __func__);
     return ret;
 }
