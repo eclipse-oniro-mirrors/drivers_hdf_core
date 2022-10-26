@@ -37,7 +37,7 @@
 #define LOAD_IOSERVICE_WAIT_COUNT   20     // ms
 #define THREAD_NAME_LEN_MAX         16
 
-atomic_int evtListenerCount = 0;
+atomic_int g_evtListenerCount = 0;
 
 static bool HaveOnlyOneElement(const struct DListHead *head)
 {
@@ -444,9 +444,8 @@ static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
                 return HDF_ERR_IO;
             }
         }
-        evtListenerCount++;
         char threadName[THREAD_NAME_LEN_MAX] = {0};
-        ret = sprintf_s(threadName, THREAD_NAME_LEN_MAX, "%s%d", "event_listen", evtListenerCount);
+        ret = sprintf_s(threadName, THREAD_NAME_LEN_MAX, "%s%d", "event_listen", g_evtListenerCount++);
         if (ret < 0) {
             HDF_LOGE("%{public}s generate thread name failed", __func__);
             return HDF_FAILURE;
