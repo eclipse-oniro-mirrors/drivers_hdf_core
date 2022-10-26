@@ -7,6 +7,7 @@
  */
 
 #include "osal_thread.h"
+#include <securec.h>
 #include <pthread.h>
 #include "hdf_base.h"
 #include "hdf_log.h"
@@ -18,6 +19,7 @@
 #endif
 
 #define HDF_LOG_TAG osal_thread
+#define THREAD_NAME_LEN_MAX 16
 
 typedef void *(*PosixEntry)(void *data);
 
@@ -87,12 +89,20 @@ int32_t OsalThreadDestroy(struct OsalThread *thread)
     return HDF_SUCCESS;
 }
 
-static int OsalCreatePthread(pthread_t *threadId, pthread_attr_t *attribute, struct ThreadWrapper *para)
+static int OsalCreatePthread(pthread_t *threadId, pthread_attr_t *attribute, struct ThreadWrapper *para, char *name)
 {
+    char threadName[THREAD_NAME_LEN_MAX] = {0};
+
     int resultCode = pthread_create(threadId, attribute, (PosixEntry)para->threadEntry, para->entryPara);
     if (resultCode != 0) {
         HDF_LOGE("pthread_create errorno: %d", resultCode);
         return resultCode;
+    }
+    if (name != NULL) {
+        resultCode = strncpy_s(threadName, THREAD_NAME_LEN_MAX, name, THREAD_NAME_LEN_MAX - 1);
+        if (resultCode == EOK) {
+            pthread_setname_np(*threadId, threadName);
+        }
     }
     resultCode = pthread_detach(*threadId);
     if (resultCode != 0) {
@@ -149,7 +159,7 @@ int32_t OsalThreadStart(struct OsalThread *thread, const struct OsalThreadParam 
         goto DEAL_FAIL;
     }
 
-    resultCode = OsalCreatePthread(&para->id, &attribute, thread->realThread);
+    resultCode = OsalCreatePthread(&para->id, &attribute, thread->realThread, param->name);
     if (resultCode != 0) {
         HDF_LOGE("OsalCreatePthread errorno: %d", resultCode);
         goto DEAL_FAIL;
@@ -160,4 +170,3 @@ DEAL_FAIL:
     (void)OsalThreadDestroy(thread);
     return HDF_FAILURE;
 }
-
