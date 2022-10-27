@@ -11,6 +11,6 @@
 #include "hdf_chip.h"
 #include "hdf_chip_config.h"
 
-struct HdfReset *CreateVirtualReset(const struct HdfResetConfig *powers);
+struct HdfReset *CreateVirtualReset(const struct HdfResetConfig *resetConfig);
 
 #endif
