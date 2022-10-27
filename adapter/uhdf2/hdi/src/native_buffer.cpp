@@ -23,13 +23,11 @@
 namespace OHOS {
 namespace HDI {
 namespace Base {
-NativeBuffer::NativeBuffer() : handle_(nullptr), isOwner_(true) {}
+NativeBuffer::NativeBuffer() : handle_(nullptr), isOwner_(true), bufferDestructor_(nullptr) {}
 
 NativeBuffer::~NativeBuffer()
 {
-    if (handle_ != nullptr && isOwner_ == true) {
-        FreeNativeBufferHandle(handle_);
-    }
+    DestroyBuffer();
 }
 
 NativeBuffer::NativeBuffer(const BufferHandle *handle) : NativeBuffer()
@@ -49,15 +47,14 @@ NativeBuffer::NativeBuffer(NativeBuffer &&other) noexcept : NativeBuffer()
 {
     handle_ = other.handle_;
     isOwner_ = other.isOwner_;
+    bufferDestructor_ = other.bufferDestructor_;
     other.handle_ = nullptr;
 }
 
 NativeBuffer &NativeBuffer::operator=(const NativeBuffer &other)
 {
     if (this != &other) {
-        if (handle_ != nullptr && isOwner_ == true) {
-            FreeNativeBufferHandle(handle_);
-        }
+        DestroyBuffer();
         handle_ = CloneNativeBufferHandle(other.handle_);
         isOwner_ = true;
     }
@@ -67,11 +64,10 @@ NativeBuffer &NativeBuffer::operator=(const NativeBuffer &other)
 NativeBuffer &NativeBuffer::operator=(NativeBuffer &&other) noexcept
 {
     if (this != &other) {
-        if (handle_ != nullptr && isOwner_ == true) {
-            FreeNativeBufferHandle(handle_);
-        }
+        DestroyBuffer();
         handle_ = other.handle_;
         isOwner_ = other.isOwner_;
+        bufferDestructor_ = other.bufferDestructor_;
         other.handle_ = nullptr;
     }
     return *this;
@@ -141,13 +137,22 @@ BufferHandle *NativeBuffer::Move() noexcept
     return handlePtr;
 }
 
-void NativeBuffer::SetBufferHandle(BufferHandle *handle, bool isOwner)
+void NativeBuffer::SetBufferHandle(BufferHandle *handle, bool isOwner, std::function<void(BufferHandle *)> destructor)
 {
-    if (handle_ != nullptr && isOwner_ == true) {
-        FreeNativeBufferHandle(handle_);
-    }
+    DestroyBuffer();
     isOwner_ = isOwner;
     handle_ = handle;
+}
+
+void NativeBuffer::DestroyBuffer()
+{
+    if (handle_ != nullptr && isOwner_ == true) {
+        if (bufferDestructor_ == nullptr) {
+            FreeNativeBufferHandle(handle_);
+        } else {
+            bufferDestructor_(handle_); 
+        }
+    }
 }
 
 BufferHandle *NativeBuffer::GetBufferHandle() noexcept
@@ -217,14 +222,14 @@ bool NativeBuffer::ExtractFromParcel(Parcel &parcel)
     if (validFd) {
         handle_->fd = messageParcel.ReadFileDescriptor();
         if (handle_->fd == -1) {
-            FreeNativeBufferHandle(handle_);
+            DestroyBuffer();
             HDF_LOGE("%{public}s: failed to read fd", __func__);
             return false;
         }
     }
 
     if (!ReadReserveData(messageParcel, *handle_)) {
-        FreeNativeBufferHandle(handle_);
+        DestroyBuffer();
         return false;
     }
     return true;
