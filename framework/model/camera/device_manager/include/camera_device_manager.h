@@ -92,7 +92,7 @@ struct CameraDevice {
     char deviceName[DEVICE_NAME_SIZE];
     char driverName[DRIVER_NAME_SIZE];
     struct CameraDeviceDriver *deviceDriver;
-    struct KernelCamQueueImp queueImp;
+    struct CameraQueueImp queueImp;
 };
 
 struct DeviceOps {
@@ -152,7 +152,7 @@ struct StreamOps {
         struct StreamDevice *streamDev, const char *driverName);
     int32_t (*StreamEnumFormat)(struct PixelFormat *config, struct StreamDevice *streamDev,
         uint32_t index, uint32_t cmd, const char *driverName);
-    int32_t (*StreamQueueInit)(struct KernelCamQueue *queue);
+    int32_t (*StreamQueueInit)(struct BufferQueue *queue);
 };
 
 struct CameraDeviceDriverManager {

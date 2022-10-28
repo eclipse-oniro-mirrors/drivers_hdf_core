@@ -9,6 +9,8 @@
 #ifndef CAMERA_PRODUCT_H
 #define CAMERA_PRODUCT_H
 
+#include <utils/hdf_base.h>
+
 #define CAMERA_MAX_CMD_ID    23
 
 enum CameraDeviceType {
@@ -47,6 +49,37 @@ enum CameraMethodCmd {
     CMD_STREAM_OFF,
 };
 
+enum CameraPixFmt {
+    CAMERA_PIX_FMT_UNDIFINED = 0,
+
+    CAMERA_PIX_FMT_YUV420 = 1,
+    CAMERA_PIX_FMT_YUV422 = 2,
+    CAMERA_PIX_FMT_YUV444 = 3,
+
+    CAMERA_PIX_FMT_RGB565 = 100,
+    CAMERA_PIX_FMT_RGB444 = 101,
+    CAMERA_PIX_FMT_RGB555 = 102,
+    CAMERA_PIX_FMT_RGB32 = 103,
+
+    CAMERA_PIX_FMT_SRGGB8 = 200,
+    CAMERA_PIX_FMT_SRGGB10 = 201,
+    CAMERA_PIX_FMT_SRGGB12 = 202,
+    CAMERA_PIX_FMT_SBGGR8 = 203,
+    CAMERA_PIX_FMT_SBGGR10 = 204,
+    CAMERA_PIX_FMT_SBGGR12 = 205,
+
+    CAMERA_PIX_FMT_JPEG = 300,
+    CAMERA_PIX_FMT_MJPEG = 301,
+    CAMERA_PIX_FMT_MPEG = 302,
+    CAMERA_PIX_FMT_MPEG1 = 303,
+    CAMERA_PIX_FMT_MPEG2 = 304,
+    CAMERA_PIX_FMT_MPEG4 = 305,
+
+    CAMERA_PIX_FMT_H264 = 400,
+    CAMERA_PIX_FMT_H264_NO_SC = 401,
+    CAMERA_PIX_FMT_H264_MVC = 402,
+};
+
 enum CameraCmdEnumTypeFmt {
     CAMERA_CMD_ENUM_FMT,
     CAMERA_CMD_ENUM_FRAMESIZES,
@@ -67,9 +100,7 @@ enum CameraPermissionId {
 };
 
 enum CmdGetConfigValue {
-    CAMERA_CMD_GET_EXPOSURE_MODE,             /* ISP exposure mode query */
-    CAMERA_CMD_GET_EXPOSURE,                  /* ISP exposure level query */
-    CAMERA_CMD_GET_EXPOSURE_TIME,             /* SENSOR exposure time query */
+    CAMERA_CMD_GET_EXPOSURE,                  /* SENSOR exposure time query */
     CAMERA_CMD_GET_WHITE_BALANCE_MODE,        /* White balance mode query */
     CAMERA_CMD_GET_WHITE_BALANCE,             /* White balance value query */
 
@@ -95,9 +126,7 @@ enum CmdGetConfigValue {
 };
 
 enum CmdSetConfigValue {
-    CAMERA_CMD_SET_EXPOSURE_MODE,             /* ISP exposure mode setting */
-    CAMERA_CMD_SET_EXPOSURE,                  /* ISP exposure level setting */
-    CAMERA_CMD_SET_EXPOSURE_TIME,             /* Sensor exposure time setting */
+    CAMERA_CMD_SET_EXPOSURE,                  /* Sensor exposure time setting */
     CAMERA_CMD_SET_WHITE_BALANCE_MODE,        /* White balance mode setting */
     CAMERA_CMD_SET_WHITE_BALANCE,             /* White balance value setting */
 
@@ -168,6 +197,51 @@ enum CameraZoomContinuous {
     CAMERA_ZOOM_WIDE = 0,
     CAMERA_ZOOM_TELE,
     CAMERA_ZOOM_STOP,
+};
+
+struct UserCameraBuffer {
+    uint32_t id;
+    uint32_t flags;
+    uint32_t field;
+    uint64_t timeStamp;
+    uint32_t sequence;
+    uint32_t memType;
+    struct UserCameraPlane *planes;
+    uint32_t planeCount;
+};
+
+struct UserCameraPlane {
+    uint32_t bytesUsed;
+    uint32_t length;
+    union {
+        uint32_t offset;
+        uint64_t userPtr;
+        uint32_t fd;
+    } memory;
+    unsigned long vaddr;
+    uint32_t dataOffset;
+};
+
+struct UserCameraReq {
+    uint32_t count;
+    uint32_t memType;
+    uint32_t capabilities;
+};
+
+enum CameraMemType {
+    MEMTYPE_UNKNOWN = 0,
+    MEMTYPE_MMAP = (1 << 0),
+    MEMTYPE_USERPTR = (1 << 1),
+    MEMTYPE_DMABUF = (1 << 2),
+};
+
+/* UserCameraBuffer flags */
+enum UserBufferFlags {
+    USER_BUFFER_QUEUED = (1 << 0),
+    USER_BUFFER_DONE = (1 << 1),
+    USER_BUFFER_ERROR = (1 << 2),
+    USER_BUFFER_LAST = (1 << 3),
+    USER_BUFFER_BLOCKING = (1 << 4),
 };
 
 #endif  // CAMERA_PRODUCT_H
