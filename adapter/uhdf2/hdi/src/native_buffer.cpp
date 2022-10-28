@@ -150,7 +150,7 @@ void NativeBuffer::DestroyBuffer()
         if (bufferDestructor_ == nullptr) {
             FreeNativeBufferHandle(handle_);
         } else {
-            bufferDestructor_(handle_); 
+            bufferDestructor_(handle_);
         }
     }
 }

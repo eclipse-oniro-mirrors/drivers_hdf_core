@@ -17,7 +17,9 @@
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_COMPOSER_HDI_IMPL_H
 
 #include "unistd.h"
+#include "iproxy_broker.h"
 #include "hilog/log.h"
+#include "iremote_object.h"
 #include "v1_0/display_command/display_cmd_requester.h"
 #include "v1_0/display_composer_type.h"
 #include "v1_0/idisplay_composer.h"
@@ -65,11 +67,47 @@ public:
         hotPlugCb_(nullptr),
         vBlankCb_(nullptr),
         hotPlugCbData_(nullptr),
-        vBlankCbData_(nullptr)
+        vBlankCbData_(nullptr),
+        recipient_(nullptr)
     {
     }
 
-    virtual ~DisplayComposerHdiImpl() {}
+    virtual ~DisplayComposerHdiImpl()
+    {
+        if (recipient_ != nullptr) {
+            sptr<IRemoteObject> remoteObj = OHOS::HDI::hdi_objcast<CompHdi>(hdi_);
+            remoteObj->RemoveDeathRecipient(recipient_);
+            recipient_ = nullptr;
+        }
+    }
+
+    virtual bool AddDeathRecipient(const sptr<IRemoteObject::DeathRecipient> &recipient) override
+    {
+        sptr<IRemoteObject> remoteObj = OHOS::HDI::hdi_objcast<CompHdi>(hdi_);
+        if (recipient_ != nullptr) {
+            HILOG_INFO(LOG_CORE, "%{public}d@%{public}s the existing recipient is removed, and add the new.",
+                __LINE__, __func__);
+            remoteObj->RemoveDeathRecipient(recipient_);
+        }
+        bool ret = remoteObj->AddDeathRecipient(recipient);
+        if (ret) {
+            recipient_ = recipient;
+        } else {
+            recipient_ = nullptr;
+            HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s AddDeathRecipient failed", __LINE__, __func__);
+        }
+        return ret;
+    }
+
+    virtual bool RemoveDeathRecipient() override
+    {
+        if (recipient_ != nullptr) {
+            sptr<IRemoteObject> remoteObj = OHOS::HDI::hdi_objcast<CompHdi>(hdi_);
+            remoteObj->RemoveDeathRecipient(recipient_);
+            recipient_ = nullptr;
+        }
+        return true;
+    }
 
     // device func
     virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void *data) override
@@ -493,6 +531,7 @@ private:
     VBlankCallback vBlankCb_;
     void *hotPlugCbData_;
     void *vBlankCbData_;
+    sptr<IRemoteObject::DeathRecipient> recipient_;
 };
 using HdiDisplayComposer = DisplayComposerHdiImpl<IDisplayComposerInterface, IDisplayComposer, HdiDisplayCmdRequester>;
 } // namespace V1_0
