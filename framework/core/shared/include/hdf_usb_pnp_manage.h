@@ -31,6 +31,7 @@ enum UsbPnpNotifyServiceCmd {
     USB_PNP_DRIVER_GADGET_REMOVE,
     USB_PNP_DRIVER_PORT_HOST = 40,
     USB_PNP_DRIVER_PORT_DEVICE,
+    USB_PNP_DRIVER_GET_GADGET_LINK_STATUS,
 };
 
 enum UsbPnpNotifyRemoveType {
