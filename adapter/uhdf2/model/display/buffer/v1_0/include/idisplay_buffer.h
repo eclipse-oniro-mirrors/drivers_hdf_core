@@ -17,6 +17,7 @@
 #define OHOS_HDI_DISPLAY_V1_0_IDISPLAY_BUFFER_H
 
 #include <vector>
+#include "iremote_object.h"
 #include "buffer_handle.h"
 #include "v1_0/display_buffer_type.h"
 
@@ -28,6 +29,8 @@ namespace V1_0 {
 class IDisplayBuffer {
 public:
     virtual ~IDisplayBuffer() = default;
+    virtual bool AddDeathRecipient(const sptr<IRemoteObject::DeathRecipient> &recipient) = 0;
+    virtual bool RemoveDeathRecipient() = 0;
 
     /**
      * @brief Obtains all interfaces of IDisplayBuffer.

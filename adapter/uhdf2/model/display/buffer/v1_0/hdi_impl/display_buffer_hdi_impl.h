@@ -16,6 +16,7 @@
 #ifndef OHOS_HDI_DISPLAY_V1_0_DISPLAY_BUFFER_HDI_IMPL_H
 #define OHOS_HDI_DISPLAY_V1_0_DISPLAY_BUFFER_HDI_IMPL_H
 
+#include "iremote_object.h"
 #include "buffer_handle.h"
 #include "v1_0/display_buffer_type.h"
 #include "v1_0/iallocator.h"
@@ -30,8 +31,10 @@ namespace V1_0 {
 class DisplayBufferHdiImpl : public IDisplayBuffer {
 public:
     DisplayBufferHdiImpl(bool isAllocLocal = false);
-    virtual ~DisplayBufferHdiImpl() = default;
+    virtual ~DisplayBufferHdiImpl();
 
+    virtual bool AddDeathRecipient(const sptr<IRemoteObject::DeathRecipient> &recipient) override;
+    virtual bool RemoveDeathRecipient() override;
     virtual int32_t AllocMem(const AllocInfo &info, BufferHandle *&handle) const override;
     virtual void FreeMem(const BufferHandle &handle) const override;
     virtual void *Mmap(const BufferHandle &handle) const override;
@@ -47,6 +50,7 @@ private:
     static constexpr uint32_t WAIT_TIME_INTERVAL = 1000;
     sptr<IAllocator> allocator_;
     sptr<IMapper> mapper_;
+    sptr<IRemoteObject::DeathRecipient> recipient_;
 };
 } // namespace V1_0
 } // namespace Buffer

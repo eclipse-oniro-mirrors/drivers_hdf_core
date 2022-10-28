@@ -15,6 +15,7 @@
 
 #include "v1_0/hdi_impl/display_buffer_hdi_impl.h"
 #include "unistd.h"
+#include "iproxy_broker.h"
 #include "hilog/log.h"
 
 namespace OHOS {
@@ -64,6 +65,7 @@ IDisplayBuffer *IDisplayBuffer::Get()
 }
 
 DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
+    : allocator_(nullptr), mapper_(nullptr), recipient_(nullptr)
 {
     uint32_t count = 0;
     while ((allocator_ = IAllocator::Get(isAllocLocal)) == nullptr) {
@@ -79,6 +81,43 @@ DisplayBufferHdiImpl::DisplayBufferHdiImpl(bool isAllocLocal)
         // Waiting for mapper IF ready
         usleep(WAIT_TIME_INTERVAL);
     }
+}
+
+DisplayBufferHdiImpl::~DisplayBufferHdiImpl()
+{
+    if (recipient_ != nullptr) {
+        sptr<IRemoteObject> remoteObj = OHOS::HDI::hdi_objcast<IAllocator>(allocator_);
+        remoteObj->RemoveDeathRecipient(recipient_);
+        recipient_ = nullptr;
+    }
+}
+
+bool DisplayBufferHdiImpl::AddDeathRecipient(const sptr<IRemoteObject::DeathRecipient> &recipient)
+{
+    sptr<IRemoteObject> remoteObj = OHOS::HDI::hdi_objcast<IAllocator>(allocator_);
+    if (recipient_ != nullptr) {
+        HILOG_INFO(LOG_CORE, "%{public}d@%{public}s the existing recipient is removed, and add the new.",
+            __LINE__, __func__);
+        remoteObj->RemoveDeathRecipient(recipient_);
+    }
+    bool ret = remoteObj->AddDeathRecipient(recipient);
+    if (ret) {
+        recipient_ = recipient;
+    } else {
+        recipient_ = nullptr;
+        HILOG_ERROR(LOG_CORE, "%{public}d@%{public}s AddDeathRecipient failed", __LINE__, __func__);
+    }
+    return ret;
+}
+
+bool DisplayBufferHdiImpl::RemoveDeathRecipient()
+{
+    if (recipient_ != nullptr) {
+        sptr<IRemoteObject> remoteObj = OHOS::HDI::hdi_objcast<IAllocator>(allocator_);
+        remoteObj->RemoveDeathRecipient(recipient_);
+        recipient_ = nullptr;
+    }
+    return true;
 }
 
 int32_t DisplayBufferHdiImpl::AllocMem(const AllocInfo &info, BufferHandle *&handle) const
