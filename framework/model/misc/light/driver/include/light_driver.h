@@ -79,8 +79,9 @@ enum LightId {
 
 enum LightFlashMode {
     LIGHT_FLASH_NONE = 0,
-    LIGHT_FLASH_TIMED = 1,
-    LIGHT_FLASH_BUTT = 2,
+    LIGHT_FLASH_BLINK = 1,
+    LIGHT_FLASH_GRADIENT = 2,
+    LIGHT_FLASH_BUTT = 3,
 };
 
 struct LightFlashEffect {
