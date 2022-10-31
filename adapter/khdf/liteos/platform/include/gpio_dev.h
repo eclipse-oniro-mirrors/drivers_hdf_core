@@ -56,7 +56,7 @@ typedef struct GpioBitInfo {
     unsigned char irqEnable;
 #define GPIO_IRQ_ENABLE         1
 #define GPIO_IRQ_DISABLE        0
-    irqFunc  irqHandler;
+    irqFunc irqHandler;
     unsigned int irqType;
 #define IRQ_TYPE_NONE           0x00000000
 #define IRQ_TYPE_EDGE_RISING    0x00000001
