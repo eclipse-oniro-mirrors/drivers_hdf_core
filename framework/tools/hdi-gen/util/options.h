@@ -150,6 +150,8 @@ private:
 
     void SetOutDir(const std::string &dir);
 
+    void SetModuleName(const std::string &moduleName);
+
     void SetLanguage(Language language);
 
     void SetCodePart(const std::string &part);

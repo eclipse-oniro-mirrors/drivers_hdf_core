@@ -81,8 +81,7 @@ void Options::SetOptionData(char op)
             doModeKernel_ = true;
             break;
         case 'N':
-            doSetModuleName_ = true;
-            moduleName_ = optarg;
+            SetModuleName(optarg);
             break;
         case 'C':
             SetLanguage(Language::C);
@@ -145,6 +144,12 @@ void Options::SetOutDir(const std::string &dir)
 {
     doOutDir_ = true;
     generationDirectory_ = dir;
+}
+
+void Options::SetModuleName(const std::string &moduleName)
+{
+    doSetModuleName_ = true;
+    moduleName_ = moduleName;
 }
 
 void Options::SetLanguage(Language kind)
@@ -303,7 +308,7 @@ std::string Options::GetPackagePath(const std::string &package)
     }
 
     if (StringHelper::EndWith(rootPath, SEPARATOR)) {
-        rootPath = rootPath.substr(0, rootPath.size() - 1);
+        rootPath.pop_back();
     }
 
     std::string subPath = StringHelper::Replace(package.substr(rootPackage.size() + 1), '.', SEPARATOR);

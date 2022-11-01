@@ -514,7 +514,10 @@ void ASTArrayType::EmitMemoryRecycle(
             return false;
         }
 
-        return elementType_->IsStringType() ? true : false;
+        if (elementType_->IsStructType() || elementType_->IsStringType()) {
+            return true;
+        }
+        return false;
     };
     if (elementTypeNeedFree()) {
         if (Options::GetInstance().DoGenerateKernelCode()) {

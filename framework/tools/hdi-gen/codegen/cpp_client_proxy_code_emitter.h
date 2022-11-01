@@ -38,6 +38,8 @@ private:
 
     void EmitProxyMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
+    void EmitProxyEqualMethods(StringBuilder &sb, const std::string &prefix);
+
     void EmitProxyConstants(StringBuilder &sb, const std::string &prefix);
 
     void EmitProxyMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);

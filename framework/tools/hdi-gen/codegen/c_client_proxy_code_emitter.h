@@ -62,6 +62,8 @@ private:
 
     void EmitProxyAsObjectMethodImpl(StringBuilder &sb);
 
+    void EmitProxyObjectEqualMethodImpl(StringBuilder &sb);
+
     void EmitProxyConstruction(StringBuilder &);
 
     void EmitProxyExternalMethodImpl(StringBuilder &sb);
