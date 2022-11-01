@@ -7,10 +7,9 @@
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
-import copy
+
 import json
 import os
-import random
 import re
 import shutil
 import string
@@ -19,6 +18,7 @@ import hdf_tool_settings
 import hdf_utils
 from command_line.hdf_command_error_code import CommandErrorCode
 from command_line.hdf_command_handler_base import HdfCommandHandlerBase
+from command_line.hdi_hdf_group_passwd import OperateGroupPasswd
 from hdf_tool_exception import HdfToolException
 
 
@@ -230,7 +230,8 @@ class HdiAddHandler(HdfCommandHandlerBase):
                                   hid_service_folder, peripheral_folder):
         hdi_template_path = self.get_template_file_folder(
             temp_folder_name="peripheral")
-        for template_file_name in os.listdir(hdi_template_path):
+        file_list = os.listdir(hdi_template_path)
+        for template_file_name in file_list:
             folder_file_path = os.path.join(hdi_template_path, template_file_name)
             if os.path.isdir(folder_file_path):
                 self._hdi_server_config(
@@ -273,8 +274,9 @@ class HdiAddHandler(HdfCommandHandlerBase):
         if os.path.exists(os.path.join(root_path, board_parent_path)):
             hcs_target_file = os.path.join(
                 root_path, board_parent_path, hcs_name)
-        lines = list(map(lambda x: "\t\t" + x,
-                         hdf_utils.read_file_lines(temp_hcs_path)))
+        lines = list(map(
+            lambda x: "\t\t" + x,
+            hdf_utils.read_file_lines(temp_hcs_path)))
         old_lines_temp = hdf_utils.read_file_lines(hcs_target_file)
         old_lines = list(filter(lambda x: x != "\n", old_lines_temp))
         status = False
@@ -293,51 +295,21 @@ class HdiAddHandler(HdfCommandHandlerBase):
         self.config_group_passwd(root_path, replace_data)
 
     def config_group_passwd(self, root_path, replace_data):
-        hdi_config = hdf_tool_settings.HdiToolConfig()
+        hdi_config = hdf_tool_settings.HdfToolSettings()
+        group_passwd = OperateGroupPasswd(tool_settings=hdi_config, root_path=root_path)
         # group
-        hdi_group_info = hdi_config.get_hdi_group()
-        group_file_path = os.path.join(root_path, hdi_group_info['path'])
-        group_line_temp = hdi_group_info['info_temp']
-        group_info_lines = hdf_utils.read_file_lines(group_file_path)
-        passwd_group_id_list = []
-        passwd_group_name_list = []
-        for line in group_info_lines:
-            id_re_result = re.search(r"x:\d+", line)
-            if id_re_result:
-                gid = id_re_result.group().split(":")[-1]
-                passwd_group_id_list.append(int(gid))
-            passwd_group_name_list.append(line.split(":")[0])
-        while True:
-            temp_id = self.random_id(max(passwd_group_id_list))
-            if temp_id not in passwd_group_id_list:
-                break
-        replace_data.update({
-            "gid": temp_id
-        })
-        result_group = string.Template(group_line_temp).substitute(replace_data)
-        if result_group.split(":")[0] not in passwd_group_name_list:
-            group_info_lines.append(result_group)
-            hdf_utils.write_file_lines(group_file_path, group_info_lines)
+        peripheral_name = replace_data.get("peripheral_name")
+        group_file_path = group_passwd.OperateGroup(name=peripheral_name)
         temp_config = self.format_file_path(group_file_path, root_path)
         self.result_json["config"].append(temp_config)
-
         # passwd
-        hdi_passwd_info = hdi_config.get_hdi_passwd()
-        passwd_file_path = os.path.join(root_path, hdi_passwd_info['path'])
-        passwd_line_temp = hdi_passwd_info['info_temp']
-        passwd_info_lines = hdf_utils.read_file_lines(passwd_file_path)
-        replace_data.update({
-            "uid": temp_id
-        })
-        result_passwd = string.Template(passwd_line_temp).substitute(replace_data)
-        if result_passwd.split(":")[0] not in passwd_group_name_list:
-            passwd_info_lines.append(result_passwd)
-            hdf_utils.write_file_lines(passwd_file_path, passwd_info_lines)
+        passwd_file_path = group_passwd.OperatePasswd(name=peripheral_name)
         temp_config = self.format_file_path(passwd_file_path, root_path)
         self.result_json["config"].append(temp_config)
-        self.config_selinux(hdi_config, root_path, replace_data)
+        self.config_selinux(root_path, replace_data)
 
-    def config_selinux(self, hdi_config, root_path, replace_data):
+    def config_selinux(self, root_path, replace_data):
+        hdi_config = hdf_tool_settings.HdiToolConfig()
         # selinux --- type.te
         pre_path, selinux_type_info = hdi_config.get_hdi_selinux_type()
         temp_type_path = self._selinux_file_fill(
@@ -476,7 +448,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
         elif isinstance(selinux_temp["info_temp"], list):
             hdf_host_pid_list = self.count_hdf_host_pid(temp_lines)
             replace_data.update({
-                "pid_num": self.random_id(max(hdf_host_pid_list))
+                "pid_num": OperateGroupPasswd.GenerateId(max(hdf_host_pid_list))
             })
             temp_replace_list = []
             splice_str = ""
@@ -504,10 +476,6 @@ class HdiAddHandler(HdfCommandHandlerBase):
 
     def _write_file(self, dst_path, file_info):
         hdf_utils.write_file(dst_path, content=file_info)
-
-    def random_id(self, max_border):
-        max_border += 20
-        return random.randint(99, max_border)
 
     def count_hdf_host_pid(self, temp_lines):
         hdf_host_pid_list = []

@@ -83,45 +83,43 @@ class HdfDeviceInfoHcsFile(object):
             return True
 
     def add_model_hcs_file_config(self):
-        template_path = os.path.join(self.file_path,
-                                     'device_info_hcs.template')
-        lines = list(map(lambda x: self.model_space_num + x,
-                         hdf_utils.read_file_lines(template_path)))
-        old_lines = list(filter(lambda x: x != "\n",
-                                hdf_utils.read_file_lines(self.hcspath)))
-
-        new_data = old_lines[:-2] + lines + old_lines[-2:]
-        for index, _ in enumerate(new_data):
-            new_data[index] = Template(new_data[index]).substitute(self.data)
-
-        self.lines = new_data
-        self._save()
-        return self.hcspath
+        template_file_path = os.path.join(
+            self.file_path, 'device_info_hcs.template')
+        return self.add_model_hcs_config_common(template_file_path)
 
     def add_model_hcs_file_config_user(self):
-        template_path = os.path.join(self.file_path,
-                                     'User_device_info_hcs.template')
-        lines = list(map(lambda x: self.model_space_num + x,
-                         hdf_utils.read_file_lines(template_path)))
-        lines[-1] = self.model_space_num + lines[-1].strip() + "\n"
-        old_lines = list(filter(lambda x: x != "\n",
-                                hdf_utils.read_file_lines(self.hcspath)))
+        template_file_path = os.path.join(
+            self.file_path, 'User_device_info_hcs.template')
+        return self.add_model_hcs_config_common(template_file_path)
 
-        new_data = old_lines[:-2] + lines + old_lines[-2:]
-        for index, _ in enumerate(new_data):
-            new_data[index] = Template(new_data[index]).substitute(self.data)
+    def add_model_hcs_config_common(self, template_file_path):
+        temp_lines = list(map(
+            lambda x: self.model_space_num + x,
+            hdf_utils.read_file_lines(template_file_path)))
 
-        self.lines = new_data
-        self._save()
+        old_lines = list(filter(
+            lambda x: x != "\n",
+            hdf_utils.read_file_lines(self.hcspath)))
+
+        for index, _ in enumerate(temp_lines):
+            temp_lines[index] = Template(
+                temp_lines[index]).substitute(self.data)
+        if temp_lines[0] not in old_lines:
+            new_data = old_lines[:-2] + temp_lines + old_lines[-2:]
+            self.lines = new_data
+            self._save()
         return self.hcspath
 
     def add_hcs_config_to_exists_model(self, device):
-        template_path = os.path.join(self.file_path,
-                                     'exists_model_hcs_info.template')
-        lines = list(map(lambda x: self.driver_space_num + x,
-                         hdf_utils.read_file_lines(template_path)))
-        old_lines = list(filter(lambda x: x != "\n",
-                                hdf_utils.read_file_lines(self.hcspath)))
+        template_path = os.path.join(
+            self.file_path, 'exists_model_hcs_info.template')
+        lines = list(map(
+            lambda x: self.driver_space_num + x,
+            hdf_utils.read_file_lines(template_path)))
+
+        old_lines = list(filter(
+            lambda x: x != "\n",
+            hdf_utils.read_file_lines(self.hcspath)))
 
         if self.judge_module_branch_exists(date_lines=old_lines):
             return self.hcspath
