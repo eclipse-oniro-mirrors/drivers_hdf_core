@@ -110,7 +110,7 @@ static int32_t DmacCntlrCheck(struct DmaCntlr *cntlr)
     return HDF_SUCCESS;
 }
 
-struct DmaCntlr *DmaCntlrCreate(const struct HdfDeviceObject *device)
+struct DmaCntlr *DmaCntlrCreate(struct HdfDeviceObject *device)
 {
     struct DmaCntlr *cntlr = NULL;
 
