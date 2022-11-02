@@ -17,6 +17,7 @@
 #define OHOS_HDI_DISPLAY_V1_0_IDISPLAY_COMPOSER_INTERFACE_H
 
 #include <vector>
+#include "iproxy_broker.h"
 #include "common/include/display_common.h"
 #include "v1_0/display_composer_type.h"
 
@@ -31,6 +32,8 @@ class IDisplayComposerInterface {
 public:
     virtual ~IDisplayComposerInterface() = default;
     static IDisplayComposerInterface* Get();
+    virtual bool AddDeathRecipient(const sptr<IRemoteObject::DeathRecipient> &recipient) = 0;
+    virtual bool RemoveDeathRecipient() = 0;
     /* device func */
     virtual int32_t RegHotPlugCallback(HotPlugCallback cb, void* data) = 0;
     virtual int32_t GetDisplayCapability(uint32_t devId, DisplayCapability& info) = 0;

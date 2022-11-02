@@ -45,7 +45,8 @@ public:
     // move own BufferHandle
     BufferHandle *Move() noexcept;
     // Set BufferHandle, No ownership by NativeBuffer
-    void SetBufferHandle(BufferHandle *handle, bool isOwner = false);
+    void SetBufferHandle(BufferHandle *handle, bool isOwner = false,
+        std::function<void(BufferHandle *)> destructor = nullptr);
     // Get BufferHandle from NativeBuffer
     BufferHandle *GetBufferHandle() noexcept;
 
@@ -54,8 +55,10 @@ private:
     bool ExtractFromParcel(Parcel &parcel);
     static bool WriteReserveData(MessageParcel &messageParcel, const BufferHandle &handle);
     static bool ReadReserveData(MessageParcel &messageParcel, BufferHandle &handle);
+    void DestroyBuffer();
     BufferHandle *handle_;
     bool isOwner_;
+    std::function<void(BufferHandle *)> bufferDestructor_;
 };
 } // namespace Base
 } // namespace HDI
