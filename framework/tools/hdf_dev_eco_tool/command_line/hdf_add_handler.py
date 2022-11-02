@@ -25,6 +25,7 @@ from .hdf_vendor_mk_file import HdfVendorMkFile
 from .hdf_driver_config_file import HdfDriverConfigFile
 from .hdf_vendor_makefile import HdfVendorMakeFile
 from .hdf_defconfig_patch import HdfDefconfigAndPatch
+from .hdi_hdf_group_passwd import OperateGroupPasswd
 
 
 class HdfAddHandler(HdfCommandHandlerBase):
@@ -171,7 +172,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         base_config = {
             'module_name': module,
             'module_path': file_path,
-            'driver_name': "%s_driver.c" % driver,
+            'driver_name': "%s_driver" % driver,
             'driver_file_path': driver_file_path,
         }
         config_item = {'enabled': True}
@@ -295,11 +296,11 @@ class HdfAddHandler(HdfCommandHandlerBase):
         template_path = os.path.join(framework_hdf, temp_path)
         user_file_path = driver_file_path.split(root)[-1].replace("\\", "/")
         if user_file_path.startswith("/"):
-            driver_file_name = "/" + user_file_path.replace("\\", "/")
+            driver_file_name = "".join(["/", user_file_path.replace("\\", "/")])
         else:
-            driver_file_name = "//" + user_file_path.replace("\\", "/")
+            driver_file_name = "".join(["//", user_file_path.replace("\\", "/")])
         data_model = {
-            "model_path": os.path.join("//drivers/hdf_core/adapter/uhdf2/", module),
+            "model_path": "/".join(["/", relative_path, module]),
             "driver_file_name": driver_file_name,
             "model_name": module,
         }
@@ -313,15 +314,15 @@ class HdfAddHandler(HdfCommandHandlerBase):
         linux_file_path = self.revise_passwd_group_file(
             root_path=root, linux_file_path=linux_file_path, model_name=module)
         # build.gn file add path
-        ohos_path = os.path.join(root, '/'.join(relative_path.split("/")[:-1]), 'BUILD.gn')
+        ohos_relative_path = '/'.join(relative_path.split("/")[:-1])
+        ohos_path = os.path.join(root, ohos_relative_path, 'BUILD.gn')
         user_build_info = hdf_utils.read_file_lines(ohos_path)
         ohos_template_line = "${model_path}:libhdf_${model_name}_hotplug"
-        temp = Template(ohos_template_line)
-        need_add_line = temp.substitute(data_model)
+        need_add_line = Template(ohos_template_line).substitute(data_model)
+        temp_line = ('      "%s",' % need_add_line) + '\n'
         for index, info in enumerate(user_build_info):
-            if info.find("else") > 0:
-                temp = ('      "%s",' % need_add_line) + '\n'
-                user_build_info.insert(index + 3, temp)
+            if info.find("else") > 0 and temp_line not in user_build_info:
+                user_build_info.insert(index + 3, temp_line)
                 hdf_utils.write_file_lines(ohos_path, user_build_info)
                 break
         linux_file_path["adapter_build.gn"] = ohos_path
@@ -432,25 +433,12 @@ class HdfAddHandler(HdfCommandHandlerBase):
         return drv_config.get_drv_config_path()
 
     def revise_passwd_group_file(self, root_path, linux_file_path, model_name):
-        # passwd group
-        etc_path = self.hdf_tool.get_passwd_group_config()
-        passwd_file_path = os.path.join(root_path, etc_path["passwd"]["path"])
-        passwd_lines = hdf_utils.read_file_lines(passwd_file_path)
-        group_file_path = os.path.join(root_path, etc_path["group"]["path"])
-        group_lines = hdf_utils.read_file_lines(group_file_path)
-        id_list = []
-        for i in passwd_lines:
-            id_list.append(int(i.split(":")[3]))
-        new_uid = max(id_list) + 1
-        temp_name = "_".join([model_name, "user"])
-        pwd_newline = etc_path["passwd"]["info_temp"].format(
-            peripheral_name=temp_name, uid=new_uid)
-        group_newline = etc_path["group"]["info_temp"].format(
-            peripheral_name=temp_name, gid=new_uid)
-        passwd_lines.append(pwd_newline)
-        group_lines.append(group_newline)
-        hdf_utils.write_file_lines(passwd_file_path, passwd_lines)
-        hdf_utils.write_file_lines(group_file_path, group_lines)
+        group_passwd = OperateGroupPasswd(tool_settings=self.hdf_tool, root_path=root_path)
+        # group
+        peripheral_name = "_".join([model_name, "user"])
+        group_file_path = group_passwd.OperateGroup(name=peripheral_name)
+        # passwd
+        passwd_file_path = group_passwd.OperatePasswd(name=peripheral_name)
         linux_file_path["passwd"] = passwd_file_path
         linux_file_path["group"] = group_file_path
         return linux_file_path

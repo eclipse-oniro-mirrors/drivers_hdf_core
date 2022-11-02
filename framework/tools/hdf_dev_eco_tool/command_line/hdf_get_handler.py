@@ -189,7 +189,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
         device_list, _ = hdf_utils.ini_file_read_operation(
             path=model_device_file_path, section_name=self.args.module_name,
             node_name="file_dir")
-        return device_list
+        return json.dumps(device_list)
 
     def _get_crate_model_driver_info(self):
         self.check_arg_raise_if_not_exist("module_name")
