@@ -38,7 +38,7 @@
             },
         "group": {
             "path": "base/startup/init/services/etc/group",
-            "info_temp": "{peripheral_name}_host:x:{gid}:\n"
+            "info_temp": "{peripheral_name}_host:x:{uid}:\n"
             }
     },
     "drivers_path_relative_framework": "drivers/hdf_core/framework",

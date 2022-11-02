@@ -220,7 +220,7 @@ static int32_t TurnOnLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBu
         return UpdateLight(lightId, LIGHT_STATE_START);
     }
 
-    if (buf->flashEffect.flashMode == LIGHT_FLASH_TIMED) {
+    if (buf->flashEffect.flashMode == LIGHT_FLASH_BLINK) {
         drvData->info[lightId]->onTime = (buf->flashEffect.onTime < drvData->info[lightId]->onTime) ?
         drvData->info[lightId]->onTime : buf->flashEffect.onTime;
         drvData->info[lightId]->offTime = (buf->flashEffect.offTime < drvData->info[lightId]->offTime) ?
