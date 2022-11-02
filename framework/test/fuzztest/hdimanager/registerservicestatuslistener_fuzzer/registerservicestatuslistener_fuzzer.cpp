@@ -17,6 +17,7 @@
 #include "iservmgr_hdi.h"
 #include "iservstat_listener_hdi.h"
 #include "parcel.h"
+#include "osal_time.h"
 
 using namespace OHOS::HDI::ServiceManager::V1_0;
 
@@ -34,6 +35,8 @@ void RegisterServStatListenerFuzzer::OnReceive(const ServiceStatus &status)
 } // namespace OHOS
 
 namespace OHOS {
+constexpr size_t THRESHOLD = 10;
+constexpr size_t WAIT_THRESHOLD = 100;
 sptr<IServiceManager> g_servManager = IServiceManager::Get();
 sptr<IServStatListener> g_servStatListener = new RegisterServStatListenerFuzzer();
 
@@ -54,12 +57,17 @@ bool RegisterServiceStatusListenerFuzzTest(const uint8_t *data, size_t size)
         result = true;
     }
 
+    OsalMSleep(WAIT_THRESHOLD);
     return result;
 }
 } // namespace OHOS
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return HDF_SUCCESS;
+    }
+
     OHOS::RegisterServiceStatusListenerFuzzTest(data, size);
     return HDF_SUCCESS;
 }
