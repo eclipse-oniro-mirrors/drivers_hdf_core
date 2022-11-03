@@ -86,7 +86,7 @@ static int32_t CameraOpenCamera(struct HdfDeviceIoClient *client, struct HdfSBuf
     }
     CHECK_RETURN_RET(GetCameraId(deviceName, strlen(deviceName), &camId));
     if (camId > CAMERA_DEVICE_MAX_NUM) {
-        HDF_LOGE("%s: lengxy: wrong camId, camId = %{public}d", __func__, camId);
+        HDF_LOGE("%s: wrong camId, camId = %{public}d", __func__, camId);
         return HDF_FAILURE;
     }
     driverName = HdfSbufReadString(reqData);

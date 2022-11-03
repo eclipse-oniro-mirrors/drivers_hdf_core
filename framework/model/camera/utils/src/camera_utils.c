@@ -317,8 +317,8 @@ int32_t CheckFrameRate(int camId, const char *driverName, int type, struct Camer
             ctrlConfig->pixelFormat.fps.numerator, ctrlConfig->pixelFormat.fps.denominator);
         return HDF_ERR_INVALID_PARAM;
     }
-    if ((UINT_MAX_VAL / ctrlConfig->pixelFormat.fps.denominator) < FPS_CALC_COEFF) {
-        HDF_LOGE("%s: lengxy: wrong num!", __func__);
+    if (FPS_CALC_COEFF > UINT_MAX_VAL / ctrlConfig->pixelFormat.fps.denominator) {
+        HDF_LOGE("%s: wrong num!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     fps = FPS_CALC_COEFF * (ctrlConfig->pixelFormat.fps.denominator) / ctrlConfig->pixelFormat.fps.numerator;
