@@ -986,15 +986,13 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
 
 void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
 {
-    Token token = lexer_.PeekToken();
-    while (token.kind_ == TokenType::ID) {
+    while (lexer_.PeekToken().kind_ == TokenType::ID) {
+        Token token = lexer_.GetToken();
         AutoPtr<ASTEnumValue> enumValue = new ASTEnumValue(token.value_);
-        lexer_.GetToken();
 
         token = lexer_.PeekToken();
         if (token.kind_ == TokenType::ASSIGN) {
             lexer_.GetToken();
-            token = lexer_.PeekToken();
             enumValue->SetExprValue(ParseExpr());
         }
 
@@ -1004,7 +1002,6 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         token = lexer_.PeekToken();
         if (token.kind_ == TokenType::COMMA) {
             lexer_.GetToken();
-            token = lexer_.PeekToken();
             continue;
         }
 
