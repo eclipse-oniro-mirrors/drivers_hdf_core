@@ -112,6 +112,8 @@ void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const st
     }
 
     EmitProxyMethodDecl(interface_->GetVersionMethod(), sb, prefix);
+    sb.Append("\n");
+    EmitProxyEqualMethods(sb, prefix);
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodDecl(
@@ -136,6 +138,19 @@ void CppClientProxyCodeEmitter::EmitProxyMethodDecl(
         sb.Append(SpecificationParam(paramStr, prefix + TAB));
         sb.Append("\n");
     }
+}
+
+void CppClientProxyCodeEmitter::EmitProxyEqualMethods(StringBuilder &sb, const std::string &prefix)
+{
+    sb.Append(prefix).Append("inline bool Equal(const sptr<HdiBase> &other) override\n");
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("if (other == nullptr) {\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+    sb.Append(prefix + TAB).AppendFormat("%s *otherProxy = static_cast<%s *>(other.GetRefPtr());\n",
+        proxyName_.c_str(), proxyName_.c_str());
+    sb.Append(prefix + TAB).Append("return this->AsObject() == otherProxy->AsObject();\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void CppClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const std::string &prefix)
