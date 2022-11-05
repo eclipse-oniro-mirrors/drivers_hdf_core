@@ -176,23 +176,18 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, cons
             sb.Append("\n");
         }
     }
-
-    sb.Append("\n");
-    EmitServiceImplGetVersionMethod(sb, prefix);
-    sb.Append("\n");
-    EmitServiceImplEqualMethod(sb, prefix);
 }
 
 void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
     if (method->GetParameterNumber() == 0) {
-        sb.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self)\n", baseName_.c_str(),
-            method->GetName().c_str(), interfaceName_.c_str());
+        sb.Append(prefix).AppendFormat(
+            "int32_t %s%s(struct %s *self)\n", baseName_.c_str(), method->GetName().c_str(), interfaceName_.c_str());
     } else {
         StringBuilder paramStr;
-        paramStr.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self, ", baseName_.c_str(),
-            method->GetName().c_str(), interfaceName_.c_str());
+        paramStr.Append(prefix).AppendFormat(
+            "int32_t %s%s(struct %s *self, ", baseName_.c_str(), method->GetName().c_str(), interfaceName_.c_str());
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             EmitInterfaceMethodParameter(param, paramStr, "");
@@ -211,50 +206,17 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceImplCodeEmitter::EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix)
-{
-    AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
-    sb.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self, ", baseName_.c_str(),
-        method->GetName().c_str(), interfaceName_.c_str());
-    for (size_t i = 0; i < method->GetParameterNumber(); i++) {
-        AutoPtr<ASTParameter> param = method->GetParameter(i);
-        EmitInterfaceMethodParameter(param, sb, "");
-        if (i + 1 < method->GetParameterNumber()) {
-            sb.Append(", ");
-        }
-    }
-    sb.Append(")\n");
-    sb.Append(prefix).Append("{\n");
-    AutoPtr<ASTParameter> majorParam = method->GetParameter(0);
-    sb.Append(prefix + TAB).AppendFormat("*%s = %s;\n", majorParam->GetName().c_str(), majorVerName_.c_str());
-    AutoPtr<ASTParameter> minorParam = method->GetParameter(1);
-    sb.Append(prefix + TAB).AppendFormat("*%s = %s;\n", minorParam->GetName().c_str(), minorVerName_.c_str());
-    sb.Append(prefix + TAB).Append("return HDF_SUCCESS;\n");
-    sb.Append(prefix).Append("}\n");
-}
-
-void CServiceImplCodeEmitter::EmitServiceImplEqualMethod(StringBuilder &sb, const std::string &prefix)
-{
-    sb.Append(prefix).AppendFormat("static bool %sEqual(struct %s *self, struct %s *other)\n", baseName_.c_str(),
-        interfaceName_.c_str(), interfaceName_.c_str());
-    sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB).Append("if (self == NULL || other == NULL) {\n");
-    sb.Append(prefix + TAB + TAB).Append("return false;\n");
-    sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB).Append("return self == other;\n");
-    sb.Append(prefix).Append("}\n");
-}
-
 void CServiceImplCodeEmitter::EmitKernelServiceImplGetMethod(StringBuilder &sb)
 {
+    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string objName = "service";
-    sb.AppendFormat("struct %s *%sGet(void)\n", implName_.c_str(), implName_.c_str());
+    sb.AppendFormat("struct %s *%sGet(void)\n", implName_.c_str(), implTypeName.c_str());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("struct %s *%s = (struct %s *)OsalMemCalloc(sizeof(struct %s));\n",
-        implName_.c_str(), objName.c_str(), implName_.c_str(), implName_.c_str());
+        implTypeName.c_str(), objName.c_str(), implTypeName.c_str(), implTypeName.c_str());
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).AppendFormat(
-        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implName_.c_str());
+        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implTypeName.c_str());
     sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
     sb.Append(TAB).AppendFormat("if (!%sStubConstruct(&%s->stub)) {\n", baseName_.c_str(), objName.c_str());
@@ -276,6 +238,7 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplGetMethod(StringBuilder &sb)
 
 void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
 {
+    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string objName = "service";
     if (interface_->IsSerializable()) {
         sb.AppendFormat("struct %s *%sServiceGet(void)\n", interfaceName_.c_str(), baseName_.c_str());
@@ -285,10 +248,10 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
 
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("struct %s *%s = (struct %s *)OsalMemCalloc(sizeof(struct %s));\n",
-        implName_.c_str(), objName.c_str(), implName_.c_str(), implName_.c_str());
+        implTypeName.c_str(), objName.c_str(), implTypeName.c_str(), implTypeName.c_str());
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).AppendFormat(
-        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implName_.c_str());
+        "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implTypeName.c_str());
     sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
 
@@ -298,16 +261,16 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
             baseName_.c_str(), method->GetName().c_str());
     }
 
-    sb.Append(TAB).AppendFormat("%s->interface.Equal = %sEqual;\n", objName.c_str(), baseName_.c_str());
     sb.Append(TAB).AppendFormat("return &%s->interface;\n", objName.c_str());
     sb.Append("}\n");
 }
 
 void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &sb)
 {
+    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     std::string instName = "instance";
     sb.AppendFormat(
-        "void %sRelease(struct %s *%s)\n", implName_.c_str(), implName_.c_str(), instName.c_str());
+        "void %sRelease(struct %s *%s)\n", implTypeName.c_str(), implTypeName.c_str(), instName.c_str());
     sb.Append("{\n");
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", instName.c_str());
     sb.Append(TAB).Append(TAB).Append("return;\n");
@@ -318,8 +281,9 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &
 
 void CServiceImplCodeEmitter::EmitServiceImplReleaseMethod(StringBuilder &sb)
 {
+    std::string implTypeName = StringHelper::Format("%sService", baseName_.c_str());
     if (interface_->IsSerializable()) {
-        sb.AppendFormat("void %sRelease(struct %s *instance)\n", implName_.c_str(), interfaceName_.c_str());
+        sb.AppendFormat("void %sServiceRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
     } else {
         sb.AppendFormat("void %sImplRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
     }

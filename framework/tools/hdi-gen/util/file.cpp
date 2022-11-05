@@ -235,10 +235,9 @@ std::string File::AdapterPath(const std::string &path)
                 continue;
             }
             adapterPath.Append(c);
-            hasSep = true;
+            hasSep = false;
         } else {
             adapterPath.Append(c);
-            hasSep = false;
         }
     }
     return adapterPath.ToString();
