@@ -179,8 +179,6 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, cons
 
     sb.Append("\n");
     EmitServiceImplGetVersionMethod(sb, prefix);
-    sb.Append("\n");
-    EmitServiceImplEqualMethod(sb, prefix);
 }
 
 void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
@@ -230,18 +228,6 @@ void CServiceImplCodeEmitter::EmitServiceImplGetVersionMethod(StringBuilder &sb,
     AutoPtr<ASTParameter> minorParam = method->GetParameter(1);
     sb.Append(prefix + TAB).AppendFormat("*%s = %s;\n", minorParam->GetName().c_str(), minorVerName_.c_str());
     sb.Append(prefix + TAB).Append("return HDF_SUCCESS;\n");
-    sb.Append(prefix).Append("}\n");
-}
-
-void CServiceImplCodeEmitter::EmitServiceImplEqualMethod(StringBuilder &sb, const std::string &prefix)
-{
-    sb.Append(prefix).AppendFormat("static bool %sEqual(struct %s *self, struct %s *other)\n", baseName_.c_str(),
-        interfaceName_.c_str(), interfaceName_.c_str());
-    sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB).Append("if (self == NULL || other == NULL) {\n");
-    sb.Append(prefix + TAB + TAB).Append("return false;\n");
-    sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB).Append("return self == other;\n");
     sb.Append(prefix).Append("}\n");
 }
 
@@ -303,7 +289,7 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
         sb.Append(TAB).AppendFormat("%s->interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
             baseName_.c_str(), method->GetName().c_str());
     }
-    sb.Append(TAB).AppendFormat("%s->interface.Equal = %sEqual;\n", objName.c_str(), baseName_.c_str());
+
     sb.Append(TAB).AppendFormat("return &%s->interface;\n", objName.c_str());
     sb.Append("}\n");
 }
@@ -324,7 +310,7 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &
 void CServiceImplCodeEmitter::EmitServiceImplReleaseMethod(StringBuilder &sb)
 {
     if (interface_->IsSerializable()) {
-        sb.AppendFormat("void %sRelease(struct %s *instance)\n", implName_.c_str(), interfaceName_.c_str());
+        sb.AppendFormat("void %sServiceRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
     } else {
         sb.AppendFormat("void %sImplRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
     }
