@@ -200,8 +200,6 @@ void CClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb)
     if (!isKernelCode_) {
         sb.Append("\n");
         EmitProxyAsObjectMethodImpl(sb);
-        sb.Append("\n");
-        EmitProxyObjectEqualMethodImpl(sb);
     }
 }
 
@@ -400,25 +398,6 @@ void CClientProxyCodeEmitter::EmitProxyAsObjectMethodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyObjectEqualMethodImpl(StringBuilder &sb)
-{
-    sb.AppendFormat("static bool %sEqual(struct %s *self, struct %s *other)\n", proxyName_.c_str(),
-        interfaceName_.c_str(), interfaceName_.c_str());
-    sb.Append("{\n");
-    sb.Append(TAB).Append("if (self == NULL || other == NULL) {\n");
-    sb.Append(TAB).Append(TAB).Append("return false;\n");
-    sb.Append(TAB).Append("}\n\n");
-    sb.Append(TAB).AppendFormat("struct %s *selfProxy = CONTAINER_OF(self, struct %s, impl);\n",
-        proxyName_.c_str(), proxyName_.c_str());
-    sb.Append(TAB).AppendFormat("struct %s *otherProxy = CONTAINER_OF(other, struct %s, impl);\n",
-        proxyName_.c_str(), proxyName_.c_str());
-    sb.Append(TAB).Append("if (selfProxy->remote == NULL || otherProxy->remote == NULL) {\n");
-    sb.Append(TAB).Append(TAB).Append("return false;\n");
-    sb.Append(TAB).Append("}\n");
-    sb.Append(TAB).Append("return selfProxy->remote->index == otherProxy->remote->index;\n");
-    sb.Append("}\n");
-}
-
 void CClientProxyCodeEmitter::EmitProxyConstruction(StringBuilder &sb)
 {
     std::string objName = "impl";
@@ -437,8 +416,7 @@ void CClientProxyCodeEmitter::EmitProxyConstruction(StringBuilder &sb)
         baseName_.c_str(), getVerMethod->GetName().c_str());
 
     if (!isKernelCode_) {
-        sb.Append(TAB).AppendFormat("%s->AsObject = %sAsObject;\n", objName.c_str(), proxyName_.c_str());
-        sb.Append(TAB).AppendFormat("%s->Equal = %sEqual;\n", objName.c_str(), proxyName_.c_str());
+        sb.Append(TAB).AppendFormat("%s->AsObject = %sProxyAsObject;\n", objName.c_str(), baseName_.c_str());
     }
 
     sb.Append("}\n");

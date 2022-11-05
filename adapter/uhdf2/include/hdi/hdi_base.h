@@ -25,11 +25,6 @@ class HdiBase : virtual public OHOS::RefBase {
 public:
     HdiBase() = default;
     virtual ~HdiBase() = default;
-
-    inline virtual bool Equal(const sptr<HdiBase> &other)
-    {
-        return this == other.GetRefPtr();
-    }
 };
 
 #define DECLARE_HDI_DESCRIPTOR(DESCRIPTOR)                             \
