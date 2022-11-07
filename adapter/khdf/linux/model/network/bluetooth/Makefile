@@ -11,7 +11,6 @@
 # GNU General Public License for more details.
 #
 #
-
 MODULE_NAME := hdf_bt_model
 
 include drivers/hdf/khdf/model/network/bluetooth/env_config.mk
@@ -22,7 +21,8 @@ obj-$(CONFIG_DRIVERS_HDF_BT) += $(MODULE_NAME).o
 $(MODULE_NAME)-objs := $(HDF_BT_FRAMEWORKS_ROOT)/hdf_bt_core.o \
                        $(HDF_BT_FRAMEWORKS_ROOT)/hdf_chip.o \
                        $(HDF_BT_FRAMEWORKS_ROOT)/hdf_reset.o \
-                       $(HDF_BT_FRAMEWORKS_ROOT)/hdf_power.o
+                       $(HDF_BT_FRAMEWORKS_ROOT)/hdf_power.o \
+                       $(HDF_BT_FRAMEWORKS_ROOT)/hdf_chip_config.o
 
 ccflags-$(CONFIG_DRIVERS_HDF_BT) += \
     $(HDF_FRAMEWORKS_INC) \

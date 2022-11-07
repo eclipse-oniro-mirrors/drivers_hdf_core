@@ -114,7 +114,7 @@ struct HdfVirtualDevice {
     uint8_t functionType;
 };
 
-struct HdfVirtualDevice *CreateVirtualDevice(struct HdfChipConfig *config);
+struct HdfVirtualDevice *CreateVirtualDevice(const struct HdfChipConfig *config);
 void ReleaseVirtualDevice(struct HdfVirtualDevice *device);
 
 inline static int32_t HdfPowerOnVirtualDevice(struct HdfVirtualDevice *device) {
