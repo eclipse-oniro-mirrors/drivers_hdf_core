@@ -521,3 +521,12 @@ class MakefileAndKconfigFileParse(object):
                 res_splicing = "".join([self.driver_re_flg, res])
                 self.driver_dict[re_name.group("name")] = res_splicing
         return self.driver_dict
+
+    def split_target_block(self, flag_re):
+        res_list = re.split(flag_re, "".join(self.file_info))
+        flag_split_list = []
+        for res in res_list:
+            if res.startswith("-"):
+                flag_split_list.append(res)
+        return flag_split_list
+

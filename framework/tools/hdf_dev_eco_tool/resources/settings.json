@@ -1,32 +1,32 @@
 {
     "supported_boards": {
         "hispark_taurus": {
-            "board_parent_path": "vendor/hisilicon/hispark_taurus/hdf_config/device_info",
+            "board_parent_path": "vendor/{vendor}/{board}/hdf_config/device_info",
             "dot_config_path": "kernel/liteos_a/tools/build/config",
             "patch_and_config": []
         },
         "hispark_taurus_linux": {
-            "board_parent_path": "vendor/hisilicon/hispark_taurus_linux/hdf_config/device_info",
+            "board_parent_path": "vendor/{vendor}/{board}/hdf_config/device_info",
             "dot_config_path": "kernel/linux",
             "patch_and_config": ["hispark_taurus.patch", "hispark_taurus_small_defconfig"]
         },
         "hispark_taurus_standard_kernel": {
-            "board_parent_path": "vendor/hisilicon/hispark_taurus_standard/hdf_config/khdf/device_info",
+            "board_parent_path": "vendor/{vendor}/hispark_taurus_standard/hdf_config/khdf/device_info",
             "dot_config_path": "kernel/linux",
             "patch_and_config": ["hispark_taurus.patch", "hispark_taurus_standard_defconfig"]
         },
         "hispark_taurus_standard_user": {
-            "board_parent_path": "vendor/hisilicon/hispark_taurus_standard/hdf_config/uhdf",
+            "board_parent_path": "vendor/{vendor}/hispark_taurus_standard/hdf_config/uhdf",
             "dot_config_path": "",
             "patch_and_config": []
         },
         "rk3568_kernel": {
-            "board_parent_path": "vendor/hihope/rk3568/hdf_config/khdf/device_info",
+            "board_parent_path": "vendor/{vendor}/rk3568/hdf_config/khdf/device_info",
             "dot_config_path": "kernel/linux",
             "patch_and_config": ["rk3568_standard_defconfig"]
         },
         "rk3568_user": {
-            "board_parent_path": "vendor/hihope/rk3568/hdf_config/uhdf",
+            "board_parent_path": "vendor/{vendor}/rk3568/hdf_config/uhdf",
             "dot_config_path": "",
             "patch_and_config": []
         }

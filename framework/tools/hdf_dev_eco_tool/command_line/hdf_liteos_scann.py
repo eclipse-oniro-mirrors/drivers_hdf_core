@@ -58,10 +58,6 @@ class HdfLiteScan(object):
         self.re_temp_if = r"^if"
         self.re_left_macro = r'^[A-Z _ 0-9]+'
         self.re_right_macro = r'\$[A-Z _ 0-9]+'
-        if platform.system().lower() == 'windows':
-            self.platform = "windows"
-        elif platform.system().lower() == 'linux':
-            self.platform = "linux"
 
     def scan_build(self):
         start_index = 0
@@ -86,12 +82,8 @@ class HdfLiteScan(object):
         return list(set(model_list))
 
     def _get_model_file_dict(self, liteos_model):
-        if self.platform == "windows":
-            parent_path_model = '\\'.join(self.build_path.split("\\")[:-1])
-        elif self.platform == "linux":
-            parent_path_model = '/'.join(self.build_path.split("/")[:-1])
-        else:
-            parent_path_model = '/'.join(self.build_path.split("/")[:-1])
+        parent_path_model = os.path.sep.join(
+            self.build_path.split(os.path.sep)[:-1])
         model_path_dict = {}
         for model_path in liteos_model:
             model_file_path = os.path.join(parent_path_model, model_path[1:-2])
@@ -126,7 +118,7 @@ class HdfLiteScan(object):
                     status = False
         return model_path_dict
 
-    def get_need_result_only(self, model_path_dict, name, import_replace_name,
+    def get_need_result_only(self, model_path_dict, name,
                              import_gni_path, return_dict, need_replace):
         parent = model_path_dict[name][0]
         model_build = os.path.join(parent, "BUILD.gn")
@@ -246,7 +238,7 @@ class HdfLiteScan(object):
                     need_replace, return_dict, \
                     enable_path_dict, import_gni_path = \
                         self.get_need_result_only(
-                            model_path_dict, name, import_replace_name,
+                            model_path_dict, name,
                             import_gni_path, return_dict, need_replace)
                 else:
                     need_replace, return_dict, \
