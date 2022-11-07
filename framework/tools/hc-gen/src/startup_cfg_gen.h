@@ -19,6 +19,7 @@ struct HostInfo {
     std::string hostCaps;
     std::string hostUID;
     std::string hostGID;
+    std::string hostCritical;
     uint32_t hostPriority;
     uint32_t hostId;
     bool dynamicLoad;
@@ -58,6 +59,8 @@ private:
     void HostInfosOutput();
 
     static void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
+
+    static void GetConfigIntArray(const std::shared_ptr<AstObject> &term, std::string &config);
 
     static void GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData);
 
