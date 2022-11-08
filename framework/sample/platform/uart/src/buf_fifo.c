@@ -6,6 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <stddef.h>
 #include "buf_fifo.h"
 
 bool BufferFifoInit(struct BufferFifo *fifo, uint8_t *fifoBuffer, uint16_t fifoSize)
