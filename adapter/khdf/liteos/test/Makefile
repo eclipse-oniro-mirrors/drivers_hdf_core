@@ -84,6 +84,7 @@ ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_PIN), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/pin_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/pin_driver_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/entry/hdf_pin_entry_test.c
+LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/virtual/pin_virtual.c
 endif
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_I2C), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/i2c_test.c
@@ -98,6 +99,7 @@ ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_ADC), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/adc_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/adc_driver_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/entry/hdf_adc_entry_test.c
+LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/virtual/adc_virtual.c
 endif
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_DAC), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/dac_test.c
@@ -115,11 +117,13 @@ ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_WATCHDOG), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/watchdog_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/watchdog_driver_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/entry/hdf_watchdog_entry_test.c
+LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/virtual/watchdog_virtual.c
 endif
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_SPI), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/spi_driver_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/spi_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/entry/hdf_spi_entry_test.c
+LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/virtual/spi_virtual.c
 endif
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_UART), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/uart_driver_test.c
@@ -160,6 +164,7 @@ ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_PWM), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/pwm_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/pwm_driver_test.c
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/entry/hdf_pwm_entry_test.c
+LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/virtual/pwm_virtual.c
 endif
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_TIMER), y)
 LOCAL_SRCS += $(HDF_TEST_FRAMWORK_ROOT)/platform/common/timer_driver_test.c

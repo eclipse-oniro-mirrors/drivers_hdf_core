@@ -111,6 +111,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/pin_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/pin_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_pin_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/pin_virtual.c",
       ]
     }
 
@@ -127,6 +128,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/adc_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/adc_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_adc_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/adc_virtual.c",
       ]
     }
 
@@ -153,6 +155,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/watchdog_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/watchdog_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_watchdog_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/watchdog_virtual.c",
       ]
     }
 
@@ -161,6 +164,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/spi_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/spi_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_spi_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/spi_virtual.c",
       ]
     }
 
@@ -242,6 +246,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/pwm_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/pwm_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_pwm_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/pwm_virtual.c",
       ]
     }
 
