@@ -13,8 +13,11 @@
 #include "osal_spinlock.h"
 #include "osal_time.h"
 #include "platform_core.h"
+#include "platform_trace.h"
 
 #define DAC_HANDLE_SHIFT    0xFF00U
+#define DAC_TRACE_BASIC_PARAM_NUM  2
+#define DAC_TRACE_PARAM_STOP_NUM   2
 #define HDF_LOG_TAG dac_core_c
 
 struct DacManager {
@@ -292,6 +295,14 @@ int32_t DacDeviceStart(struct DacDevice *device)
     }
 
     ret = device->ops->start(device);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[DAC_TRACE_BASIC_PARAM_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
+        PlatformTraceAddUintMsg(
+            PLATFORM_TRACE_MODULE_DAC, PLATFORM_TRACE_MODULE_DAC_FUN_START, infos, DAC_TRACE_BASIC_PARAM_NUM);
+        PlatformTraceStop();
+    }
     DacDeviceUnlock(device);
     return ret;
 }
@@ -316,6 +327,15 @@ int32_t DacDeviceStop(struct DacDevice *device)
     }
 
     ret = device->ops->stop(device);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[DAC_TRACE_PARAM_STOP_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
+        PlatformTraceAddUintMsg(
+            PLATFORM_TRACE_MODULE_DAC, PLATFORM_TRACE_MODULE_DAC_FUN_STOP, infos, DAC_TRACE_PARAM_STOP_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
     DacDeviceUnlock(device);
     return ret;
 }

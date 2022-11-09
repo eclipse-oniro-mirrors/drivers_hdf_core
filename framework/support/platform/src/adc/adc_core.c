@@ -13,10 +13,11 @@
 #include "osal_spinlock.h"
 #include "osal_time.h"
 #include "platform_core.h"
+#include "platform_trace.h"
 
 #define HDF_LOG_TAG adc_core_c
-#define LOCK_WAIT_SECONDS_M 1
-#define ADC_BUFF_SIZE 4
+#define ADC_TRACE_BASIC_PARAM_NUM  2
+#define ADC_TRACE_PARAM_STOP_NUM   2
 
 #define ADC_HANDLE_SHIFT    0xFF00U
 
@@ -85,6 +86,14 @@ int32_t AdcDeviceStart(struct AdcDevice *device)
     }
 
     ret = device->ops->start(device);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[ADC_TRACE_BASIC_PARAM_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_ADC, PLATFORM_TRACE_MODULE_ADC_FUN_START,
+            infos, ADC_TRACE_BASIC_PARAM_NUM);
+        PlatformTraceStop();
+    }
     AdcDeviceUnlock(device);
     return ret;
 }
@@ -109,6 +118,15 @@ int32_t AdcDeviceStop(struct AdcDevice *device)
     }
 
     ret = device->ops->stop(device);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[ADC_TRACE_PARAM_STOP_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_ADC, PLATFORM_TRACE_MODULE_ADC_FUN_STOP,
+            infos, ADC_TRACE_PARAM_STOP_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
     AdcDeviceUnlock(device);
     return ret;
 }

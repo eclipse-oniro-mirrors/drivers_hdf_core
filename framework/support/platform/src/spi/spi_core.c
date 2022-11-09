@@ -11,7 +11,10 @@
 #include "osal_mem.h"
 #include "spi_if.h"
 #include "spi_service.h"
+#include "platform_trace.h"
 
+#define SPI_TRACE_BASIC_PARAM_NUM  3
+#define SPI_TRACE_PARAM_GET_NUM    3
 #define HDF_LOG_TAG spi_core
 
 int32_t SpiCntlrOpen(struct SpiCntlr *cntlr, uint32_t csNum)
@@ -89,6 +92,15 @@ int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
     ret = cntlr->method->SetCfg(cntlr, cfg);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[SPI_TRACE_BASIC_PARAM_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->numCs;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_3 - 1] = cntlr->curCs;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_SPI, PLATFORM_TRACE_MODULE_SPI_FUN_SET,
+            infos, SPI_TRACE_BASIC_PARAM_NUM);
+        PlatformTraceStop();
+    }
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
@@ -110,6 +122,16 @@ int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
     ret = cntlr->method->GetCfg(cntlr, cfg);
+    if (PlatformTraceStart() == HDF_SUCCESS) {
+        uint infos[SPI_TRACE_PARAM_GET_NUM];
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->numCs;
+        infos[PLATFORM_TRACE_UINT_PARAM_SIZE_3 - 1] = cntlr->curCs;
+        PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_SPI, PLATFORM_TRACE_MODULE_SPI_FUN_GET,
+            infos, SPI_TRACE_PARAM_GET_NUM);
+        PlatformTraceStop();
+        PlatformTraceInfoDump();
+    }
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
