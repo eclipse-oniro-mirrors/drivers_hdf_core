@@ -55,10 +55,6 @@ class HdfLinuxScan(object):
         self.re_temp_prefix2 = r"\$\(KHDF_AUDIO_BASE_ROOT_DIR\)"
         self.re_temp_current = r"^\.\/"
         self.te_temp5 = r"^[a-z]"
-        if platform.system().lower() == 'windows':
-            self.platform = "windows"
-        elif platform.system().lower() == 'linux':
-            self.platform = "linux"
 
     def scan_makefile(self):
         model_enable_dict = {}
@@ -75,14 +71,8 @@ class HdfLinuxScan(object):
             if not model_name_result:
                 continue
             model_name = enable_name_result.group()
-            if self.platform == "windows":
-                model_path = \
-                    os.path.join('\\'.join(self.makefile_path.
-                                           split('\\')[:-1]), model_path)
-            elif self.platform == "linux":
-                model_path = \
-                    os.path.join('/'.join(
-                        self.makefile_path.split('/')[:-1]), model_path)
+            model_path = os.path.join(os.path.sep.join(
+                self.makefile_path.split(os.path.sep)[:-1]), model_path)
             temp_list.append(model_path)
             if os.path.exists(model_path):
                 if model_enable_dict.get(model_name, None):
@@ -260,11 +250,8 @@ class HdfLinuxScan(object):
         config_file_path = []
         for i in os.listdir(parent_path):
             if i in driver_configs_list:
-                if self.platform == "windows":
-                    config_file_path.append(
-                        os.path.join(parent_path, i).replace("/", "\\"))
-                elif self.platform == "linux":
-                    config_file_path.append(os.path.join(parent_path, i))
+                config_file_path.append(os.path.join(
+                    parent_path, i).replace("/", os.path.sep))
         return config_file_path
 
     def _prefix_template_replace(self,
