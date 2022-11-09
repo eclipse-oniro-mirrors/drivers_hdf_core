@@ -68,6 +68,7 @@ void CCustomTypesCodeEmitter::EmitPassthroughHeaderInclusions(StringBuilder &sb)
     HeaderFile::HeaderFileSet headerFiles;
     headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
     headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
+    GetStdlibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
@@ -105,6 +106,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
 void CCustomTypesCodeEmitter::EmitHeaderInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
+    GetStdlibInclusions(headerFiles);
     GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {

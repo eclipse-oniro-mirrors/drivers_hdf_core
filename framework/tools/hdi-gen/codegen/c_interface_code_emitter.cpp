@@ -77,6 +77,7 @@ void CInterfaceCodeEmitter::EmitImportInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
 
+    GetStdlibInclusions(headerFiles);
     GetImportInclusions(headerFiles);
     GetHeaderOtherLibInclusions(headerFiles);
 

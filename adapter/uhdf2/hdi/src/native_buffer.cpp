@@ -13,68 +13,67 @@
  * limitations under the License.
  */
 
-#include "hdi_buffer_handle.h"
-#include "hdf_log.h"
-#include "hdi_buffer_handle_util.h"
+#include "native_buffer.h"
 #include <sstream>
+#include "buffer_util.h"
+#include "hdf_log.h"
 
-#define HDF_LOG_TAG hdi_buffer_handle
+#define HDF_LOG_TAG native_buffer
 
 namespace OHOS {
 namespace HDI {
 namespace Base {
-HdiBufferHandle::HdiBufferHandle() : handle_(nullptr) {}
+NativeBuffer::NativeBuffer() : handle_(nullptr), isOwner_(true), bufferDestructor_(nullptr) {}
 
-HdiBufferHandle::~HdiBufferHandle()
+NativeBuffer::~NativeBuffer()
 {
-    if (handle_ != nullptr) {
-        FreeBufferHandle(handle_);
-    }
+    DestroyBuffer();
 }
 
-HdiBufferHandle::HdiBufferHandle(BufferHandle &handle) : HdiBufferHandle()
+NativeBuffer::NativeBuffer(const BufferHandle *handle) : NativeBuffer()
 {
-    handle_ = CloneBufferHandle(&handle);
+    handle_ = CloneNativeBufferHandle(handle);
 }
 
-HdiBufferHandle::HdiBufferHandle(const HdiBufferHandle &other) : HdiBufferHandle()
+NativeBuffer::NativeBuffer(const NativeBuffer &other) : NativeBuffer()
 {
     if (other.handle_ == nullptr) {
         return;
     }
-    handle_ = CloneBufferHandle(other.handle_);
+    handle_ = CloneNativeBufferHandle(other.handle_);
 }
 
-HdiBufferHandle::HdiBufferHandle(HdiBufferHandle &&other) noexcept : HdiBufferHandle()
+NativeBuffer::NativeBuffer(NativeBuffer &&other) noexcept : NativeBuffer()
 {
     handle_ = other.handle_;
+    isOwner_ = other.isOwner_;
+    bufferDestructor_ = other.bufferDestructor_;
     other.handle_ = nullptr;
 }
 
-HdiBufferHandle &HdiBufferHandle::operator=(const HdiBufferHandle &other)
+NativeBuffer &NativeBuffer::operator=(const NativeBuffer &other)
 {
     if (this != &other) {
-        if (handle_ != nullptr) {
-            FreeBufferHandle(handle_);
-        }
-        handle_ = CloneBufferHandle(other.handle_);
+        DestroyBuffer();
+        handle_ = CloneNativeBufferHandle(other.handle_);
+        isOwner_ = true;
     }
     return *this;
 }
 
-HdiBufferHandle &HdiBufferHandle::operator=(HdiBufferHandle &&other) noexcept
+NativeBuffer &NativeBuffer::operator=(NativeBuffer &&other) noexcept
 {
     if (this != &other) {
-        if (handle_ != nullptr) {
-            FreeBufferHandle(handle_);
-        }
+        DestroyBuffer();
         handle_ = other.handle_;
+        isOwner_ = other.isOwner_;
+        bufferDestructor_ = other.bufferDestructor_;
         other.handle_ = nullptr;
     }
     return *this;
 }
 
-bool HdiBufferHandle::Marshalling(Parcel &parcel) const
+bool NativeBuffer::Marshalling(Parcel &parcel) const
 {
     MessageParcel &messageParcel = static_cast<MessageParcel &>(parcel);
     bool isValid = handle_ != nullptr ? true : false;
@@ -91,8 +90,7 @@ bool HdiBufferHandle::Marshalling(Parcel &parcel) const
     if (!messageParcel.WriteUint32(handle_->reserveFds) || !messageParcel.WriteUint32(handle_->reserveInts) ||
         !messageParcel.WriteInt32(handle_->width) || !messageParcel.WriteInt32(handle_->stride) ||
         !messageParcel.WriteInt32(handle_->height) || !messageParcel.WriteInt32(handle_->size) ||
-        !messageParcel.WriteInt32(handle_->format) || !messageParcel.WriteInt64(handle_->usage) ||
-        !messageParcel.WriteUint64(handle_->phyAddr) || !messageParcel.WriteInt32(handle_->key)) {
+        !messageParcel.WriteInt32(handle_->format) || !messageParcel.WriteUint64(handle_->usage)) {
         HDF_LOGE("%{public}s: a lot failed", __func__);
         return false;
     }
@@ -114,54 +112,89 @@ bool HdiBufferHandle::Marshalling(Parcel &parcel) const
     return true;
 }
 
-sptr<HdiBufferHandle> HdiBufferHandle::Unmarshalling(Parcel &parcel)
+sptr<NativeBuffer> NativeBuffer::Unmarshalling(Parcel &parcel)
 {
-    sptr<HdiBufferHandle> newParcelable = new HdiBufferHandle();
+    sptr<NativeBuffer> newParcelable = new NativeBuffer();
     if (!newParcelable->ExtractFromParcel(parcel)) {
         return nullptr;
     }
     return newParcelable;
 }
 
-BufferHandle *HdiBufferHandle::Move()
+BufferHandle *NativeBuffer::Clone()
 {
+    return CloneNativeBufferHandle(handle_);
+}
+
+BufferHandle *NativeBuffer::Move() noexcept
+{
+    if (isOwner_ == false) {
+        HDF_LOGE("%{public}s@%{public}d: isOwner_ is false, Cannot be moved", __func__, __LINE__);
+        return nullptr;
+    }
     BufferHandle *handlePtr = handle_;
     handle_ = nullptr;
     return handlePtr;
 }
 
-std::string HdiBufferHandle::Dump() const
+void NativeBuffer::SetBufferHandle(BufferHandle *handle, bool isOwner, std::function<void(BufferHandle *)> destructor)
+{
+    DestroyBuffer();
+    isOwner_ = isOwner;
+    handle_ = handle;
+}
+
+void NativeBuffer::DestroyBuffer()
+{
+    if (handle_ != nullptr && isOwner_ == true) {
+        if (bufferDestructor_ == nullptr) {
+            FreeNativeBufferHandle(handle_);
+        } else {
+            bufferDestructor_(handle_);
+        }
+    }
+}
+
+BufferHandle *NativeBuffer::GetBufferHandle() noexcept
+{
+    return handle_;
+}
+
+std::string NativeBuffer::Dump() const
 {
     std::stringstream os;
     os << "{";
-    if (handle_ != nullptr) {
-        os << "fd:" << handle_->fd << ", ";
-        os << "width:" << handle_->width << ", ";
-        os << "stride:" << handle_->stride << ", ";
-        os << "height:" << handle_->height << ", ";
-        os << "size:" << handle_->size << ", ";
-        os << "format:" << handle_->format << ", ";
-        os << "usage:" << handle_->usage << ", ";
-        os << "phyAddr:" << handle_->phyAddr << ", ";
-        os << "key:" << handle_->key << ", ";
-        os << "}\nreserveFds[" << handle_->reserveFds << "]:{";
+    if (handle_ == nullptr) {
+        os << "}\n";
+        return os.str();
+    }
 
-        uint32_t i = 0;
-        for (; i < handle_->reserveFds; i++) {
-            os << handle_->reserve[i] << ", ";
-        }
-        os << "},\nreserveInts[" << handle_->reserveInts << "]:{";
+    os << "fd:" << handle_->fd << ", ";
+    os << "width:" << handle_->width << ", ";
+    os << "stride:" << handle_->stride << ", ";
+    os << "height:" << handle_->height << ", ";
+    os << "size:" << handle_->size << ", ";
+    os << "format:" << handle_->format << ", ";
+    os << "key:" << handle_->key << ", ";
+    os << "reserveFds:" << handle_->reserveFds << ", ";
+    os << "reserveInts:" << handle_->reserveInts << ", ";
+    os << "reserve: [";
 
-        uint32_t n = 0;
-        for (; n < handle_->reserveInts; n++) {
-            os << handle_->reserve[i + n] << ", ";
+    if (UINT32_MAX - handle_->reserveFds >= handle_->reserveInts) {
+        uint32_t reserveSize = handle_->reserveFds + handle_->reserveInts;
+        for (uint32_t i = 0; i < reserveSize; ++i) {
+            os << handle_->reserve[i];
+            if (i + 1 < reserveSize) {
+                os << ", ";
+            }
         }
     }
+    os << "]";
     os << "}\n";
     return os.str();
 }
 
-bool HdiBufferHandle::ExtractFromParcel(Parcel &parcel)
+bool NativeBuffer::ExtractFromParcel(Parcel &parcel)
 {
     MessageParcel &messageParcel = static_cast<MessageParcel &>(parcel);
     if (!messageParcel.ReadBool()) {
@@ -174,7 +207,7 @@ bool HdiBufferHandle::ExtractFromParcel(Parcel &parcel)
         HDF_LOGE("%{public}s: failed to read reserveFds or reserveInts", __func__);
         return false;
     }
-    if ((handle_ = AllocateBufferHandle(reserveFds, reserveInts)) == NULL) {
+    if ((handle_ = AllocateNativeBufferHandle(reserveFds, reserveInts)) == NULL) {
         HDF_LOGE("%{public}s: failed to malloc BufferHandle", __func__);
         return false;
     }
@@ -182,7 +215,6 @@ bool HdiBufferHandle::ExtractFromParcel(Parcel &parcel)
     if (!messageParcel.ReadInt32(handle_->width) || !messageParcel.ReadInt32(handle_->stride) ||
         !messageParcel.ReadInt32(handle_->height) || !messageParcel.ReadInt32(handle_->size) ||
         !messageParcel.ReadInt32(handle_->format) || !messageParcel.ReadUint64(handle_->usage) ||
-        !messageParcel.ReadUint64(handle_->phyAddr) || !messageParcel.ReadInt32(handle_->key) ||
         !messageParcel.ReadBool(validFd)) {
         HDF_LOGE("%{public}s: failed to parcel read", __func__);
         return false;
@@ -190,20 +222,20 @@ bool HdiBufferHandle::ExtractFromParcel(Parcel &parcel)
     if (validFd) {
         handle_->fd = messageParcel.ReadFileDescriptor();
         if (handle_->fd == -1) {
-            FreeBufferHandle(handle_);
+            DestroyBuffer();
             HDF_LOGE("%{public}s: failed to read fd", __func__);
             return false;
         }
     }
 
     if (!ReadReserveData(messageParcel, *handle_)) {
-        FreeBufferHandle(handle_);
+        DestroyBuffer();
         return false;
     }
     return true;
 }
 
-bool HdiBufferHandle::WriteReserveData(MessageParcel &messageParcel, const BufferHandle &handle)
+bool NativeBuffer::WriteReserveData(MessageParcel &messageParcel, const BufferHandle &handle)
 {
     for (uint32_t i = 0; i < handle.reserveFds; i++) {
         if (!messageParcel.WriteFileDescriptor(handle.reserve[i])) {
@@ -220,7 +252,7 @@ bool HdiBufferHandle::WriteReserveData(MessageParcel &messageParcel, const Buffe
     return true;
 }
 
-bool HdiBufferHandle::ReadReserveData(MessageParcel &messageParcel, BufferHandle &handle)
+bool NativeBuffer::ReadReserveData(MessageParcel &messageParcel, BufferHandle &handle)
 {
     for (uint32_t i = 0; i < handle.reserveFds; i++) {
         handle.reserve[i] = messageParcel.ReadFileDescriptor();

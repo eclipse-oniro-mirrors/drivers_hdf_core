@@ -21,6 +21,8 @@ public:
     virtual ~CCodeEmitter() = default;
 
 protected:
+    void GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+
     void GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
     void EmitInterfaceMethodParameter(
