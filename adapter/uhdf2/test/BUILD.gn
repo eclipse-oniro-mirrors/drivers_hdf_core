@@ -13,6 +13,7 @@
 
 declare_args() {
   hdf_core_khdf_test_support = true
+  hdf_core_platform_test_support = false
 }
 
 if (hdf_core_khdf_test_support) {
@@ -31,7 +32,7 @@ if (hdf_core_khdf_test_support) {
       "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
       "//drivers/hdf_core/framework/test/fuzztest/hdi_fuzzer:HdiFuzzTest",
     ]
-    if (product_name == "rk3568") {
+    if (hdf_core_platform_test_support) {
       deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
     }
   }
@@ -44,8 +45,5 @@ if (hdf_core_khdf_test_support) {
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
       "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
     ]
-    if (product_name == "rk3568") {
-      deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
-    }
   }
 }
