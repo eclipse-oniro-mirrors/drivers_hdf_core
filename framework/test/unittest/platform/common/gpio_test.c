@@ -58,7 +58,7 @@ static int32_t GpioTestGetConfig(struct GpioTestConfig *config)
     }
 
     if (len != sizeof(*config)) {
-        HDF_LOGE("%s: config size:%u, but read size:%u!", __func__, sizeof(*config), len);
+        HDF_LOGE("%s: config size:%zu, but read size:%u!", __func__, sizeof(*config), len);
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;

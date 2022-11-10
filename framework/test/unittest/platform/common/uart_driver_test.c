@@ -24,11 +24,14 @@ static int32_t UartTestDispatch(struct HdfDeviceIoClient *client, int cmd, struc
             HDF_LOGE("%s: reply is null!", __func__);
             return HDF_ERR_INVALID_PARAM;
         }
-        if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+        if (!HdfSbufWriteUint32(reply, g_config.port)) {
+            HDF_LOGE("%s: write port failed", __func__);
             return HDF_ERR_IO;
         }
-        HDF_LOGE("%s: g_config.len is %d ", __func__, g_config.len);
+        if (!HdfSbufWriteUint32(reply, g_config.len)) {
+            HDF_LOGE("%s: write len failed", __func__);
+            return HDF_ERR_IO;
+        }
         if (!HdfSbufWriteBuffer(reply, g_config.wbuf, g_config.len)) {
             HDF_LOGE("%s: write config wbuf failed", __func__);
             return HDF_ERR_IO;
