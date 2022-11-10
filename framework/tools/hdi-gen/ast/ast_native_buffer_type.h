@@ -6,18 +6,18 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef OHOS_HDI_BUFFER_HANDLE_H
-#define OHOS_HDI_BUFFER_HANDLE_H
+#ifndef OHOS_HDI_NATIVE_BUFFER_H
+#define OHOS_HDI_NATIVE_BUFFER_H
 
 #include "ast/ast_type.h"
 
 namespace OHOS {
 namespace HDI {
-class ASTBufferHandleType : public ASTType {
+class ASTNativeBufferType : public ASTType {
 public:
-    ASTBufferHandleType() : ASTType(TypeKind::TYPE_BUFFER_HANDLE, false) {}
+    ASTNativeBufferType() : ASTType(TypeKind::TYPE_NATIVE_BUFFER, false) {}
 
-    bool IsBufferHandleType() override;
+    bool IsNativeBufferType() override;
 
     std::string ToString() const override;
 
@@ -27,19 +27,37 @@ public:
 
     std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
+    void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
+
+    void EmitCProxyReadVar(const std::string &parcelName, const std::string &name, bool isInnerType,
+        const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix) const override;
+
+    void EmitCStubReadVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
+
     void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, unsigned int innerLevel = 0) const override;
 
     void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
+    void EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
+
+    void EmitCUnMarshalling(const std::string &name, const std::string &gotoLabel, StringBuilder &sb,
+        const std::string &prefix, std::vector<std::string> &freeObjStatements) const override;
+
     void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, unsigned int innerLevel = 0) const override;
 
     void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
+
+    void EmitMemoryRecycle(
+        const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS
 
-#endif // OHOS_HDI_BUFFER_HANDLE_H
+#endif // OHOS_HDI_NATIVE_BUFFER_H

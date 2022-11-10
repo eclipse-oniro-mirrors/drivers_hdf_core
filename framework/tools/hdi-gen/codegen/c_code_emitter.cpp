@@ -11,6 +11,17 @@
 
 namespace OHOS {
 namespace HDI {
+void CCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+{
+    const AST::TypeStringMap &types = ast_->GetTypes();
+    for (const auto &pair : types) {
+        AutoPtr<ASTType> type = pair.second;
+        if (type->IsNativeBufferType()) {
+            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "base/buffer_util");
+        }
+    }
+}
+
 void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 {
     for (const auto &importPair : ast_->GetImports()) {

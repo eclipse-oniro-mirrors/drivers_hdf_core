@@ -383,6 +383,8 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
+    } else if (type->GetTypeKind() == TypeKind::TYPE_NATIVE_BUFFER) {
+        type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else {
         std::string name = StringHelper::Format("&%s", param->GetName().c_str());
         type->EmitCStubReadVar(parcelName, name, errorCodeName_, gotoLabel, sb, prefix);

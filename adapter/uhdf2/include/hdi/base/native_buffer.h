@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HDI_BUFFER_HANDLE_H
-#define HDI_BUFFER_HANDLE_H
+#ifndef HDI_NATIVE_BUFFER_H
+#define HDI_NATIVE_BUFFER_H
 
 #include <message_parcel.h>
 #include "buffer_handle.h"
@@ -25,31 +25,43 @@ namespace Base {
 using OHOS::MessageParcel;
 using OHOS::Parcelable;
 
-class HdiBufferHandle : public Parcelable {
+class NativeBuffer : public Parcelable {
 public:
-    HdiBufferHandle();
-    virtual ~HdiBufferHandle();
-    explicit HdiBufferHandle(BufferHandle &handle);
+    NativeBuffer();
+    virtual ~NativeBuffer();
+    explicit NativeBuffer(const BufferHandle *handle);
 
-    HdiBufferHandle(const HdiBufferHandle &other);
-    HdiBufferHandle(HdiBufferHandle &&other) noexcept;
+    NativeBuffer(const NativeBuffer &other);
+    NativeBuffer(NativeBuffer &&other) noexcept;
 
-    HdiBufferHandle &operator=(const HdiBufferHandle &other);
-    HdiBufferHandle &operator=(HdiBufferHandle &&other) noexcept;
+    NativeBuffer &operator=(const NativeBuffer &other);
+    NativeBuffer &operator=(NativeBuffer &&other) noexcept;
 
     bool Marshalling(Parcel &parcel) const override;
-    static sptr<HdiBufferHandle> Unmarshalling(Parcel &parcel);
-    BufferHandle *Move();
-    std::string Dump() const;
+    static sptr<NativeBuffer> Unmarshalling(Parcel &parcel);
 
+    // clone a new BufferHandle
+    BufferHandle *Clone();
+    // move own BufferHandle
+    BufferHandle *Move() noexcept;
+    // Set BufferHandle, No ownership by NativeBuffer
+    void SetBufferHandle(BufferHandle *handle, bool isOwner = false,
+        std::function<void(BufferHandle *)> destructor = nullptr);
+    // Get BufferHandle from NativeBuffer
+    BufferHandle *GetBufferHandle() noexcept;
+
+    std::string Dump() const;
 private:
     bool ExtractFromParcel(Parcel &parcel);
     static bool WriteReserveData(MessageParcel &messageParcel, const BufferHandle &handle);
     static bool ReadReserveData(MessageParcel &messageParcel, BufferHandle &handle);
+    void DestroyBuffer();
     BufferHandle *handle_;
+    bool isOwner_;
+    std::function<void(BufferHandle *)> bufferDestructor_;
 };
 } // namespace Base
 } // namespace HDI
 } // namespace OHOS
 
-#endif // HDI_BUFFER_HANDLE_H
+#endif // HDI_NATIVE_BUFFER_H

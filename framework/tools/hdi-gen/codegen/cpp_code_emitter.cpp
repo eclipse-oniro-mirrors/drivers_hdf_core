@@ -37,15 +37,15 @@ void CppCodeEmitter::GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles)
                 break;
             }
             case TypeKind::TYPE_SMQ: {
-                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_smq");
+                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "base/hdi_smq");
                 break;
             }
             case TypeKind::TYPE_ASHMEM: {
                 headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "ashmem");
                 break;
             }
-            case TypeKind::TYPE_BUFFER_HANDLE: {
-                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_buffer_handle");
+            case TypeKind::TYPE_NATIVE_BUFFER: {
+                headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "base/native_buffer");
                 break;
             }
             default:
@@ -212,7 +212,7 @@ void CppCodeEmitter::EmitImportUsingNamespace(StringBuilder &sb)
     for (const auto &pair : types) {
         AutoPtr<ASTType> type = pair.second;
         if (type->GetTypeKind() == TypeKind::TYPE_SMQ ||
-            type->GetTypeKind() == TypeKind::TYPE_BUFFER_HANDLE) {
+            type->GetTypeKind() == TypeKind::TYPE_NATIVE_BUFFER) {
             namespaceSet.emplace("OHOS::HDI::Base");
             break;
         }
