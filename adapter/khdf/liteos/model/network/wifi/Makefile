@@ -71,8 +71,13 @@ LOCAL_SRCS += $(WAP_PATH)/ap.c \
 			$(MODULE_PATH)/wifi_base.c \
 			$(MODULE_PATH)/wifi_feature.c \
 			$(HDM_WIFI_ROOT)/core/hdf_wifi_core.c \
-			$(IBUS_PATH)/hdf_ibus_intf.c \
-			$(IBUS_PATH)/hdf_sdio_intf.c
+			$(IBUS_PATH)/hdf_ibus_intf.c
+
+ifeq ($(LOSCFG_DRIVERS_HDF_WLAN_SDIO), y)
+LOCAL_SRCS += $(IBUS_PATH)/hdf_sdio_intf.c
+else ifeq ($(LOSCFG_DRIVERS_HDF_WLAN_USB), y)
+LOCAL_SRCS += $(IBUS_PATH)/hdf_usb_intf.c
+endif
 
 MESSAGE_INCLUDE += -I $(PLATFORM_PATH)/include/message \
 			-I $(PLATFORM_PATH)/include
