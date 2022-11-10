@@ -18,8 +18,8 @@
 #include <ostream>
 #include <gtest/gtest.h>
 #include <message_parcel.h>
-#include "buffer_util.h"
-#include "native_buffer.h"
+#include "base/buffer_util.h"
+#include "base/native_buffer.h"
 
 using namespace testing::ext;
 using OHOS::MessageParcel;

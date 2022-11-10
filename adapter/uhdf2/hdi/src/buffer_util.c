@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "buffer_util.h"
+#include "base/buffer_util.h"
 #include <unistd.h>
 #include "hdf_log.h"
 #include "osal_mem.h"

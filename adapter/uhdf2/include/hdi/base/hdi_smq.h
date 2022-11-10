@@ -22,8 +22,8 @@
 #include <datetime_ex.h>
 #include <hdf_base.h>
 #include <hdf_log.h>
-#include <hdi_smq_meta.h>
-#include <hdi_smq_syncer.h>
+#include <base/hdi_smq_meta.h>
+#include <base/hdi_smq_syncer.h>
 #include <memory>
 #include <securec.h>
 #include <stdint.h>

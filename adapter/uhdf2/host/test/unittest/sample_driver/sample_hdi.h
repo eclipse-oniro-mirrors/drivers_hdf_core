@@ -20,7 +20,7 @@
 #include <hdf_log.h>
 #include <osal_mem.h>
 #include <securec.h>
-#include <hdi_smq_meta.h>
+#include <base/hdi_smq_meta.h>
 
 struct HdfDeviceObject;
 struct HdfDeviceIoClient;

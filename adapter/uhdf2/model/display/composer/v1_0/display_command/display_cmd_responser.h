@@ -19,7 +19,7 @@
 #include <unordered_map>
 #include "hdf_base.h"
 #include "hdf_log.h"
-#include "hdi_smq.h"
+#include "base/hdi_smq.h"
 #include "buffer_handle_parcelable.h"
 #include "buffer_handle_utils.h"
 #include "command_data_packer.h"
