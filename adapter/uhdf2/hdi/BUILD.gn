@@ -29,7 +29,6 @@ config("libhdi_pub_config") {
     "$hdf_uhdf_path/ipc/include",
     "$hdf_uhdf_path/hdi/include",
     "$hdf_uhdf_path/include/hdi",
-    "$hdf_uhdf_path/include/hdi/base",
     "$hdf_uhdf_path/shared/include",
     "$hdf_uhdf_path/osal/include",
     "//drivers/peripheral/base",

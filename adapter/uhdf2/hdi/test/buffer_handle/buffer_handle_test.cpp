@@ -22,7 +22,7 @@
 
 #include <gtest/gtest.h>
 
-#include "buffer_util.h"
+#include "base/buffer_util.h"
 
 using namespace testing::ext;
 

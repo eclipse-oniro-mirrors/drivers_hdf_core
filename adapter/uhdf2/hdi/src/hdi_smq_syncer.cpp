@@ -19,7 +19,7 @@
 #include <datetime_ex.h>
 #include <hdf_base.h>
 #include <hdf_log.h>
-#include <hdi_smq_syncer.h>
+#include <base/hdi_smq_syncer.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <linux/futex.h>

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#include "native_buffer.h"
+#include "base/native_buffer.h"
 #include <sstream>
-#include "buffer_util.h"
+#include "base/buffer_util.h"
 #include "hdf_log.h"
 
 #define HDF_LOG_TAG native_buffer
