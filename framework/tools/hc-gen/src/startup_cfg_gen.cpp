@@ -31,12 +31,13 @@ static constexpr const char *BOOT_CONFIG_BOTTOM =
 static constexpr const char *SERVICE_TOP =
     "        {\n"
     "            \"name\" : ";
-static constexpr const char *PATH_INFO = "            \"path\" : [\"/vendor/bin/hdf_devhost\", ";
-static constexpr const char *UID_INFO = "            \"uid\" : ";
-static constexpr const char *GID_INFO = "            \"gid\" : [";
-static constexpr const char *CAPS_INFO = "            \"caps\" : [";
-static constexpr const char *DYNAMIC_INFO = "            \"ondemand\" : true,\n";
-static constexpr const char *SECON_INFO = "            \"secon\" : \"u:r:";
+static constexpr const char *PATH_INFO     = "            \"path\" : [\"/vendor/bin/hdf_devhost\", ";
+static constexpr const char *UID_INFO      = "            \"uid\" : ";
+static constexpr const char *GID_INFO      = "            \"gid\" : [";
+static constexpr const char *CAPS_INFO     = "            \"caps\" : [";
+static constexpr const char *DYNAMIC_INFO  = "            \"ondemand\" : true,\n";
+static constexpr const char *SECON_INFO    = "            \"secon\" : \"u:r:";
+static constexpr const char *CRITICAL_INFO = "            \"critical\" : [";
 
 StartupCfgGen::StartupCfgGen(const std::shared_ptr<Ast> &ast) : Generator(ast)
 {
@@ -96,17 +97,27 @@ bool StartupCfgGen::Initialize()
 void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
 {
     ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
+
     if (hostInfoMap_[name].dynamicLoad) {
         ofs_ << DYNAMIC_INFO;
     }
+
     ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name <<"\"],\n";
     ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID <<"\",\n";
     ofs_ << GID_INFO << hostInfoMap_[name].hostGID <<"],\n";
+
     if (!hostInfoMap_[name].hostCaps.empty()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps <<"],\n";
     }
+
+    if (!hostInfoMap_[name].hostCritical.empty()) {
+        ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical <<"],\n";
+    }
+
     ofs_ << SECON_INFO << name << ":s0\"\n";
+
     ofs_ << TAB TAB << "}";
+
     if (!end) {
         ofs_<< ",";
     }
@@ -121,6 +132,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostGID = "";
     hostData.hostPriority = 0;
     hostData.hostId = 0;
+    hostData.hostCritical = "";
 }
 
 bool StartupCfgGen::TemplateNodeSeparate()
@@ -171,12 +183,37 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
 
     uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
     std::shared_ptr<AstObject> object = arrayObj->Child();
-    while (arraySize && object != nullptr) {
+    while (arraySize != 0 && object != nullptr) {
         if (!object->StringValue().empty()) {
             config.append("\"").append(object->StringValue()).append("\"");
             if (arraySize != 1) {
                 config.append(", ");
             }
+        }
+
+        object = object->Next();
+        arraySize--;
+    }
+}
+
+void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, std::string &config)
+{
+    if (term == nullptr) {
+        return;
+    }
+
+    std::shared_ptr<AstObject> intArrayObj = term->Child();
+    if (intArrayObj == nullptr) {
+        return;
+    }
+
+    uint16_t arraySize = ConfigArray::CastFrom(intArrayObj)->ArraySize();
+    std::shared_ptr<AstObject> object = intArrayObj->Child();
+    while (arraySize && object != nullptr) {
+        std::string value = std::to_string(object->IntegerValue());
+        config.append(value);
+        if (arraySize != 1) {
+            config.append(", ");
         }
 
         object = object->Next();
@@ -196,6 +233,7 @@ void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, 
             devInfo = devInfo->Next();
             continue;
         }
+
         devNodeInfo = devInfo->Child();
         while (devNodeInfo != nullptr) {
             current = devNodeInfo->Lookup("preload", PARSEROP_CONFTERM);
@@ -203,10 +241,12 @@ void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, 
                 devNodeInfo = devNodeInfo->Next();
                 continue;
             }
+
             preload = current->Child()->IntegerValue();
             if (preload == 0 || preload == 1) {
                 hostData.dynamicLoad = false;
             }
+
             devNodeInfo = devNodeInfo->Next();
         }
         devInfo = devInfo->Next();
@@ -252,6 +292,7 @@ bool StartupCfgGen::GetHostInfo()
             hostInfo = hostInfo->Next();
             continue;
         }
+
         InitHostInfo(hostData);
         serviceName = object->Child()->StringValue();
 
@@ -271,7 +312,12 @@ bool StartupCfgGen::GetHostInfo()
 
         object = hostInfo->Lookup("caps", PARSEROP_CONFTERM);
         GetConfigArray(object, hostData.hostCaps);
+
         GetHostLoadMode(hostInfo, hostData);
+
+        object = hostInfo->Lookup("critical", PARSEROP_CONFTERM);
+        GetConfigIntArray(object, hostData.hostCritical);
+
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));
         hostId++;
