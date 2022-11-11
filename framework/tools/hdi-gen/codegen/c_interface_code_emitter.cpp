@@ -131,14 +131,9 @@ void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::s
     }
 
     EmitInterfaceMethod(interface_->GetVersionMethod(), sb, prefix);
-    if (!isKernelCode_) {
-        if (!Options::GetInstance().DoPassthrough()) {
-            sb.Append("\n");
-            EmitAsObjectMethod(sb, TAB);
-        }
-
+    if (!isKernelCode_ && !Options::GetInstance().DoPassthrough()) {
         sb.Append("\n");
-        EmitObjectEqualMethod(sb, TAB);
+        EmitAsObjectMethod(sb, TAB);
     }
 }
 
@@ -169,12 +164,6 @@ void CInterfaceCodeEmitter::EmitInterfaceMethod(
 void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.c_str());
-}
-
-void CInterfaceCodeEmitter::EmitObjectEqualMethod(StringBuilder &sb, const std::string &prefix)
-{
-    sb.Append(prefix).AppendFormat("bool (*Equal)(struct %s *self, struct %s *other);\n",
-        interfaceName_.c_str(), interfaceName_.c_str());
 }
 
 void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb)
