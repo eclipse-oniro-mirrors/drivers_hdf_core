@@ -81,7 +81,7 @@ void DevHostServiceProxyOnRemoteDied(struct HdfDeathRecipient *recipient, struct
     if (task == NULL) {
         return;
     }
-    struct HdfMessage *message = HdfMessageObtain(0);
+    struct HdfMessage *message = HdfMessageObtain(sizeof(void *));
     if (message == NULL) {
         return;
     }
@@ -89,6 +89,7 @@ void DevHostServiceProxyOnRemoteDied(struct HdfDeathRecipient *recipient, struct
         struct HdfDeathRecipient, recipient, struct DevHostServiceProxy, recipient);
     message->messageId = DEVMGR_MESSAGE_DEVHOST_DIED;
     message->data[0] = (void *)(uintptr_t)proxy->hostId;
+    message->data[1] = (void *)service;
     HDF_LOGD("%{public}s: host %{public}u dead, respawn it", __FUNCTION__, proxy->hostId);
     task->SendMessage(task, message, false);
 }
@@ -100,6 +101,7 @@ void DevHostServiceProxyConstruct(
     inst->super.AddDevice = DevHostServiceProxyAddDevice;
     inst->super.DelDevice = DevHostServiceProxyDelDevice;
     inst->recipient.OnRemoteDied = DevHostServiceProxyOnRemoteDied;
+    remote->target = (struct HdfObject *)inst;
     HdfRemoteServiceAddDeathRecipient(remote, &inst->recipient);
 }
 

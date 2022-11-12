@@ -18,6 +18,8 @@
 
 #include "devsvc_manager.h"
 #include "hdf_remote_service.h"
+#include "hdf_slist.h"
+#include "osal_mutex.h"
 
 #define DEVICE_SERVICE_MANAGER "hdf_device_service_manager"
 #define DEVICE_SERVICE_MANAGER_SA_ID 5100
@@ -27,6 +29,15 @@ struct DevSvcManagerStub {
     struct HdfRemoteService *remote;
     struct HdfDeathRecipient recipient;
     bool started;
+    struct OsalMutex devSvcStubMutex;
+    struct HdfSList devObjHolderList;
+};
+
+struct HdfDeviceObjectHolder {
+    struct HdfDeviceObject devObj;
+    uintptr_t remoteSvcAddr;
+    char *serviceName;
+    struct HdfSListNode entry;
 };
 
 struct HdfObject *DevSvcManagerStubCreate(void);
