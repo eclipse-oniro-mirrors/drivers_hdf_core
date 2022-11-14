@@ -42,7 +42,7 @@ static void StartMemoryHook(const char* processName)
     if (retParam <= 0 || strncmp(paramValue, targetPrefix, targetPrefixLen) != 0) {
         return;
     }
-    if(strstr(paramValue + targetPrefixLen, processName) != NULL) {
+    if (strstr(paramValue + targetPrefixLen, processName) != NULL) {
         const int hookSignal = 36;
         HDF_LOGE("raise hook signal %{public}d to %{public}s", hookSignal, processName);
         raise(hookSignal);
