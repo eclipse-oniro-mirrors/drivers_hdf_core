@@ -46,8 +46,6 @@ private:
 
     void EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix);
 
-    void EmitObjectEqualMethod(StringBuilder &sb, const std::string &prefix);
-
     void EmitExternalMethod(StringBuilder &sb);
 
     void EmitInterfaceGetMethodDecl(StringBuilder &sb);
