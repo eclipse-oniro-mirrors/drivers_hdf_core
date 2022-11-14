@@ -20,7 +20,7 @@
 #include <sys/prctl.h>
 
 #include "securec.h"
-
+#include "parameter.h"
 #include "devhost_service.h"
 #include "devhost_service_full.h"
 #include "hdf_base.h"
@@ -30,6 +30,24 @@
 #define HDF_LOG_TAG                    hdf_device_host
 #define DEVHOST_INPUT_PARAM_NUM        3
 #define DEVHOST_INPUT_PARAM_HOSTID_POS 1
+#define PARAM_BUF_LEN 128
+
+static void StartMemoryHook(const char* processName)
+{
+    const char defaultValue[PARAM_BUF_LEN] = { 0 };
+    const char targetPrefix[] = "startup:";
+    const int targetPrefixLen = 8;
+    char paramValue[PARAM_BUF_LEN] = { 0 };
+    int retParam = GetParameter("libc.hook_mode", defaultValue, paramValue, sizeof(paramValue));
+    if (retParam <= 0 || strncmp(paramValue, targetPrefix, targetPrefixLen) != 0) {
+        return;
+    }
+    if(strstr(paramValue + targetPrefixLen, processName) != NULL) {
+        const int hookSignal = 36;
+        HDF_LOGE("raise hook signal %{public}d to %{public}s", hookSignal, processName);
+        raise(hookSignal);
+    }
+}
 
 bool HdfStringToInt(const char *str, int *value)
 {
@@ -81,6 +99,7 @@ int main(int argc, char **argv)
     const char *hostName = argv[argc - 1];
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
+    StartMemoryHook(hostName);
 
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
     if (instance == NULL || instance->StartService == NULL) {
