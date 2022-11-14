@@ -70,41 +70,132 @@ static int32_t ListServicePermCheck()
     return HDF_SUCCESS;
 }
 
+static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfDeviceObject *service)
+{
+    if (service == NULL || service->priv == NULL) {
+        HDF_LOGW("%{public}s service object is null", __func__);
+        return false;
+    }
+
+    struct HdfSListIterator it;
+    HdfSListIteratorInit(&it, &stub->devObjHolderList);
+    while (HdfSListIteratorHasNext(&it)) {
+        struct HdfSListNode *node = HdfSListIteratorNext(&it);
+        struct HdfDeviceObjectHolder *holder =
+            HDF_SLIST_CONTAINER_OF(struct HdfSListNode, node, struct HdfDeviceObjectHolder, entry);
+
+        if (((uintptr_t)(&holder->devObj) == (uintptr_t)service) && (holder->serviceName != NULL) &&
+            (strcmp(holder->serviceName, (char *)service->priv) == 0)) {
+            HDF_LOGD("%{public}s %{public}s service object is valid", __func__, holder->serviceName);
+            return true;
+        }
+    }
+
+    HDF_LOGW("%{public}s %{public}s service object is invalid", __func__, (char *)service->priv);
+    return false;
+}
+
+static bool CheckRemoteObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfRemoteService *service)
+{
+    if (service == NULL) {
+        HDF_LOGW("%{public}s remote object is null", __func__);
+        return false;
+    }
+
+    struct HdfSListIterator it;
+    HdfSListIteratorInit(&it, &stub->devObjHolderList);
+    while (HdfSListIteratorHasNext(&it)) {
+        struct HdfSListNode *node = HdfSListIteratorNext(&it);
+        struct HdfDeviceObjectHolder *holder =
+            HDF_SLIST_CONTAINER_OF(struct HdfSListNode, node, struct HdfDeviceObjectHolder, entry);
+
+        if (holder->remoteSvcAddr == (uintptr_t)service) {
+            HDF_LOGD("%{public}s remote object is valid", __func__);
+            return true;
+        }
+    }
+
+    HDF_LOGW("%{public}s remote object is invalid", __func__);
+    return false;
+}
+
+static void ReleaseServiceObjectHolder(struct DevSvcManagerStub *stub, struct HdfDeviceObjectHolder *devObjHolder)
+{
+    if (devObjHolder != NULL) {
+        struct HdfDeviceObject *serviceObject = &devObjHolder->devObj;
+        struct HdfRemoteService *serviceRemote = (struct HdfRemoteService *)serviceObject->service;
+        HdfRemoteServiceRemoveDeathRecipient(serviceRemote, &stub->recipient);
+        HdfRemoteServiceRecycle((struct HdfRemoteService *)serviceObject->service);
+        serviceObject->service = NULL;
+        OsalMemFree(serviceObject->priv);
+        serviceObject->priv = NULL;
+        OsalMemFree(devObjHolder->serviceName);
+        devObjHolder->serviceName = NULL;
+        OsalMemFree(devObjHolder);
+    }
+}
+
 static struct HdfDeviceObject *ObtainServiceObject(
     struct DevSvcManagerStub *stub, const char *name, struct HdfRemoteService *service)
 {
-    struct HdfDeviceObject *serviceObject = OsalMemCalloc(sizeof(struct HdfDeviceObject));
-    if (serviceObject == NULL) {
+    struct HdfDeviceObjectHolder *serviceObjectHolder = OsalMemCalloc(sizeof(*serviceObjectHolder));
+    if (serviceObjectHolder == NULL) {
         return NULL;
     }
+
+    serviceObjectHolder->remoteSvcAddr = (uintptr_t)service;
+    serviceObjectHolder->serviceName = (void *)HdfStringCopy(name);
+    if (serviceObjectHolder->serviceName == NULL) {
+        OsalMemFree(serviceObjectHolder);
+        return NULL;
+    }
+
+    struct HdfDeviceObject *serviceObject = &serviceObjectHolder->devObj;
     serviceObject->priv = (void *)HdfStringCopy(name);
     if (serviceObject->priv == NULL) {
-        OsalMemFree(serviceObject);
+        OsalMemFree(serviceObjectHolder->serviceName);
+        OsalMemFree(serviceObjectHolder);
         return NULL;
     }
     serviceObject->service = (struct IDeviceIoService *)service;
     service->target = (struct HdfObject *)serviceObject;
 
+    OsalMutexLock(&stub->devSvcStubMutex);
+    HdfSListAdd(&stub->devObjHolderList, &serviceObjectHolder->entry);
+    OsalMutexUnlock(&stub->devSvcStubMutex);
+
     HdfRemoteServiceAddDeathRecipient(service, &stub->recipient);
+
     return serviceObject;
 }
 
 static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDeviceObject *serviceObject)
 {
+    OsalMutexLock(&stub->devSvcStubMutex);
     if (serviceObject == NULL) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
         return;
     }
+
     if (serviceObject->priv == NULL) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
         HDF_LOGW("release service object has empty name, may broken object");
         return;
     }
+
+    if (!CheckServiceObjectValidNoLock(stub, serviceObject)) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
+        return;
+    }
+
     struct HdfRemoteService *serviceRemote = (struct HdfRemoteService *)serviceObject->service;
     HdfRemoteServiceRemoveDeathRecipient(serviceRemote, &stub->recipient);
-    HdfRemoteServiceRecycle((struct HdfRemoteService *)serviceObject->service);
-    OsalMemFree(serviceObject->priv);
-    serviceObject->priv = NULL;
-    serviceObject->service = NULL;
-    OsalMemFree(serviceObject);
+
+    struct HdfDeviceObjectHolder *serviceObjectHolder = (struct HdfDeviceObjectHolder *)serviceObject;
+    HdfSListRemove(&stub->devObjHolderList, &serviceObjectHolder->entry);
+    ReleaseServiceObjectHolder(stub, serviceObjectHolder);
+
+    OsalMutexUnlock(&stub->devSvcStubMutex);
 }
 
 static int32_t DevSvcMgrStubGetPara(
@@ -226,13 +317,33 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     if (ret != HDF_SUCCESS) {
         return ret;
     }
-    struct HdfRemoteService *remoteService = (struct HdfRemoteService *)super->GetService(super, name);
+    struct HdfDeviceObject *serviceObject = super->GetObject(super, name);
+    if (serviceObject == NULL) {
+        HDF_LOGE("StubGetService service %{public}s not found", name);
+        return HDF_FAILURE;
+    }
+
+    const char *svcMgrName = "hdf_device_manager";
+    if (strcmp(name, svcMgrName) != 0) {
+        OsalMutexLock(&stub->devSvcStubMutex);
+        if (!CheckServiceObjectValidNoLock(stub, serviceObject)) {
+            OsalMutexUnlock(&stub->devSvcStubMutex);
+            HDF_LOGE("StubGetService service %{public}s is invalid", name);
+            return HDF_FAILURE;
+        }
+    }
+    struct HdfRemoteService *remoteService = (struct HdfRemoteService *)serviceObject->service;
     if (remoteService != NULL) {
-        ret = HDF_SUCCESS;
         HdfSbufWriteRemoteService(reply, remoteService);
-        HDF_LOGI("service %{public}s found", name);
+        ret = HDF_SUCCESS;
+        HDF_LOGI("StubGetService service %{public}s found", name);
     } else {
-        HDF_LOGE("service %{public}s not found", name);
+        HDF_LOGE("StubGetService %{public}s remoteService is null", name);
+        ret = HDF_FAILURE;
+    }
+
+    if (strcmp(name, svcMgrName) != 0) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
     }
 
     return ret;
@@ -300,17 +411,26 @@ static int32_t DevSvcManagerStubRemoveService(struct IDevSvcManager *super, stru
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
     }
 
+    OsalMutexLock(&stub->devSvcStubMutex);
+    if (!CheckServiceObjectValidNoLock(stub, serviceObject)) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
+        HDF_LOGI("StubRemoveService service %{public}s is invalid", name);
+        return HDF_FAILURE;
+    }
+
     const char *servName = (const char *)serviceObject->priv;
     if (servName == NULL) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
         HDF_LOGE("remove service %{public}s is broken object", name);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (strcmp(name, servName) != 0) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
         HDF_LOGE("remove service %{public}s name mismatch with %{public}s", name, servName);
         return HDF_ERR_INVALID_OBJECT;
     }
-
+    OsalMutexUnlock(&stub->devSvcStubMutex);
     super->RemoveService(super, name);
     HDF_LOGI("service %{public}s removed", name);
 
@@ -424,19 +544,29 @@ void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfR
     }
 
     struct IDevSvcManager *iSvcMgr = &stub->super.super;
-    struct HdfDeviceObject *serviceObject = (struct HdfDeviceObject *)remote->target;
-
-    if (serviceObject == NULL || serviceObject->priv == NULL) {
-        HDF_LOGI("%{public}s:invalid service object", __func__);
-        return;
-    }
-
     if (iSvcMgr->GetService == NULL || iSvcMgr->RemoveService == NULL) {
         HDF_LOGI("%{public}s:invalid svcmgr object", __func__);
         return;
     }
 
-    char *serviceName = (char *)serviceObject->priv;
+    OsalMutexLock(&stub->devSvcStubMutex);
+    if (!CheckRemoteObjectValidNoLock(stub, remote)) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
+        return;
+    }
+    struct HdfDeviceObject *serviceObject = (struct HdfDeviceObject *)remote->target;
+
+    if (!CheckServiceObjectValidNoLock(stub, serviceObject)) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
+        return;
+    }
+
+    char *serviceName = HdfStringCopy((char *)serviceObject->priv);
+    OsalMutexUnlock(&stub->devSvcStubMutex);
+    if (serviceName == NULL) {
+        HDF_LOGI("%{public}s HdfStringCopy fail", __func__);
+        return;
+    }
     struct HdfObject *service = iSvcMgr->GetService(iSvcMgr, serviceName);
     HDF_LOGI("service %{public}s died", serviceName);
 
@@ -446,6 +576,7 @@ void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfR
     }
 
     ReleaseServiceObject(stub, serviceObject);
+    OsalMemFree(serviceName);
 }
 
 int DevSvcManagerStubStart(struct IDevSvcManager *svcmgr)
@@ -495,6 +626,8 @@ static bool DevSvcManagerStubConstruct(struct DevSvcManagerStub *inst)
         return false;
     }
     inst->super.super.StartService = DevSvcManagerStubStart;
+    OsalMutexInit(&inst->devSvcStubMutex);
+    HdfSListInit(&inst->devObjHolderList);
 
     return true;
 }
@@ -515,13 +648,31 @@ struct HdfObject *DevSvcManagerStubCreate(void)
     return (struct HdfObject *)instance;
 }
 
+static void DevObjHolderListReleaseNoLock(struct DevSvcManagerStub *stub)
+{
+    struct HdfSListIterator it;
+    HdfSListIteratorInit(&it, &stub->devObjHolderList);
+    while (HdfSListIteratorHasNext(&it)) {
+        struct HdfSListNode *node = HdfSListIteratorNext(&it);
+        HdfSListIteratorRemove(&it);
+        struct HdfDeviceObjectHolder *holder =
+            HDF_SLIST_CONTAINER_OF(struct HdfSListNode, node, struct HdfDeviceObjectHolder, entry);
+
+        ReleaseServiceObjectHolder(stub, holder);
+    }
+}
+
 void DevSvcManagerStubRelease(struct HdfObject *object)
 {
-    struct DevmgrServiceStub *instance = (struct DevmgrServiceStub *)object;
+    struct DevSvcManagerStub *instance = (struct DevSvcManagerStub *)object;
     if (instance != NULL) {
         if (instance->remote != NULL) {
             HdfRemoteServiceRecycle(instance->remote);
             instance->remote = NULL;
         }
+        OsalMutexLock(&instance->devSvcStubMutex);
+        DevObjHolderListReleaseNoLock(instance);
+        OsalMutexUnlock(&instance->devSvcStubMutex);
+        OsalMutexDestroy(&instance->devSvcStubMutex);
     }
 }
