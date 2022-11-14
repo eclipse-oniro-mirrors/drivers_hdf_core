@@ -89,7 +89,7 @@ def audio_makefile_template(date_lines, driver, source_path, head_path, devices,
             pass
         if source == source_path[-1]:
             sources_line += temp_handle.substitute(
-                temp_dict).replace("temp_flag", "$(") + "\n"
+                temp_dict).replace("temp_flag", "$(")
         else:
             sources_line += temp_handle.substitute(
                 temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
@@ -145,6 +145,7 @@ def audio_linux_makefile_operation(path, args_tuple):
     new_line = temp_handle.substitute(temp_replace).replace("temp_flag", "$(")
     date_lines = date_lines + [new_line]
     hdf_utils.write_file_lines(makefile_path, date_lines)
+    return makefile_path
 
 
 def judge_driver_config_exists(date_lines, driver_name):

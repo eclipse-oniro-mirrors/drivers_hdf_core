@@ -456,7 +456,8 @@ class HdfAddDriver(object):
                 if self.module == "audio":
                     args_tuple = (driver_file_path, driver_head_path, self.module,
                                   self.driver, self.root, self.device, self.board)
-                    audio_linux_makefile_operation(linux_makefile_file_path, args_tuple)
+                    linux_makefile_file_path = audio_linux_makefile_operation(
+                        linux_makefile_file_path, args_tuple)
                 else:
                     linux_makefile_operation(
                         linux_makefile_file_path, driver_file_path[0], driver_head_path[0],
