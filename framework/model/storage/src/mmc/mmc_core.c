@@ -12,6 +12,7 @@
 #else
 #include "device_resource_if.h"
 #endif
+#include "securec.h"
 #include "mmc_block.h"
 #include "mmc_dispatch.h"
 #include "mmc_emmc.h"
@@ -859,6 +860,12 @@ int32_t MmcCntlrCreatSdioIrqThread(struct MmcCntlr *cntlr)
         return ret;
     }
 
+    if (memset_s(&config, sizeof(config), 0, sizeof(config)) != EOK) {
+        HDF_LOGE("%s:memset_s fail.", __func__);
+        OsalThreadDestroy(&dev->thread);
+        (void)OsalSemDestroy(&dev->sem);
+        return HDF_ERR_IO;
+    }
     config.name = "SdioIrqTask";
     config.priority = OSAL_THREAD_PRI_HIGHEST;
     config.stackSize = SDIO_IRQ_TASK_STACK_SIZE;
