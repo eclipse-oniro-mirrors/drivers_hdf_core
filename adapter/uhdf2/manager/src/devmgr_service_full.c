@@ -30,25 +30,38 @@ static Map g_hostMap = {0};
 #define HOST_INIT_DIE_NUM 1
 #define HOST_MAX_DIE_NUM  3
 
-static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt)
+static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt, struct HdfRemoteService *service)
 {
     OsalMutexLock(&hostClnt->hostLock);
     hostClnt->hostPid = INVALID_PID;
-    if (hostClnt->hostService != NULL) {
-        struct DevHostServiceProxy *hostProxy = (struct DevHostServiceProxy *)hostClnt->hostService;
+    struct DevHostServiceProxy *hostProxy = (struct DevHostServiceProxy *)hostClnt->hostService;
+    if (hostProxy != NULL) {
+        if ((hostProxy->remote != NULL) && ((uintptr_t)hostProxy->remote == (uintptr_t)service)) {
+            HDF_LOGI("%{public}s hostId: %{public}u remove current hostService", __func__, hostClnt->hostId);
+            DevHostServiceProxyRecycle(hostProxy);
+            hostClnt->hostService = NULL;
+            HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
+        } else {
+            hostProxy = (struct DevHostServiceProxy *)service->target;
+            HDF_LOGI("%{public}s hostId: %{public}u remove old hostService", __func__, hostClnt->hostId);
+            DevHostServiceProxyRecycle(hostProxy);
+        }
+    } else {
+        hostProxy = (struct DevHostServiceProxy *)service->target;
+        HDF_LOGI("%{public}s hostId: %{public}u remove old hostService, and current hostService is null",
+            __func__, hostClnt->hostId);
         DevHostServiceProxyRecycle(hostProxy);
-        hostClnt->hostService = NULL;
     }
 
-    HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
     OsalMutexUnlock(&hostClnt->hostLock);
 }
 
-static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *hostClnt)
+static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *hostClnt,
+    struct HdfRemoteService *service)
 {
     bool isHostEmpty = HdfSListIsEmpty(&hostClnt->devices);
 
-    CleanupDiedHostResources(hostClnt);
+    CleanupDiedHostResources(hostClnt, service);
     if (isHostEmpty || hostClnt->stopFlag) {
         return 0;
     }
@@ -83,7 +96,8 @@ static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *
     return INVALID_PID;
 }
 
-void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t hostId)
+static void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t hostId,
+    struct HdfRemoteService *service)
 {
     (void)hostId;
     struct DevHostServiceClnt *hostClnt = NULL;
@@ -94,7 +108,7 @@ void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t 
     OsalMutexLock(&inst->super.devMgrMutex);
     DLIST_FOR_EACH_ENTRY_SAFE(hostClnt, hostClntTmp, &inst->super.hosts, struct DevHostServiceClnt, node) {
         if (hostClnt->hostId == hostId) {
-            int32_t ret = DevmgrServiceFullHandleDeviceHostDied(hostClnt);
+            int32_t ret = DevmgrServiceFullHandleDeviceHostDied(hostClnt, service);
             if (ret == INVALID_PID) {
                 HDF_LOGE("%{public}s: failed to respawn host %{public}s", __func__, hostClnt->hostName);
             }
@@ -115,7 +129,8 @@ int32_t DevmgrServiceFullDispatchMessage(struct HdfMessageTask *task, struct Hdf
     switch (msg->messageId) {
         case DEVMGR_MESSAGE_DEVHOST_DIED: {
             int hostId = (int)(uintptr_t)msg->data[0];
-            DevmgrServiceFullOnDeviceHostDied(fullService, hostId);
+            struct HdfRemoteService *service = (struct HdfRemoteService *)msg->data[1];
+            DevmgrServiceFullOnDeviceHostDied(fullService, hostId, service);
             break;
         }
         default: {
