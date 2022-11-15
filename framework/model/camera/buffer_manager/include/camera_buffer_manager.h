@@ -37,5 +37,9 @@ int32_t BufferQueueAcquireBuffer(struct BufferQueue *queue, struct UserCameraBuf
 int32_t BufferQueueStreamOn(struct BufferQueue *queue);
 /* stream off */
 int32_t BufferQueueStreamOff(struct BufferQueue *queue);
+/* set curent queue for mmap */
+void BufferQueueSetQueueForMmap(struct BufferQueue *queue);
+/* get curent queue for mmap */
+struct BufferQueue *BufferQueueGetQueueForMmap(void);
 
 #endif  // CAMERA_BUFFER_MANAGER_H

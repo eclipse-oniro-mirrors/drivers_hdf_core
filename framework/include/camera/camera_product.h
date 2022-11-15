@@ -23,6 +23,15 @@ enum CameraDeviceType {
     STREAM_TYPE,
 };
 
+enum CameraQueryMemeryFlags {
+    RELEASE_FLAG,
+    ALLOC_FLAG,
+};
+
+typedef enum {
+    CAMERA_UVC_EVENT,
+} CameraReceiveEventType;
+
 enum CameraMethodCmd {
     CMD_OPEN_CAMERA,
     CMD_CLOSE_CAMERA,

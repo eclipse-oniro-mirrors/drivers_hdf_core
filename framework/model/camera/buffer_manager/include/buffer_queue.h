@@ -35,13 +35,30 @@ struct BufferQueue {
     OsalSpinlock doneLock;
     wait_queue_head_t doneWait;
     uint32_t queueIsInit;
+    struct MemOps *memOps;
+};
+
+struct MemOps {
+    void *(*mmapAlloc)(struct BufferQueue *queue, uint32_t planeNum, unsigned long size);
+    void (*mmapFree)(void *bufPriv);
+    void *(*getDmaBuf)(void *bufPriv, uint32_t flags);
+    void *(*allocUserPtr)(struct BufferQueue *queue, uint32_t planeNum, unsigned long vaddr, unsigned long size);
+    void (*freeUserPtr)(void *bufPriv);
+    void (*syncForDevice)(void *bufPriv);
+    void (*syncForUser)(void *bufPriv);
+    void *(*attachDmaBuf)(struct BufferQueue *queue, uint32_t planeNum, void *dmaBuf, unsigned long size);
+    void (*detachDmaBuf)(void *bufPriv);
+    int32_t (*mapDmaBuf)(void *bufPriv);
+    void (*unmapDmaBuf)(void *bufPriv);
+    void *(*getVaddr)(void *bufPriv);
+    void *(*getCookie)(void *bufPriv);
+    uint32_t (*numUsers)(void *bufPriv);
+    int32_t (*mmap)(void *bufPriv, void *vm);
 };
 
 struct BufferQueueOps {
     int32_t (*queueSetup)(struct BufferQueue *queue, uint32_t *bufferCount, uint32_t *planeCount, uint32_t sizes[]);
     void (*queueBuffer)(struct BufferQueue *queue, struct CameraBuffer *buffer);
-    int32_t (*startStreaming)(struct BufferQueue *queue);
-    void (*stopStreaming)(struct BufferQueue *queue);
 };
 
 /* BufferQueue flags */
@@ -61,7 +78,7 @@ int32_t BufferQueueCheckMemOps(struct BufferQueue *queue, enum CameraMemType mem
 int32_t BufferQueueReleaseBuffers(struct BufferQueue *queue, struct UserCameraReq *userRequest);
 int32_t BufferQueueRequestBuffers(struct BufferQueue *queue, struct UserCameraReq *userRequest,
     uint32_t numBuffers, uint32_t numPlanes, uint32_t planeSizes[]);
-int32_t BufferQueueStartStreaming(struct BufferQueue *queue);
+int32_t BufferQueueStart(struct BufferQueue *queue);
 int32_t BufferQueuePrepare(struct BufferQueue *queue, struct UserCameraBuffer *userBuffer);
 
 
