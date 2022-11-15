@@ -124,6 +124,7 @@ if (defined(ohos_lite)) {
       external_deps = [
         "c_utils:utils",
         "hiviewdfx_hilog_native:libhilog",
+        "init:libbegetutil",
       ]
     } else {
       external_deps = [ "hilog:libhilog" ]
