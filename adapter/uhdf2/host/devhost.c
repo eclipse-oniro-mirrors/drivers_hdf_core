@@ -36,14 +36,14 @@ static void StartMemoryHook(const char* processName)
 {
     const char defaultValue[PARAM_BUF_LEN] = { 0 };
     const char targetPrefix[] = "startup:";
-    const int targetPrefixLen = 8;
+    const int targetPrefixLen = strlen(targetPrefix);
     char paramValue[PARAM_BUF_LEN] = { 0 };
     int retParam = GetParameter("libc.hook_mode", defaultValue, paramValue, sizeof(paramValue));
     if (retParam <= 0 || strncmp(paramValue, targetPrefix, targetPrefixLen) != 0) {
         return;
     }
     if (strstr(paramValue + targetPrefixLen, processName) != NULL) {
-        const int hookSignal = 36;
+        const int hookSignal = 36; // 36: native memory hooked signal
         HDF_LOGE("raise hook signal %{public}d to %{public}s", hookSignal, processName);
         raise(hookSignal);
     }
