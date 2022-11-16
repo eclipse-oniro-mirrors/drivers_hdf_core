@@ -228,7 +228,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
             for driver_name, value_info in board_info.items():
                 temp_path = value_info[0]
                 file_name = temp_path.split(os.path.dirname(temp_path))[-1]
-                temp_device_name = file_name.strip(os.path.sep)
+                temp_device_name = file_name.strip("/")
                 device_name = temp_device_name.split(driver_name)[0][0:-1]
                 temp_device = res_dict.get(board_name).get(
                     "driver_file_list").get(device_name)
