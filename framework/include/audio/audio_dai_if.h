@@ -172,6 +172,7 @@ struct DaiData {
     int32_t (*Write)(const struct DaiDevice *dai, uint32_t reg, uint32_t value);
 
     const struct AudioDaiOps *ops;             /**< dai set of operation functions */
+    struct AudioPortInfo portInfo;             /**< dai port info */
     struct PcmInfo pcmInfo;                    /**< dai pcm info */
     struct AudioKcontrol *controls;            /**< dai control structure array pointer */
     int numControls;                           /**< dai controls the number of structure array elements */

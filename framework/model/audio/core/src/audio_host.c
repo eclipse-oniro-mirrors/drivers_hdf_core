@@ -15,7 +15,18 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
-AUDIO_LIST_HEAD(cardManager);
+AUDIO_LIST_HEAD(g_cardManager);
+
+/* Get all sound card instance */
+const struct DListHead *GetAllCardInstance(void)
+{
+    if (DListIsEmpty(&g_cardManager)) {
+        ADM_LOG_ERR("g_cardManager is empty.");
+        return NULL;
+    }
+
+    return &g_cardManager;
+}
 
 /* Get a sound card instance */
 struct AudioCard *GetCardInstance(const char *serviceName)
@@ -27,12 +38,12 @@ struct AudioCard *GetCardInstance(const char *serviceName)
         return NULL;
     }
 
-    if (DListIsEmpty(&cardManager)) {
-        ADM_LOG_ERR("cardManager is empty.");
+    if (DListIsEmpty(&g_cardManager)) {
+        ADM_LOG_ERR("g_cardManager is empty.");
         return NULL;
     }
 
-    DLIST_FOR_EACH_ENTRY(audioCard, &cardManager, struct AudioCard, list) {
+    DLIST_FOR_EACH_ENTRY(audioCard, &g_cardManager, struct AudioCard, list) {
         if (audioCard->configData.cardServiceName == NULL) {
             ADM_LOG_ERR("cardServiceName is NULL.");
             return NULL;
@@ -358,7 +369,7 @@ static int32_t AudioCardInit(struct HdfDeviceObject *device, struct AudioHost *a
     }
 
     /* sound card added to list */
-    DListInsertHead(&audioCard->list, &cardManager);
+    DListInsertHead(&audioCard->list, &g_cardManager);
 
     return HDF_SUCCESS;
 }

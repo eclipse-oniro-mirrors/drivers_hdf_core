@@ -187,6 +187,15 @@ int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecDat
     return HDF_SUCCESS;
 }
 
+int32_t CodecDaiGetPortConfigInfo(const struct HdfDeviceObject *device, struct DaiData *codecData)
+{
+    if (AudioGetPortConfig(device, &codecData->portInfo) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t SapmCtrlToSapmComp(struct AudioSapmComponent *sapmComponents,
     const struct AudioSapmCtrlConfig *sapmCompItem, uint16_t index)
 {
