@@ -37,7 +37,9 @@ hdf_driver("hdf_platform_lite") {
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_event.c",
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_manager.c",
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_queue.c",
+    "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_trace_transfer.c",
     "plat_common.c",
+    "platform_trace.c",
   ]
 
   include_dirs = []
