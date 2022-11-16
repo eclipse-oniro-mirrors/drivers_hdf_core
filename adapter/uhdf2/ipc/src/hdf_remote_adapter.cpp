@@ -70,7 +70,7 @@ HdfDeathNotifier::~HdfDeathNotifier()
 {
 }
 
-void HdfDeathNotifier::OnRemoteDied(const OHOS::wptr<OHOS::IRemoteObject> &) /* who = 0 */
+void HdfDeathNotifier::OnRemoteDied(const OHOS::wptr<OHOS::IRemoteObject> &object) /* who = 0 */
 {
     if (recipient_ != nullptr) {
         recipient_->OnRemoteDied(recipient_, service_);
@@ -126,7 +126,7 @@ static int HdfRemoteAdapterDispatchAsync(struct HdfRemoteService *service,
 
 HdfRemoteServiceHolder::HdfRemoteServiceHolder() : remote_(nullptr), deathRecipient_(nullptr)
 {
-    service_.object_.objectId = HDF_OBJECT_ID_REMOTE_SERVICE;
+    service_.object.objectId = HDF_OBJECT_ID_REMOTE_SERVICE;
     service_.dispatcher = nullptr;
     service_.target = nullptr;
     service_.index = 0;

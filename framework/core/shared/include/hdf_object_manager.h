@@ -30,7 +30,7 @@ struct HdfObjectCreator {
 };
 
 const struct HdfObjectCreator *HdfObjectManagerGetCreators(int objectId);
-struct HdfObject *HdfObjectManagerGetObject(int ObjectId);
+struct HdfObject *HdfObjectManagerGetObject(int objectId);
 void HdfObjectManagerFreeObject(struct HdfObject *object);
 
 #endif /* HDF_OBJECT_MANAGER_H */

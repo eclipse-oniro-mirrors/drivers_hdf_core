@@ -186,7 +186,7 @@ struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, cons
         HdfSbufRecycle(data);
     }
     HDF_LOGI("DevSvcManagerProxyGetService finish, and status is %{public}d", status);
-    return (remoteService == NULL) ? NULL : &remoteService->object_;
+    return (remoteService == NULL) ? NULL : &remoteService->object;
 }
 
 void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *svcName)

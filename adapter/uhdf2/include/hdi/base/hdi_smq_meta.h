@@ -48,6 +48,8 @@ public:
     SharedMemQueueMeta(const SharedMemQueueMeta<T> &other);
     ~SharedMemQueueMeta() = default;
 
+    SharedMemQueueMeta &operator=(const SharedMemQueueMeta<T> &other);
+
     void SetFd(int fd);
     int GetFd();
     size_t GetSize();
@@ -55,7 +57,7 @@ public:
     size_t GetElementCount();
     size_t GetElemenetSize() const;
     enum MemZoneType : uint32_t {
-        MEMZONE_RPTR = 0,
+        MEMZONE_RPTR,
         MEMZONE_WPTR,
         MEMZONE_SYNCER,
         MEMZONE_DATA,
@@ -80,6 +82,26 @@ private:
     SmqType type_;
     MemZone memzone_[MEMZONE_COUNT];
 };
+
+template <typename T>
+SharedMemQueueMeta<T> &SharedMemQueueMeta<T>::operator=(const SharedMemQueueMeta<T> &other)
+{
+    if (this != &other) {
+        if (ashmemFd_ >= 0) {
+            close(ashmemFd_);
+        }
+        ashmemFd_ = dup(other.ashmemFd_);
+        size_ = other.size_;
+        elementCount_ = other.elementCount_;
+        elementSize_ = other.elementSize_;
+        type_ = other.type_;
+        if (memcpy_s(memzone_, sizeof(memzone_), other.memzone_, sizeof(other.memzone_)) != EOK) {
+            HDF_LOGW("failed to memcpy_s overload memzone_");
+        }
+    }
+
+    return *this;
+}
 
 template <typename T>
 SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType type)

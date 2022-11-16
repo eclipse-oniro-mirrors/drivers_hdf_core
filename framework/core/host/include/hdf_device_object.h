@@ -15,11 +15,10 @@ extern "C" {
 #endif /* __cplusplus */
 void HdfDeviceObjectConstruct(struct HdfDeviceObject *deviceObject);
 struct HdfDeviceObject *HdfDeviceObjectAlloc(struct HdfDeviceObject *parent, const char *driverName);
-void HdfDeviceObjectRelease(struct HdfDeviceObject *deviceObject);
-int HdfDeviceObjectRegister(struct HdfDeviceObject *deviceObject);
-int HdfDeviceObjectUnRegister(struct HdfDeviceObject *deviceObject);
-int HdfDeviceObjectPublishService(struct HdfDeviceObject *deviceObject,
-    const char *servName, uint8_t policy, uint32_t perm);
+void HdfDeviceObjectRelease(struct HdfDeviceObject *dev);
+int HdfDeviceObjectRegister(struct HdfDeviceObject *dev);
+int HdfDeviceObjectUnRegister(struct HdfDeviceObject *dev);
+int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servName, uint8_t policy, uint32_t perm);
 int HdfRemoveService(struct HdfDeviceObject *deviceObject);
 int HdfDeviceObjectSetServInfo(struct HdfDeviceObject *dev, const char *info);
 int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev);

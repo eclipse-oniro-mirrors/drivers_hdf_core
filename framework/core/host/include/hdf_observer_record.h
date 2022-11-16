@@ -25,7 +25,7 @@ struct HdfServiceObserverRecord {
 };
 
 struct HdfServiceObserverRecord *HdfServiceObserverRecordObtain(uint32_t serviceKey);
-void HdfServiceObserverRecordRecycle(struct HdfServiceObserverRecord *record);
+void HdfServiceObserverRecordRecycle(struct HdfServiceObserverRecord *observerRecord);
 bool HdfServiceObserverRecordCompare(struct HdfSListNode *listEntry, uint32_t serviceKey);
 void HdfServiceObserverRecordNotifySubscribers(
     struct HdfServiceObserverRecord *record, devid_t devid, uint16_t policy);

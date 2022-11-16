@@ -18,7 +18,7 @@
 
 #include <atomic>
 #include <parcel.h>
-#include <stdint.h>
+#include <cstdint>
 
 namespace OHOS {
 namespace HDI {

@@ -54,7 +54,7 @@ void HdfSListInit(struct HdfSList *list);
  * @return struct HdfSListNode of search result
  *  -# NULL if not found.
  */
-struct HdfSListNode *HdfSListSearch(const struct HdfSList *list, uint32_t searchKey, HdfSListSearchComparer comparer);
+struct HdfSListNode *HdfSListSearch(const struct HdfSList *list, uint32_t keyValue, HdfSListSearchComparer comparer);
 
 /*
  * @brief tests if list is empty
