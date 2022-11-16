@@ -21,7 +21,7 @@
 #define HDF_LOG_TAG osal_test
 
 #define HDF_THREAD_TEST_SLEEP_MS 200
-#define HDF_TEST_STACK_SIZE 10000
+#define HDF_TEST_STACK_SIZE (1024 * 16) // 16KB
 
 typedef void(*EventHandle)(int para);
 
