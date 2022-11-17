@@ -290,10 +290,17 @@ static struct OsalThread *CanTestStartTestThread(OsalThreadEntry entry, DevHandl
 
     ret = OsalThreadCreate(thread, (OsalThreadEntry)entry, (void *)handle);
     if (ret != HDF_SUCCESS) {
+        OsalMemFree(thread);
         HDF_LOGE("create test thread fail:%d", ret);
         return NULL;
     }
 
+    if (memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg)) != EOK) {
+        (void)OsalThreadDestroy(thread);
+        OsalMemFree(thread);
+        HDF_LOGE("%s:memset_s fail.", __func__);
+        return NULL;
+    }
     threadCfg.name = (char *)"CanTestPoller";
     threadCfg.priority = OSAL_THREAD_PRI_DEFAULT;
     threadCfg.stackSize = CAN_TEST_STACK_SIZE;
@@ -301,6 +308,7 @@ static struct OsalThread *CanTestStartTestThread(OsalThreadEntry entry, DevHandl
     ret = OsalThreadStart(thread, &threadCfg);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(thread);
+        OsalMemFree(thread);
         HDF_LOGE("start test thread2 fail:%d", ret);
         return NULL;
     }

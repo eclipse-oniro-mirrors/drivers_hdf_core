@@ -20,7 +20,8 @@
 #define HDF_LOG_TAG adc_test_c
 
 #define TEST_ADC_VAL_NUM           50
-#define ADC_TEST_WAIT_TIMES      100
+#define ADC_TEST_WAIT_TIMES        100
+#define ADC_TEST_WAIT_TIMEOUT      20
 #define ADC_TEST_STACK_SIZE        (1024 * 64)
 
 static int32_t AdcTestGetConfig(struct AdcTestConfig *config)
@@ -160,55 +161,61 @@ static int AdcTestThreadFunc(void *param)
 static int32_t AdcTestMultiThread(void)
 {
     int32_t ret;
+    uint32_t time = 0;
     struct OsalThread thread1, thread2;
     struct OsalThreadParam cfg1, cfg2;
     int32_t count1 = 0;
     int32_t count2 = 0;
 
-    HDF_LOGI("%s: enter", __func__);
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)AdcTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)AdcTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
         HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
-    cfg1.name = "AdcTestThread-1";
-    cfg2.name = "AdcTestThread-2";
-    cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
-    cfg1.stackSize = cfg2.stackSize = ADC_TEST_STACK_SIZE;
+    do {
+        if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+            memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+            HDF_LOGE("%s:memset_s fail.", __func__);
+            ret = HDF_ERR_IO;
+            break;
+        }
+        cfg1.name = "AdcTestThread-1";
+        cfg2.name = "AdcTestThread-2";
+        cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
+        cfg1.stackSize = cfg2.stackSize = ADC_TEST_STACK_SIZE;
 
-    ret = OsalThreadStart(&thread1, &cfg1);
-    if (ret != HDF_SUCCESS) {
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        HDF_LOGE("start test thread1 fail:%d", ret);
-        return HDF_FAILURE;
-    }
+        ret = OsalThreadStart(&thread1, &cfg1);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("start test thread1 fail:%d", ret);
+            break;
+        }
 
-    ret = OsalThreadStart(&thread2, &cfg2);
-    if (ret != HDF_SUCCESS) {
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        HDF_LOGE("start test thread2 fail:%d", ret);
-        return HDF_FAILURE;
-    }
+        ret = OsalThreadStart(&thread2, &cfg2);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("start test thread2 fail:%d", ret);
+        }
 
-    while (count1 == 0 || count2 == 0) {
-        HDF_LOGE("waitting testing thread finish...");
-        OsalMSleep(ADC_TEST_WAIT_TIMES);
-    }
+        while (count1 == 0 || count2 == 0) {
+            HDF_LOGE("waitting testing thread finish...");
+            OsalMSleep(ADC_TEST_WAIT_TIMES);
+            time++;
+            if (time > ADC_TEST_WAIT_TIMEOUT) {
+                break;
+            }
+        }
+    } while (0);
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    HDF_LOGI("%s: done", __func__);
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t AdcTestReliability(void)

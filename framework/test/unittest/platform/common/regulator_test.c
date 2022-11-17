@@ -11,6 +11,7 @@
 #include "hdf_log.h"
 #include "osal_thread.h"
 #include "osal_time.h"
+#include "securec.h"
 #include "regulator_if.h"
 #if defined(CONFIG_DRIVERS_HDF_PLATFORM_REGULATOR)
 #include "virtual/regulator_linux_voltage_virtual_driver.h"
@@ -180,61 +181,61 @@ static int RegulatorTestThreadFunc(void *param)
 
 static int32_t RegulatorTestMultiThread(struct RegulatorTest *test)
 {
-    int32_t ret;
-    uint32_t time;
+    uint32_t time = 0;
     struct OsalThread thread1, thread2;
     struct OsalThreadParam cfg1, cfg2;
     int32_t count1, count2;
 
     (void)test;
     count1 = count2 = 0;
-    time = 0;
-    ret = OsalThreadCreate(&thread1, (OsalThreadEntry)RegulatorTestThreadFunc, (void *)&count1);
+    int32_t ret = OsalThreadCreate(&thread1, (OsalThreadEntry)RegulatorTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)RegulatorTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
         HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
-    cfg1.name = "RegulatorTestThread-1";
-    cfg2.name = "RegulatorTestThread-2";
-    cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
-    cfg1.stackSize = cfg2.stackSize = REGULATOR_TEST_STACK_SIZE;
-
-    ret = OsalThreadStart(&thread1, &cfg1);
-    if (ret != HDF_SUCCESS) {
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        HDF_LOGE("start test thread1 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
-    ret = OsalThreadStart(&thread2, &cfg2);
-    if (ret != HDF_SUCCESS) {
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        HDF_LOGE("start test thread2 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
-    while (count1 == 0 || count2 == 0) {
-        HDF_LOGE("waitting testing Regulator thread finish...");
-        OsalMSleep(REGULATOR_TEST_WAIT_TIMES);
-        time++;
-        if (time > REGULATOR_TEST_WAIT_TIMEOUT) {
+    do {
+        if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+            memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+            HDF_LOGE("%s:memset_s fail.", __func__);
+            ret = HDF_ERR_IO;
             break;
         }
-    }
+        cfg1.name = "RegulatorTestThread-1";
+        cfg2.name = "RegulatorTestThread-2";
+        cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
+        cfg1.stackSize = cfg2.stackSize = REGULATOR_TEST_STACK_SIZE;
+
+        ret = OsalThreadStart(&thread1, &cfg1);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("start test thread1 fail:%d", ret);
+            break;
+        }
+
+        ret = OsalThreadStart(&thread2, &cfg2);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("start test thread2 fail:%d", ret);
+        }
+
+        while (count1 == 0 || count2 == 0) {
+            OsalMSleep(REGULATOR_TEST_WAIT_TIMES);
+            time++;
+            if (time > REGULATOR_TEST_WAIT_TIMEOUT) {
+                break;
+            }
+        }
+    } while (0);
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t RegulatorTestReliability(struct RegulatorTest *test)
