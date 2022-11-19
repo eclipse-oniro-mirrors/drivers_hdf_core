@@ -547,7 +547,7 @@ static int ThreadTest(void *arg)
     return 0;
 }
 
-#define HDF_TEST_STACK_SIZE 10000
+#define HDF_TEST_STACK_SIZE (1024 * 16) // 16KB
 static void OsaThreadTest1(void)
 {
     struct OsalThreadParam threadCfg;
