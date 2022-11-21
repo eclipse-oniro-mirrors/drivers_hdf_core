@@ -77,6 +77,12 @@ enum LightId {
     LIGHT_ID_BUTT,
 };
 
+enum HdfLightType {
+    HDF_LIGHT_TYPE_SINGLE_COLOR = 1,
+    HDF_LIGHT_TYPE_RGB_COLOR = 2,
+    HDF_LIGHT_TYPE_WRGB_COLOR = 3,
+};
+
 enum LightFlashMode {
     LIGHT_FLASH_NONE = 0,
     LIGHT_FLASH_TIMED = 1,
@@ -90,19 +96,21 @@ struct LightFlashEffect {
 };
 
 struct WRGBColor {
-    int w;
-    int r;
-    int g;
-    int b;
+    uint8_t w;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 };
+
 struct RGBColor {
-    int brightness;
-    int r;
-    int g;
-    int b;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t reserved;
 };
 
 union ColorValue {
+    int32_t singleColor;
     struct RGBColor rgbColor;
     struct WRGBColor wrgbColor;
 };
@@ -120,7 +128,7 @@ struct LightInfo {
     char lightName[NAME_MAX_LEN];
     uint32_t lightId;
     uint32_t lightNumber;
-    int32_t reserved;
+    int32_t lightType;
 };
 
 struct LightDeviceInfo {
