@@ -101,7 +101,10 @@ void DevHostServiceProxyConstruct(
     inst->super.AddDevice = DevHostServiceProxyAddDevice;
     inst->super.DelDevice = DevHostServiceProxyDelDevice;
     inst->recipient.OnRemoteDied = DevHostServiceProxyOnRemoteDied;
-    remote->target = (struct HdfObject *)inst;
+    if (remote != NULL) {
+        remote->target = (struct HdfObject *)inst;
+    }
+
     HdfRemoteServiceAddDeathRecipient(remote, &inst->recipient);
 }
 
