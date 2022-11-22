@@ -19,6 +19,7 @@ from .driver_add.hdf_add_driver import HdfAddDriver
 from .hdf_command_handler_base import HdfCommandHandlerBase
 from .hdf_command_error_code import CommandErrorCode
 from .hdf_device_info_hcs import HdfDeviceInfoHcsFile
+from .hdf_get_handler import HdfGetHandler
 from .hdf_vendor_build_file import HdfVendorBuildFile
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_vendor_mk_file import HdfVendorMkFile
@@ -49,6 +50,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         self.parser.add_argument("--kernel_name")
         self.parser.add_argument("--runmode")
         self.parser.add_argument("--device_name")
+        self.args_original = args
         self.args = self.parser.parse_args(args)
         self.hdf_tool = HdfToolSettings()
 
@@ -381,10 +383,29 @@ class HdfAddHandler(HdfCommandHandlerBase):
         self.check_arg_raise_if_not_exist("device_name")
         args_tuple = self.get_args()
         root, vendor, module, driver, board, kernel, device = args_tuple
-        board_list = self.hdf_tool.get_board_list()
+        board_list = self.hdf_tool.get_create_board_type()
         if board not in board_list:
             raise HdfToolException(
-                'supported boards name : %s not exits ' % board)
+                'supported boards name : %s not exits ' % board,
+                CommandErrorCode.TARGET_NOT_EXIST)
+        if "--runmode" in self.args_original:
+            runmode_index = self.args_original.index("--runmode")
+            temp_args = self.args_original[:runmode_index] + \
+                        self.args_original[runmode_index+2:]
+        else:
+            temp_args = self.args_original
+        get_board = HdfGetHandler(temp_args)
+        temp_board_dict = json.loads(get_board.judge_create_driver_exist())
+        if temp_board_dict:
+            temp_board_device_dict = temp_board_dict.get(board)
+            if temp_board_device_dict is not None and\
+                    temp_board_device_dict.get("driver_file_list") is not None:
+                driver_name_list = temp_board_device_dict.get("driver_file_list").get(device, [])
+                if driver_name_list and driver in driver_name_list:
+                    raise HdfToolException(
+                        'driver name %s exist in device %s' %
+                        (driver, device),
+                        CommandErrorCode.TARGET_ALREADY_EXIST)
         framework_hdf = hdf_utils.get_vendor_hdf_dir_framework(root)
         hdf_utils.judge_file_path_exists(framework_hdf)
         framework_drv_root_dir = hdf_utils.get_module_dir(root, module)
@@ -396,7 +417,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
             file_path = add_driver.add_liteos(file_list, head_list)
         elif board.endswith("linux"):
             file_path = add_driver.add_linux(file_list, head_list)
-        elif board.startswith("rk3568"):
+        elif board.startswith("rk3568_kernel"):
             file_path = add_driver.add_kernel(file_list, head_list)
         elif board.startswith("hispark_taurus_standard_kernel"):
             file_path = add_driver.add_kernel(file_list, head_list)
@@ -405,7 +426,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         config_item = {
             'module_name': module,
             'module_path': file_path,
-            'driver_name': driver,
+            'driver_name': "-".join([device, driver]),
             'driver_file_path': file_list,
             'head_file_path': head_list,
             'enabled': "true"
@@ -436,9 +457,9 @@ class HdfAddHandler(HdfCommandHandlerBase):
         group_passwd = OperateGroupPasswd(tool_settings=self.hdf_tool, root_path=root_path)
         # group
         peripheral_name = "_".join([model_name, "user"])
-        group_file_path = group_passwd.OperateGroup(name=peripheral_name)
+        group_file_path = group_passwd.operate_group(name=peripheral_name)
         # passwd
-        passwd_file_path = group_passwd.OperatePasswd(name=peripheral_name)
+        passwd_file_path = group_passwd.operate_passwd(name=peripheral_name)
         linux_file_path["passwd"] = passwd_file_path
         linux_file_path["group"] = group_file_path
         return linux_file_path

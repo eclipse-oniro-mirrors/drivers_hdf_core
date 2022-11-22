@@ -10,10 +10,10 @@
 
 import os
 import json
+from ast import literal_eval
 
 import hdf_utils
 import hdf_tool_version
-from command_line.hdf_command_error_code import CommandErrorCode
 from hdf_tool_settings import HdfToolSettings
 from hdf_tool_exception import HdfToolException
 from hdf_tool_version import GetToolVersion
@@ -24,6 +24,7 @@ from .hdf_liteos_scann import HdfLiteScan
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_module_kconfig_file import HdfModuleKconfigFile
 from .hdf_driver_config_file import HdfDriverConfigFile
+from .hdf_command_error_code import CommandErrorCode
 
 
 class HdfGetHandler(HdfCommandHandlerBase):
@@ -55,6 +56,7 @@ class HdfGetHandler(HdfCommandHandlerBase):
         self.parser.add_argument("--driver_name")
         self.parser.add_argument("--kernel_name")
         self.parser.add_argument("--board_name")
+        self.parser.add_argument("--device_name")
         self.args = self.parser.parse_args(args)
 
     def _get_vendor_list_handler(self):
@@ -179,17 +181,57 @@ class HdfGetHandler(HdfCommandHandlerBase):
             return HdfLinuxScan(
                 root=root, vendor=vendor, board=board).get_model_scan()
 
-    def _get_model_device_list(self):
+    def _get_model_device_base(self):
         self.check_arg_raise_if_not_exist("module_name")
         model_device_file_path = ""
         resources_path = HdfToolSettings().get_resources_file_path()
         for file_name in os.listdir(resources_path):
             if file_name.endswith("ini"):
                 model_device_file_path = os.path.join(resources_path, file_name)
+                break
+        return model_device_file_path
+
+    def _get_model_device_list(self):
+        model_device_file_path = self._get_model_device_base()
+        if not model_device_file_path:
+            raise HdfToolException(
+                "%s: config file not exit" % CommandErrorCode.TARGET_NOT_EXIST)
         device_list, _ = hdf_utils.ini_file_read_operation(
             path=model_device_file_path, section_name=self.args.module_name,
             node_name="file_dir")
         return json.dumps(device_list)
+
+    def delete_device_operation(self, device_name, *section):
+        ini_config_handle, temp_value_type, temp_device_list = section
+        device_path = ""
+        if isinstance(temp_value_type, str):
+            device_path = temp_value_type
+        if isinstance(temp_value_type, dict):
+            if self.args.board_name == "rk3568":
+                device_path = temp_value_type.get('rk3568')
+            else:
+                device_path = temp_value_type.get('hi3516')
+        temp_device_path = os.path.join(self.args.root_dir, device_path, device_name)
+        if not os.path.exists(temp_device_path):
+            temp_device_list.remove(device_name)
+            hdf_utils.ini_file_write_operation(
+                self.args.module_name, ini_config_handle, temp_device_list)
+
+    def judgement_device_in_model(self, device_name):
+        model_device_file_path = self._get_model_device_base()
+        if not model_device_file_path:
+            raise HdfToolException(
+                "%s: config file not exit" % CommandErrorCode.TARGET_NOT_EXIST)
+        device_list, ini_config_handle = hdf_utils.ini_file_read_operation(
+            path=model_device_file_path, section_name=self.args.module_name,
+            node_name="")
+        section_info = hdf_utils.list_dict_tool(device_list)
+        temp_value_type = literal_eval(section_info.get("driver_path"))
+        temp_device_list = literal_eval(section_info.get("file_dir"))
+        if device_name not in temp_device_list:
+            raise HdfToolException(
+                "%s device not in the %s module" % (device_name, self.args.module_name))
+        return ini_config_handle, temp_value_type, temp_device_list
 
     def _get_crate_model_driver_info(self):
         self.check_arg_raise_if_not_exist("module_name")
@@ -226,19 +268,21 @@ class HdfGetHandler(HdfCommandHandlerBase):
             }
             board_info = temp_res.get(board_name).get("driver_file_list")
             for driver_name, value_info in board_info.items():
-                temp_path = value_info[0]
-                file_name = temp_path.split(os.path.dirname(temp_path))[-1]
-                temp_device_name = file_name.strip("/")
-                device_name = temp_device_name.split(driver_name)[0][0:-1]
+                device_driver_name_list = driver_name.split("-")
+                temp_device_name = device_driver_name_list[0]
+                temp_driver_name = device_driver_name_list[-1]
                 temp_device = res_dict.get(board_name).get(
-                    "driver_file_list").get(device_name)
+                    "driver_file_list").get(temp_device_name)
                 if temp_device:
-                    temp_device[driver_name] = value_info
+                    temp_device[temp_driver_name] = value_info
                 else:
-                    res_dict.get(board_name).get("driver_file_list")[device_name] = {
-                        driver_name: value_info
+                    res_dict.get(board_name).get("driver_file_list")[temp_device_name] = {
+                        temp_driver_name: value_info
                     }
         return json.dumps(res_dict, indent=4)
+
+    def judge_create_driver_exist(self):
+        return self._get_device_driver_list()
 
     def format_model_driver_res(self, temp_driver_info):
         type_list_config = []
