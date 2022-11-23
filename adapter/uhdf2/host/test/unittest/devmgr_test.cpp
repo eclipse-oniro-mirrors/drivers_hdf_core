@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
-#include <thread>
-#include <unistd.h>
-#include <vector>
+
 #include <gtest/gtest.h>
-#include "hdf_log.h"
-#include "osal_mem.h"
-#include "securec.h"
+
+#include <devmgr_hdi.h>
+#include <osal_time.h>
+#include <servmgr_hdi.h>
 
 #define HDF_LOG_TAG   driver_manager
 
 namespace OHOS {
 using namespace testing::ext;
+
+static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
 
 class DevMgrTest : public testing::Test {
 public:
@@ -32,10 +33,19 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    static const uint32_t waitTime = 30;
+    static const uint32_t timeout = 200;
+    static struct HDIServiceManager *servmgr;
+    static struct HDIDeviceManager *devmgr;
 };
+
+struct HDIServiceManager *DevMgrTest::servmgr = nullptr;
+struct HDIDeviceManager *DevMgrTest::devmgr = nullptr;
 
 void DevMgrTest::SetUpTestCase()
 {
+    servmgr = HDIServiceManagerGet();
+    devmgr = HDIDeviceManagerGet();
 }
 
 void DevMgrTest::TearDownTestCase()
@@ -51,14 +61,51 @@ void DevMgrTest::TearDown()
 }
 
 /*
-* @tc.name: DriverLoaderTest_001
+* @tc.name: DriverLoaderTest
 * @tc.desc: driver load test
 * @tc.type: FUNC
 * @tc.require: AR000DT1TK
 */
-HWTEST_F(DevMgrTest, DriverLoaderTest_001, TestSize.Level1)
+HWTEST_F(DevMgrTest, DriverLoaderTest, TestSize.Level1)
 {
-    bool flag = true;
-    EXPECT_TRUE(flag);
+    ASSERT_TRUE(servmgr != nullptr);
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->LoadDevice(devmgr, TEST_SERVICE_NAME);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    uint32_t cnt = 0;
+    while (sampleService == nullptr && cnt < timeout) {
+        OsalMSleep(waitTime);
+        sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+        cnt++;
+    }
+
+    ASSERT_TRUE(sampleService != nullptr);
+}
+/*
+* @tc.name: DriverUnLoaderTest
+* @tc.desc: driver unload test
+* @tc.type: FUNC
+* @tc.require: AR000DT1TK
+*/
+HWTEST_F(DevMgrTest, DriverUnLoaderTest, TestSize.Level1)
+{
+    ASSERT_TRUE(servmgr != nullptr);
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->UnloadDevice(devmgr, TEST_SERVICE_NAME);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    uint32_t cnt = 0;
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    while (sampleService != nullptr && cnt < timeout) {
+        OsalMSleep(waitTime);
+        sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+        cnt++;
+    }
+
+    ASSERT_TRUE(sampleService == nullptr);
 }
 } // namespace OHOS
