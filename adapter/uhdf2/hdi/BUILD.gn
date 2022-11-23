@@ -41,7 +41,7 @@ if (defined(ohos_lite)) {
 } else {
   ohos_shared_library("libhdi") {
     if (target_cpu == "arm64") {
-      defines = [ "__ARM64__" ]
+      defines = [ "__ARCH64__" ]
     }
 
     include_dirs = [

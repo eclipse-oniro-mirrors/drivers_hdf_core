@@ -34,7 +34,7 @@ if (defined(ohos_lite)) {
 } else {
   ohos_shared_library("libhdf_host") {
     if (target_cpu == "arm64") {
-      defines = [ "__ARM64__" ]
+      defines = [ "__ARCH64__" ]
     }
 
     all_dependent_configs = [ ":libhdf_host_all_dependent_config" ]
