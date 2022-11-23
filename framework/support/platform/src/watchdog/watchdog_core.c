@@ -128,7 +128,7 @@ int32_t WatchdogCntlrStart(struct WatchdogCntlr *cntlr)
     }
     ret = cntlr->ops->start(cntlr);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[WATCHDOG_TRACE_BASIC_PARAM_NUM];
+        unsigned int infos[WATCHDOG_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->wdtId;
         PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_WATCHDOG, PLATFORM_TRACE_MODULE_WATCHDOG_FUN_START,
             infos, WATCHDOG_TRACE_BASIC_PARAM_NUM);
@@ -155,7 +155,7 @@ int32_t WatchdogCntlrStop(struct WatchdogCntlr *cntlr)
     }
     ret = cntlr->ops->stop(cntlr);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[WATCHDOG_TRACE_PARAM_STOP_NUM];
+        unsigned int infos[WATCHDOG_TRACE_PARAM_STOP_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->wdtId;
         PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_WATCHDOG, PLATFORM_TRACE_MODULE_WATCHDOG_FUN_STOP,
             infos, WATCHDOG_TRACE_PARAM_STOP_NUM);

@@ -296,7 +296,7 @@ int32_t DacDeviceStart(struct DacDevice *device)
 
     ret = device->ops->start(device);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[DAC_TRACE_BASIC_PARAM_NUM];
+        unsigned int infos[DAC_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
         PlatformTraceAddUintMsg(
@@ -328,7 +328,7 @@ int32_t DacDeviceStop(struct DacDevice *device)
 
     ret = device->ops->stop(device);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[DAC_TRACE_PARAM_STOP_NUM];
+        unsigned int infos[DAC_TRACE_PARAM_STOP_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
         PlatformTraceAddUintMsg(

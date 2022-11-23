@@ -23,10 +23,14 @@ obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/fwk/platform_common.o \
 ifeq ($(CONFIG_DRIVERS_HDF_PLATFORM_TRACE), y)
 obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/fwk/platform_trace_transfer.o \
 	  ./platform_trace.o
+else
+obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/fwk/platform_trace_unopen.o
 endif
 
 ifeq ($(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER), y)
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER)  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/fwk/platform_dumper.o
+else
+obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/fwk/platform_dumper_unopen.o
 endif
 
 obj-y  += ./plat_common.o

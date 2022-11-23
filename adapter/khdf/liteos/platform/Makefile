@@ -47,10 +47,14 @@ endif
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_TRACE), y)
     LOCAL_SRCS += ./src/platform_trace.c \
     $(HDF_FRAMEWORKS)/support/platform/src/fwk/platform_trace_transfer.c
+else
+    LOCAL_SRCS += $(HDF_FRAMEWORKS)/support/platform/src/fwk/platform_trace_unopen.c
 endif
 
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER), y)
     LOCAL_SRCS += $(HDF_FRAMEWORKS)/support/platform/src/fwk/platform_dumper.c
+else
+    LOCAL_SRCS += $(HDF_FRAMEWORKS)/support/platform/src/fwk/platform_dumper_unopen.c
 endif
 
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_I2C), y)
