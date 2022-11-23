@@ -86,7 +86,7 @@ void PlatformTraceInfoDump(void)
 }
 
 #define PLATFORM_TRACE_IDENTIFY 0x33
-void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint8_t size)
+void PlatformTraceAddUintMsg(int module, int moduleFun, const unsigned int infos[], uint8_t size)
 {
 #ifdef LOSCFG_KERNEL_TRACE
     if ((size == 0) || (size > PLATFORM_TRACE_UINT_PARAM_SIZE_MAX)) {
@@ -137,5 +137,8 @@ void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint
 void PlatformTraceAddMsg(const char *module, const char *moduleFun, const char *fmt, ...)
 {
     // not support, return
+    (void)module;
+    (void)moduleFun;
+    (void)fmt;
     return;
 }

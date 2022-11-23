@@ -93,7 +93,7 @@ int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     cntlr->curCs = csNum;
     ret = cntlr->method->SetCfg(cntlr, cfg);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[SPI_TRACE_BASIC_PARAM_NUM];
+        unsigned int infos[SPI_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->numCs;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_3 - 1] = cntlr->curCs;
@@ -123,7 +123,7 @@ int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     cntlr->curCs = csNum;
     ret = cntlr->method->GetCfg(cntlr, cfg);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[SPI_TRACE_PARAM_GET_NUM];
+        unsigned int infos[SPI_TRACE_PARAM_GET_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->numCs;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_3 - 1] = cntlr->curCs;

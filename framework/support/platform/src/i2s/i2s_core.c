@@ -103,7 +103,7 @@ int32_t I2sCntlrStartRead(struct I2sCntlr *cntlr)
     (void)OsalMutexLock(&(cntlr->lock));
     ret = cntlr->method->StartRead(cntlr);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[I2S_TRACE_BASIC_PARAM_NUM];
+        unsigned int infos[I2S_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->irqNum;
         PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_I2S, PLATFORM_TRACE_MODULE_I2S_READ_DATA,
@@ -147,7 +147,7 @@ int32_t I2sCntlrStartWrite(struct I2sCntlr *cntlr)
     (void)OsalMutexLock(&(cntlr->lock));
     ret = cntlr->method->StartWrite(cntlr);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[I2S_TRACE_PARAM_WRITE_NUM];
+        unsigned int infos[I2S_TRACE_PARAM_WRITE_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntlr->irqNum;
         PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_I2S, PLATFORM_TRACE_MODULE_I2S_WRITE_DATA,

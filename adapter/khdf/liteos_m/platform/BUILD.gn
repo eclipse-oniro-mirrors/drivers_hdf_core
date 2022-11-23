@@ -34,12 +34,12 @@ hdf_driver("hdf_platform_lite") {
   sources = [
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_common.c",
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_device.c",
+    "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_dumper_unopen.c",
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_event.c",
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_manager.c",
     "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_queue.c",
-    "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_trace_transfer.c",
+    "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_trace_unopen.c",
     "plat_common.c",
-    "platform_trace.c",
   ]
 
   include_dirs = []

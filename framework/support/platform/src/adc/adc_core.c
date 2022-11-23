@@ -87,7 +87,7 @@ int32_t AdcDeviceStart(struct AdcDevice *device)
 
     ret = device->ops->start(device);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[ADC_TRACE_BASIC_PARAM_NUM];
+        unsigned int infos[ADC_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
         PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_ADC, PLATFORM_TRACE_MODULE_ADC_FUN_START,
@@ -119,7 +119,7 @@ int32_t AdcDeviceStop(struct AdcDevice *device)
 
     ret = device->ops->stop(device);
     if (PlatformTraceStart() == HDF_SUCCESS) {
-        uint infos[ADC_TRACE_PARAM_STOP_NUM];
+        unsigned int infos[ADC_TRACE_PARAM_STOP_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = device->chanNum;
         PlatformTraceAddUintMsg(PLATFORM_TRACE_MODULE_ADC, PLATFORM_TRACE_MODULE_ADC_FUN_STOP,
