@@ -54,7 +54,7 @@ bool HdfServiceObserverRecordCompare(struct HdfSListNode *listEntry, uint32_t se
 }
 
 void HdfServiceObserverRecordNotifySubscribers(
-    struct HdfServiceObserverRecord *record, uint32_t devId, uint16_t policy)
+    struct HdfServiceObserverRecord *record, devid_t devId, uint16_t policy)
 {
     struct HdfSListIterator it;
     if (record == NULL) {

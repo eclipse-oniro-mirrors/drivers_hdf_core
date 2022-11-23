@@ -33,7 +33,7 @@ struct HdfTaskQueue {
 };
 
 void HdfTaskEnqueue(struct HdfTaskQueue *queue, struct HdfTaskType *task);
-struct HdfTaskQueue *HdfTaskQueueCreate(HdfTaskFunc queueFunc, const char *name);
+struct HdfTaskQueue *HdfTaskQueueCreate(HdfTaskFunc func, const char *name);
 void HdfTaskQueueDestroy(struct HdfTaskQueue *queue);
 
 #endif /* HDF_TASK_QUEUE_H */

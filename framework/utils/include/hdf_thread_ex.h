@@ -27,7 +27,7 @@ struct HdfThread {
 void HdfThreadConstruct(struct HdfThread *thread);
 void HdfThreadDestruct(struct HdfThread *thread);
 struct HdfThread *HdfThreadNewInstance(void);
-void HdfThreadFreeInstance(struct HdfThread *instance);
+void HdfThreadFreeInstance(struct HdfThread *thread);
 
 #ifdef __cplusplus
 }

@@ -207,7 +207,7 @@ bool NativeBuffer::ExtractFromParcel(Parcel &parcel)
         HDF_LOGE("%{public}s: failed to read reserveFds or reserveInts", __func__);
         return false;
     }
-    if ((handle_ = AllocateNativeBufferHandle(reserveFds, reserveInts)) == NULL) {
+    if ((handle_ = AllocateNativeBufferHandle(reserveFds, reserveInts)) == nullptr) {
         HDF_LOGE("%{public}s: failed to malloc BufferHandle", __func__);
         return false;
     }

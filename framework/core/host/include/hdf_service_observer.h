@@ -22,9 +22,9 @@ struct HdfServiceObserver {
 bool HdfServiceObserverConstruct(struct HdfServiceObserver *observer);
 void HdfServiceObserverDestruct(struct HdfServiceObserver *observer);
 int HdfServiceObserverPublishService(struct HdfServiceObserver *observer,
-    const char *svcName, uint32_t pubHardwareId, uint16_t policy, struct HdfObject *service);
+    const char *svcName, uint32_t devId, uint16_t policy, struct HdfObject *service);
 int HdfServiceObserverSubscribeService(struct HdfServiceObserver *observer,
-    const char *svcName, uint32_t subHardwareId, struct SubscriberCallback callback);
+    const char *svcName, uint32_t devid, struct SubscriberCallback callback);
 void HdfServiceObserverRemoveRecord(struct HdfServiceObserver *observer, const char *svcName);
 
 #endif /* HDF_SERVICE_OBSERVER_H */

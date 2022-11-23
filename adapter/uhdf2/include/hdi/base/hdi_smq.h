@@ -26,8 +26,8 @@
 #include <base/hdi_smq_syncer.h>
 #include <memory>
 #include <securec.h>
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 #include <sys/mman.h>
 
 #ifndef PAGE_SIZE
