@@ -110,6 +110,7 @@ void HdfPmReleaseDevice(struct HdfDeviceObject *deviceObject)
     }
 }
 
+#ifndef __LITEOS_M__
 void HdfPmAcquireDeviceAsync(struct HdfDeviceObject *deviceObject)
 {
     struct HdfDeviceNode *devNode = NULL;
@@ -137,6 +138,7 @@ void HdfPmReleaseDeviceAsync(struct HdfDeviceObject *deviceObject)
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
     HdfPmTaskPut(devNode->powerToken, HDF_PM_REQUEST_RELEASE);
 }
+#endif
 
 void HdfPmSetMode(struct HdfDeviceObject *deviceObject, uint32_t mode)
 {
