@@ -7,8 +7,9 @@
  */
 
 #include "audio_core.h"
-#include "audio_sapm.h"
 #include "audio_driver_log.h"
+#include "audio_sapm.h"
+#include "devmgr_service_clnt.h"
 #include "osal_io.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
@@ -1086,7 +1087,7 @@ int32_t AudioCpuDaiGetCtrlOps(const struct AudioKcontrol *kcontrol, struct Audio
     }
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
     dai = AudioKcontrolGetCpuDai(kcontrol);
-    if (dai == NULL) {
+    if (mixerCtrl == NULL || dai == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");
         return HDF_FAILURE;
     }

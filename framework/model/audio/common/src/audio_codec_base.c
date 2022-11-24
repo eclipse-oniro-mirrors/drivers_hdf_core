@@ -177,8 +177,8 @@ int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecDat
         return HDF_FAILURE;
     }
 
-    if (CodecGetRegConfig(device, codecData->regConfig) != HDF_SUCCESS) {
-        ADM_LOG_ERR("CodecGetRegConfig fail!");
+    if (AudioGetRegConfig(device, codecData->regConfig) != HDF_SUCCESS) {
+        ADM_LOG_ERR("AudioGetRegConfig fail!");
         OsalMemFree(codecData->regConfig);
         codecData->regConfig = NULL;
         return HDF_FAILURE;
@@ -415,8 +415,8 @@ int32_t CodecSetCtlFunc(struct CodecData *codeData, enum AudioControlType contro
     const void *setCtrl)
 {
     uint32_t index;
-    struct AudioRegCfgGroupNode **regCfgGroup;
-    struct AudioControlConfig *compItem;
+    struct AudioRegCfgGroupNode **regCfgGroup = NULL;
+    struct AudioControlConfig *compItem = NULL;
     if (codeData == NULL || codeData->regConfig == NULL ||
         getCtrl == NULL || setCtrl == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");

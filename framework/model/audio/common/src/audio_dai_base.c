@@ -47,7 +47,7 @@ int32_t DaiGetConfigInfo(const struct HdfDeviceObject *device, struct DaiData *d
         return HDF_FAILURE;
     }
 
-    if (CodecGetRegConfig(device, data->regConfig) != HDF_SUCCESS) {
+    if (AudioGetRegConfig(device, data->regConfig) != HDF_SUCCESS) {
         ADM_LOG_ERR("dai GetRegConfig fail!");
         OsalMemFree(data->regConfig);
         data->regConfig = NULL;
