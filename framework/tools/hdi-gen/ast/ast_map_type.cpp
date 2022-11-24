@@ -106,8 +106,9 @@ void ASTMapType::EmitCppReadVar(const std::string &parcelName, const std::string
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), name.c_str());
     }
     sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("%s(%sSize, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
+        name.c_str(), MAX_BUFF_SIZE_MACRO);
     sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", name.c_str());
-
     std::string KeyName = StringHelper::Format("key%d", innerLevel);
     std::string valueName = StringHelper::Format("value%d", innerLevel);
     innerLevel++;
@@ -143,8 +144,10 @@ void ASTMapType::EmitCppUnMarshalling(const std::string &parcelName, const std::
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), memberName.c_str());
     }
     sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.c_str(), parcelName.c_str());
-    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.c_str());
+    sb.Append(prefix).AppendFormat("%s(%sSize, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
+        memberName.c_str(), MAX_BUFF_SIZE_MACRO);
 
+    sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.c_str());
     std::string KeyName = StringHelper::Format("key%d", innerLevel);
     std::string valueName = StringHelper::Format("value%d", innerLevel);
     innerLevel++;

@@ -118,6 +118,8 @@ void ASTStringType::EmitCStubReadOutVar(const std::string &buffSizeName, const s
     sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s, %s, HDF_ERR_INVALID_PARAM, %s);\n", CHECK_VALUE_RET_GOTO_MACRO,
+        lenName.c_str(), MAX_BUFF_SIZE_MACRO, ecName.c_str(), gotoLabel.c_str());
 
     sb.Append(prefix + TAB).AppendFormat("if (%s > 0) {\n", lenName.c_str());
     sb.Append(prefix + TAB + TAB)

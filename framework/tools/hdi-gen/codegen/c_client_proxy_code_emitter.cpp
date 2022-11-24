@@ -696,7 +696,7 @@ void CClientProxyCodeEmitter::EmitProxySetInterfaceDesc(
 void CClientProxyCodeEmitter::EmitProxyCreateProxyObject(const std::string &clientObjName,
     const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat("struct %sProxy *proxy = (struct %sProxy *)OsalMemAlloc(sizeof(struct %sProxy));\n",
+    sb.Append(prefix).AppendFormat("struct %sProxy *proxy = (struct %sProxy *)OsalMemCalloc(sizeof(struct %sProxy));\n",
         baseName_.c_str(), baseName_.c_str(), baseName_.c_str());
     sb.Append(prefix).Append("if (proxy == NULL) {\n");
     sb.Append(prefix + TAB)
