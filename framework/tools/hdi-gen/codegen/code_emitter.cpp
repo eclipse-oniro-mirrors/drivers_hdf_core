@@ -56,7 +56,6 @@ bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirect
 
     majorVerName_ = StringHelper::Format("%s_MAJOR_VERSION", ConstantName(interfaceName_).c_str());
     minorVerName_ = StringHelper::Format("%s_MINOR_VERSION", ConstantName(interfaceName_).c_str());
-    bufferSizeMacroName_ = StringHelper::Format("%s_BUFF_MAX_SIZE", ConstantName(baseName_).c_str());
 
     std::string prefix = StringHelper::Format("%c%s", tolower(baseName_[0]), baseName_.substr(1).c_str());
     dataParcelName_ = prefix + "Data";
@@ -258,6 +257,30 @@ void CodeEmitter::EmitUtilMethods(
         }
         methodPair.second(sb, "", prefix, isDecl);
     }
+}
+
+void CodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
+{
+    sb.AppendFormat("#ifndef %s\n", MAX_BUFF_SIZE_MACRO);
+    sb.AppendFormat("#define %s (%s)\n", MAX_BUFF_SIZE_MACRO, MAX_BUFF_SIZE_VALUE);
+    sb.Append("#endif\n\n");
+
+    sb.AppendFormat("#ifndef %s\n", CHECK_VALUE_RETURN_MACRO);
+    sb.AppendFormat("#define %s(lv, compare, rv, ret) do { \\\n", CHECK_VALUE_RETURN_MACRO);
+    sb.Append(TAB).Append("if ((lv) compare (rv)) { \\\n");
+    sb.Append(TAB).Append(TAB).Append("return ret; \\\n");
+    sb.Append(TAB).Append("} \\\n");
+    sb.Append("} while (false)\n");
+    sb.Append("#endif\n\n");
+
+    sb.AppendFormat("#ifndef %s\n", CHECK_VALUE_RET_GOTO_MACRO);
+    sb.AppendFormat("#define %s(lv, compare, rv, ret, value, table) do { \\\n", CHECK_VALUE_RET_GOTO_MACRO);
+    sb.Append(TAB).Append("if ((lv) compare (rv)) { \\\n");
+    sb.Append(TAB).Append(TAB).Append("ret = value; \\\n");
+    sb.Append(TAB).Append(TAB).Append("goto table; \\\n");
+    sb.Append(TAB).Append("} \\\n");
+    sb.Append("} while (false)\n");
+    sb.Append("#endif\n");
 }
 } // namespace HDI
 } // namespace OHOS

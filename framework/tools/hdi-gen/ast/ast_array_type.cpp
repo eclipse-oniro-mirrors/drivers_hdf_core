@@ -103,6 +103,8 @@ void ASTArrayType::EmitCWriteVar(const std::string &parcelName, const std::strin
         return;
     }
 
+    sb.Append(prefix).AppendFormat("%s(%s, >, %s, %s, HDF_ERR_INVALID_PARAM, %s);\n", CHECK_VALUE_RET_GOTO_MACRO,
+        lenName.c_str(), MAX_BUFF_SIZE_MACRO, ecName.c_str(), gotoLabel.c_str());
     sb.Append(prefix).AppendFormat("if (%s == NULL || %s == 0) {\n", name.c_str(), lenName.c_str());
     sb.Append(prefix + TAB).AppendFormat("if (!HdfSbufWriteUint32(%s, 0)) {\n", parcelName.c_str());
     sb.Append(prefix + TAB + TAB)
@@ -139,6 +141,8 @@ void ASTArrayType::EmitCProxyWriteOutVar(const std::string &parcelName, const st
     const std::string &ecName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     std::string lenName = StringHelper::Format("*%sLen", name.c_str());
+    sb.Append(prefix).AppendFormat("%s(%s, >, %s, %s, HDF_ERR_INVALID_PARAM, %s);\n", CHECK_VALUE_RET_GOTO_MACRO,
+        lenName.c_str(), MAX_BUFF_SIZE_MACRO, ecName.c_str(), gotoLabel.c_str());
     sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUint32(%s, %s)) {\n", parcelName.c_str(), lenName.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
@@ -173,6 +177,9 @@ void ASTArrayType::EmitCProxyReadVar(const std::string &parcelName, const std::s
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n\n");
+
+    sb.Append(prefix).AppendFormat("%s(*%s, >, %s, %s, HDF_ERR_INVALID_PARAM, %s);\n", CHECK_VALUE_RET_GOTO_MACRO,
+        lenName.c_str(), MAX_BUFF_SIZE_MACRO, ecName.c_str(), gotoLabel.c_str());
 
     if (Options::GetInstance().DoGenerateKernelCode()) {
         sb.Append(prefix).AppendFormat("for (i = 0; i < *%s; i++) {\n", lenName.c_str());
@@ -220,6 +227,8 @@ void ASTArrayType::EmitCStubReadVar(const std::string &parcelName, const std::st
     sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).AppendFormat("%s(%s, >, %s, %s, HDF_ERR_INVALID_PARAM, %s);\n", CHECK_VALUE_RET_GOTO_MACRO,
+        lenName.c_str(), MAX_BUFF_SIZE_MACRO, ecName.c_str(), gotoLabel.c_str());
 
     sb.Append(prefix).AppendFormat("if (%s > 0) {\n", lenName.c_str());
     EmitCMallocVar(name, lenName, false, ecName, gotoLabel, sb, prefix + TAB);
@@ -257,6 +266,9 @@ void ASTArrayType::EmitCStubReadOutVar(const std::string &buffSizeName, const st
     sb.Append(prefix + TAB + TAB).AppendFormat("%s = HDF_ERR_INVALID_PARAM;\n", ecName.c_str());
     sb.Append(prefix + TAB + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s, %s, HDF_ERR_INVALID_PARAM, %s);\n", CHECK_VALUE_RET_GOTO_MACRO,
+        lenName.c_str(), MAX_BUFF_SIZE_MACRO, ecName.c_str(), gotoLabel.c_str());
+
     sb.Append(prefix + TAB).AppendFormat("if (%s > 0) {\n", lenName.c_str());
     EmitCMallocVar(name, lenName, false, ecName, gotoLabel, sb, prefix + TAB + TAB);
     sb.Append(prefix + TAB).Append("}\n");
@@ -326,6 +338,8 @@ void ASTArrayType::EmitCppReadVar(const std::string &parcelName, const std::stri
     }
 
     sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("%s(%sSize, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
+        name.c_str(), MAX_BUFF_SIZE_MACRO);
     sb.Append(prefix).AppendFormat("%s.clear();\n", name.c_str());
     sb.Append(prefix).AppendFormat("%s.reserve(%sSize);\n", name.c_str(), name.c_str());
     sb.Append(prefix).AppendFormat(
@@ -356,7 +370,8 @@ void ASTArrayType::EmitCMarshalling(const std::string &name, StringBuilder &sb, 
         return;
     }
 
-    sb.Append(prefix).AppendFormat("if (!HdfSbufWriteUint32(data, %s)) {\n", lenName.c_str());
+    sb.Append(prefix).AppendFormat(
+        "if (%s > %s || !HdfSbufWriteUint32(data, %s)) {\n", lenName.c_str(), MAX_BUFF_SIZE_MACRO, lenName.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", lenName.c_str());
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
@@ -395,6 +410,12 @@ void ASTArrayType::EmitCUnMarshalling(const std::string &name, const std::string
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", lenName.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
+
+    sb.Append(prefix).AppendFormat("if (%s > %s) {\n", lenName.c_str(), MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: %s is invalid data\", __func__);\n", lenName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
+    sb.Append(prefix).Append("}\n");
+
     sb.Append(prefix).AppendFormat("if (%s > 0) {\n", lenName.c_str());
     std::string newPrefix = prefix + TAB;
 
@@ -488,6 +509,8 @@ void ASTArrayType::EmitCppUnMarshalling(const std::string &parcelName, const std
     }
 
     sb.Append(prefix).AppendFormat("uint32_t %s = %s.ReadUint32();\n", sizeName.c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat(
+        "%s(%s, >, %s, false);\n", CHECK_VALUE_RETURN_MACRO, sizeName.c_str(), MAX_BUFF_SIZE_MACRO);
     sb.Append(prefix).AppendFormat("%s.clear();\n", name.c_str());
     sb.Append(prefix).AppendFormat("%s.reserve(%s);\n", name.c_str(), sizeName.c_str());
     sb.Append(prefix).AppendFormat(
@@ -824,6 +847,11 @@ void ASTArrayType::EmitCReadMethods(
     sb.Append(prefix + TAB + TAB).Append("return false;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
 
+    sb.Append(prefix + TAB).AppendFormat("if (elementCount > %s) {\n", MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid elementCount\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
     sb.Append(prefix + TAB).Append("if (elementCount == 0) {\n");
     sb.Append(prefix + TAB + TAB).Append("goto FINISHED;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
@@ -885,6 +913,12 @@ void ASTArrayType::EmitCStubReadMethodBody(StringBuilder &sb, const std::string 
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read element count\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n\n");
+
+    sb.Append(prefix).AppendFormat("if (elementCount > %s) {\n", MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid elementCount\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+
     sb.Append(prefix).Append("if (elementCount == 0) {\n");
     sb.Append(prefix + TAB).Append("*count = elementCount;\n");
     sb.Append(prefix + TAB).Append("return true;\n");
@@ -930,6 +964,10 @@ void ASTArrayType::EmitCWriteStrArrayMethods(
     sb.Append(prefix + TAB).Append("uint32_t i = 0;\n");
     sb.Append(prefix + TAB).Append("if (parcel == NULL) {\n");
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).AppendFormat("if (count > %s) {\n", MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid count\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return false;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
     sb.Append(prefix + TAB).Append("if (!HdfSbufWriteUint32(parcel, count)) {\n");
@@ -978,6 +1016,10 @@ void ASTArrayType::EmitCReadStrArrayMethodBody(StringBuilder &sb, const std::str
     EmitCCheckParamOfReadStringArray(sb, prefix);
     sb.Append(prefix).Append("if (!HdfSbufReadUint32(parcel, &dataCount)) {\n");
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read count of array\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).AppendFormat("if (dataCount > %s) {\n", MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid dataCount\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n\n");
     sb.Append(prefix).Append("if (dataCount == 0) {\n");
@@ -1055,6 +1097,10 @@ void ASTArrayType::EmitCStubReadStrArrayMethodBody(StringBuilder &sb, const std:
     EmitCCheckParamOfReadStringArray(sb, prefix);
     sb.Append(prefix).Append("if (!HdfSbufReadUint32(parcel, &dataCount)) {\n");
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read count of array\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).AppendFormat("if (dataCount > %s) {\n", MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid dataCount\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n\n");
     sb.Append(prefix).Append("if (dataCount == 0) {\n");

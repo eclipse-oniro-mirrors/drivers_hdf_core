@@ -451,6 +451,11 @@ void Parser::ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface)
         lexer_.GetToken();
     }
 
+    token = lexer_.PeekToken();
+    if (token.kind_ == TokenType::SEMICOLON) {
+        lexer_.GetToken();
+    }
+
     interface->AddVersionMethod(CreateGetVersionMethod());
 }
 
