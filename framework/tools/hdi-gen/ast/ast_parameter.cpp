@@ -200,7 +200,7 @@ std::string ASTParameter::EmitCppLocalVar()
     return sb.ToString();
 }
 
-std::string ASTParameter::EmitJavaLocalVar()
+std::string ASTParameter::EmitJavaLocalVar() const
 {
     return "";
 }

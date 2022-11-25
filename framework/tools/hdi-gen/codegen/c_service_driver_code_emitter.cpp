@@ -102,7 +102,7 @@ void CServiceDriverCodeEmitter::EmitDriverInclusions(StringBuilder &sb)
     }
 }
 
-void CServiceDriverCodeEmitter::GetDriverSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CServiceDriverCodeEmitter::GetDriverSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
@@ -115,7 +115,7 @@ void CServiceDriverCodeEmitter::GetDriverSourceOtherLibInclusions(HeaderFile::He
     }
 }
 
-void CServiceDriverCodeEmitter::EmitDriverServiceDecl(StringBuilder &sb)
+void CServiceDriverCodeEmitter::EmitDriverServiceDecl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct Hdf%sHost {\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("struct IDeviceIoService ioService;\n");
@@ -170,7 +170,7 @@ void CServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb)
+void CServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb) const
 {
     sb.AppendFormat("static int Hdf%sDriverInit(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
     sb.Append("{\n");
@@ -296,7 +296,7 @@ void CServiceDriverCodeEmitter::EmitDriverRelease(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb)
+void CServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb) const
 {
     sb.AppendFormat("struct HdfDriverEntry g_%sDriverEntry = {\n", StringHelper::StrToLower(baseName_).c_str());
     sb.Append(TAB).Append(".moduleVersion = 1,\n");

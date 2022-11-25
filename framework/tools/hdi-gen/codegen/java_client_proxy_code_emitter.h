@@ -29,23 +29,24 @@ private:
 
     void EmitProxyImports(StringBuilder &sb);
 
-    void EmitProxyCorelibImports(StringBuilder &sb);
+    void EmitProxyCorelibImports(StringBuilder &sb) const;
 
-    void EmitProxySelfDefinedTypeImports(StringBuilder &sb);
+    void EmitProxySelfDefinedTypeImports(StringBuilder &sb) const;
 
-    void EmitProxyDBinderImports(StringBuilder &sb);
+    void EmitProxyDBinderImports(StringBuilder &sb) const;
 
     void EmitProxyImpl(StringBuilder &sb);
 
     void EmitProxyConstants(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyConstructor(StringBuilder &sb, const std::string &prefix);
+    void EmitProxyConstructor(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix);
 
     void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodParameter(
+        const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
@@ -64,7 +65,7 @@ private:
     void EmitReadOutVariable(const std::string &parcelName, const std::string &name, const AutoPtr<ASTType> &type,
         StringBuilder &sb, const std::string &prefix);
 
-    void EmitLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
+    void EmitLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

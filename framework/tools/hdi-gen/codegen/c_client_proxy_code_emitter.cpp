@@ -187,7 +187,7 @@ void CClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
     }
 }
 
-void CClientProxyCodeEmitter::EmitProxyDefinition(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitProxyDefinition(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %sProxy {\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("struct %s impl;\n", interfaceName_.c_str());
@@ -200,7 +200,7 @@ void CClientProxyCodeEmitter::EmitProxyDefinition(StringBuilder &sb)
     sb.Append("};\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyCallMethodImpl(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitProxyCallMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("static int32_t %sProxyCall(struct %s *self, int32_t id, struct HdfSBuf *data,\n",
         baseName_.c_str(), interfaceName_.c_str());
@@ -227,7 +227,7 @@ void CClientProxyCodeEmitter::EmitProxyCallMethodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyKernelCallMethodImpl(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitProxyKernelCallMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("static int32_t %sProxyCall(struct %s *self, int32_t id, struct HdfSBuf *data,\n",
         baseName_.c_str(), interfaceName_.c_str());
@@ -342,8 +342,8 @@ void CClientProxyCodeEmitter::EmitProxyMethodBody(
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitCreateBuf(
-    const std::string &dataBufName, const std::string &replyBufName, StringBuilder &sb, const std::string &prefix)
+void CClientProxyCodeEmitter::EmitCreateBuf(const std::string &dataBufName,
+    const std::string &replyBufName, StringBuilder &sb, const std::string &prefix) const
 {
     if (isKernelCode_) {
         sb.Append(prefix).AppendFormat("struct HdfSBuf *%s = HdfSbufObtainDefaultSize();\n", dataBufName.c_str());
@@ -361,7 +361,7 @@ void CClientProxyCodeEmitter::EmitCreateBuf(
     sb.Append(prefix).Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitCheckThisPointer(StringBuilder &sb, const std::string &prefix)
+void CClientProxyCodeEmitter::EmitCheckThisPointer(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("if (self == NULL) {\n");
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid interface object\", __func__);\n");
@@ -371,7 +371,7 @@ void CClientProxyCodeEmitter::EmitCheckThisPointer(StringBuilder &sb, const std:
 }
 
 void CClientProxyCodeEmitter::EmitWriteInterfaceToken(
-    const std::string &dataBufName, StringBuilder &sb, const std::string &prefix)
+    const std::string &dataBufName, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "if (!HdfRemoteServiceWriteInterfaceToken(self->AsObject(self), %s)) {\n", dataBufName.c_str());
@@ -393,8 +393,8 @@ void CClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(
     }
 }
 
-void CClientProxyCodeEmitter::EmitReleaseBuf(
-    const std::string &dataBufName, const std::string &replyBufName, StringBuilder &sb, const std::string &prefix)
+void CClientProxyCodeEmitter::EmitReleaseBuf(const std::string &dataBufName,
+    const std::string &replyBufName, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", dataBufName.c_str());
     sb.Append(prefix + TAB).AppendFormat("HdfSbufRecycle(%s);\n", dataBufName.c_str());
@@ -405,7 +405,7 @@ void CClientProxyCodeEmitter::EmitReleaseBuf(
 }
 
 void CClientProxyCodeEmitter::EmitReadProxyMethodParameter(const AutoPtr<ASTParameter> &param,
-    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
+    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
     if (type->GetTypeKind() == TypeKind::TYPE_STRING) {
@@ -450,7 +450,7 @@ void CClientProxyCodeEmitter::EmitStubCallMethod(
     sb.Append(prefix).Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyAsObjectMethodImpl(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitProxyAsObjectMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("static struct HdfRemoteService *%sProxyAsObject(struct %s *self)\n", baseName_.c_str(),
         interfaceName_.c_str());
@@ -464,7 +464,7 @@ void CClientProxyCodeEmitter::EmitProxyAsObjectMethodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyConstruction(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitProxyConstruction(StringBuilder &sb) const
 {
     std::string objName = "impl";
     sb.AppendFormat(
@@ -550,7 +550,7 @@ void CClientProxyCodeEmitter::EmitKernelProxyGetInstanceMethodImpl(const std::st
 }
 
 void CClientProxyCodeEmitter::EmitKernelProxyReleaseMethodImpl(
-    const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb)
+    const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb) const
 {
     sb.AppendFormat("void %sRelease(struct %s *instance)\n", interfaceName_.c_str(), interfaceName_.c_str());
     sb.Append("{\n");
@@ -585,7 +585,7 @@ void CClientProxyCodeEmitter::EmitIfaceProxyGetMethodImpl(const std::string &obj
 }
 
 void CClientProxyCodeEmitter::EmitIfaceProxyReleaseMethodImpl(
-    const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb)
+    const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb) const
 {
     std::string implReleaseMethodName = StringHelper::Format("%sImplRelease", interfaceName_.c_str());
     sb.AppendFormat("void %s(struct %s *instance) __attribute__((weak));\n", implReleaseMethodName.c_str(),
@@ -612,7 +612,7 @@ void CClientProxyCodeEmitter::EmitIfaceProxyReleaseMethodImpl(
 }
 
 void CClientProxyCodeEmitter::EmitCbProxyReleaseMethodImpl(const std::string &remoteName,
-    const std::string &recycleFuncName, StringBuilder &sb)
+    const std::string &recycleFuncName, StringBuilder &sb) const
 {
     sb.AppendFormat("void %sRelease(struct %s *instance)\n", interfaceName_.c_str(), interfaceName_.c_str());
     sb.Append("{\n");
@@ -656,8 +656,8 @@ void CClientProxyCodeEmitter::EmitProxyGetInstanceMethodImpl(const std::string &
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyGetRemoteService(
-    const std::string &remoteName, const std::string &serviceName, StringBuilder &sb, const std::string &prefix)
+void CClientProxyCodeEmitter::EmitProxyGetRemoteService(const std::string &remoteName,
+    const std::string &serviceName, StringBuilder &sb, const std::string &prefix) const
 {
     if (!isKernelCode_) {
         sb.Append(prefix).Append("struct HDIServiceManager *serviceMgr = HDIServiceManagerGet();\n");
@@ -694,7 +694,8 @@ void CClientProxyCodeEmitter::EmitProxySetInterfaceDesc(
 }
 
 void CClientProxyCodeEmitter::EmitProxyCreateProxyObject(const std::string &clientObjName,
-    const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb, const std::string &prefix)
+    const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb,
+    const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("struct %sProxy *proxy = (struct %sProxy *)OsalMemAlloc(sizeof(struct %sProxy));\n",
         baseName_.c_str(), baseName_.c_str(), baseName_.c_str());
@@ -713,7 +714,7 @@ void CClientProxyCodeEmitter::EmitProxyCreateProxyObject(const std::string &clie
 }
 
 void CClientProxyCodeEmitter::EmitProxyCheckVersion(const std::string &clientObjName, const std::string &serMajorName,
-    const std::string &serMinorName, StringBuilder &sb, const std::string &prefix)
+    const std::string &serMinorName, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("uint32_t %s = 0;\n", serMajorName.c_str());
     sb.Append(prefix).AppendFormat("uint32_t %s = 0;\n", serMinorName.c_str());

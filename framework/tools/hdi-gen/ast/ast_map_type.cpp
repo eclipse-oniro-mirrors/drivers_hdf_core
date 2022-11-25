@@ -108,12 +108,12 @@ void ASTMapType::EmitCppReadVar(const std::string &parcelName, const std::string
     sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.c_str(), parcelName.c_str());
     sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", name.c_str());
 
-    std::string KeyName = StringHelper::Format("key%d", innerLevel);
+    std::string keyName = StringHelper::Format("key%d", innerLevel);
     std::string valueName = StringHelper::Format("value%d", innerLevel);
     innerLevel++;
-    keyType_->EmitCppReadVar(parcelName, KeyName, sb, prefix + TAB, true, innerLevel);
+    keyType_->EmitCppReadVar(parcelName, keyName, sb, prefix + TAB, true, innerLevel);
     valueType_->EmitCppReadVar(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
-    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.c_str(), KeyName.c_str(), valueName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.c_str(), keyName.c_str(), valueName.c_str());
     sb.Append(prefix).Append("}\n");
 }
 
@@ -145,12 +145,12 @@ void ASTMapType::EmitCppUnMarshalling(const std::string &parcelName, const std::
     sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.c_str(), parcelName.c_str());
     sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.c_str());
 
-    std::string KeyName = StringHelper::Format("key%d", innerLevel);
+    std::string keyName = StringHelper::Format("key%d", innerLevel);
     std::string valueName = StringHelper::Format("value%d", innerLevel);
     innerLevel++;
-    keyType_->EmitCppUnMarshalling(parcelName, KeyName, sb, prefix + TAB, true, innerLevel);
+    keyType_->EmitCppUnMarshalling(parcelName, keyName, sb, prefix + TAB, true, innerLevel);
     valueType_->EmitCppUnMarshalling(parcelName, valueName, sb, prefix + TAB, true, innerLevel);
-    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.c_str(), KeyName.c_str(), valueName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s[%s] = %s;\n", name.c_str(), keyName.c_str(), valueName.c_str());
     sb.Append(prefix).Append("}\n");
 }
 

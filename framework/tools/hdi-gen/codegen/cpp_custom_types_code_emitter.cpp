@@ -121,7 +121,7 @@ void CppCustomTypesCodeEmitter::EmitHeaderFileInclusions(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_parcel");
 }
@@ -143,7 +143,7 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const
 {
     switch (type->GetTypeKind()) {
         case TypeKind::TYPE_ENUM: {
@@ -182,14 +182,16 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel &data, const %s& %s);\n", type->GetName().c_str(),
         type->EmitCppType().c_str(), objName.c_str());
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(StringBuilder &sb,
+    const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat("bool %sBlockUnmarshalling(OHOS::MessageParcel &data, %s& %s);\n", type->GetName().c_str(),
@@ -236,7 +238,7 @@ void CppCustomTypesCodeEmitter::EmitSourceFileInclusions(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
@@ -258,7 +260,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
 
@@ -288,7 +291,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb,
     sb.Append("}\n");
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
 

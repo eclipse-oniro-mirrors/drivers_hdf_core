@@ -89,7 +89,7 @@ void CppServiceDriverCodeEmitter::EmitDriverUsings(StringBuilder &sb)
     sb.AppendFormat("using namespace %s;\n", nspace.c_str());
 }
 
-void CppServiceDriverCodeEmitter::EmitDriverServiceDecl(StringBuilder &sb)
+void CppServiceDriverCodeEmitter::EmitDriverServiceDecl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct Hdf%sHost {\n", baseName_.c_str());
     sb.Append(TAB).Append("struct IDeviceIoService ioService;\n");
@@ -97,7 +97,7 @@ void CppServiceDriverCodeEmitter::EmitDriverServiceDecl(StringBuilder &sb)
     sb.Append("};\n");
 }
 
-void CppServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb)
+void CppServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb) const
 {
     std::string objName = StringHelper::Format("hdf%sHost", baseName_.c_str());
     sb.AppendFormat("static int32_t %sDriverDispatch(", baseName_.c_str());
@@ -125,7 +125,7 @@ void CppServiceDriverCodeEmitter::EmitDriverDispatch(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CppServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb)
+void CppServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb) const
 {
     sb.AppendFormat("static int Hdf%sDriverInit(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
     sb.Append("{\n");
@@ -134,7 +134,7 @@ void CppServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
+void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb) const
 {
     std::string objName = StringHelper::Format("hdf%sHost", baseName_.c_str());
     sb.AppendFormat("static int Hdf%sDriverBind(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
@@ -173,7 +173,7 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CppServiceDriverCodeEmitter::EmitDriverRelease(StringBuilder &sb)
+void CppServiceDriverCodeEmitter::EmitDriverRelease(StringBuilder &sb) const
 {
     std::string objName = StringHelper::Format("hdf%sHost", baseName_.c_str());
     sb.AppendFormat("static void Hdf%sDriverRelease(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());

@@ -245,7 +245,7 @@ void Options::ShowUsage() const
  * package:ohos.hdi.foo.v1_0
  * rootPackage:ohos.hdi
  */
-std::string Options::GetRootPackage(const std::string &package)
+std::string Options::GetRootPackage(const std::string &package) const
 {
     const auto &packagePaths = GetPackagePathMap();
     for (const auto &packageRoot : packagePaths) {
@@ -262,7 +262,7 @@ std::string Options::GetRootPackage(const std::string &package)
  * package:ohos.hdi.foo.v1_0
  * rootPath:./drivers/interface
  */
-std::string Options::GetRootPath(const std::string &package)
+std::string Options::GetRootPath(const std::string &package) const
 {
     const auto &packagePaths = GetPackagePathMap();
     for (const auto &packageRoot : packagePaths) {
@@ -294,7 +294,7 @@ std::string Options::GetSubPackage(const std::string &package)
  * package:ohos.hdi.foo.v1_0
  * packagePath:./drivers/interface/foo/v1_0
  */
-std::string Options::GetPackagePath(const std::string &package)
+std::string Options::GetPackagePath(const std::string &package) const
 {
     std::string rootPackage = "";
     std::string rootPath = "";
@@ -333,8 +333,8 @@ std::string Options::GetImportFilePath(const std::string &import)
     }
 
     std::string dir = GetPackagePath(StringHelper::SubStr(import, 0, index));
-    std::string ClassName = import.substr(index + 1);
-    return StringHelper::Format("%s%c%s.idl", dir.c_str(), SEPARATOR, ClassName.c_str());
+    std::string className = import.substr(index + 1);
+    return StringHelper::Format("%s%c%s.idl", dir.c_str(), SEPARATOR, className.c_str());
 }
 } // namespace HDI
 } // namespace OHOS

@@ -59,7 +59,7 @@ void JavaClientProxyCodeEmitter::EmitProxyImports(StringBuilder &sb)
     EmitProxyDBinderImports(sb);
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyCorelibImports(StringBuilder &sb)
+void JavaClientProxyCodeEmitter::EmitProxyCorelibImports(StringBuilder &sb) const
 {
     bool includeList = false;
     bool includeMap = false;
@@ -88,7 +88,7 @@ void JavaClientProxyCodeEmitter::EmitProxyCorelibImports(StringBuilder &sb)
     }
 }
 
-void JavaClientProxyCodeEmitter::EmitProxySelfDefinedTypeImports(StringBuilder &sb)
+void JavaClientProxyCodeEmitter::EmitProxySelfDefinedTypeImports(StringBuilder &sb) const
 {
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> import = importPair.second;
@@ -96,7 +96,7 @@ void JavaClientProxyCodeEmitter::EmitProxySelfDefinedTypeImports(StringBuilder &
     }
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyDBinderImports(StringBuilder &sb)
+void JavaClientProxyCodeEmitter::EmitProxyDBinderImports(StringBuilder &sb) const
 {
     sb.Append("import ohos.hiviewdfx.HiLog;\n");
     sb.Append("import ohos.hiviewdfx.HiLogLabel;\n");
@@ -130,7 +130,7 @@ void JavaClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const std
     EmitInterfaceMethodCommands(sb, prefix);
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const std::string &prefix)
+void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("public %s(IRemoteObject remote) {\n", proxyName_.c_str());
     sb.Append(prefix + TAB).Append("this.remote = remote;\n");
@@ -179,7 +179,7 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodImpl(
 }
 
 void JavaClientProxyCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitJavaParameter());
 }
@@ -220,7 +220,7 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodBody(
 }
 
 void JavaClientProxyCodeEmitter::EmitLocalVariable(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
     if (type->GetTypeKind() == TypeKind::TYPE_SEQUENCEABLE) {

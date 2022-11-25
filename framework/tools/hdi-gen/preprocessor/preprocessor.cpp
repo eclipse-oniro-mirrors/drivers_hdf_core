@@ -59,7 +59,7 @@ bool Preprocessor::Preprocess(std::vector<std::string> &compileSourceFiles)
     return true;
 }
 
-bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles)
+bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles) const
 {
     if (sourceFiles.empty()) {
         Logger::E(TAG, "no source files");
@@ -153,7 +153,7 @@ bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
     return true;
 }
 
-bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
+bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info) const
 {
     Token token = lexer.PeekToken();
     while (token.kind_ != TokenType::END_OF_FILE) {

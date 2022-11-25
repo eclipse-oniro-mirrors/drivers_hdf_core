@@ -857,8 +857,8 @@ AutoPtr<ASTType> Parser::ParseSmqType()
         lexer_.GetToken(); // '<'
     }
 
-    AutoPtr<ASTType> InnerType = ParseType();
-    if (InnerType == nullptr) {
+    AutoPtr<ASTType> innerType = ParseType();
+    if (innerType == nullptr) {
         lexer_.SkipToken(TokenType::ANGLE_BRACKETS_RIGHT);
         return nullptr;
     }
@@ -871,7 +871,7 @@ AutoPtr<ASTType> Parser::ParseSmqType()
     }
 
     AutoPtr<ASTSmqType> smqType = new ASTSmqType();
-    smqType->SetInnerType(InnerType);
+    smqType->SetInnerType(innerType);
     AutoPtr<ASTType> retType = ast_->FindType(smqType->ToString());
     if (retType == nullptr) {
         retType = smqType.Get();
@@ -1168,7 +1168,7 @@ void Parser::ParseUnionMember(const AutoPtr<ASTUnionType> &unionType)
 }
 
 bool Parser::AddUnionMember(
-    const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name)
+    const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name) const
 {
     for (size_t i = 0; i < unionType->GetMemberNumber(); i++) {
         std::string memberName = unionType->GetMemberName(i);

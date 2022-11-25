@@ -710,6 +710,7 @@ void ASTArrayType::RegisterReadMethod(Options::Language language, SerMode mode, 
 
 void ASTArrayType::RegisterWritePodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
+    (void)mode;
     using namespace std::placeholders;
     std::string methodName = "WritePodArray";
     switch (language) {
@@ -727,6 +728,7 @@ void ASTArrayType::RegisterWritePodArrayMethod(Options::Language language, SerMo
 void ASTArrayType::RegisterWriteStringArrayMethod(
     Options::Language language, SerMode mode, UtilMethodMap &methods) const
 {
+    (void)mode;
     using namespace std::placeholders;
     if (language == Options::Language::C && elementType_->IsStringType()) {
         methods.emplace("WriteStringArray", std::bind(&ASTArrayType::EmitCWriteStrArrayMethods, this, _1, _2, _3, _4));

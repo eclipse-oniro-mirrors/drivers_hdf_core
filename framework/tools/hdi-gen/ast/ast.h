@@ -60,7 +60,7 @@ public:
         astFileType_ = fileType;
     }
 
-    ASTFileType GetASTFileType()
+    ASTFileType GetASTFileType() const
     {
         return astFileType_;
     }
@@ -159,12 +159,12 @@ public:
         return majorVersion_;
     }
 
-    inline size_t GetMinorVer()
+    inline size_t GetMinorVer() const
     {
         return minorVersion_;
     }
 
-    std::string GetVersion()
+    std::string GetVersion() const
     {
         return StringHelper::Format("%u.%u", majorVersion_, minorVersion_);
     }

@@ -53,12 +53,12 @@ public:
         }
     }
 
-    inline bool IsOneWay()
+    inline bool IsOneWay() const
     {
         return attr_->isOneWay_;
     }
 
-    inline bool IsCallback()
+    inline bool IsCallback() const
     {
         return attr_->isCallback_;
     }
@@ -68,17 +68,17 @@ public:
         isSerializable_ = isSerializable;
     }
 
-    inline bool IsSerializable()
+    inline bool IsSerializable() const
     {
         return isSerializable_;
     }
 
-    inline bool IsFull()
+    inline bool IsFull() const
     {
         return attr_->isFull_;
     }
 
-    inline bool IsLite()
+    inline bool IsLite() const
     {
         return attr_->isLite_;
     }

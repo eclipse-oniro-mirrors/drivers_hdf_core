@@ -115,13 +115,13 @@ public:
 
     void ShowUsage() const;
 
-    std::string GetRootPackage(const std::string &package);
+    std::string GetRootPackage(const std::string &package) const;
 
-    std::string GetRootPath(const std::string &package);
+    std::string GetRootPath(const std::string &package) const;
 
     std::string GetSubPackage(const std::string &package);
 
-    std::string GetPackagePath(const std::string &package);
+    std::string GetPackagePath(const std::string &package) const;
 
     std::string GetImportFilePath(const std::string &import);
 

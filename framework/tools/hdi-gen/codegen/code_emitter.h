@@ -29,7 +29,7 @@ enum class HeaderFileType {
 struct HeaderFile {
     HeaderFile(HeaderFileType type, std::string fileName) : type_(type), fileName_(fileName) {}
 
-    struct compare {
+    struct Compare {
         bool operator()(const HeaderFile &lhs, const HeaderFile &rhs)
         {
             int compareRet = lhs.fileName_.compare(rhs.fileName_);
@@ -62,7 +62,7 @@ struct HeaderFile {
         }
     }
 
-    using HeaderFileSet = std::set<HeaderFile, HeaderFile::compare>;
+    using HeaderFileSet = std::set<HeaderFile, HeaderFile::Compare>;
 
     HeaderFileType type_;
     std::string fileName_;
@@ -83,7 +83,7 @@ protected:
 
     virtual void EmitCode() = 0;
 
-    bool NeedFlag(const AutoPtr<ASTMethod> &method);
+    bool NeedFlag(const AutoPtr<ASTMethod> &method) const;
 
     std::string GetFileParentPath(const std::string &outDir);
 
@@ -102,16 +102,16 @@ protected:
     std::string EmitVersionHeaderName(const std::string &name);
 
     // log tag macro of hdf
-    void EmitLogTagMacro(StringBuilder &sb, const std::string &name);
+    void EmitLogTagMacro(StringBuilder &sb, const std::string &name) const;
 
     // file_name -> FILE_NAME
-    std::string ConstantName(const std::string &name);
+    std::string ConstantName(const std::string &name) const;
 
     // file_name -> FileName
-    std::string PascalName(const std::string &name);
+    std::string PascalName(const std::string &name) const;
 
     // FileName -> file_name
-    std::string FileName(const std::string &name);
+    std::string FileName(const std::string &name) const;
 
     virtual void GetUtilMethods(UtilMethodMap &methods);
 

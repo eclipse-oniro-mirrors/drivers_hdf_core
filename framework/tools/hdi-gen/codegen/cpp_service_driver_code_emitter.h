@@ -30,15 +30,15 @@ private:
 
     void EmitDriverUsings(StringBuilder &sb);
 
-    void EmitDriverServiceDecl(StringBuilder &sb);
+    void EmitDriverServiceDecl(StringBuilder &sb) const;
 
-    void EmitDriverDispatch(StringBuilder &sb);
+    void EmitDriverDispatch(StringBuilder &sb) const;
 
-    void EmitDriverInit(StringBuilder &sb);
+    void EmitDriverInit(StringBuilder &sb) const;
 
-    void EmitDriverBind(StringBuilder &sb);
+    void EmitDriverBind(StringBuilder &sb) const;
 
-    void EmitDriverRelease(StringBuilder &sb);
+    void EmitDriverRelease(StringBuilder &sb) const;
 
     void EmitDriverEntryDefinition(StringBuilder &sb);
 };

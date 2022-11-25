@@ -52,11 +52,11 @@ public:
 
     bool WriteData(const void *data, size_t size) const;
 
-    void Flush();
+    void Flush() const;
 
-    bool Reset();
+    bool Reset() const;
 
-    bool Skip(long size);
+    bool Skip(long size) const;
 
     void Close();
 

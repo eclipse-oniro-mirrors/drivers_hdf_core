@@ -59,12 +59,12 @@ class ASTEnumType : public ASTType {
 public:
     ASTEnumType() : ASTType(TypeKind::TYPE_ENUM, true), attr_(new ASTTypeAttr()), baseType_(), members_() {}
 
-    inline void SetName(const std::string &name)
+    inline void SetName(const std::string &name) override
     {
         name_ = name;
     }
 
-    inline std::string GetName()
+    inline std::string GetName() override
     {
         return name_;
     }

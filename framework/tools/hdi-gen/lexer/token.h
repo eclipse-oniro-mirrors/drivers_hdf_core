@@ -100,7 +100,7 @@ struct Token {
 };
 
 struct TokenTypeCompare {
-    bool operator()(const Token &lhs, const Token &rhs)
+    bool operator()(const Token &lhs, const Token &rhs) const
     {
         return lhs.kind_ > rhs.kind_;
     }

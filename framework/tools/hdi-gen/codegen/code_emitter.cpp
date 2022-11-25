@@ -93,7 +93,7 @@ void CodeEmitter::CleanData()
     errorCodeName_ = "";
 }
 
-bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
+bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method) const
 {
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
@@ -162,12 +162,12 @@ std::string CodeEmitter::EmitVersionHeaderName(const std::string &name)
     return StringHelper::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).c_str());
 }
 
-void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name)
+void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name) const
 {
     sb.AppendFormat("#define HDF_LOG_TAG    %s\n", name.c_str());
 }
 
-std::string CodeEmitter::ConstantName(const std::string &name)
+std::string CodeEmitter::ConstantName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -190,7 +190,7 @@ std::string CodeEmitter::ConstantName(const std::string &name)
     return sb.ToString();
 }
 
-std::string CodeEmitter::PascalName(const std::string &name)
+std::string CodeEmitter::PascalName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -219,7 +219,7 @@ std::string CodeEmitter::PascalName(const std::string &name)
     return sb.ToString();
 }
 
-std::string CodeEmitter::FileName(const std::string &name)
+std::string CodeEmitter::FileName(const std::string &name) const
 {
     if (name.empty()) {
         return name;

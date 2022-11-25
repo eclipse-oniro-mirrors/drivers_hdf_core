@@ -32,7 +32,7 @@ private:
 
     void EmitServiceImplBody(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix);
 
@@ -42,7 +42,7 @@ private:
 
     void EmitImplSourceInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
@@ -52,7 +52,7 @@ private:
 
     void EmitExternalReleaseMethodImpl(StringBuilder &sb);
 
-    void EmitServiceImplGetMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

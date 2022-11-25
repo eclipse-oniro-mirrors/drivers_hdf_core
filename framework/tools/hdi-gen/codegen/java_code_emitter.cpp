@@ -32,7 +32,7 @@ void JavaCodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::
     }
 }
 
-std::string JavaCodeEmitter::MethodName(const std::string &name)
+std::string JavaCodeEmitter::MethodName(const std::string &name) const
 {
     if (name.empty() || islower(name[0])) {
         return name;
@@ -40,7 +40,7 @@ std::string JavaCodeEmitter::MethodName(const std::string &name)
     return StringHelper::Format("%c%s", tolower(name[0]), name.substr(1).c_str());
 }
 
-std::string JavaCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix)
+std::string JavaCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const
 {
     size_t maxLineLen = 120;
     size_t replaceLen = 2;
