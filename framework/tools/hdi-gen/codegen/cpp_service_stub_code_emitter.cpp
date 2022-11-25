@@ -412,8 +412,12 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(
     AutoPtr<ASTType> type = param->GetType();
     if (type->IsStringType() || type->IsArrayType() || type->IsListType()) {
         sb.Append(prefix).AppendFormat("if (%s) {\n", flagOfSetMemName_.c_str());
+        std::string capacityName = "capacity";
         sb.Append(prefix + TAB)
-            .AppendFormat("%s.reserve(%s.ReadUint32());\n", param->GetName().c_str(), parcelName.c_str());
+            .AppendFormat("uint32_t %s = %s.ReadUint32();\n", capacityName.c_str(), parcelName.c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
+            capacityName.c_str(), MAX_BUFF_SIZE_MACRO);
+        sb.Append(prefix + TAB).AppendFormat("%s.reserve(%s);\n", param->GetName().c_str(), capacityName.c_str());
         sb.Append(prefix).Append("}\n");
     }
 }
