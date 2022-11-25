@@ -275,10 +275,15 @@ int32_t HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
     }
     for (uint32_t i = 0; i < serviceSet->count; i++) {
         if (serviceSet->serviceNames[i] != NULL) {
-            OsalMemFree(serviceSet->serviceNames);
-            serviceSet->serviceNames = NULL;
+            OsalMemFree((void *)serviceSet->serviceNames[i]);
+            serviceSet->serviceNames[i] = NULL;
         }
     }
+    if (serviceSet->serviceNames != NULL) {
+        OsalMemFree(serviceSet->serviceNames);
+        serviceSet->serviceNames = NULL;
+    }
     OsalMemFree(serviceSet);
+
     return HDF_SUCCESS;
 }
