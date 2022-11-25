@@ -60,6 +60,7 @@ class HdfToolSettings(object):
         self.hdi_config_key = "hdi_config"
         self.passwd_group_key = "passwd_group_config"
         self.config_setting_info = "config_setting_file_info"
+        self.create_driver_supported_type = "create_driver_board_type"
 
     def get_supported_boards(self):
         key = self.supported_boards_key
@@ -120,6 +121,10 @@ class HdfToolSettings(object):
     def get_board_list(self):
         key = self.supported_boards_key
         return list(self.settings.get(key).keys())
+
+    def get_create_board_type(self):
+        key = self.create_driver_supported_type
+        return list(self.settings.get(key))
 
     def get_user_adapter_path(self):
         key = self.user_adapter_path_key

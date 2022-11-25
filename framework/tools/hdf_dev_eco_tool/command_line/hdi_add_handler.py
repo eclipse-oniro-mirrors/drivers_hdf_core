@@ -308,11 +308,11 @@ class HdiAddHandler(HdfCommandHandlerBase):
         group_passwd = OperateGroupPasswd(tool_settings=hdi_config, root_path=root_path)
         # group
         peripheral_name = replace_data.get("peripheral_name")
-        group_file_path = group_passwd.OperateGroup(name=peripheral_name)
+        group_file_path = group_passwd.operate_group(name=peripheral_name)
         temp_config = self.format_file_path(group_file_path, root_path)
         self.result_json["config"].append(temp_config)
         # passwd
-        passwd_file_path = group_passwd.OperatePasswd(name=peripheral_name)
+        passwd_file_path = group_passwd.operate_passwd(name=peripheral_name)
         temp_config = self.format_file_path(passwd_file_path, root_path)
         self.result_json["config"].append(temp_config)
         self.config_selinux(root_path, replace_data)
@@ -457,7 +457,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
         elif isinstance(selinux_temp["info_temp"], list):
             hdf_host_pid_list = self.count_hdf_host_pid(temp_lines)
             replace_data.update({
-                "pid_num": OperateGroupPasswd.GenerateId(max(hdf_host_pid_list))
+                "pid_num": OperateGroupPasswd.generate_id(max(hdf_host_pid_list))
             })
             temp_replace_list = []
             splice_str = ""

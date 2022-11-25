@@ -128,9 +128,9 @@ def audio_linux_makefile_operation(path, args_tuple):
             board_makefile_dict[board_name] = re.findall(
                 r"\(KHDF_AUDIO_BASE_ROOT_DIR\)/device/board/[a-z0-9_/]+", block_info)[0]
     if board.startswith("rk3568"):
-        parent_str = board_makefile_dict["CONFIG_DRIVERS_HDF_AUDIO_RK3568"]
+        parent_str = board_makefile_dict.get("CONFIG_DRIVERS_HDF_AUDIO_RK3568")
     elif board.startswith("hispark_taurus"):
-        parent_str = board_makefile_dict["CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC"]
+        parent_str = board_makefile_dict.get("CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC")
     temp_makefile = "/".join(parent_str.split("/")[1:])
     makefile_path = os.path.join(root, temp_makefile, "Makefile")
     date_lines = hdf_utils.read_file_lines(makefile_path)

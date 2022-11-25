@@ -443,8 +443,12 @@ def ini_file_read_operation(section_name, node_name, path=""):
         ini_config_path = os.path.join("resources", "config.ini")
     config = configparser.ConfigParser()
     config.read(ini_config_path)
-    model_child_dir_list = config.get(section=section_name, option=node_name)
-    return literal_eval(model_child_dir_list), config
+    if node_name:
+        model_child_dir_list = config.get(section=section_name, option=node_name)
+        return literal_eval(model_child_dir_list), config
+    else:
+        model_child_dir_list = config.items(section_name)
+        return model_child_dir_list, config
 
 
 def ini_file_write_operation(model, operation_object, model_child_dir_list):
@@ -456,12 +460,11 @@ def ini_file_write_operation(model, operation_object, model_child_dir_list):
 
 def judge_enable_line(enable_line, device_base):
     if isinstance(enable_line, bytes):
-        if enable_line.find((device_base + " ").encode("utf-8")) == -1 and \
-                enable_line.find((device_base + "=").encode("utf-8")) == -1:
+        if enable_line.find((device_base + " ").encode("utf-8")) == -1:
             return enable_line
     else:
-        if enable_line.find(device_base + " ") == -1 and \
-                enable_line.find(device_base + "=") == -1:
+        if enable_line.find(device_base + " ") == -1:
+
             return enable_line
 
 
@@ -530,3 +533,9 @@ class MakefileAndKconfigFileParse(object):
                 flag_split_list.append(res)
         return flag_split_list
 
+
+def list_dict_tool(couple_list):
+    temp_dict = {}
+    for info in couple_list:
+        temp_dict[info[0]] = info[-1]
+    return temp_dict

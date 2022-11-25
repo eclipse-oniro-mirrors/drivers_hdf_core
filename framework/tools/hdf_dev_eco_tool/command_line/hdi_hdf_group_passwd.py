@@ -29,23 +29,23 @@ class OperateGroupPasswd(object):
         self.group_lines = hdf_utils.read_file_lines(self.group_file)
 
         self.passwd_group_name_list = []
-        self.temp_id = self.GetId()
+        self.temp_id = self.get_id()
 
-    def OperateGroup(self, name):
+    def operate_group(self, name):
         result_group = self.group_newline.format(peripheral_name=name, uid=self.temp_id)
         if result_group.split(":")[0] not in self.passwd_group_name_list:
             self.group_lines.append(result_group)
             hdf_utils.write_file_lines(self.group_file, self.group_lines)
         return self.group_file
 
-    def OperatePasswd(self, name):
+    def operate_passwd(self, name):
         result_passwd = self.passwd_newline.format(peripheral_name=name, uid=self.temp_id)
         if result_passwd.split(":")[0] not in self.passwd_group_name_list:
             self.passwd_lines.append(result_passwd)
             hdf_utils.write_file_lines(self.passwd_file, self.passwd_lines)
         return self.passwd_file
 
-    def GetId(self):
+    def get_id(self):
         passwd_group_id_list = []
         for line in self.group_lines:
             id_re_result = re.search(r"x:\d+", line)
@@ -54,13 +54,13 @@ class OperateGroupPasswd(object):
                 passwd_group_id_list.append(int(gid))
             self.passwd_group_name_list.append(line.split(":")[0])
         while True:
-            temp_id = self.GenerateId(max(passwd_group_id_list))
+            temp_id = self.generate_id(max(passwd_group_id_list))
             if temp_id not in passwd_group_id_list:
                 break
         return temp_id
 
     @staticmethod
-    def GenerateId(max_border):
+    def generate_id(max_border):
         max_border += 20
         return random.randint(99, max_border)
 

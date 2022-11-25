@@ -18,7 +18,7 @@ from hdf_tool_exception import HdfToolException
 from .linux.kconfig_file_add_config import kconfig_file_operation
 from .linux.mk_file_add_config import audio_linux_makefile_operation, linux_makefile_operation
 
-from .liteos.gn_file_add_config import audio_build_file_operation, build_file_operation
+from .liteos.gn_file_add_config import audio_build_file_operation, build_file_operation, input_build_file_operation
 from .liteos.mk_file_add_config import audio_makefile_file_operation, makefile_file_operation
 from ..hdf_command_error_code import CommandErrorCode
 from ..hdf_defconfig_patch import HdfDefconfigAndPatch
@@ -108,6 +108,10 @@ class HdfAddDriver(object):
                 args_tuple = (driver_file_path, driver_head_path, self.module,
                               self.driver, self.root, self.device, self.kernel)
                 audio_build_file_operation(build_file_path, args_tuple)
+            elif self.module == "input":
+                input_build_file_operation(
+                    build_file_path, driver_file_path[0], driver_head_path[0],
+                    self.module, self.driver)
             else:
                 build_file_operation(
                     build_file_path, driver_file_path[0], driver_head_path[0],
@@ -410,7 +414,8 @@ class HdfAddDriver(object):
             section_list = config.options(section=self.kernel)
             if self.device in section_list:
                 device_enable_config, _ = hdf_utils.ini_file_read_operation(
-                    section_name=self.kernel, node_name=self.device, path=config_path)
+                    section_name=self.kernel,
+                    node_name=self.device, path=config_path)
             else:
                 if self.kernel == "linux":
                     device_enable_config = [
