@@ -13,8 +13,9 @@
 #include <limits.h>
 #include <poll.h>
 #include <securec.h>
-#include <stdatomic.h>
 #include <sys/ioctl.h>
+#include <sys/prctl.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 
 #include "hdf_base.h"
@@ -36,8 +37,6 @@
 #define LOAD_IOSERVICE_WAIT_TIME    10     // ms
 #define LOAD_IOSERVICE_WAIT_COUNT   20     // ms
 #define THREAD_NAME_LEN_MAX         16
-
-atomic_int g_evtListenerCount = 0;
 
 static bool HaveOnlyOneElement(const struct DListHead *head)
 {
@@ -219,6 +218,19 @@ static int32_t AssignPfds(struct HdfDevListenerThread *thread, struct pollfd **p
     return pfdCount;
 }
 
+static void SetThreadName(void)
+{
+    char newTitle[THREAD_NAME_LEN_MAX] = {0};
+
+    int32_t tid = syscall(SYS_gettid);
+    int32_t ret = sprintf_s(newTitle, THREAD_NAME_LEN_MAX, "%s%d", "evt_list_", tid);
+    if (ret > 0) {
+        ret = prctl(PR_SET_NAME, newTitle);
+    }
+
+    return;
+}
+
 #define POLL_WAIT_TIME_MS 100
 static int32_t HdfDevEventListenTask(void *para)
 {
@@ -228,6 +240,7 @@ static int32_t HdfDevEventListenTask(void *para)
     int32_t pollCount = 0;
 
     thread->status = LISTENER_RUNNING;
+    SetThreadName();
     while (!thread->shouldStop) {
         if (thread->pollChanged) {
             pollCount = AssignPfds(thread, &pfds, &pfdSize);
@@ -444,15 +457,9 @@ static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
                 return HDF_ERR_IO;
             }
         }
-        char threadName[THREAD_NAME_LEN_MAX] = {0};
-        ret = sprintf_s(threadName, THREAD_NAME_LEN_MAX, "%s%d", "event_listen", g_evtListenerCount++);
-        if (ret < 0) {
-            HDF_LOGE("%{public}s generate thread name failed", __func__);
-            return HDF_FAILURE;
-        }
 
         struct OsalThreadParam config = {
-            .name = threadName,
+            .name = "evt_listen",
             .priority = OSAL_THREAD_PRI_DEFAULT,
             .stackSize = 0,
         };
