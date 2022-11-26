@@ -226,6 +226,9 @@ static void SetThreadName(void)
     int32_t ret = sprintf_s(newTitle, THREAD_NAME_LEN_MAX, "%s%d", "evt_list_", tid);
     if (ret > 0) {
         ret = prctl(PR_SET_NAME, newTitle);
+        if (ret < 0) {
+            HDF_LOGE("%s: failed to set thread name, errno is %d", __func__, errno);
+        }
     }
 
     return;
