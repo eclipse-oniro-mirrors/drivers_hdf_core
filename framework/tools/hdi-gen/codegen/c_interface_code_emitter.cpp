@@ -109,11 +109,6 @@ void CInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb)
     sb.AppendFormat("#define %s %u\n", minorVerName_.c_str(), ast_->GetMinorVer());
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
-{
-    sb.AppendFormat("#define %s    (4 * 1024) // 4KB\n", bufferSizeMacroName_.c_str());
-}
-
 void CInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
 {
     sb.AppendFormat("struct %s {\n", interfaceName_.c_str());
