@@ -70,10 +70,10 @@ export class XTexture {
             }
             var rid = this.ximages.length;
             this.ximages[rid] = { "stat": 0, "path": path, "tex": null };
-            var image = new Image();
+            const image = new Image();
             image.src = path;//"http://localhost:8910/"+
             image.onload = function () {
-                var texture = gl.createTexture();
+                const texture = gl.createTexture();
                 XTexture.initTextureStatus(texture)
 
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -129,15 +129,15 @@ export class XTexture {
     }
 
     PutTexture(tex, w, h) {
-        var rid = this.ximages.length;
+        const rid = this.ximages.length;
         this.ximages[rid] = { "stat": 1, "path": "put" + rid, "tex": tex, "w": w, "h": h };
         return rid;
     }
 
     loadTexture(width, height) {
-        var rid = this.ximages.length;
+        const rid = this.ximages.length;
 
-        var texture = gl.createTexture();
+        const texture = gl.createTexture();
         XTexture.initTextureStatus(texture)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
 

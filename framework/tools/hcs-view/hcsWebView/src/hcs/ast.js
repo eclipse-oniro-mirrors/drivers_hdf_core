@@ -16,7 +16,7 @@
 const { NapiLog } = require("./NapiLog")
 const { TokenType } = require("./lexer")
 
-var ObjectType = {
+const ObjectType = {
     PARSEROP_UINT8: 0x01,
     PARSEROP_UINT16: 2,
     PARSEROP_UINT32: 3,
@@ -30,7 +30,7 @@ var ObjectType = {
     PARSEROP_BOOL: 11,
 };
 
-var NodeRefType = {
+const NodeRefType = {
     NODE_NOREF: 0,
     NODE_COPY: 1,
     NODE_REF: 2,
@@ -39,7 +39,7 @@ var NodeRefType = {
     NODE_INHERIT: 5,
 };
 
-var HcsErrorNo = {
+const HcsErrorNo = {
     NOERR: 0,  /* No error */
     EFAIL: 1,      /* Process fail */
     EOOM: 2,       /* Out of memory */
@@ -52,10 +52,10 @@ var HcsErrorNo = {
     EASTWALKBREAK: 9,  /* Break ast walk */
 };
 
-var UINT8_MAX = 255;
-var UINT16_MAX = 65535;
-var UINT32_MAX = 0xffffffff;  /* 4294967295U */
-var UINT64_MAX = 0xffffffffffffffff; /* 18446744073709551615ULL */
+const UINT8_MAX = 255;
+const UINT16_MAX = 65535;
+const UINT32_MAX = 0xffffffff;  /* 4294967295U */
+const UINT64_MAX = 0xffffffffffffffff; /* 18446744073709551615ULL */
 
 class AstObject {
     constructor(name, type, value, bindToken, jinzhi) {
