@@ -34,7 +34,7 @@ export class Scr {
         Scr.height = h
         NapiLog.logError("setLogicScreenSize")
         if ("undefined" != typeof wx) {
-            var info = wx.getSystemInfoSync();
+            const info = wx.getSystemInfoSync();
             Scr.width = info.windowWidth;
             Scr.height = info.windowHeight;
         }

@@ -23,10 +23,10 @@ NapiLog.LEV_DEBUG = 2;
 NapiLog.LEV_INFO = 3;
 
 const LEV_STR = ["[NON]", "[ERR]", "[DBG]", "[INF]"]
-var logLevel = NapiLog.LEV_ERROR;
-var logFileName = null;
-var logResultMessage = [true, ""]
-var errorCallBack = null;
+let logLevel = NapiLog.LEV_ERROR;
+let logFileName = null;
+let logResultMessage = [true, ""];
+let errorCallBack = null;
 
 function getDateString() {
     let nowDate = new Date();
