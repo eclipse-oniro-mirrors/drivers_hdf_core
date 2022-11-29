@@ -46,6 +46,10 @@ void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitInterfaceInclusions(sb);
     sb.Append("\n");
     EmitInterfaceVersionMacro(sb);
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitInterfaceBuffSizeMacro(sb);
+    }
     sb.Append("\n");
     EmitBeginNamespace(sb);
     EmitUsingNamespace(sb);

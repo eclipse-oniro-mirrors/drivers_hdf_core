@@ -118,6 +118,8 @@ protected:
     virtual void EmitUtilMethods(
         StringBuilder &sb, const std::string &prefix, const UtilMethodMap &methods, bool isDecl);
 
+    void EmitInterfaceBuffSizeMacro(StringBuilder &sb);
+
 protected:
     bool isKernelCode_ = false;
     AutoPtr<AST> ast_ = nullptr;
@@ -135,7 +137,6 @@ protected:
     std::string implFullName_;
     std::string majorVerName_;
     std::string minorVerName_;
-    std::string bufferSizeMacroName_;
 
     std::string dataParcelName_;
     std::string replyParcelName_;

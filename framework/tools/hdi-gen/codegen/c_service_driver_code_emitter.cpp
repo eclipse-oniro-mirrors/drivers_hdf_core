@@ -186,7 +186,7 @@ void CServiceDriverCodeEmitter::EmitKernelDriverBind(StringBuilder &sb)
     sb.Append(TAB).Append("HDF_LOGI(\"%{public}s: driver bind start\", __func__);\n");
     sb.Append("\n");
 
-    sb.Append(TAB).AppendFormat("struct Hdf%sHost *%s = (struct Hdf%sHost *)OsalMemAlloc(", baseName_.c_str(),
+    sb.Append(TAB).AppendFormat("struct Hdf%sHost *%s = (struct Hdf%sHost *)OsalMemCalloc(", baseName_.c_str(),
         hostName_.c_str(), baseName_.c_str());
     sb.AppendFormat("sizeof(struct Hdf%sHost));\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", hostName_.c_str());
@@ -223,7 +223,7 @@ void CServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb)
     sb.Append(TAB).Append(TAB).Append("return ret;\n");
     sb.Append(TAB).Append("}\n\n");
 
-    sb.Append(TAB).AppendFormat("struct Hdf%sHost *%s = (struct Hdf%sHost *)OsalMemAlloc(", baseName_.c_str(),
+    sb.Append(TAB).AppendFormat("struct Hdf%sHost *%s = (struct Hdf%sHost *)OsalMemCalloc(", baseName_.c_str(),
         hostName_.c_str(), baseName_.c_str());
     sb.AppendFormat("sizeof(struct Hdf%sHost));\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("if (%s == NULL) {\n", hostName_.c_str());

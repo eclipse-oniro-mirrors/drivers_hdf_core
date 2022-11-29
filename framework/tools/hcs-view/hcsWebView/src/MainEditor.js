@@ -195,7 +195,7 @@ class MainEditor {
                 w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xE6000000);
                 break;
             case 6://ConfigNode
-                var color = data.errMsg_ != null ? 0xE6FF0000 : 0xE6000000;
+                const color = data.errMsg_ != null ? 0xE6FF0000 : 0xE6000000;
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
                 color, rgba(196, 196, 196), 0xffffffff);
                 this.configNodeProc(w, pm2f, data, offx, offy, path)

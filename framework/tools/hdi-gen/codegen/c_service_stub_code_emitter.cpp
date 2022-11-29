@@ -357,7 +357,7 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
     } else if (type->GetTypeKind() == TypeKind::TYPE_INTERFACE) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_STRUCT) {
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().c_str(),
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().c_str(),
             type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
         sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
@@ -369,7 +369,7 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
     } else if (type->GetTypeKind() == TypeKind::TYPE_UNION) {
         std::string cpName = StringHelper::Format("%sCp", param->GetName().c_str());
         type->EmitCStubReadVar(parcelName, cpName, errorCodeName_, gotoLabel, sb, prefix);
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().c_str(),
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().c_str(),
             type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
         sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
@@ -434,7 +434,7 @@ void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter
         sb.Append(prefix).Append("}\n\n");
     } else if (type->IsStringType() || type->IsArrayType() || type->IsListType()) {
         param->EmitCStubReadOutVar(
-            bufferSizeMacroName_, flagOfSetMemName_, parcelName, errorCodeName_, gotoLabel, sb, prefix);
+            MAX_BUFF_SIZE_MACRO, flagOfSetMemName_, parcelName, errorCodeName_, gotoLabel, sb, prefix);
         sb.Append("\n");
     }
 }
@@ -442,6 +442,19 @@ void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter
 void CServiceStubCodeEmitter::EmitStubCallMethod(
     const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
 {
+    sb.Append(prefix).Append("if (serviceImpl == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid serviceImpl object\", __func__);\n");
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_OBJECT;\n", errorCodeName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
+    sb.Append(prefix).Append("}\n\n");
+
+    sb.Append(prefix).AppendFormat("if (serviceImpl->%s == NULL) {\n", method->GetName().c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: invalid interface function %s \", __func__);\n",
+        method->GetName().c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_NOT_SUPPORT;\n", errorCodeName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
+    sb.Append(prefix).Append("}\n\n");
+
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
             "%s = serviceImpl->%s(serviceImpl);\n", errorCodeName_.c_str(), method->GetName().c_str());

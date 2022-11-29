@@ -16,7 +16,7 @@
 const { NapiLog } = require("./NapiLog");
 const re = require("./re")
 
-var DataType = {
+const DataType = {
     INT8: 1,
     INT16: 2,
     INT32: 3,
@@ -28,15 +28,15 @@ var DataType = {
     REFERENCE: 9,//Reference a = &b
     DELETE: 10,//Attribute deletion a = delete
     BOOL: 11,
-}
-var NodeType = {
+};
+const NodeType = {
     DATA: 0,
     COPY: 1,//Copy a : b {}
     REFERENCE: 2,//Reference a : &b {}
     DELETE: 3,//Deletion class nodes a : delete {}
     TEMPLETE: 4,//Templete Class nodes templete a {}
     INHERIT: 5,//Data class nodes, inherit a :: b {}
-}
+};
 
 class NodeTools {
 }

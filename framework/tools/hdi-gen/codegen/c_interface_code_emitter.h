@@ -36,8 +36,6 @@ private:
 
     void EmitInterfaceVersionMacro(StringBuilder &sb) const;
 
-    void EmitInterfaceBuffSizeMacro(StringBuilder &sb) const;
-
     void EmitInterfaceDefinition(StringBuilder &sb);
 
     void EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix);

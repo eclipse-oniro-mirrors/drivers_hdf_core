@@ -19,6 +19,7 @@
 #include "camera_core.h"
 
 #define HDF_LOG_TAG HDF_CAMERA_CORE
+bool g_hdfDeviceInited = false;
 
 static int32_t HdfCameraGetConfig(const struct HdfDeviceObject *device)
 {
@@ -37,7 +38,7 @@ static struct CameraDeviceDriverFactory *HdfCameraGetDriverFactory(const char *d
         HDF_LOGE("%s: drvMgr is NULL", __func__);
         return NULL;
     }
-    return drvMgr->GetDeviceDriverFactoryByName(deviceName);
+    return drvMgr->getDeviceDriverFactoryByName(deviceName);
 }
 
 static int32_t HdfCameraReleaseInterface(const char *deviceName, struct CameraDeviceDriverFactory *factory)
@@ -68,8 +69,8 @@ static int32_t HdfCameraReleaseInterface(const char *deviceName, struct CameraDe
         return ret;
     }
 
-    if (factory->Release != NULL) {
-        factory->Release(deviceDriver);
+    if (factory->release != NULL) {
+        factory->release(deviceDriver);
     }
     deviceDriver = NULL;
     HDF_LOGI("%s: HdfCameraReleaseInterface successful", __func__);
@@ -83,7 +84,7 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
     struct CameraDevice *camDev = NULL;
     struct CameraDeviceDriver *deviceDriver = NULL;
 
-    deviceDriver = factory->Build(deviceName);
+    deviceDriver = factory->build(deviceName);
     if (deviceDriver == NULL) {
         HDF_LOGE("%s: device driver %{public}s build fail!", __func__, factory->deviceName);
         ret = HDF_FAILURE;
@@ -107,8 +108,8 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
     deviceDriver = NULL;
 
     if (ret != HDF_SUCCESS) {
-        if (deviceDriver != NULL && factory->Release != NULL) {
-            factory->Release(deviceDriver);
+        if (deviceDriver != NULL && factory->release != NULL) {
+            factory->release(deviceDriver);
         }
         if (camDev != NULL) {
             CameraDeviceRelease(camDev);
@@ -147,6 +148,7 @@ int32_t HdfCameraDeinitDevice(const char *deviceName)
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Deinit interface failed! ret=%{public}d", __func__, ret);
     }
+    g_hdfDeviceInited = false;
     return ret;
 }
 
@@ -203,8 +205,14 @@ static int32_t HdfCameraDriverInit(struct HdfDeviceObject *device)
             return ret;
         }
     }
+    g_hdfDeviceInited = true;
     HDF_LOGD("%s: HdfCameraDriverInit finished.", __func__);
     return HDF_SUCCESS;
+}
+
+bool HdfCameraGetDeviceInitStatus(void)
+{
+    return g_hdfDeviceInited;
 }
 
 static int32_t HdfCameraDriverBind(struct HdfDeviceObject *device)

@@ -90,6 +90,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
     sb.Append("\n");
     EmitHeaderFileInclusions(sb);
     sb.Append("\n");
+    EmitInterfaceBuffSizeMacro(sb);
+    sb.Append("\n");
     EmitBeginNamespace(sb);
     sb.Append("\n");
     EmitUsingNamespace(sb);

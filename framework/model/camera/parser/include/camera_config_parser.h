@@ -28,7 +28,7 @@
 #define DEVICE_NOT_SUPPORT 0
 
 struct CtrlCapInfo {
-    uint8_t ctrlId;
+    uint32_t ctrlId;
     uint32_t max;
     uint32_t min;
     uint32_t step;
@@ -41,6 +41,22 @@ struct SensorDeviceConfig {
     uint8_t exposure;
     uint8_t mirror;
     uint8_t gain;
+    uint32_t ctrlValueNum;
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
+};
+
+struct IspDeviceConfig {
+    const char *name;
+    uint8_t id;
+    uint8_t brightness;
+    uint8_t contrast;
+    uint8_t saturation;
+    uint8_t hue;
+    uint8_t sharpness;
+    uint8_t gain;
+    uint8_t gamma;
+    uint8_t whiteBalance;
     uint32_t ctrlValueNum;
     uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
     struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
@@ -67,6 +83,16 @@ struct VcmDeviceConfig {
     struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
 };
 
+struct FlashDeviceConfig {
+    const char *name;
+    uint8_t id;
+    uint8_t flashMode;
+    uint8_t flashIntensity;
+    uint32_t ctrlValueNum;
+    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
+    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
+};
+
 struct StreamDeviceConfig {
     const char *name;
     uint8_t id;
@@ -88,19 +114,8 @@ struct CameraSensorConfig {
 
 struct CameraIspConfig {
     uint8_t mode;
-    const char *name;
-    uint8_t id;
-    uint8_t brightness;
-    uint8_t contrast;
-    uint8_t saturation;
-    uint8_t hue;
-    uint8_t sharpness;
-    uint8_t gain;
-    uint8_t gamma;
-    uint8_t whiteBalance;
-    uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
-    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
+    uint16_t ispNum;
+    struct IspDeviceConfig isp[CAMERA_DEVICE_MAX_NUM];
 };
 
 struct CameraLensConfig {
@@ -117,13 +132,8 @@ struct CameraVcmConfig {
 
 struct CameraFlashConfig {
     uint8_t mode;
-    const char *name;
-    uint8_t id;
-    uint8_t flashMode;
-    uint8_t flashIntensity;
-    uint32_t ctrlValueNum;
-    uint32_t ctrlValue[CTRL_VALUE_MAX_NUM];
-    struct CtrlCapInfo ctrlCap[CTRL_MAX_NUM];
+    uint16_t flashNum;
+    struct FlashDeviceConfig flash[CAMERA_DEVICE_MAX_NUM];
 };
 
 struct CameraStreamConfig {

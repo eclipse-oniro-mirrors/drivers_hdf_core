@@ -139,6 +139,11 @@ void ASTAshmemType::EmitCppReadVar(const std::string &parcelName, const std::str
     } else {
         sb.Append(prefix).AppendFormat("%s = %s.ReadAshmem();\n", name.c_str(), parcelName.c_str());
     }
+
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: read an invalid ashmem object\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
 }
 } // namespace HDI
 } // namespace OHOS

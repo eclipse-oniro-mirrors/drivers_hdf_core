@@ -13,6 +13,7 @@
 #include <camera/camera_product.h>
 #include "camera_buffer_manager.h"
 #include "camera_buffer_manager_adapter.h"
+#include "camera_config_parser.h"
 
 #define DEVICE_NAME_SIZE 20
 #define DEVICE_DRIVER_MAX_NUM 20
@@ -27,15 +28,28 @@
     } \
 } while (0)
 
+enum DevicePowerState {
+    CAMERA_DEVICE_POWER_DOWN = 0,
+    CAMERA_DEVICE_POWER_UP = 1
+};
+
+struct UvcQueryCtrl {
+    uint32_t id;
+    uint32_t minimum;
+    uint32_t maximum;
+    uint32_t step;
+    uint32_t defaultValue;
+};
+
 struct Pixel {
-    char* description;
+    char description[32];
     uint32_t format;
     uint32_t width;
     uint32_t height;
-    uint32_t maxwidth;
-    uint32_t maxheight;
-    uint32_t minwidth;
-    uint32_t minheight;
+    uint32_t maxWidth;
+    uint32_t maxHeight;
+    uint32_t minWidth;
+    uint32_t minHeight;
     uint32_t sizeImage;
 };
 
@@ -63,17 +77,10 @@ struct Capability {
     uint32_t capabilities;
 };
 
-struct CropCap {
-    struct Rect bounds;
-    struct Rect defrect;
-    struct FPS pixelaspect;
-};
-
 struct PixelFormat {
     struct FPS fps;
     struct Pixel pixel;
-    struct Rect cop;
-    struct CropCap cropCap;
+    struct Rect crop;
 };
 
 struct CameraCtrlConfig {
@@ -81,25 +88,29 @@ struct CameraCtrlConfig {
     struct CameraControl ctrl;
 };
 
+struct EnumPixelFormatData {
+    int32_t index;
+    struct PixelFormat pixelFormat;
+};
+
 struct CameraDeviceDriverFactory {
     const char *deviceName;
-    void (*ReleaseFactory)(struct CameraDeviceDriverFactory *factory);
-    struct CameraDeviceDriver *(*Build)(const char *deviceName);
-    void (*Release)(struct CameraDeviceDriver *deviceDriver);
+    void (*releaseFactory)(struct CameraDeviceDriverFactory *factory);
+    struct CameraDeviceDriver *(*build)(const char *deviceName);
+    void (*release)(struct CameraDeviceDriver *deviceDriver);
 };
 
 struct CameraDevice {
     char deviceName[DEVICE_NAME_SIZE];
-    char driverName[DRIVER_NAME_SIZE];
     struct CameraDeviceDriver *deviceDriver;
-    struct CameraQueueImp queueImp;
 };
 
 struct DeviceOps {
-    int32_t (*PowerUp)(struct CameraDeviceDriver *regDev);
-    int32_t (*PowerDown)(struct CameraDeviceDriver *regDev);
-    int32_t (*SetConfig)(struct CameraDeviceDriver *regDev, struct CameraCtrlConfig *config, const char *driverName);
-    int32_t (*GetConfig)(struct CameraDeviceDriver *regDev, struct CameraCtrlConfig *config, const char *driverName);
+    int32_t (*powerUp)(struct CameraDeviceDriver *regDev);
+    int32_t (*powerDown)(struct CameraDeviceDriver *regDev);
+    int32_t (*setConfig)(struct CameraDeviceDriver *regDev, struct CameraCtrlConfig *config);
+    int32_t (*getConfig)(struct CameraDeviceDriver *regDev, struct CameraCtrlConfig *config);
+    int32_t (*uvcQueryCtrl)(struct CameraDeviceDriver *regDev, struct UvcQueryCtrl *query);
 };
 
 struct SensorDevice {
@@ -128,50 +139,61 @@ struct FlashDevice {
 };
 
 struct StreamDevice {
+    char kernelDrvName[DRIVER_NAME_SIZE];
     struct StreamOps *streamOps;
+    struct BufferQueueImp queueImp;
 };
 
 struct UvcDevice {
-    uint8_t id;
+    char kernelDrvName[DRIVER_NAME_SIZE];
+    struct DeviceOps *devOps;
 };
 
 struct StreamOps {
-    int32_t (*StreamSetFormat)(struct CameraCtrlConfig *config,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamGetFormat)(struct CameraCtrlConfig *config,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamSetCrop)(struct CameraCtrlConfig *config,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamGetCrop)(struct CameraCtrlConfig *config,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamSetFps)(struct CameraCtrlConfig *config,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamGetFps)(struct CameraCtrlConfig *config,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamGetAbility)(struct Capability *capability,
-        struct StreamDevice *streamDev, const char *driverName);
-    int32_t (*StreamEnumFormat)(struct PixelFormat *config, struct StreamDevice *streamDev,
-        uint32_t index, uint32_t cmd, const char *driverName);
-    int32_t (*StreamQueueInit)(struct BufferQueue *queue);
+    int32_t (*streamSetFormat)(struct CameraCtrlConfig *config, struct StreamDevice *streamDev);
+    int32_t (*streamGetFormat)(struct CameraCtrlConfig *config, struct StreamDevice *streamDev);
+    int32_t (*streamSetCrop)(struct CameraCtrlConfig *config, struct StreamDevice *streamDev);
+    int32_t (*streamGetCrop)(struct CameraCtrlConfig *config, struct StreamDevice *streamDev);
+    int32_t (*streamSetFps)(struct CameraCtrlConfig *config, struct StreamDevice *streamDev);
+    int32_t (*streamGetFps)(struct CameraCtrlConfig *config, struct StreamDevice *streamDev);
+    int32_t (*streamGetAbility)(struct Capability *capability, struct StreamDevice *streamDev);
+    int32_t (*streamEnumFormat)(struct PixelFormat *config, struct StreamDevice *streamDev,
+        uint32_t index, uint32_t cmd);
+    int32_t (*startStreaming)(struct StreamDevice *dev);
+    void (*stopStreaming)(struct StreamDevice *streamDev);
+    int32_t (*streamQueueInit)(struct StreamDevice *streamDev);
 };
 
 struct CameraDeviceDriverManager {
     struct CameraDeviceDriverFactory **deviceFactoryInsts;
-    int32_t (*RegDeviceDriverFactory)(struct CameraDeviceDriverFactory *factoryInst);
-    struct CameraDeviceDriverFactory *(*GetDeviceDriverFactoryByName)(const char *name);
+    int32_t (*regDeviceDriverFactory)(struct CameraDeviceDriverFactory *factoryInst);
+    struct CameraDeviceDriverFactory *(*getDeviceDriverFactoryByName)(const char *name);
 };
 
 struct CameraDeviceDriver {
     char name[CAMERA_COMPONENT_NAME_MAX_LEN];
     struct SensorDevice *sensor[DEVICE_NUM];
-    struct IspDevice *isp;
+    struct IspDevice *isp[DEVICE_NUM];
     struct VcmDevice *vcm[DEVICE_NUM];
     struct LensDevice *lens[DEVICE_NUM];
-    struct FlashDevice *flash;
+    struct FlashDevice *flash[DEVICE_NUM];
     struct UvcDevice *uvc[DEVICE_NUM];
     struct StreamDevice *stream[DEVICE_NUM];
     int32_t (*init)(struct CameraDeviceDriver *deviceDriver, struct CameraDevice *camDev);
     int32_t (*deinit)(struct CameraDeviceDriver *deviceDriver, struct CameraDevice *camDev);
+};
+
+struct CommonDevice {
+    int32_t type;
+    int32_t permissionId;
+    const char *driverName;
+    struct CameraDevice *camDev;
+    int32_t camId;
+    int32_t devId;
+    uint32_t ctrlId;
+    struct HdfSBuf *reqData;
+    struct HdfSBuf *rspData;
+    struct CameraDeviceConfig *cameraHcsConfig;
 };
 
 struct CameraDevice *CameraDeviceCreate(const char *deviceName, uint32_t len);
