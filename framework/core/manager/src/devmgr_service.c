@@ -276,7 +276,9 @@ static int DevmgrServiceAttachDeviceHost(
         return HDF_FAILURE;
     }
 
+    (void)OsalMutexLock(&hostClnt->hostLock);
     hostClnt->hostService = hostService;
+    (void)OsalMutexUnlock(&hostClnt->hostLock);
     return DevHostServiceClntInstallDriver(hostClnt);
 }
 
