@@ -176,8 +176,8 @@ int32_t DeviceDriverManagerDeInit(void)
         if (g_cameraDeviceDriverFactory[cnt] == NULL) {
             continue;
         }
-        if (g_cameraDeviceDriverFactory[cnt]->ReleaseFactory != NULL) {
-            g_cameraDeviceDriverFactory[cnt]->ReleaseFactory(g_cameraDeviceDriverFactory[cnt]);
+        if (g_cameraDeviceDriverFactory[cnt]->releaseFactory != NULL) {
+            g_cameraDeviceDriverFactory[cnt]->releaseFactory(g_cameraDeviceDriverFactory[cnt]);
         }
         g_cameraDeviceDriverFactory[cnt] = NULL;
     }
@@ -186,8 +186,8 @@ int32_t DeviceDriverManagerDeInit(void)
 
 static struct CameraDeviceDriverManager g_deviceDriverManager = {
     .deviceFactoryInsts = g_cameraDeviceDriverFactory,
-    .RegDeviceDriverFactory = CameraDeviceDriverFactoryRegister,
-    .GetDeviceDriverFactoryByName = CameraDeviceDriverFactoryGetByName,
+    .regDeviceDriverFactory = CameraDeviceDriverFactoryRegister,
+    .getDeviceDriverFactoryByName = CameraDeviceDriverFactoryGetByName,
 };
 
 struct CameraDeviceDriverManager *CameraDeviceDriverManagerGet(void)

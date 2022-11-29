@@ -69,7 +69,7 @@ static int32_t ParseCameraSensorDeviceConfig(const struct DeviceResourceNode *no
 }
 
 static int32_t ParseCameraIspDeviceConfig(const struct DeviceResourceNode *node,
-    struct DeviceResourceIface *drsOps, struct CameraIspConfig *ispConfig)
+    struct DeviceResourceIface *drsOps, struct IspDeviceConfig *ispConfig)
 {
     int32_t ret;
 
@@ -102,6 +102,10 @@ static int32_t ParseCameraIspDeviceConfig(const struct DeviceResourceNode *node,
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
     SetCtrlCapInfo(ispConfig->ctrlCap, ispConfig->ctrlValueNum, ispConfig->ctrlValue);
 
+    HDF_LOGD("%s: name=%{public}s, id=%{public}d, brightness=%{public}d, contrast=%{public}d, saturation=%{public}d, "
+        "sharpness=%{public}d, gain=%{public}d, gamma=%{public}d, whiteBalance=%{public}d", __func__, ispConfig->name,
+        ispConfig->id, ispConfig->brightness, ispConfig->contrast, ispConfig->saturation,
+        ispConfig->sharpness, ispConfig->gain, ispConfig->gamma, ispConfig->whiteBalance);
     return HDF_SUCCESS;
 }
 
@@ -164,7 +168,7 @@ static int32_t ParseCameraLensDeviceConfig(const struct DeviceResourceNode *node
 }
 
 static int32_t ParseCameraFlashDeviceConfig(const struct DeviceResourceNode *node,
-    struct DeviceResourceIface *drsOps, struct CameraFlashConfig *flashConfig)
+    struct DeviceResourceIface *drsOps, struct FlashDeviceConfig *flashConfig)
 {
     int32_t ret;
 
@@ -185,6 +189,8 @@ static int32_t ParseCameraFlashDeviceConfig(const struct DeviceResourceNode *nod
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
     SetCtrlCapInfo(flashConfig->ctrlCap, flashConfig->ctrlValueNum, flashConfig->ctrlValue);
 
+    HDF_LOGD("%s: name=%{public}s, id=%{public}d, flashMode=%{public}d, flashIntensity=%{public}d", __func__,
+        flashConfig->name, flashConfig->id, flashConfig->flashMode, flashConfig->flashIntensity);
     return HDF_SUCCESS;
 }
 
@@ -266,6 +272,7 @@ static int32_t ParseCameraSensorConfig(const struct DeviceResourceNode *node,
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
         if (ParseCameraSensorDeviceConfig(childNode, drsOps, &sensorConfig->sensor[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: Parse sensor[%{public}d] failed!", __func__, cnt);
             return HDF_FAILURE;
         }
         cnt++;
@@ -279,7 +286,9 @@ static int32_t ParseCameraSensorConfig(const struct DeviceResourceNode *node,
 static int32_t ParseCameraIspConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraIspConfig *ispConfig)
 {
+    struct DeviceResourceNode *childNode = NULL;
     int32_t ret;
+    uint32_t cnt = 0;
 
     ret = drsOps->GetUint8(node, "mode", &ispConfig->mode, 0);
     CHECK_PARSER_CONFIG_RET(ret, "mode");
@@ -288,17 +297,19 @@ static int32_t ParseCameraIspConfig(const struct DeviceResourceNode *node,
         HDF_LOGD("%s: not support isp!", __func__);
         return HDF_SUCCESS;
     }
-    ret = ParseCameraIspDeviceConfig(node, drsOps, ispConfig);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ParseCameraIspDeviceConfig failed!", __func__);
+
+    DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
+    {
+        if (ParseCameraIspDeviceConfig(childNode, drsOps, &ispConfig->isp[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: Parse isp[%{public}d] failed!", __func__, cnt);
+            return HDF_FAILURE;
+        }
+        cnt++;
+        ispConfig->ispNum++;
     }
+    HDF_LOGD("%s: ispConfig->ispNum = %{public}d!", __func__, ispConfig->ispNum);
 
-    HDF_LOGD("%s: name=%{public}s, id=%{public}d, brightness=%{public}d, contrast=%{public}d, saturation=%{public}d, "
-        "sharpness=%{public}d, gain=%{public}d, gamma=%{public}d, whiteBalance=%{public}d", __func__, ispConfig->name,
-        ispConfig->id, ispConfig->brightness, ispConfig->contrast, ispConfig->saturation,
-        ispConfig->sharpness, ispConfig->gain, ispConfig->gamma, ispConfig->whiteBalance);
-
-    return ret;
+    return HDF_SUCCESS;
 }
 
 static int32_t ParseCameraLensConfig(const struct DeviceResourceNode *node,
@@ -319,6 +330,7 @@ static int32_t ParseCameraLensConfig(const struct DeviceResourceNode *node,
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
         if (ParseCameraLensDeviceConfig(childNode, drsOps, &lensConfig->lens[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: Parse lens[%{public}d] failed!", __func__, cnt);
             return HDF_FAILURE;
         }
         cnt++;
@@ -347,6 +359,7 @@ static int32_t ParseCameraVcmConfig(const struct DeviceResourceNode *node,
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
         if (ParseCameraVcmDeviceConfig(childNode, drsOps, &vcmConfig->vcm[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: Parse vcm[%{public}d] failed!", __func__, cnt);
             return HDF_FAILURE;
         }
         cnt++;
@@ -360,7 +373,9 @@ static int32_t ParseCameraVcmConfig(const struct DeviceResourceNode *node,
 static int32_t ParseCameraFlashConfig(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct CameraFlashConfig *flashConfig)
 {
+    struct DeviceResourceNode *childNode = NULL;
     int32_t ret;
+    uint32_t cnt = 0;
 
     ret = drsOps->GetUint8(node, "mode", &flashConfig->mode, 0);
     CHECK_PARSER_CONFIG_RET(ret, "mode");
@@ -369,15 +384,19 @@ static int32_t ParseCameraFlashConfig(const struct DeviceResourceNode *node,
         HDF_LOGD("%s: not support flash!", __func__);
         return HDF_SUCCESS;
     }
-    ret = ParseCameraFlashDeviceConfig(node, drsOps, flashConfig);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ParseCameraFlashDeviceConfig failed!", __func__);
+
+    DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
+    {
+        if (ParseCameraFlashDeviceConfig(childNode, drsOps, &flashConfig->flash[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: Parse flash[%{public}d] failed!", __func__, cnt);
+            return HDF_FAILURE;
+        }
+        cnt++;
+        flashConfig->flashNum++;
     }
+    HDF_LOGD("%s: flashConfig->flashNum = %{public}d!", __func__, flashConfig->flashNum);
 
-    HDF_LOGD("%s: name=%{public}s, id=%{public}d, flashMode=%{public}d, flashIntensity=%{public}d", __func__,
-        flashConfig->name, flashConfig->id, flashConfig->flashMode, flashConfig->flashIntensity);
-
-    return ret;
+    return HDF_SUCCESS;
 }
 
 static int32_t ParseCameraStreamConfig(const struct DeviceResourceNode *node,
@@ -398,6 +417,7 @@ static int32_t ParseCameraStreamConfig(const struct DeviceResourceNode *node,
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
         if (ParseCameraStreamDeviceConfig(childNode, drsOps, &streamConfig->stream[cnt]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: Parse stream[%{public}d] failed!", __func__, cnt);
             return HDF_FAILURE;
         }
         cnt++;

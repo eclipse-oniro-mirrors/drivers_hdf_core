@@ -11,8 +11,8 @@
 
 #include <utils/hdf_base.h>
 #include <utils/hdf_sbuf.h>
-#include <camera/camera_product.h>
 #include <core/hdf_device_desc.h>
+#include <camera/camera_product.h>
 #include "hdf_types.h"
 
 struct CameraCmdHandle {
