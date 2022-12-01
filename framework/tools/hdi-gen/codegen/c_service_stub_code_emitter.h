@@ -28,15 +28,15 @@ private:
 
     void EmitStubHeaderInclusions(StringBuilder &sb);
 
-    void EmitCbServiceStubDef(StringBuilder &sb);
+    void EmitCbServiceStubDef(StringBuilder &sb) const;
 
-    void EmitCbServiceStubMethodsDcl(StringBuilder &sb);
+    void EmitCbServiceStubMethodsDcl(StringBuilder &sb) const;
 
     void EmitServiceStubSourceFile();
 
     void EmitStubSourceInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     // get or release method for driver interface object
     void EmitExternalMethodImpl(StringBuilder &sb);
@@ -53,44 +53,45 @@ private:
 
     void EmitServiceStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const std::string &prefix);
+    void EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
+    void EmitStubLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
 
     void EmitReadCStringStubMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
-        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix, AutoPtr<ASTType> &type);
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix, AutoPtr<ASTType> &type) const;
 
     void EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
-        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubCallMethod(
         const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
 
     void EmitCallParameter(
-        StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name);
+        StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name) const;
 
-    void EmitStubGetVerMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitStubGetVerMethodImpl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitKernelStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitKernelStubConstruct(StringBuilder &sb);
+    void EmitKernelStubConstruct(StringBuilder &sb) const;
 
     void EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubRemoteDispatcher(StringBuilder &sb);
+    void EmitStubRemoteDispatcher(StringBuilder &sb) const;
 
-    void EmitStubNewInstance(StringBuilder &sb);
+    void EmitStubNewInstance(StringBuilder &sb) const;
 
-    void EmitStubReleaseMethod(StringBuilder &sb);
+    void EmitStubReleaseMethod(StringBuilder &sb) const;
 
-    void EmitStubConstructor(StringBuilder &sb);
+    void EmitStubConstructor(StringBuilder &sb) const;
 
-    void EmitStubRegAndUnreg(StringBuilder &sb);
+    void EmitStubRegAndUnreg(StringBuilder &sb) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 };

@@ -30,14 +30,14 @@ File::File(const std::string &path, unsigned int mode) : mode_(mode)
         return;
     }
 
-    if (mode_ & READ) {
+    if ((mode_ & READ) != 0) {
         OpenByRead(path);
         return;
     }
 
-    if (mode_ & WRITE) {
+    if ((mode_ & WRITE) != 0) {
         fd_ = fopen(path.c_str(), "w+");
-    } else if (mode_ & APPEND) {
+    } else if ((mode_ & APPEND) != 0) {
         fd_ = fopen(path.c_str(), "a+");
     }
 
@@ -154,14 +154,14 @@ bool File::WriteData(const void *data, size_t size) const
     return count == 1;
 }
 
-void File::Flush()
+void File::Flush() const
 {
     if ((mode_ & (WRITE | APPEND)) && fd_ != nullptr) {
         fflush(fd_);
     }
 }
 
-bool File::Reset()
+bool File::Reset() const
 {
     if (fd_ == nullptr) {
         return false;
@@ -170,7 +170,7 @@ bool File::Reset()
     return fseek(fd_, 0, SEEK_SET) == 0;
 }
 
-bool File::Skip(long size)
+bool File::Skip(long size) const
 {
     if (fd_ == nullptr) {
         return false;

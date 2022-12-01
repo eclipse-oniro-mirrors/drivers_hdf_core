@@ -34,25 +34,25 @@ private:
 
     void EmitHeaderInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitCustomTypeDecls(StringBuilder &sb);
 
-    void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type);
+    void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const;
 
     void EmitCustomTypeFuncDecl(StringBuilder &sb);
 
-    void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
-    void EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
-    void EmitCustomTypeFreeDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeFreeDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
     void EmitCustomTypesSourceFile();
 
     void EmitSoucreInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitCustomTypeDataProcess(StringBuilder &sb);
 
@@ -68,8 +68,8 @@ private:
 
     void EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitPodTypeUnmarshalling(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitPodTypeUnmarshalling(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &name, const std::string &memberName,
         StringBuilder &sb, const std::string &prefix);
@@ -84,8 +84,8 @@ private:
 
     bool NeedEmitInitVar(const AutoPtr<ASTType> &type, bool needFree);
 
-    void EmitCustomTypeMemoryRecycle(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitCustomTypeMemoryRecycle(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 

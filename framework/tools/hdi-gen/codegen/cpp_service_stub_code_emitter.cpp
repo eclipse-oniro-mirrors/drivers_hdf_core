@@ -70,7 +70,7 @@ void CppServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
     }
 }
 
-void CppServiceStubCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppServiceStubCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_parcel");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_option");
@@ -90,7 +90,7 @@ void CppServiceStubCodeEmitter::EmitStubDecl(StringBuilder &sb)
     EmitEndNamespace(sb);
 }
 
-void CppServiceStubCodeEmitter::EmitStubUsingNamespace(StringBuilder &sb)
+void CppServiceStubCodeEmitter::EmitStubUsingNamespace(StringBuilder &sb) const
 {
     sb.Append("using namespace OHOS;\n");
 }
@@ -107,13 +107,13 @@ void CppServiceStubCodeEmitter::EmitStubBody(StringBuilder &sb, const std::strin
     EmitStubPrivateData(sb, prefix);
 }
 
-void CppServiceStubCodeEmitter::EmitStubConstructorDecl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubConstructorDecl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("explicit %s(const sptr<%s> &impl);\n", stubName_.c_str(), interfaceName_.c_str());
     sb.Append(prefix).AppendFormat("virtual ~%s();\n", stubName_.c_str());
 }
 
-void CppServiceStubCodeEmitter::EmitStubOnRequestDecl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubOnRequestDecl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, ");
     sb.Append("MessageOption &option) override;\n");
@@ -131,14 +131,14 @@ void CppServiceStubCodeEmitter::EmitStubMethodDecls(StringBuilder &sb, const std
 }
 
 void CppServiceStubCodeEmitter::EmitStubMethodDecl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("int32_t %s%s(MessageParcel& %s, MessageParcel& %s, MessageOption& %s);\n",
         stubName_.c_str(), method->GetName().c_str(), dataParcelName_.c_str(), replyParcelName_.c_str(),
         optionName_.c_str());
 }
 
-void CppServiceStubCodeEmitter::EmitStubPrivateData(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubPrivateData(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append("private:\n");
     sb.Append(prefix).AppendFormat(
@@ -191,7 +191,7 @@ void CppServiceStubCodeEmitter::EmitStubSourceInclusions(StringBuilder &sb)
     }
 }
 
-void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     if (!interface_->IsSerializable()) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
@@ -271,7 +271,7 @@ void CppServiceStubCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix).Append("}\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubConstructorImpl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubConstructorImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "%s::%s(const sptr<%s> &impl)\n", stubName_.c_str(), stubName_.c_str(), interfaceName_.c_str());
@@ -368,7 +368,7 @@ void CppServiceStubCodeEmitter::EmitStubMethodImpl(
 }
 
 void CppServiceStubCodeEmitter::EmitStubCallMethod(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("int32_t %s = impl_->%s(", errorCodeName_.c_str(), method->GetName().c_str());
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
@@ -388,7 +388,7 @@ void CppServiceStubCodeEmitter::EmitStubCallMethod(
 }
 
 void CppServiceStubCodeEmitter::EmitStubReadInterfaceToken(
-    const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
+    const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "if (%s.ReadInterfaceToken() != %s::GetDescriptor()) {\n", parcelName.c_str(), interfaceName_.c_str());
@@ -405,8 +405,8 @@ void CppServiceStubCodeEmitter::EmitStubReadMemFlag(
     }
 }
 
-void CppServiceStubCodeEmitter::EmitLocalVariable(
-    const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitLocalVariable(const AutoPtr<ASTParameter> &param,
+    const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitCppLocalVar()).Append("\n");
     AutoPtr<ASTType> type = param->GetType();

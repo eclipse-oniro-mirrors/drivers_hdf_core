@@ -28,11 +28,11 @@ private:
 
     void EmitInterfaceImports(StringBuilder &sb);
 
-    void EmitInterfaceCorelibImports(StringBuilder &sb);
+    void EmitInterfaceCorelibImports(StringBuilder &sb) const;
 
-    void EmitInterfaceDBinderImports(StringBuilder &sb);
+    void EmitInterfaceDBinderImports(StringBuilder &sb) const;
 
-    void EmitInterfaceSelfDefinedTypeImports(StringBuilder &sb);
+    void EmitInterfaceSelfDefinedTypeImports(StringBuilder &sb) const;
 
     void EmitInterfaceDefinition(StringBuilder &sb);
 
@@ -40,7 +40,8 @@ private:
 
     void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodParameter(
+        const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

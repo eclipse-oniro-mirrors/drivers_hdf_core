@@ -10,7 +10,7 @@
 #define OHOS_HDI_LEXER_H
 
 #include <cstdlib>
-#include <ctype.h>
+#include <cctype>
 #include <memory>
 #include <unordered_map>
 

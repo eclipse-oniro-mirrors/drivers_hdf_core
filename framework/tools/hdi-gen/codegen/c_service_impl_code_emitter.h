@@ -28,29 +28,29 @@ private:
 
     void EmitServiceImplHeaderInclusions(StringBuilder &sb);
 
-    void EmitServiceImplConstructDecl(StringBuilder &sb);
+    void EmitServiceImplConstructDecl(StringBuilder &sb) const;
 
     void EmitServiceImplSourceFile();
 
     void EmitServiceImplSourceInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitKernelServiceImplDef(StringBuilder &sb);
+    void EmitKernelServiceImplDef(StringBuilder &sb) const;
 
-    void EmitServiceImplDef(StringBuilder &sb);
+    void EmitServiceImplDef(StringBuilder &sb) const;
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
     void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitKernelServiceImplGetMethod(StringBuilder &sb);
+    void EmitKernelServiceImplGetMethod(StringBuilder &sb) const;
 
     void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix);
 
     void EmitServiceImplGetMethod(StringBuilder &sb);
 
-    void EmitKernelServiceImplReleaseMethod(StringBuilder &sb);
+    void EmitKernelServiceImplReleaseMethod(StringBuilder &sb) const;
 
     void EmitServiceImplReleaseMethod(StringBuilder &sb);
 };

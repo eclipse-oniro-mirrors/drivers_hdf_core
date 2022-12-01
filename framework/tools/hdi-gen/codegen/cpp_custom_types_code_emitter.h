@@ -32,31 +32,31 @@ private:
 
     void EmitHeaderFileInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitUsingNamespace(StringBuilder &sb) override;
 
     void EmitCustomTypeDecls(StringBuilder &sb);
 
-    void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type);
+    void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const;
 
     void EmitCustomTypeFuncDecl(StringBuilder &sb);
 
-    void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
-    void EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
     void EmitCustomTypesSourceFile();
 
     void EmitSourceFileInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitCustomTypeDataProcess(StringBuilder &sb);
 
-    void EmitCustomTypeMarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeMarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
-    void EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
     void EmitBeginNamespace(StringBuilder &sb) override;
 

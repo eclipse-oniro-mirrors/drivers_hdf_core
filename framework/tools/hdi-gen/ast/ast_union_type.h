@@ -22,12 +22,12 @@ class ASTUnionType : public ASTType {
 public:
     ASTUnionType() : ASTType(TypeKind::TYPE_UNION, true), attr_(new ASTTypeAttr()), members_() {}
 
-    inline void SetName(const std::string &name)
+    inline void SetName(const std::string &name) override
     {
         name_ = name;
     }
 
-    inline std::string GetName()
+    inline std::string GetName() override
     {
         return name_;
     }

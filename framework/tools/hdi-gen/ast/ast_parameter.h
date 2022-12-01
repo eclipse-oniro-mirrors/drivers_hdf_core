@@ -55,7 +55,7 @@ public:
 
     std::string EmitCppLocalVar();
 
-    std::string EmitJavaLocalVar();
+    std::string EmitJavaLocalVar() const;
 
     void EmitCWriteVar(const std::string &parcelName, const std::string &ecName, const std::string &gotoLabel,
         StringBuilder &sb, const std::string &prefix) const;

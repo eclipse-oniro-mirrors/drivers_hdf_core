@@ -42,7 +42,7 @@ public:
     bool Preprocess(std::vector<std::string> &compileSourceFiles);
 
 private:
-    bool CheckAllFilesPath(const std::vector<std::string> &sourceFiles);
+    bool CheckAllFilesPath(const std::vector<std::string> &sourceFiles) const;
 
     bool AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails);
 
@@ -50,7 +50,7 @@ private:
 
     bool ParsePackage(Lexer &lexer, FileDetail &info);
 
-    bool ParseImports(Lexer &lexer, FileDetail &info);
+    bool ParseImports(Lexer &lexer, FileDetail &info) const;
 
     bool LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails);
 

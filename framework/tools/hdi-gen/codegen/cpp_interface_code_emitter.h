@@ -28,17 +28,17 @@ private:
 
     void EmitInterfaceInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitInterfaceVersionMacro(StringBuilder &sb);
+    void EmitInterfaceVersionMacro(StringBuilder &sb) const;
 
     void EmitInterfaceDefinition(StringBuilder &sb);
 
-    void EmitInterfaceDescriptor(StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceDescriptor(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix);
+    void EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitInterfaceDestruction(StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceDestruction(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitInterfaceMethodsDecl(StringBuilder &sb, const std::string &prefix);
 
@@ -46,7 +46,8 @@ private:
 
     void EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodParameter(
+        const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

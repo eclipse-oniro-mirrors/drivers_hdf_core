@@ -60,7 +60,7 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceImports(StringBuilder &sb)
     EmitInterfaceDBinderImports(sb);
 }
 
-void JavaClientInterfaceCodeEmitter::EmitInterfaceCorelibImports(StringBuilder &sb)
+void JavaClientInterfaceCodeEmitter::EmitInterfaceCorelibImports(StringBuilder &sb) const
 {
     bool includeList = false;
     bool includeMap = false;
@@ -90,13 +90,13 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceCorelibImports(StringBuilder &
     }
 }
 
-void JavaClientInterfaceCodeEmitter::EmitInterfaceDBinderImports(StringBuilder &sb)
+void JavaClientInterfaceCodeEmitter::EmitInterfaceDBinderImports(StringBuilder &sb) const
 {
     sb.Append("import ohos.rpc.IRemoteBroker;\n");
     sb.Append("import ohos.rpc.RemoteException;\n");
 }
 
-void JavaClientInterfaceCodeEmitter::EmitInterfaceSelfDefinedTypeImports(StringBuilder &sb)
+void JavaClientInterfaceCodeEmitter::EmitInterfaceSelfDefinedTypeImports(StringBuilder &sb) const
 {
     for (const auto &importPair : ast_->GetImports()) {
         AutoPtr<AST> import = importPair.second;
@@ -145,7 +145,7 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceMethod(
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitJavaParameter());
 }

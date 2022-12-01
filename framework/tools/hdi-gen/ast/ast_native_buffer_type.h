@@ -54,8 +54,8 @@ public:
     void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 
-    void EmitMemoryRecycle(
-        const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const;
+    void EmitMemoryRecycle(const std::string &name,
+        bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const override;
 };
 } // namespace HDI
 } // namespace OHOS

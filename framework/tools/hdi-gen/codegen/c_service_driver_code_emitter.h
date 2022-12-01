@@ -28,15 +28,15 @@ private:
 
     void EmitDriverInclusions(StringBuilder &sb);
 
-    void GetDriverSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetDriverSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitDriverServiceDecl(StringBuilder &sb);
+    void EmitDriverServiceDecl(StringBuilder &sb) const;
 
     void EmitKernelDriverDispatch(StringBuilder &sb);
 
     void EmitDriverDispatch(StringBuilder &sb);
 
-    void EmitDriverInit(StringBuilder &sb);
+    void EmitDriverInit(StringBuilder &sb) const;
 
     void EmitKernelDriverBind(StringBuilder &sb);
 
@@ -46,7 +46,7 @@ private:
 
     void EmitDriverRelease(StringBuilder &sb);
 
-    void EmitDriverEntryDefinition(StringBuilder &sb);
+    void EmitDriverEntryDefinition(StringBuilder &sb) const;
 private:
     std::string hostName_;
 };

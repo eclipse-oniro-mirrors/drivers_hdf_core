@@ -27,7 +27,8 @@ protected:
 
     void GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
-    void EmitInterfaceMethodParameter(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodParameter(
+        const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitLicense(StringBuilder &sb);
 
@@ -35,11 +36,11 @@ protected:
 
     void EmitTailMacro(StringBuilder &sb, const std::string &fullName);
 
-    void EmitHeadExternC(StringBuilder &sb);
+    void EmitHeadExternC(StringBuilder &sb) const;
 
-    void EmitTailExternC(StringBuilder &sb);
+    void EmitTailExternC(StringBuilder &sb) const;
 
-    bool isVersion(const std::string &name);
+    bool IsVersion(const std::string &name) const;
 
     std::vector<std::string> EmitCppNameSpaceVec(const std::string &namespaceStr);
 
@@ -51,21 +52,21 @@ protected:
 
     virtual void EmitUsingNamespace(StringBuilder &sb);
 
-    std::string EmitNamespace(const std::string &packageName);
+    std::string EmitNamespace(const std::string &packageName) const;
 
     void EmitImportUsingNamespace(StringBuilder &sb);
 
     void EmitWriteMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
-        const std::string &prefix);
+        const std::string &prefix) const;
 
     void EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, bool initVariable,
-        StringBuilder &sb, const std::string &prefix);
+        StringBuilder &sb, const std::string &prefix) const;
 
-    std::string MacroName(const std::string &name);
+    std::string MacroName(const std::string &name) const;
 
     std::string ConstantName(const std::string &name);
 
-    std::string SpecificationParam(StringBuilder &sb, const std::string &prefix);
+    std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS
