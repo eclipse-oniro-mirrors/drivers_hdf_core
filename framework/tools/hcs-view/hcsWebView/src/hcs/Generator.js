@@ -53,6 +53,7 @@ class Generator {
         }
         ret.nodeType_ = node.nodeType_
         ret.isOpen_ = true
+        ret.nodeWidth_ = 132;
         this.astToObjConfigNodeType(node.nodeType_, ret, node);
    }
 
@@ -63,24 +64,25 @@ class Generator {
         ret.name_ = node.name_;
         ret.lineno_ = node.lineno_;
         ret.parent_ = parent;
+        ret.nodeWidth_ = 132;
         switch (node.type_) {
-            case 1:// uint8
-            case 2:// uint16
-            case 3:// uint32
-            case 4:// uint64
+            case DataType.INT8:
+            case DataType.INT16:
+            case DataType.INT32:
+            case DataType.INT64:
                 ret.value_ = node.integerValue_;
                 ret.jinzhi_ = node.jinzhi_;
                 break;
-            case 5:// string
+            case DataType.STRING:
                 ret.value_ = node.stringValue_;
                 break;
-            case 6:// ConfigNode
+            case DataType.NODE:
                 this.astToObjConfigNode(ret, child, node);
                 break;
-            case 7:// ConfigTerm，attribute name
+            case DataType.ATTR:
                 ret.value_ = this.astToObj(node.child_, ret)
                 break;
-            case 8:// Array attribute
+            case DataType.ARRAY:
                 ret.value_ = [];
                 child = node.child_;
                 while (child != null) {
@@ -90,13 +92,13 @@ class Generator {
                 ret.arraySize_ = node.arraySize_;
                 ret.arrayType_ = node.arrayType_;
                 break;
-            case 9:// Leaf attribute
+            case DataType.REFERENCE:
                 ret.value_ = node.stringValue_
                 break;
-            case 10:// Delete attribute
+            case DataType.DELETE:
                 ret.value_ = null;
                 break;
-            case 11:// bool
+            case DataType.BOOL:
                 if (node.integerValue_ == 0) ret.value_ = false;
                 else ret.value_ = true;
                 break;
@@ -184,24 +186,24 @@ class Generator {
     objToHcs(node, deep) {
         let ret = ""
         switch (node.type_) {
-            case 1:// uint8
-            case 2:// uint16
-            case 3:// uint32
-            case 4:// uint64
+            case DataType.INT8:
+            case DataType.INT16:
+            case DataType.INT32:
+            case DataType.INT64:
                 ret = NodeTools.jinZhi10ToX(node.value_, node.jinzhi_);
                 break;
-            case 5:// string
+            case DataType.STRING:
                 ret = '"' + node.value_ + '"';
                 break;
-            case 6:// ConfigNode
+            case DataType.NODE:
                 ret+=this.objToHcsConfigNode(node, deep);
                 break;
-            case 7:// ConfigTerm
+            case DataType.ATTR:
                 ret = this.makeSpace(deep) + node.name_ + ' = '
                 ret += this.objToHcs(node.value_, 0);
                 ret += ";\n"
                 break;
-            case 8:// Array attribute
+            case DataType.ARRAY:
                 ret = '[';
                 for (let i in node.value_) {
                     let ss = this.objToHcs(node.value_[i], 0);
@@ -210,13 +212,13 @@ class Generator {
                 }
                 ret += "]";
                 break;
-            case 9:// Leaf attribute
+            case DataType.REFERENCE:
                 ret = "&" + node.value_;
                 break;
-            case 10:// Delete attribute
+            case DataType.DELETE:
                 ret = "delete";
                 break;
-            case 11:// bool
+            case DataType.BOOL:
                 if (node.value_) ret = "true";
                 else ret = "false";
                 break;

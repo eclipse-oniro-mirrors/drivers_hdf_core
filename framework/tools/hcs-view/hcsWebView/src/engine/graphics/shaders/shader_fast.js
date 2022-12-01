@@ -13,7 +13,7 @@
 * limitations under the License. 
 */
 
-const shaderFastVs = `
+var shaderFastVs = `
 attribute vec3 position;
 attribute vec2 aTexCoord;
 attribute vec4 ext1;//x,y,sw,sh,
@@ -46,9 +46,9 @@ void main()
     tt=tt/64;
     clr_filter.a=0.015873015873*float(tt-tt/64*64);
 }
-`;
+`
 
-const shaderFastFs = `
+var shaderFastFs = `
 precision mediump float;
 
 varying vec2 TexCoord;
@@ -90,7 +90,7 @@ void main()
     else if(tex_point<14.5)gl_FragColor = texture2D(tex14, TexCoord);
     else if(tex_point<15.5)gl_FragColor = texture2D(tex15, TexCoord);
     gl_FragColor=gl_FragColor * clr_filter;
-}`;
+}`
 
 module.exports = {
     shaderFastVs,
