@@ -19,14 +19,13 @@
 void CameraBufferSyncForUser(struct CameraBuffer *buffer)
 {
     struct BufferQueueImp *queueImp = CONTAINER_OF(buffer->bufferQueue, struct BufferQueueImp, queue);
-    uint32_t plane;
 
     if ((buffer->flags & BUFFER_DEVICE_SYNCED) == 0) {
         return;
     }
 
     if ((buffer->flags & BUFFER_NEED_USER_SYNC) != 0) {
-        for (plane = 0; plane < buffer->numPlanes; ++plane) {
+        for (uint32_t plane = 0; plane < buffer->numPlanes; ++plane) {
             if (queueImp->memOps->syncForUser != NULL) {
                 queueImp->memOps->syncForUser(buffer->planes[plane].memPriv);
             }
@@ -276,7 +275,6 @@ void CameraBufferSetCacheSync(struct BufferQueue *queue, struct CameraBuffer *bu
 int32_t CameraBufferCheckPlaneLength(struct CameraBuffer *buffer, const struct UserCameraBuffer *userBuffer)
 {
     uint32_t length;
-    uint32_t bytesUsed;
     uint32_t planeId;
 
     for (planeId = 0; planeId < buffer->numPlanes; ++planeId) {
@@ -285,7 +283,8 @@ int32_t CameraBufferCheckPlaneLength(struct CameraBuffer *buffer, const struct U
         } else {
             length = buffer->planes[planeId].length;
         }
-        bytesUsed = userBuffer->planes[planeId].bytesUsed != 0 ? userBuffer->planes[planeId].bytesUsed : length;
+        uint32_t bytesUsed = userBuffer->planes[planeId].bytesUsed != 0 ?
+            userBuffer->planes[planeId].bytesUsed : length;
         if (bytesUsed > length) {
             return HDF_ERR_INVALID_PARAM;
         }
@@ -310,7 +309,6 @@ static int32_t CameraBufferPrepareMmap(struct CameraBuffer *buffer, struct Buffe
 static int32_t CameraBufferPrepareUserPtrPlane(struct CameraBuffer *buffer,
     uint32_t planeNum, unsigned long userPtr, uint32_t length)
 {
-    int32_t ret;
     void *memPriv = NULL;
     struct BufferQueueImp *queueImp = CONTAINER_OF(buffer->bufferQueue, struct BufferQueueImp, queue);
     if (buffer->planes[planeNum].memPriv != NULL) {
@@ -337,7 +335,7 @@ static int32_t CameraBufferPrepareUserPtrPlane(struct CameraBuffer *buffer,
     }
 
     if (MemoryAdapterIsErrPtr(memPriv)) {
-        ret = MemoryAdapterPtrErr(memPriv);
+        int32_t ret = MemoryAdapterPtrErr(memPriv);
         return ret;
     }
     buffer->planes[planeNum].memPriv = memPriv;
@@ -374,7 +372,6 @@ FREE:
 
 static int32_t CameraBufferAttachDmaPlane(struct CameraBuffer *buffer, uint32_t planeNum, struct BufferPlane planes[])
 {
-    int32_t ret;
     void *memPriv = NULL;
     struct BufferQueueImp *queueImp = CONTAINER_OF(buffer->bufferQueue, struct BufferQueueImp, queue);
     void *dmaBuf = MemoryAdapterGetDmaBuffer(planes[planeNum].memory.fd);
@@ -410,7 +407,7 @@ static int32_t CameraBufferAttachDmaPlane(struct CameraBuffer *buffer, uint32_t 
     }
 
     if (MemoryAdapterIsErrPtr(memPriv)) {
-        ret = MemoryAdapterPtrErr(memPriv);
+        int32_t ret = MemoryAdapterPtrErr(memPriv);
         MemoryAdapterPutDmaBuffer(dmaBuf);
         return ret;
     }
@@ -422,10 +419,9 @@ static int32_t CameraBufferAttachDmaPlane(struct CameraBuffer *buffer, uint32_t 
 static int32_t CameraBufferAttachDmaBuffer(struct CameraBuffer *buffer, struct BufferPlane planes[])
 {
     uint32_t planeNum;
-    int32_t ret;
 
     for (planeNum = 0; planeNum < buffer->numPlanes; ++planeNum) {
-        ret = CameraBufferAttachDmaPlane(buffer, planeNum, planes);
+        int32_t ret = CameraBufferAttachDmaPlane(buffer, planeNum, planes);
         if (ret != HDF_SUCCESS) {
             return ret;
         }
@@ -538,14 +534,13 @@ static int32_t CameraBufferGetPlanesFromUserBuffer(struct CameraBuffer *buffer,
 static void CameraBufferSyncForDevice(struct CameraBuffer *buffer)
 {
     struct BufferQueueImp *queueImp = CONTAINER_OF(buffer->bufferQueue, struct BufferQueueImp, queue);
-    uint32_t plane;
 
     if ((buffer->flags & BUFFER_DEVICE_SYNCED) != 0) {
         return;
     }
 
     if ((buffer->flags & BUFFER_NEED_DEVICE_SYNC) != 0) {
-        for (plane = 0; plane < buffer->numPlanes; ++plane) {
+        for (uint32_t plane = 0; plane < buffer->numPlanes; ++plane) {
             if (queueImp->memOps->syncForDevice != NULL) {
                 queueImp->memOps->syncForDevice(buffer->planes[plane].memPriv);
             }

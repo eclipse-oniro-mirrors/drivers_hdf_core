@@ -20,7 +20,7 @@
 
 static struct CameraConfigRoot g_configCameraRoot;
 
-static void SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, int *ctrlValue)
+static void SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, const int *ctrlValue)
 {
     int32_t i;
 

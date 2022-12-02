@@ -408,7 +408,7 @@ static void *SgGetVaddr(void *bufPriv)
     }
 
     /* add offset in case userptr is not page-aligned */
-    return buf->vaddr != NULL ? buf->vaddr + buf->offset : NULL;
+    return buf->vaddr != NULL ? static_cast<void *>(static_cast<uint8_t *>(buf->vaddr) + buf->offset) : NULL;
 }
 
 static unsigned int SgNumUsers(void *bufPriv)

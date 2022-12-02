@@ -248,7 +248,6 @@ int32_t BufferQueueStartStreaming(struct BufferQueue *queue)
 {
     struct CameraBuffer *buffer = NULL;
     int32_t ret;
-    uint32_t i;
 
     DLIST_FOR_EACH_ENTRY(buffer, &queue->queuedList, struct CameraBuffer, queueEntry) {
         CameraBufferEnqueue(buffer);
@@ -265,7 +264,7 @@ int32_t BufferQueueStartStreaming(struct BufferQueue *queue)
     queue->flags &= ~QUEUE_STATE_STREAMING_CALLED;
 
     if (OsalAtomicRead(&queue->driverOwnCount) != 0) {
-        for (i = 0; i < queue->numBuffers; ++i) {
+        for (uint32_t i = 0; i < queue->numBuffers; ++i) {
             buffer = queue->buffers[i];
             if (buffer->state == BUFFER_STATE_ACTIVE) {
                 CameraBufferDone(buffer, BUFFER_STATE_QUEUED);

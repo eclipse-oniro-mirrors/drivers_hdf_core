@@ -588,7 +588,7 @@ int32_t CameraGetDevice(struct HdfSBuf *reqData, struct CommonDevice *comDev)
     return HDF_SUCCESS;
 }
 
-int32_t CameraDispatchCommonInfo(struct HdfDeviceIoClient *client,
+int32_t CameraDispatchCommonInfo(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData, struct CommonDevice *comDev)
 {
     int32_t ret;
