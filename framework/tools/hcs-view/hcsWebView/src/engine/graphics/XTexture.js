@@ -26,8 +26,8 @@ export class XTexture {
         this.tmpCutid = 0;
         this.aiCutid = 100;
 
-        this.textImgs = {};//rid,{mask}
-        this.textIdxs = {};//text,{}
+        this.textImgs = {};
+        this.textIdxs = {};
 
         this.textTmpRid = this.loadTexture(1024, 256)
         this.bfirst = true;
@@ -70,10 +70,10 @@ export class XTexture {
             }
             var rid = this.ximages.length;
             this.ximages[rid] = { "stat": 0, "path": path, "tex": null };
-            const image = new Image();
+            var image = new Image();
             image.src = path;//"http://localhost:8910/"+
             image.onload = function () {
-                const texture = gl.createTexture();
+                var texture = gl.createTexture();
                 XTexture.initTextureStatus(texture)
 
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -105,7 +105,7 @@ export class XTexture {
         return this.tmpCutid - 1;
     }
     makeCut(rid, x = 0, y = 0, w = -1, h = -1, ww = -1, hh = -1) {
-        if (this.ximages[rid].stat != 1) return -1;
+        // if (this.ximages[rid].stat != 1) return -1;
 
         if (ww == -1) ww = this.ximages[rid].w;
         if (hh == -1) hh = this.ximages[rid].h;
@@ -129,15 +129,15 @@ export class XTexture {
     }
 
     PutTexture(tex, w, h) {
-        const rid = this.ximages.length;
+        var rid = this.ximages.length;
         this.ximages[rid] = { "stat": 1, "path": "put" + rid, "tex": tex, "w": w, "h": h };
         return rid;
     }
 
     loadTexture(width, height) {
-        const rid = this.ximages.length;
+        var rid = this.ximages.length;
 
-        const texture = gl.createTexture();
+        var texture = gl.createTexture();
         XTexture.initTextureStatus(texture)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
 
@@ -146,7 +146,7 @@ export class XTexture {
     }
     initTextImageData(s, size) {
         this.textCtx.clearRect(0, 0, 1024, 256)
-        this.textCtx.font = size + "px 'Consolas'"
+        this.textCtx.font = size + "px 'Microsoft YaHei'"
         this.textCtx.fillStyle = "rgba(255,255,255,1)";
         this.textCtx.fillText(s, 1, 1)
         let imgd = this.textCtx.getImageData(0, 0, 1024, 256).data

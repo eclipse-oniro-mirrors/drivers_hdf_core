@@ -22,6 +22,7 @@ class XButton {
         this.name_ = name;
         this.touchDown_ = false;
         this.clicked_ = false;
+        this.rightClicked_ = false;
         this.disable_ = false;
         this.nameColor_ = 0xffffffff;
         this.backgroundColor_ = 0xff487EB8;
@@ -40,8 +41,8 @@ class XButton {
         if (this.touchDown_) coloroff = 0x00202020;
         this.pm2f_.fillRect(this.posX_, this.posY_, this.posW_, this.posH_, this.backgroundColor_ - coloroff)
         if (this.name_ != undefined && this.name_.length > 0)
-            this.pm2f_.drawText(this.name_, 18, this.posX_ + this.posW_ / 2, this.posY_ 
-            + this.posH_ / 2 + 2, 1, 1, 0, -2, -2, this.nameColor_ - coloroff);
+            this.pm2f_.drawText(this.name_, 14, this.posX_ + this.posW_ / 2, this.posY_
+                + this.posH_ / 2 + 2, 1, 1, 0, -2, -2, this.nameColor_ - coloroff);
     }
 
     isTouchIn(x, y) {
@@ -67,6 +68,17 @@ class XButton {
                 }
                 this.touchDown_ = false;
                 break;
+            case 4:
+                if (isIn) {
+                    this.rightDown_ = true;
+                }
+                break;
+            case 6:
+                if (this.rightDown_ && isIn) {
+                    this.rightClicked_ = true;
+                }
+                this.rightDown_ = false;
+                break;
         }
         return isIn;
     }
@@ -74,6 +86,14 @@ class XButton {
     isClicked() {
         if (this.clicked_) {
             this.clicked_ = false;
+            return true;
+        }
+        return false;
+    }
+
+    isRightClicked() {
+        if (this.rightClicked_) {
+            this.rightClicked_ = false;
             return true;
         }
         return false;

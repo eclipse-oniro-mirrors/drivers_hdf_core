@@ -20,8 +20,8 @@ class XSelect {
         this.pm2f_ = X2DFast.gi();
         this.resetList(list, default_)
         this.open_ = false;
-        this.nameColor_ = 0xff000000;
-        this.backgroundColor_ = 0xffffffff;
+        this.nameColor_ = 0xffffffff;
+        this.backgroundColor_ = 0xff313131;
         this.tmpSelect_ = -1;
         this.selectCallback = null;
     }
@@ -35,6 +35,10 @@ class XSelect {
         this.posW_ = w;
         this.posH_ = h;
         return this;
+    }
+    setColor(background, forground) {
+        this.nameColor_ = forground;
+        this.backgroundColor_ = background;
     }
     draw() {
         let x = this.posX_
@@ -60,15 +64,15 @@ class XSelect {
         } else {
             name = this.default_
         }
-        this.pm2f_.drawText(name, 18, x, y, 1, 1, 0, -1, -1, this.nameColor_)
+        this.pm2f_.drawText(name, 16, x, y, 1, 1, 0, -1, -1, this.nameColor_)
         if (this.open_) {
-            this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, 0xffffffff)
+            this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, this.backgroundColor_)
             for (let i in this.list_) {
                 if (i == this.tmpSelect_) {
-                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0xff0099B4)
+                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, this.backgroundColor_)
                 }
                 if (this.list_[i] == this.default_) {
-                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, 0xffffffff)
+                    this.pm2f_.fillRect(x, y + h + i * 20, w, 20, this.backgroundColor_)
                 }
                 let name1 = "..."
                 if (this.list_[i].indexOf("\\") != -1) {
@@ -86,7 +90,7 @@ class XSelect {
                 } else {
                     name1 = this.list_[i]
                 }
-                this.pm2f_.drawText(name1, 18, x, y + h + i * 20, 1, 1, 0, -1, -1, this.nameColor_)
+                this.pm2f_.drawText(name1, 16, x, y + h + i * 20, 1, 1, 0, -1, -1, this.nameColor_)
             }
         }
     }

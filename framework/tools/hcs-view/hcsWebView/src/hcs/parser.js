@@ -127,7 +127,6 @@ class Parser {
 
     parseNode(name, bracesStart) {
 
-        /* bracesStart： if true, current is '{' , else need to read next token and check with '}' */
         if (!bracesStart) {
             if (!this.lexer_.lex(this.current_) || this.current_.type != code('{')) {
                 this.dealWithError("syntax error, node miss '{'")

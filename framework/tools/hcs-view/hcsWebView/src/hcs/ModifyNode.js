@@ -34,17 +34,17 @@ function isNameRepeat(node, name) {
 ModifyNode.modifyName = function (files, root, node, name) {
     let parent = getParent(root, node, null);
     if (parent == null) {
-        NapiLog.logError("不能改变root节点名称");
+        NapiLog.logError("Can't change root node name");
         return false;
     }
     node.name_ = name;
     return true;
 }
 
-ModifyNode.modifyNodeType = function (files, root, node, type) {//节点类型改变
+ModifyNode.modifyNodeType = function (files, root, node, type) {
     let parent = getParent(root, node, null);
     if (parent == null) {
-        NapiLog.logError("不能改变root节点类型");
+        NapiLog.logError("Can't change root node type");
         return false;
     }
     switch (type) {
@@ -63,7 +63,6 @@ ModifyNode.modifyNodeType = function (files, root, node, type) {//节点类型�
 }
 
 ModifyNode.addChildAttr = function (root, node) {
-    //添加子属性，默认为int8
     for (let i = 1; i < 256; i++) {
         let name = "attr_" + i;
         if (!isNameRepeat(node, name)) {
@@ -71,26 +70,24 @@ ModifyNode.addChildAttr = function (root, node) {
             node.value_.push(newAttr);
             newAttr.parent_ = node;
             newAttr.value_.parent_ = newAttr;
-            break;
+            return newAttr;
         }
     }
 }
 
 ModifyNode.addChildNode = function (root, node) {
-    //添加子节点，默认为数据类节点(不继承)
     for (let i = 1; i < 256; i++) {
         let name = "node_" + i;
         if (!isNameRepeat(node, name)) {
             let newNode = NodeTools.createNewNode(DataType.NODE, name, [], NodeType.DATA);
             node.value_.push(newNode);
             newNode.parent_ = node;
-            break;
+            return newNode;
         }
     }
 }
 
 ModifyNode.deleteNode = function (node) {
-    //删除子节点
     let parent = node.parent_;
     if (parent == null) {
         NapiLog.logError("不能删除root节点");
@@ -105,12 +102,10 @@ ModifyNode.deleteNode = function (node) {
 }
 
 ModifyNode.getInheritList = function (root, node) {
-    //获取可继承列表（模板列表）
     let ret = []
     let parent = getParent(root, node, null);
     if (parent == null) return ret;
     for (let i in parent.value_) {
-        //获取同级模板节点
         let pn = parent.value_[i]
         if (pn.type_ == DataType.NODE && pn.nodeType_ == NodeType.TEMPLETE) {
             ret.push(pn);
@@ -137,7 +132,6 @@ ModifyNode.getInheritList = function (root, node) {
     }
     if (ptemp != null && ptemp != parent) {
         for (let i in ptemp.value_) {
-            //获取其他同级模板节点
             let pn = ptemp.value_[i]
             if (pn.type_ == DataType.NODE && pn.nodeType_ == NodeType.TEMPLETE) {
                 ret.push(pn);
