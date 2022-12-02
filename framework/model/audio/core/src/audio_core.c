@@ -1087,7 +1087,7 @@ int32_t AudioCpuDaiGetCtrlOps(const struct AudioKcontrol *kcontrol, struct Audio
     }
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
     dai = AudioKcontrolGetCpuDai(kcontrol);
-    if (mixerCtrl == NULL || dai == NULL) {
+    if (dai == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");
         return HDF_FAILURE;
     }
