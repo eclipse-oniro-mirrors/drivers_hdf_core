@@ -167,21 +167,8 @@ def build_file_operation(path, driver_file_path, head_path, module, driver):
     if driver_file_path.find("FRAMEWORK".lower()) != -1:
         result_tuple = find_build_file_end_index(date_lines, model_name=module)
         end_index, frameworks_name, frameworks_value = result_tuple
-        build_add_template = template_str_splice(type_name="framework")
-        include_model_info = frameworks_value.split("model")[-1].strip('"') + "/"
-        build_gn_path_config = source_file_path.split(include_model_info)
-        temp_handle = Template(
-            build_add_template.replace("$FRAMEWORKS", "FRAMEWORKS"))
-        temp_replace = {
-            'model_name_upper': module.upper(),
-            'driver_name_upper': driver.upper(),
-            'source_file_path': build_gn_path_config[-1],
-            'head_file_path': '/'.join(
-                list(filter(lambda x: x, head_path.split("model")[-1].strip(
-                    os.path.sep).split(os.path.sep)[2:-1])))
-        }
-        new_line = temp_handle.substitute(
-            temp_replace).replace("FRAMEWORKS", "$FRAMEWORKS")
+        new_line = build_file_operation_comm(
+            frameworks_value, source_file_path, module, driver, head_path)
     else:
         result_tuple = find_build_file_end_index(
             date_lines, model_name=module, pre_str="PERIPHERAL")
@@ -239,6 +226,18 @@ def input_build_file_operation(path, driver_file_path, head_path, module, driver
     result_tuple = find_build_file_end_index(date_lines, model_name=module)
     end_index, frameworks_name, frameworks_value = result_tuple
     re_str_include = "include_dirs ="
+    new_line = build_file_operation_comm(
+        frameworks_value, source_file_path, module, driver, head_path)
+    if re.search(re_str_include, "".join(date_lines[:end_index])) is None:
+        include_str = "  include_dirs = []\n"
+        date_lines = date_lines[:end_index] + [include_str] + [new_line] + date_lines[end_index:]
+    else:
+        date_lines = date_lines[:end_index] + [new_line] + date_lines[end_index:]
+    hdf_utils.write_file_lines(build_gn_path, date_lines)
+
+
+def build_file_operation_comm(
+        frameworks_value, source_file_path, module, driver, head_path):
     build_add_template = template_str_splice(type_name="framework")
     include_model_info = frameworks_value.split("model")[-1].strip('"') + "/"
     build_gn_path_config = source_file_path.split(include_model_info)
@@ -254,9 +253,4 @@ def input_build_file_operation(path, driver_file_path, head_path, module, driver
     }
     new_line = temp_handle.substitute(
         temp_replace).replace("FRAMEWORKS", "$FRAMEWORKS")
-    if re.search(re_str_include, "".join(date_lines[:end_index])) is None:
-        include_str = "  include_dirs = []\n"
-        date_lines = date_lines[:end_index] + [include_str] + [new_line] + date_lines[end_index:]
-    else:
-        date_lines = date_lines[:end_index] + [new_line] + date_lines[end_index:]
-    hdf_utils.write_file_lines(build_gn_path, date_lines)
+    return new_line

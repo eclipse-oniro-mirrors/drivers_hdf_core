@@ -391,7 +391,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         if "--runmode" in self.args_original:
             runmode_index = self.args_original.index("--runmode")
             temp_args = self.args_original[:runmode_index] + \
-                        self.args_original[runmode_index+2:]
+                        self.args_original[runmode_index + 2:]
         else:
             temp_args = self.args_original
         get_board = HdfGetHandler(temp_args)
@@ -412,6 +412,20 @@ class HdfAddHandler(HdfCommandHandlerBase):
         hdf_utils.judge_file_path_exists(framework_drv_root_dir)
         add_driver = HdfAddDriver(args=args_tuple)
         # create driver Source File (.c 、.h)
+        resources_path, temp_file_name, config_item, file_path =\
+            self._add_create_common(add_driver, args_tuple)
+        model_driver_file_path = os.path.join(resources_path, temp_file_name)
+        config_file = hdf_utils.read_file(model_driver_file_path)
+        config_file_json = json.loads(config_file)
+        result_config_file_json = add_driver.driver_create_info_format(
+            config_file_json, config_item, file_path)
+        hdf_utils.write_config(root_path=root,
+                               config_file_json=result_config_file_json,
+                               config_name=temp_file_name)
+        return json.dumps(config_item, indent=4)
+
+    def _add_create_common(self, add_driver, args_tuple):
+        _, _, module, driver, board, _, device = args_tuple
         state, file_list, head_list = add_driver.add_driver(*args_tuple)
         if board == "hispark_taurus":
             file_path = add_driver.add_liteos(file_list, head_list)
@@ -434,15 +448,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
         resources_path = self.hdf_tool.get_resources_file_path()
         config_setting_dict = self.hdf_tool.get_config_setting_info()
         temp_file_name = config_setting_dict["create_driver_file"]
-        model_driver_file_path = os.path.join(resources_path, temp_file_name)
-        config_file = hdf_utils.read_file(model_driver_file_path)
-        config_file_json = json.loads(config_file)
-        result_config_file_json = add_driver.driver_create_info_format(
-            config_file_json, config_item, file_path)
-        hdf_utils.write_config(root_path=root,
-                               config_file_json=result_config_file_json,
-                               config_name=temp_file_name)
-        return json.dumps(config_item, indent=4)
+        return resources_path, temp_file_name, config_item, file_path
 
     def _add_config_handler(self):
         self.check_arg_raise_if_not_exist("module_name")

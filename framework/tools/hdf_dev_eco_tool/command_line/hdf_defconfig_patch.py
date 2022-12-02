@@ -97,11 +97,11 @@ class HdfDefconfigAndPatch(object):
         if not state:
             if path.split(".")[-1] != "patch":
                 for index_num, info in enumerate(self.new_demo_config):
-                    data_lines.insert(insert_index + (1+index_num), info.encode('utf-8'))
+                    data_lines.insert(insert_index + (1 + index_num), info.encode('utf-8'))
             else:
                 for index_num, info in enumerate(self.new_demo_config):
                     data_lines.insert(
-                        insert_index + (1+index_num), ("+" + info).encode('utf-8'))
+                        insert_index + (1 + index_num), ("+" + info).encode('utf-8'))
 
             with open(path, "wb") as fwrite:
                 fwrite.writelines(data_lines)
@@ -121,11 +121,11 @@ class HdfDefconfigAndPatch(object):
         if not state:
             if path.split(".")[-1] != "patch":
                 for index_num, info in enumerate(self.new_demo_config):
-                    data_lines.insert(insert_index + (1+index_num), info)
+                    data_lines.insert(insert_index + (1 + index_num), info)
             else:
                 for index_num, info in enumerate(self.new_demo_config):
                     data_lines.insert(
-                        insert_index + (1+index_num), ("+" + info))
+                        insert_index + (1 + index_num), ("+" + info))
             with open(path, "w", encoding=codetype) as fwrite:
                 fwrite.writelines(data_lines)
 
