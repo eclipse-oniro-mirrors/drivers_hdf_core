@@ -24,11 +24,19 @@ static const char *OSAL_FW_PATH = "/lib/firmware";
 static const int OSAL_FW_PATH_MODE = 0x777;
 #endif
 
+#ifdef WITH_SELINUX
 #define OSAL_TEST_FUNC_DEFINE(subCmd) do { \
     struct HdfTestMsg msg = { TEST_OSAL_ITEM, subCmd, -1 }; \
     printf("OSAL test enter cmd:%d\n\r", subCmd); \
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg)); \
 } while (0)
+#else
+#define OSAL_TEST_FUNC_DEFINE(subCmd) do { \
+    struct HdfTestMsg msg = { TEST_OSAL_ITEM, subCmd, 0 }; \
+    printf("OSAL test enter cmd:%d\n\r", subCmd); \
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg)); \
+} while (0)
+#endif
 
 class OsalTest : public testing::Test {
 public:
@@ -499,9 +507,7 @@ HWTEST_F(OsalTest, OsalGetThread003, TestSize.Level3)
   */
 HWTEST_F(OsalTest, OsalGetFW001, TestSize.Level3)
 {
-#ifndef WITH_SELINUX
     OSAL_TEST_FUNC_DEFINE(OSAL_FW_REQUEST);
-#endif
 }
 /**
   * @tc.name: OsalGetFW002
@@ -511,9 +517,7 @@ HWTEST_F(OsalTest, OsalGetFW001, TestSize.Level3)
   */
 HWTEST_F(OsalTest, OsalGetFW002, TestSize.Level3)
 {
-#ifndef WITH_SELINUX
     OSAL_TEST_FUNC_DEFINE(OSAL_FW_READ);
-#endif
 }
 /**
   * @tc.name: OsalGetFW003
@@ -523,9 +527,7 @@ HWTEST_F(OsalTest, OsalGetFW002, TestSize.Level3)
   */
 HWTEST_F(OsalTest, OsalGetFW003, TestSize.Level3)
 {
-#ifndef WITH_SELINUX
     OSAL_TEST_FUNC_DEFINE(OSAL_FW_DATA_CHECK);
-#endif
 }
 /**
   * @tc.name: OsalGetFW004
@@ -535,9 +537,7 @@ HWTEST_F(OsalTest, OsalGetFW003, TestSize.Level3)
   */
 HWTEST_F(OsalTest, OsalGetFW004, TestSize.Level3)
 {
-#ifndef WITH_SELINUX
     OSAL_TEST_FUNC_DEFINE(OSAL_FW_SEEK);
-#endif
 }
 /**
   * @tc.name: OsalGetFW005
@@ -547,9 +547,7 @@ HWTEST_F(OsalTest, OsalGetFW004, TestSize.Level3)
   */
 HWTEST_F(OsalTest, OsalGetFW005, TestSize.Level3)
 {
-#ifndef WITH_SELINUX
     OSAL_TEST_FUNC_DEFINE(OSAL_FW_RELEASE);
-#endif
 }
 /**
   * @tc.name: OsalGetFW006
@@ -559,9 +557,7 @@ HWTEST_F(OsalTest, OsalGetFW005, TestSize.Level3)
   */
 HWTEST_F(OsalTest, OsalGetFW006, TestSize.Level3)
 {
-#ifndef WITH_SELINUX
     OSAL_TEST_FUNC_DEFINE(OSAL_FW_READ_AFTER_RELEASE);
-#endif
 }
 
 /**
