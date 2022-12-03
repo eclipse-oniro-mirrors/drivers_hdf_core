@@ -47,6 +47,7 @@ enum {
     SAMPLE_UNREGISTER_DEVICE,
     SAMPLE_UPDATE_SERVIE,
     SAMPLE_TRANS_SMQ,
+    SAMPLE_END_HOST,
 };
 
 struct SampleHdi {
@@ -58,6 +59,7 @@ struct SampleHdi {
     int32_t (*updateService)(struct HdfDeviceObject *device, const char *info);
     int32_t (*tansSmq)(struct HdfDeviceObject *device, OHOS::HDI::Base::SharedMemQueueMeta<SampleSmqElement> *smqMeta,
         uint32_t element);
+    int32_t (*endHost)(const struct HdfDeviceObject *device);
 };
 
 const struct SampleHdi *SampleHdiImplInstance(void);

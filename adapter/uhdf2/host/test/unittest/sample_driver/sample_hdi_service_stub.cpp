@@ -200,6 +200,15 @@ static int32_t SampleServiceSmqTrans(struct HdfDeviceIoClient *client, struct Hd
     return SampleHdiImplInstance()->tansSmq(client->device, smqMeta.get(), element);
 }
 
+static int32_t SampleServiceEndHost(struct HdfDeviceIoClient *client, struct HdfSBuf *data)
+{
+    if (!HdfDeviceObjectCheckInterfaceDesc(client->device, data)) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    return SampleHdiImplInstance()->endHost(client->device);
+}
+
 int32_t SampleServiceOnRemoteRequest(
     struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -223,6 +232,8 @@ int32_t SampleServiceOnRemoteRequest(
             return SampleServiceUpdateDevice(client, data);
         case SAMPLE_TRANS_SMQ:
             return SampleServiceSmqTrans(client, data);
+        case SAMPLE_END_HOST:
+            return SampleServiceEndHost(client, data);
         default:
             HDF_LOGE("SampleServiceDispatch: not support cmd %{public}d", cmdId);
             return HDF_ERR_INVALID_PARAM;

@@ -14,6 +14,10 @@
 #include "hdf_dlist.h"
 #include "osal_sysevent.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevHostService {
     struct IDevHostService super;
     uint16_t hostId;
@@ -31,5 +35,9 @@ struct IDevHostService *DevHostServiceNewInstance(uint16_t hostId, const char *h
 void DevHostServiceFreeInstance(struct IDevHostService *service);
 struct HdfObject *DevHostServiceCreate(void);
 void DevHostServiceRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVICE_HOST_SERVICE_H */
