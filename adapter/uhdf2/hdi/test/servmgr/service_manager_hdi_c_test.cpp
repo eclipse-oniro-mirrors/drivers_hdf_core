@@ -628,4 +628,30 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest015, TestSize.Level1)
     HDIServiceManagerRelease(servmgr);
     ASSERT_TRUE(serviceSet == nullptr);
 }
+
+HWTEST_F(HdfServiceMangerHdiCTest, DevMgrQueryUsableDeviceTest, TestSize.Level1)
+{
+    struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    struct DeviceInfoList list;
+    int32_t ret = devmgr->QueryUsableDeviceInfo(devmgr, &list);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+
+    devmgr->FreeQueryDeviceList(devmgr, &list);
+    HDIDeviceManagerRelease(devmgr);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, DevMgrQueryUnusableDeviceTest, TestSize.Level1)
+{
+    struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    struct DeviceInfoList list;
+    int32_t ret = devmgr->QueryUnusableDeviceInfo(devmgr, &list);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+
+    devmgr->FreeQueryDeviceList(devmgr, &list);
+    HDIDeviceManagerRelease(devmgr);
+}
 } // namespace OHOS
