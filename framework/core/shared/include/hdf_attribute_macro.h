@@ -40,12 +40,13 @@ struct HdfDeviceNodeType {
     struct DListHead deviceNodeEntry;
 };
 
-#define HDF_DEAL_DEVICE_NODE(node, deviceNodes) \
+#define HDF_DEAL_DEVICE_NODE(node, deviceNodes, host, retCode) \
     do { \
         deviceNode = (struct HdfDeviceNodeType *)OsalMemCalloc(sizeof(*deviceNode)); \
         if (deviceNode == NULL) { \
             HDF_LOGE("%s malloc fail", __func__); \
-            return false; \
+            AttributeManagerFreeHost(host); \
+            return (retCode); \
         } \
         deviceNode->policy = HCS_PROP(node, policy); \
         deviceNode->priority = HCS_PROP(node, priority); \
@@ -58,34 +59,35 @@ struct HdfDeviceNodeType {
         DListInsertTail(&deviceNode->deviceNodeEntry, &(deviceNodes)); \
     } while (0)
 
-#define HDF_DEAL_DEVICE(node, devices) \
+#define HDF_DEAL_DEVICE(node, devices, host, retCode) \
     do { \
         device = (struct HdfDeviceType *)OsalMemCalloc(sizeof(*device)); \
         if (device == NULL) { \
             HDF_LOGE("%s malloc fail", __func__); \
-            return false; \
+            AttributeManagerFreeHost(host); \
+            return (retCode); \
         } \
         DListHeadInit(&device->deviceNodes); \
-        node##_foreach_child_vargs(HDF_DEAL_DEVICE_NODE, device->deviceNodes); \
+        node##_foreach_child_vargs(HDF_DEAL_DEVICE_NODE, device->deviceNodes, host, retCode); \
         DListInsertTail(&device->deviceEntry, &(devices)); \
     } while (0)
 
-#define HDF_FIND_HOST(node, name, host) \
+#define HDF_FIND_HOST(node, name, host, retCode) \
     do { \
         if (strcmp(HCS_PROP(node, hostName), name) == 0) { \
             (host)->devHostName = HCS_PROP(node, hostName); \
             (host)->priority = HCS_PROP(node, priority); \
-            node##_foreach_child_vargs(HDF_DEAL_DEVICE, (host)->devices); \
-            break; \
+            node##_foreach_child_vargs(HDF_DEAL_DEVICE, (host)->devices, host, retCode); \
         } \
     } while (0)
 
-#define HDF_DEAL_HOST(node, hosts) \
+#define HDF_DEAL_HOST(node, hosts, devHost, retCode) \
     do { \
         host = (struct HdfHostType *)OsalMemCalloc(sizeof(*host)); \
         if (host == NULL) { \
             HDF_LOGE("%s malloc fail", __func__); \
-            return false; \
+            AttributeManagerFreeDevHost(devHost); \
+            return (retCode); \
         } \
         host->devHostName = HCS_PROP(node, hostName); \
         host->priority = HCS_PROP(node, priority); \
