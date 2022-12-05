@@ -802,7 +802,7 @@ static void OsaCheckThreadRun(void)
 }
 
 #define HDF_MAIN_SLEEP_S 20
-int OsaTestBegin(void)
+int OsaTestBegin(int32_t testFlag)
 {
     int ret;
     (void)memset_s(g_osalTestCases, sizeof(g_osalTestCases), 0, sizeof(g_osalTestCases));
@@ -815,6 +815,9 @@ int OsaTestBegin(void)
     OsaLogTest();
 #ifndef __USER__
     ret = OsalTestFileInit();
+    if (testFlag != 0) {
+        ret = testFlag;
+    }
 #else
     ret = 0;
 #endif

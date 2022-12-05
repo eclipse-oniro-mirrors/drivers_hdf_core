@@ -13,7 +13,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-int OsaTestBegin(void);
+int OsaTestBegin(int32_t testFlag);
 int OsaTestEnd(void);
 int OsaTestALLResult(void);
 int OsalGetTestResult(uint32_t cmd);

@@ -17,7 +17,7 @@ int32_t HdfOsalEntry(HdfTestMsg *msg)
     int32_t result = 0;
     if (msg->subCmd < OSAL_TEST_MAX) {
         if (msg->subCmd == OSAL_TEST_START) {
-            result = OsaTestBegin();
+            result = OsaTestBegin(msg->result);
         } else if (msg->subCmd == OSAL_TEST_END) {
             result = OsaTestEnd();
         } else if (msg->subCmd == OSAL_TEST_ALL) {
