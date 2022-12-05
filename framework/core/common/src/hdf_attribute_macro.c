@@ -68,12 +68,12 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
 
     devHost = (struct HdfDevHostMgr *)OsalMemCalloc(sizeof(*devHost));
     if (devHost == NULL) {
-        return HDF_FAILURE;
+        return false;
     }
 
     DListHeadInit(&devHost->hosts);
 
-    HCS_FOREACH_CHILD_VARGS(HDF_DEVICE_INFO, HDF_DEAL_HOST, devHost->hosts);
+    HCS_FOREACH_CHILD_VARGS(HDF_DEVICE_INFO, HDF_DEAL_HOST, devHost->hosts, devHost, false);
 
     DLIST_FOR_EACH_ENTRY(host, &devHost->hosts, struct HdfHostType, hostEntry) {
         struct HdfHostInfo *hostInfo = HdfHostInfoNewInstance();
@@ -218,7 +218,7 @@ int HdfAttributeManagerGetDeviceList(struct DevHostServiceClnt *hostClnt)
 
     DListHeadInit(&host->devices);
 
-    HCS_FOREACH_CHILD_VARGS(HDF_DEVICE_INFO, HDF_FIND_HOST, hostClnt->hostName, host);
+    HCS_FOREACH_CHILD_VARGS(HDF_DEVICE_INFO, HDF_FIND_HOST, hostClnt->hostName, host, HDF_FAILURE);
 
     DLIST_FOR_EACH_ENTRY(device, &host->devices, struct HdfDeviceType, deviceEntry) {
         if (!GetDevcieNodeList(device, hostClnt, deviceIdx)) {
