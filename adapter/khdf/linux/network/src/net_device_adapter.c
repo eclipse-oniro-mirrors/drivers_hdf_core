@@ -71,6 +71,39 @@ static netdev_tx_t NetDevXmit(struct sk_buff *skb, struct net_device *dev)
     return NETDEV_TX_OK;
 }
 
+static struct net_device_stats* NetDevGetStats(struct net_device *dev)
+{
+    struct FullNetDevicePriv *priv = NULL;
+    struct NetDevice *netDev = NULL;
+    struct NetDeviceInterFace *netDevIf = NULL;
+    struct NetDevStats *stats;
+    static struct net_device_stats netStats;
+
+    (void)memset_s(&netStats, sizeof(struct net_device_stats), 0, sizeof(struct net_device_stats));
+    priv = (struct FullNetDevicePriv *)netdev_priv(dev);
+    if (priv == NULL || priv->dev == NULL || priv->impl == NULL || priv->impl->netDevice == NULL) {
+        HDF_LOGE("%s fail : priv NULL!", __func__);
+        return NULL;
+    }
+    netDev = priv->impl->netDevice;
+    netDevIf = netDev->netDeviceIf;
+    if (netDevIf != NULL && netDevIf->getStats != NULL) {
+        stats = netDevIf->getStats(netDev);
+        if (stats != NULL) {
+            netStats.rx_packets = stats->rxPackets;
+            netStats.tx_packets = stats->txPackets;
+            netStats.rx_bytes = stats->rxBytes;
+            netStats.tx_bytes = stats->txBytes;
+            netStats.rx_errors = stats->rxErrors;
+            netStats.tx_errors = stats->txErrors;
+            netStats.rx_dropped = stats->rxDropped;
+            netStats.tx_dropped = stats->txDropped;
+            return &netStats;
+        }
+    }
+    return NULL;
+}
+
 static int NetDevChangeMtu(struct net_device *dev, int mtu)
 {
     if (mtu > WLAN_MAX_MTU || mtu < WLAN_MIN_MTU || dev == NULL) {
@@ -104,6 +137,7 @@ static int NetDevStop(struct net_device *dev)
 static struct net_device_ops g_netDeviceOps = {
     .ndo_start_xmit = NetDevXmit,
     .ndo_change_mtu = NetDevChangeMtu,
+    .ndo_get_stats = NetDevGetStats,
     .ndo_open = NetDevOpen,
     .ndo_stop = NetDevStop
 };
