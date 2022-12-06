@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/manager"
 ohos_unittest("hdf_adapter_uhdf_test_manager") {
@@ -86,7 +87,10 @@ ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
 
   defines = [ "__USER__" ]
   sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp" ]
-  deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
+  deps = [
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
