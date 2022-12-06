@@ -41,6 +41,8 @@ using OHOS::HDI::ServiceManager::V1_0::IServiceManager;
 using OHOS::HDI::ServiceManager::V1_0::IServStatListener;
 using OHOS::HDI::ServiceManager::V1_0::ServiceStatus;
 using OHOS::HDI::ServiceManager::V1_0::ServStatListenerStub;
+using OHOS::HDI::DeviceManager::V1_0::HdiDevHostInfo;
+using OHOS::HDI::ServiceManager::V1_0::HdiServiceInfo;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
 static constexpr const char16_t *TEST_SERVICE_INTERFACE_DESC = u"hdf.test.sampele_service";
 static constexpr int PAYLOAD_NUM = 1234;
@@ -648,5 +650,71 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
     ASSERT_EQ(servStatus, OHOS::HDI::ServiceManager::V1_0::SERVIE_STATUS_START);
     status = servmgr->UnregisterServiceStatusListener(listener);
     ASSERT_EQ(status, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListAllServiceTest, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    std::vector<HdiServiceInfo> serviceInfos;
+    int ret = servmgr->ListAllService(serviceInfos);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(serviceInfos.size() != 0);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListAllDeviceTest, TestSize.Level1)
+{
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    std::vector<HdiDevHostInfo> deviceInfos;
+    int ret = devmgr->ListAllDevice(deviceInfos);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(deviceInfos.size() != 0);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+
+    constexpr int WAIT_COUNT = 1000;
+    constexpr int MSLEEP_TIME = 10;
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    uint32_t cnt = 0;
+    while (sampleService == nullptr && cnt < WAIT_COUNT) {
+        OsalMSleep(MSLEEP_TIME);
+        sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sampleService != nullptr);
+
+    OHOS::MessageParcel data;
+    OHOS::MessageParcel reply;
+    OHOS::MessageOption option;
+    ret = data.WriteInterfaceToken(TEST_SERVICE_INTERFACE_DESC);
+    ASSERT_EQ(ret, true);
+
+    ret = sampleService->SendRequest(SAMPLE_END_HOST, data, reply, option);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+
+    ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+
+    sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    cnt = 0;
+    while (sampleService != nullptr && cnt < WAIT_COUNT) {
+        OsalMSleep(MSLEEP_TIME);
+        sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sampleService == nullptr);
 }
 } // namespace OHOS
