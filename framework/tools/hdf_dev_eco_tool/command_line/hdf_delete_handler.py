@@ -244,7 +244,8 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                 model_name=module, board_name=temp_board_info,
                 driver_name=temp_driver_name)
         get_board.delete_device_operation(device, *section_res)
-        return json.dumps(res_json_format, indent=4)
+        res_driver = get_board.judge_create_driver_exist()
+        return res_driver
 
     def _delete_liteos_driver_config(self, root, model_info, module_name, driver_name):
         model_info_key_list = list(model_info.keys())
@@ -340,8 +341,11 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                 root=root, vendor="", module="",
                 board="", driver=" ", path=file_path). \
                 delete_driver(module=driver_name, temp_flag="device")
-        elif file_name.endswith("dot_configs") and module_name == "sensor":
-            temp_res = self.sensor_device_rely(module, kernel, device)
+        elif file_name.endswith("dot_configs"):
+            if module_name == "sensor":
+                temp_res = self.sensor_device_rely(module, kernel, device)
+            else:
+                temp_res = []
             for dot_path in file_path:
                 if dot_path.split(".")[-1] == "config":
                     template_string = \
@@ -360,24 +364,6 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                     data_model="", new_demo_config=temp_res)
                 defconfig_patch.delete_module(
                     path=os.path.join(root, dot_path))
-        elif file_name.endswith("dot_configs"):
-            for dot_path in file_path:
-                if dot_path.split(".")[-1] == "config":
-                    template_string = \
-                        "LOSCFG_DRIVERS_HDF_${module_upper}_${driver_upper}=y\n"
-                else:
-                    template_string = \
-                        "CONFIG_DRIVERS_HDF_${module_upper}_${driver_upper}=y\n"
-                new_demo_config = Template(template_string). \
-                    substitute({
-                        "module_upper": module_name.upper(),
-                        "driver_upper": driver_name.upper(),
-                    })
-                defconfig_patch = HdfDefconfigAndPatch(
-                    root=root, vendor="", kernel="", board="",
-                    data_model="", new_demo_config=[new_demo_config])
-                defconfig_patch.delete_module(
-                    path=os.path.join(root, dot_path))
 
     def _delete_driver_file(self, file_path):
         for file_path_info in file_path:
@@ -392,24 +378,24 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                 path_temp = os.path.dirname(path_temp)
 
     def sensor_device_rely(self, module, kernel, device):
-        templates_dir = hdf_utils.get_templates_lite_dir()
+        templates_dir_path = hdf_utils.get_templates_lite_dir()
         templates_model_dir = []
-        for path, dir_name, _ in os.walk(templates_dir):
+        for path, dir_name, _ in os.walk(templates_dir_path):
             if dir_name:
                 templates_model_dir.extend(dir_name)
-        templates_model_dir = list(
+        temp_templates_model_dir = list(
             filter(
                 lambda model_dir: module in model_dir,
                 templates_model_dir))
         config_file = [
             name for name in os.listdir(
                 os.path.join(
-                    templates_dir,
-                    templates_model_dir[0])) if name.endswith("ini")]
+                    templates_dir_path,
+                    temp_templates_model_dir[0])) if name.endswith(".ini")]
         if config_file:
             config_path = os.path.join(
-                templates_dir,
-                templates_model_dir[0],
+                templates_dir_path,
+                temp_templates_model_dir[0],
                 config_file[0])
             config = configparser.ConfigParser()
             config.read(config_path)
