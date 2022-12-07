@@ -832,7 +832,7 @@ HWTEST_F(HdfSBufTest, SbufTestSbufString020, TestSize.Level1)
 
 HWTEST_F(HdfSBufTest, SbufTestSbufDouble021, TestSize.Level1)
 {
-    constexpr double EPS = 1e-6;
+    constexpr double eps = 1e-6;
     HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(sBuf, nullptr);
     double data = 1;
@@ -841,13 +841,13 @@ HWTEST_F(HdfSBufTest, SbufTestSbufDouble021, TestSize.Level1)
     double readData = 0;
     ret = HdfSbufReadDouble(sBuf, &readData);
     ASSERT_EQ(ret, true);
-    ASSERT_EQ(fabs(data - readData) < EPS, true);
+    ASSERT_EQ(fabs(data - readData) < eps, true);
     HdfSbufRecycle(sBuf);
 }
 
 HWTEST_F(HdfSBufTest, SbufTestSbufFloat022, TestSize.Level1)
 {
-    constexpr float EPS = 1e-6;
+    constexpr float eps = 1e-6;
     HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(sBuf, nullptr);
     float data = 1;
@@ -856,7 +856,7 @@ HWTEST_F(HdfSBufTest, SbufTestSbufFloat022, TestSize.Level1)
     float readData = 0;
     ret = HdfSbufReadFloat(sBuf, &readData);
     ASSERT_EQ(ret, true);
-    ASSERT_EQ(fabs(data - readData) < EPS, true);
+    ASSERT_EQ(fabs(data - readData) < eps, true);
     HdfSbufRecycle(sBuf);
     HdfRemoteAdapterAddService(nullptr, nullptr);
 }
@@ -875,21 +875,21 @@ HWTEST_F(HdfSBufTest, SbufTestSbufFileDescriptor023, TestSize.Level1)
 
 HWTEST_F(HdfSBufTest, SbufTestSbufGetCapacity024, TestSize.Level1)
 {
-    constexpr int HDF_SBUF_DEFAULT_SIZE = 256;
+    constexpr int hdfSbufDefaultSize = 256;
     HdfSBuf *sBuf = HdfSbufObtainDefaultSize();
     ASSERT_NE(sBuf, nullptr);
     size_t capacity = HdfSbufGetCapacity(sBuf);
-    ASSERT_EQ(capacity, HDF_SBUF_DEFAULT_SIZE);
+    ASSERT_EQ(capacity, hdfSbufDefaultSize);
     HdfSbufRecycle(sBuf);
 }
 
 HWTEST_F(HdfSBufTest, SbufTestSbufSetDataSize025, TestSize.Level1)
 {
-    constexpr int HDF_SBUF_TEST_SIZE = 128;
+    constexpr int hdfSbufTestSize = 128;
     HdfSBuf *sBuf = HdfSbufObtainDefaultSize();
     ASSERT_NE(sBuf, nullptr);
-    HdfSbufSetDataSize(sBuf, HDF_SBUF_TEST_SIZE);
-    ASSERT_EQ(HdfSbufGetDataSize(sBuf), HDF_SBUF_TEST_SIZE);
+    HdfSbufSetDataSize(sBuf, hdfSbufTestSize);
+    ASSERT_EQ(HdfSbufGetDataSize(sBuf), hdfSbufTestSize);
     HdfSbufRecycle(sBuf);
 }
 
@@ -934,24 +934,24 @@ HWTEST_F(HdfSBufTest, SbufTestSbufInt64028, TestSize.Level1)
 
 HWTEST_F(HdfSBufTest, SbufTestSbufGetCapacity029, TestSize.Level1)
 {
-    constexpr size_t HDF_SBUF_TEST_SIZE = 64;
+    constexpr size_t hdfSbufTestSize = 64;
     HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(sBuf, nullptr);
     int64_t data = 1;
     bool ret = HdfSbufWriteInt64(sBuf, data);
     ASSERT_EQ(ret, true);
     size_t capacity = HdfSbufGetCapacity(sBuf);
-    ASSERT_EQ(capacity, HDF_SBUF_TEST_SIZE);
+    ASSERT_EQ(capacity, hdfSbufTestSize);
     HdfSbufRecycle(sBuf);
 }
 
 HWTEST_F(HdfSBufTest, SbufTestSbufDataSize030, TestSize.Level1)
 {
-    constexpr size_t HDF_SBUF_TEST_SIZE = 0;
+    constexpr size_t hdfSbufTestSize = 0;
     HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(sBuf, nullptr);
-    HdfSbufSetDataSize(sBuf, HDF_SBUF_TEST_SIZE);
-    ASSERT_EQ(HdfSbufGetDataSize(sBuf), HDF_SBUF_TEST_SIZE);
+    HdfSbufSetDataSize(sBuf, hdfSbufTestSize);
+    ASSERT_EQ(HdfSbufGetDataSize(sBuf), hdfSbufTestSize);
     HdfSbufRecycle(sBuf);
 }
 #endif

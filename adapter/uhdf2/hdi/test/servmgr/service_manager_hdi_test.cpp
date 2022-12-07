@@ -313,8 +313,8 @@ void HdfServiceMangerHdiTest::TestServiceListenerStop(const sptr<IDeviceManager>
 
     int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
-    constexpr int WAIT_COUNT = 300;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 300;
+    int count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -328,7 +328,7 @@ void HdfServiceMangerHdiTest::TestServiceListenerStop(const sptr<IDeviceManager>
     ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
 
-    count = WAIT_COUNT;
+    count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -394,8 +394,8 @@ void HdfServiceMangerHdiTest::TestSampleService(sptr<IRemoteObject>& sampleServi
     callbacked = false;
     status = sampleService->SendRequest(SAMPLE_UPDATE_SERVIE, data, reply, option);
     ASSERT_EQ(status, HDF_SUCCESS);
-    constexpr int WAIT_COUNT = 300;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 300;
+    int count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -469,8 +469,8 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest010, TestSize.Level1)
     int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
 
-    constexpr int WAIT_COUNT = 300;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 300;
+    int count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -644,8 +644,8 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
 
     int status = servmgr->RegisterServiceStatusListener(listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
-    constexpr int WAIT_COUNT = 100;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 100;
+    int count = waitCount;
     while (!sampleServiceStarted && count > 0) {
         OsalMSleep(1);
         count--;
@@ -734,12 +734,12 @@ HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
     int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
     ASSERT_TRUE(ret == HDF_SUCCESS);
 
-    constexpr int WAIT_COUNT = 1000;
-    constexpr int MSLEEP_TIME = 10;
+    constexpr int waitCount = 1000;
+    constexpr int msleepTime = 10;
     auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
     uint32_t cnt = 0;
-    while (sampleService == nullptr && cnt < WAIT_COUNT) {
-        OsalMSleep(MSLEEP_TIME);
+    while (sampleService == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
         sampleService = servmgr->GetService(TEST_SERVICE_NAME);
         cnt++;
     }
@@ -759,8 +759,8 @@ HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
 
     sampleService = servmgr->GetService(TEST_SERVICE_NAME);
     cnt = 0;
-    while (sampleService != nullptr && cnt < WAIT_COUNT) {
-        OsalMSleep(MSLEEP_TIME);
+    while (sampleService != nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
         sampleService = servmgr->GetService(TEST_SERVICE_NAME);
         cnt++;
     }
