@@ -237,8 +237,6 @@ static void ContigFreeUserPtr(void *bufPriv)
     }
     struct ContigBuffer *buf = bufPriv;
     struct sg_table *sgt = buf->dmaSgt;
-    int32_t i;
-    int32_t frameVecCnt;
     struct page **pages = NULL;
 
     if (sgt != NULL) {
@@ -249,8 +247,8 @@ static void ContigFreeUserPtr(void *bufPriv)
             return;
         }
         if (buf->dmaDir == DMA_FROM_DEVICE || buf->dmaDir == DMA_BIDIRECTIONAL) {
-            frameVecCnt = frame_vector_count(buf->vec);
-            for (i = 0; i < frameVecCnt; i++) {
+            int32_t frameVecCnt = frame_vector_count(buf->vec);
+            for (int32_t i = 0; i < frameVecCnt; i++) {
                 set_page_dirty_lock(pages[i]);
             }
         }

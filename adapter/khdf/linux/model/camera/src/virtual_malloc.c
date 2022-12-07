@@ -99,7 +99,7 @@ static void *VmallocAllocUserPtr(struct BufferQueue *queue,
     if (buf->vaddr == NULL) {
         goto USERPTR_FAIL_MAP;
     }
-    buf->vaddr += offset;
+    buf->vaddr = static_cast<void *>(static_cast<uint8_t *>(buf->vaddr) + offset);
     return buf;
 
 USERPTR_FAIL_MAP:
@@ -117,18 +117,16 @@ static void VmallocFreeUserptr(void *bufPriv)
     }
     struct VmallocBuffer *buf = bufPriv;
     unsigned long vaddr = (unsigned long)buf->vaddr & PAGE_MASK;
-    uint32_t i;
     struct page **pages = NULL;
-    uint32_t numPages;
 
     if (!buf->vec->is_pfns) {
-        numPages = frame_vector_count(buf->vec);
+        uint32_t numPages = frame_vector_count(buf->vec);
         pages = frame_vector_pages(buf->vec);
         if (vaddr != 0) {
             vm_unmap_ram((void *)vaddr, numPages);
         }
         if (buf->dmaDir == DMA_FROM_DEVICE || buf->dmaDir == DMA_BIDIRECTIONAL) {
-            for (i = 0; i < numPages; i++) {
+            for (uint32_t i = 0; i < numPages; i++) {
                 set_page_dirty_lock(pages[i]);
             }
         }

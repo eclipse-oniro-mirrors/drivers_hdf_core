@@ -43,7 +43,7 @@ int32_t GetDeviceOps(struct CameraDeviceDriver *deviceDriver,
 int32_t CameraDeviceGetCtrlConfig(struct CommonDevice *comDev,
     struct CameraDeviceConfig **deviceConfig, int32_t *deviceId);
 int32_t CameraGetDevice(struct HdfSBuf *reqData, struct CommonDevice *comDev);
-int32_t CameraDispatchCommonInfo(struct HdfDeviceIoClient *client,
+int32_t CameraDispatchCommonInfo(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData, struct CommonDevice *comDev);
 
 #endif  // CAMERA_UTILS_H

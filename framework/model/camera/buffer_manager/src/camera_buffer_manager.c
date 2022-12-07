@@ -238,8 +238,6 @@ int32_t BufferQueueReturnBuffer(struct BufferQueue *queue, struct UserCameraBuff
 
 static int32_t WaitForDoneBuffer(struct BufferQueue *queue, uint32_t blocking)
 {
-    int32_t ret;
-
     while (true) {
         if ((queue->flags & QUEUE_STATE_WAITING_DEQUEUE) != 0 || (queue->flags & QUEUE_STATE_STREAMING) == 0 ||
             (queue->flags & QUEUE_STATE_ERROR) != 0 || (queue->flags & QUEUE_STATE_LAST_BUFFER_DEQUEUED) != 0) {
@@ -256,7 +254,7 @@ static int32_t WaitForDoneBuffer(struct BufferQueue *queue, uint32_t blocking)
         queue->flags |= QUEUE_STATE_WAITING_DEQUEUE;
 
         MemoryAdapterDriverMutexLock(queue);
-        ret = wait_event_interruptible(queue->doneWait, !DListIsEmpty(&queue->doneList) ||
+        int32_t ret = wait_event_interruptible(queue->doneWait, !DListIsEmpty(&queue->doneList) ||
             (queue->flags & QUEUE_STATE_STREAMING) == 0 || (queue->flags & QUEUE_STATE_ERROR) != 0);
         if (ret == 0) {
             HDF_LOGE("%s: wait function failed", __func__);
@@ -332,15 +330,13 @@ int32_t BufferQueueAcquireBuffer(struct BufferQueue *queue, struct UserCameraBuf
 /* stream on */
 int32_t BufferQueueStreamOn(struct BufferQueue *queue)
 {
-    int32_t ret;
-
     if ((queue->flags & QUEUE_STATE_STREAMING) != 0 || (queue->numBuffers) == 0 ||
         (queue->numBuffers < queue->minBuffersNeeded)) {
         return HDF_FAILURE;
     }
 
     if (queue->queuedCount >= queue->minBuffersNeeded) {
-        ret = BufferQueueStartStreaming(queue);
+        int32_t ret = BufferQueueStartStreaming(queue);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: BufferQueueStartStreaming failed", __func__);
             return ret;

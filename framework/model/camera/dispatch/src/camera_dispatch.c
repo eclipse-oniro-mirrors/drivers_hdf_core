@@ -149,7 +149,8 @@ static int32_t CameraCmdOpenCamera(struct HdfDeviceIoClient *client, struct HdfS
     return ret;
 }
 
-static int32_t CameraCmdCloseCamera(struct HdfDeviceIoClient *client, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+static int32_t CameraCmdCloseCamera(const struct HdfDeviceIoClient *client,
+    struct HdfSBuf *reqData, const struct HdfSBuf *rspData)
 {
     int32_t ret;
     int32_t permissionId = 0;
