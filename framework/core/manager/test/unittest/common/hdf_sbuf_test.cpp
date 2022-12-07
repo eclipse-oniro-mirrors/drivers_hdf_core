@@ -892,5 +892,67 @@ HWTEST_F(HdfSBufTest, SbufTestSbufSetDataSize025, TestSize.Level1)
     ASSERT_EQ(HdfSbufGetDataSize(sBuf), HDF_SBUF_TEST_SIZE);
     HdfSbufRecycle(sBuf);
 }
+
+HWTEST_F(HdfSBufTest, SbufTestSbufInt8026, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int8_t data = 1;
+    bool ret = HdfSbufWriteInt8(sBuf, data);
+    ASSERT_EQ(ret, true);
+    int8_t readData;
+    HdfSbufReadInt8(sBuf, &readData);
+    ASSERT_TRUE(readData == data);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufInt16027, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int16_t data = 1;
+    bool ret = HdfSbufWriteInt16(sBuf, data);
+    ASSERT_EQ(ret, true);
+    int16_t readData;
+    HdfSbufReadInt16(sBuf, &readData);
+    ASSERT_TRUE(readData == data);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufInt64028, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int64_t data = 1;
+    bool ret = HdfSbufWriteInt64(sBuf, data);
+    ASSERT_EQ(ret, true);
+    int64_t readData;
+    HdfSbufReadInt64(sBuf, &readData);
+    ASSERT_TRUE(readData == data);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufGetCapacity029, TestSize.Level1)
+{
+    constexpr size_t HDF_SBUF_TEST_SIZE = 64;
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int64_t data = 1;
+    bool ret = HdfSbufWriteInt64(sBuf, data);
+    ASSERT_EQ(ret, true);
+    size_t capacity = HdfSbufGetCapacity(sBuf);
+    ASSERT_EQ(capacity, HDF_SBUF_TEST_SIZE);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufDataSize030, TestSize.Level1)
+{
+    constexpr size_t HDF_SBUF_TEST_SIZE = 0;
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    HdfSbufSetDataSize(sBuf, HDF_SBUF_TEST_SIZE);
+    ASSERT_EQ(HdfSbufGetDataSize(sBuf), HDF_SBUF_TEST_SIZE);
+    HdfSbufRecycle(sBuf);
+}
 #endif
 } // namespace OHOS
