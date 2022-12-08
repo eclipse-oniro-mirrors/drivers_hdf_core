@@ -126,6 +126,44 @@ enum AudioStreamDirection {
     AUDIO_CAPTURE_STREAM_IN,
 };
 
+enum AudioPortDirection {
+    PORT_OUT    = 0x1u, /**< Output port */
+    PORT_IN     = 0x2u, /**< Input port */
+    PORT_OUT_IN = 0x3u, /**< Input/output port, supporting both audio input and output */
+};
+
+/* SoC PCM stream information */
+struct AudioPcmStream {
+    uint64_t portDirection;
+    /* SNDRV_PCM_FMTBIT_* */
+    uint64_t formats;
+    /* SNDRV_PCM_RATE_* */
+    uint64_t rates;
+    /* min rate */
+    uint64_t rateMin;
+    /* max rate */
+    uint64_t rateMax;
+    /* min channels */
+    uint64_t channelsMin;
+    /* max channels */
+    uint64_t channelsMax;
+    /* max buffer size */
+    uint64_t bufferBytesMax;
+    /* min period size */
+    uint64_t periodBytesMin;
+    /* max period size */
+    uint64_t periodBytesMax;
+    /* min # of periods */
+    uint64_t periodsMin;
+    /* max # of periods */
+    uint64_t periodsMax;
+};
+
+struct AudioPortInfo {
+    struct AudioPcmStream render;
+    struct AudioPcmStream capture;
+};
+
 struct PcmInfo {
     enum AudioStreamType streamType;
     /* The number of channels in a frame */
@@ -212,6 +250,9 @@ struct AudioHost *AudioHostCreateAndBind(struct HdfDeviceObject *device);
 
 /* Get a sound card instance */
 struct AudioCard *GetCardInstance(const char *serviceName);
+
+/* Get all sound card instance */
+const struct DListHead *GetAllCardInstance(void);
 
 #ifdef __cplusplus
 #if __cplusplus

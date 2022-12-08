@@ -64,6 +64,7 @@ struct DaiParamsVal {
 int32_t CodecGetServiceName(const struct HdfDeviceObject *device, const char **drvCodecName);
 int32_t CodecGetDaiName(const struct HdfDeviceObject *device, const char **drvDaiName);
 int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecData *codecData);
+int32_t CodecDaiGetPortConfigInfo(const struct HdfDeviceObject *device, struct DaiData *codecData);
 int32_t CodecSetConfigInfoOfControls(struct CodecData *codeData, struct DaiData *daiData);
 int32_t CodecSetCtlFunc(struct CodecData *codeData, enum AudioControlType controlType, const void *getCtrl,
     const void *setCtrl);
