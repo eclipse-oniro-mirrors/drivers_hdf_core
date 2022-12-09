@@ -156,6 +156,8 @@ private:
 
     AutoPtr<ASTExpr> ParseNumExpr();
 
+    bool CheckNumber(const std::string& integerVal);
+
     bool CheckType(const Token &token, const AutoPtr<ASTType> &type);
 
     void SetAstFileType();

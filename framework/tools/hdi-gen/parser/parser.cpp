@@ -21,7 +21,11 @@
 #include "util/logger.h"
 #include "util/string_builder.h"
 
-#define RE_DIGIT      "[0-9]+"
+#define RE_BIN_DIGIT "0[b][0|1]+"      // binary digit
+#define RE_OCT_DIGIT "0[0-7]+"         // octal digit
+#define RE_DEC_DIGIT "[0-9]+"          // decimal digit
+#define RE_HEX_DIFIT "0[xX][0-9a-f]+"  // hexadecimal digit
+#define RE_DIGIT_SUFFIX "(u|l|ll|ul|ull|)$"
 #define RE_IDENTIFIER "[a-zA-Z_][a-zA-Z0-9_]*"
 
 #define RE_PACKAGE_NUM             3
@@ -32,9 +36,13 @@
 namespace OHOS {
 namespace HDI {
 static const std::regex RE_PACKAGE(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]"
-                                                "(" RE_DIGIT ")_(" RE_DIGIT ")");
+                                                "(" RE_DEC_DIGIT ")_(" RE_DEC_DIGIT ")");
 static const std::regex RE_IMPORT(
-    RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]" RE_DIGIT "_" RE_DIGIT "." RE_IDENTIFIER);
+    RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]" RE_DEC_DIGIT "_" RE_DEC_DIGIT "." RE_IDENTIFIER);
+static std::regex BINARY_NUM_RE(RE_BIN_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
+static std::regex OCT_NUM_RE(RE_OCT_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
+static std::regex DEC_NUM_RE(RE_DEC_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
+static std::regex HEX_NUM_RE(RE_HEX_DIFIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 
 bool Parser::Parse(const std::vector<std::string> &sourceFiles)
 {
@@ -953,15 +961,16 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
 {
     AutoPtr<ASTType> baseType = nullptr;
     Token token = lexer_.PeekToken();
-    if (token.kind_ == TokenType::COLON) {
+    if (token.kind_ != TokenType::COLON) {
         lexer_.GetToken();
+        baseType = ast_->FindType("int");
+        return baseType;
+    }
 
-        token = lexer_.PeekToken();
-        baseType = ParseType();
-        if (baseType == nullptr) {
-            return nullptr;
-        }
-
+    lexer_.GetToken();
+    token = lexer_.PeekToken();
+    baseType = ParseType();
+    if (baseType != nullptr) {
         switch (baseType->GetTypeKind()) {
             case TypeKind::TYPE_BYTE:
             case TypeKind::TYPE_SHORT:
@@ -972,20 +981,18 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
             case TypeKind::TYPE_UINT:
             case TypeKind::TYPE_ULONG:
                 break;
-            default:
+            default: {
                 LogError(token, StringHelper::Format("illegal base type of enum", baseType->ToString().c_str()));
-                return nullptr;
+                lexer_.SkipUntilToken(TokenType::BRACES_LEFT);
+            }
         }
-
-        token = lexer_.PeekToken();
-        if (token.kind_ != TokenType::BRACES_LEFT) {
-            LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
-        }
-        lexer_.GetToken();
-    } else {
-        lexer_.GetToken();
-        baseType = ast_->FindType("int");
     }
+
+    token = lexer_.PeekToken();
+    if (token.kind_ != TokenType::BRACES_LEFT) {
+        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value_.c_str()));
+    }
+    lexer_.GetToken();
     return baseType;
 }
 
@@ -1382,9 +1389,25 @@ AutoPtr<ASTExpr> Parser::ParsePrimaryExpr()
 AutoPtr<ASTExpr> Parser::ParseNumExpr()
 {
     Token token = lexer_.GetToken();
+    if (!CheckNumber(token.value_)) {
+        LogError(token, StringHelper::Format("unknown integer number: '%s'", token.value_.c_str()));
+        return nullptr;
+    }
+
     AutoPtr<ASTNumExpr> expr = new ASTNumExpr;
     expr->value_ = token.value_;
     return expr.Get();
+}
+
+bool Parser::CheckNumber(const std::string& integerVal)
+{
+    if (std::regex_match(integerVal, BINARY_NUM_RE)
+        || std::regex_match(integerVal, OCT_NUM_RE)
+        || std::regex_match(integerVal, DEC_NUM_RE)
+        || std::regex_match(integerVal, HEX_NUM_RE)) {
+        return true;
+    }
+    return false;
 }
 
 bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
