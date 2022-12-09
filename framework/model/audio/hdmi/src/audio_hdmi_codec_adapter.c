@@ -72,6 +72,11 @@ static int32_t AudioHdmiCodecDriverInit(struct HdfDeviceObject *device)
         return ret;
     }
 
+    if (CodecDaiGetPortConfigInfo(device, &g_audioHdmiDaiData) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("get port config info failed.");
+        return HDF_FAILURE;
+    }
+
     if (CodecSetConfigInfoOfControls(&g_audioHdmiCodecData, &g_audioHdmiDaiData) != HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("set config info failed.");
         return HDF_FAILURE;
