@@ -75,6 +75,8 @@ private:
 
     void ReadDecNum(Token &token);
 
+    void ReadNumSuffix(Token &token);
+
     void ReadShiftLeftOp(Token &token);
 
     void ReadShiftRightOp(Token &token);
