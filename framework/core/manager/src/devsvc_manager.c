@@ -18,7 +18,7 @@
 
 #define HDF_LOG_TAG devsvc_manager
 
-static struct DevSvcRecord *DevSvcManagerSearchService(struct IDevSvcManager *inst, uint32_t serviceKey)
+static struct DevSvcRecord *DevSvcManagerSearchServiceLocked(struct IDevSvcManager *inst, uint32_t serviceKey)
 {
     struct DevSvcRecord *record = NULL;
     struct DevSvcRecord *searchResult = NULL;
@@ -28,14 +28,12 @@ static struct DevSvcRecord *DevSvcManagerSearchService(struct IDevSvcManager *in
         return NULL;
     }
 
-    OsalMutexLock(&devSvcManager->mutex);
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
         if (record->key == serviceKey) {
             searchResult = record;
             break;
         }
     }
-    OsalMutexUnlock(&devSvcManager->mutex);
     return searchResult;
 }
 
@@ -91,13 +89,16 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
         HDF_LOGE("failed to add service, input param is null");
         return HDF_FAILURE;
     }
-    record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servInfo->servName, 0));
+    OsalMutexLock(&devSvcManager->mutex);
+    record = DevSvcManagerSearchServiceLocked(inst, HdfStringMakeHashKey(servInfo->servName, 0));
     if (record != NULL) {
-        HDF_LOGI("%{public}s:add service %{public}s exist, only update value", __func__, servInfo->servName);
         // on service died will release old service object
         record->value = service;
+        OsalMutexUnlock(&devSvcManager->mutex);
+        HDF_LOGI("%{public}s:add service %{public}s exist, only update value", __func__, servInfo->servName);
         return HDF_SUCCESS;
     }
+    OsalMutexUnlock(&devSvcManager->mutex);
     record = DevSvcRecordNewInstance();
     if (record == NULL) {
         HDF_LOGE("failed to add service , record is null");
@@ -131,15 +132,17 @@ int DevSvcManagerUpdateService(struct IDevSvcManager *inst,
         HDF_LOGE("failed to update service, invalid param");
         return HDF_FAILURE;
     }
-
-    record = DevSvcManagerSearchService(inst, HdfStringMakeHashKey(servInfo->servName, 0));
+    OsalMutexLock(&devSvcManager->mutex);
+    record = DevSvcManagerSearchServiceLocked(inst, HdfStringMakeHashKey(servInfo->servName, 0));
     if (record == NULL) {
+        OsalMutexUnlock(&devSvcManager->mutex);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
     if (servInfo->servInfo != NULL) {
         servInfoStr = HdfStringCopy(servInfo->servInfo);
         if (servInfoStr == NULL) {
+            OsalMutexUnlock(&devSvcManager->mutex);
             return HDF_ERR_MALLOC_FAIL;
         }
         OsalMemFree((char *)record->servInfo);
@@ -149,7 +152,6 @@ int DevSvcManagerUpdateService(struct IDevSvcManager *inst,
     record->value = service;
     record->devClass = servInfo->devClass;
     record->devId = servInfo->devId;
-    OsalMutexLock(&devSvcManager->mutex);
     NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_CHANGE);
     OsalMutexUnlock(&devSvcManager->mutex);
     return HDF_SUCCESS;
@@ -174,39 +176,54 @@ int DevSvcManagerSubscribeService(struct IDevSvcManager *inst, const char *svcNa
     return devMgrSvc->super.LoadDevice(&devMgrSvc->super, svcName);
 }
 
-void DevSvcManagerRemoveService(struct IDevSvcManager *inst, const char *svcName)
+void DevSvcManagerRemoveService(struct IDevSvcManager *inst, const char *svcName, const struct HdfDeviceObject *devObj)
 {
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *serviceRecord = NULL;
     uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
+    bool removeFlag = false;
 
     if (svcName == NULL || devSvcManager == NULL) {
         return;
     }
-    serviceRecord = DevSvcManagerSearchService(inst, serviceKey);
+    OsalMutexLock(&devSvcManager->mutex);
+    serviceRecord = DevSvcManagerSearchServiceLocked(inst, serviceKey);
     if (serviceRecord == NULL) {
+        OsalMutexUnlock(&devSvcManager->mutex);
         return;
     }
-    OsalMutexLock(&devSvcManager->mutex);
-    NotifyServiceStatusLocked(devSvcManager, serviceRecord, SERVIE_STATUS_STOP);
-    DListRemove(&serviceRecord->entry);
+    if (devObj == NULL || (uintptr_t)devObj == (uintptr_t)serviceRecord->value) {
+        NotifyServiceStatusLocked(devSvcManager, serviceRecord, SERVIE_STATUS_STOP);
+        DListRemove(&serviceRecord->entry);
+        removeFlag = true;
+    }
     OsalMutexUnlock(&devSvcManager->mutex);
 
-    DevSvcRecordFreeInstance(serviceRecord);
+    if (removeFlag) {
+        DevSvcRecordFreeInstance(serviceRecord);
+    } else {
+        HDF_LOGI("%{public}s %{public}s device object is out of date", __func__, svcName);
+    }
 }
 
 struct HdfDeviceObject *DevSvcManagerGetObject(struct IDevSvcManager *inst, const char *svcName)
 {
     uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
+    struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *serviceRecord = NULL;
+    struct HdfDeviceObject *deviceObject = NULL;
     if (svcName == NULL) {
         HDF_LOGE("Get service failed, svcName is null");
         return NULL;
     }
-    serviceRecord = DevSvcManagerSearchService(inst, serviceKey);
+    OsalMutexLock(&devSvcManager->mutex);
+    serviceRecord = DevSvcManagerSearchServiceLocked(inst, serviceKey);
     if (serviceRecord != NULL) {
-        return serviceRecord->value;
+        deviceObject = serviceRecord->value;
+        OsalMutexUnlock(&devSvcManager->mutex);
+        return deviceObject;
     }
+    OsalMutexUnlock(&devSvcManager->mutex);
     return NULL;
 }
 

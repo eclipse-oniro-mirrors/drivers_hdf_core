@@ -23,7 +23,7 @@ struct IDevSvcManager {
     int (*UnsubscribeService)(struct IDevSvcManager *, const char *);
     struct HdfObject *(*GetService)(struct IDevSvcManager *, const char *);
     struct HdfDeviceObject *(*GetObject)(struct IDevSvcManager *, const char *);
-    void (*RemoveService)(struct IDevSvcManager *, const char *);
+    void (*RemoveService)(struct IDevSvcManager *, const char *, const struct HdfDeviceObject *);
     int (*RegsterServListener)(struct IDevSvcManager *, struct ServStatListenerHolder *);
     void (*UnregsterServListener)(struct IDevSvcManager *, struct ServStatListenerHolder *);
     void (*ListAllService)(struct IDevSvcManager *, struct HdfSBuf *);
