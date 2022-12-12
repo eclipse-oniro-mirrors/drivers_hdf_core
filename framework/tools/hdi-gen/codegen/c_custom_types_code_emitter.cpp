@@ -127,7 +127,7 @@ void CCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
     }
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
+void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -161,7 +161,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPt
     }
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
+void CCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -329,8 +329,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &sb,
     sb.Append("}\n");
 }
 
-void CCustomTypesCodeEmitter::EmitMarshallingVarDecl(
-    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix)
+void CCustomTypesCodeEmitter::EmitMarshallingVarDecl(const AutoPtr<ASTStructType> &type,
+    const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     (void)name;
     if (!Options::GetInstance().DoGenerateKernelCode()) {
@@ -346,7 +346,7 @@ void CCustomTypesCodeEmitter::EmitMarshallingVarDecl(
 }
 
 void CCustomTypesCodeEmitter::EmitUnmarshallingVarDecl(
-    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         return;
@@ -366,7 +366,8 @@ void CCustomTypesCodeEmitter::EmitUnmarshallingVarDecl(
     }
 }
 
-void CCustomTypesCodeEmitter::EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix)
+void CCustomTypesCodeEmitter::EmitParamCheck(
+    const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("if (data == NULL) {\n");
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
@@ -502,7 +503,7 @@ void CCustomTypesCodeEmitter::EmitArrayMemberUnmarshalling(const AutoPtr<ASTType
     sb.Append(prefix).Append("}\n");
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat(

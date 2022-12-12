@@ -79,14 +79,14 @@ void CppCodeEmitter::EmitLicense(StringBuilder &sb)
     sb.Append(ast_->GetLicense()).Append("\n\n");
 }
 
-void CppCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
+void CppCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#ifndef ").Append(macroName).Append("\n");
     sb.Append("#define ").Append(macroName).Append("\n");
 }
 
-void CppCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName)
+void CppCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#endif // ").Append(macroName);
@@ -112,7 +112,7 @@ bool CppCodeEmitter::IsVersion(const std::string &name) const
     return std::regex_match(name.c_str(), rVer);
 }
 
-std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &namespaceStr)
+std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &namespaceStr) const
 {
     std::vector<std::string> result;
     std::vector<std::string> namespaceVec = StringHelper::Split(namespaceStr, ".");
@@ -171,7 +171,8 @@ void CppCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
     std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(interface_->GetNamespace()->ToString());
 
-    for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
+    for (std::vector<std::string>::const_reverse_iterator nspaceIter = cppNamespaceVec.rbegin();
+        nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
         sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }

@@ -48,7 +48,7 @@ private:
 
     bool ParseFileDetail(const std::string &sourceFile, FileDetail &info);
 
-    bool ParsePackage(Lexer &lexer, FileDetail &info);
+    bool ParsePackage(Lexer &lexer, FileDetail &info) const;
 
     bool ParseImports(Lexer &lexer, FileDetail &info) const;
 

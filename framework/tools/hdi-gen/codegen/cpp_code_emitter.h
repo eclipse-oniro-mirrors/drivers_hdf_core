@@ -18,7 +18,7 @@ namespace OHOS {
 namespace HDI {
 class CppCodeEmitter : public CodeEmitter {
 public:
-    virtual ~CppCodeEmitter() = default;
+    ~CppCodeEmitter() override = default;
 
     bool OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory);
 
@@ -32,9 +32,9 @@ protected:
 
     void EmitLicense(StringBuilder &sb);
 
-    void EmitHeadMacro(StringBuilder &sb, const std::string &fullName);
+    void EmitHeadMacro(StringBuilder &sb, const std::string &fullName) const;
 
-    void EmitTailMacro(StringBuilder &sb, const std::string &fullName);
+    void EmitTailMacro(StringBuilder &sb, const std::string &fullName) const;
 
     void EmitHeadExternC(StringBuilder &sb) const;
 
@@ -42,7 +42,7 @@ protected:
 
     bool IsVersion(const std::string &name) const;
 
-    std::vector<std::string> EmitCppNameSpaceVec(const std::string &namespaceStr);
+    std::vector<std::string> EmitCppNameSpaceVec(const std::string &namespaceStr) const;
 
     std::string EmitPackageToNameSpace(const std::string &packageName);
 
@@ -63,8 +63,6 @@ protected:
         StringBuilder &sb, const std::string &prefix) const;
 
     std::string MacroName(const std::string &name) const;
-
-    std::string ConstantName(const std::string &name);
 
     std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
 };

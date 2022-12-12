@@ -18,7 +18,7 @@ namespace OHOS {
 namespace HDI {
 class CCodeEmitter : public CodeEmitter {
 public:
-    virtual ~CCodeEmitter() = default;
+    ~CCodeEmitter() override = default;
 
 protected:
     void GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles);
@@ -28,8 +28,8 @@ protected:
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitMethodNeedLoopVar(
-        const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix);
+    void EmitMethodNeedLoopVar(const AutoPtr<ASTMethod> &method,
+        bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix) const;
 
     bool EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree) const;
 
@@ -40,7 +40,7 @@ protected:
 
     void EmitHeadMacro(StringBuilder &sb, const std::string &fullName);
 
-    void EmitTailMacro(StringBuilder &sb, const std::string &fullName);
+    void EmitTailMacro(StringBuilder &sb, const std::string &fullName) const;
 
     void EmitHeadExternC(StringBuilder &sb) const;
 
@@ -48,9 +48,7 @@ protected:
 
     std::string MacroName(const std::string &name) const;
 
-    std::string ConstantName(const std::string &name);
-
-    std::string SpecificationParam(StringBuilder &sb, const std::string &prefix) const;
+    std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
 
     static constexpr const char *errorsLabelName_ = "ERRORS";
     static constexpr const char *finishedLabelName_ = "FINISHED";

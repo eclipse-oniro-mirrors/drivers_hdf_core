@@ -189,7 +189,7 @@ void File::Close()
 
 bool File::CreateParentDir(const std::string &path)
 {
-    if (!access(path.c_str(), F_OK | R_OK | W_OK)) {
+    if (access(path.c_str(), F_OK | R_OK | W_OK) == 0) {
         return true;
     }
 
@@ -269,7 +269,7 @@ std::string File::RealPath(const std::string &path)
 
 bool File::CheckValid(const std::string &path)
 {
-    if (access(path.c_str(), F_OK | R_OK | W_OK)) {
+    if (access(path.c_str(), F_OK | R_OK | W_OK) != 0) {
         return false;
     }
 

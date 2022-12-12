@@ -52,7 +52,7 @@ void JavaClientProxyCodeEmitter::EmitProxyFile()
     file.Close();
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyImports(StringBuilder &sb)
+void JavaClientProxyCodeEmitter::EmitProxyImports(StringBuilder &sb) const
 {
     EmitProxyCorelibImports(sb);
     EmitProxySelfDefinedTypeImports(sb);
@@ -185,7 +185,7 @@ void JavaClientProxyCodeEmitter::EmitInterfaceMethodParameter(
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyMethodBody(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB).Append("MessageParcel data = MessageParcel.obtain();\n");

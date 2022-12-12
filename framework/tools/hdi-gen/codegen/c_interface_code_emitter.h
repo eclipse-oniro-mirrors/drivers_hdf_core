@@ -17,7 +17,7 @@ class CInterfaceCodeEmitter : public CCodeEmitter {
 public:
     CInterfaceCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CInterfaceCodeEmitter() = default;
+    ~CInterfaceCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -40,11 +40,11 @@ private:
 
     void EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitExternalMethod(StringBuilder &sb);
+    void EmitExternalMethod(StringBuilder &sb) const;
 
     void EmitInterfaceGetMethodDecl(StringBuilder &sb) const;
 

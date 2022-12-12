@@ -40,7 +40,7 @@ public:
 
     bool IsMapType() override;
 
-    bool HasInnerType(TypeKind innerType) const override;
+    bool HasInnerType(TypeKind innerTypeKind) const override;
 
     std::string ToString() const override;
 

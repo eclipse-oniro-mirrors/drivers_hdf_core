@@ -17,7 +17,7 @@ class CppServiceImplCodeEmitter : public CppCodeEmitter {
 public:
     CppServiceImplCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppServiceImplCodeEmitter() = default;
+    ~CppServiceImplCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -36,7 +36,8 @@ private:
 
     void EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodDecl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitImplSourceFile();
 
@@ -46,7 +47,8 @@ private:
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodImpl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitExternalGetMethodImpl(StringBuilder &sb);
 

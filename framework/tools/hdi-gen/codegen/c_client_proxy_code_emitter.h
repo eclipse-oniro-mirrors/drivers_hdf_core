@@ -17,7 +17,7 @@ class CClientProxyCodeEmitter : public CCodeEmitter {
 public:
     CClientProxyCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CClientProxyCodeEmitter() = default;
+    ~CClientProxyCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -38,7 +38,7 @@ private:
 
     void EmitProxyInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitProxyCallMethodImpl(StringBuilder &sb) const;
 
@@ -57,8 +57,8 @@ private:
 
     void EmitWriteInterfaceToken(const std::string &dataBufName, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitWriteFlagOfNeedSetMem(
-        const AutoPtr<ASTMethod> &method, const std::string &dataBufName, StringBuilder &sb, const std::string &prefix);
+    void EmitWriteFlagOfNeedSetMem(const AutoPtr<ASTMethod> &method,
+        const std::string &dataBufName, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitReleaseBuf(const std::string &dataBufName,
         const std::string &replyBufName, StringBuilder &sb, const std::string &prefix) const;
@@ -75,11 +75,11 @@ private:
     void EmitProxyExternalMethodImpl(StringBuilder &sb);
 
 	// the get method for getting kernel driver client object
-    void EmitKernelProxyGetMethodImpl(StringBuilder &sb);
+    void EmitKernelProxyGetMethodImpl(StringBuilder &sb) const;
 
     void EmitKernelProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
         const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
-        StringBuilder &sb);
+        StringBuilder &sb) const;
 
     // the release metod for releasing kernel driver client object
     void EmitKernelProxyReleaseMethodImpl(const std::string &remoteName, const std::string &recycleFuncName,
@@ -97,17 +97,17 @@ private:
         const std::string &remoteName, const std::string &recycleFuncName, StringBuilder &sb) const;
 
     // the get method for getting driver client object
-    void EmitProxyGetMethodImpl(StringBuilder &sb);
+    void EmitProxyGetMethodImpl(StringBuilder &sb) const;
 
     void EmitProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
         const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
-        StringBuilder &sb);
+        StringBuilder &sb) const;
 
     void EmitProxyGetRemoteService(const std::string &remoteName,
         const std::string &serviceName, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitProxySetInterfaceDesc(const std::string &remoteName, const std::string &recycleFuncName,
-        StringBuilder &sb, const std::string &prefix);
+        StringBuilder &sb, const std::string &prefix) const;
 
     void EmitProxyCreateProxyObject(const std::string &clientObjName, const std::string &remoteName,
         const std::string &recycleFuncName, StringBuilder &sb, const std::string &prefix) const;
@@ -116,13 +116,13 @@ private:
         const std::string &serMinorName, StringBuilder &sb, const std::string &prefix) const;
 
     // the release metod for releasing driver client obj
-    void EmitProxyReleaseMethodImpl(StringBuilder &sb);
+    void EmitProxyReleaseMethodImpl(StringBuilder &sb) const;
 
     void EmitProxyReleaseInstanceMethodImpl(const std::string &serviceName, const std::string &remoteName,
         const std::string &recycleFuncName, StringBuilder &sb);
 
     void EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad, StringBuilder &sb,
-        const std::string &prefix);
+        const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 

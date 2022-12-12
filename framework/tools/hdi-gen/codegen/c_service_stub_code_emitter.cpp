@@ -204,7 +204,7 @@ void CServiceStubCodeEmitter::EmitExternalMethodImpl(StringBuilder &sb)
     EmitReleaseInstanceMethodImpl(sb);
 }
 
-void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %s *%sGet(bool isStub)\n", interfaceName_.c_str(), interfaceName_.c_str());
     sb.Append("{\n");
@@ -213,7 +213,7 @@ void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub)\n", interfaceName_.c_str(),
         interfaceName_.c_str());
@@ -230,7 +230,7 @@ void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat(
         "void %sRelease(struct %s *instance, bool isStub)\n", interfaceName_.c_str(), interfaceName_.c_str());
@@ -348,7 +348,7 @@ void CServiceStubCodeEmitter::EmitStubLocalVariable(
 }
 
 void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param,
-    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
+    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
 
@@ -440,7 +440,7 @@ void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter
 }
 
 void CServiceStubCodeEmitter::EmitStubCallMethod(
-    const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("if (serviceImpl == NULL) {\n");
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid serviceImpl object\", __func__);\n");

@@ -85,8 +85,8 @@ public:
     void EmitJavaReadVar(const std::string &parcelName,
         const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
 
-    virtual void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
-        StringBuilder &sb, const std::string &prefix) const;
+    void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+        StringBuilder &sb, const std::string &prefix) const override;
 
     void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 

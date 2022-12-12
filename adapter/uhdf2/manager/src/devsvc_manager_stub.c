@@ -57,7 +57,7 @@ static int32_t GetServicePermCheck(const char *servName)
     return HDF_SUCCESS;
 }
 
-static int32_t ListServicePermCheck()
+static int32_t ListServicePermCheck(void)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();

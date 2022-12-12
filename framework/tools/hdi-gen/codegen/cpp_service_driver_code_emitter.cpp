@@ -190,7 +190,7 @@ void CppServiceDriverCodeEmitter::EmitDriverRelease(StringBuilder &sb) const
     sb.Append("}\n");
 }
 
-void CppServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb)
+void CppServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb) const
 {
     sb.AppendFormat("struct HdfDriverEntry g_%sDriverEntry = {\n", StringHelper::StrToLower(baseName_).c_str());
     sb.Append(TAB).Append(".moduleVersion = 1,\n");

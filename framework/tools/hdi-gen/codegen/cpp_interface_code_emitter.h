@@ -17,7 +17,7 @@ class CppInterfaceCodeEmitter : public CppCodeEmitter {
 public:
     CppInterfaceCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppInterfaceCodeEmitter() = default;
+    ~CppInterfaceCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -42,9 +42,9 @@ private:
 
     void EmitInterfaceMethodsDecl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;

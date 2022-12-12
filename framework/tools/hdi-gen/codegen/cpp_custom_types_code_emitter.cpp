@@ -134,7 +134,7 @@ void CppCustomTypesCodeEmitter::EmitUsingNamespace(StringBuilder &sb)
     EmitImportUsingNamespace(sb);
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
+void CppCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -168,7 +168,7 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const Auto
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
+void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -246,7 +246,7 @@ void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
+void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -355,7 +355,8 @@ void CppCustomTypesCodeEmitter::EmitBeginNamespace(StringBuilder &sb)
 void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
     std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
-    for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
+    for (std::vector<std::string>::const_reverse_iterator nspaceIter = cppNamespaceVec.rbegin();
+        nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
         sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }

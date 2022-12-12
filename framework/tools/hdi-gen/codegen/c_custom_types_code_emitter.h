@@ -19,7 +19,7 @@ class CCustomTypesCodeEmitter : public CCodeEmitter {
 public:
     CCustomTypesCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CCustomTypesCodeEmitter() = default;
+    ~CCustomTypesCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -36,11 +36,11 @@ private:
 
     void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitCustomTypeDecls(StringBuilder &sb);
+    void EmitCustomTypeDecls(StringBuilder &sb) const;
 
     void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const;
 
-    void EmitCustomTypeFuncDecl(StringBuilder &sb);
+    void EmitCustomTypeFuncDecl(StringBuilder &sb) const;
 
     void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
@@ -60,13 +60,13 @@ private:
 
     void EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
 
-    void EmitMarshallingVarDecl(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitMarshallingVarDecl(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitUnmarshallingVarDecl(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitUnmarshallingVarDecl(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitPodTypeUnmarshalling(const AutoPtr<ASTStructType> &type,
         const std::string &name, StringBuilder &sb, const std::string &prefix) const;
@@ -80,7 +80,7 @@ private:
     void EmitArrayMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &memberName,
         const std::string &varName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
     bool NeedEmitInitVar(const AutoPtr<ASTType> &type, bool needFree);
 

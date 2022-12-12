@@ -159,8 +159,8 @@ std::string StringHelper::Format(const char *format, ...)
     va_start(args, format);
     va_copy(argsCopy, args);
 
-    char buf[LINE_MAX_SIZE] = {0};
-    int len = vsnprintf_s(buf, LINE_MAX_SIZE, LINE_MAX_SIZE - 1, format, args);
+    char buf[lineMaxSize] = {0};
+    int len = vsnprintf_s(buf, lineMaxSize, lineMaxSize - 1, format, args);
     if (len <= 0) {
         va_end(args);
         va_end(argsCopy);

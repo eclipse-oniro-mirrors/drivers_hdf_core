@@ -150,7 +150,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodsDecl(StringBuilder &sb, const 
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("virtual int32_t %s() = 0;\n", method->GetName().c_str());
@@ -171,7 +171,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
     }
 }
 
-void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix)
+void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
     sb.Append(prefix).AppendFormat("virtual int32_t %s(", method->GetName().c_str());

@@ -168,7 +168,7 @@ private:
 
     bool CheckCallbackAst();
 
-    bool CheckPackageName(const std::string &filePath, const std::string &packageName);
+    bool CheckPackageName(const std::string &filePath, const std::string &packageName) const;
 
     bool CheckImport(const std::string &importName);
 

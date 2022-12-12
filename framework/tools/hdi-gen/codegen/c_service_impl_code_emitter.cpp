@@ -182,7 +182,7 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, cons
 }
 
 void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self)\n", baseName_.c_str(),
@@ -209,7 +209,7 @@ void CServiceImplCodeEmitter::EmitServiceImplMethodImpl(
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceImplCodeEmitter::EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix)
+void CServiceImplCodeEmitter::EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
     sb.Append(prefix).AppendFormat("static int32_t %s%s(struct %s *self, ", baseName_.c_str(),
@@ -260,7 +260,7 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplGetMethod(StringBuilder &sb) 
     sb.Append("}\n");
 }
 
-void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb)
+void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb) const
 {
     std::string objName = "service";
     if (interface_->IsSerializable()) {
@@ -307,7 +307,7 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &
     sb.Append("}\n");
 }
 
-void CServiceImplCodeEmitter::EmitServiceImplReleaseMethod(StringBuilder &sb)
+void CServiceImplCodeEmitter::EmitServiceImplReleaseMethod(StringBuilder &sb) const
 {
     if (interface_->IsSerializable()) {
         sb.AppendFormat("void %sServiceRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
