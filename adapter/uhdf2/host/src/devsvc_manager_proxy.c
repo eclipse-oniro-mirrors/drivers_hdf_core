@@ -184,8 +184,10 @@ struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, cons
     return (remoteService == NULL) ? NULL : &remoteService->object_;
 }
 
-void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *svcName)
+void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *svcName,
+    const struct HdfDeviceObject *devObj)
 {
+    (void)devObj;
     if (inst == NULL || svcName == NULL) {
         return;
     }

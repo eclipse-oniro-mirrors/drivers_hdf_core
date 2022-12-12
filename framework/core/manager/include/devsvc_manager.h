@@ -32,7 +32,8 @@ int DevSvcManagerStartService(void);
 int DevSvcManagerAddService(
     struct IDevSvcManager *manager, struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo);
 struct HdfObject *DevSvcManagerGetService(struct IDevSvcManager *manager, const char *svcName);
-void DevSvcManagerRemoveService(struct IDevSvcManager *manager, const char *svcName);
+void DevSvcManagerRemoveService(
+    struct IDevSvcManager *manager, const char *svcName, const struct HdfDeviceObject *devObj);
 void DevSvcManagerListService(struct HdfSBuf *serviceNameSet, DeviceClass deviceClass);
 
 int DevSvcManagerClntSubscribeService(const char *svcName, struct SubscriberCallback callback);

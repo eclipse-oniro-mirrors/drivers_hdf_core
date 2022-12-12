@@ -407,7 +407,7 @@ static int32_t DevSvcManagerStubRemoveService(struct IDevSvcManager *super, stru
         return HDF_ERR_INVALID_OBJECT;
     }
     OsalMutexUnlock(&stub->devSvcStubMutex);
-    super->RemoveService(super, name);
+    super->RemoveService(super, name, serviceObject);
     HDF_LOGI("service %{public}s removed", name);
 
     ReleaseServiceObject(stub, serviceObject);
@@ -540,13 +540,9 @@ void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfR
         HDF_LOGI("%{public}s HdfStringCopy fail", __func__);
         return;
     }
-    struct HdfObject *service = iSvcMgr->GetService(iSvcMgr, serviceName);
-    HDF_LOGI("service %{public}s died", serviceName);
 
-    if ((uintptr_t)service == (uintptr_t)remote) {
-        HDF_LOGI("%{public}s: remove died service %{public}s", __func__, serviceName);
-        iSvcMgr->RemoveService(iSvcMgr, serviceName);
-    }
+    HDF_LOGI("service %{public}s died", serviceName);
+    iSvcMgr->RemoveService(iSvcMgr, serviceName, serviceObject);
 
     ReleaseServiceObject(stub, serviceObject);
     OsalMemFree(serviceName);
