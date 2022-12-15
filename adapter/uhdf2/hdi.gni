@@ -146,6 +146,7 @@ template("hdi") {
         external_deps = [ "hilog:libhilog" ]
       }
 
+      shlib_type = "hdi_proxy"
       install_images = [ system_base_dir ]
       subsystem_name = invoker.subsystem_name
       partname_list = string_split(invoker.part_name, "_")
@@ -188,6 +189,7 @@ template("hdi") {
           external_deps = [ "hilog:libhilog" ]
         }
 
+        shlib_type = "hdi_stub"
         install_images = [ chipset_base_dir ]
         subsystem_name = invoker.subsystem_name
         part_name = invoker.part_name
