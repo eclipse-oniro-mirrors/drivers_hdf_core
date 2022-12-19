@@ -22,7 +22,7 @@ class ASTEnumValue : public ASTNode {
 public:
     explicit ASTEnumValue(const std::string &name) : mName_(name), value_(nullptr) {}
 
-    inline virtual ~ASTEnumValue() {}
+    inline ~ASTEnumValue() override {}
 
     inline std::string GetName()
     {

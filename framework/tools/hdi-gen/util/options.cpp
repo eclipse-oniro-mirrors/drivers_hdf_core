@@ -279,7 +279,7 @@ std::string Options::GetRootPath(const std::string &package) const
  * package:ohos.hdi.foo.v1_0
  * subPackage:foo.v1_0
  */
-std::string Options::GetSubPackage(const std::string &package)
+std::string Options::GetSubPackage(const std::string &package) const
 {
     std::string rootPackage = GetRootPackage(package);
     if (rootPackage.empty()) {
@@ -325,7 +325,7 @@ std::string Options::GetPackagePath(const std::string &package) const
  * import: ohos.hdi.foo.v1_0.MyTypes
  * packagePath:./drivers/interface/foo/v1_0/MyTypes.idl
  */
-std::string Options::GetImportFilePath(const std::string &import)
+std::string Options::GetImportFilePath(const std::string &import) const
 {
     size_t index = import.rfind('.');
     if (index == std::string::npos) {

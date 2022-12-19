@@ -23,7 +23,7 @@ class ASTNamespace : public ASTNode {
 public:
     explicit ASTNamespace(const std::string &nspaceStr);
 
-    virtual ~ASTNamespace() = default;
+    ~ASTNamespace() override = default;
 
     inline std::string GetName()
     {

@@ -17,7 +17,7 @@ class CppCustomTypesCodeEmitter : public CppCodeEmitter {
 public:
     CppCustomTypesCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppCustomTypesCodeEmitter() = default;
+    ~CppCustomTypesCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -36,11 +36,11 @@ private:
 
     void EmitUsingNamespace(StringBuilder &sb) override;
 
-    void EmitCustomTypeDecls(StringBuilder &sb);
+    void EmitCustomTypeDecls(StringBuilder &sb) const;
 
     void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const;
 
-    void EmitCustomTypeFuncDecl(StringBuilder &sb);
+    void EmitCustomTypeFuncDecl(StringBuilder &sb) const;
 
     void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
@@ -52,7 +52,7 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitCustomTypeDataProcess(StringBuilder &sb);
+    void EmitCustomTypeDataProcess(StringBuilder &sb) const;
 
     void EmitCustomTypeMarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 

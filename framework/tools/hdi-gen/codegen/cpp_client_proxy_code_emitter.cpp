@@ -116,7 +116,7 @@ void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const st
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodDecl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("int32_t %s() override;\n", method->GetName().c_str());
@@ -283,7 +283,7 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     }
 }
 
-void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "sptr<%s> %s::Get(bool isStub)\n", interface_->GetName().c_str(), interface_->GetName().c_str());
@@ -341,7 +341,7 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix).Append("}\n");
 }
 
-void CppClientProxyCodeEmitter::EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (isStub) {\n");
     sb.Append(prefix + TAB)
@@ -452,8 +452,8 @@ void CppClientProxyCodeEmitter::EmitWriteInterfaceToken(
     sb.Append(prefix).Append("}\n");
 }
 
-void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(
-    const AutoPtr<ASTMethod> &method, const std::string &dataBufName, StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(const AutoPtr<ASTMethod> &method,
+    const std::string &dataBufName, StringBuilder &sb, const std::string &prefix) const
 {
     if (NeedFlag(method)) {
         sb.Append(prefix).AppendFormat("if (!%s.WriteBool(false)) {\n", dataBufName.c_str());

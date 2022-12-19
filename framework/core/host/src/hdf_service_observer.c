@@ -37,7 +37,7 @@ void HdfServiceObserverDestruct(struct HdfServiceObserver *observer)
 }
 
 int HdfServiceObserverSubscribeService(
-    struct HdfServiceObserver *observer, const char *svcName, devid_t devid, struct SubscriberCallback callback)
+    struct HdfServiceObserver *observer, const char *svcName, devid_t deviceId, struct SubscriberCallback callback)
 {
     struct HdfServiceObserverRecord *serviceRecord = NULL;
     struct HdfServiceSubscriber *subscriber = NULL;
@@ -54,7 +54,7 @@ int HdfServiceObserverSubscribeService(
             HDF_LOGE("failed to subscribe service, serviceRecord is null");
             return HDF_FAILURE;
         }
-        subscriber = HdfServiceSubscriberObtain(callback, devid);
+        subscriber = HdfServiceSubscriberObtain(callback, deviceId);
         if (subscriber == NULL) {
             HDF_LOGE("failed to subscribe service, subscriber is null");
             HdfServiceObserverRecordRecycle(serviceRecord);
@@ -64,14 +64,14 @@ int HdfServiceObserverSubscribeService(
         HdfSListAdd(&observer->services, &serviceRecord->entry);
         OsalMutexUnlock(&observer->observerMutex);
     } else {
-        subscriber = HdfServiceSubscriberObtain(callback, devid);
+        subscriber = HdfServiceSubscriberObtain(callback, deviceId);
         if (subscriber == NULL) {
             HDF_LOGE("failed to subscribe service, subscriber obtain null");
             return HDF_FAILURE;
         }
     }
     if ((serviceRecord->publisher != NULL) && (subscriber->callback.OnServiceConnected != NULL) &&
-        ((serviceRecord->policy != SERVICE_POLICY_PRIVATE) || (serviceRecord->devId == devid))) {
+        ((serviceRecord->policy != SERVICE_POLICY_PRIVATE) || (serviceRecord->devId == deviceId))) {
         subscriber->state = HDF_SUBSCRIBER_STATE_READY;
         subscriber->callback.OnServiceConnected(subscriber->callback.deviceObject, serviceRecord->publisher);
     }
@@ -81,7 +81,7 @@ int HdfServiceObserverSubscribeService(
     return HDF_SUCCESS;
 }
 
-int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const char *svcName, uint32_t devId,
+int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const char *svcName, devid_t deviceId,
     uint16_t policy, struct HdfObject *service)
 {
     struct HdfServiceObserverRecord *serviceRecord = NULL;
@@ -99,14 +99,14 @@ int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const 
             return HDF_FAILURE;
         }
         serviceRecord->publisher = service;
-        serviceRecord->devId = devId;
+        serviceRecord->devId = deviceId;
         serviceRecord->policy = policy;
         OsalMutexLock(&observer->observerMutex);
         HdfSListAdd(&observer->services, &serviceRecord->entry);
         OsalMutexUnlock(&observer->observerMutex);
     } else {
         serviceRecord->publisher = service;
-        HdfServiceObserverRecordNotifySubscribers(serviceRecord, devId, policy);
+        HdfServiceObserverRecordNotifySubscribers(serviceRecord, deviceId, policy);
     }
     return HDF_SUCCESS;
 }

@@ -17,7 +17,7 @@ class CppServiceStubCodeEmitter : public CppCodeEmitter {
 public:
     CppServiceStubCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppServiceStubCodeEmitter() = default;
+    ~CppServiceStubCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -41,7 +41,7 @@ private:
 
     void EmitStubOnRequestDecl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix);
+    void EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
@@ -56,9 +56,9 @@ private:
 
     void EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubConstructorImpl(StringBuilder &sb, const std::string &prefix) const;
 
@@ -72,8 +72,8 @@ private:
 
     void EmitStubReadInterfaceToken(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubReadMemFlag(
-        const AutoPtr<ASTMethod> &method, const std::string &parcelName, StringBuilder &sb, const std::string &prefix);
+    void EmitStubReadMemFlag(const AutoPtr<ASTMethod> &method,
+        const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitLocalVariable(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
         const std::string &prefix) const;

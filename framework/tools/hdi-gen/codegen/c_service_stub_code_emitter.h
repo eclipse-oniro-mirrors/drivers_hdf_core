@@ -17,7 +17,7 @@ class CServiceStubCodeEmitter : public CCodeEmitter {
 public:
     CServiceStubCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CServiceStubCodeEmitter() = default;
+    ~CServiceStubCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -41,11 +41,11 @@ private:
     // get or release method for driver interface object
     void EmitExternalMethodImpl(StringBuilder &sb);
 
-    void EmitGetMethodImpl(StringBuilder &sb);
+    void EmitGetMethodImpl(StringBuilder &sb) const;
 
-    void EmitGetInstanceMehtodImpl(StringBuilder &sb);
+    void EmitGetInstanceMehtodImpl(StringBuilder &sb) const;
 
-    void EmitReleaseMethodImpl(StringBuilder &sb);
+    void EmitReleaseMethodImpl(StringBuilder &sb) const;
 
     void EmitReleaseInstanceMethodImpl(StringBuilder &sb);
 
@@ -58,7 +58,7 @@ private:
     void EmitStubLocalVariable(const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
-        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitReadCStringStubMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix, AutoPtr<ASTType> &type) const;
@@ -66,8 +66,8 @@ private:
     void EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubCallMethod(
-        const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix);
+    void EmitStubCallMethod(const AutoPtr<ASTMethod> &method,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitCallParameter(
         StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name) const;

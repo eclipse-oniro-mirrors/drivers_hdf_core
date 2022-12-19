@@ -113,7 +113,7 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method) const
  * subPath: foo/v1_0
  * GenPath: ./out/foo/v1_0/
  */
-std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
+std::string CodeEmitter::GetFileParentPath(const std::string &outDir) const
 {
     std::string outPath = StringHelper::EndWith(outDir, SEPARATOR) ? outDir.substr(0, outDir.size() - 1) : outDir;
     std::string subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());
@@ -125,7 +125,7 @@ std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
     }
 }
 
-std::string CodeEmitter::PackageToFilePath(const std::string &packageName)
+std::string CodeEmitter::PackageToFilePath(const std::string &packageName) const
 {
     std::vector<std::string> packageVec = StringHelper::Split(Options::GetInstance().GetSubPackage(packageName), ".");
     StringBuilder filePath;
@@ -259,7 +259,7 @@ void CodeEmitter::EmitUtilMethods(
     }
 }
 
-void CodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
+void CodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb) const
 {
     sb.AppendFormat("#ifndef %s\n", MAX_BUFF_SIZE_MACRO);
     sb.AppendFormat("#define %s (%s)\n", MAX_BUFF_SIZE_MACRO, MAX_BUFF_SIZE_VALUE);

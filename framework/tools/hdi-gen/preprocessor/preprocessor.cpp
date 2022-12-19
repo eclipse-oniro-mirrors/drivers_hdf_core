@@ -127,7 +127,7 @@ bool Preprocessor::ParseFileDetail(const std::string &sourceFile, FileDetail &in
     return true;
 }
 
-bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
+bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info) const
 {
     Token token = lexer.PeekToken();
     if (token.kind_ != TokenType::PACKAGE) {

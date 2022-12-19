@@ -17,7 +17,7 @@ class CServiceImplCodeEmitter : public CCodeEmitter {
 public:
     CServiceImplCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CServiceImplCodeEmitter() = default;
+    ~CServiceImplCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -42,17 +42,18 @@ private:
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodImpl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitKernelServiceImplGetMethod(StringBuilder &sb) const;
 
-    void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitServiceImplGetMethod(StringBuilder &sb);
+    void EmitServiceImplGetMethod(StringBuilder &sb) const;
 
     void EmitKernelServiceImplReleaseMethod(StringBuilder &sb) const;
 
-    void EmitServiceImplReleaseMethod(StringBuilder &sb);
+    void EmitServiceImplReleaseMethod(StringBuilder &sb) const;
 };
 } // namespace HDI
 } // namespace OHOS

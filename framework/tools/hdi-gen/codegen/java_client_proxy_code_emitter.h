@@ -18,7 +18,7 @@ class JavaClientProxyCodeEmitter : public JavaCodeEmitter {
 public:
     JavaClientProxyCodeEmitter() : JavaCodeEmitter() {}
 
-    virtual ~JavaClientProxyCodeEmitter() = default;
+    ~JavaClientProxyCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -27,7 +27,7 @@ private:
 
     void EmitProxyFile();
 
-    void EmitProxyImports(StringBuilder &sb);
+    void EmitProxyImports(StringBuilder &sb) const;
 
     void EmitProxyCorelibImports(StringBuilder &sb) const;
 
@@ -48,16 +48,17 @@ private:
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
-        const std::string &prefix);
+        const std::string &prefix) const;
 
     void EmitReadVariable(const std::string &parcelName, const std::string &name, const AutoPtr<ASTType> &type,
         ParamAttr attribute, StringBuilder &sb, const std::string &prefix);
 
     void EmitReadArrayVariable(const std::string &parcelName, const std::string &name,
-        const AutoPtr<ASTArrayType> &arrayType, ParamAttr attribute, StringBuilder &sb, const std::string &prefix);
+        const AutoPtr<ASTArrayType> &arrayType, ParamAttr attribute, StringBuilder &sb,
+        const std::string &prefix) const;
 
     void EmitReadOutArrayVariable(const std::string &parcelName, const std::string &name,
         const AutoPtr<ASTArrayType> &arrayType, StringBuilder &sb, const std::string &prefix);

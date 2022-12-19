@@ -85,7 +85,7 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
     struct HdiServiceSet *serviceSet = NULL;
     struct HdfSBuf *data = NULL;
     struct HdfSBuf *reply = NULL;
-    int status;
+    int32_t status;
     uint32_t serviceNum = 0;
 
     do {
@@ -273,17 +273,16 @@ int32_t HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
         HDF_LOGE("%{public}s: failed to release serviceSet, serviceSet->count is tainted", __func__);
         return HDF_FAILURE;
     }
-    for (uint32_t i = 0; i < serviceSet->count; i++) {
-        if (serviceSet->serviceNames[i] != NULL) {
-            OsalMemFree((void *)serviceSet->serviceNames[i]);
-            serviceSet->serviceNames[i] = NULL;
-        }
-    }
     if (serviceSet->serviceNames != NULL) {
+        for (uint32_t i = 0; i < serviceSet->count; i++) {
+            if (serviceSet->serviceNames[i] != NULL) {
+                OsalMemFree((void *)serviceSet->serviceNames[i]);
+                serviceSet->serviceNames[i] = NULL;
+            }
+        }
         OsalMemFree(serviceSet->serviceNames);
         serviceSet->serviceNames = NULL;
     }
     OsalMemFree(serviceSet);
-
     return HDF_SUCCESS;
 }

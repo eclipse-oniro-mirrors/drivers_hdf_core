@@ -119,11 +119,11 @@ public:
 
     std::string GetRootPath(const std::string &package) const;
 
-    std::string GetSubPackage(const std::string &package);
+    std::string GetSubPackage(const std::string &package) const;
 
     std::string GetPackagePath(const std::string &package) const;
 
-    std::string GetImportFilePath(const std::string &import);
+    std::string GetImportFilePath(const std::string &import) const;
 
 private:
     Options()
@@ -158,7 +158,7 @@ private:
 
     void SetModuleName(const std::string &moduleName);
 
-    void SetLanguage(Language language);
+    void SetLanguage(Language kind);
 
     void SetCodePart(const std::string &part);
 

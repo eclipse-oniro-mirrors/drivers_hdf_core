@@ -133,7 +133,7 @@ void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::s
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceMethod(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
@@ -161,7 +161,7 @@ void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::str
     sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.c_str());
 }
 
-void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb) const
 {
     if (Options::GetInstance().DoPassthrough() && interface_->IsSerializable()) {
         return;

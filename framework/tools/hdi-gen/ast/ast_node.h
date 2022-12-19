@@ -19,7 +19,7 @@ namespace OHOS {
 namespace HDI {
 class ASTNode : public LightRefCountBase {
 public:
-    virtual ~ASTNode();
+    ~ASTNode() override;
 
     virtual std::string ToString() const;
 

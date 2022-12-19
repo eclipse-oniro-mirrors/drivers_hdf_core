@@ -21,7 +21,7 @@ namespace OHOS {
 namespace HDI {
 class JavaCodeEmitter : public CodeEmitter {
 public:
-    virtual ~JavaCodeEmitter() = default;
+    ~JavaCodeEmitter() override = default;
 
 protected:
     bool CreateDirectory();
@@ -30,7 +30,7 @@ protected:
 
     void EmitPackage(StringBuilder &sb);
 
-    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix) override;
 
     std::string MethodName(const std::string &name) const;
 

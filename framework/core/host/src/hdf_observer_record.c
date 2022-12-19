@@ -54,7 +54,7 @@ bool HdfServiceObserverRecordCompare(struct HdfSListNode *listEntry, uint32_t se
 }
 
 void HdfServiceObserverRecordNotifySubscribers(
-    struct HdfServiceObserverRecord *record, devid_t devId, uint16_t policy)
+    struct HdfServiceObserverRecord *record, devid_t deviceId, uint16_t policy)
 {
     struct HdfSListIterator it;
     if (record == NULL) {
@@ -67,7 +67,7 @@ void HdfServiceObserverRecordNotifySubscribers(
     while (HdfSListIteratorHasNext(&it)) {
         struct HdfServiceSubscriber *subscriber =
             (struct HdfServiceSubscriber *)HdfSListIteratorNext(&it);
-        if (devId == subscriber->devId || policy != SERVICE_POLICY_PRIVATE) {
+        if (deviceId == subscriber->devId || policy != SERVICE_POLICY_PRIVATE) {
             subscriber->state = HDF_SUBSCRIBER_STATE_READY;
             if (subscriber->callback.OnServiceConnected != NULL) {
                 subscriber->callback.OnServiceConnected(subscriber->callback.deviceObject, record->publisher);

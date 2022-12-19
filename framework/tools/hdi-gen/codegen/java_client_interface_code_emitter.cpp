@@ -53,7 +53,7 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceFile()
     file.Close();
 }
 
-void JavaClientInterfaceCodeEmitter::EmitInterfaceImports(StringBuilder &sb)
+void JavaClientInterfaceCodeEmitter::EmitInterfaceImports(StringBuilder &sb) const
 {
     EmitInterfaceCorelibImports(sb);
     EmitInterfaceSelfDefinedTypeImports(sb);
@@ -123,7 +123,7 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, con
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceMethod(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("int %s() throws RemoteException;\n", MethodName(method->GetName()).c_str());

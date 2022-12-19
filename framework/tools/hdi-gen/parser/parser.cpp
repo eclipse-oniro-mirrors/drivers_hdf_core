@@ -1553,7 +1553,7 @@ bool Parser::CheckCallbackAst()
  * filePath: ./ohos/interface/foo/v1_0/IFoo.idl
  * package OHOS.Hdi.foo.v1_0;
  */
-bool Parser::CheckPackageName(const std::string &filePath, const std::string &packageName)
+bool Parser::CheckPackageName(const std::string &filePath, const std::string &packageName) const
 {
     std::string pkgToPath = Options::GetInstance().GetPackagePath(packageName);
 

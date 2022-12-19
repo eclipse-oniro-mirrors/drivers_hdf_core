@@ -119,7 +119,7 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestDecl(StringBuilder &sb, const s
     sb.Append("MessageOption &option) override;\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append("private:\n");
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
@@ -239,7 +239,7 @@ void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, co
     }
 }
 
-void CppServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "sptr<%s> %s::Get(bool isStub)\n", interface_->GetName().c_str(), interface_->GetName().c_str());
@@ -249,7 +249,7 @@ void CppServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::
     sb.Append(prefix).Append("}\n");
 }
 
-void CppServiceStubCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string& serviceName, bool isStub)\n",
         interface_->GetName().c_str(), interface_->GetName().c_str());
@@ -397,8 +397,8 @@ void CppServiceStubCodeEmitter::EmitStubReadInterfaceToken(
     sb.Append(prefix).Append("}\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubReadMemFlag(
-    const AutoPtr<ASTMethod> &method, const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubReadMemFlag(const AutoPtr<ASTMethod> &method,
+    const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     if (NeedFlag(method)) {
         sb.Append(prefix).AppendFormat("bool %s = %s.ReadBool();\n\n", flagOfSetMemName_.c_str(), parcelName.c_str());

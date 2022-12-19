@@ -81,8 +81,8 @@ StringBuilder &StringBuilder::AppendFormat(const char *format, ...)
     va_start(args, format);
     va_copy(argsCopy, args);
 
-    char buf[StringHelper::LINE_MAX_SIZE] = {0};
-    int len = vsnprintf_s(buf, StringHelper::LINE_MAX_SIZE, StringHelper::LINE_MAX_SIZE - 1, format, args);
+    char buf[StringHelper::lineMaxSize] = {0};
+    int len = vsnprintf_s(buf, StringHelper::lineMaxSize, StringHelper::lineMaxSize - 1, format, args);
     if (len <= 0) {
         va_end(args);
         va_end(argsCopy);
@@ -113,7 +113,7 @@ StringBuilder &StringBuilder::AppendFormat(const char *format, ...)
 
 bool StringBuilder::Grow(size_t size)
 {
-    if (capacity_ > StringHelper::MAX_SIZE) {
+    if (capacity_ > StringHelper::maxSize) {
         Logger::E(TAG, "The StringBuilder is full.");
         return false;
     }
@@ -122,8 +122,8 @@ bool StringBuilder::Grow(size_t size)
     if (newSize < capacity_ + size) {
         newSize = capacity_ + size;
     }
-    if (newSize > StringHelper::MAX_SIZE) {
-        newSize = StringHelper::MAX_SIZE;
+    if (newSize > StringHelper::maxSize) {
+        newSize = StringHelper::maxSize;
     }
     if (newSize <= capacity_) {
         return false;

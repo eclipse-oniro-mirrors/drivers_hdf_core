@@ -17,7 +17,7 @@ class CServiceDriverCodeEmitter : public CCodeEmitter {
 public:
     CServiceDriverCodeEmitter();
 
-    virtual ~CServiceDriverCodeEmitter() = default;
+    ~CServiceDriverCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;

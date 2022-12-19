@@ -17,7 +17,7 @@ class JavaClientInterfaceCodeEmitter : public JavaCodeEmitter {
 public:
     JavaClientInterfaceCodeEmitter() : JavaCodeEmitter() {}
 
-    virtual ~JavaClientInterfaceCodeEmitter() = default;
+    ~JavaClientInterfaceCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -26,7 +26,7 @@ private:
 
     void EmitInterfaceFile();
 
-    void EmitInterfaceImports(StringBuilder &sb);
+    void EmitInterfaceImports(StringBuilder &sb) const;
 
     void EmitInterfaceCorelibImports(StringBuilder &sb) const;
 
@@ -38,7 +38,7 @@ private:
 
     void EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix);
 
-    void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;

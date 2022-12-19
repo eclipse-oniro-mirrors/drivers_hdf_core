@@ -38,7 +38,7 @@ void CCodeEmitter::EmitInterfaceMethodParameter(
 }
 
 void CCodeEmitter::EmitMethodNeedLoopVar(
-    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix) const
 {
     if (!isKernelCode_) {
         return;
@@ -122,7 +122,7 @@ void CCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
     sb.Append("#define ").Append(macroName).Append("\n");
 }
 
-void CCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName)
+void CCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#endif // ").Append(macroName);

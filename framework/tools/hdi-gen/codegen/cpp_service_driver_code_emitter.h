@@ -17,7 +17,7 @@ class CppServiceDriverCodeEmitter : public CppCodeEmitter {
 public:
     CppServiceDriverCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppServiceDriverCodeEmitter() = default;
+    ~CppServiceDriverCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -40,7 +40,7 @@ private:
 
     void EmitDriverRelease(StringBuilder &sb) const;
 
-    void EmitDriverEntryDefinition(StringBuilder &sb);
+    void EmitDriverEntryDefinition(StringBuilder &sb) const;
 };
 } // namespace HDI
 } // namespace OHOS
