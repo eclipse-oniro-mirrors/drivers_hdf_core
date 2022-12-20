@@ -258,20 +258,27 @@ class HdfAddDriver(object):
         root, vendor, module, driver, board, kernel, device = args_tuple[0]
         if module == "audio" or module == "display":
             if board.startswith("rk3568"):
-                source_file_template_list = list(
-                    filter(lambda file_name: "source" in file_name and
-                                             file_name.startswith("rk"),
-                           templates_list))
+                source_file_template_list = \
+                    list(filter(
+                        lambda file_name: "source" in file_name and
+                                          file_name.startswith("rk"),
+                        templates_list))
             else:
-                source_file_template_list = list(
-                    filter(lambda file_name: "source" in file_name and
-                                             file_name.startswith("hi"),
-                           templates_list))
+                source_file_template_list = \
+                    list(filter(
+                        lambda file_name: "source" in file_name and
+                                          file_name.startswith("hi"),
+                        templates_list))
+        elif module == "sensor":
+            source_file_template_list = self._sensor_source_head("source", templates_list)
         else:
-            source_file_template_list = list(filter(
-                lambda file_name: "source" in file_name, templates_list))
-        source_file_template = list(
-            map(lambda template_name: os.path.join(target_path, template_name),
+            source_file_template_list = \
+                list(filter(
+                    lambda file_name: "source" in file_name,
+                    templates_list))
+        source_file_template = \
+            list(map(
+                lambda template_name: os.path.join(target_path, template_name),
                 source_file_template_list))
         path_list = list(os.path.split(source_file))
         temp_path = os.path.sep.join(path_list[:-1])
@@ -294,8 +301,8 @@ class HdfAddDriver(object):
                 source_file_list.append(source_file_name)
         return source_file_list, source_statu_exist
 
-    def get_template_head_file(self, head_path, data_model,
-                          templates_list, target_path, *args_tuple):
+    def get_template_head_file(
+            self, head_path, data_model, templates_list, target_path, *args_tuple):
         # find model template .h
         head_statu_exist = False
         root, vendor, module, driver, board, kernel, device = args_tuple[0]
@@ -310,6 +317,8 @@ class HdfAddDriver(object):
                     lambda file_name:
                     ("head" in file_name and file_name.startswith("hi")),
                     templates_list))
+        elif module == "sensor":
+            head_file_template_list = self._sensor_source_head("head", templates_list)
         else:
             head_file_template_list = list(filter(
                 lambda file_name: "head" in file_name, templates_list))
@@ -335,6 +344,51 @@ class HdfAddDriver(object):
                 self._template_fill(head_file_temp, head_file_name, data_model)
                 head_path_list.append(head_file_name)
         return head_path_list, head_statu_exist
+
+    def _sensor_source_head(self, file_type, templates_list):
+        kernel_base_device = f"{self.kernel}_base_device"
+        base_device_list, _ = hdf_utils.ini_file_read_operation(
+            section_name=self.module, node_name=kernel_base_device)
+        if file_type == "head":
+            if self.device == "als" or self.device == "hall" or self.device == "ppg":
+                head_file_template_list = \
+                    list(filter(
+                        lambda file_name: "head" in file_name and
+                                          file_name.startswith(self.device),
+                        templates_list))
+            elif self.device in base_device_list:
+                head_file_template_list = \
+                    list(filter(
+                        lambda file_name: "head" in file_name and
+                                          file_name.startswith("accel"),
+                        templates_list))
+            else:
+                head_file_template_list = \
+                    list(filter(
+                        lambda file_name: "head" in file_name and
+                                          file_name.startswith("com"),
+                        templates_list))
+            return head_file_template_list
+        else:
+            if self.device == "als" or self.device == "hall" or self.device == "ppg":
+                source_file_template_list = \
+                    list(filter(
+                        lambda file_name: "source" in file_name and
+                                          file_name.startswith(self.device),
+                        templates_list))
+            elif self.device in base_device_list:
+                source_file_template_list = \
+                    list(filter(
+                        lambda file_name: "source" in file_name and
+                                          file_name.startswith("accel"),
+                        templates_list))
+            else:
+                source_file_template_list = \
+                    list(filter(
+                        lambda file_name: "source" in file_name and
+                                          file_name.startswith("com"),
+                        templates_list))
+            return source_file_template_list
 
     def _file_gen_lite(self, template, source_file_path, model):
         templates_dir = hdf_utils.get_templates_lite_dir()

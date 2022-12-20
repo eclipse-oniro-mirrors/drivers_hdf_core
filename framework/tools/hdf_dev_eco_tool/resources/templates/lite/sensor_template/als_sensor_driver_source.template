@@ -35,27 +35,31 @@ static int32_t Read${driver_upper_camel_case}RawData(struct SensorCfgData *data,
     return HDF_SUCCESS;
 }
 
-int32_t Read${driver_upper_camel_case}Data(struct SensorCfgData *cfg, struct SensorReportEvent *event)
+int32_t Read${driver_upper_camel_case}Data(struct SensorCfgData *cfg)
 {
     int32_t ret;
-    struct ${device_upper_camel_case}Data rawData = { 0 };
-    static int32_t tmp[] = { 0 };
+    struct ${device_upper_camel_case}Data rawData = { 0, 0, 0, 0 };
+    struct SensorReportEvent event;
 
     CHECK_NULL_PTR_RETURN_VALUE(cfg, HDF_ERR_INVALID_PARAM);
-    CHECK_NULL_PTR_RETURN_VALUE(event, HDF_ERR_INVALID_PARAM);
 
-    ret = Read${driver_upper_camel_case}RawData(cfg, &rawData, (int64_t *)&event->timestamp);
+    (void)memset_s(&event, sizeof(event), 0, sizeof(event));
+    ret = Read${driver_upper_camel_case}RawData(cfg, &rawData, (int64_t *)&event.timestamp);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ${driver_upper_case} read raw data failed", __func__);
+        HDF_LOGE("%s: TEST read raw data failed", __func__);
         return HDF_FAILURE;
     }
 
-    ret = SensorRawDataToRemapData(cfg->direction, tmp, sizeof(tmp) / sizeof(tmp[0]));
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ${driver_upper_case} convert raw data failed", __func__);
-        return HDF_FAILURE;
-    }
+    event.sensorId = SENSOR_TAG_AMBIENT_LIGHT;
+    event.option = 0;
+    event.mode = SENSOR_WORK_MODE_REALTIME;
 
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "RawDataConvert");
+
+    ret = ReportSensorEvent(&event);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: BH1745 report data failed", __func__);
+    }
     return ret;
 }
 
@@ -117,6 +121,7 @@ int32_t ${driver_upper_camel_case}InitDriver(struct HdfDeviceObject *device)
     }
 
     ops.Init = NULL;
+    ops.ReadData = Read${driver_upper_camel_case}Data;
     ret = ${device_upper_camel_case}RegisterChipOps(&ops);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Register ${driver_upper_case} ${device_lower_camel_case} failed", __func__);
@@ -155,3 +160,4 @@ struct HdfDriverEntry g_${device_lower_camel_case}${driver_upper_camel_case}DevE
 };
 
 HDF_INIT(g_${device_lower_camel_case}${driver_upper_camel_case}DevEntry);
+

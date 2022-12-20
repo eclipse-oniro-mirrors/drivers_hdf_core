@@ -38,17 +38,10 @@ static int32_t Read${driver_upper_camel_case}RawData(struct SensorCfgData *data,
 int32_t Read${driver_upper_camel_case}Data(struct SensorCfgData *cfg, struct SensorReportEvent *event)
 {
     int32_t ret;
-    struct ${device_upper_camel_case}Data rawData = { 0 };
     static int32_t tmp[] = { 0 };
 
     CHECK_NULL_PTR_RETURN_VALUE(cfg, HDF_ERR_INVALID_PARAM);
     CHECK_NULL_PTR_RETURN_VALUE(event, HDF_ERR_INVALID_PARAM);
-
-    ret = Read${driver_upper_camel_case}RawData(cfg, &rawData, (int64_t *)&event->timestamp);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ${driver_upper_case} read raw data failed", __func__);
-        return HDF_FAILURE;
-    }
 
     ret = SensorRawDataToRemapData(cfg->direction, tmp, sizeof(tmp) / sizeof(tmp[0]));
     if (ret != HDF_SUCCESS) {
@@ -110,23 +103,9 @@ int32_t ${driver_upper_camel_case}InitDriver(struct HdfDeviceObject *device)
     struct ${driver_upper_camel_case}DrvData *drvData = (struct ${driver_upper_camel_case}DrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
-    drvData->sensorCfg = ${device_upper_camel_case}CreateCfgData(device->property);
     if (drvData->sensorCfg == NULL || drvData->sensorCfg->root == NULL) {
         HDF_LOGD("%s: Creating ${device_lower_camel_case}cfg failed because detection failed", __func__);
         return HDF_ERR_NOT_SUPPORT;
-    }
-
-    ops.Init = NULL;
-    ret = ${device_upper_camel_case}RegisterChipOps(&ops);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Register ${driver_upper_case} ${device_lower_camel_case} failed", __func__);
-        return HDF_FAILURE;
-    }
-
-    ret = Init${driver_upper_camel_case}(drvData->sensorCfg);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Init ${driver_upper_case} ${device_lower_camel_case} failed", __func__);
-        return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
@@ -139,10 +118,6 @@ void ${driver_upper_camel_case}ReleaseDriver(struct HdfDeviceObject *device)
     struct ${driver_upper_camel_case}DrvData *drvData = (struct ${driver_upper_camel_case}DrvData *)device->service;
     CHECK_NULL_PTR_RETURN(drvData);
 
-    if (drvData->sensorCfg != NULL) {
-        ${device_upper_camel_case}ReleaseCfgData(drvData->sensorCfg);
-        drvData->sensorCfg = NULL;
-    }
     OsalMemFree(drvData);
 }
 
