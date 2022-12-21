@@ -33,6 +33,7 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
       "//drivers/hdf_core/adapter/uhdf2/host:hdf_devhost",
       "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
+      "//drivers/hdf_core/adapter/uhdf2/host/test/unittest/sample1_driver:libsample1_driver",
       "//drivers/hdf_core/adapter/uhdf2/host/test/unittest/sample_driver:libsample_driver",
       "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
       "//drivers/hdf_core/adapter/uhdf2/manager:hdf_devmgr",
