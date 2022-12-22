@@ -45,6 +45,7 @@ using OHOS::HDI::ServiceManager::V1_0::ServStatListenerStub;
 using OHOS::HDI::DeviceManager::V1_0::HdiDevHostInfo;
 using OHOS::HDI::ServiceManager::V1_0::HdiServiceInfo;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
+static constexpr const char *TEST1_SERVICE_NAME = "sample1_driver_service";
 static constexpr const char16_t *TEST_SERVICE_INTERFACE_DESC = u"hdf.test.sampele_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_N = "hdf.test.sampele_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "___";
@@ -731,13 +732,77 @@ HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
     auto devmgr = IDeviceManager::Get();
     ASSERT_TRUE(devmgr != nullptr);
 
-    int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
+    int ret = devmgr->LoadDevice(TEST1_SERVICE_NAME);
     ASSERT_TRUE(ret == HDF_SUCCESS);
-
+    auto sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
     constexpr int waitCount = 1000;
     constexpr int msleepTime = 10;
-    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    constexpr int waitHostStart = 100;
     uint32_t cnt = 0;
+    while (sample1Service == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sample1Service != nullptr);
+    ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    cnt = 0;
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    while (sampleService == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sampleService != nullptr);
+
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    OsalMSleep(msleepTime);
+
+    OHOS::MessageParcel data;
+    OHOS::MessageParcel reply;
+    OHOS::MessageOption option;
+    ret = data.WriteInterfaceToken(TEST_SERVICE_INTERFACE_DESC);
+    ASSERT_EQ(ret, true);
+
+    ret = sampleService->SendRequest(SAMPLE_END_HOST, data, reply, option);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(waitHostStart);
+
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(msleepTime);
+    ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, InjectPmTest, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->LoadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    constexpr int waitCount = 1000;
+    constexpr int waitHostStart = 100;
+    constexpr int msleepTime = 10;
+    uint32_t cnt = 0;
+    while (sample1Service == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sample1Service != nullptr);
+    ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    cnt = 0;
     while (sampleService == nullptr && cnt < waitCount) {
         OsalMSleep(msleepTime);
         sampleService = servmgr->GetService(TEST_SERVICE_NAME);
@@ -751,19 +816,17 @@ HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
     ret = data.WriteInterfaceToken(TEST_SERVICE_INTERFACE_DESC);
     ASSERT_EQ(ret, true);
 
+    ret = sampleService->SendRequest(SAMPLE_INJECT_PM, data, reply, option);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(msleepTime);
     ret = sampleService->SendRequest(SAMPLE_END_HOST, data, reply, option);
     ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(waitHostStart);
 
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(msleepTime);
     ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
     ASSERT_TRUE(ret == HDF_SUCCESS);
-
-    sampleService = servmgr->GetService(TEST_SERVICE_NAME);
-    cnt = 0;
-    while (sampleService != nullptr && cnt < waitCount) {
-        OsalMSleep(msleepTime);
-        sampleService = servmgr->GetService(TEST_SERVICE_NAME);
-        cnt++;
-    }
-    ASSERT_TRUE(sampleService == nullptr);
 }
 } // namespace OHOS
