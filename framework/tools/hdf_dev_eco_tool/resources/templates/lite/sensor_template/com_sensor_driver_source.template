@@ -2,12 +2,12 @@
 #include <securec.h>
 #include "osal_mem.h"
 #include "osal_time.h"
-#include "sensor_${device_lower_camel_case}_driver.h"
+#include "sensor_accel_driver.h"
 #include "sensor_config_controller.h"
 #include "sensor_device_manager.h"
 
 
-#define HDF_LOG_TAG    hdf_sensor_${device_lower_camel_case}
+#define HDF_LOG_TAG    hdf_sensor_accel
 
 static struct ${driver_upper_camel_case}DrvData *g_${driver_lower_case}DrvData = NULL;
 struct ${driver_upper_camel_case}DrvData *${driver_upper_camel_case}GetDrvData(void)
@@ -15,7 +15,7 @@ struct ${driver_upper_camel_case}DrvData *${driver_upper_camel_case}GetDrvData(v
     return g_${driver_lower_case}DrvData;
 }
 
-static int32_t Read${driver_upper_camel_case}RawData(struct SensorCfgData *data, struct ${device_upper_camel_case}Data *rawData, int64_t *timestamp)
+static int32_t Read${driver_upper_camel_case}RawData(struct SensorCfgData *data, struct AccelData *rawData, int64_t *timestamp)
 {
     OsalTimespec time;
 
@@ -38,7 +38,7 @@ static int32_t Read${driver_upper_camel_case}RawData(struct SensorCfgData *data,
 int32_t Read${driver_upper_camel_case}Data(struct SensorCfgData *cfg, struct SensorReportEvent *event)
 {
     int32_t ret;
-    struct ${device_upper_camel_case}Data rawData = { 0 };
+    struct AccelData rawData = { 0 };
     static int32_t tmp[] = { 0 };
 
     CHECK_NULL_PTR_RETURN_VALUE(cfg, HDF_ERR_INVALID_PARAM);
@@ -104,28 +104,29 @@ int32_t ${driver_upper_camel_case}BindDriver(struct HdfDeviceObject *device)
 int32_t ${driver_upper_camel_case}InitDriver(struct HdfDeviceObject *device)
 {
     int32_t ret;
-    struct ${device_upper_camel_case}OpsCall ops;
+    struct AccelOpsCall ops;
 
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
     struct ${driver_upper_camel_case}DrvData *drvData = (struct ${driver_upper_camel_case}DrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
-    drvData->sensorCfg = ${device_upper_camel_case}CreateCfgData(device->property);
+    drvData->sensorCfg = AccelCreateCfgData(device->property);
     if (drvData->sensorCfg == NULL || drvData->sensorCfg->root == NULL) {
-        HDF_LOGD("%s: Creating ${device_lower_camel_case}cfg failed because detection failed", __func__);
+        HDF_LOGD("%s: Creating accelcfg failed because detection failed", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ops.Init = NULL;
-    ret = ${device_upper_camel_case}RegisterChipOps(&ops);
+    ops.ReadData = Read${driver_upper_camel_case}Data;
+    ret = AccelRegisterChipOps(&ops);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Register ${driver_upper_case} ${device_lower_camel_case} failed", __func__);
+        HDF_LOGE("%s: Register ${driver_upper_case} accel failed", __func__);
         return HDF_FAILURE;
     }
 
-    ret = Init${driver_upper_camel_case}(drvData->sensorCfg);
+	ret = Init${driver_upper_camel_case}(drvData->sensorCfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Init ${driver_upper_case} ${device_lower_camel_case} failed", __func__);
+        HDF_LOGE("%s: Init ${driver_upper_case} accel failed", __func__);
         return HDF_FAILURE;
     }
 
@@ -140,13 +141,13 @@ void ${driver_upper_camel_case}ReleaseDriver(struct HdfDeviceObject *device)
     CHECK_NULL_PTR_RETURN(drvData);
 
     if (drvData->sensorCfg != NULL) {
-        ${device_upper_camel_case}ReleaseCfgData(drvData->sensorCfg);
+        AccelReleaseCfgData(drvData->sensorCfg);
         drvData->sensorCfg = NULL;
     }
     OsalMemFree(drvData);
 }
 
-struct HdfDriverEntry g_${device_lower_camel_case}${driver_upper_camel_case}DevEntry = {
+struct HdfDriverEntry g_accel${driver_upper_camel_case}DevEntry = {
     .moduleVersion = 1,
     .moduleName = "${device_upper_case}_${driver_upper_case}",
     .Bind = ${driver_upper_camel_case}BindDriver,
@@ -154,4 +155,4 @@ struct HdfDriverEntry g_${device_lower_camel_case}${driver_upper_camel_case}DevE
     .Release = ${driver_upper_camel_case}ReleaseDriver,
 };
 
-HDF_INIT(g_${device_lower_camel_case}${driver_upper_camel_case}DevEntry);
+HDF_INIT(g_accel${driver_upper_camel_case}DevEntry);

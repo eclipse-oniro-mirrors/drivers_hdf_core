@@ -1,7 +1,7 @@
 #ifndef ${driver_upper_case}_H
 #define ${driver_upper_case}_H
 
-#include "sensor_${device_lower_camel_case}_driver.h"
+#include "sensor_accel_driver.h"
 #include "sensor_config_parser.h"
 
 int32_t Read${driver_upper_camel_case}Data(struct SensorCfgData *cfg, struct SensorReportEvent *event);

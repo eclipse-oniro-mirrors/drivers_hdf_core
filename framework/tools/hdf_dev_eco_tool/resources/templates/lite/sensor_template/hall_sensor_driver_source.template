@@ -15,40 +15,13 @@ struct ${driver_upper_camel_case}DrvData *${driver_upper_camel_case}GetDrvData(v
     return g_${driver_lower_case}DrvData;
 }
 
-static int32_t Read${driver_upper_camel_case}RawData(struct SensorCfgData *data, struct ${device_upper_camel_case}Data *rawData, int64_t *timestamp)
-{
-    OsalTimespec time;
-
-    (void)memset_s(&time, sizeof(time), 0, sizeof(time));
-
-    CHECK_NULL_PTR_RETURN_VALUE(data, HDF_ERR_INVALID_PARAM);
-
-    if (OsalGetTime(&time) != HDF_SUCCESS) {
-        HDF_LOGE("%s: Get time failed", __func__);
-        return HDF_FAILURE;
-    }
-    *timestamp = time.sec * SENSOR_SECOND_CONVERT_NANOSECOND + time.usec * SENSOR_CONVERT_UNIT; /* unit nanosecond */
-
-    (void)data;
-    (void)rawData;
-
-    return HDF_SUCCESS;
-}
-
 int32_t Read${driver_upper_camel_case}Data(struct SensorCfgData *cfg, struct SensorReportEvent *event)
 {
     int32_t ret;
-    struct ${device_upper_camel_case}Data rawData = { 0 };
     static int32_t tmp[] = { 0 };
 
     CHECK_NULL_PTR_RETURN_VALUE(cfg, HDF_ERR_INVALID_PARAM);
     CHECK_NULL_PTR_RETURN_VALUE(event, HDF_ERR_INVALID_PARAM);
-
-    ret = Read${driver_upper_camel_case}RawData(cfg, &rawData, (int64_t *)&event->timestamp);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ${driver_upper_case} read raw data failed", __func__);
-        return HDF_FAILURE;
-    }
 
     ret = SensorRawDataToRemapData(cfg->direction, tmp, sizeof(tmp) / sizeof(tmp[0]));
     if (ret != HDF_SUCCESS) {
