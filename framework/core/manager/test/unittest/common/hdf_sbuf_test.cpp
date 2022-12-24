@@ -17,6 +17,7 @@
 
 #ifndef __LITEOS__
 #include "hdf_remote_adapter_if.h"
+#include "hdf_sbuf_ipc.h"
 #endif
 
 namespace OHOS {
@@ -953,6 +954,82 @@ HWTEST_F(HdfSBufTest, SbufTestSbufDataSize030, TestSize.Level1)
     HdfSbufSetDataSize(sBuf, hdfSbufTestSize);
     ASSERT_EQ(HdfSbufGetDataSize(sBuf), hdfSbufTestSize);
     HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestRead031, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int ret = HdfSbufReadFloat(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadDouble(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadUint64(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadUint32(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadUint16(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadUint8(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadInt64(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadInt32(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadInt16(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfSbufReadInt8(sBuf, NULL);
+    ASSERT_EQ(ret, false);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestReadBuffer032, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int ret = HdfSbufReadBuffer(sBuf, NULL, NULL);
+    ASSERT_EQ(ret, false);
+    HdfSBuf *sBufRead = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBufRead, nullptr);
+    ret = HdfSbufReadBuffer(sBuf, (const void **)(&sBufRead), NULL);
+    ASSERT_EQ(ret, false);
+    HdfSbufRecycle(sBuf);
+    HdfSbufRecycle(sBufRead);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestWrite033, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int ret = HdfSbufWriteRemoteService(sBuf, NULL);
+    ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestGetData034, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    uint8_t *ret = HdfSbufGetData(sBuf);
+    ASSERT_EQ(ret, nullptr);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufToParcel035, TestSize.Level1)
+{
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    int ret = SbufToParcel(sBuf, NULL);
+    ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+    ret = SbufToParcel(NULL, NULL);
+    ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+    OHOS::MessageParcel *parcel = nullptr;
+    ret = SbufToParcel(sBuf, &parcel);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    HdfSBuf *sBufPar = ParcelToSbuf(parcel);
+    ASSERT_NE(sBufPar, nullptr);
+    HdfSbufRecycle(sBuf);
+    HdfSbufRecycle(sBufPar);
 }
 #endif
 } // namespace OHOS
