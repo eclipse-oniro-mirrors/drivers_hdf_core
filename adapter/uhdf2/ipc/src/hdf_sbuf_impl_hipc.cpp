@@ -50,9 +50,6 @@ static MessageParcel *MParcelCast(struct HdfSBufImpl *impl)
 
 static bool SbufMParcelImplWriteBuffer(struct HdfSBufImpl *sbuf, const uint8_t *data, uint32_t writeSize)
 {
-    if (sbuf == nullptr) {
-        return false;
-    }
     auto parcel = MParcelCast(sbuf);
     if (!parcel->WriteUint32(writeSize)) {
         return false;
