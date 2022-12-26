@@ -35,7 +35,10 @@ ohos_unittest("native_buffer_test") {
 
   sources = [ "native_buffer_test.cpp" ]
 
-  deps = [ "$hdf_uhdf_path/hdi:libhdi" ]
+  deps = [
+    "$hdf_uhdf_path/hdi:libhdi",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
 
   external_deps = [
     "c_utils:utils",
