@@ -117,6 +117,30 @@ ohos_unittest("hdf_adapter_uhdf_test_pm") {
     external_deps = [
       "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_single",
+    ]
+  } else {
+    external_deps = [ "hilog:libhilog" ]
+  }
+}
+module_output_path = "hdf_core/remote"
+ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "//drivers/hdf_core/framework/test/unittest/include",
+    "//drivers/hdf_core/framework/test/unittest/manager",
+  ]
+
+  defines = [ "__USER__" ]
+  sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_remote_adapter_test.cpp" ]
+  deps = [
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
+  if (is_standard_system) {
+    external_deps = [
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_single",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
