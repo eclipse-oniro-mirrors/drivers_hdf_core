@@ -142,6 +142,7 @@ void NativeBuffer::SetBufferHandle(BufferHandle *handle, bool isOwner, std::func
     DestroyBuffer();
     isOwner_ = isOwner;
     handle_ = handle;
+    bufferDestructor_ = destructor;
 }
 
 void NativeBuffer::DestroyBuffer()
@@ -152,6 +153,7 @@ void NativeBuffer::DestroyBuffer()
         } else {
             bufferDestructor_(handle_);
         }
+        handle_ = nullptr;
     }
 }
 
