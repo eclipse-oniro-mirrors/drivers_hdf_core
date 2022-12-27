@@ -60,10 +60,6 @@ static struct HdiServiceSet *HdiServiceSetGetInstance(const uint32_t serviceNum)
 
 static int32_t HdiServiceSetUnMarshalling(struct HdfSBuf *buf, struct HdiServiceSet *serviceSet)
 {
-    if (serviceSet == NULL || buf == NULL) {
-        HDF_LOGE("%{public}s: HdiServiceSet unmarshalling failed", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     for (uint32_t i = 0; i < serviceSet->count; i++) {
         const char *serviceName = HdfSbufReadString(buf);
         if (serviceName == NULL) {
@@ -117,12 +113,8 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
         HdiServiceSetUnMarshalling(reply, serviceSet);
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
 
     return serviceSet;
 }
@@ -156,12 +148,8 @@ struct HdfRemoteService *HDIServMgrGetService(struct HDIServiceManager *iServMgr
         }
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
 
     return service;
 }
