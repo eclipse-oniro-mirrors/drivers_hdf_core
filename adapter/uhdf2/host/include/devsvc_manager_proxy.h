@@ -19,6 +19,10 @@
 #include "hdf_remote_service.h"
 #include "devsvc_manager_if.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevSvcManagerProxy {
     struct IDevSvcManager pvtbl;
     struct HdfDeathRecipient recipient;
@@ -40,4 +44,9 @@ enum {
 
 struct HdfObject *DevSvcManagerProxyCreate(void);
 void DevSvcManagerProxyRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif /* DEVSVC_MANAGER_PROXY_H */

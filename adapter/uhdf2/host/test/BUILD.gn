@@ -14,11 +14,9 @@
 import("//build/test.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf_core/devmgr"
-
 ###########################palTest###########################
 ohos_unittest("DevMgrTest") {
-  module_out_path = module_output_path
+  module_out_path = "hdf_core/devmgr"
   sources = [ "unittest/devmgr_test.cpp" ]
 
   include_dirs = [
@@ -49,8 +47,44 @@ ohos_unittest("DevMgrTest") {
   }
 }
 
+ohos_unittest("DevHostTest") {
+  module_out_path = "hdf_core/devhost"
+  sources = [ "unittest/devhost_test.cpp" ]
+
+  include_dirs = [
+    "//commonlibrary/c_utils/base/include",
+    "//drivers/hdf_core/framework/include/osal",
+    "//drivers/hdf_core/framework/include/utils",
+    "//drivers/hdf_core/framework/utils/include",
+    "//drivers/hdf_core/framework/core/host/include",
+    "//drivers/hdf_core/adapter/uhdf2/host/include",
+    "//drivers/hdf_core/adapter/uhdf2/manager/include",
+    "//drivers/hdf_core/adapter/uhdf2/ipc/include",
+  ]
+
+  deps = [
+    "$hdf_uhdf_path/host:libhdf_host",
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  if (is_standard_system) {
+    external_deps = [
+      "c_utils:utils",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
+  } else {
+    external_deps = [ "hilog:libhilog" ]
+  }
+}
+
 ###########################end###########################
 group("unittest") {
   testonly = true
-  deps = [ ":DevMgrTest" ]
+  deps = [
+    ":DevHostTest",
+    ":DevMgrTest",
+  ]
 }

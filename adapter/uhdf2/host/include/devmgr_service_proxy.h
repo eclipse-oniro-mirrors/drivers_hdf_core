@@ -19,6 +19,10 @@
 #include "hdf_remote_service.h"
 #include "devmgr_service_if.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevmgrServiceProxy {
     struct IDevmgrService super;
     struct HdfRemoteService *remote;
@@ -26,5 +30,9 @@ struct DevmgrServiceProxy {
 
 struct HdfObject *DevmgrServiceProxyCreate(void);
 void DevmgrServiceProxyRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVMGR_SERVICE_PROXY_H */
