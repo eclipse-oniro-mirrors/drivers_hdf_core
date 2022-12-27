@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 
 #include "sample_hdi.h"
+#include "hdi_support.h"
 
 #define HDF_LOG_TAG service_manager_test
 
@@ -657,5 +658,54 @@ HWTEST_F(HdfServiceMangerHdiCTest, DevMgrQueryUnusableDeviceTest, TestSize.Level
 
     devmgr->FreeQueryDeviceList(devmgr, &list);
     HDIDeviceManagerRelease(devmgr);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest018, TestSize.Level1)
+{
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, NULL);
+    ASSERT_TRUE(sampleService == nullptr);
+
+    int status = servmgr->RegisterServiceStatusListener(servmgr, NULL, DEVICE_CLASS_DEFAULT);
+    ASSERT_EQ(status, HDF_ERR_INVALID_PARAM);
+
+    status = servmgr->UnregisterServiceStatusListener(servmgr, NULL);
+    ASSERT_EQ(status, HDF_ERR_INVALID_PARAM);
+
+    status = HdiServiceSetRelease(NULL);
+    ASSERT_TRUE(status == HDF_SUCCESS);
+
+    HDIServiceManagerRelease(servmgr);
+    HDIServiceManagerRelease(NULL);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, DevMgrTest, TestSize.Level1)
+{
+    struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->QueryUnusableDeviceInfo(devmgr, NULL);
+    ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
+
+    ret = devmgr->QueryUsableDeviceInfo(devmgr, NULL);
+    ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
+
+    ret = devmgr->LoadDevice(devmgr, NULL);
+    ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+
+    ret = devmgr->UnloadDevice(devmgr, NULL);
+    ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+
+    devmgr->FreeQueryDeviceList(devmgr, NULL);
+    HDIDeviceManagerRelease(devmgr);
+    HDIDeviceManagerRelease(NULL);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, HdiSupportTest, TestSize.Level1)
+{
+    LoadHdiImpl(NULL, NULL);
+    UnloadHdiImpl(NULL, NULL, NULL);
 }
 } // namespace OHOS
