@@ -16,6 +16,10 @@
 #include "hdf_driver.h"
 #include "hdf_pm.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct HdfDeviceNode;
 struct DevHostService;
 
@@ -65,5 +69,9 @@ void HdfDeviceNodeDelete(struct HdfDeviceNode *devNode);
 int HdfDeviceNodePublishPublicService(struct HdfDeviceNode *devNode);
 int HdfDeviceNodeRemoveService(struct HdfDeviceNode *devNode);
 int DeviceDriverBind(struct HdfDeviceNode *devNode);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* HDF_DEVICE_NODE_H */

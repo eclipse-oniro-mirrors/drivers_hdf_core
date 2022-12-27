@@ -100,7 +100,7 @@ int DeviceServiceStubPublishService(struct HdfDeviceNode *service)
 int DeviceServiceStubRemoveService(struct HdfDeviceNode *deviceNode)
 {
     struct DevSvcManagerClnt *serviceManager = DevSvcManagerClntGetInstance();
-    if (serviceManager == NULL) {
+    if (serviceManager == NULL || deviceNode == NULL) {
         return HDF_FAILURE;
     }
     DevSvcManagerClntRemoveService(deviceNode->servName);

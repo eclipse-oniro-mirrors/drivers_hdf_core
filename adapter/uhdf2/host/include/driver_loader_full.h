@@ -18,11 +18,19 @@
 
 #include "hdf_driver_loader.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DriverLoaderFull {
     struct HdfDriverLoader super;
 };
 
 struct HdfObject *HdfDriverLoaderFullCreate(void);
 void HdfDriverLoaderFullRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DRIVER_LOADER_FULL_H */

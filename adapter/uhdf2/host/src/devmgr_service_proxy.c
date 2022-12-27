@@ -34,7 +34,7 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
     struct HdfRemoteService *remoteService = NULL;
     struct DevmgrServiceProxy *serviceProxy = (struct DevmgrServiceProxy *)inst;
     struct DevHostServiceStub *hostStub = (struct DevHostServiceStub *)service;
-    if ((serviceProxy->remote == NULL) || (data == NULL) || (reply == NULL)) {
+    if ((serviceProxy->remote == NULL) || (data == NULL) || (reply == NULL) || (hostStub == NULL)) {
         HDF_LOGE("DevmgrServiceProxyAttachDeviceHost failed, host id is %{public}u", hostId);
         goto FINISHED;
     }

@@ -221,6 +221,9 @@ static int DevmgrServiceAttachDevice(struct IDevmgrService *inst, struct IHdfDev
     struct DevHostServiceClnt *hostClnt = NULL;
     struct DeviceTokenClnt *tokenClnt = NULL;
 
+    if (token == NULL) {
+        return HDF_FAILURE;
+    }
     hostClnt = DevmgrServiceFindDeviceHost(inst, HOSTID(token->devid));
     if (hostClnt == NULL) {
         HDF_LOGE("failed to attach device, hostClnt is null");
