@@ -531,6 +531,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest010, TestSize.Level1)
 
     status = servmgr->UnregisterServiceStatusListener(servmgr, listener);
     ASSERT_EQ(status, HDF_SUCCESS);
+    HdiServiceStatusListenerFree(nullptr);
     HdiServiceStatusListenerFree(listener);
 
     ret = devmgr->UnloadDevice(devmgr, TEST_SERVICE_NAME);
@@ -561,6 +562,9 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest011, TestSize.Level1)
     for (int i = 0; i < mapSize; i++) {
         ASSERT_EQ(data[i], i);
     }
+
+    int memSize = SharedMemGetSize(memFd);
+    ASSERT_EQ(memSize, mapSize);
 
     auto ret = munmap(ptr, mapSize);
     ASSERT_EQ(ret, 0);

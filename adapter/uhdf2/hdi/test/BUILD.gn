@@ -65,6 +65,7 @@ group("unittest") {
   deps = [
     ":HdiServiceManagerTest",
     ":HdiServiceManagerTestCC",
+    "stub_collector:stub_collector_test",
     "//drivers/hdf_core/adapter/uhdf2/hdi/test/buffer_handle:hdi_buffer_handle_test",
   ]
 }
