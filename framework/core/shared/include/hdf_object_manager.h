@@ -11,6 +11,10 @@
 
 #include "hdf_object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 enum {
     HDF_OBJECT_ID_DEVMGR_SERVICE = 0,
     HDF_OBJECT_ID_DEVSVC_MANAGER,
@@ -33,4 +37,7 @@ const struct HdfObjectCreator *HdfObjectManagerGetCreators(int objectId);
 struct HdfObject *HdfObjectManagerGetObject(int objectId);
 void HdfObjectManagerFreeObject(struct HdfObject *object);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 #endif /* HDF_OBJECT_MANAGER_H */
