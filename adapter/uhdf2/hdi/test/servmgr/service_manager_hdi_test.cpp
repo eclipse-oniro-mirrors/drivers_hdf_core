@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
+#include <base/hdi_smq.h>
 #include <functional>
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
 #include <hdf_log.h>
-#include <base/hdi_smq.h>
+#include <hdf_service_status.h>
 #include <idevmgr_hdi.h>
 #include <iostream>
 #include <ipc_object_stub.h>
 #include <iservmgr_hdi.h>
+#include <iservstat_listener_hdi.h>
 #include <osal_time.h>
 #include <string>
-#include <iservmgr_hdi.h>
 
 #include "sample_hdi.h"
 
@@ -828,5 +829,137 @@ HWTEST_F(HdfServiceMangerHdiTest, InjectPmTest, TestSize.Level1)
     OsalMSleep(msleepTime);
     ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
     ASSERT_TRUE(ret == HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest001, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    // invalid code
+    int32_t ret = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_MAX, data, reply, option);
+    ASSERT_NE(ret, HDF_SUCCESS);
+
+    // empty data
+    ret = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(ret, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest002, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest003, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("");
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest004, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("test_service");
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest005, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("test_service");
+    ASSERT_TRUE(ret);
+    // write deviceClass
+    ret = data.WriteUint16(DeviceClass::DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest006, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("test_service");
+    ASSERT_TRUE(ret);
+    // write deviceClass
+    ret = data.WriteUint16(DeviceClass::DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret);
+    // write status
+    ret = data.WriteUint16(ServiceStatusType::SERVIE_STATUS_START);
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_EQ(reqRet, HDF_SUCCESS);
 }
 } // namespace OHOS

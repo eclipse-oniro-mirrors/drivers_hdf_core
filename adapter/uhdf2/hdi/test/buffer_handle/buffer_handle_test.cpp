@@ -26,21 +26,22 @@
 
 using namespace testing::ext;
 
+namespace OHOS {
 class BufferHandleTest : public testing::Test {
 public:
     static void SetUpTestCase() {}
     static void TearDownTestCase() {}
 
-    static BufferHandle *CreateBufferHandle();
+    static BufferHandle *CreateBufferHandle(uint32_t reserveFds = 1, uint32_t reserveInts = 0);
     static std::string BufferHandleDump(const BufferHandle *handle);
 
     void SetUp() {};
     void TearDown() {};
 };
 
-BufferHandle *BufferHandleTest::CreateBufferHandle()
+BufferHandle *BufferHandleTest::CreateBufferHandle(uint32_t reserveFds, uint32_t reserveInts)
 {
-    BufferHandle *handle = AllocateNativeBufferHandle(1, 0);
+    BufferHandle *handle = AllocateNativeBufferHandle(reserveFds, reserveInts);
     if (handle == nullptr) {
         std::cout << "failed to allocate buffer handle" << std::endl;
         return nullptr;
@@ -52,7 +53,14 @@ BufferHandle *BufferHandleTest::CreateBufferHandle()
         FreeNativeBufferHandle(handle);
         return nullptr;
     }
-    handle->reserve[0] = dup(handle->fd);
+
+    for (uint32_t i = 0; i < reserveFds; i++) {
+        handle->reserve[i] = dup(handle->fd);
+    }
+
+    for (uint32_t i = reserveFds; i < reserveInts; i++) {
+        handle->reserve[i] = 0;
+    }
     return handle;
 }
 
@@ -293,7 +301,7 @@ HWTEST_F(BufferHandleTest, BufferHandleTest013, TestSize.Level1)
     // write usage
     ret = HdfSbufWriteUint64(data, 0);
     ASSERT_TRUE(ret);
-    ret = HdfSbufWriteInt8(data, 1);
+    ret = HdfSbufWriteInt8(data, 0);
     ASSERT_TRUE(ret);
 
     BufferHandle *srcHandle = HdfSbufReadNativeBufferHandle(data);
@@ -302,6 +310,43 @@ HWTEST_F(BufferHandleTest, BufferHandleTest013, TestSize.Level1)
 }
 
 HWTEST_F(BufferHandleTest, BufferHandleTest014, TestSize.Level1)
+{
+    struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(data, nullptr);
+
+    // write reserveFds
+    bool ret = HdfSbufWriteUint32(data, 1);
+    ASSERT_TRUE(ret);
+    // write reserveInts
+    ret = HdfSbufWriteUint32(data, 0);
+    ASSERT_TRUE(ret);
+    // write width
+    ret = HdfSbufWriteInt32(data, 0);
+    ASSERT_TRUE(ret);
+    // write stride
+    ret = HdfSbufWriteInt32(data, 0);
+    ASSERT_TRUE(ret);
+    // write height
+    ret = HdfSbufWriteInt32(data, 0);
+    ASSERT_TRUE(ret);
+    // write size
+    ret = HdfSbufWriteInt32(data, 0);
+    ASSERT_TRUE(ret);
+    // write format
+    ret = HdfSbufWriteInt32(data, 0);
+    ASSERT_TRUE(ret);
+    // write usage
+    ret = HdfSbufWriteUint64(data, 0);
+    ASSERT_TRUE(ret);
+    ret = HdfSbufWriteInt8(data, 1);
+    ASSERT_TRUE(ret);
+
+    BufferHandle *srcHandle = HdfSbufReadNativeBufferHandle(data);
+    ASSERT_EQ(srcHandle, nullptr);
+    HdfSbufRecycle(data);
+}
+
+HWTEST_F(BufferHandleTest, BufferHandleTest015, TestSize.Level1)
 {
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(data, nullptr);
@@ -345,7 +390,7 @@ HWTEST_F(BufferHandleTest, BufferHandleTest014, TestSize.Level1)
     close(fd);
 }
 
-HWTEST_F(BufferHandleTest, BufferHandleTest015, TestSize.Level1)
+HWTEST_F(BufferHandleTest, BufferHandleTest016, TestSize.Level1)
 {
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(data, nullptr);
@@ -392,3 +437,58 @@ HWTEST_F(BufferHandleTest, BufferHandleTest015, TestSize.Level1)
     HdfSbufRecycle(data);
     close(fd);
 }
+
+HWTEST_F(BufferHandleTest, BufferHandleTest017, TestSize.Level1)
+{
+    BufferHandle *srcHandle = CreateBufferHandle();
+    ASSERT_NE(srcHandle, nullptr);
+    std::cout << "srcHandle:\n" << BufferHandleDump(srcHandle) << std::endl;
+
+    uint32_t realReserveFds = srcHandle->reserveFds;
+    uint32_t realReserveInts = srcHandle->reserveInts;
+
+    srcHandle->reserveFds = MAX_RESERVE_FDS + 1;
+    srcHandle->reserveInts = MAX_RESERVE_INTS + 1;
+
+    BufferHandle *destHandle = CloneNativeBufferHandle(srcHandle);
+    ASSERT_EQ(destHandle, nullptr);
+
+    srcHandle->reserveFds = realReserveFds;
+    srcHandle->reserveInts = realReserveInts;
+    FreeNativeBufferHandle(srcHandle);
+}
+
+HWTEST_F(BufferHandleTest, BufferHandleTest018, TestSize.Level1)
+{
+    BufferHandle *srcHandle = CreateBufferHandle();
+    ASSERT_NE(srcHandle, nullptr);
+    std::cout << "srcHandle:\n" << BufferHandleDump(srcHandle) << std::endl;
+
+    close(srcHandle->fd);
+    srcHandle->fd = -1;
+
+    for (uint32_t i = 0; i < srcHandle->reserveFds; i++) {
+        if (srcHandle->reserve[i] != -1) {
+            close(srcHandle->reserve[i]);
+            srcHandle->reserve[i] = -1;
+        }
+    }
+
+    BufferHandle *destHandle = CloneNativeBufferHandle(srcHandle);
+    ASSERT_EQ(destHandle, nullptr);
+}
+
+HWTEST_F(BufferHandleTest, BufferHandleTest019, TestSize.Level1)
+{
+    BufferHandle *srcHandle = CreateBufferHandle(1, 1);
+    ASSERT_NE(srcHandle, nullptr);
+    std::cout << "srcHandle:\n" << BufferHandleDump(srcHandle) << std::endl;
+
+    BufferHandle *destHandle = CloneNativeBufferHandle(srcHandle);
+    ASSERT_NE(destHandle, nullptr);
+    std::cout << "destHandle:\n" << BufferHandleDump(destHandle) << std::endl;
+
+    FreeNativeBufferHandle(srcHandle);
+    FreeNativeBufferHandle(destHandle);
+}
+} // namespace OHOS

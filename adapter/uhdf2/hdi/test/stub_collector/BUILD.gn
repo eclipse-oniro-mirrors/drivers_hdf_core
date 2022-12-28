@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf/stub_collector"
+module_output_path = "hdf_core/stub_collector"
 
 ohos_unittest("stub_collector_test") {
   module_out_path = module_output_path
