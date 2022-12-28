@@ -49,5 +49,4 @@ int ServiceStatusUnMarshalling(struct ServiceStatus *status, struct HdfSBuf *buf
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
 #endif /* HDF_SERVICE_STATUS_H */

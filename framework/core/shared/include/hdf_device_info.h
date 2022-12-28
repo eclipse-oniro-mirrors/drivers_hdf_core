@@ -11,6 +11,10 @@
 
 #include "hdf_slist.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 enum {
     HDF_SERVICE_UNUSABLE,
     HDF_SERVICE_USABLE,
@@ -47,4 +51,7 @@ void HdfDeviceInfoConstruct(struct HdfDeviceInfo *deviceInfo);
 void HdfDeviceInfoFreeInstance(struct HdfDeviceInfo *deviceInfo);
 void HdfDeviceInfoDelete(struct HdfSListNode *listEntry);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 #endif /* HDF_DEVICE_INFO_H */

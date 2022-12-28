@@ -15,10 +15,12 @@
 
 #include <gtest/gtest.h>
 #include <hdf_sbuf.h>
+#include <hdi_base.h>
 #include <iostream>
 
 #include "hdf_remote_adapter.h"
 #include "hdf_remote_adapter_if.h"
+#include "hdf_sbuf_ipc.h"
 
 namespace OHOS {
 using namespace testing::ext;
@@ -40,6 +42,9 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest001, TestSize.Level1)
     const char *desc = "";
     ret = holder->SetInterfaceDescriptor(desc);
     ASSERT_EQ(ret, false);
+    ret = HdfRemoteAdapterSetInterfaceDesc(nullptr, nullptr);
+    ASSERT_EQ(ret, false);
+    delete holder;
 }
 
 HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
@@ -82,15 +87,24 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
     ret = HdfRemoteAdapterSetInterfaceDesc(&service, NULL);
     ASSERT_EQ(ret, false);
 
+    HdfRemoteServiceHolder *holder = new HdfRemoteServiceHolder();
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ret = HdfRemoteAdapterWriteInterfaceToken(reinterpret_cast<struct HdfRemoteService *>(holder), sBuf);
+    ASSERT_EQ(ret, false);
+
     ret = HdfRemoteAdapterWriteInterfaceToken(NULL, NULL);
     ASSERT_EQ(ret, false);
     ret = HdfRemoteAdapterWriteInterfaceToken(&service, NULL);
+    ASSERT_EQ(ret, false);
+    ret = HdfRemoteAdapterWriteInterfaceToken(reinterpret_cast<struct HdfRemoteService *>(holder), sBuf);
     ASSERT_EQ(ret, false);
 
     ret = HdfRemoteAdapterCheckInterfaceToken(NULL, NULL);
     ASSERT_EQ(ret, false);
     ret = HdfRemoteAdapterCheckInterfaceToken(&service, NULL);
     ASSERT_EQ(ret, false);
+    HdfSbufRecycle(sBuf);
+    delete holder;
 }
 
 HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest005, TestSize.Level1)

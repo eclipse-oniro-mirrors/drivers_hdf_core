@@ -48,12 +48,8 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
     status = dipatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE_HOST, data, reply);
     HDF_LOGI("Attach device host dispatch finish, status is %{public}d", status);
 FINISHED:
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
     return status;
 }
 
@@ -77,12 +73,8 @@ int DevmgrServiceProxyAttachDevice(struct IDevmgrService *inst, struct IHdfDevic
 
     status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE, data, reply);
 FINISHED:
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
     return status;
 }
 
@@ -103,12 +95,8 @@ int DevmgrServiceProxyDetachDevice(struct IDevmgrService *inst, devid_t devid)
 
     status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_DETACH_DEVICE, data, reply);
 FINISHED:
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
     return status;
 }
 
