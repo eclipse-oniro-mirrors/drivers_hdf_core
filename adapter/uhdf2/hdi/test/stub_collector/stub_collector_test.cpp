@@ -14,8 +14,9 @@
  */
 
 #include <gtest/gtest.h>
-#include "stub_collector.h"
+#include "hdi_support.h"
 #include "osal_mem.h"
+#include "stub_collector.h"
 
 using namespace testing::ext;
 
@@ -53,6 +54,7 @@ public:
 HWTEST_F(StubCollectorTest, StubCollectorTest001, TestSize.Level1)
 {
     StubConstructorRegister(nullptr, nullptr);
+    StubConstructorRegister(ifdesc, nullptr);
 }
 
 HWTEST_F(StubCollectorTest, StubCollectorTest002, TestSize.Level1)
@@ -65,6 +67,7 @@ HWTEST_F(StubCollectorTest, StubCollectorTest002, TestSize.Level1)
 HWTEST_F(StubCollectorTest, StubCollectorTest003, TestSize.Level1)
 {
     StubConstructorUnregister(nullptr, nullptr);
+    StubConstructorUnregister(ifdesc, nullptr);
 }
 
 HWTEST_F(StubCollectorTest, StubCollectorTest004, TestSize.Level1)
@@ -107,7 +110,7 @@ HWTEST_F(StubCollectorTest, StubCollectorTest007, TestSize.Level1)
     struct TestService *service = (struct TestService *)OsalMemCalloc(sizeof(struct TestService));
     ASSERT_NE(service, nullptr);
     StubConstructorRegister(ifdesc, &testConstructor);
-    struct HdfRemoteService **remote = StubCollectorGetOrNewObject(ifdesc, nullptr);
+    struct HdfRemoteService **remote = StubCollectorGetOrNewObject(ifdesc, service);
     ASSERT_EQ(remote, nullptr);
     StubConstructorUnregister(ifdesc, &testConstructor);
     OsalMemFree(service);
@@ -116,6 +119,7 @@ HWTEST_F(StubCollectorTest, StubCollectorTest007, TestSize.Level1)
 HWTEST_F(StubCollectorTest, StubCollectorTest008, TestSize.Level1)
 {
     StubCollectorRemoveObject(nullptr, nullptr);
+    StubCollectorRemoveObject(ifdesc, nullptr);
 }
 
 HWTEST_F(StubCollectorTest, StubCollectorTest009, TestSize.Level1)
@@ -123,6 +127,40 @@ HWTEST_F(StubCollectorTest, StubCollectorTest009, TestSize.Level1)
     struct TestService *service = (struct TestService *)OsalMemCalloc(sizeof(struct TestService));
     ASSERT_NE(service, nullptr);
     StubCollectorRemoveObject(ifdesc, service);
+    OsalMemFree(service);
+}
+
+HWTEST_F(StubCollectorTest, StubCollectorTest010, TestSize.Level1)
+{
+    void *impl = LoadHdiImpl(nullptr, nullptr);
+    ASSERT_EQ(impl, nullptr);
+
+    impl = LoadHdiImpl("test", nullptr);
+    ASSERT_EQ(impl, nullptr);
+
+    impl = LoadHdiImpl("", "test_service");
+    ASSERT_EQ(impl, nullptr);
+
+    impl = LoadHdiImpl("test", "");
+    ASSERT_EQ(impl, nullptr);
+
+    impl = LoadHdiImpl("test", "test_service");
+    ASSERT_EQ(impl, nullptr);
+
+    impl = LoadHdiImpl("ohos.hdi.test.v1_0.ITest", "test_service");
+    ASSERT_EQ(impl, nullptr);
+}
+
+HWTEST_F(StubCollectorTest, StubCollectorTest011, TestSize.Level1)
+{
+    const char *desc = "test";
+    struct TestService *service = (struct TestService *)OsalMemCalloc(sizeof(struct TestService));
+    ASSERT_NE(service, nullptr);
+
+    UnloadHdiImpl(nullptr, nullptr, nullptr);
+    UnloadHdiImpl(desc, nullptr, nullptr);
+    UnloadHdiImpl(desc, "test_service", service);
+
     OsalMemFree(service);
 }
 } // namespace OHOS
