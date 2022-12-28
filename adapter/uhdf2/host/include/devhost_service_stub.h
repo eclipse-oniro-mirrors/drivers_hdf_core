@@ -20,6 +20,10 @@
 #include "devhost_service_full.h"
 #include "osal_mutex.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevHostServiceStub {
     struct DevHostServiceFull super;
     struct HdfRemoteService *remote;
@@ -28,5 +32,9 @@ struct DevHostServiceStub {
 
 struct HdfObject *DevHostServiceStubCreate(void);
 void DevHostServiceStubRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVHOST_SERVICE_STUB_H */
