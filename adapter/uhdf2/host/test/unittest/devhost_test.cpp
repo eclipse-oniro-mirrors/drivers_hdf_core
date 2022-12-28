@@ -121,9 +121,14 @@ HWTEST_F(DevHostTest, DevHostDevSvcMgrProxyTest, TestSize.Level1)
     ASSERT_TRUE(ret != HDF_SUCCESS);
 
     struct DevSvcManagerProxy *proxy = reinterpret_cast<struct DevSvcManagerProxy *>(object);
+    struct HdfDeathRecipient recipient;
+    proxy->recipient.OnRemoteDied(&recipient, nullptr);
+    proxy->recipient.OnRemoteDied(nullptr, nullptr);
     HdfRemoteServiceRecycle(proxy->remote);
     proxy->remote = nullptr;
     ret = instance->AddService(instance, &device, &servInfo);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = instance->UpdateService(instance, &device, &servInfo);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     struct HdfObject *service = instance->GetService(instance, "test");
     ASSERT_TRUE(service == nullptr);
@@ -150,6 +155,7 @@ HWTEST_F(DevHostTest, DevHostServiceTest, TestSize.Level1)
     DevHostServiceRelease(object);
     DevHostServiceRelease(nullptr);
     DevHostServiceConstruct(nullptr);
+    DevHostServiceDestruct(nullptr);
 
     hostService = DevHostServiceNewInstance(0, "sample_host");
     ASSERT_TRUE(hostService != nullptr);
@@ -170,6 +176,9 @@ HWTEST_F(DevHostTest, DevHostServiceTest, TestSize.Level1)
 
 HWTEST_F(DevHostTest, DevHostServiceClntTest, TestSize.Level1)
 {
+    struct DevmgrServiceClnt clnt;
+    clnt.devMgrSvcIf = nullptr;
+    DevmgrServiceClntFreeInstance(&clnt);
     DevmgrServiceClntFreeInstance(nullptr);
 }
 
@@ -193,54 +202,6 @@ static int HdfTestInit(struct HdfDeviceObject *deviceObject)
 
 HWTEST_F(DevHostTest, DevHostDeviceNodeTest1, TestSize.Level1)
 {
-    struct HdfDriverEntry entry;
-    entry.Bind = nullptr;
-    struct HdfDriver driver;
-    driver.entry = &entry;
-
-    struct HdfDeviceInfo deviceInfo;
-    deviceInfo.deviceId = 0;
-    deviceInfo.permission = 0;
-    deviceInfo.svcName = "sample_driver_service";
-    deviceInfo.policy = SERVICE_POLICY_NONE;
-    deviceInfo.deviceName = "sample_driver_module";
-    struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
-    ASSERT_TRUE(devNode != nullptr);
-
-    deviceInfo.policy = SERVICE_POLICY_PRIVATE;
-    entry.Bind = HdfTestSuccBind;
-    devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
-    ASSERT_TRUE(devNode != nullptr);
-
-    HdfDeviceNodeFreeInstance(nullptr);
-    HdfDeviceNodeConstruct(nullptr);
-    HdfDeviceNodeDestruct(nullptr);
-    int32_t ret = HdfDeviceNodePublishPublicService(nullptr);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
-    ret = HdfDeviceNodeRemoveService(nullptr);
-    ASSERT_TRUE(ret == HDF_SUCCESS);
-    HdfDeviceNodeConstruct(devNode);
-    struct IDeviceNode *nodeIf = &devNode->super;
-    ret = nodeIf->LaunchNode(devNode);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
-    ret = nodeIf->LaunchNode(nullptr);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
-    ret = DeviceDriverBind(devNode);
-    ASSERT_TRUE(ret == HDF_SUCCESS);
-    ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
-    ASSERT_TRUE(ret == HDF_SUCCESS);
-    ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
-    HdfDeviceNodeRemovePowerStateListener(nullptr, nullptr);
-    HdfDeviceNodeRemovePowerStateListener(devNode, nullptr);
-    HdfDeviceNodeRemovePowerStateListener(devNode, nullptr);
-    devNode->deviceObject.service = nullptr;
-    HdfDeviceNodePublishPublicService(devNode);
-    nodeIf->UnlaunchNode(nullptr);
-}
-
-HWTEST_F(DevHostTest, DevHostDeviceNodeTest2, TestSize.Level1)
-{
     struct HdfDriver driver;
     struct HdfDriverEntry entry;
     entry.Bind = nullptr;
@@ -249,33 +210,42 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest2, TestSize.Level1)
     deviceInfo.permission = 0;
     deviceInfo.deviceId = 0;
     deviceInfo.policy = SERVICE_POLICY_NONE;
-    deviceInfo.svcName = "sample_driver_service";
-    deviceInfo.deviceName = "sample_driver_module";
+    deviceInfo.svcName = "sample_service";
+    deviceInfo.deviceName = "sample_module";
+
     struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode != nullptr);
 
     devNode->servStatus = false;
     int32_t ret = HdfDeviceNodeRemoveService(devNode);
     ASSERT_TRUE(ret == HDF_SUCCESS);
-    ret = DeviceDriverBind(nullptr);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
+
     ret = DeviceDriverBind(devNode);
     ASSERT_TRUE(ret == HDF_SUCCESS);
     HdfDeviceNodeFreeInstance(devNode);
 
-    deviceInfo.policy = SERVICE_POLICY_PUBLIC;
     entry.Bind = HdfTestSuccBind;
+    deviceInfo.policy = SERVICE_POLICY_PUBLIC;
     devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
-    ASSERT_TRUE(devNode != nullptr);
     ret = DeviceDriverBind(devNode);
     ASSERT_TRUE(ret == HDF_SUCCESS);
     HdfDeviceNodeFreeInstance(devNode);
 
-    deviceInfo.policy = SERVICE_POLICY_PUBLIC;
     entry.Bind = HdfTestFailBind;
-    entry.Init = HdfTestInit;
     devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
-    ASSERT_TRUE(devNode != nullptr);
+    ret = DeviceDriverBind(devNode);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    HdfDeviceNodeFreeInstance(devNode);
+
+    entry.Bind = nullptr;
+    devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
+    ret = DeviceDriverBind(devNode);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    HdfDeviceNodeFreeInstance(devNode);
+
+    entry.Bind = nullptr;
+    devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
+    devNode->policy = SERVICE_POLICY_CAPACITY;
     ret = DeviceDriverBind(devNode);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     HdfDeviceNodeFreeInstance(devNode);
@@ -283,11 +253,108 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest2, TestSize.Level1)
     deviceInfo.svcName = nullptr;
     devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode == nullptr);
+    devNode = HdfDeviceNodeNewInstance(nullptr, &driver);
+    ASSERT_TRUE(devNode == nullptr);
+}
+
+HWTEST_F(DevHostTest, DevHostDeviceNodeTest2, TestSize.Level1)
+{
+    struct HdfDriverEntry entry;
+    struct HdfDriver driver;
+    driver.entry = &entry;
+
+    struct HdfDeviceInfo deviceInfo;
+    deviceInfo.deviceId = 0;
+    deviceInfo.permission = 0;
+    deviceInfo.svcName = "driver_service";
+    deviceInfo.deviceName = "driver_module";
+
+    deviceInfo.policy = SERVICE_POLICY_PUBLIC;
+    entry.Bind = HdfTestSuccBind;
+    entry.Init = HdfTestInit;
+    struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
+    ASSERT_TRUE(devNode != nullptr);
+    HdfDeviceNodeConstruct(devNode);
+    struct IDeviceNode *nodeIf = &devNode->super;
+    int32_t ret = nodeIf->LaunchNode(devNode);
+
+    entry.Bind = HdfTestFailBind;
+    entry.Init = HdfTestInit;
+    devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
+    ASSERT_TRUE(devNode != nullptr);
+    HdfDeviceNodeConstruct(devNode);
+    nodeIf = &devNode->super;
+    ret = nodeIf->LaunchNode(devNode);
+
+    entry.Init = nullptr;
+    devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
+    ASSERT_TRUE(devNode != nullptr);
+    HdfDeviceNodeConstruct(devNode);
+    nodeIf = &devNode->super;
+    ret = nodeIf->LaunchNode(devNode);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+
+    devNode->devStatus = DEVNODE_NONE;
+    nodeIf->UnlaunchNode(devNode);
+}
+
+HWTEST_F(DevHostTest, DevHostDeviceNodeTest3, TestSize.Level1)
+{
+    struct HdfDriverEntry entry;
+    entry.Bind = nullptr;
+    struct HdfDriver driver;
+    driver.entry = &entry;
+
+    struct HdfDeviceInfo deviceInfo;
+    deviceInfo.permission = 0;
+    deviceInfo.deviceId = 0;
+    deviceInfo.svcName = "test_service";
+    deviceInfo.deviceName = "test_module";
+    struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
+    ASSERT_TRUE(devNode != nullptr);
+    struct IDeviceNode *nodeIf = &devNode->super;
+    int32_t ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+
+    HdfDeviceNodeRemovePowerStateListener(nullptr, nullptr);
+    HdfDeviceNodeRemovePowerStateListener(devNode, nullptr);
+    HdfDeviceNodeRemovePowerStateListener(devNode, nullptr);
+    devNode->deviceObject.service = nullptr;
+    ret = HdfDeviceNodePublishPublicService(devNode);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    nodeIf->UnlaunchNode(nullptr);
+    HdfDeviceNodeFreeInstance(nullptr);
+    HdfDeviceNodeConstruct(nullptr);
+    HdfDeviceNodeDestruct(nullptr);
+    ret = HdfDeviceNodePublishPublicService(nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = HdfDeviceNodeRemoveService(nullptr);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ret = nodeIf->LaunchNode(nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = DeviceDriverBind(nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 }
 
 HWTEST_F(DevHostTest, DevHostDeviceTest, TestSize.Level1)
 {
-    int32_t ret = HdfDeviceDetach(nullptr, nullptr);
+    struct HdfObject *object = HdfDeviceCreate();
+    ASSERT_TRUE(object != nullptr);
+
+    struct IHdfDevice *device = reinterpret_cast<struct IHdfDevice *>(object);
+    int32_t ret = device->Attach(device, nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = device->Attach(nullptr, nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+
+    ret = device->DetachWithDevid(device, 0);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+
+    ret = HdfDeviceDetach(nullptr, nullptr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = HdfDeviceDetach(device, nullptr);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     HdfDeviceRelease(nullptr);
     HdfDeviceFreeInstance(nullptr);
@@ -342,5 +409,11 @@ HWTEST_F(DevHostTest, DevHostDeviceServiceStubTest, TestSize.Level1)
     OsalMemFree(devNode->servName);
 
     DeviceServiceStubRelease(object);
+    DeviceServiceStubRelease(nullptr);
+}
+
+HWTEST_F(DevHostTest, DevHostServiceStubTest, TestSize.Level1)
+{
+    DevHostServiceStubRelease(nullptr);
 }
 } // namespace OHOS
