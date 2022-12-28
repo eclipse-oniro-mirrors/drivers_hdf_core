@@ -18,8 +18,8 @@
 
 static void UpdateDeivceNodeIdIndex(struct HdfDevice *device, devid_t nodeDevid)
 {
-    if (device->devidIndex < DEVICEID(nodeDevid)) {
-        device->devidIndex = DEVICEID(nodeDevid);
+    if (device->devidIndex < DEVNODEID(nodeDevid)) {
+        device->devidIndex = DEVNODEID(nodeDevid);
     }
 }
 
