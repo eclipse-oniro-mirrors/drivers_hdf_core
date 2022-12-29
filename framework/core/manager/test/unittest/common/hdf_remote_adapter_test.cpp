@@ -50,10 +50,11 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest001, TestSize.Level1)
 HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
 {
     HdfRemoteAdapterAddDeathRecipient(NULL, NULL);
-    HdfRemoteService service;
-    HdfRemoteAdapterAddDeathRecipient(&service, NULL);
+    HdfRemoteServiceHolder *holder = new HdfRemoteServiceHolder();
+    HdfRemoteAdapterAddDeathRecipient(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
     HdfRemoteAdapterRemoveDeathRecipient(NULL, NULL);
-    HdfRemoteAdapterRemoveDeathRecipient(&service, NULL);
+    HdfRemoteAdapterRemoveDeathRecipient(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
+    delete holder;
 }
 
 HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest003, TestSize.Level1)
@@ -63,9 +64,6 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest003, TestSize.Level1)
     const char *name = "";
     ret = HdfRemoteAdapterAddService(name, NULL);
     ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
-    HdfRemoteService service;
-    ret = HdfRemoteAdapterAddService(name, &service);
-    ASSERT_EQ(ret, HDF_FAILURE);
 
     HdfRemoteService *remote = HdfRemoteAdapterGetService(NULL);
     ASSERT_EQ(remote, nullptr);
@@ -83,9 +81,6 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
 {
     bool ret = HdfRemoteAdapterSetInterfaceDesc(NULL, NULL);
     ASSERT_EQ(ret, false);
-    HdfRemoteService service;
-    ret = HdfRemoteAdapterSetInterfaceDesc(&service, NULL);
-    ASSERT_EQ(ret, false);
 
     HdfRemoteServiceHolder *holder = new HdfRemoteServiceHolder();
     HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
@@ -94,14 +89,14 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
 
     ret = HdfRemoteAdapterWriteInterfaceToken(NULL, NULL);
     ASSERT_EQ(ret, false);
-    ret = HdfRemoteAdapterWriteInterfaceToken(&service, NULL);
+    ret = HdfRemoteAdapterWriteInterfaceToken(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
     ASSERT_EQ(ret, false);
     ret = HdfRemoteAdapterWriteInterfaceToken(reinterpret_cast<struct HdfRemoteService *>(holder), sBuf);
     ASSERT_EQ(ret, false);
 
     ret = HdfRemoteAdapterCheckInterfaceToken(NULL, NULL);
     ASSERT_EQ(ret, false);
-    ret = HdfRemoteAdapterCheckInterfaceToken(&service, NULL);
+    ret = HdfRemoteAdapterCheckInterfaceToken(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
     ASSERT_EQ(ret, false);
     HdfSbufRecycle(sBuf);
     delete holder;
