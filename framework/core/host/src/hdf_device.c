@@ -25,7 +25,7 @@ static void UpdateDeivceNodeIdIndex(struct HdfDevice *device, devid_t nodeDevid)
 
 static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
 {
-    if (device->devidIndex >= DEVICEID_MASK) {
+    if (device->devidIndex >= DEVNODEID_MASK) {
         return HDF_FAILURE;
     }
     device->devidIndex++;
