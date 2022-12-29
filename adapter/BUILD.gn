@@ -59,6 +59,7 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/adapter/uhdf2/hdi/test:unittest",
       "//drivers/hdf_core/adapter/uhdf2/host/test:unittest",
       "//drivers/hdf_core/adapter/uhdf2/osal/test:unittest",
+      "//drivers/hdf_core/adapter/uhdf2/shared/test:unittest",
       "//drivers/hdf_core/adapter/uhdf2/test:hdf_test_uhdf",
     ]
   }
