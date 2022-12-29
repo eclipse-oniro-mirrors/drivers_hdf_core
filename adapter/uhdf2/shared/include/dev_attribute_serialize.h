@@ -19,8 +19,16 @@
 #include "hdf_device_info.h"
 #include "hdf_sbuf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 bool DeviceAttributeSerialize(const struct HdfDeviceInfo *attribute, struct HdfSBuf *sbuf);
 struct HdfDeviceInfo *DeviceAttributeDeserialize(struct HdfSBuf *sbuf);
 void DeviceSerializedAttributeRelease(struct HdfDeviceInfo *attribute);
+
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */
 
 #endif /* HDF_ATTRIBUTE_SERIALIZE_H */
