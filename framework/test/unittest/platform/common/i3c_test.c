@@ -254,7 +254,7 @@ static int32_t I3cTestSetConfig(void *param)
     }
 
     config->busMode = I3C_BUS_HDR_MODE;
-    config->curMaster = NULL;
+    config->curHost = NULL;
     ret = I3cSetConfig(tester->handle, config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Set config failed!, busId = %hu", __func__, tester->config.busId);
@@ -478,7 +478,7 @@ static int32_t I3cTestReliability(void *param)
         return HDF_ERR_MALLOC_FAIL;
     }
     config->busMode = I3C_BUS_HDR_MODE;
-    config->curMaster = NULL;
+    config->curHost = NULL;
     // invalid handle
     (void)I3cTransfer(NULL, g_msgs, 1, I3C_MODE);
     (void)I3cSetConfig(NULL, config);
