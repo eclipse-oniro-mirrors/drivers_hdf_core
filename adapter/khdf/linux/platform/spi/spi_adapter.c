@@ -293,7 +293,7 @@ static int32_t SpiFindDeviceFromBus(struct device *dev, void *para)
 
     if (spidev->master == NULL) {
         put_device(&spidev->dev);
-        HDF_LOGE("%s: spi_device %s -> master is NULL", __func__, GetSpiDevName(&spidev->dev));
+        HDF_LOGE("%s: spi_device %s is invalid", __func__, GetSpiDevName(&spidev->dev));
         return HDF_ERR_INVALID_PARAM;
     }
     HDF_LOGI("%s: spi_device %s, find success", __func__, GetSpiDevName(&spidev->dev));

@@ -3269,7 +3269,7 @@ int32_t SdioCccrIntEnable(struct MmcCntlr *cntlr)
         return err;
     }
     /*
-     * [0]IENM: Interrupt Enable Master.
+     * [0]IENM: Interrupt Enable Host.
      * If this bit is cleared to 0, no interrupts from this card shall be sent to the host.
      * If this bit is set to 1, then any function's interrupt shall be sent to the host.
      */
