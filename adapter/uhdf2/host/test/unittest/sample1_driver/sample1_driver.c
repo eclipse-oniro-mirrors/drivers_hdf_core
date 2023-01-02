@@ -88,6 +88,10 @@ static int HdfSample1DriverBind(struct HdfDeviceObject *deviceObject)
     if (deviceObject == NULL) {
         return HDF_FAILURE;
     }
+    int ret = HdfDeviceObjectSetInterfaceDesc(deviceObject, "hdf.test.sampele_service");
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("failed to set interface desc");
+    }
     static struct HdfSample1Service sample1Driver;
     deviceObject->service = &sample1Driver.ioservice;
     return HDF_SUCCESS;

@@ -660,9 +660,9 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
 }
 
 /*
- * Test get service collection by interfacedesc
+ * Test get service set by interfacedesc
  */
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest015, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest001, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -673,7 +673,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest015, TestSize.Level1)
     ASSERT_TRUE(serviceNames.front().compare(TEST_SERVICE_NAME) == 0);
 }
 
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest016, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest002, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -683,7 +683,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest016, TestSize.Level1)
     ASSERT_TRUE(serviceNames.empty());
 }
 
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest017, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest003, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -693,7 +693,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest017, TestSize.Level1)
     ASSERT_TRUE(serviceNames.empty());
 }
 
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest018, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest004, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -701,6 +701,31 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest018, TestSize.Level1)
     int ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_NULL);
     ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
     ASSERT_TRUE(serviceNames.empty());
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest005, TestSize.Level1)
+{
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+    int ret = devmgr->LoadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+    OsalMSleep(WAIT_LOAD_UNLOAD_TIME);
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService != nullptr);
+    auto sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(sample1Service != nullptr);
+
+    std::vector<std::string> serviceNames;
+    ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_N);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    constexpr int sampleServiceCount = 2;
+    ASSERT_TRUE(serviceNames.size() == sampleServiceCount);
+    ASSERT_TRUE(serviceNames[0].compare(TEST_SERVICE_NAME) == 0);
+    ASSERT_TRUE(serviceNames[1].compare(TEST1_SERVICE_NAME) == 0);
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_EQ(ret, HDF_SUCCESS);
 }
 
 HWTEST_F(HdfServiceMangerHdiTest, ListAllServiceTest, TestSize.Level1)
