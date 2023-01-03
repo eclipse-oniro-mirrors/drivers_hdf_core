@@ -46,12 +46,23 @@ class HdfDefconfigAndPatch(object):
     def delete_module(self, path):
         with open(path, "rb") as f_read:
             lines = f_read.readlines()
-        if self.new_demo_config.encode("utf-8") in lines or \
-                ("+" + self.new_demo_config).encode("utf-8") in lines:
+        path_state = False
+        config_state = False
+        if self.new_demo_config[-1].encode("utf-8") in lines:
+            config_state = True
+            index_num = lines.index(self.new_demo_config[-1].encode("utf-8"))
+        if ("+" + self.new_demo_config[-1]).encode("utf-8") in lines:
+            path_state = True
+            index_num = lines.index(("+" + self.new_demo_config[-1]).encode("utf-8"))
+        if config_state or path_state:
             if path.split(".")[-1] != "patch":
-                lines.remove(self.new_demo_config.encode("utf-8"))
+                if lines[index_num - 1] == self.new_demo_config[0].encode("utf-8"):
+                    del lines[index_num - 1]
+                lines.remove(self.new_demo_config[-1].encode("utf-8"))
             else:
-                lines.remove(("+" + self.new_demo_config).encode("utf-8"))
+                if lines[index_num - 1] == ("+" + self.new_demo_config[0]).encode("utf-8"):
+                    del lines[index_num - 1]
+                lines.remove(("+" + self.new_demo_config[-1]).encode("utf-8"))
         with open(path, "wb") as f_write:
             f_write.writelines(lines)
 
@@ -82,22 +93,23 @@ class HdfDefconfigAndPatch(object):
                 insert_index = index
             elif line.find(self.new_demo_config[-1].encode('utf-8')) >= 0:
                 state = True
+                break
         if not state:
             if path.split(".")[-1] != "patch":
-                for info in self.new_demo_config:
-                    data_lines.insert(insert_index + 1, info.encode('utf-8'))
+                for index_num, info in enumerate(self.new_demo_config):
+                    data_lines.insert(insert_index + (1 + index_num), info.encode('utf-8'))
             else:
-                for info in self.new_demo_config:
+                for index_num, info in enumerate(self.new_demo_config):
                     data_lines.insert(
-                        insert_index + 1, ("+" + info).encode('utf-8'))
+                        insert_index + (1 + index_num), ("+" + info).encode('utf-8'))
 
-        with open(path, "wb") as fwrite:
-            fwrite.writelines(data_lines)
+            with open(path, "wb") as fwrite:
+                fwrite.writelines(data_lines)
 
     def utf_type_write(self, path, codetype):
         with open(path, "r+", encoding=codetype) as fread:
             data_lines_old = fread.readlines()
-        data_lines = self.filter_lines(data_lines_old)
+        data_lines = data_lines_old
         insert_index = None
         state = False
         for index, line in enumerate(data_lines):
@@ -105,23 +117,28 @@ class HdfDefconfigAndPatch(object):
                 insert_index = index
             elif line.find(self.new_demo_config[-1]) >= 0:
                 state = True
+                break
         if not state:
             if path.split(".")[-1] != "patch":
-                for info in self.new_demo_config:
-                    data_lines.insert(insert_index + 1, info)
+                for index_num, info in enumerate(self.new_demo_config):
+                    data_lines.insert(insert_index + (1 + index_num), info)
             else:
-                for info in self.new_demo_config:
-                    data_lines.insert(insert_index + 1, ("+" + info))
-
-        with open(path, "w", encoding=codetype) as fwrite:
-            fwrite.writelines(data_lines)
+                for index_num, info in enumerate(self.new_demo_config):
+                    data_lines.insert(
+                        insert_index + (1 + index_num), ("+" + info))
+            with open(path, "w", encoding=codetype) as fwrite:
+                fwrite.writelines(data_lines)
 
     def filter_lines(self, data_lines_old):
         if len(self.new_demo_config) == 2:
             temp_str = self.new_demo_config[0]
-            data_lines = list(filter(lambda x: hdf_utils.judge_enable_line(
-                enable_line=x, device_base=temp_str.split("=")[0]),
-                                     data_lines_old))
+            data_lines = list(
+                filter(
+                    lambda x:
+                    hdf_utils.judge_enable_line(
+                        enable_line=x, device_base=temp_str.split("=")[0]),
+                    data_lines_old))
         else:
             data_lines = data_lines_old
         return data_lines
+

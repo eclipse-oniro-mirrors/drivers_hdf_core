@@ -70,3 +70,11 @@ config DRIVERS_HDF_AUDIO_IMX8MM
     depends on DRIVERS_HDF_AUDIO
     help
         Answer Y to choice HDF Audio Codec driver.
+
+config DRM_DW_HDMI_I2S_AUDIO
+    bool "Synopsys Designware I2S Audio interface"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Support the I2S Audio interface which is part of the Synopsys
+        Designware HDMI block.

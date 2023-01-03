@@ -18,7 +18,7 @@ namespace OHOS {
 namespace HDI {
 class CCodeEmitter : public CodeEmitter {
 public:
-    virtual ~CCodeEmitter() = default;
+    ~CCodeEmitter() override = default;
 
 protected:
     void GetStdlibInclusions(HeaderFile::HeaderFileSet &headerFiles);
@@ -26,31 +26,29 @@ protected:
     void GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles);
 
     void EmitInterfaceMethodParameter(
-        const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix);
+        const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitMethodNeedLoopVar(
-        const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix);
+    void EmitMethodNeedLoopVar(const AutoPtr<ASTMethod> &method,
+        bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix) const;
 
-    bool EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree);
+    bool EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree) const;
 
     void EmitErrorHandle(const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, bool isClient,
-        StringBuilder &sb, const std::string &prefix);
+        StringBuilder &sb, const std::string &prefix) const;
 
     void EmitLicense(StringBuilder &sb);
 
     void EmitHeadMacro(StringBuilder &sb, const std::string &fullName);
 
-    void EmitTailMacro(StringBuilder &sb, const std::string &fullName);
+    void EmitTailMacro(StringBuilder &sb, const std::string &fullName) const;
 
-    void EmitHeadExternC(StringBuilder &sb);
+    void EmitHeadExternC(StringBuilder &sb) const;
 
-    void EmitTailExternC(StringBuilder &sb);
+    void EmitTailExternC(StringBuilder &sb) const;
 
-    std::string MacroName(const std::string &name);
+    std::string MacroName(const std::string &name) const;
 
-    std::string ConstantName(const std::string &name);
-
-    std::string SpecificationParam(StringBuilder &sb, const std::string &prefix);
+    std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
 
     static constexpr const char *errorsLabelName_ = "ERRORS";
     static constexpr const char *finishedLabelName_ = "FINISHED";

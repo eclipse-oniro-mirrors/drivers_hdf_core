@@ -21,8 +21,8 @@ static inline struct StreamHost *StreamHostFromDevice(const struct HdfDeviceObje
 
 static int32_t HwCpuDaiDispatch(const struct AudioCard *audioCard, const struct AudioPcmHwParams *params)
 {
-    struct AudioRuntimeDeivces *rtd;
-    struct DaiDevice *cpuDai;
+    struct AudioRuntimeDeivces *rtd = NULL;
+    struct DaiDevice *cpuDai = NULL;
     int32_t ret;
     if ((audioCard == NULL) || (params == NULL)) {
         ADM_LOG_ERR("CpuDai input param is NULL.");
@@ -57,8 +57,8 @@ static int32_t HwCpuDaiDispatch(const struct AudioCard *audioCard, const struct 
 
 static int32_t HwCodecDaiDispatch(const struct AudioCard *audioCard, const struct AudioPcmHwParams *params)
 {
-    struct AudioRuntimeDeivces *rtd;
-    struct DaiDevice *codecDai;
+    struct AudioRuntimeDeivces *rtd = NULL;
+    struct DaiDevice *codecDai = NULL;
     int32_t ret;
     if ((audioCard == NULL) || (params == NULL)) {
         ADM_LOG_ERR("CodecDai input param is NULL.");
@@ -100,8 +100,8 @@ static int32_t HwCodecDaiDispatch(const struct AudioCard *audioCard, const struc
 
 static int32_t HwDspDaiDispatch(const struct AudioCard *audioCard, const struct AudioPcmHwParams *params)
 {
-    struct AudioRuntimeDeivces *rtd;
-    struct DaiDevice *dspDai;
+    struct AudioRuntimeDeivces *rtd = NULL;
+    struct DaiDevice *dspDai = NULL;
     int32_t ret;
     if ((audioCard == NULL) || (params == NULL)) {
         ADM_LOG_ERR("DspDai input param is NULL.");
@@ -128,7 +128,7 @@ static int32_t HwDspDaiDispatch(const struct AudioCard *audioCard, const struct 
 static int32_t HwPlatformDispatch(const struct AudioCard *audioCard, const struct AudioPcmHwParams *params)
 {
     int32_t ret;
-    struct AudioRuntimeDeivces *rtd;
+    struct AudioRuntimeDeivces *rtd = NULL;
     if ((audioCard == NULL) || (params == NULL)) {
         ADM_LOG_ERR("Platform input param is NULL.");
         return HDF_FAILURE;
@@ -190,63 +190,22 @@ static int32_t HwParamsDispatch(const struct AudioCard *audioCard, const struct 
     return HDF_SUCCESS;
 }
 
-static int32_t CpuDaiDevStartup(const struct AudioCard *audioCard, const struct DaiDevice *cpuDai)
+static int32_t DaiDevStartup(const struct AudioCard *audioCard, const struct DaiDevice *dai)
 {
     int32_t ret;
-    if (audioCard == NULL || audioCard->rtd == NULL) {
+    if (audioCard == NULL) {
         ADM_LOG_ERR("audioCard is null.");
         return HDF_FAILURE;
     }
-    if (cpuDai != NULL && cpuDai->devData != NULL && cpuDai->devData->ops != NULL &&
-        cpuDai->devData->ops->Startup != NULL) {
-        ret = cpuDai->devData->ops->Startup(audioCard, cpuDai);
+    if (dai != NULL && dai->devData != NULL && dai->devData->ops != NULL &&
+        dai->devData->ops->Startup != NULL) {
+        ret = dai->devData->ops->Startup(audioCard, dai);
         if (ret != HDF_SUCCESS) {
-            ADM_LOG_ERR("cpuDai Startup failed.");
+            ADM_LOG_ERR("dai Startup failed.");
             return HDF_FAILURE;
         }
     } else {
-        ADM_LOG_DEBUG("cpu dai startup is null.");
-    }
-    return HDF_SUCCESS;
-}
-
-static int32_t CodecDaiDevStartup(const struct AudioCard *audioCard, const struct DaiDevice *codecDai)
-{
-    int32_t ret;
-    if (audioCard == NULL || audioCard->rtd == NULL) {
-        ADM_LOG_ERR("audioCard is null.");
-        return HDF_FAILURE;
-    }
-    if (codecDai != NULL && codecDai->devData != NULL && codecDai->devData->ops != NULL &&
-        codecDai->devData->ops->Startup != NULL) {
-        ret = codecDai->devData->ops->Startup(audioCard, codecDai);
-        if (ret != HDF_SUCCESS) {
-            ADM_LOG_ERR("codecDai Startup failed.");
-            return HDF_FAILURE;
-        }
-    } else {
-        ADM_LOG_DEBUG("codec dai startup is null.");
-    }
-
-    return HDF_SUCCESS;
-}
-
-static int32_t DspDaiDevStartup(const struct AudioCard *audioCard, const struct DaiDevice *dspDai)
-{
-    int32_t ret;
-    if (audioCard == NULL || audioCard->rtd == NULL) {
-        ADM_LOG_ERR("audioCard is null.");
-        return HDF_FAILURE;
-    }
-    if (dspDai != NULL && dspDai->devData != NULL && dspDai->devData->ops != NULL &&
-        dspDai->devData->ops->Startup != NULL) {
-        ret = dspDai->devData->ops->Startup(audioCard, dspDai);
-        if (ret != HDF_SUCCESS) {
-            ADM_LOG_ERR("dspDai Startup failed.");
-            return HDF_FAILURE;
-        }
-    } else {
-        ADM_LOG_DEBUG("dsp dai startup is null.");
+        ADM_LOG_DEBUG("dai startup is null.");
     }
     return HDF_SUCCESS;
 }
@@ -263,21 +222,160 @@ static int32_t AudioDaiDeviceStartup(const struct AudioCard *audioCard)
         return HDF_FAILURE;
     }
     cpuDai = audioCard->rtd->cpuDai;
-    ret = CpuDaiDevStartup(audioCard, cpuDai);
+    ret = DaiDevStartup(audioCard, cpuDai);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("CpuDaiDevStartup failed.");
         return HDF_FAILURE;
     }
     codecDai = audioCard->rtd->codecDai;
-    ret = CodecDaiDevStartup(audioCard, codecDai);
+    ret = DaiDevStartup(audioCard, codecDai);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("CodecDaiDevStartup failed.");
         return HDF_FAILURE;
     }
     dspDai = audioCard->rtd->dspDai;
-    ret = DspDaiDevStartup(audioCard, dspDai);
+    ret = DaiDevStartup(audioCard, dspDai);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("DspDaiDevStartup failed.");
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t DaiDevShutdown(const struct AudioCard *audioCard, const struct DaiDevice *dai)
+{
+    int32_t ret;
+    if (audioCard == NULL) {
+        ADM_LOG_ERR("audioCard is null.");
+        return HDF_FAILURE;
+    }
+    if (dai != NULL && dai->devData != NULL && dai->devData->ops != NULL &&
+        dai->devData->ops->Shutdown != NULL) {
+        ret = dai->devData->ops->Shutdown(audioCard, dai);
+        if (ret != HDF_SUCCESS) {
+            ADM_LOG_ERR("dai Shutdown failed ret=%d.", ret);
+            return HDF_FAILURE;
+        }
+    } else {
+        ADM_LOG_DEBUG("dai Shutdown is null.");
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioDaiDeviceShutdown(const struct AudioCard *audioCard)
+{
+    int32_t ret;
+
+    if (audioCard == NULL || audioCard->rtd == NULL) {
+        ADM_LOG_ERR("audioCard is null.");
+        return HDF_FAILURE;
+    }
+
+    ret = DaiDevShutdown(audioCard, audioCard->rtd->cpuDai);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("CpuDaiDevShutdown failed.");
+        return HDF_FAILURE;
+    }
+
+    ret = DaiDevShutdown(audioCard, audioCard->rtd->codecDai);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("CodecDaiDevShutdown failed.");
+        return HDF_FAILURE;
+    }
+
+    ret = DaiDevShutdown(audioCard, audioCard->rtd->dspDai);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("DspDaiDevShutdown failed.");
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t CpuDaiDevMuteStream(const struct AudioCard *audioCard, const struct DaiDevice *cpuDai,
+    bool mute, int32_t direction)
+{
+    int32_t ret;
+    if (audioCard == NULL) {
+        ADM_LOG_ERR("audioCard is null.");
+        return HDF_FAILURE;
+    }
+    if (cpuDai != NULL && cpuDai->devData != NULL && cpuDai->devData->ops != NULL &&
+        cpuDai->devData->ops->MuteStream != NULL) {
+        ret = cpuDai->devData->ops->MuteStream(audioCard, cpuDai, mute, direction);
+        if (ret != HDF_SUCCESS) {
+            ADM_LOG_ERR("cpuDai MuteStream failed ret=%d.", ret);
+            return HDF_FAILURE;
+        }
+    } else {
+        ADM_LOG_DEBUG("cpu dai MuteStream is null.");
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t CodecDaiDevMuteStream(const struct AudioCard *audioCard, const struct DaiDevice *codecDai,
+    bool mute, int32_t direction)
+{
+    int32_t ret;
+    if (audioCard == NULL) {
+        ADM_LOG_ERR("audioCard is null.");
+        return HDF_FAILURE;
+    }
+    if (codecDai != NULL && codecDai->devData != NULL && codecDai->devData->ops != NULL &&
+        codecDai->devData->ops->MuteStream != NULL) {
+        ret = codecDai->devData->ops->MuteStream(audioCard, codecDai, mute, direction);
+        if (ret != HDF_SUCCESS) {
+            ADM_LOG_ERR("codecDai MuteStream failed ret=%d.", ret);
+            return HDF_FAILURE;
+        }
+    } else {
+        ADM_LOG_DEBUG("codec dai MuteStream is null.");
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t DspDaiDevMuteStream(const struct AudioCard *audioCard, const struct DaiDevice *dspDai,
+    bool mute, int32_t direction)
+{
+    int32_t ret;
+    if (audioCard == NULL) {
+        ADM_LOG_ERR("audioCard is null.");
+        return HDF_FAILURE;
+    }
+    if (dspDai != NULL && dspDai->devData != NULL && dspDai->devData->ops != NULL &&
+        dspDai->devData->ops->MuteStream != NULL) {
+        ret = dspDai->devData->ops->MuteStream(audioCard, dspDai, mute, direction);
+        if (ret != HDF_SUCCESS) {
+            ADM_LOG_ERR("dspDai Shutdown failed ret=%d.", ret);
+            return HDF_FAILURE;
+        }
+    } else {
+        ADM_LOG_DEBUG("dsp dai Shutdown is null.");
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioDaiDeviceMuteStream(const struct AudioCard *audioCard, bool mute, int32_t direction)
+{
+    int32_t ret;
+
+    if (audioCard == NULL || audioCard->rtd == NULL) {
+        ADM_LOG_ERR("audioCard is null.");
+        return HDF_FAILURE;
+    }
+
+    ret = CpuDaiDevMuteStream(audioCard, audioCard->rtd->cpuDai, mute, direction);
+    if (ret != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    ret = CodecDaiDevMuteStream(audioCard, audioCard->rtd->codecDai, mute, direction);
+    if (ret != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    ret = DspDaiDevMuteStream(audioCard, audioCard->rtd->dspDai, mute, direction);
+    if (ret != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -426,6 +524,11 @@ static int32_t StreamHostCapturePrepare(const struct HdfDeviceIoClient *client, 
         return HDF_ERR_IO;
     }
 
+    ret = AudioDaiDeviceMuteStream(audioCard, false, AUDIO_CAPTURE_STREAM_IN);
+    if (ret != HDF_SUCCESS) {
+        return HDF_ERR_IO;
+    }
+
     ADM_LOG_DEBUG("success.");
     return HDF_SUCCESS;
 }
@@ -516,6 +619,11 @@ static int32_t StreamHostRenderPrepare(const struct HdfDeviceIoClient *client, s
     ret = AudioRenderPrepare(audioCard);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("platform RenderPrepare failed ret=%d", ret);
+        return HDF_ERR_IO;
+    }
+
+    ret = AudioDaiDeviceMuteStream(audioCard, false, AUDIO_RENDER_STREAM_OUT);
+    if (ret != HDF_SUCCESS) {
         return HDF_ERR_IO;
     }
 
@@ -787,7 +895,7 @@ static int32_t StreamHostMmapPositionWrite(const struct HdfDeviceIoClient *clien
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct AudioCard *audioCard = NULL;
-    struct PlatformData *platform;
+    struct PlatformData *platform = NULL;
     (void)data;
     ADM_LOG_DEBUG("entry.");
     if (client == NULL || reply == NULL) {
@@ -867,7 +975,7 @@ static int32_t StreamHostMmapPositionRead(const struct HdfDeviceIoClient *client
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct AudioCard *audioCard = NULL;
-    struct PlatformData *platformData;
+    struct PlatformData *platformData = NULL;
     ADM_LOG_DEBUG("entry.");
     if (client == NULL || reply == NULL) {
         ADM_LOG_ERR("input param is NULL.");
@@ -1061,6 +1169,15 @@ static int32_t StreamHostRenderClose(const struct HdfDeviceIoClient *client, str
         return HDF_FAILURE;
     }
 
+    ret = AudioDaiDeviceMuteStream(audioCard, true, AUDIO_RENDER_STREAM_OUT);
+    if (ret != HDF_SUCCESS) {
+        return HDF_ERR_IO;
+    }
+
+    if (AudioDaiDeviceShutdown(audioCard) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
     ret = AudioRenderClose(audioCard);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("platform RenderClose failed ret=%d", ret);
@@ -1131,6 +1248,15 @@ static int32_t StreamHostCaptureClose(const struct HdfDeviceIoClient *client,
     audioCard = StreamHostGetCardInstance(client);
     if (audioCard == NULL || audioCard->rtd == NULL) {
         ADM_LOG_ERR("CaptureStop get card instance or rtd failed.");
+        return HDF_FAILURE;
+    }
+
+    ret = AudioDaiDeviceMuteStream(audioCard, true, AUDIO_CAPTURE_STREAM_IN);
+    if (ret != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (AudioDaiDeviceShutdown(audioCard) != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
@@ -1440,9 +1566,8 @@ static struct StreamDispCmdHandleList g_streamDispCmdHandle[] = {
 static int32_t StreamDispatch(struct HdfDeviceIoClient *client, int32_t cmdId,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    uint32_t count = sizeof(g_streamDispCmdHandle) / sizeof(g_streamDispCmdHandle[0]);
     uint32_t i = 0;
-    for (i = 0; i < count; ++i) {
+    for (i = 0; i < HDF_ARRAY_SIZE(g_streamDispCmdHandle); ++i) {
         if ((cmdId == (int32_t)(g_streamDispCmdHandle[i].cmd)) && (g_streamDispCmdHandle[i].func != NULL)) {
             return g_streamDispCmdHandle[i].func(client, data, reply);
         }
@@ -1453,7 +1578,7 @@ static int32_t StreamDispatch(struct HdfDeviceIoClient *client, int32_t cmdId,
 
 static struct StreamHost *StreamHostCreateAndBind(struct HdfDeviceObject *device)
 {
-    struct StreamHost *streamHost;
+    struct StreamHost *streamHost = NULL;
     if (device == NULL) {
         ADM_LOG_ERR("device is null!");
         return NULL;
@@ -1471,7 +1596,7 @@ static struct StreamHost *StreamHostCreateAndBind(struct HdfDeviceObject *device
 
 static int32_t AudioStreamBind(struct HdfDeviceObject *device)
 {
-    struct StreamHost *streamHost;
+    struct StreamHost *streamHost = NULL;
     ADM_LOG_DEBUG("entry!");
     if (device == NULL) {
         ADM_LOG_ERR("device is null!");
@@ -1512,7 +1637,7 @@ static int32_t AudioStreamInit(struct HdfDeviceObject *device)
 
 static void AudioStreamRelease(struct HdfDeviceObject *device)
 {
-    struct StreamHost *streamHost;
+    struct StreamHost *streamHost = NULL;
     if (device == NULL) {
         ADM_LOG_ERR("device is NULL");
         return;

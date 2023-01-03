@@ -16,7 +16,7 @@
 
 #define HDF_LOG_TAG rtc_if_c
 
-DevHandle RtcOpen()
+DevHandle RtcOpen(void)
 {
     struct RtcHost *host = NULL;
 

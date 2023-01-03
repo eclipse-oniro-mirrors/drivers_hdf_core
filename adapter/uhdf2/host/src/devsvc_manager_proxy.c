@@ -103,12 +103,8 @@ static int DevSvcManagerProxyAddService(
         HDF_LOGI("servmgr add service %{public}s, result is %{public}d", servInfo->servName, status);
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
     return status;
 }
 
@@ -147,12 +143,8 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
         HDF_LOGI("servmgr update service %{public}s, result is %{public}d", servInfo->servName, status);
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
     return status;
 }
 
@@ -179,18 +171,16 @@ struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, cons
         }
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
     HDF_LOGI("DevSvcManagerProxyGetService finish, and status is %{public}d", status);
-    return (remoteService == NULL) ? NULL : &remoteService->object_;
+    return (remoteService == NULL) ? NULL : &remoteService->object;
 }
 
-void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *svcName)
+void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *svcName,
+    const struct HdfDeviceObject *devObj)
 {
+    (void)devObj;
     if (inst == NULL || svcName == NULL) {
         return;
     }
@@ -214,12 +204,8 @@ void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *sv
         HDF_LOGW("Device service manager proxy remove service status is %{public}d", status);
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
 }
 
 static void DevSvcManagerProxyOnRemoteDied(struct HdfDeathRecipient *recipient, struct HdfRemoteService *service)

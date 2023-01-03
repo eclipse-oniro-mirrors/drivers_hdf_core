@@ -31,10 +31,10 @@ uint8_t RtcGetMonthDays(const uint8_t isLeapYear, const uint8_t month)
 
 uint8_t RtcIsInvalidDay(const uint8_t day, const uint8_t month, const uint16_t year)
 {
-    uint8_t MaxDay;
-    MaxDay = RtcGetMonthDays(IS_LEAP_YEAR(year), month);
+    uint8_t maxDay;
+    maxDay = RtcGetMonthDays(IS_LEAP_YEAR(year), month);
 
-    return ((day == 0) || (day > MaxDay)) ? RTC_TRUE : RTC_FALSE;
+    return ((day == 0) || (day > maxDay)) ? RTC_TRUE : RTC_FALSE;
 }
 
 uint8_t RtcIsInvalid(const struct RtcTime *time)

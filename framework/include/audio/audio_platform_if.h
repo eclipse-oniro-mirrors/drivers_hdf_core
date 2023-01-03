@@ -49,6 +49,8 @@ struct PlatformData {
     struct AudioMmapData mmapData;       /**< Mmap mode transfer data */
     uint32_t mmapLoopCount;              /**< Loop count for mmap mode pcm stream */
     void *dmaPrv;                        /**< Platform dma private data */
+    struct AudioRegCfgData *regConfig;         /**< Codec registers configured in HCS */
+    struct AudioRegCfgGroupNode **regCfgGroup; /**< Codec register group configured in HCS */
 };
 
 /**

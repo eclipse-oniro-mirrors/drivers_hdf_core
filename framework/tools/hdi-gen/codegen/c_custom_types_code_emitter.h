@@ -19,7 +19,7 @@ class CCustomTypesCodeEmitter : public CCodeEmitter {
 public:
     CCustomTypesCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CCustomTypesCodeEmitter() = default;
+    ~CCustomTypesCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -34,25 +34,25 @@ private:
 
     void EmitHeaderInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitCustomTypeDecls(StringBuilder &sb);
+    void EmitCustomTypeDecls(StringBuilder &sb) const;
 
-    void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type);
+    void EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const;
 
-    void EmitCustomTypeFuncDecl(StringBuilder &sb);
+    void EmitCustomTypeFuncDecl(StringBuilder &sb) const;
 
-    void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
-    void EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
-    void EmitCustomTypeFreeDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeFreeDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
     void EmitCustomTypesSourceFile();
 
     void EmitSoucreInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitCustomTypeDataProcess(StringBuilder &sb);
 
@@ -60,16 +60,16 @@ private:
 
     void EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
 
-    void EmitMarshallingVarDecl(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitMarshallingVarDecl(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitUnmarshallingVarDecl(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitUnmarshallingVarDecl(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitPodTypeUnmarshalling(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitPodTypeUnmarshalling(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &name, const std::string &memberName,
         StringBuilder &sb, const std::string &prefix);
@@ -80,12 +80,12 @@ private:
     void EmitArrayMemberUnmarshalling(const AutoPtr<ASTType> &type, const std::string &memberName,
         const std::string &varName, StringBuilder &sb, const std::string &prefix);
 
-    void EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type);
+    void EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const;
 
     bool NeedEmitInitVar(const AutoPtr<ASTType> &type, bool needFree);
 
-    void EmitCustomTypeMemoryRecycle(
-        const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitCustomTypeMemoryRecycle(const AutoPtr<ASTStructType> &type,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 

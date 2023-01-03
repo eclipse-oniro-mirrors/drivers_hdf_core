@@ -67,9 +67,9 @@ static int32_t GetAllLightInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
             return HDF_FAILURE;
         }
 
-        lightInfo.reserved = 0;
-        if (!HdfSbufWriteUint32(reply, lightInfo.reserved)) {
-            HDF_LOGE("%s: write reserved failed", __func__);
+        lightInfo.lightType = HDF_LIGHT_TYPE_RGB_COLOR;
+        if (!HdfSbufWriteUint32(reply, lightInfo.lightType)) {
+            HDF_LOGE("%s: write lightType failed", __func__);
             return HDF_FAILURE;
         }
     }

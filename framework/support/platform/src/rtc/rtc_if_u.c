@@ -17,7 +17,7 @@
 
 #define HDF_LOG_TAG rtc_if_u_c
 
-DevHandle RtcOpen()
+DevHandle RtcOpen(void)
 {
     static struct HdfIoService *service = NULL;
     if (service != NULL) {

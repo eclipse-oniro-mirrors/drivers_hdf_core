@@ -78,13 +78,14 @@ void CppClientProxyCodeEmitter::EmitProxyHeaderInclusions(StringBuilder &sb)
     }
 }
 
-void CppClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "iproxy_broker");
 }
 
 void CppClientProxyCodeEmitter::EmitProxyDecl(StringBuilder &sb, const std::string &prefix)
 {
+    (void)prefix;
     sb.AppendFormat("class %s : public IProxyBroker<%s> {\n", proxyName_.c_str(), interfaceName_.c_str());
     sb.Append("public:\n");
     EmitProxyConstructor(sb, TAB);
@@ -96,7 +97,7 @@ void CppClientProxyCodeEmitter::EmitProxyDecl(StringBuilder &sb, const std::stri
     sb.Append("};\n");
 }
 
-void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("explicit %s(const sptr<IRemoteObject>& remote)", proxyName_.c_str());
     sb.AppendFormat(" : IProxyBroker<%s>(remote) {}\n\n", interfaceName_.c_str());
@@ -115,7 +116,7 @@ void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const st
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodDecl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("int32_t %s() override;\n", method->GetName().c_str());
@@ -138,13 +139,13 @@ void CppClientProxyCodeEmitter::EmitProxyMethodDecl(
     }
 }
 
-void CppClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("static inline BrokerDelegator<%s> delegator_;\n", proxyName_.c_str());
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitCppParameter());
 }
@@ -243,7 +244,7 @@ void CppClientProxyCodeEmitter::EmitProxySourceInclusions(StringBuilder &sb)
     }
 }
 
-void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     if (!interface_->IsSerializable()) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "iservmgr_hdi");
@@ -282,7 +283,7 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     }
 }
 
-void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "sptr<%s> %s::Get(bool isStub)\n", interface_->GetName().c_str(), interface_->GetName().c_str());
@@ -295,8 +296,8 @@ void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::
 void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
     std::string objName = "proxy";
-    std::string SerMajorName = "serMajorVer";
-    std::string SerMinorName = "serMinorVer";
+    std::string serMajorName = "serMajorVer";
+    std::string serMinorName = "serMinorVer";
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string& serviceName, bool isStub)\n",
         interface_->GetName().c_str(), interface_->GetName().c_str());
     sb.Append(prefix).Append("{\n");
@@ -320,19 +321,19 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
 
-    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", SerMajorName.c_str());
-    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", SerMinorName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", serMajorName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", serMinorName.c_str());
     sb.Append(prefix + TAB).AppendFormat("int32_t %s = %s->GetVersion(%s, %s);\n",
-        errorCodeName_.c_str(), objName.c_str(), SerMajorName.c_str(), SerMinorName.c_str());
+        errorCodeName_.c_str(), objName.c_str(), serMajorName.c_str(), serMinorName.c_str());
     sb.Append(prefix + TAB).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:get version failed!\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
 
-    sb.Append(prefix + TAB).AppendFormat("if (%s != %s) {\n", SerMajorName.c_str(), majorVerName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("if (%s != %s) {\n", serMajorName.c_str(), majorVerName_.c_str());
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:check version failed! ");
     sb.Append("version of service:%u.%u, version of client:%u.%u\", __func__,\n");
-    sb.Append(prefix + TAB + TAB + TAB).AppendFormat("%s, %s, %s, %s);\n", SerMajorName.c_str(), SerMinorName.c_str(),
+    sb.Append(prefix + TAB + TAB + TAB).AppendFormat("%s, %s, %s, %s);\n", serMajorName.c_str(), serMinorName.c_str(),
         majorVerName_.c_str(), minorVerName_.c_str());
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
@@ -340,7 +341,7 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix).Append("}\n");
 }
 
-void CppClientProxyCodeEmitter::EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (isStub) {\n");
     sb.Append(prefix + TAB)
@@ -441,7 +442,7 @@ void CppClientProxyCodeEmitter::EmitProxyMethodBody(
 }
 
 void CppClientProxyCodeEmitter::EmitWriteInterfaceToken(
-    const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
+    const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "if (!%s.WriteInterfaceToken(%s::GetDescriptor())) {\n", parcelName.c_str(), interfaceName_.c_str());
@@ -451,8 +452,8 @@ void CppClientProxyCodeEmitter::EmitWriteInterfaceToken(
     sb.Append(prefix).Append("}\n");
 }
 
-void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(
-    const AutoPtr<ASTMethod> &method, const std::string &dataBufName, StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(const AutoPtr<ASTMethod> &method,
+    const std::string &dataBufName, StringBuilder &sb, const std::string &prefix) const
 {
     if (NeedFlag(method)) {
         sb.Append(prefix).AppendFormat("if (!%s.WriteBool(false)) {\n", dataBufName.c_str());

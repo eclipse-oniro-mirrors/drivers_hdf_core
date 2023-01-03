@@ -56,7 +56,7 @@ enum class ParamAttr {
 
 class ASTParamAttr : public ASTNode {
 public:
-    ASTParamAttr(ParamAttr value) : ASTNode(), value_(value) {}
+    explicit ASTParamAttr(ParamAttr value) : ASTNode(), value_(value) {}
 
     std::string ToString() const override;
 

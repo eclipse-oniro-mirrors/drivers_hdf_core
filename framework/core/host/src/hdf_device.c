@@ -18,14 +18,14 @@
 
 static void UpdateDeivceNodeIdIndex(struct HdfDevice *device, devid_t nodeDevid)
 {
-    if (device->devidIndex < DEVICEID(nodeDevid)) {
-        device->devidIndex = DEVICEID(nodeDevid);
+    if (device->devidIndex < DEVNODEID(nodeDevid)) {
+        device->devidIndex = DEVNODEID(nodeDevid);
     }
 }
 
 static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
 {
-    if (device->devidIndex >= DEVICEID_MASK) {
+    if (device->devidIndex >= DEVNODEID_MASK) {
         return HDF_FAILURE;
     }
     device->devidIndex++;

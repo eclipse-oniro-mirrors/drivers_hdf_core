@@ -27,7 +27,9 @@ ohos_unittest("hdf_adapter_uhdf_test_osal") {
     "//drivers/hdf_core/framework/test/unittest/include",
     "//drivers/hdf_core/framework/test/unittest/osal",
   ]
-
+  if (build_selinux) {
+    cflags = [ "-DWITH_SELINUX" ]
+  }
   defines = [ "__USER__" ]
   sources = [ "//drivers/hdf_core/framework/support/posix/test/unittest/common/hdf_osal_test.cpp" ]
   deps = [

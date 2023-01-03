@@ -44,8 +44,8 @@ public:
 
     static std::string Format(const char *format, ...);
 
-    static constexpr size_t LINE_MAX_SIZE = 1024; // 1KB
-    static constexpr size_t MAX_SIZE = 262144;    // 8KB
+    static constexpr size_t lineMaxSize = 1024; // 1KB
+    static constexpr size_t maxSize = 262144;    // 256KB
 };
 } // namespace HDI
 } // namespace OHOS

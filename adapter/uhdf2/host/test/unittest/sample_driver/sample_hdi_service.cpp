@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
+#include <base/hdi_smq.h>
+#include <devhost_service_full.h>
 #include <hdf_device_object.h>
 #include <hdf_dlist.h>
 #include <hdf_log.h>
+#include <hdf_power_state.h>
 #include <hdf_remote_service.h>
-#include <base/hdi_smq.h>
 #include <thread>
 #include "sample_hdi.h"
 
@@ -179,6 +181,42 @@ static int32_t SampleServiceTansSmq(
     return HDF_SUCCESS;
 }
 
+static int32_t SampleServiceEndHost(const struct HdfDeviceObject *device)
+{
+    (void)device;
+    struct IDevHostService *instance = DevHostServiceNewInstance(0, nullptr);
+
+    if (instance == nullptr) {
+        HDF_LOGE("%{public}s parameter is null", __func__);
+        return HDF_FAILURE;
+    }
+
+    struct DevHostServiceFull *fullService = reinterpret_cast<struct DevHostServiceFull *>(instance);
+    struct HdfMessageLooper *looper = &fullService->looper;
+    HDF_LOGW("%{public}s: host %{public}d stop", __func__, fullService->super.hostId);
+    if ((looper != nullptr) && (looper->Stop != nullptr)) {
+        looper->Stop(looper);
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t InjectPmState(const struct HdfDeviceObject *device)
+{
+    (void)device;
+    struct IDevHostService *instance = DevHostServiceNewInstance(0, nullptr);
+
+    if (instance == nullptr && instance->PmNotify == nullptr) {
+        HDF_LOGE("%{public}s parameter is null", __func__);
+        return HDF_FAILURE;
+    }
+    (void)instance->PmNotify(nullptr, POWER_STATE_RESUME);
+    (void)instance->PmNotify(instance, POWER_STATE_RESUME);
+    (void)instance->PmNotify(instance, POWER_STATE_SUSPEND);
+    (void)instance->PmNotify(instance, POWER_STATE_MAX);
+
+    return HDF_SUCCESS;
+}
+
 static const struct SampleHdi g_sampleHdiImpl = {
     .ping = SampleServicePing,
     .sum = SampleServiceSum,
@@ -187,6 +225,8 @@ static const struct SampleHdi g_sampleHdiImpl = {
     .unregisterDevice = SampleServiceUnregisterDevice,
     .updateService = SampleServiceUpdateDevice,
     .tansSmq = SampleServiceTansSmq,
+    .endHost = SampleServiceEndHost,
+    .injectPmState = InjectPmState,
 };
 
 const struct SampleHdi *SampleHdiImplInstance(void)

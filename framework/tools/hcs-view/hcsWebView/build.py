@@ -10,8 +10,6 @@
 from asyncio import subprocess
 
 if __name__ == "__main__":
-    # development production
-    subprocess.run(["npx", "webpack", "--mode=development"])
     with open(r".\..\hcsVSCode\editor.html", "r", encoding="utf8") as file:
         ss = file.read()
     i1 = ss.index("// update js code begin") + len("// update js code begin") + 1

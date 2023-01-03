@@ -17,7 +17,7 @@ class CppServiceStubCodeEmitter : public CppCodeEmitter {
 public:
     CppServiceStubCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppServiceStubCodeEmitter() = default;
+    ~CppServiceStubCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -29,38 +29,38 @@ private:
 
     void EmitStubHeaderInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitStubUsingNamespace(StringBuilder &sb);
+    void EmitStubUsingNamespace(StringBuilder &sb) const;
 
     void EmitStubDecl(StringBuilder &sb);
 
     void EmitStubBody(StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubConstructorDecl(StringBuilder &sb, const std::string &prefix);
+    void EmitStubConstructorDecl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubOnRequestDecl(StringBuilder &sb, const std::string &prefix);
+    void EmitStubOnRequestDecl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix);
+    void EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitStubMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubPrivateData(StringBuilder &sb, const std::string &prefix);
+    void EmitStubPrivateData(StringBuilder &sb, const std::string &prefix) const;
 
     // ISample.idl -> sample_service_stub.cpp
     void EmitStubSourceFile();
 
     void EmitStubSourceInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubConstructorImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitStubConstructorImpl(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
 
@@ -68,15 +68,15 @@ private:
 
     void EmitStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubCallMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitStubCallMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubReadInterfaceToken(const std::string &parcelName, StringBuilder &sb, const std::string &prefix);
+    void EmitStubReadInterfaceToken(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubReadMemFlag(
-        const AutoPtr<ASTMethod> &method, const std::string &parcelName, StringBuilder &sb, const std::string &prefix);
+    void EmitStubReadMemFlag(const AutoPtr<ASTMethod> &method,
+        const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitLocalVariable(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
-        const std::string &prefix);
+        const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 };

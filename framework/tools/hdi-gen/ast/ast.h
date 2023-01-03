@@ -53,14 +53,14 @@ public:
     using StrASTMap = std::unordered_map<std::string, AutoPtr<AST>>;
     using TypeStringMap = std::unordered_map<std::string, AutoPtr<ASTType>>;
 
-    virtual ~AST() = default;
+    ~AST() override = default;
 
     void SetAStFileType(ASTFileType fileType)
     {
         astFileType_ = fileType;
     }
 
-    ASTFileType GetASTFileType()
+    ASTFileType GetASTFileType() const
     {
         return astFileType_;
     }
@@ -154,17 +154,17 @@ public:
 
     void SetVersion(size_t &majorVer, size_t &minorVer);
 
-    inline size_t GetMajorVer()
+    inline size_t GetMajorVer() const
     {
         return majorVersion_;
     }
 
-    inline size_t GetMinorVer()
+    inline size_t GetMinorVer() const
     {
         return minorVersion_;
     }
 
-    std::string GetVersion()
+    std::string GetVersion() const
     {
         return StringHelper::Format("%u.%u", majorVersion_, minorVersion_);
     }

@@ -33,16 +33,16 @@ class AttributeArea {
         }
     }
     addTitle(name) {
-        this.htmlStr += '<p class="att_title">' + name + '</p>';
+        this.htmlStr += '<div class="div_title"><span class="att_title" style="font-size:16px;">' + name + '</span></div>';
     }
     addImage(path) {
         this.htmlStr += '<img src="' + path + '">' + '</img>';
     }
     addDotLine() {
-        this.htmlStr += '<p class="att_line">' + "----------------------" + '</p>';
+        
     }
-    addInput(searchId, label, default_, disable) {
-        let ret = '<label class="input_text_readonly">' + label + '</label>'
+    addTopInput(searchId, label, default_, disable) {
+        let ret = '<label class="input_text_readonly_top">' + label + '</label></br>'
         ret += '<input id="' + searchId + '"';
         ret += ' class="input_text"';
         if (default_.indexOf('"') >= 0) {
@@ -56,51 +56,89 @@ class AttributeArea {
         ret += ' oninput="document.attrCallback.Event(' + "'input', " + "'" + searchId + "'" + ')" /><br>'
         this.htmlStr += ret;
     }
+
+    addInput(searchId, label, default_, disable) {
+        let ret = '<label class="input_text_readonly">' + label + '</label></br>'
+        ret += '<input id="' + searchId + '"';
+        ret += ' class="input_text"';
+        if (default_.indexOf('"') >= 0) {
+            ret += ' value=""';
+            this.freshInputValue_.push([searchId, default_])
+        }
+        else
+            ret += ' value="' + default_ + '"';
+        if (disable)
+            ret += ' disabled="disabled"';
+        ret += ' oninput="document.attrCallback.Event(' + "'input', " + "'" + searchId + "'" + ')" /><br>'
+        this.htmlStr += ret;
+    }
+    
+    addValidatorInput(searchId, label, default_, disable = false, defaultTxt = '') {
+        let validatorId = 'valid_' + searchId;
+        let ret = '<label class="input_text_readonly">' + label + '</label></br>'
+        ret += '<input id="' + searchId + '"';
+        ret += ' class="input_text" maxlength="40" placeholder="' + defaultTxt + '"';
+        if (default_.indexOf('"') >= 0) {
+            ret += ' value=""';
+            this.freshInputValue_.push([searchId, default_])
+        }
+        else
+            ret += ' value="' + default_ + '"';
+        if (disable)
+            ret += ' disabled="disabled"';
+        ret += ' autofocus="autofocus" onFocus="document.attrCallback.Event(' + "'input', " + "'" + searchId + "'" + ');"'; 
+        ret += ' oninput="document.attrCallback.Event(' + "'input', " + "'" + searchId + "'" + ')" /><br>'
+        ret += '<label id="' + validatorId +'" class="validator_label" display="none"></label></br>'
+        this.htmlStr += ret;
+    }
+
     addTextArea(searchId, label, default_) {
         let ret = '<label class="input_text_readonly">' + label + '</label><br>'
         ret += '<textarea id="' + searchId + '"';
         ret += ' class="text_area"';
         ret += ' oninput="document.attrCallback.Event(' + "'input', " + "'" + searchId + "'" + ')">'
         ret += default_;
-        ret += '</textarea><br>';//cols="20" rows="10"
+        ret += '</textarea><br>';
         this.htmlStr += ret;
     }
     addButton(searchId, label) {
-        if (label.length > 13) label = label.substring(0, 10) + "..."
+        if (label.length > 40) label = label.substring(0, 40) + "..."
         let text = '" class="button_click" type="button" onclick="document.attrCallback.Event('
         this.htmlStr += '<button id="' + searchId + text + "'button', " +
             "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
     addLabelButton(searchId, label, title) {
-        if (label.length > 13) label = label.substring(0, 10) + "..."
+        if (label.length > 40) label = label.substring(0, 40) + "..."
         let text = '" class="label_button_click" type="button" onclick="document.attrCallback.Event('
-        this.htmlStr += '<label class="input_text_readonly">' + title + '</label><button id="' + searchId + text + "'button', " +
+        this.htmlStr += '<label class="input_text_readonly">' + title + '</label></br><button id="' + searchId + text + "'button', " +
             "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
 
     addButtonDelete(searchId, label) {
-        if (label.length > 13) label = label.substring(0, 10) + "..."
+        if (label.length > 40) label = label.substring(0, 40) + "..."
         let text = '" class="button_click_delete" type="button" onclick="document.attrCallback.Event('
         this.htmlStr += '<button id="' + searchId + text + "'button', " +
             "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
     addSelect(searchId, label, selectList, default_, disable) {
-        let ret = '<label class="input_text_readonly">' + label + '</label>'
-        ret += '<select id="' + searchId + '"';
-        ret += ' class="select_list"'
-        ret += ' size="1"'
-        if (disable)
-            ret += ' disabled="disabled"';
-        ret += ' onchange="document.attrCallback.Event(' + "'select', " + "'" + searchId + "'" + ')">';
-        for (let i in selectList) {
-            if (selectList[i] == default_) {
-                ret += '<option selected="selected">' + selectList[i] + "</option>";
+        let ret = '<label class="input_text_readonly">' + label + '</label></br>'
+        ret += '<div class="ul-select"><span></span>';
+        ret += '<input type="text" id="' + searchId +'" value="' + default_ + '"  class="input_text" readonly="readonly" ';
+        if (disable) {
+            ret += ' disabled="true" />'; 
+        } else {
+            ret += 'onfocus="selectFocus(this);"';
+            ret += 'onblur="selectBlur(this);" />';
+            ret += '<ul>';
+            for (let i in selectList) {
+                ret += '<li onclick="liClick(this, \'' + searchId + '\');">';
+                ret += '<a href="javascript:;">' + selectList[i] + '</a>';
+                ret += '</li>';
             }
-            else {
-                ret += "<option>" + selectList[i] + "</option>";
-            }
+            ret += '</ul>'
         }
-        ret += "</select><br>";
+        
+        ret += '</div>';
         this.htmlStr += ret;
     }
     addGap(type) {

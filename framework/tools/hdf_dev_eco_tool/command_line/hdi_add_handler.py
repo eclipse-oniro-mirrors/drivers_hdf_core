@@ -34,6 +34,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
                                  help=' '.join(self.handlers.keys()),
                                  required=True)
         self.parser.add_argument("--root_dir", required=True)
+        self.parser.add_argument("--vendor_name")
         self.parser.add_argument("--interface_name")
         self.parser.add_argument("--peripheral_name")
         self.parser.add_argument("--board_name")
@@ -105,15 +106,17 @@ class HdiAddHandler(HdfCommandHandlerBase):
             return root, version, interface_converter, interface_name
         elif temp_type == "peripheral":
             self.check_arg_raise_if_not_exist('root_dir')
+            self.check_arg_raise_if_not_exist('vendor_name')
             self.check_arg_raise_if_not_exist('peripheral_name')
             self.check_arg_raise_if_not_exist('board_name')
             self.check_arg_raise_if_not_exist('version_number')
             version = "v" + str(self.args.version_number).replace(".", "_")
             peripheral_name = self.args.peripheral_name
             root = self.args.root_dir
+            vendor = self.args.vendor_name
             board = self.args.board_name
             peripheral_converter = hdf_utils.WordsConverter(peripheral_name)
-            return root, version, peripheral_converter, peripheral_name, board
+            return root, version, peripheral_converter, peripheral_name, board, vendor
         elif temp_type == "unittest":
             self.check_arg_raise_if_not_exist('root_dir')
             self.check_arg_raise_if_not_exist('peripheral_name')
@@ -181,7 +184,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
         return json.dumps(self.result_json, indent=4)
 
     def _add_peripheral_handler(self):
-        root, version, peripheral_converter, peripheral_name, board = \
+        root, version, peripheral_converter, peripheral_name, board, vendor = \
             self._check_arg(temp_type="peripheral")
         replace_data = {
             "peripheral_name": peripheral_converter.lower_case(),
@@ -217,8 +220,8 @@ class HdiAddHandler(HdfCommandHandlerBase):
                     shutil.copyfile(target_file_path, dst_file_path)
                 temp_create = self.format_file_path(dst_file_path, root)
                 self.result_json["create_file"].append(temp_create)
-        self._option_peripheral_config(board, root, replace_data,
-                                       hid_service_folder, peripheral_folder)
+        self._option_peripheral_config(
+            board, root, replace_data, hid_service_folder, peripheral_folder, vendor)
         path_test = hdi_config_arg.get("peripheral", "")
         operation_file = os.path.join(root, path_test.strip("/"))
         self._hdi_config_operation(opt_type="peripheral", config_path=operation_file)
@@ -226,8 +229,9 @@ class HdiAddHandler(HdfCommandHandlerBase):
                                 target_name=peripheral_name)
         return json.dumps(self.result_json, indent=4)
 
-    def _option_peripheral_config(self, board, root, replace_data,
-                                  hid_service_folder, peripheral_folder):
+    def _option_peripheral_config(
+            self, board, root, replace_data, hid_service_folder,
+            peripheral_folder, vendor):
         hdi_template_path = self.get_template_file_folder(
             temp_folder_name="peripheral")
         file_list = os.listdir(hdi_template_path)
@@ -235,7 +239,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
             folder_file_path = os.path.join(hdi_template_path, template_file_name)
             if os.path.isdir(folder_file_path):
                 self._hdi_server_config(
-                    folder_file_path, board, root, replace_data)
+                    folder_file_path, board, root, replace_data, vendor)
                 continue
             src_path = os.path.join(hdi_template_path, template_file_name)
             if template_file_name.endswith("hdi"):
@@ -256,7 +260,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
             self.result_json["config"].append(temp_config)
 
     def _hdi_server_config(self, config_path, board_name,
-                           root_path, replace_data):
+                           root_path, replace_data, vendor):
         template_list = os.listdir(config_path)
         temp_hcs_path = os.path.join(config_path, template_list[0])
         for file_name in template_list:
@@ -269,11 +273,16 @@ class HdiAddHandler(HdfCommandHandlerBase):
                 hcs_name = snake_case.lower().strip('_')
 
         board_type = "%s_user" % board_name
-        board_parent_path = hdf_tool_settings.HdfToolSettings(). \
+        board_parent_path_temp = hdf_tool_settings.HdfToolSettings(). \
             get_board_parent_path(board_type)
-        if os.path.exists(os.path.join(root_path, board_parent_path)):
+        board_parent_path = board_parent_path_temp.format(vendor=vendor)
+        hcs_file_parent = os.path.join(root_path, board_parent_path)
+        if os.path.exists(hcs_file_parent):
             hcs_target_file = os.path.join(
                 root_path, board_parent_path, hcs_name)
+        else:
+            raise HdfToolException(
+                'hcs config path %s not exist' % hcs_file_parent)
         lines = list(map(
             lambda x: "\t\t" + x,
             hdf_utils.read_file_lines(temp_hcs_path)))
@@ -299,11 +308,11 @@ class HdiAddHandler(HdfCommandHandlerBase):
         group_passwd = OperateGroupPasswd(tool_settings=hdi_config, root_path=root_path)
         # group
         peripheral_name = replace_data.get("peripheral_name")
-        group_file_path = group_passwd.OperateGroup(name=peripheral_name)
+        group_file_path = group_passwd.operate_group(name=peripheral_name)
         temp_config = self.format_file_path(group_file_path, root_path)
         self.result_json["config"].append(temp_config)
         # passwd
-        passwd_file_path = group_passwd.OperatePasswd(name=peripheral_name)
+        passwd_file_path = group_passwd.operate_passwd(name=peripheral_name)
         temp_config = self.format_file_path(passwd_file_path, root_path)
         self.result_json["config"].append(temp_config)
         self.config_selinux(root_path, replace_data)
@@ -448,7 +457,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
         elif isinstance(selinux_temp["info_temp"], list):
             hdf_host_pid_list = self.count_hdf_host_pid(temp_lines)
             replace_data.update({
-                "pid_num": OperateGroupPasswd.GenerateId(max(hdf_host_pid_list))
+                "pid_num": OperateGroupPasswd.generate_id(max(hdf_host_pid_list))
             })
             temp_replace_list = []
             splice_str = ""

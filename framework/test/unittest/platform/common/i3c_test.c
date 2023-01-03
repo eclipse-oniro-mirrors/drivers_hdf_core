@@ -254,7 +254,7 @@ static int32_t I3cTestSetConfig(void *param)
     }
 
     config->busMode = I3C_BUS_HDR_MODE;
-    config->curMaster = NULL;
+    config->curHost = NULL;
     ret = I3cSetConfig(tester->handle, config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Set config failed!, busId = %hu", __func__, tester->config.busId);
@@ -367,11 +367,14 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
     const int32_t *count1, const int32_t *count2)
 {
     int32_t ret;
-    uint32_t time;
-    struct OsalThreadParam cfg1;
-    struct OsalThreadParam cfg2;
+    uint32_t time = 0;
+    struct OsalThreadParam cfg1, cfg2;
 
-    time = 0;
+    if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+        memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+        HDF_LOGE("%s:memset_s fail.", __func__);
+        return HDF_ERR_IO;
+    }
     cfg1.name = "I3cTestThread-1";
     cfg2.name = "I3cTestThread-2";
     cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
@@ -386,15 +389,6 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
     ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("start test thread2 fail:%d", ret);
-        while (*count1 == 0) {
-            HDF_LOGE("waitting testing thread1 finish...");
-            OsalMSleep(I3C_TEST_WAIT_TIMES);
-            time++;
-            if (time > I3C_TEST_WAIT_TIMEOUT) {
-                break;
-            }
-        }
-        return ret;
     }
 
     while (*count1 == 0 || *count2 == 0) {
@@ -405,7 +399,7 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
             break;
         }
     }
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t I3cTestThreadFunc(OsalThreadEntry func)
@@ -431,14 +425,11 @@ static int32_t I3cTestThreadFunc(OsalThreadEntry func)
     ret = I3cTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("test start thread fail:%d", ret);
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        return ret;
     }
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static struct I3cTestEntry g_multiThreadEntry[] = {
@@ -487,7 +478,7 @@ static int32_t I3cTestReliability(void *param)
         return HDF_ERR_MALLOC_FAIL;
     }
     config->busMode = I3C_BUS_HDR_MODE;
-    config->curMaster = NULL;
+    config->curHost = NULL;
     // invalid handle
     (void)I3cTransfer(NULL, g_msgs, 1, I3C_MODE);
     (void)I3cSetConfig(NULL, config);

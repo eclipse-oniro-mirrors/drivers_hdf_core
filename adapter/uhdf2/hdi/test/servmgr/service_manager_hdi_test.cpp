@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
+#include <base/hdi_smq.h>
 #include <functional>
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
 #include <hdf_log.h>
-#include <base/hdi_smq.h>
+#include <hdf_service_status.h>
 #include <idevmgr_hdi.h>
 #include <iostream>
 #include <ipc_object_stub.h>
 #include <iservmgr_hdi.h>
+#include <iservstat_listener_hdi.h>
 #include <osal_time.h>
 #include <string>
-#include <iservmgr_hdi.h>
 
 #include "sample_hdi.h"
 
@@ -42,7 +43,10 @@ using OHOS::HDI::ServiceManager::V1_0::IServiceManager;
 using OHOS::HDI::ServiceManager::V1_0::IServStatListener;
 using OHOS::HDI::ServiceManager::V1_0::ServiceStatus;
 using OHOS::HDI::ServiceManager::V1_0::ServStatListenerStub;
+using OHOS::HDI::DeviceManager::V1_0::HdiDevHostInfo;
+using OHOS::HDI::ServiceManager::V1_0::HdiServiceInfo;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
+static constexpr const char *TEST1_SERVICE_NAME = "sample1_driver_service";
 static constexpr const char16_t *TEST_SERVICE_INTERFACE_DESC = u"hdf.test.sampele_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_N = "hdf.test.sampele_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "___";
@@ -311,8 +315,8 @@ void HdfServiceMangerHdiTest::TestServiceListenerStop(const sptr<IDeviceManager>
 
     int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
-    constexpr int WAIT_COUNT = 300;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 300;
+    int count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -326,7 +330,7 @@ void HdfServiceMangerHdiTest::TestServiceListenerStop(const sptr<IDeviceManager>
     ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
 
-    count = WAIT_COUNT;
+    count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -392,8 +396,8 @@ void HdfServiceMangerHdiTest::TestSampleService(sptr<IRemoteObject>& sampleServi
     callbacked = false;
     status = sampleService->SendRequest(SAMPLE_UPDATE_SERVIE, data, reply, option);
     ASSERT_EQ(status, HDF_SUCCESS);
-    constexpr int WAIT_COUNT = 300;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 300;
+    int count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -467,8 +471,8 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest010, TestSize.Level1)
     int ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
 
-    constexpr int WAIT_COUNT = 300;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 300;
+    int count = waitCount;
     while (!callbacked && count > 0) {
         OsalMSleep(1);
         count--;
@@ -642,8 +646,8 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
 
     int status = servmgr->RegisterServiceStatusListener(listener, DEVICE_CLASS_DEFAULT);
     ASSERT_EQ(status, HDF_SUCCESS);
-    constexpr int WAIT_COUNT = 100;
-    int count = WAIT_COUNT;
+    constexpr int waitCount = 100;
+    int count = waitCount;
     while (!sampleServiceStarted && count > 0) {
         OsalMSleep(1);
         count--;
@@ -656,9 +660,9 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest014, TestSize.Level1)
 }
 
 /*
- * Test get service collection by interfacedesc
+ * Test get service set by interfacedesc
  */
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest015, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest001, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -669,7 +673,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest015, TestSize.Level1)
     ASSERT_TRUE(serviceNames.front().compare(TEST_SERVICE_NAME) == 0);
 }
 
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest016, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest002, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -679,7 +683,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest016, TestSize.Level1)
     ASSERT_TRUE(serviceNames.empty());
 }
 
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest017, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest003, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -689,7 +693,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest017, TestSize.Level1)
     ASSERT_TRUE(serviceNames.empty());
 }
 
-HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest018, TestSize.Level1)
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest004, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
     ASSERT_TRUE(servmgr != nullptr);
@@ -697,5 +701,290 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest018, TestSize.Level1)
     int ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_NULL);
     ASSERT_TRUE(ret == HDF_ERR_INVALID_PARAM);
     ASSERT_TRUE(serviceNames.empty());
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest005, TestSize.Level1)
+{
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+    int ret = devmgr->LoadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+    OsalMSleep(WAIT_LOAD_UNLOAD_TIME);
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService != nullptr);
+    auto sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(sample1Service != nullptr);
+
+    std::vector<std::string> serviceNames;
+    ret = servmgr->ListServiceByInterfaceDesc(serviceNames, TEST_SERVICE_INTERFACE_DESC_N);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    constexpr int sampleServiceCount = 2;
+    ASSERT_TRUE(serviceNames.size() == sampleServiceCount);
+    ASSERT_TRUE(serviceNames[0].compare(TEST_SERVICE_NAME) == 0);
+    ASSERT_TRUE(serviceNames[1].compare(TEST1_SERVICE_NAME) == 0);
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListAllServiceTest, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    std::vector<HdiServiceInfo> serviceInfos;
+    int ret = servmgr->ListAllService(serviceInfos);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(serviceInfos.size() != 0);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListAllDeviceTest, TestSize.Level1)
+{
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    std::vector<HdiDevHostInfo> deviceInfos;
+    int ret = devmgr->ListAllDevice(deviceInfos);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(deviceInfos.size() != 0);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->LoadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    constexpr int waitCount = 1000;
+    constexpr int msleepTime = 10;
+    constexpr int waitHostStart = 100;
+    uint32_t cnt = 0;
+    while (sample1Service == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sample1Service != nullptr);
+    ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    cnt = 0;
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    while (sampleService == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sampleService != nullptr);
+
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    OsalMSleep(msleepTime);
+
+    OHOS::MessageParcel data;
+    OHOS::MessageParcel reply;
+    OHOS::MessageOption option;
+    ret = data.WriteInterfaceToken(TEST_SERVICE_INTERFACE_DESC);
+    ASSERT_EQ(ret, true);
+
+    ret = sampleService->SendRequest(SAMPLE_END_HOST, data, reply, option);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(waitHostStart);
+
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(msleepTime);
+    ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, InjectPmTest, TestSize.Level1)
+{
+    auto servmgr = IServiceManager::Get();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int ret = devmgr->LoadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+    constexpr int waitCount = 1000;
+    constexpr int waitHostStart = 100;
+    constexpr int msleepTime = 10;
+    uint32_t cnt = 0;
+    while (sample1Service == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sample1Service = servmgr->GetService(TEST1_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sample1Service != nullptr);
+    ret = devmgr->LoadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    auto sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+    cnt = 0;
+    while (sampleService == nullptr && cnt < waitCount) {
+        OsalMSleep(msleepTime);
+        sampleService = servmgr->GetService(TEST_SERVICE_NAME);
+        cnt++;
+    }
+    ASSERT_TRUE(sampleService != nullptr);
+
+    OHOS::MessageParcel data;
+    OHOS::MessageParcel reply;
+    OHOS::MessageOption option;
+    ret = data.WriteInterfaceToken(TEST_SERVICE_INTERFACE_DESC);
+    ASSERT_EQ(ret, true);
+
+    ret = sampleService->SendRequest(SAMPLE_INJECT_PM, data, reply, option);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(msleepTime);
+    ret = sampleService->SendRequest(SAMPLE_END_HOST, data, reply, option);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(waitHostStart);
+
+    ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    OsalMSleep(msleepTime);
+    ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest001, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    // invalid code
+    int32_t ret = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_MAX, data, reply, option);
+    ASSERT_NE(ret, HDF_SUCCESS);
+
+    // empty data
+    ret = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(ret, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest002, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest003, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("");
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest004, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("test_service");
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest005, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("test_service");
+    ASSERT_TRUE(ret);
+    // write deviceClass
+    ret = data.WriteUint16(DeviceClass::DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_NE(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListenerTest006, TestSize.Level1)
+{
+    ::OHOS::sptr<ServStatListener> listener
+        = new ServStatListener(
+            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+                HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
+            }));
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
+    ASSERT_TRUE(ret);
+    ret = data.WriteCString("test_service");
+    ASSERT_TRUE(ret);
+    // write deviceClass
+    ret = data.WriteUint16(DeviceClass::DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret);
+    // write status
+    ret = data.WriteUint16(ServiceStatusType::SERVIE_STATUS_START);
+    ASSERT_TRUE(ret);
+
+    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ASSERT_EQ(reqRet, HDF_SUCCESS);
 }
 } // namespace OHOS

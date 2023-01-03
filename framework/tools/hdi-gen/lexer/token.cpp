@@ -20,8 +20,8 @@ namespace HDI {
 std::string Token::Dump()
 {
     StringBuilder sb;
-    sb.AppendFormat(
-        "{kind_:%u, row_:%u, col_:%u, value_:%s}", (size_t)kind_, location_.row_, location_.col_, value_.c_str());
+    sb.AppendFormat("{kind_:%u, row_:%u, col_:%u, value_:%s}",
+        static_cast<size_t>(kind_), location_.row_, location_.col_, value_.c_str());
     return sb.ToString();
 }
 

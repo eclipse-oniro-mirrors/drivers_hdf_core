@@ -27,11 +27,16 @@ if (defined(ohos_lite)) {
     ]
   }
 } else {
+  declare_args() {
+    hdf_core_feature_config = true
+  }
+
   group("uhdf_entry") {
     deps = [
       "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
       "//drivers/hdf_core/adapter/uhdf2/host:hdf_devhost",
       "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
+      "//drivers/hdf_core/adapter/uhdf2/host/test/unittest/sample1_driver:libsample1_driver",
       "//drivers/hdf_core/adapter/uhdf2/host/test/unittest/sample_driver:libsample_driver",
       "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
       "//drivers/hdf_core/adapter/uhdf2/manager:hdf_devmgr",
@@ -43,17 +48,8 @@ if (defined(ohos_lite)) {
       "//drivers/peripheral/base:hdf_peripheral.cfg",
     ]
 
-    import("//build/ohos.gni")
-    hcs_dir =
-        rebase_path("//vendor/$product_company/$product_name/hdf_config/uhdf/")
-    if (exec_script(
-        "//build/lite/run_shell_cmd.py",
-        [ "if [ -d ${hcs_dir} ]; then echo true; else echo false; fi" ],
-        "value")) {
-      deps += [
-        "//drivers/hdf_core/adapter/uhdf2/hcs:hdf_default.hcb",
-        "//drivers/hdf_core/adapter/uhdf2/hcs:hdf_devhost.cfg",
-      ]
+    if (hdf_core_feature_config) {
+      deps += [ "//drivers/hdf_core/adapter/uhdf2/hcs:hcs_entry" ]
     }
   }
   group("uhdf_test_entry") {
@@ -63,6 +59,7 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/adapter/uhdf2/hdi/test:unittest",
       "//drivers/hdf_core/adapter/uhdf2/host/test:unittest",
       "//drivers/hdf_core/adapter/uhdf2/osal/test:unittest",
+      "//drivers/hdf_core/adapter/uhdf2/shared/test:unittest",
       "//drivers/hdf_core/adapter/uhdf2/test:hdf_test_uhdf",
     ]
   }

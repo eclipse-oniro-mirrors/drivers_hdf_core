@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/manager"
 ohos_unittest("hdf_adapter_uhdf_test_manager") {
@@ -86,11 +87,15 @@ ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
 
   defines = [ "__USER__" ]
   sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp" ]
-  deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
+  deps = [
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_single",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
@@ -112,6 +117,55 @@ ohos_unittest("hdf_adapter_uhdf_test_pm") {
     external_deps = [
       "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_single",
+    ]
+  } else {
+    external_deps = [ "hilog:libhilog" ]
+  }
+}
+module_output_path = "hdf_core/remote"
+ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "//drivers/hdf_core/framework/test/unittest/include",
+    "//drivers/hdf_core/framework/test/unittest/manager",
+  ]
+
+  defines = [ "__USER__" ]
+  sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_remote_adapter_test.cpp" ]
+  deps = [
+    "$hdf_uhdf_path/hdi:libhdi",
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
+  if (is_standard_system) {
+    external_deps = [
+      "c_utils:utils",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_single",
+    ]
+  } else {
+    external_deps = [ "hilog:libhilog" ]
+  }
+}
+module_output_path = "hdf_core/shared"
+ohos_unittest("hdf_adapter_uhdf_test_core_shared") {
+  module_out_path = module_output_path
+  include_dirs = []
+
+  defines = [ "__USER__" ]
+  sources = [ "//drivers/hdf_core/framework/core/shared/test/unittest/common/hdf_core_shared_test.cpp" ]
+  deps = [
+    "$hdf_uhdf_path/hdi:libhdi",
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
+  if (is_standard_system) {
+    external_deps = [
+      "c_utils:utils",
+      "hdf_core:libhdf_host",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_single",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]

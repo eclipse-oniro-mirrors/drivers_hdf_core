@@ -33,7 +33,7 @@ enum class UnaryOpKind {
 class ASTUnaryExpr : public ASTExpr {
 public:
     std::string Dump(const std::string &prefix) override;
-    std::string UnaryOpToString(UnaryOpKind op);
+    std::string UnaryOpToString(UnaryOpKind op) const;
 
 public:
     UnaryOpKind op_;
@@ -56,7 +56,7 @@ enum class BinaryOpKind {
 class ASTBinaryExpr : public ASTExpr {
 public:
     std::string Dump(const std::string &prefix) override;
-    std::string BinaryOpToString(BinaryOpKind op);
+    std::string BinaryOpToString(BinaryOpKind op) const;
 
 public:
     BinaryOpKind op_;

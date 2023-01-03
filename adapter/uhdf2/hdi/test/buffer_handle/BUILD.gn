@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf/buffer_handle"
+module_output_path = "hdf_core/buffer_handle"
 
 ohos_unittest("buffer_handle_test") {
   module_out_path = module_output_path
@@ -35,7 +35,10 @@ ohos_unittest("native_buffer_test") {
 
   sources = [ "native_buffer_test.cpp" ]
 
-  deps = [ "$hdf_uhdf_path/hdi:libhdi" ]
+  deps = [
+    "$hdf_uhdf_path/hdi:libhdi",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
 
   external_deps = [
     "c_utils:utils",

@@ -200,7 +200,7 @@ bool HdfSbufWriteString16(struct HdfSBuf *sbuf, const char16_t *value, uint32_t 
  *
  * @since 1.0
  */
-bool HdfSbufWriteFloat(struct HdfSBuf *sbuf, float value);
+bool HdfSbufWriteFloat(struct HdfSBuf *sbuf, float data);
 
 /**
  * @brief Writes a double-precision floating-point number to a <b>SBuf</b>.
@@ -212,7 +212,7 @@ bool HdfSbufWriteFloat(struct HdfSBuf *sbuf, float value);
  *
  * @since 1.0
  */
-bool HdfSbufWriteDouble(struct HdfSBuf *sbuf, double value);
+bool HdfSbufWriteDouble(struct HdfSBuf *sbuf, double data);
 
 /**
  * @brief Writes a file descriptor to a <b>SBuf</b>.
@@ -271,7 +271,7 @@ int HdfSbufReadFileDescriptor(struct HdfSBuf *sbuf);
  *
  * @since 1.0
  */
-bool HdfSbufReadDouble(struct HdfSBuf *sbuf, double *value);
+bool HdfSbufReadDouble(struct HdfSBuf *sbuf, double *data);
 
 /**
  * @brief Reads a floating-point number from a <b>SBuf</b>.
@@ -283,7 +283,7 @@ bool HdfSbufReadDouble(struct HdfSBuf *sbuf, double *value);
  *
  * @since 1.0
  */
-bool HdfSbufReadFloat(struct HdfSBuf *sbuf, float *value);
+bool HdfSbufReadFloat(struct HdfSBuf *sbuf, float *data);
 
 /**
  * @brief Reads a wide character string from a <b>SBuf</b>.

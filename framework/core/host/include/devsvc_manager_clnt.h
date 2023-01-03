@@ -11,6 +11,10 @@
 
 #include "devsvc_manager_if.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevSvcManagerClnt {
     struct IDevSvcManager *devSvcMgrIf;
 };
@@ -22,5 +26,9 @@ int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, const struct
 void DevSvcManagerClntRemoveService(const char *svcName);
 int DevSvcManagerClntSubscribeService(const char *svcName, struct SubscriberCallback callback);
 int DevSvcManagerClntUnsubscribeService(const char *svcName);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVSVC_MANAGER_CLNT_H */

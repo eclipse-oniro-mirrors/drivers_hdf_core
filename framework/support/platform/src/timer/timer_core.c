@@ -138,7 +138,7 @@ int32_t TimerCntrlStart(struct TimerCntrl *cntrl)
 
     int32_t ret = PlatformTraceStart();
     if (ret == HDF_SUCCESS) {
-        uint infos[TIMER_TRACE_BASIC_PARAM_NUM];
+        unsigned int infos[TIMER_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntrl->info.number;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_2 - 1] = cntrl->info.useconds;
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_3 - 1] = cntrl->info.isPeriod;
@@ -168,7 +168,7 @@ int32_t TimerCntrlStop(struct TimerCntrl *cntrl)
 
     int32_t ret = PlatformTraceStart();
     if (ret == HDF_SUCCESS) {
-        uint infos[TIMER_TRACE_PARAM_STOP_NUM];
+        unsigned int infos[TIMER_TRACE_PARAM_STOP_NUM];
         infos[0] = cntrl->info.number;
         PlatformTraceAddUintMsg(
             PLATFORM_TRACE_MODULE_TIMER, PLATFORM_TRACE_MODULE_TIMER_FUN_STOP, infos, TIMER_TRACE_PARAM_STOP_NUM);

@@ -135,7 +135,7 @@ void DevSvcManagerClntRemoveService(const char *svcName)
     if (serviceManager == NULL || serviceManager->RemoveService == NULL) {
         return;
     }
-    serviceManager->RemoveService(serviceManager, svcName);
+    serviceManager->RemoveService(serviceManager, svcName, NULL);
 }
 
 static void DevSvcManagerClntConstruct(struct DevSvcManagerClnt *inst)

@@ -142,6 +142,7 @@ void NativeBuffer::SetBufferHandle(BufferHandle *handle, bool isOwner, std::func
     DestroyBuffer();
     isOwner_ = isOwner;
     handle_ = handle;
+    bufferDestructor_ = destructor;
 }
 
 void NativeBuffer::DestroyBuffer()
@@ -152,6 +153,7 @@ void NativeBuffer::DestroyBuffer()
         } else {
             bufferDestructor_(handle_);
         }
+        handle_ = nullptr;
     }
 }
 
@@ -207,7 +209,7 @@ bool NativeBuffer::ExtractFromParcel(Parcel &parcel)
         HDF_LOGE("%{public}s: failed to read reserveFds or reserveInts", __func__);
         return false;
     }
-    if ((handle_ = AllocateNativeBufferHandle(reserveFds, reserveInts)) == NULL) {
+    if ((handle_ = AllocateNativeBufferHandle(reserveFds, reserveInts)) == nullptr) {
         HDF_LOGE("%{public}s: failed to malloc BufferHandle", __func__);
         return false;
     }

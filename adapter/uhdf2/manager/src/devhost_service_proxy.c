@@ -38,9 +38,7 @@ static int32_t DevHostServiceProxyOpsDevice(
     DeviceAttributeSerialize(attribute, data);
     status = hostClnt->remote->dispatcher->Dispatch(hostClnt->remote, opsCode, data, NULL);
 FINISHED:
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(data);
     return status;
 }
 
@@ -65,9 +63,7 @@ static int32_t DevHostServiceProxyDelDevice(
     status = hostClnt->remote->dispatcher->Dispatch(hostClnt->remote, DEVHOST_SERVICE_DEL_DEVICE, data, NULL);
 
 FINISHED:
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(data);
     return status;
 }
 
@@ -101,7 +97,10 @@ void DevHostServiceProxyConstruct(
     inst->super.AddDevice = DevHostServiceProxyAddDevice;
     inst->super.DelDevice = DevHostServiceProxyDelDevice;
     inst->recipient.OnRemoteDied = DevHostServiceProxyOnRemoteDied;
-    remote->target = (struct HdfObject *)inst;
+    if (remote != NULL) {
+        remote->target = (struct HdfObject *)inst;
+    }
+
     HdfRemoteServiceAddDeathRecipient(remote, &inst->recipient);
 }
 

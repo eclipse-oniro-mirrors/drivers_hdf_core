@@ -12,162 +12,287 @@
             position: absolute;
             left: 0px;
         }
-
+        /*右侧属性面板样式*/
         #attribute_area {
-            background-color: #ffffff;
+            background-color: var(--vscode-editor-background, #000000);
             position: absolute;
-            width: 300px;
+            width: 420px;
             height: 100%;
             right: 0px;
+            opacity: 0.9;
+        }
+
+        /*右侧属性面板标题栏样式*/
+        .div_title {
+            background-color: var(--vscode-editor-background, #313131);
+            color: var(--vscode-editor-foreground, #ffffff);
+            width: 420px;
+            height: 48px;
+            margin-top: 4px;
+            font-family: "Microsoft YaHei";
+            display: flex;
         }
 
         .att_title {
-            background-color: #000000;
-            color: #ffffff;
-            width: 300px;
-            font-family: Consolas, sans-serif;
-            margin-top: 0px;
+            color: var(--vscode-editor-foreground, #ffffff);;
+            font-family: "Microsoft YaHei";
             text-align: center;
+            margin-left: 16px;
+            line-height: 48px;
+            display: block; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .att_line {
-            width: 300px;
+            width: 420px;
+            height: 4px;
             margin-top: 0px;
+            background-color: #000000;
+        }
+
+        .input_text_readonly_top {
+            color: var(--vscode-editor-foreground, #ffffff);
+            display: inline-block;
+            font-family: "Microsoft YaHei";
             text-align: center;
+            font-size: 14px;
+            margin-top: 24px;
+            margin-left: 12px;
+            opacity: 0.6;
         }
 
         .input_text_readonly {
-            color: #000000;
-            width: 80px;
+            color: var(--vscode-editor-foreground, #ffffff);
             display: inline-block;
-            font-family: Consolas, sans-serif;
+            font-family: "Microsoft YaHei";
             text-align: center;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 14px;
+            margin-top: 16px;
+            margin-left: 12px;
+            opacity: 0.6;
         }
 
         .input_text {
-            background-color: #ffffff;
-            color: #000000;
-            width: 100px;
-            height: 25px;
-            font-size: 16px;
-            font-family: Consolas, sans-serif;
-            border-radius: 3px;
-            border: 2px solid #D3D3D3;
-            outline: none;
-            padding-left: 10px;
-            padding-right: 10px;
+            background-color: var(--vscode-editor-background, #000000);
+            color: var(--vscode-editor-foreground, #ffffff);
+            width: 372px;
+            height: 32px;
+            font-size: 14px;
+            margin-left: 12px;
+            font-family: "Microsoft YaHei";
+            border-radius: 8px;
+            border: 1px solid #555555;
+            opacity: 0.9;
+            margin-top: 8px;
+            padding-left: 5px;
+            padding-right: 5px;
         }
 
         .input_text:hover {
             outline: none;
-            border-color: #487EB8;
+            width: 372px;
+            height: 32px;
+            border-color: var(--vscode-focusBorder, #272727);
+        }
+
+        .input_text:disabled {
+            color: var(--vscode-disabledForeground, #d4d4d4);
         }
 
         .button_click {
-            background-color: #487EB8;
+            background-color: #272727;
             color: #ffffff;
-            width: 150px;
-            height: 30px;
-            font-size: 16px;
-            font-family: Consolas, sans-serif;
-            border-radius: 3px;
-            border-color: #D3D3D3;
+            width: 384px;
+            height: 32px;
+            font-size: 14px;
+            font-family: "Microsoft YaHei";
+            border-radius: 8px;
+            border-color: #272727;
             border: none;
-            align-self: center;
+            margin-left: 12px;
             display: block;
-            margin: 0 auto;
-            border: 2px solid #D3D3D3;
+            border: 1px solid #555555;
             outline: none;
         }
 
         .button_click:hover {
+            width: 384px;
+            height: 32px;
             outline: none;
-            border-color: #487EB8;
+            border-color: #ffffff;
         }
 
         .label_button_click {
-            background-color: #487EB8;
-            color: #ffffff;
-            width: 150px;
-            height: 30px;
-            font-size: 16px;
-            font-family: Consolas, sans-serif;
-            border-radius: 3px;
-            border-color: #D3D3D3;
+            background-color: var(--vscode-button-background, #000000);
+            color: var(--vscode-button-foreground, #ffffff);
+            width: 384px;
+            height: 36px;
+            margin-top: 8px;
+            margin-left: 12px;
+            font-size: 14px;
+            font-family: "Microsoft YaHei";
+            border-radius: 8px;
+            border-color: #272727;
             border: none;
-            align-self: center;
-            display: inline-block;
-            margin: 0 auto;
-            border: 2px solid #D3D3D3;
+            display: block;
+            margin-top: 8px;
+            border: 1px solid #555555;
+            padding-left: 5px;
+            padding-right: 5px;
             outline: none;
         }
 
         .label_button_click:hover {
             outline: none;
-            border-color: #487EB8;
+            width: 384px;
+            height: 36px;
+			background-color: var(--vscode-button-hoverBackground, #D3D3D3);
+            color: var(--vscode-button-foreground, #ffffff);
+            border-color: #ffffff;
         }
 
         .button_click_delete {
-            background-color: #487EB8;
-            color: #ffffff;
-            width: 150px;
-            height: 30px;
-            font-family: Consolas, sans-serif;
-            font-size: 16px;
-            border-radius: 3px;
-            border-color: #D3D3D3;
-            align-self: center;
+            background-color: var(--vscode-menu-background, #272727);
+            color: var(--vscode-menu-foreground, #ffffff);
+            width: 384px;
+            height: 32px;
+            margin-left: 12px;
+            font-family: "Microsoft YaHei";
+            font-size: 14px;
+            border-radius: 8px;
+            border-color: var(--vscode-menu-border, #272727);
             display: block;
-            margin: 0 auto;
-            border: 2px solid #D3D3D3;
+            border: 1px solid var(--vscode-menu-border, #272727);
             outline: none;
         }
 
         .button_click_delete:hover {
             outline: none;
-            border-color: #487EB8;
-        }
-
-        .select_list {
-            background-color: #ffffff;
-            color: #000000;
-            width: 130px;
-            font-family: Consolas, sans-serif;
-            height: 30px;
-            font-size: 16px;
-            border-radius: 3px;
-            padding-left: 10px;
-            border: 2px solid #C4C4C4;
-            outline: none;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background: url("images/arrow.png") no-repeat scroll right 1px center transparent;
-            background-size: 15px;
-        }
-
-        .select_list:hover {
-            outline: none;
-            border-color: #487EB8;
+            width: 384px;
+            height: 32px;
+            border-color: var(--vscode-menu-border, #272727);
         }
 
         .text_area {
-            background-color: #000000;
-            color: #ffffff;
-            margin-left: 10px;
-            width: 180px;
+            background-color: var(--vscode-editor-background, #000000);
+            color: var(--vscode-editor-foreground, #ffffff);
+            margin-left: 12px;
+            width: 372px;
             height: 180px;
+            margin-top: 8px;
             resize: vertical;
         }
+    
+        #canvas_textarea {
+            border: 1px solid groove;
+            position: absolute;
+            margin-left: 16px;
+            width: 258px;
+            height: 32px;
+            border-style: none;
+            outline: none;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 17px;
+            display: none;
+            color: #ffffff;
+            padding-left: 32px;
+            caret-color: #ffffff;
+            font-size: 14px;
+            resize: none;
+            line-height: 30px;
+        }
+
+        .canvas_bg {
+            background-color: var(--vscode-editor-background, #272727);
+            color: var(--vscode-editor-foreground, #ffffff);
+            margin-left: 0px;
+            width: 0px;
+            height: 0px;
+            margin-top: 0x;
+        }
+
+        .canvas_line {
+            color: var(--vscode-charts-lines, #000000);
+        }
+
+        .ul-select {
+            position: relative;
+        }
+ 
+        .ul-select span {
+            position: absolute;
+            top: 15px;
+            left: 365px;
+            color: #ffffff;
+            pointer-events: none;
+        }
+ 
+        .ul-select ul {
+            position: absolute;
+            top: 45px;
+            left: 12px;
+            padding: 0;
+            z-index: 5;
+            width: 381px;
+            display: none;
+            list-style: none;
+            border: 1px solid #555555;
+            font-size: 0px;
+        }
+ 
+        .ul-select li a {
+            display: inline-block;
+            width: 100%;
+            height: 22px; 
+            padding-top: 3px;
+            color: var(--vscode-menu-foreground, #ffffff);
+            text-indent: 5px;
+            background: var(--vscode-menu-background, #000000);
+            font-family: "Microsoft YaHei";
+            font-size: 14px;
+            text-decoration: none;
+        }
+ 
+        .ul-select li a:hover {
+            color: var(--vscode-menu-selectionForeground, #ffffff);
+            background: var(--vscode-menu-selectionBackground, #2979f1); 
+        }
+
+        .validator_label {
+            color: #ff0000;
+            font-family: "Microsoft YaHei";
+            text-align: center;
+            font-size: 14px;
+            margin-top: 2px;
+            margin-left: 12px;
+        }
+
     </style>
+    <script>
+        function selectBlur(inputObj) {
+            var t = inputObj;
+            setTimeout(() => {t.nextSibling.style.display = 'none';},150);
+        }
+
+        function selectFocus(inputObj) {
+            inputObj.nextSibling.style.display = 'block';
+        }
+
+        function liClick(liObj, searchId) {
+            liObj.parentNode.previousSibling.value = liObj.innerText;
+            document.attrCallback.Event('select', searchId);
+        }
+    </script>
 </head>
 
 <body style="margin:0">
     <canvas id="visual_area"></canvas>
     <div id="attribute_area"></div>
-
+    <input type="hidden" id="canvas_bg" value="value" class="canvas_bg">
+    <input type="hidden" id="canvas_line" value="value" class="canvas_line">
+    <textarea id="canvas_textarea"></textarea>
     <script src="./dist/main.js"></script>
     <!-- <script src="./src/index.js" type="module"></script> -->
     <!-- <script src="./src/index.js"></script> -->

@@ -35,7 +35,6 @@ export class X2DFast {
         this.vertexUint32 = new Uint32Array(this.vertexArray)
         this.whiteImg = XTexture.gi().loadTextureFromImage("CUSTOM_TEXTURE_1")
         this.whiteCut = XTexture.gi().makeCut(this.whiteImg, 0, 0, 1, 1)
-
         XShader.gi();
 
         this.resetMat();
@@ -140,18 +139,24 @@ export class X2DFast {
         this.drawCut(pcut, tmat[0][0], tmat[0][1], tmat[1][0], tmat[1][1], tmat[2][2], tmat[3][0], tmat[3][1], c)
     }
     drawCut(cid, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
+        let intX = parseInt(x);
+        let intY = parseInt(y);
         let pcut = XTexture.gi().allCuts[cid];
         if (pcut == null)
             return;
         if (!(pcut.rid in this.ridDict)) {
+            if(this.ridPoint>=16){
+                this.freshBuffer();
+                this.clearBuffer();
+            }
             this.ridDict[pcut.rid] = this.ridPoint;
             this.ridPoint += 1;
         }
-        X2DFast.testTransform(x, y, sw, sh, ra, ox, oy, pcut.w, pcut.h)
+        X2DFast.testTransform(intX, intY, sw, sh, ra, ox, oy, pcut.w, pcut.h)
         let tmat = X2DFast.tmpMat.mat;
         this.drawCut_(pcut, tmat[0][0], tmat[0][1], tmat[1][0], tmat[1][1], tmat[2][2], tmat[3][0], tmat[3][1], c)
     }
-    drawText(s, size = 18, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
+    drawText(s, size = 14, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
         if (s.length <= 0) return 0;
         let cid = XTexture.gi().getText(s, size)
         if (cid >= 0)

@@ -83,7 +83,7 @@ void CServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
     }
 }
 
-void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %sStub {\n", baseName_.c_str());
     if (isKernelCode_) {
@@ -98,7 +98,7 @@ void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb)
     sb.Append("};\n");
 }
 
-void CServiceStubCodeEmitter::EmitCbServiceStubMethodsDcl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitCbServiceStubMethodsDcl(StringBuilder &sb) const
 {
     sb.AppendFormat("bool %sStubConstruct(struct %sStub *stub);\n", baseName_.c_str(), baseName_.c_str());
 }
@@ -167,7 +167,7 @@ void CServiceStubCodeEmitter::EmitStubSourceInclusions(StringBuilder &sb)
     }
 }
 
-void CServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     if (!isKernelCode_) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
@@ -204,7 +204,7 @@ void CServiceStubCodeEmitter::EmitExternalMethodImpl(StringBuilder &sb)
     EmitReleaseInstanceMethodImpl(sb);
 }
 
-void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %s *%sGet(bool isStub)\n", interfaceName_.c_str(), interfaceName_.c_str());
     sb.Append("{\n");
@@ -213,7 +213,7 @@ void CServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub)\n", interfaceName_.c_str(),
         interfaceName_.c_str());
@@ -230,7 +230,7 @@ void CServiceStubCodeEmitter::EmitGetInstanceMehtodImpl(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat(
         "void %sRelease(struct %s *instance, bool isStub)\n", interfaceName_.c_str(), interfaceName_.c_str());
@@ -322,7 +322,7 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const std::string &prefix)
+void CServiceStubCodeEmitter::EmitReadFlagVariable(bool readFlag, StringBuilder &sb, const std::string &prefix) const
 {
     if (!readFlag) {
         return;
@@ -337,7 +337,7 @@ void CServiceStubCodeEmitter::EmitReadFlagVariable(bool readFlag, StringBuilder 
 }
 
 void CServiceStubCodeEmitter::EmitStubLocalVariable(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
     sb.Append(prefix).Append(param->EmitCLocalVar()).Append("\n");
@@ -348,7 +348,7 @@ void CServiceStubCodeEmitter::EmitStubLocalVariable(
 }
 
 void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParameter> &param,
-    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
+    const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
 
@@ -357,7 +357,7 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
     } else if (type->GetTypeKind() == TypeKind::TYPE_INTERFACE) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_STRUCT) {
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().c_str(),
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().c_str(),
             type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
         sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
@@ -369,7 +369,7 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
     } else if (type->GetTypeKind() == TypeKind::TYPE_UNION) {
         std::string cpName = StringHelper::Format("%sCp", param->GetName().c_str());
         type->EmitCStubReadVar(parcelName, cpName, errorCodeName_, gotoLabel, sb, prefix);
-        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemAlloc(sizeof(%s));\n", param->GetName().c_str(),
+        sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().c_str(),
             type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
         sb.Append(prefix).AppendFormat("if (%s == NULL) {\n", param->GetName().c_str());
         sb.Append(prefix + TAB)
@@ -393,7 +393,7 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
 
 void CServiceStubCodeEmitter::EmitReadCStringStubMethodParameter(const AutoPtr<ASTParameter> &param,
     const std::string &parcelName, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix,
-    AutoPtr<ASTType> &type)
+    AutoPtr<ASTType> &type) const
 {
     std::string cloneName = StringHelper::Format("%sCp", param->GetName().c_str());
     type->EmitCStubReadVar(parcelName, cloneName, errorCodeName_, gotoLabel, sb, prefix);
@@ -420,7 +420,7 @@ void CServiceStubCodeEmitter::EmitReadCStringStubMethodParameter(const AutoPtr<A
 }
 
 void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
-    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
+    const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
     if (type->IsStructType() || type->IsUnionType()) {
@@ -434,14 +434,27 @@ void CServiceStubCodeEmitter::EmitOutVarMemInitialize(const AutoPtr<ASTParameter
         sb.Append(prefix).Append("}\n\n");
     } else if (type->IsStringType() || type->IsArrayType() || type->IsListType()) {
         param->EmitCStubReadOutVar(
-            bufferSizeMacroName_, flagOfSetMemName_, parcelName, errorCodeName_, gotoLabel, sb, prefix);
+            MAX_BUFF_SIZE_MACRO, flagOfSetMemName_, parcelName, errorCodeName_, gotoLabel, sb, prefix);
         sb.Append("\n");
     }
 }
 
 void CServiceStubCodeEmitter::EmitStubCallMethod(
-    const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const
 {
+    sb.Append(prefix).Append("if (serviceImpl == NULL) {\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid serviceImpl object\", __func__);\n");
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_INVALID_OBJECT;\n", errorCodeName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
+    sb.Append(prefix).Append("}\n\n");
+
+    sb.Append(prefix).AppendFormat("if (serviceImpl->%s == NULL) {\n", method->GetName().c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: invalid interface function %s \", __func__);\n",
+        method->GetName().c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_NOT_SUPPORT;\n", errorCodeName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
+    sb.Append(prefix).Append("}\n\n");
+
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
             "%s = serviceImpl->%s(serviceImpl);\n", errorCodeName_.c_str(), method->GetName().c_str());
@@ -466,7 +479,7 @@ void CServiceStubCodeEmitter::EmitStubCallMethod(
 }
 
 void CServiceStubCodeEmitter::EmitCallParameter(
-    StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name)
+    StringBuilder &sb, const AutoPtr<ASTType> &type, ParamAttr attribute, const std::string &name) const
 {
     if (attribute == ParamAttr::PARAM_OUT) {
         if (type->GetTypeKind() == TypeKind::TYPE_STRING || type->GetTypeKind() == TypeKind::TYPE_ARRAY ||
@@ -491,7 +504,7 @@ void CServiceStubCodeEmitter::EmitCallParameter(
 }
 
 void CServiceStubCodeEmitter::EmitStubGetVerMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "static int32_t SerStub%s(struct %s *serviceImpl, struct HdfSBuf *%s, struct HdfSBuf *%s)\n",
@@ -510,7 +523,7 @@ void CServiceStubCodeEmitter::EmitStubGetVerMethodImpl(
     sb.Append(prefix).Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CServiceStubCodeEmitter::EmitStubAsObjectMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     std::string objName = "self";
     sb.Append(prefix).AppendFormat("static struct HdfRemoteService *%sStubAsObject(struct %s *%s)\n", baseName_.c_str(),
@@ -562,7 +575,7 @@ void CServiceStubCodeEmitter::EmitKernelStubOnRequestMethodImpl(StringBuilder &s
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitKernelStubConstruct(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitKernelStubConstruct(StringBuilder &sb) const
 {
     std::string stubTypeName = StringHelper::Format("%sStub", baseName_.c_str());
     std::string objName = "stub";
@@ -625,7 +638,7 @@ void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, con
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubRemoteDispatcher(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitStubRemoteDispatcher(StringBuilder &sb) const
 {
     std::string dispatcherName = StringHelper::Format("g_%sDispatcher", StringHelper::StrToLower(baseName_).c_str());
     sb.AppendFormat("static struct HdfRemoteDispatcher %s = {\n", dispatcherName.c_str());
@@ -634,7 +647,7 @@ void CServiceStubCodeEmitter::EmitStubRemoteDispatcher(StringBuilder &sb)
     sb.Append("};\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubNewInstance(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitStubNewInstance(StringBuilder &sb) const
 {
     std::string dispatcherName = StringHelper::Format("g_%sDispatcher", StringHelper::StrToLower(baseName_).c_str());
     sb.AppendFormat("static struct HdfRemoteService **%sNewInstance(void *impl)\n", stubName_.c_str());
@@ -673,7 +686,7 @@ void CServiceStubCodeEmitter::EmitStubNewInstance(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubReleaseMethod(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitStubReleaseMethod(StringBuilder &sb) const
 {
     sb.AppendFormat("static void %sRelease(struct HdfRemoteService **remote)\n", stubName_.c_str());
     sb.Append("{\n");
@@ -687,7 +700,7 @@ void CServiceStubCodeEmitter::EmitStubReleaseMethod(StringBuilder &sb)
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubConstructor(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitStubConstructor(StringBuilder &sb) const
 {
     std::string constructorName = StringHelper::Format("g_%sConstructor", StringHelper::StrToLower(baseName_).c_str());
     sb.AppendFormat("__attribute__((unused)) static struct StubConstructor %s = {\n", constructorName.c_str());
@@ -696,7 +709,7 @@ void CServiceStubCodeEmitter::EmitStubConstructor(StringBuilder &sb)
     sb.Append("};\n");
 }
 
-void CServiceStubCodeEmitter::EmitStubRegAndUnreg(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitStubRegAndUnreg(StringBuilder &sb) const
 {
     std::string constructorName = StringHelper::Format("g_%sConstructor", StringHelper::StrToLower(baseName_).c_str());
     sb.AppendFormat("__attribute__((constructor)) static void %sRegister(void)\n", stubName_.c_str());

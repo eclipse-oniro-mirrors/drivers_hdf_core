@@ -108,38 +108,38 @@ static int32_t UartDispatch(DevHandle handle, int cmd, struct HdfSBuf *data, str
     return ret;
 }
 
-int32_t UartRead(DevHandle handle, uint8_t *buf, uint32_t len)
+int32_t UartRead(DevHandle handle, uint8_t *data, uint32_t size)
 {
     int32_t ret;
-    struct HdfSBuf *data = NULL;
+    struct HdfSBuf *sizeBuf = NULL;
     struct HdfSBuf *reply = NULL;
     uint32_t tmpLen;
     const void *tmpBuf = NULL;
 
-    if (buf == NULL || len == 0) {
+    if (data == NULL || size == 0) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    data = HdfSbufObtainDefaultSize();
-    if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data buf", __func__);
+    sizeBuf = HdfSbufObtainDefaultSize();
+    if (sizeBuf == NULL) {
+        HDF_LOGE("%s: failed to obtain sizeBuf", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    if (!HdfSbufWriteUint32(data, len)) {
+    if (!HdfSbufWriteUint32(sizeBuf, size)) {
         HDF_LOGE("%s: write read size failed!", __func__);
-        HdfSbufRecycle(data);
+        HdfSbufRecycle(sizeBuf);
         return HDF_ERR_IO;
     }
 
-    reply = HdfSbufObtain(len + sizeof(uint64_t));
+    reply = HdfSbufObtain(size + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("%s: failed to obtain reply buf", __func__);
-        HdfSbufRecycle(data);
+        HdfSbufRecycle(sizeBuf);
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    ret = UartDispatch(handle, UART_IO_READ, data, reply);
+    ret = UartDispatch(handle, UART_IO_READ, sizeBuf, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: UartDispatch failed: %d", __func__, ret);
         goto EXIT;
@@ -151,45 +151,45 @@ int32_t UartRead(DevHandle handle, uint8_t *buf, uint32_t len)
         goto EXIT;
     }
 
-    if (tmpLen > 0 && memcpy_s(buf, len, tmpBuf, tmpLen) != EOK) {
-        HDF_LOGE("%s: memcpy buf failed", __func__);
+    if (tmpLen > 0 && memcpy_s(data, size, tmpBuf, tmpLen) != EOK) {
+        HDF_LOGE("%s: memcpy data failed", __func__);
         ret = HDF_ERR_IO;
         goto EXIT;
     }
     ret = (int32_t)tmpLen; // the return value is the length of the read data. max length 65535
 
 EXIT:
-    HdfSbufRecycle(data);
+    HdfSbufRecycle(sizeBuf);
     HdfSbufRecycle(reply);
     return ret;
 }
 
-int32_t UartWrite(DevHandle handle, uint8_t *buf, uint32_t len)
+int32_t UartWrite(DevHandle handle, uint8_t *data, uint32_t size)
 {
     int32_t ret;
-    struct HdfSBuf *data = NULL;
+    struct HdfSBuf *dataBuf = NULL;
 
-    if (buf == NULL || len == 0) {
+    if (data == NULL || size == 0) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    data = HdfSbufObtainDefaultSize();
-    if (data == NULL) {
+    dataBuf = HdfSbufObtainDefaultSize();
+    if (dataBuf == NULL) {
         HDF_LOGE("%s: failed to obtain write buf", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    if (!HdfSbufWriteBuffer(data, buf, len)) {
+    if (!HdfSbufWriteBuffer(dataBuf, data, size)) {
         HDF_LOGE("%s: sbuf write buffer failed", __func__);
-        HdfSbufRecycle(data);
+        HdfSbufRecycle(dataBuf);
         return HDF_ERR_IO;
     }
 
-    ret = UartDispatch(handle, UART_IO_WRITE, data, NULL);
+    ret = UartDispatch(handle, UART_IO_WRITE, dataBuf, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: UartDispatch failed: %d", __func__, ret);
     }
-    HdfSbufRecycle(data);
+    HdfSbufRecycle(dataBuf);
     return ret;
 }
 

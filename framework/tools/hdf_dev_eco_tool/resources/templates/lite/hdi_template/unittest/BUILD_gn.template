@@ -15,14 +15,12 @@ ohos_unittest("${peripheral_name}_hdi_1.0_test") {
     "//drivers/peripheral/${peripheral_name}/hdi_service",
   ]
 
-  deps = [ "//utils/native/base:utils" ]
+  deps = [ "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common" ]
 
   external_deps = [
     "drivers_interface_${peripheral_name}:lib${peripheral_name}_proxy_1.0",
-    "hdf_core:libhdf_host",
-    "hdf_core:libhdf_ipc_adapter",
+    "c_utils:utils",
     "hdf_core:libhdf_utils",
-    "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
   ]
   external_deps += [ "ipc:ipc_single" ]

@@ -77,7 +77,7 @@ bool CodeGenerator::Generate()
 }
 
 void CodeGenerator::GenerateCCode(
-    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel)
+    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel) const
 {
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_TYPES: {
@@ -117,7 +117,8 @@ void CodeGenerator::GenerateCCode(
     }
 }
 
-void CodeGenerator::GenerateCppCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart)
+void CodeGenerator::GenerateCppCode(
+    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const
 {
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_TYPES:
@@ -153,8 +154,10 @@ void CodeGenerator::GenerateCppCode(const AutoPtr<AST> &ast, const std::string &
     }
 }
 
-void CodeGenerator::GenerateJavaCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart)
+void CodeGenerator::GenerateJavaCode(
+    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const
 {
+    (void)codePart;
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_IFACE:
             javaCodeEmitters_["clientIface"]->OutPut(ast, outDir);

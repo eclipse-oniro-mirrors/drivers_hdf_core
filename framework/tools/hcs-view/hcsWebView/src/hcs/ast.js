@@ -40,22 +40,22 @@ var NodeRefType = {
 };
 
 var HcsErrorNo = {
-    NOERR: 0,  /* No error */
-    EFAIL: 1,      /* Process fail */
-    EOOM: 2,       /* Out of memory */
-    EOPTION: 3,    /* Option error */
-    EREOPENF: 4,   /* Reopen argument */
-    EINVALF: 5,    /* Invalid file */
-    EINVALARG: 6,  /* Invalid argument */
-    EDECOMP: 7,    /* Decompile error */
-    EOUTPUT: 8,    /* Output error */
-    EASTWALKBREAK: 9,  /* Break ast walk */
+    NOERR: 0,
+    EFAIL: 1,
+    EOOM: 2,
+    EOPTION: 3,
+    EREOPENF: 4,
+    EINVALF: 5,
+    EINVALARG: 6,
+    EDECOMP: 7,
+    EOUTPUT: 8,
+    EASTWALKBREAK: 9,
 };
 
 var UINT8_MAX = 255;
 var UINT16_MAX = 65535;
-var UINT32_MAX = 0xffffffff;  /* 4294967295U */
-var UINT64_MAX = 0xffffffffffffffff; /* 18446744073709551615ULL */
+var UINT32_MAX = 0xffffffff;
+var UINT64_MAX = 0xffffffffffffffff;
 
 class AstObject {
     constructor(name, type, value, bindToken, jinzhi) {
@@ -112,9 +112,9 @@ class AstObject {
         this.src_ = bindToken.src;
 
         switch (type) {
-            case ObjectType.PARSEROP_UINT8:  /* fall-through */
-            case ObjectType.PARSEROP_UINT16: /* fall-through */
-            case ObjectType.PARSEROP_UINT32: /* fall-through */
+            case ObjectType.PARSEROP_UINT8:
+            case ObjectType.PARSEROP_UINT16:
+            case ObjectType.PARSEROP_UINT32:
             case ObjectType.PARSEROP_UINT64:
                 this.type_ = this.fitIntegerValueType(value);
                 break;
@@ -186,7 +186,6 @@ class AstObject {
         return true;
     }
 
-    // operate<<
     merge(srcObj) {
         if (srcObj.name_ != this.name_) {
             NapiLog.logError(this.sourceInfo() + "merge different node to" + srcObj.sourceInfo());
@@ -396,7 +395,6 @@ class ConfigNode extends AstObject {
         return type2StringMap[type];
     }
 
-    // operator<<
     castFrom(astObject) {
         return astObject;
     }
@@ -587,7 +585,6 @@ class ConfigTerm extends AstObject {
         }
     }
 
-    // operator<<
     castFrom(astObject) {
         return astObject;
     }
@@ -853,7 +850,6 @@ class Ast {
                     return HcsErrorNo.NOERR;
                 }
 
-                // current node maybe deleted after reference expand, never use it after this
                 let ret = node.refExpand(this.lookup(current, node.getRefPath()));
                 if (!ret) {
                     return HcsErrorNo.EFAIL;
@@ -888,7 +884,6 @@ class Ast {
                 next = backWalkObj.next_;
                 parent = backWalkObj.parent();
 
-                /* can safe delete current in callback */
                 if (callback(backWalkObj, walkDepth) != HcsErrorNo.NOERR) {
                     return false;
                 }
@@ -962,7 +957,6 @@ class Ast {
                     return false;
                 } else if (ret != HcsErrorNo.EASTWALKBREAK && forwardWalkObj.child_ != null) {
 
-                    /* when callback return HcsErrorNo.EASTWALKBREAK, not walk current's child */
                     walkDepth++;
                     forwardWalkObj = forwardWalkObj.child_;
                     forward = false;                    

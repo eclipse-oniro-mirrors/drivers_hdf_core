@@ -103,7 +103,9 @@ struct AudioRegCfgData {
 
 int32_t AudioFillConfigData(const struct HdfDeviceObject *device, struct AudioConfigData *configData);
 
-int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData);
+int32_t AudioGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData);
+
+int32_t AudioGetPortConfig(const struct HdfDeviceObject *device, struct AudioPortInfo *configData);
 
 #ifdef __cplusplus
 #if __cplusplus

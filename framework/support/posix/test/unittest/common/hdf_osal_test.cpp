@@ -24,11 +24,19 @@ static const char *OSAL_FW_PATH = "/lib/firmware";
 static const int OSAL_FW_PATH_MODE = 0x777;
 #endif
 
+#ifdef WITH_SELINUX
 #define OSAL_TEST_FUNC_DEFINE(subCmd) do { \
     struct HdfTestMsg msg = { TEST_OSAL_ITEM, subCmd, -1 }; \
     printf("OSAL test enter cmd:%d\n\r", subCmd); \
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg)); \
 } while (0)
+#else
+#define OSAL_TEST_FUNC_DEFINE(subCmd) do { \
+    struct HdfTestMsg msg = { TEST_OSAL_ITEM, subCmd, 0 }; \
+    printf("OSAL test enter cmd:%d\n\r", subCmd); \
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg)); \
+} while (0)
+#endif
 
 class OsalTest : public testing::Test {
 public:

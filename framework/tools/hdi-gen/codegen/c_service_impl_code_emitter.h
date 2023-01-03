@@ -17,7 +17,7 @@ class CServiceImplCodeEmitter : public CCodeEmitter {
 public:
     CServiceImplCodeEmitter() : CCodeEmitter() {}
 
-    virtual ~CServiceImplCodeEmitter() = default;
+    ~CServiceImplCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -28,31 +28,32 @@ private:
 
     void EmitServiceImplHeaderInclusions(StringBuilder &sb);
 
-    void EmitServiceImplConstructDecl(StringBuilder &sb);
+    void EmitServiceImplConstructDecl(StringBuilder &sb) const;
 
     void EmitServiceImplSourceFile();
 
     void EmitServiceImplSourceInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitKernelServiceImplDef(StringBuilder &sb);
+    void EmitKernelServiceImplDef(StringBuilder &sb) const;
 
-    void EmitServiceImplDef(StringBuilder &sb);
+    void EmitServiceImplDef(StringBuilder &sb) const;
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodImpl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitKernelServiceImplGetMethod(StringBuilder &sb);
+    void EmitKernelServiceImplGetMethod(StringBuilder &sb) const;
 
-    void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplGetVersionMethod(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitServiceImplGetMethod(StringBuilder &sb);
+    void EmitServiceImplGetMethod(StringBuilder &sb) const;
 
-    void EmitKernelServiceImplReleaseMethod(StringBuilder &sb);
+    void EmitKernelServiceImplReleaseMethod(StringBuilder &sb) const;
 
-    void EmitServiceImplReleaseMethod(StringBuilder &sb);
+    void EmitServiceImplReleaseMethod(StringBuilder &sb) const;
 };
 } // namespace HDI
 } // namespace OHOS

@@ -9,19 +9,17 @@ import("//build/ohos.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 ohos_shared_library("lib${peripheral_name}_service_1.0") {
-  include_dirs = []
+  include_dirs = ["//drivers/peripheral/${peripheral_name}/interfaces/include/"]
   sources = [ "${peripheral_name}_service.cpp" ]
   public_deps = [ "//drivers/interface/${peripheral_name}/v1_0:${peripheral_name}_idl_headers" ]
 
   if (is_standard_system) {
     external_deps = [
-      "hdf_core:libhdf_host",
-      "hdf_core:libhdf_ipc_adapter",
-      "hdf_core:libhdf_utils",
       "hdf_core:libhdi",
       "hiviewdfx_hilog_native:libhilog",
+      "drivers_interface_${peripheral_name}:${peripheral_name}_idl_headers",
       "ipc:ipc_single",
-      "utils_base:utils",
+      "c_utils:utils",
     ]
   } else {
     external_deps = [
@@ -42,13 +40,13 @@ ohos_shared_library("lib${peripheral_name}_driver") {
 
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hdf_core:libhdf_host",
       "hdf_core:libhdf_ipc_adapter",
       "hdf_core:libhdf_utils",
       "hdf_core:libhdi",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_single",
-      "utils_base:utils",
     ]
   } else {
     external_deps = [

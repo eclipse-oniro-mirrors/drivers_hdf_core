@@ -13,35 +13,70 @@
 * limitations under the License. 
 */
 
+import { CanvasInput } from "../hcs/CanvasInput.js";
 import { X2DFast } from "./graphics/X2DFast.js";
 import { Scr } from "./XDefine.js";
+import { XTools } from "./XTools.js";
 
 export var gl;
+var Mouse = {
+    MOUSE_LEFT: 0,
+    MOUSE_RILLER: 1,
+    MOUSE_RIGHT: 2,
+};
+
+var MouseEvent = {
+    LEFT_CLICK: 1,
+    LEFT_MOVE: 2,
+    LEFT_RELEASE: 3,
+    RIGHT_CLICK: 4,
+    RIGHT_MOVE: 5,
+    RIGHT_RELEASE: 6,
+};
 
 function touchStart(e) { 
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    })
     e.preventDefault(); 
-    GLFrame.pinstance_.callbackProctouch(1, e.touches[0].clientX, e.touches[0].clientY);
+    GLFrame.pinstance_.callbackProctouch(MouseEvent.LEFT_CLICK, e.touches[0].clientX, e.touches[0].clientY);
 }
 function touchMove(e) { 
     e.preventDefault(); 
-    GLFrame.pinstance_.callbackProctouch(2, e.touches[0].clientX, e.touches[0].clientY);
+    GLFrame.pinstance_.callbackProctouch(MouseEvent.LEFT_MOVE, e.touches[0].clientX, e.touches[0].clientY);
 }
 function touchEnd(e) { 
     e.preventDefault(); 
-    GLFrame.pinstance_.callbackProctouch(3, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    GLFrame.pinstance_.callbackProctouch(MouseEvent.LEFT_RELEASE, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 }
 
 function mouseDown(e) { 
     e.preventDefault(); 
-    GLFrame.pinstance_.callbackProctouch(1, e.offsetX, e.offsetY) 
+    switch (e.button) {
+        case Mouse.MOUSE_LEFT:
+            GLFrame.pinstance_.callbackProctouch(MouseEvent.LEFT_CLICK, e.offsetX, e.offsetY) 
+            break;
+        case Mouse.MOUSE_RIGHT:
+            GLFrame.pinstance_.callbackProctouch(MouseEvent.RIGHT_CLICK, e.offsetX, e.offsetY);
+            break;
+    }
+    
 }
 function mouseMove(e) { 
     e.preventDefault(); 
-    GLFrame.pinstance_.callbackProctouch(2, e.offsetX, e.offsetY) 
+    GLFrame.pinstance_.callbackProctouch(MouseEvent.LEFT_MOVE, e.offsetX, e.offsetY) 
 }
 function mouseUp(e) { 
     e.preventDefault(); 
-    GLFrame.pinstance_.callbackProctouch(3, e.offsetX, e.offsetY) 
+    switch(e.button){
+        case Mouse.MOUSE_LEFT:
+            GLFrame.pinstance_.callbackProctouch(MouseEvent.LEFT_RELEASE, e.offsetX, e.offsetY) 
+            break;
+        case Mouse.MOUSE_RIGHT:
+            GLFrame.pinstance_.callbackProctouch(MouseEvent.RIGHT_RELEASE, e.offsetX, e.offsetY) 
+            break;
+
+    }
 }
 
 function keyDown(e) {
@@ -61,6 +96,11 @@ function keyDown(e) {
     if (ret.length > 0) ret += "+"
     ret += e.key
     GLFrame.pinstance_.callbackKey(1, ret)
+    if(!CanvasInput.FOCUS){
+    }
+    if(ret=="ctrl+z"){
+        e.preventDefault();
+    }
 }
 
 function mainLoop() {
@@ -91,6 +131,10 @@ export class GLFrame {
         cvs.addEventListener("mousemove", mouseMove);
         cvs.addEventListener("mouseup", mouseUp);
 
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        })
+
         window.addEventListener('keydown', keyDown);
         window.requestAnimationFrame(mainLoop)
     }
@@ -108,6 +152,11 @@ export class GLFrame {
         }
     }
     callbackProctouch(msg, x, y) {
+        XTools.MOUSE_POS.x=x;
+        XTools.MOUSE_POS.y=y;
+        if(msg==1){
+            CanvasInput.Hide(x,y);
+        }
         if (this.pCallbackTouch != null) {
             x = x * Scr.logicw / Scr.width
             y = y * Scr.logich / Scr.height

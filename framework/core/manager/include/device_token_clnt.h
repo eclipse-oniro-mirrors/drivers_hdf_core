@@ -19,8 +19,8 @@ struct DeviceTokenClnt {
     const struct HdfDeviceInfo *deviceInfo;
 };
 
-struct DeviceTokenClnt *DeviceTokenClntNewInstance(struct IHdfDeviceToken *token);
-void DeviceTokenClntFreeInstance(struct DeviceTokenClnt *token);
+struct DeviceTokenClnt *DeviceTokenClntNewInstance(struct IHdfDeviceToken *tokenIf);
+void DeviceTokenClntFreeInstance(struct DeviceTokenClnt *tokenClnt);
 void DeviceTokenClntDelete(struct HdfSListNode *listEntry);
 
 #endif /* DEVICE_TOKEN_CLNT_H */

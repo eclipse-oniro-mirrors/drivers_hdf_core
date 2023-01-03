@@ -60,10 +60,6 @@ static struct HdiServiceSet *HdiServiceSetGetInstance(const uint32_t serviceNum)
 
 static int32_t HdiServiceSetUnMarshalling(struct HdfSBuf *buf, struct HdiServiceSet *serviceSet)
 {
-    if (serviceSet == NULL || buf == NULL) {
-        HDF_LOGE("%{public}s: HdiServiceSet unmarshalling failed", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     for (uint32_t i = 0; i < serviceSet->count; i++) {
         const char *serviceName = HdfSbufReadString(buf);
         if (serviceName == NULL) {
@@ -85,7 +81,7 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
     struct HdiServiceSet *serviceSet = NULL;
     struct HdfSBuf *data = NULL;
     struct HdfSBuf *reply = NULL;
-    int status;
+    int32_t status;
     uint32_t serviceNum = 0;
 
     do {
@@ -117,12 +113,8 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
         HdiServiceSetUnMarshalling(reply, serviceSet);
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
 
     return serviceSet;
 }
@@ -156,12 +148,8 @@ struct HdfRemoteService *HDIServMgrGetService(struct HDIServiceManager *iServMgr
         }
     } while (0);
 
-    if (reply != NULL) {
-        HdfSbufRecycle(reply);
-    }
-    if (data != NULL) {
-        HdfSbufRecycle(data);
-    }
+    HdfSbufRecycle(reply);
+    HdfSbufRecycle(data);
 
     return service;
 }
@@ -273,11 +261,15 @@ int32_t HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
         HDF_LOGE("%{public}s: failed to release serviceSet, serviceSet->count is tainted", __func__);
         return HDF_FAILURE;
     }
-    for (uint32_t i = 0; i < serviceSet->count; i++) {
-        if (serviceSet->serviceNames[i] != NULL) {
-            OsalMemFree(serviceSet->serviceNames);
-            serviceSet->serviceNames = NULL;
+    if (serviceSet->serviceNames != NULL) {
+        for (uint32_t i = 0; i < serviceSet->count; i++) {
+            if (serviceSet->serviceNames[i] != NULL) {
+                OsalMemFree((void *)serviceSet->serviceNames[i]);
+                serviceSet->serviceNames[i] = NULL;
+            }
         }
+        OsalMemFree(serviceSet->serviceNames);
+        serviceSet->serviceNames = NULL;
     }
     OsalMemFree(serviceSet);
     return HDF_SUCCESS;

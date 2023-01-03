@@ -28,7 +28,7 @@ std::string ASTUnaryExpr::Dump(const std::string &prefix)
     return sb.ToString();
 }
 
-std::string ASTUnaryExpr::UnaryOpToString(UnaryOpKind op)
+std::string ASTUnaryExpr::UnaryOpToString(UnaryOpKind op) const
 {
     switch (op) {
         case UnaryOpKind::PLUS:
@@ -59,7 +59,7 @@ std::string ASTBinaryExpr::Dump(const std::string &prefix)
     return sb.ToString();
 }
 
-std::string ASTBinaryExpr::BinaryOpToString(BinaryOpKind op)
+std::string ASTBinaryExpr::BinaryOpToString(BinaryOpKind op) const
 {
     switch (op) {
         case BinaryOpKind::MUL:

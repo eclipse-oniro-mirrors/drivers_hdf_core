@@ -22,9 +22,10 @@ public:
     bool Generate();
 
 private:
-    void GenerateCCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel);
-    void GenerateCppCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart);
-    void GenerateJavaCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart);
+    void GenerateCCode(
+        const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel) const;
+    void GenerateCppCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const;
+    void GenerateJavaCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const;
 
     const StrAstMap &allAst_;
     std::string targetDirectory_;

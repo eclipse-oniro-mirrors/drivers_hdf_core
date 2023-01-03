@@ -33,7 +33,7 @@ struct HdfDeathRecipient {
 };
 
 struct HdfRemoteService {
-    struct HdfObject object_;
+    struct HdfObject object;
     struct HdfObject *target;
     struct HdfRemoteDispatcher *dispatcher;
     uint64_t index;

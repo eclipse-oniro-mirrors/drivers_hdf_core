@@ -20,14 +20,14 @@ let mockTest = [{
 	#include "D:\\ceshi\\b.hcs"
 root {
     nodeaa {
-		childnode {
+		childnodechildnodechildnodechildnodechildnodechildnode {
 		}
-		childatt = "";
+		childatt = "HDF_PLATFORMHDF_PLATFORMHDF_PLATFORMHDF_PLATFORM";
     }
 	nodebb {
 	}
 	extint = 0;	
-	extstring = "";
+	extstring = "gpio_adapter";
  }`
 },
 {
@@ -73,10 +73,10 @@ class MockMessage {
         NapiLog.logInfo("---MockMessage start---")
         NapiLog.logInfo(msg.type)
         NapiLog.logInfo(msg.data)
-        if (msg.type == "inited") {//After initialization, send the file name for resolution
+        if (msg.type == "inited") {
             this.send("parse", mockTest[0].fn);
         }
-        else if (msg.type == "getfiledata") {//Get file data
+        else if (msg.type == "getfiledata") {
             this.send("filedata", {
                 fn: msg.data,
                 data: getArray(msg.data)

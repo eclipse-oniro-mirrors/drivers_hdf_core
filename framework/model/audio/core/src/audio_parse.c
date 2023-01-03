@@ -11,6 +11,9 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
+#define HW_INFO "hwInfo"
+#define PORT_INFO_LIST_LENGHT 12
+
 enum AudioRegCfgIndex {
     AUDIO_REG_CFG_REG_INDEX = 0,
     AUDIO_REG_CFG_RREG_INDEX,
@@ -154,7 +157,7 @@ static uint32_t* GetRegArray(const struct DeviceResourceIface *parser, const str
     int32_t ret;
     int32_t index;
     int32_t num;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
     if (group == NULL || parser == NULL || regNode == NULL || indexMax == 0) {
         ADM_LOG_ERR("Input para check error");
         return NULL;
@@ -194,7 +197,7 @@ static int32_t ParseAudioRegItem(const struct DeviceResourceIface *parser, const
 {
     int32_t step;
     int32_t index;
-    int32_t *buf;
+    int32_t *buf = NULL;
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -237,7 +240,7 @@ static int32_t ParseAudioEnumRegItem(const struct DeviceResourceIface *parser, c
 {
     int32_t step;
     int32_t index;
-    int32_t *buf;
+    int32_t *buf = NULL;
 
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
@@ -281,7 +284,7 @@ static int32_t ParseAudioSapmItem(const struct DeviceResourceIface *parser, cons
 {
     int32_t step;
     int32_t index;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -323,7 +326,7 @@ static int32_t ParseAudioCtrlItem(const struct DeviceResourceIface *parser, cons
 {
     int32_t step;
     int32_t index;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
     if (parser == NULL || regNode == NULL || group == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -360,7 +363,7 @@ static int32_t ParseAudioAddrItem(const struct DeviceResourceIface *parser, cons
 {
     int32_t step;
     int32_t index;
-    uint32_t *buf;
+    uint32_t *buf = NULL;
 
     if (parser == NULL || regNode == NULL || group == NULL) {
         ADM_LOG_ERR("Input para check error.");
@@ -488,7 +491,103 @@ static int32_t ParseAudioAttr(const struct DeviceResourceIface *parser, const st
     return ret;
 }
 
-int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData)
+static int32_t AudioSetPortInfoConfig(const uint64_t *buf, struct AudioPcmStream *info)
+{
+    int32_t ret;
+
+    ret = memcpy_s(info, sizeof(struct AudioPcmStream), buf, sizeof(uint64_t) * PORT_INFO_LIST_LENGHT);
+    if (ret != 0) {
+        ADM_LOG_ERR("memcpy_s error ret = %d!", ret);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioSetPortInfoConfigStub(const uint64_t *buf, struct AudioPortInfo *configData)
+{
+    switch (buf[0]) {  /* Playback/Captrue */
+        case PORT_OUT: /* Playback */
+            return AudioSetPortInfoConfig(buf, &configData->render);
+        case PORT_IN: /* Captrue */
+            return AudioSetPortInfoConfig(buf, &configData->capture);
+        default:
+            ADM_LOG_ERR("portDirection = %llu element num failed", buf[0]);
+            return HDF_FAILURE;
+    }
+}
+
+static int32_t AudioGetPortInfoConfig(struct DeviceResourceIface *drsOps, const struct HdfDeviceObject *device,
+    struct AudioPortInfo *configData)
+{
+    uint32_t num;
+    uint32_t ret;
+    uint64_t *buf = NULL;
+
+    num = drsOps->GetElemNum(device->property, HW_INFO);
+    if (num <= 0 || num > AUDIO_CONFIG_MAX_ITEM) {
+        ADM_LOG_ERR("parser %s element num failed", HW_INFO);
+        return HDF_FAILURE;
+    }
+
+    buf = (uint64_t *)OsalMemCalloc(sizeof(uint64_t) * num);
+    if (buf == NULL) {
+        ADM_LOG_ERR("malloc reg array buf failed!");
+        return HDF_FAILURE;
+    }
+
+    ret = drsOps->GetUint64Array(device->property, HW_INFO, buf, num, 0);
+    if (ret != HDF_SUCCESS) {
+        OsalMemFree(buf);
+        ADM_LOG_ERR("GetChildNode: Read portCfgNode fail!");
+        return HDF_FAILURE;
+    }
+
+    (void)memset_s(configData, sizeof(struct AudioPortInfo), 0, sizeof(struct AudioPortInfo));
+
+    switch (num) {
+        case PORT_INFO_LIST_LENGHT:
+            AudioSetPortInfoConfigStub(buf, configData);
+            break;
+        case PORT_INFO_LIST_LENGHT + PORT_INFO_LIST_LENGHT:
+            AudioSetPortInfoConfigStub(buf, configData);
+            AudioSetPortInfoConfigStub(buf + PORT_INFO_LIST_LENGHT, configData);
+            break;
+        default:
+            OsalMemFree(buf);
+            ADM_LOG_ERR("configData->portDirection num is not matched! num = %d", num);
+            return HDF_FAILURE;
+    }
+
+    OsalMemFree(buf);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioGetPortConfig(const struct HdfDeviceObject *device, struct AudioPortInfo *configData)
+{
+    uint32_t ret;
+    struct DeviceResourceIface *drsOps = NULL;
+
+    if (device == NULL || device->property == NULL || configData == NULL) {
+        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
+        return HDF_FAILURE;
+    }
+
+    drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    if (drsOps == NULL || drsOps->GetString == NULL) {
+        ADM_LOG_ERR("AudioGetPortConfig: invalid drs ops fail!");
+        return HDF_FAILURE;
+    }
+
+    ret = AudioGetPortInfoConfig(drsOps, device, configData);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("parser chipIdRegister reg audioIdInfo failed!");
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
+int32_t AudioGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegCfgData *configData)
 {
     uint16_t index;
     const struct DeviceResourceNode *regCfgNode = NULL;
@@ -517,7 +616,7 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
 
     regCfgNode = drsOps->GetChildNode(device->property, "regConfig");
     if (regCfgNode == NULL) {
-        ADM_LOG_ERR("CodecGetRegConfig: Read audioRegConfig fail!");
+        ADM_LOG_ERR("AudioGetRegConfig: Read audioRegConfig fail!");
         return HDF_FAILURE;
     }
 

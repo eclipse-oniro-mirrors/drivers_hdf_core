@@ -216,15 +216,16 @@ static int DevHostServicePmNotify(struct IDevHostService *service, uint32_t stat
 
 void DevHostServiceConstruct(struct DevHostService *service)
 {
-    struct IDevHostService *hostServiceIf = &service->super;
-    if (hostServiceIf != NULL) {
-        hostServiceIf->AddDevice = DevHostServiceAddDevice;
-        hostServiceIf->DelDevice = DevHostServiceDelDevice;
-        hostServiceIf->StartService = DevHostServiceStartService;
-        hostServiceIf->PmNotify = DevHostServicePmNotify;
-        DListHeadInit(&service->devices);
-        HdfServiceObserverConstruct(&service->observer);
+    if (service == NULL) {
+        return;
     }
+    struct IDevHostService *hostServiceIf = &service->super;
+    hostServiceIf->AddDevice = DevHostServiceAddDevice;
+    hostServiceIf->DelDevice = DevHostServiceDelDevice;
+    hostServiceIf->StartService = DevHostServiceStartService;
+    hostServiceIf->PmNotify = DevHostServicePmNotify;
+    DListHeadInit(&service->devices);
+    HdfServiceObserverConstruct(&service->observer);
 }
 
 void DevHostServiceDestruct(struct DevHostService *service)

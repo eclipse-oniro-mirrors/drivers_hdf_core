@@ -10,7 +10,7 @@
 #define OHOS_HDI_LEXER_H
 
 #include <cstdlib>
-#include <ctype.h>
+#include <cctype>
 #include <memory>
 #include <unordered_map>
 
@@ -74,6 +74,8 @@ private:
     void ReadHexNum(Token &token);
 
     void ReadDecNum(Token &token);
+
+    void ReadNumSuffix(Token &token);
 
     void ReadShiftLeftOp(Token &token);
 

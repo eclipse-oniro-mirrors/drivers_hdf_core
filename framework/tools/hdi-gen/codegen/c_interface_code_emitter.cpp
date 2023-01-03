@@ -86,7 +86,7 @@ void CInterfaceCodeEmitter::EmitImportInclusions(StringBuilder &sb)
     }
 }
 
-void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
@@ -94,25 +94,20 @@ void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSe
     }
 }
 
-void CInterfaceCodeEmitter::EmitPreDeclaration(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitPreDeclaration(StringBuilder &sb) const
 {
     sb.Append("struct HdfRemoteService;\n");
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceDesc(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitInterfaceDesc(StringBuilder &sb) const
 {
     sb.AppendFormat("#define %s \"%s\"\n", interface_->EmitDescMacroName().c_str(), interfaceFullName_.c_str());
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb) const
 {
     sb.AppendFormat("#define %s %u\n", majorVerName_.c_str(), ast_->GetMajorVer());
     sb.AppendFormat("#define %s %u\n", minorVerName_.c_str(), ast_->GetMinorVer());
-}
-
-void CInterfaceCodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
-{
-    sb.AppendFormat("#define %s    (4 * 1024) // 4KB\n", bufferSizeMacroName_.c_str());
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
@@ -138,7 +133,7 @@ void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::s
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceMethod(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat(
@@ -161,12 +156,12 @@ void CInterfaceCodeEmitter::EmitInterfaceMethod(
     }
 }
 
-void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix)
+void CInterfaceCodeEmitter::EmitAsObjectMethod(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("struct HdfRemoteService* (*AsObject)(struct %s *self);\n", interfaceName_.c_str());
 }
 
-void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb) const
 {
     if (Options::GetInstance().DoPassthrough() && interface_->IsSerializable()) {
         return;
@@ -178,7 +173,7 @@ void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb)
     EmitInterfaceReleaseMethodDecl(sb);
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb) const
 {
     if (isKernelCode_) {
         sb.AppendFormat("struct %s *%sGet(void);\n", interfaceName_.c_str(), interfaceName_.c_str());
@@ -200,7 +195,7 @@ void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb)
     }
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceReleaseMethodDecl(StringBuilder &sb)
+void CInterfaceCodeEmitter::EmitInterfaceReleaseMethodDecl(StringBuilder &sb) const
 {
     if (isKernelCode_) {
         sb.AppendFormat("void %sRelease(struct %s *instance);\n", interfaceName_.c_str(), interfaceName_.c_str());

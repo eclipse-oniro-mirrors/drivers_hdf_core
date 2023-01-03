@@ -67,7 +67,7 @@ using UtilMethodMap = std::unordered_map<std::string, UtilMethod>;
 
 class ASTType : public ASTNode {
 public:
-    ASTType(TypeKind kind = TypeKind::TYPE_UNKNOWN, bool isPod = true)
+    explicit ASTType(TypeKind kind = TypeKind::TYPE_UNKNOWN, bool isPod = true)
         :typeKind_(kind), isPod_(isPod), name_(), namespace_()
     {
     }

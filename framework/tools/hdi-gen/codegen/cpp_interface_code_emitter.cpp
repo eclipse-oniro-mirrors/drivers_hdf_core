@@ -46,6 +46,10 @@ void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitInterfaceInclusions(sb);
     sb.Append("\n");
     EmitInterfaceVersionMacro(sb);
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitInterfaceBuffSizeMacro(sb);
+    }
     sb.Append("\n");
     EmitBeginNamespace(sb);
     EmitUsingNamespace(sb);
@@ -78,14 +82,14 @@ void CppInterfaceCodeEmitter::EmitInterfaceInclusions(StringBuilder &sb)
     }
 }
 
-void CppInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_base");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
 }
 
-void CppInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb)
+void CppInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb) const
 {
     sb.AppendFormat("#define %s %u\n", majorVerName_.c_str(), ast_->GetMajorVer());
     sb.AppendFormat("#define %s %u\n", minorVerName_.c_str(), ast_->GetMinorVer());
@@ -116,19 +120,20 @@ void CppInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
     }
 }
 
-void CppInterfaceCodeEmitter::EmitInterfaceDescriptor(StringBuilder &sb, const std::string &prefix)
+void CppInterfaceCodeEmitter::EmitInterfaceDescriptor(StringBuilder &sb, const std::string &prefix) const
 {
+    (void)prefix;
     sb.Append(TAB).AppendFormat("DECLARE_HDI_DESCRIPTOR(u\"%s\");\n", interfaceFullName_.c_str());
 }
 
-void CppInterfaceCodeEmitter::EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix)
+void CppInterfaceCodeEmitter::EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("static sptr<%s> Get(bool isStub = false);\n", interface_->GetName().c_str());
     sb.Append(prefix).AppendFormat(
         "static sptr<%s> Get(const std::string &serviceName, bool isStub = false);\n", interface_->GetName().c_str());
 }
 
-void CppInterfaceCodeEmitter::EmitInterfaceDestruction(StringBuilder &sb, const std::string &prefix)
+void CppInterfaceCodeEmitter::EmitInterfaceDestruction(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", interface_->GetName().c_str());
 }
@@ -145,7 +150,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodsDecl(StringBuilder &sb, const 
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("virtual int32_t %s() = 0;\n", method->GetName().c_str());
@@ -166,7 +171,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
     }
 }
 
-void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix)
+void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
     sb.Append(prefix).AppendFormat("virtual int32_t %s(", method->GetName().c_str());
@@ -191,7 +196,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, c
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitCppParameter());
 }

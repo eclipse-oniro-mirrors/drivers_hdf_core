@@ -31,6 +31,12 @@
             "patch_and_config": []
         }
     },
+    "create_driver_board_type": [
+        "hispark_taurus",
+        "hispark_taurus_linux",
+        "hispark_taurus_standard_kernel",
+        "rk3568_kernel"
+    ],
     "passwd_group_config": {
         "passwd": {
             "path": "base/startup/init/services/etc/passwd",

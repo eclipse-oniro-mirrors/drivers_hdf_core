@@ -95,7 +95,7 @@ void PlatformTraceReset(void);
 
 void __attribute__((format(printf, 3, 4))) PlatformTraceAddMsg(const char *module, const char *moduleFun,
     const char *fmt, ...);
-void PlatformTraceAddUintMsg(int module, int moduleFun, const uint infos[], uint8_t size);
+void PlatformTraceAddUintMsg(int module, int moduleFun, const unsigned int infos[], uint8_t size);
 
 #ifdef __cplusplus
 }

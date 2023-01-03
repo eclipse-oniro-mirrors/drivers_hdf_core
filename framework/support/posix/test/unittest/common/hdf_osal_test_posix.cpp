@@ -36,7 +36,7 @@ int32_t OsalTest::HdfOsalUserEntry(enum HdfOsalTestCaseCmd cmd)
     int32_t result = 0;
     if (cmd < OSAL_TEST_MAX) {
         if (cmd == OSAL_TEST_START) {
-            result = OsaTestBegin();
+            result = OsaTestBegin(0);
         } else if (cmd == OSAL_TEST_END) {
             result = OsaTestEnd();
         } else if (cmd == OSAL_TEST_ALL) {

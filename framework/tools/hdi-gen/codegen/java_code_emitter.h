@@ -9,7 +9,7 @@
 #ifndef OHOS_HDI_JAVA_CODE_EMITTER_H
 #define OHOS_HDI_JAVA_CODE_EMITTER_H
 
-#include <ctype.h>
+#include <cctype>
 
 #include "ast/ast.h"
 #include "codegen/code_emitter.h"
@@ -21,7 +21,7 @@ namespace OHOS {
 namespace HDI {
 class JavaCodeEmitter : public CodeEmitter {
 public:
-    virtual ~JavaCodeEmitter() = default;
+    ~JavaCodeEmitter() override = default;
 
 protected:
     bool CreateDirectory();
@@ -30,11 +30,11 @@ protected:
 
     void EmitPackage(StringBuilder &sb);
 
-    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix) override;
 
-    std::string MethodName(const std::string &name);
+    std::string MethodName(const std::string &name) const;
 
-    std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix);
+    std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

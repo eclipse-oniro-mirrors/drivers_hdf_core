@@ -955,8 +955,8 @@ enum SdioCccrCapbility {
 
 /* POWER_CONTROL-->bit0: SMPC, bit1: EMPC */
 enum SdioCccrPower {
-    SDIO_CCCR_POWER_SMPC = 0x01, /* Support Master Power Control. */
-    SDIO_CCCR_POWER_EMPC = 0x02, /* Enable Master Power Control. */
+    SDIO_CCCR_POWER_SMPC = 0x01, /* Support Power Control. */
+    SDIO_CCCR_POWER_EMPC = 0x02, /* Enable Power Control. */
 };
 
 /* BUS_SPEED_SELECT-->bit0: SHS. Support High-Speed. */

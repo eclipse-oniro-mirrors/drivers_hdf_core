@@ -300,9 +300,9 @@ class Lexer {
                     break;
                 }
                 break;
-            case code('+'): // fall-through
-            case code('-'): // fall-through, signed decimal number
-            default: // unsigned decimal number
+            case code('+'):
+            case code('-'):
+            default:
                 param.value += toStr(c);
                 while (this.peekChar(c, true) && isNum(c)) {
                     this.consumeChar();
@@ -326,7 +326,7 @@ class Lexer {
 
     lexFromString(token) {
         let c = [];
-        this.getChar(c, false); // skip first '"'
+        this.getChar(c, false);
         let value = "";
         while (this.getChar(c, false) && c[0] != code('"')) {
             value += toStr(c);
@@ -343,7 +343,7 @@ class Lexer {
     }
     processComment() {
         let c = [];
-        this.consumeChar();// skip first '/'
+        this.consumeChar();
         if (!this.getChar(c, true)) {
             dealWithError("unterminated comment");
             return false;

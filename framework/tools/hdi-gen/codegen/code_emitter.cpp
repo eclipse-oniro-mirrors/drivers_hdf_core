@@ -56,7 +56,6 @@ bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirect
 
     majorVerName_ = StringHelper::Format("%s_MAJOR_VERSION", ConstantName(interfaceName_).c_str());
     minorVerName_ = StringHelper::Format("%s_MINOR_VERSION", ConstantName(interfaceName_).c_str());
-    bufferSizeMacroName_ = StringHelper::Format("%s_BUFF_MAX_SIZE", ConstantName(baseName_).c_str());
 
     std::string prefix = StringHelper::Format("%c%s", tolower(baseName_[0]), baseName_.substr(1).c_str());
     dataParcelName_ = prefix + "Data";
@@ -93,7 +92,7 @@ void CodeEmitter::CleanData()
     errorCodeName_ = "";
 }
 
-bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
+bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method) const
 {
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
@@ -114,7 +113,7 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
  * subPath: foo/v1_0
  * GenPath: ./out/foo/v1_0/
  */
-std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
+std::string CodeEmitter::GetFileParentPath(const std::string &outDir) const
 {
     std::string outPath = StringHelper::EndWith(outDir, SEPARATOR) ? outDir.substr(0, outDir.size() - 1) : outDir;
     std::string subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());
@@ -126,7 +125,7 @@ std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
     }
 }
 
-std::string CodeEmitter::PackageToFilePath(const std::string &packageName)
+std::string CodeEmitter::PackageToFilePath(const std::string &packageName) const
 {
     std::vector<std::string> packageVec = StringHelper::Split(Options::GetInstance().GetSubPackage(packageName), ".");
     StringBuilder filePath;
@@ -162,12 +161,12 @@ std::string CodeEmitter::EmitVersionHeaderName(const std::string &name)
     return StringHelper::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).c_str());
 }
 
-void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name)
+void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name) const
 {
     sb.AppendFormat("#define HDF_LOG_TAG    %s\n", name.c_str());
 }
 
-std::string CodeEmitter::ConstantName(const std::string &name)
+std::string CodeEmitter::ConstantName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -190,7 +189,7 @@ std::string CodeEmitter::ConstantName(const std::string &name)
     return sb.ToString();
 }
 
-std::string CodeEmitter::PascalName(const std::string &name)
+std::string CodeEmitter::PascalName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -219,7 +218,7 @@ std::string CodeEmitter::PascalName(const std::string &name)
     return sb.ToString();
 }
 
-std::string CodeEmitter::FileName(const std::string &name)
+std::string CodeEmitter::FileName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -258,6 +257,30 @@ void CodeEmitter::EmitUtilMethods(
         }
         methodPair.second(sb, "", prefix, isDecl);
     }
+}
+
+void CodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb) const
+{
+    sb.AppendFormat("#ifndef %s\n", MAX_BUFF_SIZE_MACRO);
+    sb.AppendFormat("#define %s (%s)\n", MAX_BUFF_SIZE_MACRO, MAX_BUFF_SIZE_VALUE);
+    sb.Append("#endif\n\n");
+
+    sb.AppendFormat("#ifndef %s\n", CHECK_VALUE_RETURN_MACRO);
+    sb.AppendFormat("#define %s(lv, compare, rv, ret) do { \\\n", CHECK_VALUE_RETURN_MACRO);
+    sb.Append(TAB).Append("if ((lv) compare (rv)) { \\\n");
+    sb.Append(TAB).Append(TAB).Append("return ret; \\\n");
+    sb.Append(TAB).Append("} \\\n");
+    sb.Append("} while (false)\n");
+    sb.Append("#endif\n\n");
+
+    sb.AppendFormat("#ifndef %s\n", CHECK_VALUE_RET_GOTO_MACRO);
+    sb.AppendFormat("#define %s(lv, compare, rv, ret, value, table) do { \\\n", CHECK_VALUE_RET_GOTO_MACRO);
+    sb.Append(TAB).Append("if ((lv) compare (rv)) { \\\n");
+    sb.Append(TAB).Append(TAB).Append("ret = value; \\\n");
+    sb.Append(TAB).Append(TAB).Append("goto table; \\\n");
+    sb.Append(TAB).Append("} \\\n");
+    sb.Append("} while (false)\n");
+    sb.Append("#endif\n");
 }
 } // namespace HDI
 } // namespace OHOS

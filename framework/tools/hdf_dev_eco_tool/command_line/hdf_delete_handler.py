@@ -8,6 +8,7 @@
 # See the LICENSE file in the root of this repository for complete details.
 
 
+import configparser
 import json
 import os
 import shutil
@@ -48,6 +49,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         self.parser.add_argument("--driver_name")
         self.parser.add_argument("--board_name")
         self.parser.add_argument("--kernel_name")
+        self.parser.add_argument("--device_name")
         self.args_original = args
         self.args = self.parser.parse_args(args)
 
@@ -213,8 +215,10 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         self.check_arg_raise_if_not_exist("module_name")
         self.check_arg_raise_if_not_exist("driver_name")
         self.check_arg_raise_if_not_exist("board_name")
-        root, _, module, driver, board, kernel, _ = self.get_args()
+        self.check_arg_raise_if_not_exist("device_name")
+        root, _, module, driver, board, kernel, device = self.get_args()
         get_board = HdfGetHandler(self.args_original)
+        section_res = get_board.judgement_device_in_model(device)
         board_module_driver = get_board.delete_module_driver_list()
         res_json_format = json.loads(board_module_driver)
         board_name_list = list(res_json_format.keys())
@@ -229,15 +233,19 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                 temp_board_info = board_name
             elif temp_board_name == board:
                 self._delete_linux_driver_config(
-                    root, model_info=board_driver, module_name=module,
+                    model_info=board_driver, module_name=module,
                     driver_name=driver)
                 temp_board_info = board_name
             if len(board_driver) <= 1:
                 del res_json_format[board_name]
+        temp_driver_name = "-".join([device, driver])
         if temp_board_info:
             get_board.format_delete_driver_file(
-                model_name=module, board_name=temp_board_info, driver_name=driver)
-        return json.dumps(res_json_format, indent=4)
+                model_name=module, board_name=temp_board_info,
+                driver_name=temp_driver_name)
+        get_board.delete_device_operation(device, *section_res)
+        res_driver = get_board.judge_create_driver_exist()
+        return res_driver
 
     def _delete_liteos_driver_config(self, root, model_info, module_name, driver_name):
         model_info_key_list = list(model_info.keys())
@@ -268,10 +276,10 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                         del model_info[key_name]
                 else:
                     self.linux_liteos_common(
-                        file_name, root, file_path, module_name, driver_name)
+                        file_name, file_path, module_name, driver_name)
 
     def _delete_linux_driver_config(
-            self, root, model_info, module_name, driver_name):
+            self, model_info, module_name, driver_name):
         model_info_key_list = list(model_info.keys())
         for key_name in model_info_key_list:
             file_list = list(model_info[key_name].keys())
@@ -292,7 +300,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                         del model_info[key_name]
                 else:
                     self.linux_liteos_common(
-                        file_name, root, file_path, module_name, driver_name)
+                        file_name, file_path, module_name, driver_name)
 
     def config_delete_operation_liteos(
             self, driver_name, driver_config_index, temp_file, file_path):
@@ -317,8 +325,9 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
             temp_info = hdf_utils.read_file(file_path)
             hdf_utils.write_file(file_path, "".join(temp_info.split(res)))
 
-    def linux_liteos_common(self, file_name, root, file_path,
+    def linux_liteos_common(self, file_name, file_path,
                             module_name, driver_name):
+        root, _, module, _, _, kernel, device = self.get_args()
         if file_name == "Kconfig":
             config_re_str = r"DRIVERS_HDF_(?P<name>.+[A-Z0-9])"
             flag_re = r"config"
@@ -333,6 +342,10 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                 board="", driver=" ", path=file_path). \
                 delete_driver(module=driver_name, temp_flag="device")
         elif file_name.endswith("dot_configs"):
+            if module_name == "sensor":
+                temp_res = self.sensor_device_rely(module, kernel, device)
+            else:
+                temp_res = []
             for dot_path in file_path:
                 if dot_path.split(".")[-1] == "config":
                     template_string = \
@@ -345,9 +358,10 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                         "module_upper": module_name.upper(),
                         "driver_upper": driver_name.upper(),
                     })
+                temp_res.append(new_demo_config)
                 defconfig_patch = HdfDefconfigAndPatch(
                     root=root, vendor="", kernel="", board="",
-                    data_model="", new_demo_config=new_demo_config)
+                    data_model="", new_demo_config=temp_res)
                 defconfig_patch.delete_module(
                     path=os.path.join(root, dot_path))
 
@@ -362,3 +376,41 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
                 else:
                     break
                 path_temp = os.path.dirname(path_temp)
+
+    def sensor_device_rely(self, module, kernel, device):
+        templates_dir_path = hdf_utils.get_templates_lite_dir()
+        templates_model_dir = []
+        for path, dir_name, _ in os.walk(templates_dir_path):
+            if dir_name:
+                templates_model_dir.extend(dir_name)
+        temp_templates_model_dir = list(
+            filter(
+                lambda model_dir: module in model_dir,
+                templates_model_dir))
+        config_file = [
+            name for name in os.listdir(
+                os.path.join(
+                    templates_dir_path,
+                    temp_templates_model_dir[0])) if name.endswith(".ini")]
+        if config_file:
+            config_path = os.path.join(
+                templates_dir_path,
+                temp_templates_model_dir[0],
+                config_file[0])
+            config = configparser.ConfigParser()
+            config.read(config_path)
+            section_list = config.options(section=kernel)
+            if device in section_list:
+                device_enable_config, _ = hdf_utils.ini_file_read_operation(
+                    section_name=kernel,
+                    node_name=device, path=config_path)
+            else:
+                if kernel == "linux":
+                    device_enable_config = [
+                        "CONFIG_DRIVERS_HDF_SENSOR_ACCEL=y\n"]
+                else:
+                    device_enable_config = [
+                        "LOSCFG_DRIVERS_HDF_SENSOR_ACCEL=y\n"]
+        else:
+            device_enable_config = [""]
+        return device_enable_config

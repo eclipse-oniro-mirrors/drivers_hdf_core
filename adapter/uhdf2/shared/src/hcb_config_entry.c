@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include <securec.h>
 #include "hcs_dm_parser.h"
 #include "hcs_tree_if.h"
@@ -23,6 +24,7 @@
 
 #ifdef __OHOS_STANDARD_SYS__
 #define HOST_CONFIG_PATH HDF_CONFIG_DIR
+#define HOST_CHIP_PROD_CONFIG_PATH HDF_CHIP_PROD_CONFIG_DIR
 #else
 #define HOST_CONFIG_PATH "/system/etc/hdfconfig"
 #endif
@@ -32,6 +34,28 @@
 static int GetProductName(char *name, int maxLen)
 {
     return  strcpy_s(name, maxLen, "default");
+}
+
+static bool GetConfigFilePath(const char *productName, char *configPath, size_t configPathLen)
+{
+    static const char *adapterConfigPath[] = {
+        HOST_CONFIG_PATH,
+        HOST_CHIP_PROD_CONFIG_PATH,
+    };
+
+    size_t pathNum = sizeof(adapterConfigPath) / sizeof(adapterConfigPath[0]);
+    for (size_t i = 0; i < pathNum; ++i) {
+        if (sprintf_s(configPath, configPathLen - 1, "%s/hdf_%s.hcb", adapterConfigPath[i], productName) < 0) {
+            HDF_LOGE("failed to generate file path");
+            continue;
+        }
+
+        if (access(configPath, F_OK | R_OK) == 0) {
+            return true;
+        }
+        HDF_LOGD("invalid config file path or permission:%{public}s", configPath);
+    }
+    return false;
 }
 
 const struct DeviceResourceNode *HdfGetHcsRootNode(void)
@@ -44,14 +68,12 @@ const struct DeviceResourceNode *HdfGetHcsRootNode(void)
         return NULL;
     }
 
-    ret = sprintf_s(configPath, PATH_MAX - 1, "%s/hdf_%s.hcb", HOST_CONFIG_PATH, productName);
-    if (ret < 0) {
-        HDF_LOGE("config path error");
+    if (!GetConfigFilePath(productName, configPath, PATH_MAX)) {
+        HDF_LOGE("failed to get config file path");
         return NULL;
     }
 
-    const char *configFileName = configPath;
-    SetHcsBlobPath(configFileName);
+    SetHcsBlobPath(configPath);
     const struct DeviceResourceNode *mgrRoot = HcsGetRootNode();
     return mgrRoot;
 }

@@ -12,6 +12,10 @@
 #include "hdf_dlist.h"
 #include "hdf_object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * -----------------+----------------+----------------+----------------+
  * |      BYTE      |      BYTE      |      BYTE      |      BYTE      |
@@ -58,5 +62,9 @@ struct HdfObject *HdfDeviceCreate(void);
 void HdfDeviceRelease(struct HdfObject *object);
 struct HdfDevice *HdfDeviceNewInstance(void);
 void HdfDeviceFreeInstance(struct HdfDevice *device);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* HDF_DEVICE_H */

@@ -28,19 +28,19 @@ public:
         return elementType_;
     }
 
-    virtual bool IsArrayType();
+    bool IsArrayType() override;
 
-    bool HasInnerType(TypeKind innerType) const override;
+    bool HasInnerType(TypeKind innerTypeKind) const override;
 
-    virtual std::string ToString() const;
+    std::string ToString() const override;
 
-    virtual TypeKind GetTypeKind();
+    TypeKind GetTypeKind() override;
 
     std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
     std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    virtual std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const;
+    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 
     void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
@@ -79,14 +79,14 @@ public:
     void EmitMemoryRecycle(const std::string &name, bool isClient, bool ownership, StringBuilder &sb,
         const std::string &prefix) const override;
 
-    virtual void EmitJavaWriteVar(
-        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
+    void EmitJavaWriteVar(const std::string &parcelName,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
 
-    virtual void EmitJavaReadVar(
-        const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;
+    void EmitJavaReadVar(const std::string &parcelName,
+        const std::string &name, StringBuilder &sb, const std::string &prefix) const override;
 
-    virtual void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
-        StringBuilder &sb, const std::string &prefix) const;
+    void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
+        StringBuilder &sb, const std::string &prefix) const override;
 
     void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
 

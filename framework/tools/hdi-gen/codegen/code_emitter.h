@@ -29,8 +29,8 @@ enum class HeaderFileType {
 struct HeaderFile {
     HeaderFile(HeaderFileType type, std::string fileName) : type_(type), fileName_(fileName) {}
 
-    struct compare {
-        bool operator()(const HeaderFile &lhs, const HeaderFile &rhs)
+    struct Compare {
+        bool operator()(const HeaderFile &lhs, const HeaderFile &rhs) const
         {
             int compareRet = lhs.fileName_.compare(rhs.fileName_);
             if (compareRet == 0) {
@@ -62,7 +62,7 @@ struct HeaderFile {
         }
     }
 
-    using HeaderFileSet = std::set<HeaderFile, HeaderFile::compare>;
+    using HeaderFileSet = std::set<HeaderFile, HeaderFile::Compare>;
 
     HeaderFileType type_;
     std::string fileName_;
@@ -70,7 +70,7 @@ struct HeaderFile {
 
 class CodeEmitter : public LightRefCountBase {
 public:
-    virtual ~CodeEmitter() = default;
+    ~CodeEmitter() override = default;
 
     bool OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode = false);
 
@@ -83,15 +83,15 @@ protected:
 
     virtual void EmitCode() = 0;
 
-    bool NeedFlag(const AutoPtr<ASTMethod> &method);
+    bool NeedFlag(const AutoPtr<ASTMethod> &method) const;
 
-    std::string GetFileParentPath(const std::string &outDir);
+    std::string GetFileParentPath(const std::string &outDir) const;
 
-    std::string PackageToFilePath(const std::string &packageName);
+    std::string PackageToFilePath(const std::string &packageName) const;
 
     std::string EmitMethodCmdID(const AutoPtr<ASTMethod> &method);
 
-    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
+    virtual void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
 
     /* add version prefix
      * MajorVersion: 1
@@ -102,21 +102,23 @@ protected:
     std::string EmitVersionHeaderName(const std::string &name);
 
     // log tag macro of hdf
-    void EmitLogTagMacro(StringBuilder &sb, const std::string &name);
+    void EmitLogTagMacro(StringBuilder &sb, const std::string &name) const;
 
     // file_name -> FILE_NAME
-    std::string ConstantName(const std::string &name);
+    std::string ConstantName(const std::string &name) const;
 
     // file_name -> FileName
-    std::string PascalName(const std::string &name);
+    std::string PascalName(const std::string &name) const;
 
     // FileName -> file_name
-    std::string FileName(const std::string &name);
+    std::string FileName(const std::string &name) const;
 
     virtual void GetUtilMethods(UtilMethodMap &methods);
 
     virtual void EmitUtilMethods(
         StringBuilder &sb, const std::string &prefix, const UtilMethodMap &methods, bool isDecl);
+
+    void EmitInterfaceBuffSizeMacro(StringBuilder &sb) const;
 
 protected:
     bool isKernelCode_ = false;
@@ -135,7 +137,6 @@ protected:
     std::string implFullName_;
     std::string majorVerName_;
     std::string minorVerName_;
-    std::string bufferSizeMacroName_;
 
     std::string dataParcelName_;
     std::string replyParcelName_;

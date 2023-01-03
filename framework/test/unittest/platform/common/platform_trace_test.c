@@ -13,7 +13,7 @@
 #define HDF_LOG_TAG platform_trace_test
 
 #define TRACE_UNIT_INFO_TEST_SIZE 6
-static uint g_infos[TRACE_UNIT_INFO_TEST_SIZE] = {100, 200, 300, 400, 500, 600};
+static unsigned int g_infos[TRACE_UNIT_INFO_TEST_SIZE] = {100, 200, 300, 400, 500, 600};
 static int32_t PlatformTraceSetUintptrInfoTest(void)
 {
     int i = 0;

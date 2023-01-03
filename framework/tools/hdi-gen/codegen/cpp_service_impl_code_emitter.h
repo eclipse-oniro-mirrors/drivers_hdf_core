@@ -17,7 +17,7 @@ class CppServiceImplCodeEmitter : public CppCodeEmitter {
 public:
     CppServiceImplCodeEmitter() : CppCodeEmitter() {}
 
-    virtual ~CppServiceImplCodeEmitter() = default;
+    ~CppServiceImplCodeEmitter() override = default;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -32,27 +32,29 @@ private:
 
     void EmitServiceImplBody(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodDecl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitImplSourceFile();
 
     void EmitImplSourceInclusions(StringBuilder &sb);
 
-    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles);
+    void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitServiceImplMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodImpl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitExternalGetMethodImpl(StringBuilder &sb);
 
     void EmitExternalReleaseMethodImpl(StringBuilder &sb);
 
-    void EmitServiceImplGetMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

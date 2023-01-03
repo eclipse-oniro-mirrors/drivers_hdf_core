@@ -15,7 +15,18 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
-AUDIO_LIST_HEAD(cardManager);
+AUDIO_LIST_HEAD(g_cardManager);
+
+/* Get all sound card instance */
+const struct DListHead *GetAllCardInstance(void)
+{
+    if (DListIsEmpty(&g_cardManager)) {
+        ADM_LOG_ERR("g_cardManager is empty.");
+        return NULL;
+    }
+
+    return &g_cardManager;
+}
 
 /* Get a sound card instance */
 struct AudioCard *GetCardInstance(const char *serviceName)
@@ -27,12 +38,12 @@ struct AudioCard *GetCardInstance(const char *serviceName)
         return NULL;
     }
 
-    if (DListIsEmpty(&cardManager)) {
-        ADM_LOG_ERR("cardManager is empty.");
+    if (DListIsEmpty(&g_cardManager)) {
+        ADM_LOG_ERR("g_cardManager is empty.");
         return NULL;
     }
 
-    DLIST_FOR_EACH_ENTRY(audioCard, &cardManager, struct AudioCard, list) {
+    DLIST_FOR_EACH_ENTRY(audioCard, &g_cardManager, struct AudioCard, list) {
         if (audioCard->configData.cardServiceName == NULL) {
             ADM_LOG_ERR("cardServiceName is NULL.");
             return NULL;
@@ -235,18 +246,32 @@ static int32_t AudioInitDaiLink(struct AudioCard *audioCard)
     }
     ADM_LOG_DEBUG("entry.");
 
-    if (AudioPlatformDevInit(audioCard) || AudioCpuDaiDevInit(audioCard)) {
-        ADM_LOG_ERR("Platform and CpuDai init fail.");
+    if (AudioPlatformDevInit(audioCard) != HDF_SUCCESS) {
+        ADM_LOG_ERR("Platform init fail.");
         return HDF_FAILURE;
     }
 
-    if ((AudioCodecDevInit(audioCard) || AudioCodecDaiDevInit(audioCard))) {
+    if (AudioCpuDaiDevInit(audioCard) != HDF_SUCCESS) {
+        ADM_LOG_ERR("CpuDai init fail.");
+        return HDF_FAILURE;
+    }
+    if (AudioCodecDevInit(audioCard) != HDF_SUCCESS) {
         ADM_LOG_ERR("codec Device init fail.");
         return HDF_FAILURE;
     }
 
-    if (AudioDspDevInit(audioCard) || AudioDspDaiDevInit(audioCard)) {
+    if (AudioCodecDaiDevInit(audioCard) != HDF_SUCCESS) {
+        ADM_LOG_ERR("CodecDai Device init fail.");
+        return HDF_FAILURE;
+    }
+
+    if (AudioDspDevInit(audioCard) != HDF_SUCCESS) {
         ADM_LOG_ERR("Dsp Device init fail.");
+        return HDF_FAILURE;
+    }
+
+    if (AudioDspDaiDevInit(audioCard) != HDF_SUCCESS) {
+        ADM_LOG_ERR("DspDai Device init fail.");
         return HDF_FAILURE;
     }
 
@@ -331,6 +356,7 @@ static int32_t AudioCardInit(struct HdfDeviceObject *device, struct AudioHost *a
     }
 
     /* Initialize controls list */
+    DListHeadInit(&audioCard->list);
     DListHeadInit(&audioCard->controls);
     DListHeadInit(&audioCard->components);
     DListHeadInit(&audioCard->paths);
@@ -343,7 +369,7 @@ static int32_t AudioCardInit(struct HdfDeviceObject *device, struct AudioHost *a
     }
 
     /* sound card added to list */
-    DListInsertHead(&audioCard->list, &cardManager);
+    DListInsertHead(&audioCard->list, &g_cardManager);
 
     return HDF_SUCCESS;
 }
@@ -398,31 +424,24 @@ static void AudioDriverRelease(struct HdfDeviceObject *device)
         componentHead = &audioCard->components;
         DLIST_FOR_EACH_ENTRY_SAFE(componentReq, componentTmp, componentHead, struct AudioSapmComponent, list) {
             DListRemove(&componentReq->list);
-            if (componentReq->componentName != NULL) {
-                OsalMemFree(componentReq->componentName);
-            }
+            OsalMemFree(componentReq->componentName);
             OsalMemFree(componentReq);
         }
 
         controlHead = &audioCard->controls;
         DLIST_FOR_EACH_ENTRY_SAFE(ctrlReq, ctrlTmp, controlHead, struct AudioKcontrol, list) {
             DListRemove(&ctrlReq->list);
-            if (ctrlReq->privateData != NULL) {
-                OsalMemFree(ctrlReq->privateData);
-            }
+            OsalMemFree(ctrlReq->privateData);
             OsalMemFree(ctrlReq);
         }
 
-        if (audioCard->rtd != NULL) {
-            OsalMemFree(audioCard->rtd);
-        }
-
-        if (audioHost->priv != NULL) {
-            OsalMemFree(audioHost->priv);
-        }
+        DListRemove(&audioCard->list);
+        OsalMemFree(audioCard->rtd);
+        OsalMemFree(audioHost->priv);
     }
 
     OsalMemFree(audioHost);
+
     ADM_LOG_INFO("success.");
 }
 

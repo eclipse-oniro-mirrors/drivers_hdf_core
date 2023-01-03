@@ -66,7 +66,7 @@ void CppCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 }
 
 void CppCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitCppParameter());
 }
@@ -79,40 +79,40 @@ void CppCodeEmitter::EmitLicense(StringBuilder &sb)
     sb.Append(ast_->GetLicense()).Append("\n\n");
 }
 
-void CppCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
+void CppCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#ifndef ").Append(macroName).Append("\n");
     sb.Append("#define ").Append(macroName).Append("\n");
 }
 
-void CppCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName)
+void CppCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#endif // ").Append(macroName);
 }
 
-void CppCodeEmitter::EmitHeadExternC(StringBuilder &sb)
+void CppCodeEmitter::EmitHeadExternC(StringBuilder &sb) const
 {
     sb.Append("#ifdef __cplusplus\n");
     sb.Append("extern \"C\" {\n");
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-void CppCodeEmitter::EmitTailExternC(StringBuilder &sb)
+void CppCodeEmitter::EmitTailExternC(StringBuilder &sb) const
 {
     sb.Append("#ifdef __cplusplus\n");
     sb.Append("}\n");
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-bool CppCodeEmitter::isVersion(const std::string &name)
+bool CppCodeEmitter::IsVersion(const std::string &name) const
 {
     std::regex rVer("[V|v][0-9]+_[0-9]+");
     return std::regex_match(name.c_str(), rVer);
 }
 
-std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &namespaceStr)
+std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &namespaceStr) const
 {
     std::vector<std::string> result;
     std::vector<std::string> namespaceVec = StringHelper::Split(namespaceStr, ".");
@@ -125,7 +125,7 @@ std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &
         std::string name;
         if (i < rootPackageNum) {
             name = StringHelper::StrToUpper(namespaceVec[i]);
-        } else if (!findVersion && isVersion(namespaceVec[i])) {
+        } else if (!findVersion && IsVersion(namespaceVec[i])) {
             name = StringHelper::Replace(namespaceVec[i], 'v', 'V');
             findVersion = true;
         } else {
@@ -171,7 +171,8 @@ void CppCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
     std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(interface_->GetNamespace()->ToString());
 
-    for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
+    for (std::vector<std::string>::const_reverse_iterator nspaceIter = cppNamespaceVec.rbegin();
+        nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
         sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }
@@ -183,7 +184,7 @@ void CppCodeEmitter::EmitUsingNamespace(StringBuilder &sb)
     EmitImportUsingNamespace(sb);
 }
 
-std::string CppCodeEmitter::EmitNamespace(const std::string &packageName)
+std::string CppCodeEmitter::EmitNamespace(const std::string &packageName) const
 {
     if (packageName.empty()) {
         return packageName;
@@ -223,21 +224,21 @@ void CppCodeEmitter::EmitImportUsingNamespace(StringBuilder &sb)
     }
 }
 
-void CppCodeEmitter::EmitWriteMethodParameter(
-    const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
+void CppCodeEmitter::EmitWriteMethodParameter(const AutoPtr<ASTParameter> &param,
+    const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
     type->EmitCppWriteVar(parcelName, param->GetName(), sb, prefix);
 }
 
 void CppCodeEmitter::EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName,
-    bool initVariable, StringBuilder &sb, const std::string &prefix)
+    bool initVariable, StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTType> type = param->GetType();
     type->EmitCppReadVar(parcelName, param->GetName(), sb, prefix, initVariable);
 }
 
-std::string CppCodeEmitter::MacroName(const std::string &name)
+std::string CppCodeEmitter::MacroName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -247,7 +248,7 @@ std::string CppCodeEmitter::MacroName(const std::string &name)
     return macro;
 }
 
-std::string CppCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix)
+std::string CppCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const
 {
     size_t maxLineLen = 120;
     size_t replaceLen = 2;

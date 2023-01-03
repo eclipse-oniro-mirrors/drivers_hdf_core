@@ -8,7 +8,10 @@
 
 #include "audio_control_dispatch.h"
 #include "audio_control.h"
+#include "audio_dai_if.h"
 #include "audio_driver_log.h"
+#include "devsvc_manager_clnt.h"
+#include "hdf_device_object.h"
 #include "osal_uaccess.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
@@ -127,6 +130,140 @@ static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
     return HDF_SUCCESS;
 }
 
+static int32_t ControlHostElemUnloadCard(const struct HdfDeviceIoClient *client,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    const char *driverName = NULL;
+    struct HdfDeviceObject *audioDriverService = NULL;
+    (void)client;
+    (void)rspData;
+
+    if (reqData == NULL) {
+        ADM_LOG_ERR("reqData is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    driverName = HdfSbufReadString(reqData);
+    if (driverName == NULL) {
+        ADM_LOG_ERR("read driver name is null!");
+        return HDF_FAILURE;
+    }
+
+    audioDriverService = DevSvcManagerClntGetDeviceObject(driverName);
+    if (audioDriverService == NULL) {
+        ADM_LOG_ERR("get hdmi device fail! %s", driverName);
+        return HDF_FAILURE;
+    }
+
+    HdfDeviceObjectRelease(audioDriverService);
+    return HDF_SUCCESS;
+}
+
+static int32_t WritePcmInfoToRspData(struct HdfSBuf *rspData, const struct AudioPcmStream *pcmInfo)
+{
+    if (rspData == NULL || pcmInfo == NULL) {
+        ADM_LOG_ERR("params rspData or pcmInfo is null.");
+        return HDF_FAILURE;
+    }
+
+    if (pcmInfo->portDirection != PORT_IN && pcmInfo->portDirection != PORT_OUT) {
+        ADM_LOG_DEBUG("pcmInfo->portDirection nonsupport  PORT_IN or PORT_OUT");
+        return HDF_SUCCESS;
+    }
+
+    if (!HdfSbufWriteUint8(rspData, (uint8_t)pcmInfo->portDirection)) {
+        ADM_LOG_ERR("Write response data portDirection=%llu failed!", pcmInfo->portDirection);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t WriteCardInfoToRspData(struct HdfSBuf *rspData, struct AudioCard *audioCard)
+{
+    struct AudioPortInfo *portInfo = NULL;
+
+    if (rspData == NULL || audioCard == NULL) {
+        ADM_LOG_ERR("param is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (audioCard->rtd == NULL || audioCard->rtd->codecDai == NULL ||
+        audioCard->rtd->codecDai->devData == NULL) {
+        ADM_LOG_ERR("audio card initialized error!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    portInfo = &(audioCard->rtd->codecDai->devData->portInfo);
+    if (portInfo->render.portDirection != PORT_OUT && portInfo->capture.portDirection != PORT_IN) {
+        ADM_LOG_ERR("audio card not initialized! %s", audioCard->configData.cardServiceName);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteString(rspData, audioCard->configData.cardServiceName)) {
+        ADM_LOG_ERR("Write response data cardServiceName=%s failed!", audioCard->configData.cardServiceName);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteUint8(rspData, portInfo->render.portDirection | portInfo->capture.portDirection)) {
+        ADM_LOG_ERR("Write response data failed!");
+        return HDF_FAILURE;
+    }
+
+    if (WritePcmInfoToRspData(rspData, &portInfo->render) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (WritePcmInfoToRspData(rspData, &portInfo->capture) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t ControlHostElemGetCard(const struct HdfDeviceIoClient *client,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    int32_t sndCardNum = 0;
+    struct AudioCard *audioCard = NULL;
+    const struct DListHead *cardManager = NULL;
+
+    (void)client;
+    (void)reqData;
+
+    if (rspData == NULL) {
+        ADM_LOG_ERR("params rspData is null.");
+        return HDF_FAILURE;
+    }
+
+    ADM_LOG_DEBUG("entry.");
+
+    cardManager = GetAllCardInstance();
+    if (cardManager == NULL) {
+        ADM_LOG_ERR("cardManager is NULL fail.");
+        return HDF_FAILURE;
+    }
+
+    sndCardNum = DListGetCount(cardManager);
+    if (sndCardNum == 0) {
+        ADM_LOG_ERR("card count is zero fail.");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(rspData, sndCardNum)) {
+        ADM_LOG_ERR("Write response data cardCount=%d failed!", sndCardNum);
+        return HDF_FAILURE;
+    }
+
+    DLIST_FOR_EACH_ENTRY(audioCard, cardManager, struct AudioCard, list) {
+        if (WriteCardInfoToRspData(rspData, audioCard) != HDF_SUCCESS) {
+            return HDF_FAILURE;
+        }
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struct HdfSBuf *reqData,
     struct HdfSBuf *rspData)
 {
@@ -225,7 +362,7 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
 
     kctrl = AudioGetKctrlInstance(&elemValue.id);
     if (kctrl == NULL || kctrl->Set == NULL) {
-        ADM_LOG_ERR("Find kctrl or Set fail!");
+        ADM_LOG_ERR("itemname: %s iface: %d Find kctrl or Set fail!", elemValue.id.itemName, elemValue.id.iface);
         return HDF_FAILURE;
     }
 
@@ -252,12 +389,12 @@ static int32_t CodecElemListReqDataDeserialization(struct HdfSBuf *reqData, stru
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadInt32(reqData, &list->space)) {
+    if (!HdfSbufReadUint32(reqData, &list->space)) {
         ADM_LOG_ERR("Read request space failed!");
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadInt64(reqData, listAddress)) {
+    if (!HdfSbufReadUint64(reqData, listAddress)) {
         ADM_LOG_ERR("Read request space failed!");
         return HDF_FAILURE;
     }
@@ -384,6 +521,8 @@ static struct ControlDispCmdHandleList g_controlDispCmdHandle[] = {
     {AUDIODRV_CTRL_IOCTRL_ELEM_READ, ControlHostElemRead},
     {AUDIODRV_CTRL_IOCTRL_ELEM_WRITE, ControlHostElemWrite},
     {AUDIODRV_CTRL_IOCTRL_ELEM_LIST, ControlHostElemList},
+    {AUDIODRV_CTRL_IOCTRL_ELEM_HDMI, ControlHostElemUnloadCard},
+    {AUDIODRV_CTRL_IOCTRL_ELEM_CARD, ControlHostElemGetCard},
 };
 
 static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int32_t cmdId,

@@ -32,13 +32,13 @@ void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 }
 
 void CCodeEmitter::EmitInterfaceMethodParameter(
-    const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(parameter->EmitCParameter());
 }
 
 void CCodeEmitter::EmitMethodNeedLoopVar(
-    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix) const
 {
     if (!isKernelCode_) {
         return;
@@ -53,7 +53,7 @@ void CCodeEmitter::EmitMethodNeedLoopVar(
     }
 }
 
-bool CCodeEmitter::EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree)
+bool CCodeEmitter::EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bool needFree) const
 {
     if (type == nullptr) {
         return false;
@@ -79,13 +79,13 @@ bool CCodeEmitter::EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bo
     };
 
     if (type->IsArrayType()) {
-        AutoPtr<ASTArrayType> ArrType = dynamic_cast<ASTArrayType *>(type.Get());
-        if (rwNeedLoopVar(ArrType->GetElementType()) || freeNeedLoopVar(ArrType->GetElementType())) {
+        AutoPtr<ASTArrayType> arrType = dynamic_cast<ASTArrayType *>(type.Get());
+        if (rwNeedLoopVar(arrType->GetElementType()) || freeNeedLoopVar(arrType->GetElementType())) {
             return true;
         }
     } else if (type->IsListType()) {
-        AutoPtr<ASTListType> ListType = dynamic_cast<ASTListType *>(type.Get());
-        if (rwNeedLoopVar(ListType->GetElementType()) || freeNeedLoopVar(ListType->GetElementType())) {
+        AutoPtr<ASTListType> listType = dynamic_cast<ASTListType *>(type.Get());
+        if (rwNeedLoopVar(listType->GetElementType()) || freeNeedLoopVar(listType->GetElementType())) {
             return true;
         }
     }
@@ -94,7 +94,7 @@ bool CCodeEmitter::EmitNeedLoopVar(const AutoPtr<ASTType> &type, bool needRW, bo
 }
 
 void CCodeEmitter::EmitErrorHandle(const AutoPtr<ASTMethod> &method, const std::string &gotoLabel, bool isClient,
-    StringBuilder &sb, const std::string &prefix)
+    StringBuilder &sb, const std::string &prefix) const
 {
     if (!isClient) {
         sb.Append(prefix).AppendFormat("%s:\n", gotoLabel.c_str());
@@ -122,27 +122,27 @@ void CCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
     sb.Append("#define ").Append(macroName).Append("\n");
 }
 
-void CCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName)
+void CCodeEmitter::EmitTailMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#endif // ").Append(macroName);
 }
 
-void CCodeEmitter::EmitHeadExternC(StringBuilder &sb)
+void CCodeEmitter::EmitHeadExternC(StringBuilder &sb) const
 {
     sb.Append("#ifdef __cplusplus\n");
     sb.Append("extern \"C\" {\n");
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-void CCodeEmitter::EmitTailExternC(StringBuilder &sb)
+void CCodeEmitter::EmitTailExternC(StringBuilder &sb) const
 {
     sb.Append("#ifdef __cplusplus\n");
     sb.Append("}\n");
     sb.Append("#endif /* __cplusplus */\n");
 }
 
-std::string CCodeEmitter::MacroName(const std::string &name)
+std::string CCodeEmitter::MacroName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -152,7 +152,7 @@ std::string CCodeEmitter::MacroName(const std::string &name)
     return macro;
 }
 
-std::string CCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix)
+std::string CCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const
 {
     size_t maxLineLen = 120;
     size_t replaceLen = 2;

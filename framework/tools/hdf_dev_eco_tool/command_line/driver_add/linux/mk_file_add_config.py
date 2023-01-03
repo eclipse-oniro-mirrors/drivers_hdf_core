@@ -89,7 +89,7 @@ def audio_makefile_template(date_lines, driver, source_path, head_path, devices,
             pass
         if source == source_path[-1]:
             sources_line += temp_handle.substitute(
-                temp_dict).replace("temp_flag", "$(") + "\n"
+                temp_dict).replace("temp_flag", "$(")
         else:
             sources_line += temp_handle.substitute(
                 temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
@@ -128,9 +128,9 @@ def audio_linux_makefile_operation(path, args_tuple):
             board_makefile_dict[board_name] = re.findall(
                 r"\(KHDF_AUDIO_BASE_ROOT_DIR\)/device/board/[a-z0-9_/]+", block_info)[0]
     if board.startswith("rk3568"):
-        parent_str = board_makefile_dict["CONFIG_DRIVERS_HDF_AUDIO_RK3568"]
+        parent_str = board_makefile_dict.get("CONFIG_DRIVERS_HDF_AUDIO_RK3568")
     elif board.startswith("hispark_taurus"):
-        parent_str = board_makefile_dict["CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC"]
+        parent_str = board_makefile_dict.get("CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC")
     temp_makefile = "/".join(parent_str.split("/")[1:])
     makefile_path = os.path.join(root, temp_makefile, "Makefile")
     date_lines = hdf_utils.read_file_lines(makefile_path)
@@ -145,6 +145,7 @@ def audio_linux_makefile_operation(path, args_tuple):
     new_line = temp_handle.substitute(temp_replace).replace("temp_flag", "$(")
     date_lines = date_lines + [new_line]
     hdf_utils.write_file_lines(makefile_path, date_lines)
+    return makefile_path
 
 
 def judge_driver_config_exists(date_lines, driver_name):

@@ -19,6 +19,10 @@
 #include "hdf_remote_service.h"
 #include "hdf_device_node.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct IRemoteService {
     struct HdfObject object;
     int (*Dispatch)(int code, struct HdfSBuf *data, struct HdfSBuf *reply);
@@ -36,5 +40,9 @@ enum {
 
 struct HdfObject *DeviceServiceStubCreate(void);
 void DeviceServiceStubRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVICE_SERVICE_STUB_H */

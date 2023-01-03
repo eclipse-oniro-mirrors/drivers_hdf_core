@@ -60,7 +60,7 @@ private:
 
     bool ParsePackage();
 
-    bool ParserPackageInfo(const std::string &packageFullName);
+    bool ParserPackageInfo(const std::string &packageName);
 
     bool ParseImports();
 
@@ -130,7 +130,8 @@ private:
 
     void ParseUnionMember(const AutoPtr<ASTUnionType> &unionType);
 
-    bool AddUnionMember(const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name);
+    bool AddUnionMember(
+        const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name) const;
 
     AutoPtr<ASTTypeAttr> ParseUserDefTypeAttr(const AttrSet &attrs);
 
@@ -155,6 +156,8 @@ private:
 
     AutoPtr<ASTExpr> ParseNumExpr();
 
+    bool CheckNumber(const std::string& integerVal);
+
     bool CheckType(const Token &token, const AutoPtr<ASTType> &type);
 
     void SetAstFileType();
@@ -165,7 +168,7 @@ private:
 
     bool CheckCallbackAst();
 
-    bool CheckPackageName(const std::string &filePath, const std::string &packageName);
+    bool CheckPackageName(const std::string &filePath, const std::string &packageName) const;
 
     bool CheckImport(const std::string &importName);
 

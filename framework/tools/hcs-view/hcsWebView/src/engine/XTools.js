@@ -12,37 +12,45 @@
 * See the License for the specific language governing permissions and 
 * limitations under the License. 
 */
+export class XTools {
+    constructor() {
 
-export function fAngle(x,y)
-{
-    return Math.atan2(-y,x)*180/Math.PI
+    }
+    static MOUSE_POS = {
+        x: 0,
+        y: 0,
+    }
+    static InRect(xx, yy, x, y, w, h) {
+        if (xx < x) return false;
+        if (yy < y) return false;
+        if (xx > x + w) return false;
+        if (yy > y + h) return false;
+        return true;
+    }
 }
-export function iDistance(x,y)
-{
-    return Math.sqrt(x*x+y*y)
+export function fAngle(x, y) {
+    return Math.atan2(-y, x) * 180 / Math.PI
+}
+export function iDistance(x, y) {
+    return Math.sqrt(x * x + y * y)
 }
 
-export var timeMs=0;
-export function freshTime()
-{
-    let t=new Date()
-    timeMs=t.getTime()
+export var timeMs = 0;
+export function freshTime() {
+    let t = new Date()
+    timeMs = t.getTime()
 }
 freshTime()
-export function TimeMS()
-{
-    let t=new Date()
+export function TimeMS() {
+    let t = new Date()
     return t.getTime()
 }
-export function RandInt(min=0,max=100)
-{
-    return Math.floor(Math.random()*(max-min))+min
+export function RandInt(min = 0, max = 100) {
+    return Math.floor(Math.random() * (max - min)) + min
 }
 
-export function GetURL()
-{
-    if("undefined" != typeof wx)
-    {
+export function GetURL() {
+    if ("undefined" != typeof wx) {
         return "https://7465-testegg-19e3c9-1301193145.tcb.qcloud.la/"
     }
     else return ""

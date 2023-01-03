@@ -25,7 +25,7 @@ extern "C" {
 
 struct HdfRemoteService *HdfRemoteAdapterObtain(void);
 
-void HdfRemoteAdapterRecycle(struct HdfRemoteService *service);
+void HdfRemoteAdapterRecycle(struct HdfRemoteService *object);
 
 int HdfRemoteAdapterAddService(const char *name, struct HdfRemoteService *service);
 
@@ -39,7 +39,7 @@ void HdfRemoteAdapterAddDeathRecipient(struct HdfRemoteService *service, struct 
 
 void HdfRemoteAdapterRemoveDeathRecipient(struct HdfRemoteService *service, const struct HdfDeathRecipient *recipient);
 
-bool HdfRemoteAdapterSetInterfaceDesc(struct HdfRemoteService *service, const char *descriptor);
+bool HdfRemoteAdapterSetInterfaceDesc(struct HdfRemoteService *service, const char *desc);
 
 bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struct HdfSBuf *data);
 

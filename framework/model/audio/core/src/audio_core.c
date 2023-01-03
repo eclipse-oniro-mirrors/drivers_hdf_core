@@ -7,8 +7,9 @@
  */
 
 #include "audio_core.h"
-#include "audio_sapm.h"
 #include "audio_driver_log.h"
+#include "audio_sapm.h"
+#include "devmgr_service_clnt.h"
 #include "osal_io.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM

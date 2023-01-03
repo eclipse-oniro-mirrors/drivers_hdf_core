@@ -547,7 +547,7 @@ static int ThreadTest(void *arg)
     return 0;
 }
 
-#define HDF_TEST_STACK_SIZE 10000
+#define HDF_TEST_STACK_SIZE (1024 * 16) // 16KB
 static void OsaThreadTest1(void)
 {
     struct OsalThreadParam threadCfg;
@@ -802,7 +802,7 @@ static void OsaCheckThreadRun(void)
 }
 
 #define HDF_MAIN_SLEEP_S 20
-int OsaTestBegin(void)
+int OsaTestBegin(int32_t testFlag)
 {
     int ret;
     (void)memset_s(g_osalTestCases, sizeof(g_osalTestCases), 0, sizeof(g_osalTestCases));
@@ -815,6 +815,9 @@ int OsaTestBegin(void)
     OsaLogTest();
 #ifndef __USER__
     ret = OsalTestFileInit();
+    if (testFlag != 0) {
+        ret = testFlag;
+    }
 #else
     ret = 0;
 #endif

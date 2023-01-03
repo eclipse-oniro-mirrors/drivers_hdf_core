@@ -5,9 +5,13 @@
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
+
+#include "audio_driver_log.h"
+#include "audio_parse.h"
 #include "audio_platform_if.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
+#define DMA_TRANSFER_MAX_COUNT 12   // Support 96000 ~ 8000 sampling rate
 
 int32_t AudioDmaBufAlloc(struct PlatformData *data, enum AudioStreamType streamType)
 {
@@ -87,4 +91,55 @@ int32_t AudioDmaPointer(struct PlatformData *data, enum AudioStreamType streamTy
         return data->ops->DmaPointer(data, streamType, pointer);
     }
     return HDF_FAILURE;
+}
+
+int32_t AudioDmaGetConfigInfo(const struct HdfDeviceObject *device, struct PlatformData *data)
+{
+    if (device == NULL || data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("param is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (data->regConfig != NULL) {
+        AUDIO_DRIVER_LOG_ERR("regConfig is not null!");
+        return HDF_FAILURE;
+    }
+
+    data->regConfig = (struct AudioRegCfgData *)OsalMemCalloc(sizeof(struct AudioRegCfgData));
+    if (data->regConfig == NULL) {
+        AUDIO_DRIVER_LOG_ERR("malloc AudioRegCfgData fail!");
+        return HDF_FAILURE;
+    }
+
+    if (AudioGetRegConfig(device, data->regConfig) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("dai GetRegConfig fail!");
+        OsalMemFree(data->regConfig);
+        data->regConfig = NULL;
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+bool AudioDmaTransferStatusIsNormal(struct PlatformData *data, enum AudioStreamType streamType)
+{
+    if (data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("param is null!");
+        return false;
+    }
+
+    if (streamType == AUDIO_RENDER_STREAM) {
+        if (data->renderBufInfo.rbufOffSet >=
+            data->renderBufInfo.wbufOffSet + data->renderBufInfo.trafBufSize * DMA_TRANSFER_MAX_COUNT) {
+            return false;
+        }
+        data->renderBufInfo.rbufOffSet += data->renderBufInfo.periodSize;
+    } else {
+        if (data->captureBufInfo.wbufOffSet >=
+           (data->captureBufInfo.rbufOffSet + data->captureBufInfo.trafBufSize * DMA_TRANSFER_MAX_COUNT)) {
+            return false;
+        }
+        data->captureBufInfo.wbufOffSet += data->captureBufInfo.periodSize;
+    }
+    return true;
 }

@@ -19,8 +19,8 @@ void DevSvcRecordFreeInstance(struct DevSvcRecord *inst)
     if (inst != NULL) {
         OsalMemFree((char *)inst->servName);
         OsalMemFree((char *)inst->servInfo);
-        OsalMemFree(inst);
         OsalMemFree((char *)inst->interfaceDesc);
+        OsalMemFree(inst);
     }
 }
 

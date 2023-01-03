@@ -89,7 +89,10 @@ unittest("hdf_adapter_uhdf_test_sbuf") {
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
-  defines = [ "__USER__" ]
+  defines = [
+    "__USER__",
+    "__LITEOS__",
+  ]
   sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp" ]
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
@@ -119,7 +122,10 @@ unittest("hdf_adapter_uhdf_test_door") {
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
-  defines = [ "__USER__" ]
+  defines = [
+    "__USER__",
+    "__LITEOS__",
+  ]
   sources = [
     "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_ioservice_test.cpp",
     "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_lite_manager_test.cpp",

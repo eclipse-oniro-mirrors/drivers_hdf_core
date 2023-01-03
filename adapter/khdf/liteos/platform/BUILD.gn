@@ -46,11 +46,19 @@ hdf_driver(module_name) {
       "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_trace_transfer.c",
       "src/platform_trace.c",
     ]
+  } else {
+    sources += [
+      "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_trace_unopen.c",
+    ]
   }
 
   if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER)) {
     sources +=
         [ "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_dumper.c" ]
+  } else {
+    sources += [
+      "$HDF_FRAMEWORKS_PATH/support/platform/src/fwk/platform_dumper_unopen.c",
+    ]
   }
 
   if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_I2C)) {

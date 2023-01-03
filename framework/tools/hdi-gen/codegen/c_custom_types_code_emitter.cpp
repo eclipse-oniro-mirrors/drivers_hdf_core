@@ -87,6 +87,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
     sb.Append("\n");
     EmitHeaderInclusions(sb);
     sb.Append("\n");
+    EmitInterfaceBuffSizeMacro(sb);
+    sb.Append("\n");
     EmitHeadExternC(sb);
     sb.Append("\n");
     EmitCustomTypeDecls(sb);
@@ -114,7 +116,7 @@ void CCustomTypesCodeEmitter::EmitHeaderInclusions(StringBuilder &sb)
     }
 }
 
-void CCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -125,7 +127,7 @@ void CCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
     }
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
+void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -136,7 +138,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
     }
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type)
+void CCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const
 {
     switch (type->GetTypeKind()) {
         case TypeKind::TYPE_ENUM: {
@@ -159,7 +161,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPt
     }
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
+void CCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -177,21 +179,23 @@ void CCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
     }
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat("bool %sBlockMarshalling(struct HdfSBuf *data, const %s *%s);\n", type->GetName().c_str(),
         type->EmitCType().c_str(), objName.c_str());
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat("bool %sBlockUnmarshalling(struct HdfSBuf *data, %s *%s);\n", type->GetName().c_str(),
         type->EmitCType().c_str(), objName.c_str());
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeFreeDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CCustomTypesCodeEmitter::EmitCustomTypeFreeDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat(
@@ -233,7 +237,7 @@ void CCustomTypesCodeEmitter::EmitSoucreInclusions(StringBuilder &sb)
     }
 }
 
-void CCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
@@ -325,9 +329,10 @@ void CCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &sb,
     sb.Append("}\n");
 }
 
-void CCustomTypesCodeEmitter::EmitMarshallingVarDecl(
-    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix)
+void CCustomTypesCodeEmitter::EmitMarshallingVarDecl(const AutoPtr<ASTStructType> &type,
+    const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
+    (void)name;
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         return;
     }
@@ -341,7 +346,7 @@ void CCustomTypesCodeEmitter::EmitMarshallingVarDecl(
 }
 
 void CCustomTypesCodeEmitter::EmitUnmarshallingVarDecl(
-    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         return;
@@ -361,7 +366,8 @@ void CCustomTypesCodeEmitter::EmitUnmarshallingVarDecl(
     }
 }
 
-void CCustomTypesCodeEmitter::EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix)
+void CCustomTypesCodeEmitter::EmitParamCheck(
+    const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("if (data == NULL) {\n");
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: invalid sbuf\", __func__);\n");
@@ -374,7 +380,7 @@ void CCustomTypesCodeEmitter::EmitParamCheck(const std::string &name, StringBuil
 }
 
 void CCustomTypesCodeEmitter::EmitPodTypeUnmarshalling(
-    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     std::string objPtrName = StringHelper::Format("%sPtr", name.c_str());
     if (Options::GetInstance().DoGenerateKernelCode()) {
@@ -497,7 +503,7 @@ void CCustomTypesCodeEmitter::EmitArrayMemberUnmarshalling(const AutoPtr<ASTType
     sb.Append(prefix).Append("}\n");
 }
 
-void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat(
@@ -528,7 +534,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const Au
 }
 
 void CCustomTypesCodeEmitter::EmitCustomTypeMemoryRecycle(
-    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < type->GetMemberNumber(); i++) {
         AutoPtr<ASTType> memberType = type->GetMemberType(i);

@@ -13,6 +13,10 @@
 #include "devmgr_service_if.h"
 #include "hdf_device_token.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevmgrServiceClnt {
     struct IDevmgrService *devMgrSvcIf;
 };
@@ -22,5 +26,9 @@ void DevmgrServiceClntFreeInstance(struct DevmgrServiceClnt *inst);
 int DevmgrServiceClntAttachDevice(struct IHdfDeviceToken *deviceToken);
 int DevmgrServiceClntDetachDevice(devid_t devid);
 int DevmgrServiceClntAttachDeviceHost(uint16_t hostId, struct IDevHostService *hostService);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVMGR_SERVICE_CLIENT_H */

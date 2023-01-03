@@ -12,5 +12,6 @@
 #include <utils/hdf_base.h>
 
 int32_t HdfCameraDeinitDevice(const char *driverName);
+bool HdfCameraGetDeviceInitStatus(void);
 
 #endif  // CAMERA_CORE_H

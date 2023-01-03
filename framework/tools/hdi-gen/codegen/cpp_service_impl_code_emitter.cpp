@@ -78,12 +78,13 @@ void CppServiceImplCodeEmitter::EmitServiceImplDecl(StringBuilder &sb)
 
 void CppServiceImplCodeEmitter::EmitServiceImplBody(StringBuilder &sb, const std::string &prefix)
 {
+    (void)prefix;
     EmitServiceImplConstructor(sb, TAB);
     sb.Append("\n");
     EmitServiceImplMethodDecls(sb, TAB);
 }
 
-void CppServiceImplCodeEmitter::EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix)
+void CppServiceImplCodeEmitter::EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("%s() = default;\n", implName_.c_str());
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", implName_.c_str());
@@ -101,7 +102,7 @@ void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, co
 }
 
 void CppServiceImplCodeEmitter::EmitServiceImplMethodDecl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("int32_t %s() override;\n", method->GetName().c_str());
@@ -157,7 +158,7 @@ void CppServiceImplCodeEmitter::EmitImplSourceInclusions(StringBuilder &sb)
     }
 }
 
-void CppServiceImplCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppServiceImplCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
 }
@@ -174,7 +175,7 @@ void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, co
 }
 
 void CppServiceImplCodeEmitter::EmitServiceImplMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     if (method->GetParameterNumber() == 0) {
         sb.Append(prefix).AppendFormat("int32_t %sService::%s()\n", baseName_.c_str(), method->GetName().c_str());
@@ -200,7 +201,7 @@ void CppServiceImplCodeEmitter::EmitServiceImplMethodImpl(
     sb.Append(prefix).Append("}\n");
 }
 
-void CppServiceImplCodeEmitter::EmitServiceImplGetMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppServiceImplCodeEmitter::EmitServiceImplGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     if (!interface_->IsSerializable()) {
         sb.Append(prefix).AppendFormat(

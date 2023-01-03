@@ -22,9 +22,11 @@ if (hdf_core_khdf_test_support) {
     deps = [
       "fuzztest:hdf_platform_test",
       "unittest/config:hdf_adapter_uhdf_test_config",
+      "unittest/manager:hdf_adapter_uhdf_test_core_shared",
       "unittest/manager:hdf_adapter_uhdf_test_ioservice",
       "unittest/manager:hdf_adapter_uhdf_test_manager",
       "unittest/manager:hdf_adapter_uhdf_test_pm",
+      "unittest/manager:hdf_adapter_uhdf_test_remote_adapter",
       "unittest/manager:hdf_adapter_uhdf_test_sbuf",
       "unittest/manager:hdf_adapter_uhdf_test_uevent",
       "unittest/osal:hdf_adapter_uhdf_test_osal",
@@ -40,6 +42,8 @@ if (hdf_core_khdf_test_support) {
     testonly = true
     deps = [
       "fuzztest:hdf_platform_test",
+      "unittest/manager:hdf_adapter_uhdf_test_core_shared",
+      "unittest/manager:hdf_adapter_uhdf_test_remote_adapter",
       "unittest/manager:hdf_adapter_uhdf_test_sbuf",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
       "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",

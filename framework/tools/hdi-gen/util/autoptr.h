@@ -103,9 +103,9 @@ AutoPtr<T>::~AutoPtr()
 template <class T>
 AutoPtr<T> &AutoPtr<T>::operator=(T *other)
 {
-    if (mPtr == other)
+    if (mPtr == other) {
         return *this;
-
+    }
     if (other != nullptr) {
         other->AddRef();
     }
@@ -119,9 +119,9 @@ AutoPtr<T> &AutoPtr<T>::operator=(T *other)
 template <class T>
 AutoPtr<T> &AutoPtr<T>::operator=(const AutoPtr<T> &other)
 {
-    if (mPtr == other.mPtr)
+    if (mPtr == other.mPtr) {
         return *this;
-
+    }
     if (other.mPtr != nullptr) {
         other.mPtr->AddRef();
     }
