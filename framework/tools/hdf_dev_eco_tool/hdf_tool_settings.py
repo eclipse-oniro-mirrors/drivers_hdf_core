@@ -153,6 +153,9 @@ class HdfToolSettings(object):
         key = self.config_setting_info
         return self.settings.get(key, 'hdf')
 
+    def get_file_path(self):
+        return os.path.dirname(__file__)
+
 
 @singleton
 class HdiToolConfig(object):

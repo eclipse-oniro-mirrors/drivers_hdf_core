@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -18,7 +18,7 @@ import hdf_tool_settings
 import hdf_utils
 from command_line.hdf_command_error_code import CommandErrorCode
 from command_line.hdf_command_handler_base import HdfCommandHandlerBase
-from command_line.hdi_hdf_group_passwd import OperateGroupPasswd
+from command_line.operate_group_passwd import OperateGroupPasswd
 from hdf_tool_exception import HdfToolException
 
 
@@ -45,6 +45,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
             "create_file": [],
             "config": []
         }
+        self.space_num = 8
 
     def _hdi_config_operation(self, opt_type, config_path):
         file_config = hdf_utils.read_file(config_path)
@@ -141,8 +142,9 @@ class HdiAddHandler(HdfCommandHandlerBase):
         interface_folder_path = os.path.join(
             self.args.root_dir, interface_path, self.args.interface_name)
         if os.path.exists(interface_folder_path):
-            raise HdfToolException('"%s" is path exist' %
-                    interface_folder_path, CommandErrorCode.TARGET_NOT_EXIST)
+            raise HdfToolException(
+                '"%s" is path exist' % interface_folder_path,
+                CommandErrorCode.TARGET_NOT_EXIST)
         os.makedirs(interface_folder_path)
         inter_name_version = os.path.join(interface_folder_path, version)
         os.makedirs(inter_name_version)
@@ -175,12 +177,12 @@ class HdiAddHandler(HdfCommandHandlerBase):
         hdi_dict = self.set_config.get_hdi_config()
         path_test = hdi_dict.get("interface", "")
         operation_file = os.path.join(root, path_test.strip("/"))
-        re_config_path = self._hdi_config_operation(opt_type="interface",
-                                                    config_path=operation_file)
+        re_config_path = self._hdi_config_operation(
+            opt_type="interface", config_path=operation_file)
         config_file_path = self.format_file_path(re_config_path, root)
         self.result_json["config"].append(config_file_path)
-        self.format_result_json(hdi_dict, create_type="interface",
-                                target_name=interface_name)
+        self.format_result_json(
+            hdi_dict, create_type="interface", target_name=interface_name)
         return json.dumps(self.result_json, indent=4)
 
     def _add_peripheral_handler(self):
@@ -257,7 +259,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
                 file_info = self.template_replace(src_path, replace_data)
                 self._write_file(target_file_path, file_info)
             temp_config = self.format_file_path(target_file_path, root)
-            self.result_json["config"].append(temp_config)
+            self.result_json["create_file"].append(temp_config)
 
     def _hdi_server_config(self, config_path, board_name,
                            root_path, replace_data, vendor):
@@ -284,7 +286,7 @@ class HdiAddHandler(HdfCommandHandlerBase):
             raise HdfToolException(
                 'hcs config path %s not exist' % hcs_file_parent)
         lines = list(map(
-            lambda x: "\t\t" + x,
+            lambda x: " " * self.space_num + x,
             hdf_utils.read_file_lines(temp_hcs_path)))
         old_lines_temp = hdf_utils.read_file_lines(hcs_target_file)
         old_lines = list(filter(lambda x: x != "\n", old_lines_temp))
