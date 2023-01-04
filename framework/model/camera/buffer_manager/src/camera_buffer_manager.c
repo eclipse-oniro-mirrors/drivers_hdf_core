@@ -14,8 +14,8 @@
 #include "camera_buffer_manager.h"
 
 #define HDF_LOG_TAG HDF_CAMERA_BUFFER_MANAGER
+struct BufferQueue *g_queueForMmap = NULL;
 
-/* extern used function */
 void CameraBufferDone(struct CameraBuffer *buffer, enum BufferState state)
 {
     struct BufferQueue *queue = buffer->bufferQueue;
@@ -73,14 +73,13 @@ int32_t BufferQueueFindPlaneByOffset(struct BufferQueue *queue,
 
 void *CameraBufferGetPlaneVaddr(struct CameraBuffer *buffer, uint32_t planeId)
 {
-    struct BufferQueueImp *queueImp = CONTAINER_OF(buffer->bufferQueue, struct BufferQueueImp, queue);
-
+    struct BufferQueue *queue = buffer->bufferQueue;
     if (planeId >= buffer->numPlanes || buffer->planes[planeId].memPriv == NULL) {
         return NULL;
     }
 
-    if (queueImp->memOps->getVaddr != NULL) {
-        return queueImp->memOps->getVaddr(buffer->planes[planeId].memPriv);
+    if (queue->memOps->getVaddr != NULL) {
+        return queue->memOps->getVaddr(buffer->planes[planeId].memPriv);
     }
 
     return NULL;
@@ -92,15 +91,13 @@ int32_t BufferQueueInit(struct BufferQueue *queue)
     if (queue->queueIsInit == true) {
         return HDF_SUCCESS;
     }
-
-    struct BufferQueueImp *queueImp = CONTAINER_OF(queue, struct BufferQueueImp, queue);
-
+    
     if (queue == NULL) {
         HDF_LOGE("%s: queue ptr is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (queue->queueOps == NULL || queueImp->memOps == NULL || queue->ioModes == 0) {
+    if (queue->queueOps == NULL || queue->memOps == NULL || queue->ioModes == 0) {
         HDF_LOGE("%s: queueOps/memOps is null or ioModes is 0", __func__);
         return HDF_FAILURE;
     }
@@ -119,7 +116,7 @@ int32_t BufferQueueInit(struct BufferQueue *queue)
     OsalSpinInit(&queue->doneLock);
     OsalMutexInit(&queue->mmapLock);
     init_waitqueue_head(&queue->doneWait);
-    MemoryAdapterQueueImpInit(queueImp);
+    MemoryAdapterQueueImpInit(queue);
     queue->queueIsInit = true;
 
     return HDF_SUCCESS;
@@ -227,9 +224,9 @@ int32_t BufferQueueReturnBuffer(struct BufferQueue *queue, struct UserCameraBuff
     }
     if ((queue->flags & QUEUE_STATE_STREAMING) != 0 && (queue->flags & QUEUE_STATE_STREAMING_CALLED) == 0 &&
         (queue->queuedCount >= queue->minBuffersNeeded)) {
-        ret = BufferQueueStartStreaming(queue);
+        ret = BufferQueueStart(queue);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: BufferQueueStartStreaming failed", __func__);
+            HDF_LOGE("%s: BufferQueueStart failed", __func__);
             return ret;
         }
     }
@@ -256,13 +253,11 @@ static int32_t WaitForDoneBuffer(struct BufferQueue *queue, uint32_t blocking)
         MemoryAdapterDriverMutexLock(queue);
         int32_t ret = wait_event_interruptible(queue->doneWait, !DListIsEmpty(&queue->doneList) ||
             (queue->flags & QUEUE_STATE_STREAMING) == 0 || (queue->flags & QUEUE_STATE_ERROR) != 0);
-        if (ret == 0) {
-            HDF_LOGE("%s: wait function failed", __func__);
-        }
         MemoryAdapterDriverMutexUnLock(queue);
 
         queue->flags &= ~QUEUE_STATE_WAITING_DEQUEUE;
         if (ret != 0) {
+            HDF_LOGE("%s: wait function failed", __func__);
             return HDF_FAILURE;
         }
     }
@@ -336,9 +331,9 @@ int32_t BufferQueueStreamOn(struct BufferQueue *queue)
     }
 
     if (queue->queuedCount >= queue->minBuffersNeeded) {
-        int32_t ret = BufferQueueStartStreaming(queue);
+        int32_t ret = BufferQueueStart(queue);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: BufferQueueStartStreaming failed", __func__);
+            HDF_LOGE("%s: BufferQueueStart failed", __func__);
             return ret;
         }
     }
@@ -356,4 +351,14 @@ int32_t BufferQueueStreamOff(struct BufferQueue *queue)
     HDF_LOGD("%s: stream off success", __func__);
 
     return HDF_SUCCESS;
+}
+
+void BufferQueueSetQueueForMmap(struct BufferQueue *queue)
+{
+    g_queueForMmap = queue;
+}
+
+struct BufferQueue *BufferQueueGetQueueForMmap(void)
+{
+    return g_queueForMmap;
 }

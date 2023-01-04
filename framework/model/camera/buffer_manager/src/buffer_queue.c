@@ -12,6 +12,7 @@
 #include "osal_uaccess.h"
 #include "camera_buffer_manager.h"
 #include "camera_buffer.h"
+#include "camera_device_manager.h"
 #include "buffer_queue.h"
 
 #define HDF_LOG_TAG HDF_CAMERA_QUEUE
@@ -19,12 +20,6 @@
 void BufferQueueStop(struct BufferQueue *queue)
 {
     uint32_t i;
-
-    if ((queue->flags & QUEUE_STATE_STREAMING_CALLED) != 0) {
-        if ((queue->queueOps->stopStreaming) != NULL) {
-            queue->queueOps->stopStreaming(queue);
-        }
-    }
 
     if (OsalAtomicRead(&queue->driverOwnCount) != 0) {
         for (i = 0; i < queue->numBuffers; ++i) {
@@ -55,10 +50,8 @@ void BufferQueueStop(struct BufferQueue *queue)
 
 static int32_t BufferQueueCheckMmapOps(struct BufferQueue *queue)
 {
-    struct BufferQueueImp *queueImp = CONTAINER_OF(queue, struct BufferQueueImp, queue);
-
-    if (((queue->ioModes & MEMTYPE_MMAP) == 0) || (queueImp->memOps->mmapAlloc == NULL) ||
-        (queueImp->memOps->mmapFree == NULL) || (queueImp->memOps->mmap == NULL)) {
+    if (((queue->ioModes & MEMTYPE_MMAP) == 0) || (queue->memOps->mmapAlloc == NULL) ||
+        (queue->memOps->mmapFree == NULL) || (queue->memOps->mmap == NULL)) {
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -66,10 +59,8 @@ static int32_t BufferQueueCheckMmapOps(struct BufferQueue *queue)
 
 static int32_t BufferQueueCheckUserPtrOps(struct BufferQueue *queue)
 {
-    struct BufferQueueImp *queueImp = CONTAINER_OF(queue, struct BufferQueueImp, queue);
-
-    if (((queue->ioModes & MEMTYPE_USERPTR) == 0) || (queueImp->memOps->allocUserPtr == NULL) ||
-        (queueImp->memOps->freeUserPtr == NULL)) {
+    if (((queue->ioModes & MEMTYPE_USERPTR) == 0) || (queue->memOps->allocUserPtr == NULL) ||
+        (queue->memOps->freeUserPtr == NULL)) {
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -77,11 +68,9 @@ static int32_t BufferQueueCheckUserPtrOps(struct BufferQueue *queue)
 
 static int32_t BufferQueueCheckDmaBufOps(struct BufferQueue *queue)
 {
-    struct BufferQueueImp *queueImp = CONTAINER_OF(queue, struct BufferQueueImp, queue);
-
-    if (((queue->ioModes & MEMTYPE_DMABUF) == 0) || (queueImp->memOps->attachDmaBuf == NULL) ||
-        (queueImp->memOps->detachDmaBuf == NULL) || (queueImp->memOps->mapDmaBuf == NULL) ||
-        (queueImp->memOps->unmapDmaBuf == NULL)) {
+    if (((queue->ioModes & MEMTYPE_DMABUF) == 0) || (queue->memOps->attachDmaBuf == NULL) ||
+        (queue->memOps->detachDmaBuf == NULL) || (queue->memOps->mapDmaBuf == NULL) ||
+        (queue->memOps->unmapDmaBuf == NULL)) {
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -244,20 +233,23 @@ int32_t BufferQueueRequestBuffers(struct BufferQueue *queue, struct UserCameraRe
     return HDF_SUCCESS;
 }
 
-int32_t BufferQueueStartStreaming(struct BufferQueue *queue)
+int32_t BufferQueueStart(struct BufferQueue *queue)
 {
     struct CameraBuffer *buffer = NULL;
     int32_t ret;
+
+    struct BufferQueueImp *queueImp = container_of(queue, struct BufferQueueImp, queue);
+    struct StreamDevice *streamDev = container_of(queueImp, struct StreamDevice, queueImp);
 
     DLIST_FOR_EACH_ENTRY(buffer, &queue->queuedList, struct CameraBuffer, queueEntry) {
         CameraBufferEnqueue(buffer);
     }
     queue->flags |= QUEUE_STATE_STREAMING_CALLED;
-    if (queue->queueOps->startStreaming == NULL) {
+    if (streamDev->streamOps->startStreaming == NULL) {
         return HDF_FAILURE;
     }
 
-    ret = queue->queueOps->startStreaming(queue);
+    ret = streamDev->streamOps->startStreaming(streamDev);
     if (ret == HDF_SUCCESS) {
         return ret;
     }
