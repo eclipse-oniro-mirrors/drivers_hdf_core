@@ -108,4 +108,36 @@ HWTEST_F(DevMgrTest, DriverUnLoaderTest, TestSize.Level1)
 
     ASSERT_TRUE(sampleService == nullptr);
 }
+
+HWTEST_F(DevMgrTest, DriverTest, TestSize.Level1)
+{
+    ASSERT_TRUE(servmgr != nullptr);
+    ASSERT_TRUE(devmgr != nullptr);
+    int ret;
+    constexpr int loop = 100;
+
+    for (int i = 0; i < loop; i++) {
+        ret = devmgr->LoadDevice(devmgr, TEST_SERVICE_NAME);
+        ASSERT_EQ(ret, HDF_SUCCESS);
+        uint32_t cnt = 0;
+        struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+        while (sampleService == nullptr && cnt < timeout) {
+            OsalMSleep(waitTime);
+            sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+            cnt++;
+        }
+        ASSERT_TRUE(sampleService != nullptr);
+
+        ret = devmgr->UnloadDevice(devmgr, TEST_SERVICE_NAME);
+        ASSERT_EQ(ret, HDF_SUCCESS);
+        cnt = 0;
+        sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+        while (sampleService != nullptr && cnt < timeout) {
+            OsalMSleep(waitTime);
+            sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+            cnt++;
+        }
+        ASSERT_TRUE(sampleService == nullptr);
+    }
+}
 } // namespace OHOS

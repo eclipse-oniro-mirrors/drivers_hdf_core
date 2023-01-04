@@ -19,6 +19,7 @@
 #include "osal_time.h"
 
 #define HDF_LOG_TAG devmgr_service
+#define INVALID_PID (-1)
 
 static bool DevmgrServiceDynamicDevInfoFound(
     const char *svcName, struct DevHostServiceClnt **targetHostClnt, struct HdfDeviceInfo **targetDeviceInfo)
@@ -104,11 +105,16 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
     }
 
     dynamic = HdfSListIsEmpty(&hostClnt->unloadDevInfos) && !HdfSListIsEmpty(&hostClnt->dynamicDevInfos);
-    if (hostClnt->hostPid < 0 && DevmgrServiceStartHostProcess(hostClnt, true, dynamic) != HDF_SUCCESS) {
-        HDF_LOGW("failed to start device host(%{public}s, %{public}u)", hostClnt->hostName, hostClnt->hostId);
-        return HDF_FAILURE;
-    }
     OsalMutexLock(&hostClnt->hostLock);
+    if (hostClnt->hostPid < 0) {
+        OsalMutexUnlock(&hostClnt->hostLock);
+        if (DevmgrServiceStartHostProcess(hostClnt, true, dynamic) != HDF_SUCCESS) {
+            HDF_LOGW("failed to start device host(%{public}s, %{public}u)", hostClnt->hostName, hostClnt->hostId);
+            return HDF_FAILURE;
+        }
+        OsalMutexLock(&hostClnt->hostLock);
+    }
+
     if (hostClnt->hostService == NULL || hostClnt->hostService->AddDevice == NULL) {
         OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGE("%{public}s load %{public}s failed, hostService is null", __func__, serviceName);
@@ -157,17 +163,24 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
         return HDF_FAILURE;
     }
     ret = hostClnt->hostService->DelDevice(hostClnt->hostService, deviceInfo->deviceId);
-    OsalMutexUnlock(&hostClnt->hostLock);
     if (ret != HDF_SUCCESS) {
+        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGI("%{public}s:unload service %{public}s delDevice failed", __func__, serviceName);
         return ret;
     }
     deviceInfo->status = HDF_SERVICE_UNUSABLE;
     if (!HdfSListIsEmpty(&hostClnt->devices)) {
+        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGD("%{public}s host %{public}s devices is not empty", __func__, hostClnt->hostName);
         return HDF_SUCCESS;
     }
-    return DevmgrServiceStopHost(hostClnt);
+    hostClnt->hostPid = INVALID_PID;
+    hostClnt->hostService = NULL; // old hostService will be recycled in CleanupDiedHostResources
+    HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
+    OsalMutexUnlock(&hostClnt->hostLock);
+    ret = DevmgrServiceStopHost(hostClnt);
+
+    return ret;
 }
 
 int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
