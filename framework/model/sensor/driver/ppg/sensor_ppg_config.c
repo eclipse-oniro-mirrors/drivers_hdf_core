@@ -13,7 +13,7 @@
 
 static struct PpgCfgData *g_ppgCfg = NULL;
 
-#define HDF_LOG_TAG hdf_sensor_ppg_config
+#define HDF_LOG_TAG    khdf_sensor_ppg_config_driver
 
 static int32_t InitPpgCfgData()
 {

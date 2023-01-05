@@ -18,7 +18,7 @@
 #include "sensor_device_manager.h"
 #include "sensor_platform_if.h"
 
-#define HDF_LOG_TAG    sensor_hall_driver_c
+#define HDF_LOG_TAG    khdf_sensor_hall_driver
 #define HDF_HALL_WORK_QUEUE_NAME    "hdf_hall_work_queue"
 
 static struct HallDrvData *g_hallDrvData = NULL;
@@ -40,7 +40,7 @@ int32_t HallRegisterChipOps(const struct HallOpsCall *ops)
     return HDF_SUCCESS;
 }
 
-void ReadGpioData()
+void ReadGpioData(void)
 {
     int32_t ret;
     uint16_t tmp;

@@ -13,7 +13,7 @@
 #include "osal_mem.h"
 #include "osal_mutex.h"
 
-#define HDF_LOG_TAG    hdf_light_driver
+#define HDF_LOG_TAG    khdf_light_driver
 
 #define LIGHT_WORK_QUEUE_NAME    "light_queue"
 

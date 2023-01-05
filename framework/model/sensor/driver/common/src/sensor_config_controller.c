@@ -12,7 +12,7 @@
 #include "osal_time.h"
 #include "sensor_platform_if.h"
 
-#define HDF_LOG_TAG    hdf_sensor_commom
+#define HDF_LOG_TAG    khdf_sensor_common_driver
 
 static int32_t SensorOpsNop(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {

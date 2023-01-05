@@ -16,7 +16,7 @@
 #include "sensor_device_manager.h"
 #include "sensor_platform_if.h"
 
-#define HDF_LOG_TAG    sensor_proximity_driver_c
+#define HDF_LOG_TAG    khdf_sensor_proximity_driver
 
 #define HDF_PROXIMITY_WORK_QUEUE_NAME    "hdf_proximity_work_queue"
 
