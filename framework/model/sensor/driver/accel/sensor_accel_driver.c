@@ -16,7 +16,7 @@
 #include "sensor_device_manager.h"
 #include "sensor_platform_if.h"
 
-#define HDF_LOG_TAG    hdf_sensor_accel_driver
+#define HDF_LOG_TAG    khdf_sensor_accel_driver
 
 #define HDF_ACCEL_WORK_QUEUE_NAME    "hdf_accel_work_queue"
 

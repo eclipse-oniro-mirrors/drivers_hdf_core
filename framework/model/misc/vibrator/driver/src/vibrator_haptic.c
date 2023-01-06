@@ -14,7 +14,7 @@
 #include "osal_mem.h"
 #include "vibrator_driver.h"
 
-#define HDF_LOG_TAG    hdf_vibrator_driver
+#define HDF_LOG_TAG    khdf_vibrator_driver
 
 #define VIBRATOR_HAPTIC_STACK_SIZE    0x4000
 #define VIBRATOR_HAPTIC_SEQ_MAX       1024

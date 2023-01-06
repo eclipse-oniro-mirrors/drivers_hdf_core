@@ -15,7 +15,7 @@
 
 #define PPG_IRQ_GPIO_NO      1
 #define PPG_MAX_FIFO_BUF_LEN 3200
-#define HDF_LOG_TAG          hdf_sensor_ppg_driver
+#define HDF_LOG_TAG    khdf_sensor_ppg_driver
 #define HDF_PPG_WORK_QUEUE   "hdf_ppg_work_queue"
 
 #define CHECK_PPG_INIT_RETURN_VALUE(drvData, ret) do {                              \

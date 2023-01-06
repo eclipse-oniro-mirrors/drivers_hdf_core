@@ -16,7 +16,7 @@
 #include "sensor_device_manager.h"
 #include "sensor_platform_if.h"
 
-#define HDF_LOG_TAG    sensor_magnetic_driver_c
+#define HDF_LOG_TAG    khdf_sensor_magnetic_driver
 
 #define HDF_MAGNETIC_WORK_QUEUE_NAME    "hdf_magnetic_work_queue"
 

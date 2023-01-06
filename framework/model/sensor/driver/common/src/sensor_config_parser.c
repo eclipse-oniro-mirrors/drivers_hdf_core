@@ -12,7 +12,7 @@
 #include "osal_mem.h"
 #include "sensor_platform_if.h"
 
-#define HDF_LOG_TAG    hdf_sensor_commom
+#define HDF_LOG_TAG    khdf_sensor_common_driver
 
 static char *g_sensorRegGroupName[SENSOR_GROUP_MAX] = {
     "initSeqConfig",
