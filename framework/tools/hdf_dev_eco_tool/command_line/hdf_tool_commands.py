@@ -15,7 +15,9 @@ from .hdf_get_handler import HdfGetHandler
 from .hdf_set_handler import HdfSetHandler
 from .hdf_ping_handler import HdfPingHandler
 from .hdf_command_error_code import CommandErrorCode
-from .hdi_add_handler import HdiAddHandler
+from command_line.hdi_operate.hdi_add_handler import HdiAddHandler
+from command_line.hdi_operate.hdi_get_handler import HdiGetHandler
+from .hdi_operate.hdi_delete_handler import HdiDeleteHandler
 
 
 class HdfToolCommands(object):
@@ -27,6 +29,8 @@ class HdfToolCommands(object):
             'set': HdfSetHandler,
             'ping': HdfPingHandler,
             'addi': HdiAddHandler,
+            'geti': HdiGetHandler,
+            'deletei': HdiDeleteHandler,
         }
 
     def run(self, cmd, args):

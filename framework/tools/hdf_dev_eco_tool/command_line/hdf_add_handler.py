@@ -26,7 +26,7 @@ from .hdf_vendor_mk_file import HdfVendorMkFile
 from .hdf_driver_config_file import HdfDriverConfigFile
 from .hdf_vendor_makefile import HdfVendorMakeFile
 from .hdf_defconfig_patch import HdfDefconfigAndPatch
-from .hdi_hdf_group_passwd import OperateGroupPasswd
+from command_line.operate_group_passwd import OperateGroupPasswd
 
 
 class HdfAddHandler(HdfCommandHandlerBase):

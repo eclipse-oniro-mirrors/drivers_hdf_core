@@ -59,6 +59,16 @@ class OperateGroupPasswd(object):
                 break
         return temp_id
 
+    def delete_group_passwd(self, name, file_path):
+        base_group_passwd_str = ":".join(self.group_newline.strip().strip(":").split(":")[:-1])
+        res_base = base_group_passwd_str.format(peripheral_name=name)
+        temp_lines = hdf_utils.read_file_lines(file_path)
+        for index, line in enumerate(temp_lines):
+            if line.startswith(res_base):
+                del temp_lines[index]
+                break
+        hdf_utils.write_file_lines(file_path, temp_lines)
+
     @staticmethod
     def generate_id(max_border):
         max_border += 20

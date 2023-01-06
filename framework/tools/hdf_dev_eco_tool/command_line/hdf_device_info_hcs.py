@@ -174,3 +174,27 @@ class HdfDeviceInfoHcsFile(object):
             elif line.strip().find(module_branch_start) != -1:
                 return False
         return True
+
+    @staticmethod
+    def Hdi_hcs_delete(file_path, driver_name):
+        hcs_config = hdf_utils.read_file_lines(file_path)
+        index_info = {}
+        count = 0
+        for index, line in enumerate(hcs_config):
+            if line.find("%s_dal :: %s" % (driver_name, "host")) == -1:
+                continue
+            index_info["start_index"] = index
+            for child_index in range(
+                    index_info.get("start_index"), len(hcs_config)):
+                if hcs_config[child_index].strip().find("{") != -1:
+                    count += 1
+                elif hcs_config[child_index].strip() == "}":
+                    count -= 1
+                if count == 0:
+                    index_info["end_index"] = child_index
+                    break
+            break
+        if index_info:
+            temp_lines = hcs_config[0:index_info.get("start_index")] \
+                         + hcs_config[index_info.get("end_index") + 1:]
+            hdf_utils.write_file_lines(file_path, temp_lines)
