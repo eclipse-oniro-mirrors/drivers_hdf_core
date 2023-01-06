@@ -35,7 +35,8 @@ ohos_shared_library("libbuffer_producer_sequenceable_1.0") {
     #"graphic_chipsetsdk:surface",
   ]
 
-  install_images = [ chipset_base_dir ]
+  install_images = [ system_base_dir ]
+  relative_install_dir = "chipset-sdk"
   subsystem_name = "hdf"
   part_name = "drivers_interface_camera"
 }
