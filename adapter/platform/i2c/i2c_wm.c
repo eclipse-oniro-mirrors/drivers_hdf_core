@@ -28,7 +28,7 @@ struct I2cResource {
 };
 
 struct I2cDevice {
-    uint16_t devAddr;      /**< slave device addr */
+    uint16_t devAddr;      /**< device addr */
     uint32_t addressWidth; /**< Addressing mode: 7 bit or 10 bit */
     struct OsalMutex mutex;
     uint32_t port;
