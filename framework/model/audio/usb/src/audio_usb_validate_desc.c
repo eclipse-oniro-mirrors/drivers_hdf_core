@@ -115,7 +115,7 @@ uint32_t AudioUsbCombineBytes(uint8_t *bytes, int32_t size)
     }
 }
 
-void *AudioUsbFindDesc(void *descStart, int32_t descLen, void *after, uint8_t descType)
+void *AudioUsbFindDesc(void *descStart, int32_t descLen, const void *after, uint8_t descType)
 {
     uint8_t *start = NULL;
     uint8_t *end = NULL;
@@ -145,7 +145,7 @@ void *AudioUsbFindDesc(void *descStart, int32_t descLen, void *after, uint8_t de
     return NULL;
 }
 
-void *AudioUsbFindCsintDesc(void *buf, int32_t bufLen, void *after, uint8_t descSubType)
+void *AudioUsbFindCsintDesc(void *buf, int32_t bufLen, const void *after, uint8_t descSubType)
 {
     uint8_t *afterDesc = after;
 
@@ -199,8 +199,8 @@ int32_t AudioUsbCtlMsg(struct usb_device *dev, struct AudioUsbCtlMsgParam *usbCt
     ret = usb_control_msg(dev, usbCtlMsgParam->pipe, usbCtlMsgParam->request, usbCtlMsgParam->requestType,
         usbCtlMsgParam->value, usbCtlMsgParam->index, buf, size, timeout);
 
-    ret = memcpy_s(data, size, buf, size);
-    if (ret != EOK) {
+    int32_t temp = memcpy_s(data, size, buf, size);
+    if (temp != EOK) {
         AUDIO_DRIVER_LOG_ERR("memcpy_s buf failed!");
         kfree(buf);
         return HDF_ERR_MALLOC_FAIL;
