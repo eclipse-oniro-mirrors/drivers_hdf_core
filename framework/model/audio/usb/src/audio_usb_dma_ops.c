@@ -500,6 +500,10 @@ static int32_t AudioSetFormat(
 
 static bool AudioUsbFindFormatSub(struct PcmInfo *pcmInfo, struct AudioUsbFormat *fp, int usbPcmFormat)
 {
+    if (pcmInfo == NULL || fp == NULL) {
+        AUDIO_DEVICE_LOG_ERR("pcmInfo or fp is null.");
+        return false;
+    }
     if (!(fp->formats & usbPcmFormat)) {
         AUDIO_DEVICE_LOG_WARNING(
             "The current audio stream format is %d. The audio card support format is %d", usbPcmFormat, fp->formats);
@@ -535,6 +539,10 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
         audioUsbFormatList = &audioUsbDriver->captureUsbFormatList;
     }
 
+    if (DListIsEmpty(audioUsbFormatList)) {
+        ADM_LOG_ERR("audioUsbFormatList is empty.");
+        return NULL;
+    }
     DLIST_FOR_EACH_ENTRY(fp, audioUsbFormatList, struct AudioUsbFormat, list) {
         if (!AudioUsbFindFormatSub(pcmInfo, fp, usbPcmFormat)) {
             continue;
@@ -917,8 +925,6 @@ int32_t AudioUsbDmaPrep(const struct PlatformData *data, const enum AudioStreamT
 static void AudioUsbCopyToUrb(
     struct AudioUsbDriver *audioUsbDriver, struct urb *urb, int offset, int stride, uint32_t bytes)
 {
-    uint32_t bytes1;
-
     if (audioUsbDriver == NULL) {
         AUDIO_DEVICE_LOG_ERR("hdfAudioUsbDriver is null.");
         return;
@@ -926,7 +932,7 @@ static void AudioUsbCopyToUrb(
 
     if (audioUsbDriver->renderHwptr + bytes > audioUsbDriver->renderBufInfo.cirBufSize * stride) {
         /* err, the transferred area goes over buffer boundary. */
-        bytes1 = audioUsbDriver->renderBufInfo.cirBufSize * stride - audioUsbDriver->renderHwptr;
+        uint32_t bytes1 = audioUsbDriver->renderBufInfo.cirBufSize * stride - audioUsbDriver->renderHwptr;
         (void)memcpy_s(urb->transfer_buffer + offset, bytes1,
             (char *)audioUsbDriver->renderBufInfo.virtAddr + audioUsbDriver->renderHwptr, bytes1);
         (void)memcpy_s(urb->transfer_buffer + offset + bytes1, bytes - bytes1,
@@ -1036,19 +1042,17 @@ int32_t AudioUsbDmaSubmit(const struct PlatformData *data, const enum AudioStrea
 
 static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, struct urb *urb)
 {
-    uint32_t frameSize, frames, bytes, oldptr, offset;
-    uint32_t i;
     unsigned long flags;
     unsigned char *capPoint = NULL;
 
-    frameSize = audioUsbDriver->capturePcmInfo.frameSize;
+    uint32_t frameSize = audioUsbDriver->capturePcmInfo.frameSize;
 
-    for (i = 0; i < urb->number_of_packets; i++) {
-        offset = urb->iso_frame_desc[i].offset;
+    for (uint32_t i = 0; i < urb->number_of_packets; i++) {
+        uint32_t offset = urb->iso_frame_desc[i].offset;
         capPoint = (unsigned char *)urb->transfer_buffer + offset;
 
-        bytes = urb->iso_frame_desc[i].actual_length;
-        frames = bytes / frameSize;
+        uint32_t bytes = urb->iso_frame_desc[i].actual_length;
+        uint32_t frames = bytes / frameSize;
 
         if (bytes % audioUsbDriver->capturePcmInfo.frameSize != 0) {
             bytes = frames * frameSize;
@@ -1056,7 +1060,7 @@ static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, stru
         }
 
         spin_lock_irqsave(&audioUsbDriver->lock, flags);
-        oldptr = audioUsbDriver->captureHwptr;
+        uint32_t oldptr = audioUsbDriver->captureHwptr;
         audioUsbDriver->captureHwptr += bytes;
         if (audioUsbDriver->captureHwptr >= audioUsbDriver->captureBufInfo.cirBufSize * frameSize)
             audioUsbDriver->captureHwptr -= audioUsbDriver->captureBufInfo.cirBufSize * frameSize;

@@ -525,7 +525,7 @@ static int32_t AudioGetPortInfoConfig(struct DeviceResourceIface *drsOps, const 
     uint64_t *buf = NULL;
 
     num = drsOps->GetElemNum(device->property, HW_INFO);
-    if (num <= 0 || num > AUDIO_CONFIG_MAX_ITEM) {
+    if (num == 0 || num > AUDIO_CONFIG_MAX_ITEM) {
         ADM_LOG_ERR("parser %s element num failed", HW_INFO);
         return HDF_FAILURE;
     }
