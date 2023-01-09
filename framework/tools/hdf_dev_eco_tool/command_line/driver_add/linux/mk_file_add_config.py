@@ -38,8 +38,8 @@ def find_makefile_file_end_index(date_lines, model_name):
 
 def formate_mk_config_build(source_path, date_lines, devices, root):
     if len(source_path) > 1:
-        sources_line = ""
-        obj_first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\" + "\n"
+        sources_line = []
+        obj_first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
         temp_line = "\t\t\t\t$(${file_parent_path})/${source_path}.o"
         for source in source_path:
             temp_handle = Template(temp_line.replace("$(", "temp_flag"))
@@ -53,12 +53,12 @@ def formate_mk_config_build(source_path, date_lines, devices, root):
             finally:
                 pass
             if source == source_path[-1]:
-                sources_line += temp_handle.substitute(
-                    temp_dict).replace("temp_flag", "$(") + "\n"
+                sources_line.append("".join([temp_handle.substitute(
+                    temp_dict).replace("temp_flag", "$("), "\n"]))
             else:
-                sources_line += temp_handle.substitute(
-                    temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
-        build_resource = obj_first_line + sources_line
+                sources_line.append("".join([temp_handle.substitute(
+                    temp_dict).replace("temp_flag", "$("), " \\", "\n"]))
+        build_resource = obj_first_line + "".join(sources_line)
     else:
         build_resource = "LOCAL_SRCS += $(${file_parent_path})/${source_path}\n"
         for source in source_path:
@@ -73,8 +73,8 @@ def audio_makefile_template(date_lines, driver, source_path, head_path, devices,
     judge_result = judge_driver_config_exists(date_lines, driver_name=driver)
     if judge_result:
         return
-    sources_line = ""
-    obj_first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\" + "\n"
+    sources_lines = []
+    obj_first_line = "\nobj-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
     temp_line = "        ${source_path}.o"
     for source in source_path:
         temp_handle = Template(temp_line.replace("$(", "temp_flag"))
@@ -88,14 +88,13 @@ def audio_makefile_template(date_lines, driver, source_path, head_path, devices,
         finally:
             pass
         if source == source_path[-1]:
-            sources_line += temp_handle.substitute(
-                temp_dict).replace("temp_flag", "$(")
+            sources_lines.append(temp_handle.substitute(temp_dict).replace("temp_flag", "$("))
         else:
-            sources_line += temp_handle.substitute(
-                temp_dict).replace("temp_flag", "$(") + " \\" + "\n"
-    build_resource = obj_first_line + sources_line
+            temp_replace_str = temp_handle.substitute(temp_dict).replace("temp_flag", "$(")
+            sources_lines.append("%s \\\n" % temp_replace_str)
+    build_resource = obj_first_line + "".join(sources_lines)
     head_line = []
-    ccflags_first_line = "\nccflags-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\" + "\n"
+    ccflags_first_line = "\nccflags-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
     temp_line = "        -I$(srctree)/$(${file_parent_path})/${head_path}"
     for head_file in head_path:
         temp_handle = Template(temp_line.replace("$(", "temp_flag"))
