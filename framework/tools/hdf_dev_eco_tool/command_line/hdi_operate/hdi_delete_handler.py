@@ -56,7 +56,7 @@ class HdiDeleteHandler(HdfCommandHandlerBase):
         for argument_name in get_argument:
             index_num = self.args_original.index(argument_name)
             get_args.append(self.args_original[index_num])
-            get_args.append(self.args_original[index_num+1])
+            get_args.append(self.args_original[index_num + 1])
         return HdiGetHandler(get_args)
 
     def _del_comm_handler(self, type_name):
@@ -139,7 +139,7 @@ class HdiDeleteHandler(HdfCommandHandlerBase):
     def _delete_peripheral_config_file(self, config_json_path):
         hdi_config = hdf_tool_settings.HdiToolConfig()
         if config_json_path.endswith(".hcs"):
-            HdfDeviceInfoHcsFile.Hdi_hcs_delete(config_json_path, self.driver)
+            HdfDeviceInfoHcsFile.hdi_hcs_delete(config_json_path, self.driver)
         elif config_json_path.endswith(".te"):
             if config_json_path.endswith("type.te"):
                 _, selinux_temp = hdi_config.get_hdi_selinux_type()

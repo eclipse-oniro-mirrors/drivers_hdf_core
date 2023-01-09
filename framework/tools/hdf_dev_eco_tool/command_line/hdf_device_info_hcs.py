@@ -176,7 +176,7 @@ class HdfDeviceInfoHcsFile(object):
         return True
 
     @staticmethod
-    def Hdi_hcs_delete(file_path, driver_name):
+    def hdi_hcs_delete(file_path, driver_name):
         hcs_config = hdf_utils.read_file_lines(file_path)
         index_info = {}
         count = 0
