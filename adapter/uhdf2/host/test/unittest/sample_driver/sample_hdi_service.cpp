@@ -205,7 +205,7 @@ static int32_t InjectPmState(const struct HdfDeviceObject *device)
     (void)device;
     struct IDevHostService *instance = DevHostServiceNewInstance(0, nullptr);
 
-    if (instance == nullptr && instance->PmNotify == nullptr) {
+    if (instance == nullptr || instance->PmNotify == nullptr) {
         HDF_LOGE("%{public}s parameter is null", __func__);
         return HDF_FAILURE;
     }

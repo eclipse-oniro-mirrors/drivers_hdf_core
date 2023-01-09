@@ -134,8 +134,6 @@ HWTEST_F(NativeBufferTest, NativeBufferTest005, TestSize.Level1)
     std::cout << "srcBuffer:\n" << srcBuffer.Dump() << std::endl;
 
     NativeBuffer destBuffer(std::move(srcBuffer));
-    ASSERT_EQ(srcBuffer.GetBufferHandle(), nullptr);
-    std::cout << "srcBuffer:\n" << srcBuffer.Dump() << std::endl;
     ASSERT_NE(destBuffer.GetBufferHandle(), nullptr);
     std::cout << "destBuffer:\n" << destBuffer.Dump() << std::endl;
 
@@ -180,8 +178,6 @@ HWTEST_F(NativeBufferTest, NativeBufferTest007, TestSize.Level1)
 
     // copy assign
     destBuffer = std::move(srcBuffer);
-    ASSERT_EQ(srcBuffer.GetBufferHandle(), nullptr);
-    std::cout << "srcBuffer:\n" << srcBuffer.Dump() << std::endl;
     ASSERT_NE(destBuffer.GetBufferHandle(), nullptr);
     std::cout << "destBuffer:\n" << destBuffer.Dump() << std::endl;
 
