@@ -217,9 +217,12 @@ void ASTUnionType::EmitCppReadVar(const std::string &parcelName, const std::stri
     sb.Append(prefix).AppendFormat("if (%sCp == nullptr) {\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
-    sb.Append(prefix).Append("}\n");
-    sb.Append(prefix).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %sCp, sizeof(%s));\n", name.c_str(),
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).AppendFormat("if (memcpy_s(&%s, sizeof(%s), %sCp, sizeof(%s)) != EOK) {\n", name.c_str(),
         EmitCppType().c_str(), name.c_str(), EmitCppType().c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to memcpy %s\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void ASTUnionType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const

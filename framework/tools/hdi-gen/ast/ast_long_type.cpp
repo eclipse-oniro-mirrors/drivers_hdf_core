@@ -105,11 +105,12 @@ void ASTLongType::EmitCppReadVar(const std::string &parcelName, const std::strin
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadInt64();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadInt64();\n", name.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("%s %s = 0;\n", EmitCppType().c_str(), name.c_str());
     }
+    sb.Append(prefix).AppendFormat("if (!%s.ReadInt64(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void ASTLongType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
@@ -143,11 +144,12 @@ void ASTLongType::EmitCppUnMarshalling(const std::string &parcelName, const std:
     const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     if (emitType) {
-        sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadInt64();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadInt64();\n", name.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("%s %s = 0;\n", EmitCppType().c_str(), name.c_str());
     }
+    sb.Append(prefix).AppendFormat("if (!%s.ReadInt64(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void ASTLongType::EmitJavaWriteVar(

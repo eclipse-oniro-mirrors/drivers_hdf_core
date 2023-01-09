@@ -354,8 +354,6 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
 
     if (type->GetTypeKind() == TypeKind::TYPE_STRING) {
         EmitReadCStringStubMethodParameter(param, parcelName, gotoLabel, sb, prefix, type);
-    } else if (type->GetTypeKind() == TypeKind::TYPE_INTERFACE) {
-        type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else if (type->GetTypeKind() == TypeKind::TYPE_STRUCT) {
         sb.Append(prefix).AppendFormat("%s = (%s*)OsalMemCalloc(sizeof(%s));\n", param->GetName().c_str(),
             type->EmitCType(TypeMode::NO_MODE).c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
@@ -377,13 +375,17 @@ void CServiceStubCodeEmitter::EmitReadStubMethodParameter(const AutoPtr<ASTParam
         sb.Append(prefix + TAB).AppendFormat("%s = HDF_ERR_MALLOC_FAIL;\n", errorCodeName_.c_str());
         sb.Append(prefix + TAB).AppendFormat("goto %s;\n", finishedLabelName_);
         sb.Append(prefix).Append("}\n");
-        sb.Append(prefix).AppendFormat("(void)memcpy_s(%s, sizeof(%s), %s, sizeof(%s));\n", param->GetName().c_str(),
-            type->EmitCType(TypeMode::NO_MODE).c_str(), cpName.c_str(), type->EmitCType(TypeMode::NO_MODE).c_str());
-    } else if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST) {
-        type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
-    } else if (type->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR) {
-        type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
-    } else if (type->GetTypeKind() == TypeKind::TYPE_NATIVE_BUFFER) {
+        sb.Append(prefix).AppendFormat("if (memcpy_s(%s, sizeof(%s), %s, sizeof(%s)) != EOK) {\n",
+            param->GetName().c_str(), type->EmitCType(TypeMode::NO_MODE).c_str(), cpName.c_str(),
+            type->EmitCType(TypeMode::NO_MODE).c_str());
+        sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to memcpy %s\", __func__);\n",
+            param->GetName().c_str());
+        sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+        sb.Append(prefix).Append("}\n");
+    } else if (type->GetTypeKind() == TypeKind::TYPE_ARRAY || type->GetTypeKind() == TypeKind::TYPE_LIST ||
+               type->GetTypeKind() == TypeKind::TYPE_FILEDESCRIPTOR ||
+               type->GetTypeKind() == TypeKind::TYPE_NATIVE_BUFFER || type->GetTypeKind() == TypeKind::TYPE_ENUM ||
+               type->GetTypeKind() == TypeKind::TYPE_INTERFACE) {
         type->EmitCStubReadVar(parcelName, param->GetName(), errorCodeName_, gotoLabel, sb, prefix);
     } else {
         std::string name = StringHelper::Format("&%s", param->GetName().c_str());

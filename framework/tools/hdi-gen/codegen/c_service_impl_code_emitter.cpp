@@ -284,11 +284,9 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb) const
             baseName_.c_str(), method->GetName().c_str());
     }
 
-    if (Options::GetInstance().DoPassthrough()) {
-        AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
-        sb.Append(TAB).AppendFormat("%s->interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
-            baseName_.c_str(), method->GetName().c_str());
-    }
+    AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
+    sb.Append(TAB).AppendFormat("%s->interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
+        baseName_.c_str(), method->GetName().c_str());
 
     sb.Append(TAB).AppendFormat("return &%s->interface;\n", objName.c_str());
     sb.Append("}\n");

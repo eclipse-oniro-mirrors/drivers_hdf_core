@@ -105,11 +105,12 @@ void ASTBooleanType::EmitCppReadVar(const std::string &parcelName, const std::st
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadBool();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadBool();\n", name.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("%s %s = false;\n", EmitCppType().c_str(), name.c_str());
     }
+    sb.Append(prefix).AppendFormat("if (!%s.ReadBool(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void ASTBooleanType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
@@ -143,11 +144,12 @@ void ASTBooleanType::EmitCppUnMarshalling(const std::string &parcelName, const s
     const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     if (emitType) {
-        sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadBool();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadBool();\n", name.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("%s %s = false;\n", EmitCppType().c_str(), name.c_str());
     }
+    sb.Append(prefix).AppendFormat("if (!%s.ReadBool(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void ASTBooleanType::EmitJavaWriteVar(
