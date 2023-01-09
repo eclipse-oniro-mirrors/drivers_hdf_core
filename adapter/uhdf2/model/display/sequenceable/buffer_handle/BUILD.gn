@@ -35,5 +35,5 @@ ohos_shared_library("libbuffer_handle_sequenceable_1.0") {
   install_images = [ system_base_dir ]
   relative_install_dir = "chipset-pub-sdk"
   subsystem_name = "hdf"
-  part_name = "drivers_peripheral_distributed_camera"
+  part_name = "drivers_interface_distributed_camera"
 }
