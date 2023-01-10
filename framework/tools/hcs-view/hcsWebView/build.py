@@ -6,7 +6,8 @@
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
-
+import os
+import stat
 from asyncio import subprocess
 
 if __name__ == "__main__":
@@ -17,6 +18,9 @@ if __name__ == "__main__":
     with open(r".\dist\main.js", "r", encoding="utf8") as file:
         destss = file.read()
     ss = ss[:i1] + destss + ss[i2:]
-    with open(r".\..\hcsVSCode\editor.html", "w", encoding="utf8") as file:
+    flags = os.O_RDWR | os.O_CREAT
+    modes = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
+    with os.fdopen(os.open(r".\..\hcsVSCode\editor.html", flags, modes),
+                   "w", encoding="utf-8") as file:
         file.write(ss)
     print("replaced")
