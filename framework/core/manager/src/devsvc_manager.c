@@ -291,6 +291,7 @@ int DevSvcManagerListServiceByInterfaceDesc(
     }
     const char *serviceNames[SERVICE_LIST_MAX];
     uint32_t serviceNum = 0;
+    uint32_t i;
     OsalMutexLock(&devSvcManager->mutex);
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
         if (record->interfaceDesc == NULL) {
@@ -316,7 +317,7 @@ int DevSvcManagerListServiceByInterfaceDesc(
             interfaceDesc, serviceNum);
         return HDF_FAILURE;
     }
-    for (uint32_t i = 0; i < serviceNum; i++) {
+    for (i = 0; i < serviceNum; i++) {
         HdfSbufWriteString(reply, serviceNames[i]);
     }
     return status;
