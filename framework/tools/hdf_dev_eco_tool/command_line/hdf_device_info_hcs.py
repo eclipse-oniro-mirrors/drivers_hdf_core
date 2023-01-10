@@ -53,8 +53,9 @@ class HdfDeviceInfoHcsFile(object):
 
     def _save(self):
         if self.lines:
-            codetype = "utf-8"
-            with open(self.hcspath, "w+", encoding=codetype) as lwrite:
+            config_info = HdfToolSettings().get_file_config_info()
+            write_fd = os.open(self.hcspath, config_info["flags"], config_info["modes"])
+            with os.fdopen(write_fd, "w+", encoding="utf-8") as lwrite:
                 for line in self.lines:
                     lwrite.write(line)
 

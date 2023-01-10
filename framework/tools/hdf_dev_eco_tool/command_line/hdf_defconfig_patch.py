@@ -52,7 +52,9 @@ class HdfDefconfigAndPatch(object):
                 lines.remove(self.new_demo_config.encode("utf-8"))
             else:
                 lines.remove(("+" + self.new_demo_config).encode("utf-8"))
-        with open(path, "wb") as f_write:
+        config_info = HdfToolSettings().get_file_config_info()
+        write_fd = os.open(path, config_info["flags"], config_info["modes"])
+        with os.fdopen(write_fd, "wb") as f_write:
             f_write.writelines(lines)
 
     def rename_vendor(self):

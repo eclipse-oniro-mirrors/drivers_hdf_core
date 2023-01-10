@@ -10,6 +10,7 @@
 import argparse
 import os
 import re
+import stat
 
 import pip
 
@@ -293,7 +294,10 @@ class IDLGenerator:
 
     def _write_file(self, file_path, file_name):
         file = os.path.join(self._make_output_dir(file_path), file_name).replace('\\', '/')
-        with open(file, "w", encoding="utf8") as fp:
+        flags = os.O_RDWR | os.O_CREAT
+        modes = stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+        write_fd = os.open(file, flags, modes)
+        with os.fdopen(write_fd, "w", encoding="utf-8") as fp:
             fp.write("".join(self._idl))
         print("Generate: --------------------- %s ---------------------\n" % os.path.normpath(file))
         self._idl = []
