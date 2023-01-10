@@ -45,6 +45,8 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_platform",
       "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
       "//drivers/hdf_core/framework/tools/hdf_dbg:hdf_dbg",
+      "//drivers/peripheral/base:audio_hifi_watchdog.para",
+      "//drivers/peripheral/base:audio_hifi_watchdog.para.dac",
       "//drivers/peripheral/base:hdf_peripheral.cfg",
     ]
 
