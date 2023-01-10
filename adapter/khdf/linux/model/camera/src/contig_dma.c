@@ -350,7 +350,7 @@ static void *ContigAttachDmaBuf(struct BufferQueue *queue, uint32_t planeNum, vo
         return ERR_PTR(-ENOMEM);
     }
 
-    memset_s(buf, sizeof(buf), 0, sizeof(*buf));
+    memset_s(buf, sizeof(*buf), 0, sizeof(*buf));
     buf->dev = dev;
     /* create attachment for the dmabuf with the user device */
     dba = dma_buf_attach(dbuf, buf->dev);
