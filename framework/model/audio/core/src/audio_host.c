@@ -389,7 +389,7 @@ static int32_t AudioDriverInit(struct HdfDeviceObject *device)
     }
     audioHost = (struct AudioHost *)device->service;
     if (AudioCardInit(device, audioHost) != HDF_SUCCESS) {
-        ADM_LOG_ERR("set audio class failed.");
+        ADM_LOG_ERR("audio card init failed.");
         return HDF_FAILURE;
     }
     ADM_LOG_INFO("success.");

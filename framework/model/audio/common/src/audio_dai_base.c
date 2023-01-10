@@ -12,7 +12,7 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
-static const char *g_audioDaiControlsList[AUDIO_CTRL_LIST_MAX] = {
+static char *g_audioDaiControlsList[AUDIO_CTRL_LIST_MAX] = {
     "Main Playback Volume", "Main Capture Volume",
     "Playback Mute", "Capture Mute", "Mic Left Gain",
     "Mic Right Gain", "External Codec Enable",
@@ -37,8 +37,8 @@ int32_t DaiGetConfigInfo(const struct HdfDeviceObject *device, struct DaiData *d
     }
 
     if (data->regConfig != NULL) {
-        ADM_LOG_ERR("g_codecData regConfig  fail!");
-        return HDF_FAILURE;
+        ADM_LOG_INFO("g_codecData regConfig has been parsed!");
+        return HDF_SUCCESS;
     }
 
     data->regConfig = (struct AudioRegCfgData *)OsalMemCalloc(sizeof(*(data->regConfig)));

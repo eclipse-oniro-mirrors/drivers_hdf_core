@@ -86,15 +86,8 @@ int32_t AudioFillConfigData(const struct HdfDeviceObject *device, struct AudioCo
 {
     const struct DeviceResourceNode *node = NULL;
     struct DeviceResourceIface *drsOps = NULL;
-    int32_t serviceRet;
-    int32_t codecRet;
-    int32_t platformRet;
-    int32_t cpuRet;
-    int32_t codeDaiRet;
-    int32_t dspRet;
-    int32_t dspDaiRet;
-    ADM_LOG_DEBUG("Entry.");
 
+    ADM_LOG_DEBUG("Entry.");
     if (device == NULL || configData == NULL) {
         ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
         return HDF_FAILURE;
@@ -111,25 +104,18 @@ int32_t AudioFillConfigData(const struct HdfDeviceObject *device, struct AudioCo
         return HDF_FAILURE;
     }
 
-    serviceRet = drsOps->GetString(node, "serviceName", &(configData->cardServiceName), 0);
-    codecRet = drsOps->GetString(node, "codecName", &(configData->codecName), 0);
-    platformRet = drsOps->GetString(node, "platformName", &(configData->platformName), 0);
-    cpuRet = drsOps->GetString(node, "cpuDaiName", &(configData->cpuDaiName), 0);
-    codeDaiRet = drsOps->GetString(node, "codecDaiName", &(configData->codecDaiName), 0);
-    dspRet = drsOps->GetString(node, "dspName", &(configData->dspName), 0);
-    dspDaiRet = drsOps->GetString(node, "dspDaiName", &(configData->dspDaiName), 0);
-    if (serviceRet || codecRet || platformRet || cpuRet || codeDaiRet ||
-        dspRet || dspDaiRet) {
-        ADM_LOG_ERR("Read audioDeviceName fail: serviceRet=%d, codecRet=%d, platformRet=%d, cpuRet=%d, codeDaiRet=%d,"
-            "dspRet=%d, dspDaiRet=%d",
-            serviceRet, codecRet, platformRet, cpuRet, codeDaiRet, dspRet, dspDaiRet);
-        return HDF_FAILURE;
-    }
+    (void)drsOps->GetString(node, "serviceName", &(configData->cardServiceName), 0);
+    (void)drsOps->GetString(node, "codecName", &(configData->codecName), 0);
+    (void)drsOps->GetString(node, "platformName", &(configData->platformName), 0);
+    (void)drsOps->GetString(node, "cpuDaiName", &(configData->cpuDaiName), 0);
+    (void)drsOps->GetString(node, "codecDaiName", &(configData->codecDaiName), 0);
+    (void)drsOps->GetString(node, "dspName", &(configData->dspName), 0);
+    (void)drsOps->GetString(node, "dspDaiName", &(configData->dspDaiName), 0);
 
-    ADM_LOG_DEBUG("Success! codecName = %s, platformName = %s, cpuDaiName = %s, codecDaiName = %s, "
-        "dspName = %s, dspDaiName = %s.",
-        configData->codecName, configData->platformName, configData->cpuDaiName,
-        configData->codecDaiName, configData->dspName, configData->dspDaiName);
+    ADM_LOG_INFO("cardServiceName = %s", configData->cardServiceName);
+    ADM_LOG_INFO("codecName       = %s, codecDaiName = %s", configData->codecName, configData->codecDaiName);
+    ADM_LOG_INFO("platformName    = %s, cpuDaiNamei = %s", configData->platformName, configData->cpuDaiName);
+    ADM_LOG_INFO("dspName         = %s, dspDaiName = %s", configData->dspName, configData->dspDaiName);
 
     return HDF_SUCCESS;
 }

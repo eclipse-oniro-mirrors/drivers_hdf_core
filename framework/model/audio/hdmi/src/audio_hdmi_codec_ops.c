@@ -195,6 +195,7 @@ int32_t AudioHdmiCodecDaiDeviceInit(struct AudioCard *card, const struct DaiDevi
 
 int32_t AudioHdmiCodecDaiStartup(const struct AudioCard *card, const struct DaiDevice *device)
 {
+    int32_t ret;
     struct HdmiCodecPriv *hdmiCodecPriv = NULL;
 
     hdmiCodecPriv = AudioGetHdmiCodecPriv();
@@ -218,8 +219,7 @@ int32_t AudioHdmiCodecDaiStartup(const struct AudioCard *card, const struct DaiD
         return HDF_FAILURE;
     }
     if (hdmiCodecPriv->hdmiCodecData.ops->audio_startup != NULL) {
-        int32_t ret = hdmiCodecPriv->hdmiCodecData.ops->audio_startup(hdmiCodecPriv->dev,
-            hdmiCodecPriv->hdmiCodecData.data);
+        ret = hdmiCodecPriv->hdmiCodecData.ops->audio_startup(hdmiCodecPriv->dev, hdmiCodecPriv->hdmiCodecData.data);
         if (ret != 0) {
             mutex_unlock(&hdmiCodecPriv->lock);
             AUDIO_DRIVER_LOG_ERR("audio_startup is failed.");
@@ -264,13 +264,14 @@ int32_t AudioHdmiCodecDaiShutdown(const struct AudioCard *card, const struct Dai
 static unsigned long HdmiCodecSpkMaskFromAlloc(uint32_t spkAlloc)
 {
     uint32_t index;
+    uint32_t temp;
     static const uint32_t hdmiCodecEldSpkAllocBits[] = {
         FL | FR, LFE, FC, RL | RR, RC, FLC | FRC, RLC | RRC,
     };
     uint32_t spkMask = 0;
 
     for (index = 0; index < HDF_ARRAY_SIZE(hdmiCodecEldSpkAllocBits); index++) {
-        uint32_t temp = spkAlloc & (1 << index);
+        temp = spkAlloc & (1 << index);
         if (temp != 0) {
             spkMask |= hdmiCodecEldSpkAllocBits[index];
         }
@@ -367,6 +368,7 @@ int32_t AudioHdmiCodecDaiMuteStream(
     const struct AudioCard *audioCard, const struct DaiDevice *dai, bool mute, int32_t direction)
 {
     struct HdmiCodecPriv *hdmiCodecPriv = NULL;
+    int32_t ret;
 
     (void)audioCard;
     (void)dai;
@@ -382,7 +384,7 @@ int32_t AudioHdmiCodecDaiMuteStream(
     }
     if (hdmiCodecPriv->hdmiCodecData.ops->mute_stream != NULL &&
         (direction == AUDIO_RENDER_STREAM_OUT || !hdmiCodecPriv->hdmiCodecData.ops->no_capture_mute)) {
-        int32_t ret = hdmiCodecPriv->hdmiCodecData.ops->mute_stream(
+        ret = hdmiCodecPriv->hdmiCodecData.ops->mute_stream(
             hdmiCodecPriv->dev, hdmiCodecPriv->hdmiCodecData.data, mute, direction);
         if (ret != HDF_SUCCESS) {
             AUDIO_DRIVER_LOG_ERR("mute_stream is failed.");

@@ -161,7 +161,7 @@ static int32_t LinuxAudioUsbProbe(struct usb_interface *usbIf, const struct usb_
         return HDF_FAILURE;
     }
 
-    for (i = 0; g_hdfAudioUsbDriver.pnpFlag != 1 || i <= LOAD_AUDIO_USB_DRIVER_FREQUENCY; i++) {
+    for (i = 0; g_hdfAudioUsbDriver.pnpFlag != 1 && i <= LOAD_AUDIO_USB_DRIVER_FREQUENCY; i++) {
         OsalMSleep(WAIT_FOR_HDF_START_MILLISECOND);
         if (AudioUsbDriverLoad(HDF_AUDIO_USB_PNP_SRV_NAME) == HDF_SUCCESS &&
             AudioUsbDriverLoad(HDF_AUDIO_USB_DMA_NAME) == HDF_SUCCESS &&

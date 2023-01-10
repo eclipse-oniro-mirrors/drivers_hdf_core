@@ -925,6 +925,8 @@ int32_t AudioUsbDmaPrep(const struct PlatformData *data, const enum AudioStreamT
 static void AudioUsbCopyToUrb(
     struct AudioUsbDriver *audioUsbDriver, struct urb *urb, int offset, int stride, uint32_t bytes)
 {
+    uint32_t bytes1;
+
     if (audioUsbDriver == NULL) {
         AUDIO_DEVICE_LOG_ERR("hdfAudioUsbDriver is null.");
         return;
@@ -932,7 +934,7 @@ static void AudioUsbCopyToUrb(
 
     if (audioUsbDriver->renderHwptr + bytes > audioUsbDriver->renderBufInfo.cirBufSize * stride) {
         /* err, the transferred area goes over buffer boundary. */
-        uint32_t bytes1 = audioUsbDriver->renderBufInfo.cirBufSize * stride - audioUsbDriver->renderHwptr;
+        bytes1 = audioUsbDriver->renderBufInfo.cirBufSize * stride - audioUsbDriver->renderHwptr;
         (void)memcpy_s(urb->transfer_buffer + offset, bytes1,
             (char *)audioUsbDriver->renderBufInfo.virtAddr + audioUsbDriver->renderHwptr, bytes1);
         (void)memcpy_s(urb->transfer_buffer + offset + bytes1, bytes - bytes1,
@@ -1042,17 +1044,19 @@ int32_t AudioUsbDmaSubmit(const struct PlatformData *data, const enum AudioStrea
 
 static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, struct urb *urb)
 {
+    uint32_t frameSize, frames, bytes, oldptr, offset;
+    uint32_t i;
     unsigned long flags;
     unsigned char *capPoint = NULL;
 
-    uint32_t frameSize = audioUsbDriver->capturePcmInfo.frameSize;
+    frameSize = audioUsbDriver->capturePcmInfo.frameSize;
 
-    for (uint32_t i = 0; i < urb->number_of_packets; i++) {
-        uint32_t offset = urb->iso_frame_desc[i].offset;
+    for (i = 0; i < urb->number_of_packets; i++) {
+        offset = urb->iso_frame_desc[i].offset;
         capPoint = (unsigned char *)urb->transfer_buffer + offset;
 
-        uint32_t bytes = urb->iso_frame_desc[i].actual_length;
-        uint32_t frames = bytes / frameSize;
+        bytes = urb->iso_frame_desc[i].actual_length;
+        frames = bytes / frameSize;
 
         if (bytes % audioUsbDriver->capturePcmInfo.frameSize != 0) {
             bytes = frames * frameSize;
@@ -1060,7 +1064,7 @@ static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, stru
         }
 
         spin_lock_irqsave(&audioUsbDriver->lock, flags);
-        uint32_t oldptr = audioUsbDriver->captureHwptr;
+        oldptr = audioUsbDriver->captureHwptr;
         audioUsbDriver->captureHwptr += bytes;
         if (audioUsbDriver->captureHwptr >= audioUsbDriver->captureBufInfo.cirBufSize * frameSize)
             audioUsbDriver->captureHwptr -= audioUsbDriver->captureBufInfo.cirBufSize * frameSize;

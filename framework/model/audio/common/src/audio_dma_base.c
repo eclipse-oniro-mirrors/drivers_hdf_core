@@ -101,8 +101,8 @@ int32_t AudioDmaGetConfigInfo(const struct HdfDeviceObject *device, struct Platf
     }
 
     if (data->regConfig != NULL) {
-        AUDIO_DRIVER_LOG_ERR("regConfig is not null!");
-        return HDF_FAILURE;
+        AUDIO_DRIVER_LOG_INFO("regConfig has been parsed!");
+        return HDF_SUCCESS;
     }
 
     data->regConfig = (struct AudioRegCfgData *)OsalMemCalloc(sizeof(struct AudioRegCfgData));

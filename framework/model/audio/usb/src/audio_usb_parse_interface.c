@@ -224,7 +224,7 @@ static bool AudioUsbCheckFormat(struct AudioUsbDriver *audioUsbDriver, struct Au
             }
             break;
         default:
-            AUDIO_DRIVER_LOG_ERR("usb device not support.");
+            AUDIO_DRIVER_LOG_WARNING("usb device not support.");
             return false;
     }
     return false;
