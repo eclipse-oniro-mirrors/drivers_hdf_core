@@ -81,7 +81,6 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
     struct HdiServiceSet *serviceSet = NULL;
     struct HdfSBuf *data = NULL;
     struct HdfSBuf *reply = NULL;
-    int32_t status;
     uint32_t serviceNum = 0;
 
     do {
@@ -94,7 +93,8 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
             !HdfSbufWriteString(data, interfaceDesc)) {
             break;
         }
-        status = ServiceManagerHdiCall(servMgrClient, DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC, data, reply);
+        int32_t status =
+            ServiceManagerHdiCall(servMgrClient, DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC, data, reply);
         if (status != HDF_SUCCESS) {
             HDF_LOGE("%{public}s: failed to get %{public}s service collection, the status is %{public}d", __func__,
                 interfaceDesc, status);
