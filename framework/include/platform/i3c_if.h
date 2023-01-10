@@ -126,8 +126,8 @@ enum I3cBusMode {
 struct I3cConfig {
     /** I3C bus mode */
     enum I3cBusMode busMode;
-    /** Current master object, its <b>NULL</b> when the controller is the master  */
-    struct I3cDevice *curMaster;
+    /** Current host object, its <b>NULL</b> when the controller is the host */
+    struct I3cDevice *curHost;
 };
 
 /**
