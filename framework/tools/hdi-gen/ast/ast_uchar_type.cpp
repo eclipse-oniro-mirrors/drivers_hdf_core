@@ -106,11 +106,12 @@ void ASTUcharType::EmitCppReadVar(const std::string &parcelName, const std::stri
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadUint8();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadUint8();\n", name.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("%s %s = 0;\n", EmitCppType().c_str(), name.c_str());
     }
+    sb.Append(prefix).AppendFormat("if (!%s.ReadUint8(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void ASTUcharType::EmitCMarshalling(const std::string &name, StringBuilder &sb, const std::string &prefix) const
@@ -144,11 +145,12 @@ void ASTUcharType::EmitCppUnMarshalling(const std::string &parcelName, const std
     const std::string &prefix, bool emitType, unsigned int innerLevel) const
 {
     if (emitType) {
-        sb.Append(prefix).AppendFormat(
-            "%s %s = %s.ReadUint8();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
-    } else {
-        sb.Append(prefix).AppendFormat("%s = %s.ReadUint8();\n", name.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("%s %s = 0;\n", EmitCppType().c_str(), name.c_str());
     }
+    sb.Append(prefix).AppendFormat("if (!%s.ReadUint8(%s)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: read %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n");
 }
 } // namespace HDI
 } // namespace OHOS

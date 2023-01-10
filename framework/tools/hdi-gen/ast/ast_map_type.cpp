@@ -105,9 +105,11 @@ void ASTMapType::EmitCppReadVar(const std::string &parcelName, const std::string
     if (initVariable) {
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), name.c_str());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", name.c_str(), parcelName.c_str());
-    sb.Append(prefix).AppendFormat("%s(%sSize, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
-        name.c_str(), MAX_BUFF_SIZE_MACRO);
+    sb.Append(prefix).AppendFormat("uint32_t %sSize = 0;\n", name.c_str());
+    sb.Append(prefix).AppendFormat("if (!%s.ReadUint32(%sSize)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read size\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n\n");
     sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", name.c_str());
     std::string keyName = StringHelper::Format("key%d", innerLevel);
     std::string valueName = StringHelper::Format("value%d", innerLevel);
@@ -143,10 +145,11 @@ void ASTMapType::EmitCppUnMarshalling(const std::string &parcelName, const std::
     if (emitType) {
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), memberName.c_str());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = %s.ReadUint32();\n", memberName.c_str(), parcelName.c_str());
-    sb.Append(prefix).AppendFormat("%s(%sSize, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
-        memberName.c_str(), MAX_BUFF_SIZE_MACRO);
-
+    sb.Append(prefix).AppendFormat("uint32_t %sSize = 0;\n", name.c_str());
+    sb.Append(prefix).AppendFormat("if (!%s.ReadUint32(%sSize)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read size\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
     sb.Append(prefix).AppendFormat("for (uint32_t i = 0; i < %sSize; ++i) {\n", memberName.c_str());
     std::string keyName = StringHelper::Format("key%d", innerLevel);
     std::string valueName = StringHelper::Format("value%d", innerLevel);
