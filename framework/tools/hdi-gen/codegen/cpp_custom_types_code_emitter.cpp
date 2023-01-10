@@ -314,19 +314,20 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &s
             AutoPtr<ASTType> memberType = type->GetMemberType(i);
             std::string memberName = type->GetMemberName(i);
             std::string name = StringHelper::Format("%s.%s", objName.c_str(), memberName.c_str());
-            if (i > 0 &&
-                (memberType->GetTypeKind() == TypeKind::TYPE_STRUCT ||
-                    memberType->GetTypeKind() == TypeKind::TYPE_UNION ||
-                    memberType->GetTypeKind() == TypeKind::TYPE_ARRAY ||
-                    memberType->GetTypeKind() == TypeKind::TYPE_LIST)) {
+            if (i > 0) {
                 sb.Append("\n");
             }
 
             if (memberType->GetTypeKind() == TypeKind::TYPE_UNION) {
                 std::string cpName = StringHelper::Format("%sCp", memberName.c_str());
                 memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
-                sb.Append(TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", name.c_str(),
-                    memberType->EmitCppType().c_str(), cpName.c_str(), memberType->EmitCppType().c_str());
+                sb.Append(TAB).AppendFormat("if (memcpy_s(&%s, sizeof(%s), %s, sizeof(%s)) != EOK) {\n",
+                    name.c_str(), memberType->EmitCppType().c_str(), cpName.c_str(),
+                    memberType->EmitCppType().c_str());
+                sb.Append(TAB).Append(TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to memcpy %s\", __func__);\n",
+                    name.c_str());
+                sb.Append(TAB).Append(TAB).Append("return false;\n");
+                sb.Append(TAB).Append("}\n");
             } else if (memberType->GetTypeKind() == TypeKind::TYPE_STRING) {
                 std::string cpName = StringHelper::Format("%sCp", memberName.c_str());
                 memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);

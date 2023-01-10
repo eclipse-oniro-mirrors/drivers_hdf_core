@@ -21,7 +21,7 @@ namespace HDI {
 #endif
 
     constexpr const char *MAX_BUFF_SIZE_MACRO = "HDI_BUFF_MAX_SIZE";
-    constexpr const char *MAX_BUFF_SIZE_VALUE = "1024 * 4";
+    constexpr const char *MAX_BUFF_SIZE_VALUE = "1024 * 200";    // 200KB
     constexpr const char *CHECK_VALUE_RETURN_MACRO = "HDI_CHECK_VALUE_RETURN";
     constexpr const char *CHECK_VALUE_RET_GOTO_MACRO = "HDI_CHECK_VALUE_RET_GOTO";
 }
