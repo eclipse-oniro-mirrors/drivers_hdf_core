@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * This file is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -89,7 +89,7 @@ static int32_t VirtualCanMsgLoopBack(struct VirtualCanCntlr *virtualCan, const s
 
     virtualCan->busState = CAN_BUS_READY;
     HDF_LOGI("VirtualCanMsgLoopBack: end");
-    return CanCntlrOnNewMsg(&virtualCan->cntlr, &new);
+    return CanCntlrOnNewMsgIrqSafe(&virtualCan->cntlr, &new);
 }
 
 static int32_t VirtualCanSendMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)
