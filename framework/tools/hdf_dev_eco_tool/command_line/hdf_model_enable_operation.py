@@ -16,6 +16,7 @@ import hdf_utils
 from hdf_tool_exception import HdfToolException
 from .hdf_liteos_scann import HdfLiteScan
 from .hdf_command_error_code import CommandErrorCode
+from ..hdf_tool_settings import HdfToolSettings
 
 
 class EnableOperation(object):
@@ -227,8 +228,9 @@ class EnableOperation(object):
         for index, line in enumerate(file_lines):
             if old_demo_config.encode('utf-8') == line.strip():
                 file_lines[index] = new_demo_config.encode('utf-8')
-        
-        with open(file_path, 'wb') as f_write:
+        config_info = HdfToolSettings().get_file_config_info()
+        write_fd = os.open(file_path, config_info["flags"], config_info["modes"])
+        with os.fdopen(write_fd, "wb") as f_write:
             f_write.writelines(file_lines)
         return True
 

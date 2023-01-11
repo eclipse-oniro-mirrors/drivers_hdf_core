@@ -108,7 +108,9 @@ def _write_one_section(file_obj, section_content):
 def add_before_and_save(file_content, file_path, pos_range, new_section):
     if not file_content or not file_path or not pos_range or not new_section:
         return
-    with open(file_path, 'w', newline='\n') as file_write:
+    config_info = HdfToolSettings().get_file_config_info()
+    write_fd = os.open(file_path, config_info["flags"], config_info["modes"])
+    with os.fdopen(write_fd, "w", newline='\n') as file_write:
         file_write.write(file_content[:pos_range.start_pos])
         _write_one_section(file_write, new_section)
         file_write.write(file_content[pos_range.start_pos:])
@@ -194,7 +196,9 @@ def write_file(file_path, content):
 
 
 def write_file_lines(file_path, content, code_type="utf-8"):
-    with open(file_path, 'w', encoding=code_type) as file_write:
+    config_info = HdfToolSettings().get_file_config_info()
+    write_fd = os.open(file_path, config_info["flags"], config_info["modes"])
+    with os.fdopen(write_fd, "w", encoding=code_type) as file_write:
         file_write.writelines(content)
 
 
@@ -454,7 +458,10 @@ def ini_file_read_operation(section_name, node_name, path=""):
 def ini_file_write_operation(model, operation_object, model_child_dir_list):
     json_format_list = json.dumps(model_child_dir_list)
     operation_object.set(model, "file_dir", json_format_list)
-    with open(os.path.join("resources", "config.ini"), "w") as write_ini_file:
+    ini_file_path = os.path.join("resources", "config.ini")
+    config_info = HdfToolSettings().get_file_config_info()
+    write_fd = os.open(ini_file_path, config_info["flags"], config_info["modes"])
+    with os.fdopen(write_fd, "w") as write_ini_file:
         operation_object.write(write_ini_file)
 
 

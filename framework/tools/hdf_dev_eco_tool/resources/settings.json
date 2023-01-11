@@ -76,5 +76,9 @@
         ],
         "config_path": "resources/templates/lite/hdi_template/create_idl_hdi.json",
         "out_config_name": "create_idl_hdi.config"
+    },
+    "create_file_config": {
+        "flags": 258,
+        "modes": 436
     }
 }

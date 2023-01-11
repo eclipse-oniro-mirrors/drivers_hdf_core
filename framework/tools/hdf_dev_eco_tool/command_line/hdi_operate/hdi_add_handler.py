@@ -21,6 +21,8 @@ from command_line.hdf_command_handler_base import HdfCommandHandlerBase
 from command_line.operate_group_passwd import OperateGroupPasswd
 from hdf_tool_exception import HdfToolException
 
+from hdf_dev_eco_tool.hdf_tool_settings import HdfToolSettings
+
 
 class HdiAddHandler(HdfCommandHandlerBase):
     def __init__(self, args):
@@ -379,7 +381,9 @@ class HdiAddHandler(HdfCommandHandlerBase):
             file_info = "".join(selinux_temp.get(key_name))
             temp_file_info = string.Template(file_info).safe_substitute(replace_data)
             file_path = os.path.join(temp_peripheral_path, temp_file_name)
-            with open(file_path, "wb")as f_write:
+            config_info = HdfToolSettings().get_file_config_info()
+            write_fd = os.open(file_path, config_info["flags"], config_info["modes"])
+            with os.fdopen(write_fd, "wb") as f_write:
                 f_write.write(temp_file_info.encode("utf-8"))
             temp_create = self.format_file_path(file_path, root_path)
             self.result_json["create_file"].append(temp_create)

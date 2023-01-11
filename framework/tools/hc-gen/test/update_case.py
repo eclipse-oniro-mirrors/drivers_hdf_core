@@ -32,6 +32,7 @@
 import os
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 import base64
@@ -81,7 +82,10 @@ def index_case(case_path):
 def save_compile_result(mode, case_name, status, output):
     result_file_name = os.path.join(TestConfig.WORK_DIR, case_name,
                                     'golden_%s_compile_result.txt' % mode)
-    with open(result_file_name, 'w') as result_output:
+    flags = os.O_RDWR | os.O_CREAT
+    modes = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
+    with os.fdopen(os.open(result_file_name, flags, modes),
+                   "w", encoding="utf-8") as result_output:
         status_str = "[compile exit status]:" + str(status)
         output_str = "\n[compile console output]:\n" + output
         result_output.write(status_str)
