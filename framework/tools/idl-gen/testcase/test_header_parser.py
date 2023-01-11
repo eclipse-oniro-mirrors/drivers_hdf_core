@@ -8,6 +8,8 @@
 # See the LICENSE file in the root of this repository for complete details.
 
 import json
+import os
+import stat
 import sys
 import unittest
 from os import remove
@@ -268,8 +270,11 @@ class HeaderParserTestCase(unittest.TestCase):
             } DevAbility;
         """
         file_name = "header_file.h"
-        with open(file_name, 'w') as f:
-            f.write(header_file)
+        flags = os.O_RDWR | os.O_CREAT
+        modes = stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+        write_fd = os.open(file_name, flags, modes)
+        with os.fdopen(write_fd, "w", encoding="utf-8") as file:
+            file.write(header_file)
 
         parser = HeaderParser()
         back_file = parser._pre_handle(file_name)

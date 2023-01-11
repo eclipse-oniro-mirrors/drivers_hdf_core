@@ -10,6 +10,7 @@
 import json
 import os
 import re
+import stat
 from shutil import copyfile, move
 
 import CppHeaderParser
@@ -79,8 +80,11 @@ class HeaderParser:
                     continue
                 else:
                     new_lines += line
-        with open(header_file, 'w') as f:
-            f.writelines(new_lines)
+        flags = os.O_RDWR | os.O_CREAT
+        modes = stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+        write_fd = os.open(header_file, flags, modes)
+        with os.fdopen(write_fd, "w", encoding="utf-8") as file:
+            file.write(new_lines)
         return back_file
 
     @staticmethod
