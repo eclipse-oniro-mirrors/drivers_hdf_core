@@ -60,6 +60,7 @@ class HdfToolSettings(object):
         self.hdi_config_key = "hdi_config"
         self.passwd_group_key = "passwd_group_config"
         self.config_setting_info = "config_setting_file_info"
+        self.create_driver_supported_type = "create_driver_board_type"
         self.create_file_config_info = "create_file_config"
 
     def get_supported_boards(self):
