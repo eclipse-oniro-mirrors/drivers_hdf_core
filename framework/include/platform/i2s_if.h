@@ -72,8 +72,8 @@ enum I2sWordWidth {
 };
 
 enum I2sMode {
-    I2S_MODE_MASTER_TX_MODE,
-    I2S_MODE_MASTER_RX_MODE,
+    I2S_MODE_HOST_TX_MODE,
+    I2S_MODE_HOST_RX_MODE,
     I2S_MODE_STANDBY_TX_MODE,
     I2S_MODE_STANDBY_RX_MODE,
 };
@@ -141,16 +141,16 @@ enum I2slFsSel {
 
 struct I2sCfg {
     enum I2sSampleRate sampleRate;     /**< I2S sample rate, 8k,16k,32k... */
-    enum I2sWordWidth width;            /**< I2S word width, 8bit,16bit,20bit,24bit... */
-    enum I2sMode  mode;                /**< I2S mode, master/standby, tx/rx */
+    enum I2sWordWidth width;           /**< I2S word width, 8bit,16bit,20bit,24bit... */
+    enum I2sMode mode;                 /**< I2S mode, host/standby, tx/rx */
     enum I2sPcmFscDelay syncMode;      /**< pcm mode, FSC starts location */
-    enum I2sLoopMode  loopMode;        /**< is loopback */
+    enum I2sLoopMode loopMode;         /**< is loopback */
     enum I2sProtocolType type;         /**< I2S protocol type */
-    enum I2sChannel  channel;
-    enum I2sFrameLen  frameLen;
-    enum I2sDataSel  dataSel;
+    enum I2sChannel channel;
+    enum I2sFrameLen frameLen;
+    enum I2sDataSel dataSel;
     enum I2sChannelMode channelMode;   /**< I2S mode,data channel */
-    uint8_t samplePrecision;          /**< bit */
+    uint8_t samplePrecision;           /**< bit */
     enum I2sChannelIfMode channelIfMode;
     uint32_t mclk;                     /**< KHZ */
     uint32_t bclk;                     /**< KHZ */
