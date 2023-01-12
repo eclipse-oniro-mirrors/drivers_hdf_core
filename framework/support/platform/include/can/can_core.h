@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,6 +18,11 @@
 #include "hdf_sref.h"
 #include "osal_mutex.h"
 #include "platform_core.h"
+
+#define CAN_THREAD_RUNNING (0x1)
+#define CAN_THREAD_PENDING (0x1 << 1)
+#define CAN_THREAD_STOPPED (0x1 << 2)
+#define THREAD_EXIT_TIMEOUT 2000 // ms
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +59,10 @@ struct CanCntlr {
     struct DListHead rxBoxList;
     struct OsalMutex rboxListLock;
     struct CanMsgPool *msgPool;
+    struct OsalThread thread;     // Irq thread
+    const struct CanMsg *irqMsg;
+    struct OsalSem sem;
+    uint8_t threadStatus;
 };
 
 enum CanErrState {
@@ -90,6 +99,8 @@ int32_t CanCntlrGetCfg(struct CanCntlr *cntlr, struct CanConfig *cfg);
 int32_t CanCntlrGetState(struct CanCntlr *cntlr);
 
 int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, const struct CanMsg *msg);
+
+int32_t CanCntlrOnNewMsgIrqSafe(struct CanCntlr *cntlr, const struct CanMsg *msg);
 
 int32_t CanCntlrAddRxBox(struct CanCntlr *cntlr, struct CanRxBox *rxBox);
 

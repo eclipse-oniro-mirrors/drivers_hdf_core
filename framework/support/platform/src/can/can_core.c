@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -174,4 +174,23 @@ int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)
     *copy = *msg;
 
     return CanCntlrMsgDispatch(cntlr, copy); // gona call in thread context later ...
+}
+
+int32_t CanCntlrOnNewMsgIrqSafe(struct CanCntlr *cntlr, const struct CanMsg *msg)
+{
+    if (cntlr == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (msg == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if ((cntlr->threadStatus & CAN_THREAD_RUNNING) == 0 || (cntlr->threadStatus & CAN_THREAD_PENDING) != 0) {
+        return HDF_ERR_DEVICE_BUSY;
+    }
+    cntlr->irqMsg = msg;
+    cntlr->threadStatus |= CAN_THREAD_PENDING;
+    (void)OsalSemPost(&cntlr->sem);
+    return HDF_SUCCESS;
 }

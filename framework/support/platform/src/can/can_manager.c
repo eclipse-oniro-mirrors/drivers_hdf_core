@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -7,12 +7,15 @@
  */
 
 #include "can/can_manager.h"
+#include "osal_time.h"
+#include "securec.h"
 #include "can/can_core.h"
 
 #define HDF_LOG_TAG can_manager
 
 #define CAN_NUMBER_MAX 32
 #define CAN_MSG_POOL_SIZE_DFT 8
+#define CAN_IRQ_STACK_SIZE (1024 * 8)
 
 static struct PlatformManager *g_manager;
 
@@ -37,6 +40,75 @@ static void CanManagerDestroyIfNeed(void)
     }
 }
 
+static int32_t CanIrqThreadWorker(void *data)
+{
+    int32_t ret;
+    struct CanCntlr *cntlr = (struct CanCntlr *)data;
+
+    if (cntlr == NULL) {
+        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    cntlr->threadStatus |= CAN_THREAD_RUNNING;
+    while ((cntlr->threadStatus & CAN_THREAD_RUNNING) != 0) {
+        /* wait event */
+        ret = OsalSemWait(&cntlr->sem, HDF_WAIT_FOREVER);
+        if (ret != HDF_SUCCESS) {
+            continue;
+        }
+        if ((cntlr->threadStatus & CAN_THREAD_RUNNING) == 0) {
+            break;  // exit thread
+        }
+        ret = CanCntlrOnNewMsg(cntlr, cntlr->irqMsg);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: CanCntlrOnNewMsg fail", __func__);
+        }
+        cntlr->irqMsg = NULL;
+        cntlr->threadStatus &= ~CAN_THREAD_PENDING;
+    }
+
+    cntlr->threadStatus |= CAN_THREAD_STOPPED;
+    return HDF_SUCCESS;
+}
+
+static int32_t CanCntlrCreateThread(struct CanCntlr *cntlr)
+{
+    int32_t ret;
+    struct OsalThreadParam config;
+
+    if (memset_s(&config, sizeof(config), 0, sizeof(config)) != EOK) {
+        HDF_LOGE("CanCntlrCreateThread:memset_s fail.");
+        return HDF_ERR_IO;
+    }
+    ret = OsalSemInit(&cntlr->sem, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("CanCntlrCreateThread: sem init fail.");
+        return ret;
+    }
+
+    ret = OsalThreadCreate(&cntlr->thread, (OsalThreadEntry)CanIrqThreadWorker, cntlr);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("CanCntlrCreateThread: thread create fail.");
+        (void)OsalSemDestroy(&cntlr->sem);
+        return ret;
+    }
+
+    config.name = "CanIrqThread";
+    config.priority = OSAL_THREAD_PRI_HIGH;
+    config.stackSize = CAN_IRQ_STACK_SIZE;
+    cntlr->threadStatus = 0;
+    ret = OsalThreadStart(&cntlr->thread, &config);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("CanCntlrCreateThread: thread start fail.");
+        OsalThreadDestroy(&cntlr->thread);
+        (void)OsalSemDestroy(&cntlr->sem);
+        return ret;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
@@ -50,6 +122,10 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
 
     DListHeadInit(&cntlr->rxBoxList);
 
+    if (CanCntlrCreateThread(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("CanCntlrCheckAndInit: create thread failed");
+        return HDF_FAILURE;
+    }
     if (OsalMutexInit(&cntlr->lock) != HDF_SUCCESS) {
         HDF_LOGE("CanCntlrCheckAndInit: init lock failed");
         return HDF_FAILURE;
@@ -76,9 +152,27 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
     return HDF_SUCCESS;
 }
 
+static void CanCntlrDestroyThread(struct CanCntlr *cntlr)
+{
+    int t = 0;
+
+    cntlr->threadStatus &= ~CAN_THREAD_RUNNING;
+    cntlr->irqMsg = NULL;
+    (void)OsalSemPost(&cntlr->sem);
+    while ((cntlr->threadStatus & CAN_THREAD_STOPPED) == 0) {
+        OsalMSleep(1);
+        if (t++ > THREAD_EXIT_TIMEOUT) {
+            break;
+        }
+    }
+    (void)OsalThreadDestroy(&cntlr->thread);
+    (void)OsalSemDestroy(&cntlr->sem);
+}
+
 static void CanCntlrDeInit(struct CanCntlr *cntlr)
 {
     HDF_LOGD("CanCntlrDeInit: enter");
+    CanCntlrDestroyThread(cntlr);
     CanMsgPoolDestroy(cntlr->msgPool);
     cntlr->msgPool = NULL;
     (void)OsalMutexDestroy(&cntlr->rboxListLock);
