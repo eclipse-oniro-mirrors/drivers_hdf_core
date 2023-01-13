@@ -243,8 +243,8 @@ static struct UsbFnFunction g_acmFunction = {
 #define DRIVER_DESC         "HDC Device"
 #define CONFIG_DESC         "hdc"
 
-static struct UsbDeviceDescriptor g_cdcMasterDeviceDesc = {
-    .bLength = sizeof(g_cdcMasterDeviceDesc),
+static struct UsbDeviceDescriptor g_cdcUsbFnDeviceDesc = {
+    .bLength = sizeof(g_cdcUsbFnDeviceDesc),
     .bDescriptorType = USB_DDK_DT_DEVICE,
     .bcdUSB = CPU_TO_LE16(BCD_USB),
     .bDeviceClass = 0,
@@ -287,7 +287,7 @@ static struct UsbFnFunction *g_functions[] = {
 #endif
     NULL};
 
-static struct UsbFnConfiguration g_masterConfig = {
+static struct UsbFnConfiguration g_usbFnConfig = {
     .configurationValue = 1,
     .iConfiguration = USB_FUNC_CONFIG_IDX,
     .attributes = USB_CFG_BUS_POWERED,
@@ -296,12 +296,12 @@ static struct UsbFnConfiguration g_masterConfig = {
 };
 
 static struct UsbFnConfiguration *g_configs[] = {
-    &g_masterConfig,
+    &g_usbFnConfig,
     NULL,
 };
 
 struct UsbFnDeviceDesc g_acmFnDevice = {
-    .deviceDesc = &g_cdcMasterDeviceDesc,
+    .deviceDesc = &g_cdcUsbFnDeviceDesc,
     .deviceStrings = g_devStrings,
     .configs = g_configs,
 };
