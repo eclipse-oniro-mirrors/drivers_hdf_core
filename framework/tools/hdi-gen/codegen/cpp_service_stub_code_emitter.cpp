@@ -401,7 +401,12 @@ void CppServiceStubCodeEmitter::EmitStubReadMemFlag(
     const AutoPtr<ASTMethod> &method, const std::string &parcelName, StringBuilder &sb, const std::string &prefix)
 {
     if (NeedFlag(method)) {
-        sb.Append(prefix).AppendFormat("bool %s = %s.ReadBool();\n\n", flagOfSetMemName_.c_str(), parcelName.c_str());
+        sb.Append(prefix).AppendFormat("bool %s = false;\n", flagOfSetMemName_.c_str());
+        sb.Append(prefix).AppendFormat("if (!%s.ReadBool(%s)) {\n", parcelName.c_str(), flagOfSetMemName_.c_str());
+        sb.Append(prefix + TAB)
+            .AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n", flagOfSetMemName_.c_str());
+        sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+        sb.Append(prefix).Append("}\n");
     }
 }
 
@@ -410,16 +415,30 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(
 {
     sb.Append(prefix).Append(param->EmitCppLocalVar()).Append("\n");
     AutoPtr<ASTType> type = param->GetType();
-    if (type->IsStringType() || type->IsArrayType() || type->IsListType()) {
-        sb.Append(prefix).AppendFormat("if (%s) {\n", flagOfSetMemName_.c_str());
-        std::string capacityName = "capacity";
-        sb.Append(prefix + TAB)
-            .AppendFormat("uint32_t %s = %s.ReadUint32();\n", capacityName.c_str(), parcelName.c_str());
-        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
-            capacityName.c_str(), MAX_BUFF_SIZE_MACRO);
-        sb.Append(prefix + TAB).AppendFormat("%s.reserve(%s);\n", param->GetName().c_str(), capacityName.c_str());
-        sb.Append(prefix).Append("}\n");
+    if (!type->IsStringType() && !type->IsArrayType() && !type->IsListType()) {
+        return;
     }
+
+    sb.Append(prefix).AppendFormat("if (%s) {\n", flagOfSetMemName_.c_str());
+    std::string capacityName = "capacity";
+    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", capacityName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("if (!%s.ReadUint32(%s)) {\n", parcelName.c_str(), capacityName.c_str());
+    sb.Append(prefix + TAB + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to read %s\", __func__);\n",
+        capacityName.c_str());
+    sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix + TAB).Append("}\n");
+
+    if (type->IsStringType()) {
+        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s / sizeof(char), HDF_ERR_INVALID_PARAM);\n",
+            CHECK_VALUE_RETURN_MACRO, capacityName.c_str(), MAX_BUFF_SIZE_MACRO);
+    } else {
+        AutoPtr<ASTArrayType> arrayType = dynamic_cast<ASTArrayType *>(type.Get());
+        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s / sizeof(%s), HDF_ERR_INVALID_PARAM);\n",
+            CHECK_VALUE_RETURN_MACRO, capacityName.c_str(), MAX_BUFF_SIZE_MACRO,
+            arrayType->GetElementType()->EmitCppType().c_str());
+    }
+    sb.Append(prefix + TAB).AppendFormat("%s.reserve(%s);\n", param->GetName().c_str(), capacityName.c_str());
+    sb.Append(prefix).Append("}\n");
 }
 
 void CppServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)

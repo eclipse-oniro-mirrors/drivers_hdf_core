@@ -314,7 +314,12 @@ void ASTFdType::EmitCppReadMethods(
     sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &data, int &fd)\n", methodName.c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB).Append("fd = -1;\n");
-    sb.Append(prefix + TAB).Append("if (data.ReadBool()) {\n");
+    sb.Append(prefix + TAB).Append("bool fdValid = false;\n");
+    sb.Append(prefix + TAB).Append("if (!data.ReadBool(fdValid)) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to read fdValid\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return false;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+    sb.Append(prefix + TAB).Append("if (fdValid) {\n");
     sb.Append(prefix + TAB + TAB).Append("fd = data.ReadFileDescriptor();\n");
     sb.Append(prefix + TAB + TAB).Append("if (fd < 0) {\n");
     sb.Append(prefix + TAB + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to read fd\", __func__);\n");
