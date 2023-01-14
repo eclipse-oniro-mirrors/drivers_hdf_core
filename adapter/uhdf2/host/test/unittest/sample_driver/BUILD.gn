@@ -33,6 +33,7 @@ ohos_shared_library("libsample_driver") {
 
   external_deps = [
     "c_utils:utils",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
   ]

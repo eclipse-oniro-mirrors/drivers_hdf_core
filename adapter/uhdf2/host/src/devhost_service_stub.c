@@ -15,6 +15,7 @@
 
 #include "devhost_service_stub.h"
 #include "dev_attribute_serialize.h"
+#include "devhost_dump.h"
 #include "devhost_service_proxy.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
@@ -70,6 +71,14 @@ static int DispatchDelDevice(struct IDevHostService *serviceIf, struct HdfSBuf *
     return ret;
 }
 
+int32_t DispatchDump(struct IDevHostService *serviceIf, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    (void)serviceIf;
+
+    DevHostDump(data, reply);
+    return HDF_SUCCESS;
+}
+
 static int DevHostServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -88,6 +97,10 @@ static int DevHostServiceStubDispatch(
         }
         case DEVHOST_SERVICE_DEL_DEVICE: {
             ret = DispatchDelDevice(serviceIf, data, reply);
+            break;
+        }
+        case DEVHOST_SERVICE_DUMP: {
+            ret = DispatchDump(serviceIf, data, reply);
             break;
         }
         default: {

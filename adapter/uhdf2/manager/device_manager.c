@@ -18,6 +18,7 @@
 #include "devmgr_uevent.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
+#include "devmgr_dump.h"
 
 #define HDF_LOG_TAG hdf_device_manager
 
@@ -35,6 +36,7 @@ int main()
         status = instance->StartService(instance);
     }
     (void)DevMgrUeventReceiveStart();
+    DevMgrRegisterDumpFunc();
     if (status == HDF_SUCCESS) {
         struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)instance;
         struct HdfMessageLooper *looper = &fullService->looper;

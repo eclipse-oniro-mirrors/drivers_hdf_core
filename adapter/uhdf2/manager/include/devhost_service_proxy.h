@@ -29,6 +29,7 @@ struct DevHostServiceProxy {
 enum {
     DEVHOST_SERVICE_ADD_DEVICE = 1,
     DEVHOST_SERVICE_DEL_DEVICE,
+    DEVHOST_SERVICE_DUMP,
 };
 
 struct IDevHostService *DevHostServiceProxyObtain(uint32_t hostId, struct HdfRemoteService *remote);

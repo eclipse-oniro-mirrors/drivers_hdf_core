@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "devhost_dump_reg.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_device_object.h"
@@ -97,6 +98,44 @@ static int HdfSample1DriverBind(struct HdfDeviceObject *deviceObject)
     return HDF_SUCCESS;
 }
 
+static int32_t DevHostSample1DumpHost(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    uint32_t argv = 0;
+
+    (void)HdfSbufReadUint32(data, &argv);
+    HDF_LOGI("%{public}d", argv);
+
+    const char *value = HdfSbufReadString(data);
+    while (value != NULL && argv > 0) {
+        HDF_LOGI("%{public}s", value);
+        value = HdfSbufReadString(data);
+        argv--;
+    }
+
+    HdfSbufWriteString(reply, "sample_host_dump\n");
+
+    return HDF_SUCCESS;
+}
+
+static int32_t DevHostSample1DumpService(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    uint32_t argv = 0;
+
+    (void)HdfSbufReadUint32(data, &argv);
+    HDF_LOGI("%{public}d", argv);
+
+    const char *para = HdfSbufReadString(data);
+    while (para != NULL && argv > 0) {
+        HDF_LOGI("%{public}s", para);
+        para = HdfSbufReadString(data);
+        argv--;
+    }
+
+    HdfSbufWriteString(reply, "sample1_service_dump\n");
+
+    return HDF_SUCCESS;
+}
+
 static int HdfSample1DriverInit(struct HdfDeviceObject *deviceObject)
 {
     HDF_LOGI("HdfSample1DriverInit enter!");
@@ -106,6 +145,8 @@ static int HdfSample1DriverInit(struct HdfDeviceObject *deviceObject)
     struct SampleDriverPmListener *pmListener = GetPmListenerInstance();
     int ret = HdfPmRegisterPowerListener(deviceObject, &pmListener->powerListener);
     HDF_LOGI("%s:register power listener, ret = %{public}d", __func__, ret);
+    (void)DevHostRegisterDumpService("sample1_driver_service", DevHostSample1DumpHost);
+    (void)DevHostRegisterDumpHost(DevHostSample1DumpService);
     return HDF_SUCCESS;
 }
 

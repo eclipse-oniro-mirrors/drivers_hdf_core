@@ -68,6 +68,7 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/core/shared/src/hdf_object_manager.c",
       "$hdf_framework_path/core/shared/src/hdf_service_record.c",
       "$hdf_framework_path/utils/src/hdf_task_queue.c",
+      "$hdf_uhdf_path/host/src/devhost_dump.c",
       "$hdf_uhdf_path/host/src/devhost_object_config.c",
       "$hdf_uhdf_path/host/src/devhost_service_full.c",
       "$hdf_uhdf_path/host/src/devhost_service_stub.c",

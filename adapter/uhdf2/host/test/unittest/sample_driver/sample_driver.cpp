@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <devhost_dump_reg.h>
 #include <hdf_device_desc.h>
 #include <hdf_device_object.h>
 #include <hdf_log.h>
@@ -49,12 +50,32 @@ static int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
     return HDF_SUCCESS;
 }
 
+static int32_t DevHostSampleDumpService(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    uint32_t argv = 0;
+
+    (void)HdfSbufReadUint32(data, &argv);
+    HDF_LOGI("%{public}d", argv);
+
+    const char *str = HdfSbufReadString(data);
+    while (str != NULL && argv > 0) {
+        HDF_LOGI("%{public}s read:%{public}s", __func__, str);
+        str = HdfSbufReadString(data);
+        argv--;
+    }
+
+    HdfSbufWriteString(reply, "sample_service_dump\n");
+
+    return HDF_SUCCESS;
+}
+
 static int HdfSampleDriverInit(struct HdfDeviceObject *deviceObject)
 {
     HDF_LOGE("HdfSampleDriverInit enter, new hdi impl");
     if (HdfDeviceObjectSetServInfo(deviceObject, "sample_driver_service") != HDF_SUCCESS) {
         HDF_LOGE("failed to set service info");
     }
+    (void)DevHostRegisterDumpService("sample_driver_service", DevHostSampleDumpService);
     return HDF_SUCCESS;
 }
 

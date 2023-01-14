@@ -90,12 +90,25 @@ void DevHostServiceProxyOnRemoteDied(struct HdfDeathRecipient *recipient, struct
     task->SendMessage(task, message, false);
 }
 
+static int32_t DevHostServicProxyDump(struct IDevHostService *inst, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    struct DevHostServiceProxy *hostClnt = (struct DevHostServiceProxy *)inst;
+    if (hostClnt->remote == NULL || data == NULL || reply == NULL) {
+        HDF_LOGE("dump host failed, hostClnt->remote or data or reply is null");
+        return HDF_FAILURE;
+    }
+
+    int status = hostClnt->remote->dispatcher->Dispatch(hostClnt->remote, DEVHOST_SERVICE_DUMP, data, reply);
+    return status;
+}
+
 void DevHostServiceProxyConstruct(
     struct DevHostServiceProxy *inst, struct HdfRemoteService *remote)
 {
     inst->remote = remote;
     inst->super.AddDevice = DevHostServiceProxyAddDevice;
     inst->super.DelDevice = DevHostServiceProxyDelDevice;
+    inst->super.Dump = DevHostServicProxyDump;
     inst->recipient.OnRemoteDied = DevHostServiceProxyOnRemoteDied;
     if (remote != NULL) {
         remote->target = (struct HdfObject *)inst;

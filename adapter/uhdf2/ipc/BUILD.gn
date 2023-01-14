@@ -42,6 +42,7 @@ if (defined(ohos_lite)) {
     public_configs = [ ":libhdf_ipc_adapter_pub_config" ]
 
     sources = [
+      "src/hdf_dump.cpp",
       "src/hdf_remote_adapter.cpp",
       "src/hdf_remote_service.c",
       "src/hdf_sbuf_impl_hipc.cpp",
