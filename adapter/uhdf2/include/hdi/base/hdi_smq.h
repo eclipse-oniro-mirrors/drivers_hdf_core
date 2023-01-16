@@ -277,11 +277,12 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
     while (true) {
         if (waitTimeNanoSec != 0) {
             currentTime = GetNanoTime();
-            if (GetNanoTime() - startTime >= waitTimeNanoSec) {
+            waitTimeNanoSec -= (currentTime - startTime);
+            startTime = currentTime;
+            if (waitTimeNanoSec <= 0) {
                 ret = WriteNonBlocking(data, count);
                 break;
             }
-            waitTimeNanoSec -= currentTime - startTime;
         }
         ret = syncer_->Wait(SharedMemQueueSyncer::SYNC_WORD_WRITE, waitTimeNanoSec);
         if (ret != 0 && ret != -ETIMEDOUT) {
@@ -322,11 +323,12 @@ int SharedMemQueue<T>::Read(T *data, size_t count, int64_t waitTimeNanoSec)
     while (true) {
         if (waitTimeNanoSec != 0) {
             currentTime = GetNanoTime();
-            if (currentTime - startTime >= waitTimeNanoSec) {
+            waitTimeNanoSec -= (currentTime - startTime);
+            startTime = currentTime;
+            if (waitTimeNanoSec <= 0) {
                 ret = ReadNonBlocking(data, count);
                 break;
             }
-            waitTimeNanoSec -= currentTime - startTime;
         }
         ret = syncer_->Wait(SharedMemQueueSyncer::SYNC_WORD_READ, waitTimeNanoSec);
         if (ret != 0 && ret != -ETIMEDOUT) {
