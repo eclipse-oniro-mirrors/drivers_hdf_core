@@ -184,17 +184,6 @@ void LightTimerEntry(uintptr_t para)
     return;
 }
 
-static int32_t CheckLightId(uint32_t lightId, struct LightDriverData *drvData)
-{
-    for (uint32_t i = 0; i < drvData->lightNum; i++) {
-        if (lightId == drvData->info[i]->lightInfo.lightId) {
-            return HDF_SUCCESS;
-        }
-    }
-
-    return HDF_ERR_NOT_SUPPORT;
-}
-
 static int32_t TurnOnLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)reply;
@@ -205,10 +194,9 @@ static int32_t TurnOnLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBu
     drvData = GetLightDrvData();
     CHECK_LIGHT_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
-    int32_t ret = CheckLightId(lightId, drvData);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: lightId not support", __func__);
-        return HDF_ERR_NOT_SUPPORT;
+    if (drvData->info[lightId] == NULL) {
+        HDF_LOGE("%s: light id info is null", __func__);
+        return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(data, (const void **)&buf, &len)) {
@@ -270,10 +258,9 @@ static int32_t TurnOffLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSB
     drvData = GetLightDrvData();
     CHECK_LIGHT_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
-    int32_t ret = CheckLightId(lightId, drvData);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: lightId not support", __func__);
-        return HDF_ERR_NOT_SUPPORT;
+    if (drvData->info[lightId] == NULL) {
+        HDF_LOGE("%s: light id info is null", __func__);
+        return HDF_FAILURE;
     }
 
     if (UpdateLight(lightId, LIGHT_STATE_STOP) != HDF_SUCCESS) {

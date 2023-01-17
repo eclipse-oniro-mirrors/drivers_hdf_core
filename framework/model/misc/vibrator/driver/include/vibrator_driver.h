@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,7 +19,7 @@ struct VibratorOps {
     int32_t (*Start)(void);
     int32_t (*Stop)(void);
     int32_t (*StartEffect)(uint32_t effectType);
-    int32_t (*SetParameter)(int32_t intensity, int32_t frequency);
+    int32_t (*SetParameter)(uint16_t intensity, int16_t frequency);
 };
 
 typedef int32_t (*VibratorCmdHandle)(struct HdfSBuf *reqData, struct HdfSBuf *reply);
