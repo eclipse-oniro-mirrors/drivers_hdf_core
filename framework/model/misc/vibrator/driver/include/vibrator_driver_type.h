@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -83,12 +83,12 @@ struct VibratorBus {
 };
 
 struct VibratorInfo {
-    int32_t isSupportIntensity;     /**< setting intensity capability */
-    int32_t isSupportFrequency;     /**< setting frequency capability */
-    int32_t intensityMaxValue;      /**< Max intensity */
-    int32_t intensityMinValue;      /**< Min intensity */
-    int32_t frequencyMaxValue;      /**< Max frequency */
-    int32_t frequencyMinValue;      /**< Min frequency */
+    bool isSupportIntensity;     /**< setting intensity capability */
+    bool isSupportFrequency;     /**< setting frequency capability */
+    uint16_t intensityMaxValue;      /**< Max intensity */
+    uint16_t intensityMinValue;      /**< Min intensity */
+    int16_t frequencyMaxValue;      /**< Max frequency */
+    int16_t frequencyMinValue;      /**< Min frequency */
 };
 
 
