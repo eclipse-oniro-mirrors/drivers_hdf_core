@@ -15,6 +15,7 @@ import os
 import hdf_utils
 from hdf_tool_settings import HdfToolSettings
 from hdf_tool_exception import HdfToolException
+from command_line.operate_group_passwd import OperateGroupPasswd
 from .driver_add.hdf_add_driver import HdfAddDriver
 from .hdf_command_handler_base import HdfCommandHandlerBase
 from .hdf_command_error_code import CommandErrorCode
@@ -26,7 +27,6 @@ from .hdf_vendor_mk_file import HdfVendorMkFile
 from .hdf_driver_config_file import HdfDriverConfigFile
 from .hdf_vendor_makefile import HdfVendorMakeFile
 from .hdf_defconfig_patch import HdfDefconfigAndPatch
-from command_line.operate_group_passwd import OperateGroupPasswd
 
 
 class HdfAddHandler(HdfCommandHandlerBase):
