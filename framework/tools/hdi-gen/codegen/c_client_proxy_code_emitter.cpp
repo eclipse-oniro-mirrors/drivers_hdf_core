@@ -429,8 +429,6 @@ void CClientProxyCodeEmitter::EmitReadProxyMethodParameter(const AutoPtr<ASTPara
             param->GetName().c_str());
         sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
         sb.Append(prefix).Append("}\n");
-    } else if (type->GetTypeKind() == TypeKind::TYPE_NATIVE_BUFFER) {
-        type->EmitCProxyReadVar(parcelName, param->GetName(), false, errorCodeName_, gotoLabel, sb, prefix);
     } else {
         type->EmitCProxyReadVar(parcelName, param->GetName(), false, errorCodeName_, gotoLabel, sb, prefix);
     }
