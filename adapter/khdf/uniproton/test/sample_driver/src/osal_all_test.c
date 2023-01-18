@@ -577,6 +577,35 @@ static void OsaMemoryTest(void)
     UT_TEST_CHECK_RET(buf == NULL, OSAL_MALLOC_SMALL);
     OsalMemFree(buf);
 
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_0, MALLOC_TEST_CASE1_SIZE);
+    UT_TEST_CHECK_RET(buf != NULL, OSAL_MALLOC_BIG);
+    OsalMemFree(buf);
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_1, MALLOC_TEST_CASE1_SIZE);
+    UT_TEST_CHECK_RET(buf != NULL, OSAL_MALLOC_BIG);
+    OsalMemFree(buf);
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_2, MALLOC_TEST_CASE1_SIZE);
+    UT_TEST_CHECK_RET(buf != NULL, OSAL_MALLOC_BIG);
+    OsalMemFree(buf);
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_3, MALLOC_TEST_CASE1_SIZE);
+    if (sizeof(void *) == MEM_ALIGN_TEST_3) {
+        UT_TEST_CHECK_RET(buf == NULL, OSAL_MALLOC_BIG);
+        UT_TEST_CHECK_RET(((int)buf % MEM_ALIGN_TEST_3) != 0, OSAL_MALLOC_BIG);
+    } else {
+        UT_TEST_CHECK_RET(buf != NULL, OSAL_MALLOC_BIG);
+    }
+    OsalMemFree(buf);
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_4, MALLOC_TEST_CASE1_SIZE);
+    UT_TEST_CHECK_RET(buf != NULL, OSAL_MALLOC_BIG);
+    OsalMemFree(buf);
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_5, MALLOC_TEST_CASE1_SIZE);
+    UT_TEST_CHECK_RET(buf == NULL, OSAL_MALLOC_BIG);
+    UT_TEST_CHECK_RET(((int)buf % MEM_ALIGN_TEST_5) != 0, OSAL_MALLOC_BIG);
+    OsalMemFree(buf);
+    buf = OsalMemAllocAlign(MEM_ALIGN_TEST_6, MALLOC_TEST_CASE1_SIZE);
+    UT_TEST_CHECK_RET(buf == NULL, OSAL_MALLOC_BIG);
+    UT_TEST_CHECK_RET(((int)buf % MEM_ALIGN_TEST_6) != 0, OSAL_MALLOC_BIG);
+    OsalMemFree(buf);
+
     for (; i < MALLOC_TEST_CNT; i++) {
         buf = OsalMemCalloc(MALLOC_TEST_CASE1_SIZE);
         UT_TEST_CHECK_RET(buf == NULL, OSAL_MALLOC_BIG_STRESS);
