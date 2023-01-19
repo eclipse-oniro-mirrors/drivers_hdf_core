@@ -21,11 +21,6 @@ KHDF_AUDIO_IMX8MM_INC_DIR = drivers/hdf/framework/../../../device/board/osware/$
 KHDF_AUDIO_A311D_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 KHDF_AUDIO_A311D_INC_DIR = drivers/hdf/framework/../../../device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 
-audio_hdmi_codec-objs := \
-          $(KHDF_AUDIO_ROOT_DIR)/hdmi/src/audio_hdmi_codec_adapter.o \
-          $(KHDF_AUDIO_ROOT_DIR)/hdmi/src/audio_hdmi_codec_linux.o \
-          $(KHDF_AUDIO_ROOT_DIR)/hdmi/src/audio_hdmi_codec_ops.o
-
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_core.o \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_host.o \
@@ -37,8 +32,23 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
           $(KHDF_AUDIO_ROOT_DIR)/common/src/audio_dma_base.o \
           $(KHDF_AUDIO_ROOT_DIR)/sapm/src/audio_sapm.o \
           $(KHDF_AUDIO_ROOT_DIR)/dispatch/src/audio_stream_dispatch.o \
-          $(KHDF_AUDIO_ROOT_DIR)/dispatch/src/audio_control_dispatch.o \
-          audio_hdmi_codec.o
+          $(KHDF_AUDIO_ROOT_DIR)/dispatch/src/audio_control_dispatch.o
+
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_HDMI) += \
+          $(KHDF_AUDIO_ROOT_DIR)/hdmi/src/audio_hdmi_codec_adapter.o \
+          $(KHDF_AUDIO_ROOT_DIR)/hdmi/src/audio_hdmi_codec_linux.o \
+          $(KHDF_AUDIO_ROOT_DIR)/hdmi/src/audio_hdmi_codec_ops.o
+
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_USB) += \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_linux.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_codec_adapter.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_codec_ops.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_dma_adapter.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_dma_ops.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_endpoints.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_parse_interface.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_validate_desc.o \
+          $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_mixer.o
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/hispark_taurus/audio_drivers/
@@ -100,6 +110,7 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -lm -lc -lgcc -std=gnu99 -Werror\
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/audio/dispatch/include \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/audio/common/include \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/audio/hdmi/include \
+             -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/audio/usb/include \
              -I$(srctree)/bounds_checking_function/include
 
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \

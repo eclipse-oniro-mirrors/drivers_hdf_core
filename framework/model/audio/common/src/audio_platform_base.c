@@ -264,12 +264,12 @@ static int32_t AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStream
         dataAvailable = (data->renderBufInfo.wbufOffSet - rptr) % data->renderBufInfo.cirBufSize;
         residual = data->renderBufInfo.cirBufSize - dataAvailable;
         if ((residual > data->renderBufInfo.trafBufSize)) {
-            AUDIO_DRIVER_LOG_DEBUG("rptr: %d wptr: %d trafBufSize: %d ",
-                rptr, dataAvailable, data->renderBufInfo.trafBufSize);
+            AUDIO_DRIVER_LOG_DEBUG("card name: %s rptr: %d wptr: %d trafBufSize: %d ",
+                card->configData.cardServiceName, rptr, dataAvailable, data->renderBufInfo.trafBufSize);
             return ENUM_CIR_BUFF_NORMAL;
         } else {
-            AUDIO_DRIVER_LOG_DEBUG("full rptr: %d wptr: %d trafBufSize: %d ", rptr,
-                dataAvailable, data->renderBufInfo.trafBufSize);
+            AUDIO_DRIVER_LOG_DEBUG("card name: %s full rptr: %d wptr: %d trafBufSize: %d ",
+                card->configData.cardServiceName, rptr, dataAvailable, data->renderBufInfo.trafBufSize);
             return ((data->renderBufInfo.trafBufSize - residual) / data->renderBufInfo.oneMsBytes);
         }
     } else if (streamType == AUDIO_CAPTURE_STREAM) {
@@ -280,12 +280,13 @@ static int32_t AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStream
             // [S ... R ... W ... E]
             dataAvailable = wptr - rptr;
             if (dataAvailable < data->captureBufInfo.trafBufSize) {
-                AUDIO_DRIVER_LOG_DEBUG("empty rptr: %d wptr: %d trafBufSize: %d ", rptr,
-                    wptr, data->captureBufInfo.trafBufSize);
+                AUDIO_DRIVER_LOG_DEBUG("card name: %s empty rptr: %d wptr: %d trafBufSize: %d ",
+                    card->configData.cardServiceName, rptr, wptr, data->captureBufInfo.trafBufSize);
                 return ((data->captureBufInfo.trafBufSize - dataAvailable) / data->captureBufInfo.oneMsBytes);
             }
         }
-        AUDIO_DRIVER_LOG_DEBUG("rptr: %d wptr: %d trafBufSize: %d ", rptr, wptr, data->captureBufInfo.trafBufSize);
+        AUDIO_DRIVER_LOG_DEBUG("card name: %s rptr: %d wptr: %d trafBufSize: %d ", card->configData.cardServiceName,
+            rptr, wptr, data->captureBufInfo.trafBufSize);
         return ENUM_CIR_BUFF_NORMAL;
     } else {
         AUDIO_DRIVER_LOG_ERR("streamType is invalid.");

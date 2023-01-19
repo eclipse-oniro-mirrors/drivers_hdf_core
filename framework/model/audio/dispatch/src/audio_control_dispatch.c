@@ -60,8 +60,8 @@ static int32_t ControlHostElemInfoSub(struct HdfSBuf *rspData, const struct Audi
     ADM_LOG_DEBUG("cardName: %s  iface: %d   itemName: %s  .", id.cardServiceName, id.iface, id.itemName);
     kctrl = AudioGetKctrlInstance(&id);
     if (kctrl == NULL || kctrl->Info == NULL) {
-        ADM_LOG_ERR("Find kctrl or Info fail!");
-        return HDF_FAILURE;
+        ADM_LOG_ERR("itemname: %s iface: %d kctrl or Info not support!", id.itemName, id.iface);
+        return HDF_ERR_NOT_SUPPORT;
     }
 
     (void)memset_s(&elemInfo, sizeof(struct AudioCtrlElemInfo), 0, sizeof(struct AudioCtrlElemInfo));
@@ -95,6 +95,7 @@ static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     struct AudioCtrlElemId id;
+    int32_t ret;
     ADM_LOG_DEBUG("entry.");
 
     if (reqData == NULL) {
@@ -112,19 +113,21 @@ static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
         return HDF_FAILURE;
     }
 
-    if (!(id.cardServiceName = HdfSbufReadString(reqData))) {
+    id.cardServiceName = HdfSbufReadString(reqData);
+    if (id.cardServiceName == NULL) {
         ADM_LOG_ERR("Read ElemInfo request cardServiceName failed!");
         return HDF_FAILURE;
     }
 
-    if (!(id.itemName = HdfSbufReadString(reqData))) {
+    id.itemName = HdfSbufReadString(reqData);
+    if (id.itemName == NULL) {
         ADM_LOG_ERR("Read ElemInfo request itemName failed!");
         return HDF_FAILURE;
     }
 
-    if (ControlHostElemInfoSub(rspData, id)) {
-        ADM_LOG_ERR("ControlHostElemInfoSub failed!");
-        return HDF_FAILURE;
+    ret = ControlHostElemInfoSub(rspData, id);
+    if (ret != HDF_SUCCESS) {
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -283,12 +286,14 @@ static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struc
         return HDF_FAILURE;
     }
 
-    if (!(id.cardServiceName = HdfSbufReadString(reqData))) {
+    id.cardServiceName = HdfSbufReadString(reqData);
+    if (id.cardServiceName == NULL) {
         ADM_LOG_ERR("ElemRead request cardServiceName failed!");
         return HDF_FAILURE;
     }
 
-    if (!(id.itemName = HdfSbufReadString(reqData))) {
+    id.itemName = HdfSbufReadString(reqData);
+    if (id.itemName == NULL) {
         ADM_LOG_ERR("ElemRead request itemName failed!");
         return HDF_FAILURE;
     }
@@ -296,8 +301,8 @@ static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struc
 
     kctrl = AudioGetKctrlInstance(&id);
     if (kctrl == NULL || kctrl->Get == NULL) {
-        ADM_LOG_ERR("Find kctrl or Get fail.");
-        return HDF_FAILURE;
+        ADM_LOG_ERR("itemname: %s iface: %d kctrl or Get not support!", id.itemName, id.iface);
+        return HDF_ERR_NOT_SUPPORT;
     }
 
     (void)memset_s(&elemValue, sizeof(struct AudioCtrlElemValue), 0, sizeof(struct AudioCtrlElemValue));
@@ -347,7 +352,8 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
         return HDF_FAILURE;
     }
 
-    if (!(elemValue.id.cardServiceName = HdfSbufReadString(reqData))) {
+    elemValue.id.cardServiceName = HdfSbufReadString(reqData);
+    if (elemValue.id.cardServiceName == NULL) {
         ADM_LOG_ERR("Read request cardServiceName failed!");
         return HDF_FAILURE;
     }
@@ -362,8 +368,8 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
 
     kctrl = AudioGetKctrlInstance(&elemValue.id);
     if (kctrl == NULL || kctrl->Set == NULL) {
-        ADM_LOG_ERR("itemname: %s iface: %d Find kctrl or Set fail!", elemValue.id.itemName, elemValue.id.iface);
-        return HDF_FAILURE;
+        ADM_LOG_ERR("itemname: %s iface: %d kctrl or Set not support!", elemValue.id.itemName, elemValue.id.iface);
+        return HDF_ERR_NOT_SUPPORT;
     }
 
     result = kctrl->Set(kctrl, &elemValue);

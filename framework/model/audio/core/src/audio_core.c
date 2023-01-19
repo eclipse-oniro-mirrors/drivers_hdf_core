@@ -174,6 +174,7 @@ static int32_t AudioSeekPlatformDevice(struct AudioRuntimeDeivces *rtd, const st
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    ADM_LOG_DEBUG("Seek platformName[%s]", configData->platformName);
     DLIST_FOR_EACH_ENTRY(platform, &platformController, struct PlatformDevice, list) {
         if (platform->devPlatformName != NULL &&
             strcmp(platform->devPlatformName, configData->platformName) == 0) {
@@ -200,6 +201,7 @@ static int32_t AudioSeekCpuDaiDevice(struct AudioRuntimeDeivces *rtd, const stru
         ADM_LOG_ERR("daiController is empty.");
         return HDF_FAILURE;
     }
+    ADM_LOG_DEBUG("Seek cpuDaiName[%s]", configData->cpuDaiName);
     DLIST_FOR_EACH_ENTRY(cpuDai, &daiController, struct DaiDevice, list) {
         if (cpuDai == NULL) {
             return HDF_ERR_INVALID_OBJECT;
@@ -218,6 +220,7 @@ static int32_t AudioSeekCodecDevice(struct AudioRuntimeDeivces *rtd, const struc
 {
     struct CodecDevice *codec = NULL;
     struct DaiDevice *codecDai = NULL;
+
     if ((rtd == NULL) || (configData == NULL)) {
         ADM_LOG_ERR("Input params check error: rtd=%p, configData=%p.", rtd, configData);
         return HDF_ERR_INVALID_OBJECT;
@@ -230,7 +233,7 @@ static int32_t AudioSeekCodecDevice(struct AudioRuntimeDeivces *rtd, const struc
         ADM_LOG_ERR("Input devicesName check error: configData->codecDaiName is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-
+    ADM_LOG_DEBUG ("Seek codecName[%s] codecDaiName[%s]", configData->codecName, configData->codecDaiName);
     DLIST_FOR_EACH_ENTRY(codec, &codecController, struct CodecDevice, list) {
         if (codec->devCodecName != NULL && strcmp(codec->devCodecName, configData->codecName) == 0) {
             rtd->codec = codec;
@@ -254,6 +257,7 @@ static int32_t AudioSeekDspDevice(struct AudioRuntimeDeivces *rtd, const struct 
 {
     struct DspDevice *dsp = NULL;
     struct DaiDevice *dspDai = NULL;
+
     if ((rtd == NULL) || (configData == NULL)) {
         ADM_LOG_ERR("Input params check error: rtd=%p, configData=%p.", rtd, configData);
         return HDF_ERR_INVALID_OBJECT;
@@ -266,7 +270,7 @@ static int32_t AudioSeekDspDevice(struct AudioRuntimeDeivces *rtd, const struct 
         ADM_LOG_ERR("Input devicesName check error: configData->dspDaiName is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-
+    ADM_LOG_DEBUG("Seek dspName[%s] dspDaiName[%s]", configData->dspName, configData->dspDaiName);
     DLIST_FOR_EACH_ENTRY(dsp, &dspController, struct DspDevice, list) {
         if (dsp == NULL) {
             return HDF_ERR_INVALID_OBJECT;
@@ -309,16 +313,18 @@ int32_t AudioBindDaiLink(struct AudioCard *audioCard, const struct AudioConfigDa
 
     audioCard->rtd->complete = AUDIO_DAI_LINK_UNCOMPLETE;
     if (AudioSeekPlatformDevice(audioCard->rtd, configData) == HDF_SUCCESS) {
-        ADM_LOG_DEBUG("PLATFORM [%s] is registered!", configData->platformName);
+        ADM_LOG_INFO("PLATFORM [%s] is registered!", configData->platformName);
     }
     if (AudioSeekCpuDaiDevice(audioCard->rtd, configData) == HDF_SUCCESS) {
-        ADM_LOG_DEBUG("CPU DAI [%s] is registered!", configData->cpuDaiName);
+        ADM_LOG_INFO("CPUDAI [%s] is registered!", configData->cpuDaiName);
     }
     if (AudioSeekCodecDevice(audioCard->rtd, configData) == HDF_SUCCESS) {
-        ADM_LOG_DEBUG("CODEC [%s] is registered!", configData->codecName);
+        ADM_LOG_INFO("CODEC [%s] is registered!", configData->codecName);
+        ADM_LOG_INFO("CODECDAI [%s] is registered!", configData->codecDaiName);
     }
     if (AudioSeekDspDevice(audioCard->rtd, configData) == HDF_SUCCESS) {
-        ADM_LOG_DEBUG("CODEC [%s] is registered!", configData->dspName);
+        ADM_LOG_INFO("DSP [%s] is registered!", configData->dspName);
+        ADM_LOG_INFO("DSPDAI [%s] is registered!", configData->dspDaiName);
     }
     audioCard->rtd->complete = AUDIO_DAI_LINK_COMPLETE;
     ADM_LOG_DEBUG("All devices register complete!");

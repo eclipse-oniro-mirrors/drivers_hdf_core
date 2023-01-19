@@ -78,7 +78,7 @@ struct AudioMixerControl {
 };
 
 struct AudioKcontrol {
-    const char *name; /* ASCII name of item */
+    char *name; /* ASCII name of item */
     int32_t iface;
     int32_t (*Info)(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemInfo *elemInfo);
     int32_t (*Get)(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);

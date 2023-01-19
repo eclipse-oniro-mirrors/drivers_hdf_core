@@ -64,7 +64,7 @@ static char *g_audioSapmCfgNameList[AUDIO_SAPM_CFG_NAME_LIST_MAX] = {
     "Mixer3 Switch",                "Mixer4 Switch",                // [36], [37]
 };
 
-static const char *g_audioCodecControlsList[AUDIO_CTRL_LIST_MAX] = {
+static char *g_audioCodecControlsList[AUDIO_CTRL_LIST_MAX] = {
     "Main Playback Volume",         "Main Capture Volume",          // [0], [1]
     "Playback Mute",                "Capture Mute",                 // [2], [3]
     "Mic Left Gain",                "Mic Right Gain",               // [4], [5]
