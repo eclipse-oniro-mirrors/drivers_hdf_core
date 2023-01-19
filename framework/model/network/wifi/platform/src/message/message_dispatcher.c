@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -287,6 +287,7 @@ static ErrorCode StartDispatcher(MessageDispatcher *dispatcher)
     ErrorCode errCode;
     LocalMessageDispatcher *localDispatcher = NULL;
     struct OsalThreadParam config;
+    (void)memset_s(&config, sizeof(config), 0, sizeof(config));
     if (dispatcher == NULL) {
         return ME_ERROR_NULL_PTR;
     }

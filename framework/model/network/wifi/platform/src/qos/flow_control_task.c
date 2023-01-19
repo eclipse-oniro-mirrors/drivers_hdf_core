@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -10,6 +10,7 @@
 #include "osal_time.h"
 #include "hdf_log.h"
 #include "flow_control.h"
+#include "securec.h"
 #define HDF_LOG_TAG HDF_WIFI_CORE
 #define FLOW_CONTROL_MAP_SIZE 3
 struct FcPriority {
@@ -172,10 +173,10 @@ static void DestroyTask(struct FlowControlModule *fcm, FlowDir dir)
 int32_t CreateFlowControlTask(struct FlowControlModule *fcm)
 {
     int32_t ret;
-    struct OsalThreadParam config = {
-        .priority = OSAL_THREAD_PRI_HIGHEST,
-        .stackSize = 0,
-    };
+    struct OsalThreadParam config;
+    (void)memset_s(&config, sizeof(config), 0, sizeof(config));
+    config.priority = OSAL_THREAD_PRI_HIGHEST;
+    config.stackSize = 0;
 
     if (fcm == NULL) {
         HDF_LOGE("%s fail: fcm = null!", __func__);
