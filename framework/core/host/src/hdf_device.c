@@ -16,6 +16,9 @@
 
 #define HDF_LOG_TAG hdf_device
 
+// device node id less than 129 is configured in hcs, dynamic allocation ID starts from 129
+#define DYNAMIC_ALLOC_ID 129
+
 static void UpdateDeivceNodeIdIndex(struct HdfDevice *device, devid_t nodeDevid)
 {
     if (device->devidIndex < DEVNODEID(nodeDevid)) {
@@ -23,13 +26,48 @@ static void UpdateDeivceNodeIdIndex(struct HdfDevice *device, devid_t nodeDevid)
     }
 }
 
+static devid_t FindUsableDevNodeId(struct HdfDevice *device)
+{
+    uint16_t nodeId = DYNAMIC_ALLOC_ID;
+    bool find = false;
+    struct HdfDeviceNode *devNode = NULL;
+    for (; nodeId <= device->devidIndex; nodeId++) {
+        find = false;
+        DLIST_FOR_EACH_ENTRY(devNode, &device->devNodes, struct HdfDeviceNode, entry) {
+            if (DEVNODEID(devNode->devId) == nodeId) {
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return nodeId;
+        }
+    }
+    return nodeId;
+}
+
 static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
 {
+    devid_t nodeId;
+    devid_t usableId;
     if (device->devidIndex >= DEVNODEID_MASK) {
         return HDF_FAILURE;
     }
-    device->devidIndex++;
-    *devid = MK_DEVID(HOSTID(device->deviceId), DEVICEID(device->deviceId), device->devidIndex);
+
+    if (device->devidIndex < DYNAMIC_ALLOC_ID) {
+        device->devidIndex = DYNAMIC_ALLOC_ID;
+        nodeId = device->devidIndex;
+    } else {
+        usableId = FindUsableDevNodeId(device);
+        if (usableId <= device->devidIndex) {
+            nodeId = usableId;
+        } else {
+            device->devidIndex++;
+            nodeId = device->devidIndex;
+        }
+    }
+
+    *devid = MK_DEVID(HOSTID(device->deviceId), DEVICEID(device->deviceId), nodeId);
 
     return HDF_SUCCESS;
 }
