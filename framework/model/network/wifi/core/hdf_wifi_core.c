@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -488,11 +488,11 @@ static int32_t HdfWlanInitThread(void *para)
 static int32_t HdfWlanScanAndInitThread(struct HdfDeviceObject *device)
 {
     struct OsalThread factoryTread;
-    struct OsalThreadParam chipLoadCfg = {
-        .name = "chip_factory_load",
-        .priority = OSAL_THREAD_PRI_DEFAULT,
-        .stackSize = 0x2000,
-    };
+    struct OsalThreadParam chipLoadCfg;
+    (void)memset_s(&chipLoadCfg, sizeof(chipLoadCfg), 0, sizeof(chipLoadCfg));
+    chipLoadCfg.name = "chip_factory_load";
+    chipLoadCfg.priority = OSAL_THREAD_PRI_DEFAULT;
+    chipLoadCfg.stackSize = 0x2000;
 
     int32_t ret = OsalThreadCreate(&factoryTread, HdfWlanInitThread, (void *)device);
     if (ret != HDF_SUCCESS) {
