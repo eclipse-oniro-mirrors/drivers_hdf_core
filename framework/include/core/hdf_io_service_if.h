@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -200,6 +200,21 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
 int32_t HdfIoServiceGroupRegisterListener(struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener);
 
 /**
+ * @brief Registers a custom {@link HdfDevEventlistener} for listening for events reported by driver services
+ * in a specified driver service group object.
+ *
+ * @param group Indicates the pointer to the driver service group object to listen to,
+ *              which is obtained via {@link HdfIoServiceGroupObtain}.
+ * @param listener Indicates the pointer to the {@link HdfDevEventlistener} to register.
+ * @param policy Indicates the sched policy of the HdfDevEventlistener thread.
+ * @return Returns <b>0</b> if the operation is successful; returns a negative value otherwise.
+ *
+ * @since 4.0
+ */
+int32_t HdfIoServiceGroupRegisterListenerWithSchedPolicy(
+    struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener, int policy);
+
+/**
  * @brief Unregisters a previously registered {@link HdfDevEventlistener} that is used for listening for events
  * reported by driver services in a specified driver service group object.
  *
@@ -245,6 +260,21 @@ void HdfIoServiceRecycle(struct HdfIoService *service);
  * @since 1.0
  */
 int HdfDeviceRegisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener);
+
+/**
+ * @brief Registers a custom {@link HdfDevEventlistener} for listening for events reported
+ * by a specified driver service object.
+ *
+ * @param target Indicates the pointer to the driver service object to listen, which is obtained through
+ * the {@link HdfIoServiceBind} function.
+ * @param listener Indicates the pointer to the listener to register.
+ * @param policy Indicates the sched policy of the HdfDevEventlistener thread.
+ * @return Returns <b>0</b> if the operation is successful; returns a negative value otherwise.
+ *
+ * @since 4.0
+ */
+int32_t HdfDeviceRegisterEventListenerWithSchedPolicy(
+    struct HdfIoService *target, struct HdfDevEventlistener *listener, int policy);
 
 /**
  * @brief Unregisters a previously registered {@link HdfDevEventlistener} to release resources

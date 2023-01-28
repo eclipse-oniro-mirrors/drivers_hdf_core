@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <poll.h>
+#include <sched.h>
 #include <securec.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
@@ -341,6 +342,7 @@ static int32_t HdfDevListenerThreadDoInit(struct HdfDevListenerThread *thread)
     thread->status = LISTENER_INITED;
     thread->shouldStop = false;
     thread->pollChanged = true;
+    thread->policy = SCHED_OTHER;
 
     return HDF_SUCCESS;
 }
@@ -465,6 +467,7 @@ static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
             .name = "evt_listen",
             .priority = OSAL_THREAD_PRI_DEFAULT,
             .stackSize = 0,
+            .policy = thread->policy,
         };
 
         thread->status = LISTENER_STARTED;
@@ -507,13 +510,14 @@ static int32_t HdfIoServiceGroupThreadInit(struct HdfSyscallAdapterGroup *group)
     return HdfDevListenerThreadInit(group->thread);
 }
 
-static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group)
+static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group, int policy)
 {
     OsalMutexLock(&group->mutex);
     if (HdfIoServiceGroupThreadInit(group) != HDF_SUCCESS) {
         OsalMutexUnlock(&group->mutex);
         return HDF_FAILURE;
     }
+    group->thread->policy = policy;
     int32_t ret = HdfDevListenerThreadStart(group->thread);
     OsalMutexUnlock(&group->mutex);
     return ret;
@@ -806,12 +810,13 @@ static int32_t HdfIoServiceThreadBindLocked(struct HdfSyscallAdapter *adapter)
     return HdfDevListenerThreadInit(adapter->thread);
 }
 
-static int32_t HdfIoServiceStartListen(struct HdfSyscallAdapter *adapter)
+static int32_t HdfIoServiceStartListen(struct HdfSyscallAdapter *adapter, int policy)
 {
     if (HdfIoServiceThreadBindLocked(adapter) != HDF_SUCCESS) {
         HDF_LOGE("%s: Failed to bind a thread to SyscallAdapter", __func__);
         return HDF_FAILURE;
     }
+    adapter->thread->policy = policy;
 
     return HdfDevListenerThreadStart(adapter->thread);
 }
@@ -829,14 +834,20 @@ static bool AddListenerToAdapterLocked(struct HdfSyscallAdapter *adapter, struct
     return true;
 }
 
-int32_t HdfDeviceRegisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener)
+int32_t HdfDeviceRegisterEventListenerWithSchedPolicy(
+    struct HdfIoService *target, struct HdfDevEventlistener *listener, int policy)
 {
     if (target == NULL || listener == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (policy != SCHED_FIFO && policy != SCHED_RR && policy != SCHED_OTHER) {
+        HDF_LOGE("%{public}s: Register event listener with invalid sched policy", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     if (listener->callBack == NULL && listener->onReceive == NULL) {
-        HDF_LOGE("Listener onReceive func not implemented");
+        HDF_LOGE("%{public}s: Listener onReceive func not implemented", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -851,18 +862,23 @@ int32_t HdfDeviceRegisterEventListener(struct HdfIoService *target, struct HdfDe
 
     if (adapter->group != NULL) {
         /* Do not bind any service in a service goup to its own thread or start the group thread. */
-        ret = HdfIoServiceGroupThreadStart(adapter->group);
+        ret = HdfIoServiceGroupThreadStart(adapter->group, policy);
         OsalMutexUnlock(&adapter->mutex);
         return ret;
     }
 
-    if (HdfIoServiceStartListen(adapter) != HDF_SUCCESS) {
+    if (HdfIoServiceStartListen(adapter, policy) != HDF_SUCCESS) {
         DListRemove(&listener->listNode);
         ret = HDF_FAILURE;
     }
 
     OsalMutexUnlock(&adapter->mutex);
     return ret;
+}
+
+int32_t HdfDeviceRegisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener)
+{
+    return HdfDeviceRegisterEventListenerWithSchedPolicy(target, listener, SCHED_OTHER);
 }
 
 int32_t HdfDeviceUnregisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener)
@@ -931,9 +947,15 @@ void HdfIoServiceGroupRecycle(struct HdfIoServiceGroup *group)
     OsalMemFree(adapterGroup);
 }
 
-int32_t HdfIoServiceGroupRegisterListener(struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener)
+int32_t HdfIoServiceGroupRegisterListenerWithSchedPolicy(
+    struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener, int policy)
 {
     if (group == NULL || listener == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (policy != SCHED_FIFO && policy != SCHED_RR && policy != SCHED_OTHER) {
+        HDF_LOGE("Group register event listener with invalid sched policy");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -952,6 +974,7 @@ int32_t HdfIoServiceGroupRegisterListener(struct HdfIoServiceGroup *group, struc
 
     int32_t ret = HDF_SUCCESS;
     struct HdfDevListenerThread *listenerThread = adapterGroup->thread;
+    listenerThread->policy = policy;
 
     OsalMutexLock(&listenerThread->mutex);
     struct HdfDevEventlistener *it = NULL;
@@ -974,6 +997,11 @@ FINISH:
     OsalMutexUnlock(&listenerThread->mutex);
     OsalMutexUnlock(&adapterGroup->mutex);
     return ret;
+}
+
+int32_t HdfIoServiceGroupRegisterListener(struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener)
+{
+    return HdfIoServiceGroupRegisterListenerWithSchedPolicy(group, listener, SCHED_OTHER);
 }
 
 static int32_t GetListenerCount(struct HdfDevListenerThread *thread)

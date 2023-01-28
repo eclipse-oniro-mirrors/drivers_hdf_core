@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -17,10 +17,11 @@
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
 
-#define HDF_LOG_TAG hdf_vnode
-#define VOID_DATA_SIZE 4
-#define EVENT_QUEUE_MAX 100
-#define MAX_RW_SIZE (1024 * 1204) // 1M
+#define HDF_LOG_TAG          hdf_vnode
+#define VOID_DATA_SIZE       4
+#define EVENT_QUEUE_MAX      100
+#define EVENT_RINGBUFFER_MAX 10
+#define MAX_RW_SIZE          (1024 * 1204) // 1M
 
 enum HdfVNodeClientStatus {
     VNODE_CLIENT_RUNNING,
@@ -40,6 +41,10 @@ struct HdfVNodeAdapterClient {
     int32_t eventQueueSize;
     int32_t wakeup;
     uint32_t status;
+    struct HdfDevEvent *eventRingBuffer[EVENT_RINGBUFFER_MAX];
+    volatile uint32_t readCursor;
+    volatile uint32_t writeCursor;
+    volatile bool writeHeadEvent;
 };
 
 struct HdfIoServiceKClient {
@@ -246,19 +251,103 @@ static int HdfVNodeAdapterServCall(const struct HdfVNodeAdapterClient *client, u
     return ret;
 }
 
+static int EventDataProcess(struct HdfDevEvent *event, struct HdfWriteReadBuf *bwr, struct HdfWriteReadBuf *bwrUser)
+{
+    int ret = HDF_SUCCESS;
+    size_t eventSize = HdfSbufGetDataSize(event->data);
+    if (eventSize > bwr->readSize) {
+        bwr->readSize = eventSize;
+        ret = HDF_DEV_ERR_NORANGE;
+    } else {
+        if (HdfSbufCopyToUser(event->data, (void *)(uintptr_t)bwr->readBuffer, bwr->readSize) != HDF_SUCCESS) {
+            return HDF_ERR_IO;
+        }
+        bwr->readConsumed = eventSize;
+        bwr->cmdCode = (int32_t)event->id;
+    }
+    if (CopyToUser(bwrUser, bwr, sizeof(struct HdfWriteReadBuf)) != 0) {
+        HDF_LOGE("%s: failed to copy bwr", __func__);
+        ret = HDF_ERR_IO;
+    }
+
+    return ret;
+}
+
+static int ReadDeviceEventInRingBuffer(
+    struct HdfVNodeAdapterClient *client, struct HdfWriteReadBuf *bwr, struct HdfWriteReadBuf *bwrUser)
+{
+    struct HdfDevEvent *event = NULL;
+    int ret = HDF_SUCCESS;
+    uint32_t cursor;
+
+    do {
+        event = NULL;
+        if (client->readCursor == client->writeCursor) {
+            break;
+        }
+        if (client->writeHeadEvent == true) {
+            HDF_LOGE("%{public}s: client->writeHeadEvent == true", __func__);
+            break;
+        }
+        cursor = client->readCursor;
+        event = client->eventRingBuffer[cursor];
+    } while (!__sync_bool_compare_and_swap(&(client->readCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
+
+    if (event == NULL) {
+        HDF_LOGE("%{public}s: eventRingBuffer is empty", __func__);
+        return HDF_DEV_ERR_NODATA;
+    }
+
+    ret = EventDataProcess(event, bwr, bwrUser);
+    if (ret != HDF_SUCCESS) {
+        if (!__sync_bool_compare_and_swap(&(client->readCursor), (cursor + 1) % EVENT_RINGBUFFER_MAX, cursor)) {
+            HDF_LOGE("%{public}s: EventDataProcess failed and cursor had been changed, drop the event", __func__);
+            DevEventFree(event);
+        }
+        return ret;
+    }
+    DevEventFree(event);
+
+    return ret;
+}
+
+static int ReadDeviceEventInEventQueue(
+    struct HdfVNodeAdapterClient *client, struct HdfWriteReadBuf *bwr, struct HdfWriteReadBuf *bwrUser)
+{
+    struct HdfDevEvent *event = NULL;
+    int ret = HDF_SUCCESS;
+
+    OsalMutexLock(&client->mutex);
+    if (DListIsEmpty(&client->eventQueue)) {
+        OsalMutexUnlock(&client->mutex);
+        HDF_LOGE("%{public}s: eventQueue is empty", __func__);
+        return HDF_DEV_ERR_NODATA;
+    }
+    event = CONTAINER_OF(client->eventQueue.next, struct HdfDevEvent, listNode);
+    ret = EventDataProcess(event, bwr, bwrUser);
+    if (ret != HDF_SUCCESS) {
+        OsalMutexUnlock(&client->mutex);
+        return ret;
+    }
+    DListRemove(&event->listNode);
+    client->eventQueueSize--;
+    OsalMutexUnlock(&client->mutex);
+    DevEventFree(event);
+
+    return ret;
+}
+
 static int HdfVNodeAdapterReadDevEvent(struct HdfVNodeAdapterClient *client, unsigned long arg)
 {
     struct HdfWriteReadBuf bwr;
     struct HdfWriteReadBuf *bwrUser = (struct HdfWriteReadBuf *)((uintptr_t)arg);
-    struct HdfDevEvent *event = NULL;
-    size_t eventSize;
-
     int ret = HDF_SUCCESS;
+
     if (bwrUser == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (CopyFromUser(&bwr, (void*)bwrUser, sizeof(bwr)) != 0) {
+    if (CopyFromUser(&bwr, (void *)bwrUser, sizeof(bwr)) != 0) {
         HDF_LOGE("Copy from user failed");
         return HDF_FAILURE;
     }
@@ -266,38 +355,13 @@ static int HdfVNodeAdapterReadDevEvent(struct HdfVNodeAdapterClient *client, uns
     if (bwr.readSize > MAX_RW_SIZE) {
         return HDF_ERR_INVALID_PARAM;
     }
-    OsalMutexLock(&client->mutex);
 
-    if (DListIsEmpty(&client->eventQueue)) {
-        OsalMutexUnlock(&client->mutex);
-        return HDF_DEV_ERR_NODATA;
-    }
-
-    event = CONTAINER_OF(client->eventQueue.next, struct HdfDevEvent, listNode);
-    eventSize = HdfSbufGetDataSize(event->data);
-    if (eventSize > bwr.readSize) {
-        bwr.readSize = eventSize;
-        ret = HDF_DEV_ERR_NORANGE;
+    if (!DListIsEmpty(&client->eventQueue)) {
+        ret = ReadDeviceEventInEventQueue(client, &bwr, bwrUser);
     } else {
-        if (HdfSbufCopyToUser(event->data, (void *)(uintptr_t)bwr.readBuffer, bwr.readSize) != HDF_SUCCESS) {
-            OsalMutexUnlock(&client->mutex);
-            return HDF_ERR_IO;
-        }
-        bwr.readConsumed = eventSize;
-        bwr.cmdCode = (int32_t)event->id;
+        ret = ReadDeviceEventInRingBuffer(client, &bwr, bwrUser);
     }
 
-    if (CopyToUser(bwrUser, &bwr, sizeof(struct HdfWriteReadBuf)) != 0) {
-        HDF_LOGE("%s: failed to copy bwr", __func__);
-        ret = HDF_ERR_IO;
-    }
-    if (ret == HDF_SUCCESS) {
-        DListRemove(&event->listNode);
-        DevEventFree(event);
-        client->eventQueueSize--;
-    }
-
-    OsalMutexUnlock(&client->mutex);
     return ret;
 }
 
@@ -348,6 +412,73 @@ static int VNodeAdapterSendDevEventToClient(struct HdfVNodeAdapterClient *vnodeC
     return HDF_SUCCESS;
 }
 
+static void DropOldEventInRingBuffer(struct HdfVNodeAdapterClient *vnodeClient)
+{
+    struct HdfDevEvent *firstEvent = NULL;
+    uint32_t cursor;
+    char *nodePath = NULL;
+
+    do {
+        cursor = vnodeClient->readCursor;
+        firstEvent = NULL;
+        if ((vnodeClient->writeCursor + 1) % EVENT_RINGBUFFER_MAX != vnodeClient->readCursor) {
+            break;
+        }
+        firstEvent = vnodeClient->eventRingBuffer[cursor];
+    } while (!__sync_bool_compare_and_swap(&(vnodeClient->readCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
+
+    if (firstEvent != NULL) {
+        if (vnodeClient->adapter != NULL) {
+            nodePath = vnodeClient->adapter->vNodePath;
+            HDF_LOGE("dev(%{public}s) event ringbuffer full, drop old one", nodePath == NULL ? "unknown" : nodePath);
+        }
+        DevEventFree(firstEvent);
+    }
+}
+
+static void AddEventToRingBuffer(struct HdfVNodeAdapterClient *vnodeClient, struct HdfDevEvent *event)
+{
+    uint32_t cursor;
+
+    if (vnodeClient->writeCursor == vnodeClient->readCursor) {
+        vnodeClient->writeHeadEvent = true;
+    }
+    do {
+        cursor = vnodeClient->writeCursor;
+    } while (!__sync_bool_compare_and_swap(&(vnodeClient->writeCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
+
+    vnodeClient->eventRingBuffer[cursor] = event;
+    vnodeClient->writeHeadEvent = false;
+}
+
+static int VNodeAdapterSendDevEventToClientNoLock(
+    struct HdfVNodeAdapterClient *vnodeClient, uint32_t id, const struct HdfSBuf *data)
+{
+    struct HdfDevEvent *event = NULL;
+
+    if (vnodeClient->status != VNODE_CLIENT_LISTENING) {
+        return HDF_SUCCESS;
+    }
+    DropOldEventInRingBuffer(vnodeClient);
+
+    event = OsalMemAlloc(sizeof(struct HdfDevEvent));
+    if (event == NULL) {
+        return HDF_DEV_ERR_NO_MEMORY;
+    }
+    event->id = id;
+    event->data = HdfSbufCopy(data);
+    if (event->data == NULL) {
+        HDF_LOGE("%s: sbuf oom", __func__);
+        OsalMemFree(event);
+        return HDF_DEV_ERR_NO_MEMORY;
+    }
+
+    AddEventToRingBuffer(vnodeClient, event);
+    wake_up_interruptible(&vnodeClient->pollWait);
+
+    return HDF_SUCCESS;
+}
+
 static int HdfVNodeAdapterSendDevEvent(struct HdfVNodeAdapter *adapter, struct HdfVNodeAdapterClient *vnodeClient,
     uint32_t id, const struct HdfSBuf *data)
 {
@@ -369,6 +500,19 @@ static int HdfVNodeAdapterSendDevEvent(struct HdfVNodeAdapter *adapter, struct H
     }
     OsalMutexUnlock(&adapter->mutex);
     return ret;
+}
+
+static int HdfVNodeAdapterSendDevEventNoLock(
+    struct HdfVNodeAdapter *adapter, struct HdfVNodeAdapterClient *vnodeClient, uint32_t id, const struct HdfSBuf *data)
+{
+    if (adapter == NULL || data == NULL || HdfSbufGetDataSize(data) == 0) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (vnodeClient != NULL) {
+        return VNodeAdapterSendDevEventToClientNoLock(vnodeClient, id, data);
+    }
+
+    return HDF_FAILURE;
 }
 
 static void HdfVNodeAdapterClientStartListening(struct HdfVNodeAdapterClient *client)
@@ -469,6 +613,9 @@ static struct HdfVNodeAdapterClient *HdfNewVNodeAdapterClient(struct HdfVNodeAda
     client->ioServiceClient.device = (struct HdfDeviceObject *)adapter->ioService.target;
     client->ioServiceClient.priv = NULL;
     client->wakeup = 0;
+    client->readCursor = 0;
+    client->writeCursor = 0;
+    client->writeHeadEvent = false;
     init_waitqueue_head(&client->pollWait);
     OsalMutexLock(&adapter->mutex);
     DListInsertTail(&client->listNode, &adapter->clientList);
@@ -538,6 +685,8 @@ static unsigned int HdfVNodeAdapterPoll(struct file *filep, poll_table *wait)
     if (client->status == VNODE_CLIENT_EXITED) {
         mask |= POLLHUP;
     } else if (!DListIsEmpty(&client->eventQueue)) {
+        mask |= POLLIN;
+    } else if (client->readCursor != client->writeCursor) {
         mask |= POLLIN;
     } else if (client->wakeup > 0) {
         mask |= POLLIN;
@@ -657,7 +806,7 @@ int32_t HdfDeviceSendEvent(const struct HdfDeviceObject *deviceObject, uint32_t 
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    adapter = (struct HdfVNodeAdapter *)(((struct DeviceNodeExt*)deviceNode)->ioService);
+    adapter = (struct HdfVNodeAdapter *)(((struct DeviceNodeExt *)deviceNode)->ioService);
     return HdfVNodeAdapterSendDevEvent(adapter, NULL, id, data);
 }
 
@@ -673,5 +822,5 @@ int32_t HdfDeviceSendEventToClient(const struct HdfDeviceIoClient *client, uint3
         return HDF_ERR_INVALID_PARAM;
     }
 
-    return HdfVNodeAdapterSendDevEvent(vnodeClient->adapter, vnodeClient, id, data);
+    return HdfVNodeAdapterSendDevEventNoLock(vnodeClient->adapter, vnodeClient, id, data);
 }
