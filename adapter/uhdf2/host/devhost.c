@@ -21,6 +21,7 @@
 
 #include "securec.h"
 #include "parameter.h"
+#include "devhost_dump.h"
 #include "devhost_service.h"
 #include "devhost_service_full.h"
 #include "hdf_base.h"
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
         return status;
     }
     HdfPowerManagerInit();
+    DevHostDumpInit();
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {
@@ -121,6 +123,7 @@ int main(int argc, char **argv)
 
     DevHostServiceFreeInstance(instance);
     HdfPowerManagerExit();
+    DevHostDumpDeInit();
     HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
     return status;
 }

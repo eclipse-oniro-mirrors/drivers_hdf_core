@@ -50,6 +50,7 @@ ohos_executable("hdf_devmgr") {
     "device_manager.c",
     "src/devhost_service_proxy.c",
     "src/device_token_proxy.c",
+    "src/devmgr_dump.c",
     "src/devmgr_object_config.c",
     "src/devmgr_query_device.c",
     "src/devmgr_service_full.c",

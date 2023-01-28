@@ -18,6 +18,7 @@
 #include <string_ex.h>
 #include <unistd.h>
 
+#include "hdf_dump.h"
 #include "hdf_log.h"
 #include "hdf_object_manager.h"
 #include "hdf_sbuf_ipc.h"
@@ -59,6 +60,11 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+}
+
+int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
+{
+    return HdfDump(fd, args);
 }
 
 HdfDeathNotifier::HdfDeathNotifier(struct HdfRemoteService *service, struct HdfDeathRecipient *recipient)
