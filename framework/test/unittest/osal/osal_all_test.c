@@ -1,25 +1,32 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#ifdef __USER__
+#include <sched.h>
+#endif
+
 #include "hdf_base.h"
 #include "hdf_log.h"
+#include "osal_case_cmd_test.h"
+#include "osal_file_test.h"
 #include "osal_firmware.h"
+#include "osal_get_case_test.h"
 #include "osal_irq.h"
 #include "osal_list_test.h"
-#include "osal_file_test.h"
-#include "osal_case_cmd_test.h"
-#include "osal_get_case_test.h"
-#include "osal_test_case_def.h"
 #include "osal_mem.h"
 #include "osal_mutex.h"
 #include "osal_spinlock.h"
+#include "osal_test_case_def.h"
 #ifndef __USER__
 #include "osal_test_type.h"
+#endif
+#ifdef __USER__
+#include "pthread.h"
 #endif
 #include "osal_thread.h"
 #include "osal_time.h"
@@ -39,6 +46,11 @@ static int32_t g_waitMutexTime = 3100;
 static bool g_threadTest1Flag = true;
 OSAL_DECLARE_THREAD(thread1);
 OSAL_DECLARE_THREAD(thread2);
+#ifdef __USER__
+OSAL_DECLARE_THREAD(thread3);
+OSAL_DECLARE_THREAD(thread4);
+OSAL_DECLARE_THREAD(thread5);
+#endif
 OSAL_DECLARE_THREAD(thread);
 struct OsalMutex g_mutexTest;
 OSAL_DECLARE_SPINLOCK(g_spinTest);
@@ -174,6 +186,65 @@ static int ThreadTest2(void *arg)
     HDF_LOGE("%s thread return\n", __func__);
     return 0;
 }
+
+#ifdef __USER__
+#define SCHED_OTHER_PRIORITY 0
+#define SCHED_FIFO_PRIORITY  15
+#define SCHED_RR_PRIORITY    15
+static int ThreadTest3(void *arg)
+{
+    int policy;
+    struct sched_param param;
+
+    HDF_LOGE("[OSAL_UT_TEST]%s test thread para end", __func__);
+    (void)arg;
+
+    OsalSleep(HDF_THREAD_TEST_SLEEP_S);
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    UT_TEST_CHECK_RET(policy != SCHED_OTHER, OSAL_THREAD_CREATE);
+    UT_TEST_CHECK_RET(param.sched_priority != SCHED_OTHER_PRIORITY, OSAL_THREAD_CREATE);
+    printf("%s: policy is %d, param.sched_priority is %d \n", __func__, policy, param.sched_priority);
+    HDF_LOGE("%s thread return\n", __func__);
+
+    return 0;
+}
+
+static int ThreadTest4(void *arg)
+{
+    int policy;
+    struct sched_param param;
+
+    HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
+    (void)arg;
+
+    OsalSleep(HDF_THREAD_TEST_SLEEP_S);
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    UT_TEST_CHECK_RET(policy != SCHED_FIFO, OSAL_THREAD_CREATE);
+    UT_TEST_CHECK_RET(param.sched_priority != SCHED_FIFO_PRIORITY, OSAL_THREAD_CREATE);
+    printf("%s: policy is %d, param.sched_priority is %d \n", __func__, policy, param.sched_priority);
+    HDF_LOGE("%s thread return\n", __func__);
+
+    return 0;
+}
+
+static int ThreadTest5(void *arg)
+{
+    int policy;
+    struct sched_param param;
+
+    HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
+    (void)arg;
+
+    OsalSleep(HDF_THREAD_TEST_SLEEP_S);
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    UT_TEST_CHECK_RET(policy != SCHED_RR, OSAL_THREAD_CREATE);
+    UT_TEST_CHECK_RET(param.sched_priority != SCHED_RR_PRIORITY, OSAL_THREAD_CREATE);
+    printf("%s: policy is %d, param.sched_priority is %d \n", __func__, policy, param.sched_priority);
+    HDF_LOGE("%s thread return\n", __func__);
+
+    return 0;
+}
+#endif
 
 #define HDF_DBG_CNT_CTRL 10
 #ifndef __USER__
@@ -564,6 +635,47 @@ static void OsaThreadTest1(void)
     UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
 }
 
+#ifdef __USER__
+#define HDF_TEST_POLICY_STACK_SIZE 0
+static void OsaThreadSchedPolicyTest(void)
+{
+    HDF_LOGE("[OSAL_UT_TEST]%{public}s start", __func__);
+
+    struct OsalThreadParam threadCfg1;
+    (void)memset_s(&threadCfg1, sizeof(threadCfg1), 0, sizeof(threadCfg1));
+    threadCfg1.name = "hdf_test3";
+    threadCfg1.priority = OSAL_THREAD_PRI_HIGH;
+    threadCfg1.stackSize = HDF_TEST_POLICY_STACK_SIZE;
+    threadCfg1.policy = SCHED_OTHER;
+    int ret = OsalThreadCreate(&thread3, (OsalThreadEntry)ThreadTest3, NULL);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+    ret = OsalThreadStart(&thread3, &threadCfg1);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+
+    struct OsalThreadParam threadCfg2;
+    (void)memset_s(&threadCfg2, sizeof(threadCfg2), 0, sizeof(threadCfg2));
+    threadCfg2.name = "hdf_test4";
+    threadCfg2.priority = OSAL_THREAD_PRI_HIGH;
+    threadCfg2.stackSize = HDF_TEST_POLICY_STACK_SIZE;
+    threadCfg2.policy = SCHED_FIFO;
+    ret = OsalThreadCreate(&thread4, (OsalThreadEntry)ThreadTest4, NULL);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+    ret = OsalThreadStart(&thread4, &threadCfg2);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+
+    struct OsalThreadParam threadCfg3;
+    (void)memset_s(&threadCfg3, sizeof(threadCfg3), 0, sizeof(threadCfg3));
+    threadCfg3.name = "hdf_test5";
+    threadCfg3.priority = OSAL_THREAD_PRI_HIGH;
+    threadCfg3.stackSize = HDF_TEST_POLICY_STACK_SIZE;
+    threadCfg3.policy = SCHED_RR;
+    ret = OsalThreadCreate(&thread5, (OsalThreadEntry)ThreadTest5, NULL);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+    ret = OsalThreadStart(&thread5, &threadCfg3);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+}
+#endif
+
 static void OsaThreadTest(void)
 {
     struct OsalThreadParam threadCfg;
@@ -829,6 +941,9 @@ int OsaTestBegin(int32_t testFlag)
     OsaIrqTest();
     OsaTimerTest();
 #endif
+#ifdef __USER__
+    OsaThreadSchedPolicyTest();
+#endif
     OsaThreadTest();
     OsaMemoryTest();
     HDF_LOGD("%s ", __func__);
@@ -855,6 +970,11 @@ int OsaTestEnd(void)
     OsalThreadDestroy(&thread1);
     OsalThreadDestroy(&thread);
     OsalThreadDestroy(&thread2);
+#ifdef __USER__
+    OsalThreadDestroy(&thread3);
+    OsalThreadDestroy(&thread4);
+    OsalThreadDestroy(&thread5);
+#endif
     HDF_LOGE("%s", __func__);
 
     return 0;

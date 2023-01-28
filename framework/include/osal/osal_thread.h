@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -63,6 +63,7 @@ struct OsalThreadParam {
     char *name; /**< Thread name */
     size_t stackSize; /**< Thread stack size, which may cause thread stack overflow if it is too small */
     OSAL_THREAD_PRIORITY priority; /**< Thread priority */
+    int policy; /**< Thread scheduling policy */
 };
 
 /**

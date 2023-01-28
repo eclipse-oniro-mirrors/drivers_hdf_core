@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,6 +18,7 @@ void HdfThreadStart(struct HdfThread *thread)
     struct OsalThreadParam param = {
         .priority = OSAL_THREAD_PRI_DEFAULT,
         .stackSize = 0,
+        .policy = 0,
     };
     OsalThreadStart(&thread->adapter, &param);
     thread->status = true;
@@ -74,8 +75,7 @@ void HdfThreadDestruct(struct HdfThread *thread)
 
 struct HdfThread *HdfThreadNewInstance(void)
 {
-    struct HdfThread *thread =
-        (struct HdfThread *)OsalMemCalloc(sizeof(struct HdfThread));
+    struct HdfThread *thread = (struct HdfThread *)OsalMemCalloc(sizeof(struct HdfThread));
     if (thread != NULL) {
         HdfThreadConstruct(thread);
     }
@@ -89,4 +89,3 @@ void HdfThreadFreeInstance(struct HdfThread *thread)
         OsalMemFree(thread);
     }
 }
-
