@@ -131,10 +131,12 @@ if (defined(ohos_lite)) {
     }
 
     # Ensure that the maximum page size is 4096 and the load section is aligned
-    ldflags = [
-      "-Wl,-z,max-page-size=4096",
-      "-Wl,-z,separate-code",
-    ]
+    if (use_musl) {
+      ldflags = [
+        "-Wl,-z,max-page-size=4096",
+        "-Wl,-z,separate-code",
+      ]
+    }
 
     install_enable = true
     install_images = [ chipset_base_dir ]
