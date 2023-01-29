@@ -25,7 +25,7 @@
 		"commands": [
 			{
 				"command": "hcs_editor",
-				"title": "HCS可视化配置"
+				"title": "HCS Configuration Source View"
 			}
 		],
 		"menus": {

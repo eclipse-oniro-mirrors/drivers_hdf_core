@@ -15,5 +15,6 @@
 module.exports = {
     devtool: 'source-map', //config debug
     entry: "./src/index.js",
-    output: {}
+    output: {},
+    mode: 'production'
 }
