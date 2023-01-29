@@ -150,7 +150,7 @@ int IoServiceTest::OnDevEventReceivedTest1(
         return 0;
     }
     struct Eventlistener *l = CONTAINER_OF(listener, struct Eventlistener, listener);
-    HDF_LOGI("%{public}s: read data size is %{public}d", static_cast<char *>(service->priv), strlen(string));
+    HDF_LOGI("%{public}s: read data size is %{public}zu", static_cast<char *>(service->priv), strlen(string));
     HDF_LOGI("%{public}s: read data is %{public}s", static_cast<char *>(service->priv), string);
     l->eventCount++;
     return 0;
@@ -984,7 +984,7 @@ HWTEST_F(IoServiceTest, HdfIoService018, TestSize.Level1)
         "0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_"
         "0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_0000000000_"
         "0000000000_";
-    HDF_LOGI("send: eventData sizeof is %{public}d", strlen(eventData));
+    HDF_LOGI("send: eventData sizeof is %{public}zu", strlen(eventData));
     ret = SendEvent(serv, eventData, false);
     usleep(eventWaitTimeUs);
     ASSERT_EQ(1, listener3.eventCount);
