@@ -64,7 +64,7 @@ hdf_driver(module_name) {
     sources += [
       "$FRAMEWORKS_USB_DRIVERS/acm/cdcacm.c",
       "$FRAMEWORKS_USB_DRIVERS/ecm/cdcecm.c",
-      "$FRAMEWORKS_USB_DRIVERS/master/dev_master.c",
+      "$FRAMEWORKS_USB_DRIVERS/usbfn/dev_usbfn.c",
     ]
   }
 
