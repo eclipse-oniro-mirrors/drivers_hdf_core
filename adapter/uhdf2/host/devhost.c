@@ -97,6 +97,7 @@ int main(int argc, char **argv)
         HDF_LOGE("Devhost main parameter error, argv[1]: %{public}s", argv[DEVHOST_INPUT_PARAM_HOSTID_POS]);
         return HDF_ERR_INVALID_PARAM;
     }
+
     const char *hostName = argv[argc - 1];
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
@@ -107,14 +108,17 @@ int main(int argc, char **argv)
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
     }
+
+    DevHostDumpInit();
     int status = instance->StartService(instance);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Devhost StartService fail, return: %{public}d", status);
         DevHostServiceFreeInstance(instance);
+        DevHostDumpDeInit();
         return status;
     }
+
     HdfPowerManagerInit();
-    DevHostDumpInit();
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {
