@@ -109,6 +109,11 @@ public:
         return generationDirectory_;
     }
 
+    inline std::string GetOutPutFile() const
+    {
+        return outPutFile_;
+    }
+
     void ShowErrors() const;
 
     void ShowVersion() const;
@@ -134,6 +139,8 @@ private:
         generationDirectory_(),
         illegalOptions_(),
         errors_(),
+        packagePath_(),
+        outPutFile_(),
         doShowUsage_(false),
         doShowVersion_(false),
         doCompile_(false),
@@ -148,11 +155,13 @@ private:
     {
     }
 
-    void SetOptionData(char op);
+    void SetLongOption(char op);
 
     void AddPackagePath(const std::string &packagePath);
 
     void AddSources(const std::string &sourceFile);
+
+    void AddSourcesByDir(const std::string &dir);
 
     void SetOutDir(const std::string &dir);
 
@@ -168,7 +177,7 @@ private:
     static constexpr int OPT_END = -1;
 
     static constexpr int VERSION_MAJOR = 0;
-    static constexpr int VERSION_MINOR = 1;
+    static constexpr int VERSION_MINOR = 2;
 
     std::string program_;
     std::vector<std::string> sourceFiles_;
@@ -179,6 +188,7 @@ private:
     std::string illegalOptions_;
     std::vector<std::string> errors_;
     PkgPathMap packagePath_;
+    std::string outPutFile_;
 
     bool doShowUsage_;
     bool doShowVersion_;

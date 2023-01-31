@@ -19,6 +19,7 @@
 #include "ast/ast_method.h"
 #include "ast/ast_type.h"
 #include "lexer/lexer.h"
+#include "preprocessor/preprocessor.h"
 #include "util/autoptr.h"
 #include "util/light_refcount_base.h"
 #include "util/options.h"
@@ -33,7 +34,7 @@ public:
 
     ~Parser() = default;
 
-    bool Parse(const std::vector<std::string> &sourceFiles);
+    bool Parse(const std::vector<FileDetail> &fileDetails);
 
     using StrAstMap = std::unordered_map<std::string, AutoPtr<AST>>;
     inline const StrAstMap &GetAllAst() const

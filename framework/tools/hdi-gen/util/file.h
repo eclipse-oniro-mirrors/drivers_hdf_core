@@ -10,6 +10,7 @@
 #define OHOS_HDI_FILE_H
 
 #include <cstdio>
+#include <set>
 #include <string>
 
 namespace OHOS {
@@ -69,6 +70,8 @@ public:
     static std::string RealPath(const std::string &path);
 
     static bool CheckValid(const std::string &path);
+
+    static std::set<std::string> FindFiles(const std::string &rootDir);
 
     size_t GetHashKey();
 

@@ -9,7 +9,7 @@
 #ifndef OHOS_HDI_PREPROCESSOR_H
 #define OHOS_HDI_PREPROCESSOR_H
 
-#include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <vector>
 
@@ -34,31 +34,37 @@ public:
     std::unordered_set<std::string> imports_;
 };
 
+using FileDetailMap = std::map<std::string, FileDetail>;
+
 class Preprocessor {
 public:
-    using FileDetailMap = std::unordered_map<std::string, FileDetail>;
-
     // analyze idl files and return sorted ids files
-    bool Preprocess(std::vector<std::string> &compileSourceFiles);
+    static bool Preprocess(std::vector<FileDetail> &fileDetails);
+
+    static bool UnitPreprocess(FileDetailMap &fileDetails);
 
 private:
-    bool CheckAllFilesPath(const std::vector<std::string> &sourceFiles) const;
+    static bool CheckAllFilesPath(const std::vector<std::string> &sourceFiles);
 
-    bool AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails);
+    static bool AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails);
 
-    bool ParseFileDetail(const std::string &sourceFile, FileDetail &info);
+    static bool ParseFileDetail(const std::string &sourceFile, FileDetail &info);
 
-    bool ParsePackage(Lexer &lexer, FileDetail &info) const;
+    static bool ParsePackage(Lexer &lexer, FileDetail &info);
 
-    bool ParseImports(Lexer &lexer, FileDetail &info) const;
+    static bool ParseImports(Lexer &lexer, FileDetail &info);
 
-    bool LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails);
+    static bool LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails);
 
-    bool CheckCircularReference(FileDetailMap &allFileDetails, std::vector<std::string> &compileSourceFiles);
+    static bool CheckCircularReference(const FileDetailMap &allFileDetails,
+        std::vector<FileDetail> &compileSourceFiles);
 
-    void PrintCyclefInfo(FileDetailMap &allFileDetails);
+    static void PrintCyclefInfo(FileDetailMap &allFileDetails);
 
-    void FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace);
+    static void FindCycle(const std::string &curNode, FileDetailMap &allFiles, std::vector<std::string> &trace);
+
+    // check if the file path matches the package name
+    static bool CheckPackageName(const std::string &filePath, const std::string &packageName);
 };
 } // namespace HDI
 } // namespace OHOS

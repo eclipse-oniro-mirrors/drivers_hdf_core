@@ -85,6 +85,7 @@ bool Lexer::Reset(const std::string &filePath)
     }
 
     havePeek_ = false;
+    InitCurToken(curToken_);
     return true;
 }
 
@@ -220,8 +221,8 @@ void Lexer::InitCurToken(Token &token)
 {
     token.kind_ = TokenType::UNKNOWN;
     token.location_.filePath_ = file_->GetPath();
-    token.location_.row_ = 0;
-    token.location_.col_ = 0;
+    token.location_.row_ = 1;
+    token.location_.col_ = 1;
     token.value_ = "";
 }
 

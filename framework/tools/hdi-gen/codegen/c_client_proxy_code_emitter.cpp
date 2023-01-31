@@ -153,6 +153,7 @@ void CClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 
     if (isKernelCode_) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_io_service_if");
@@ -162,15 +163,6 @@ void CClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
         if (!interface_->IsSerializable()) {
             headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_support");
             headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "stub_collector");
-        }
-    }
-
-    const AST::TypeStringMap &types = ast_->GetTypes();
-    for (const auto &pair : types) {
-        AutoPtr<ASTType> type = pair.second;
-        if (type->GetTypeKind() == TypeKind::TYPE_STRING || type->GetTypeKind() == TypeKind::TYPE_UNION) {
-            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
-            break;
         }
     }
 

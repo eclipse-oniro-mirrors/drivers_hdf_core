@@ -44,10 +44,10 @@ static std::regex OCT_NUM_RE(RE_OCT_DIGIT RE_DIGIT_SUFFIX, std::regex_constants:
 static std::regex DEC_NUM_RE(RE_DEC_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 static std::regex HEX_NUM_RE(RE_HEX_DIFIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 
-bool Parser::Parse(const std::vector<std::string> &sourceFiles)
+bool Parser::Parse(const std::vector<FileDetail> &fileDetails)
 {
-    for (const auto &file : sourceFiles) {
-        if (!ParseOne(file)) {
+    for (const auto &fileDetail : fileDetails) {
+        if (!ParseOne(fileDetail.filePath_)) {
             return false;
         }
     }

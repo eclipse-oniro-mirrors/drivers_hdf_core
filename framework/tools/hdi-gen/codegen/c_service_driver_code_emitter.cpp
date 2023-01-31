@@ -13,9 +13,8 @@
 
 namespace OHOS {
 namespace HDI {
-CServiceDriverCodeEmitter::CServiceDriverCodeEmitter() : CCodeEmitter()
+CServiceDriverCodeEmitter::CServiceDriverCodeEmitter() : CCodeEmitter(), hostName_("host")
 {
-    hostName_ = StringHelper::StrToLower(baseName_) + "Host";
 }
 
 bool CServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDirectory)

@@ -11,10 +11,13 @@
 #include <climits>
 #include <cstdlib>
 #include <cstring>
+#include <dirent.h>
 #include <functional>
 #include <string>
 #include <algorithm>
+#include <queue>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "util/common.h"
@@ -74,6 +77,7 @@ void File::OpenByRead(const std::string &path)
     }
 
     path_ = realPath;
+    PeekChar();
 }
 
 char File::GetChar()
@@ -283,6 +287,45 @@ bool File::CheckValid(const std::string &path)
     }
 
     return true;
+}
+
+std::set<std::string> File::FindFiles(const std::string &rootDir)
+{
+    if (rootDir.empty()) {
+        return std::set<std::string>();
+    }
+
+    std::set<std::string> files;
+    std::queue<std::string> dirs;
+    dirs.push(rootDir);
+    while (!dirs.empty()) {
+        std::string dirPath = dirs.front().back() == SEPARATOR ? dirs.front() : dirs.front() + SEPARATOR;
+        dirs.pop();
+        DIR *dir = opendir(dirPath.c_str());
+        if (dir == nullptr) {
+            Logger::E(TAG, "failed to open '%s', errno:%d", dirPath.c_str(), errno);
+            continue;
+        }
+
+        for (struct dirent *dirInfo = readdir(dir); dirInfo != nullptr; dirInfo = readdir(dir)) {
+            if (strcmp(dirInfo->d_name, ".") == 0 || strcmp(dirInfo->d_name, "..") == 0) {
+                continue;
+            }
+
+            if (dirInfo->d_type == DT_REG && StringHelper::EndWith(dirInfo->d_name, ".idl")) {
+                std::string filePath = dirPath + dirInfo->d_name;
+                files.insert(filePath);
+                continue;
+            }
+
+            if (dirInfo->d_type == DT_DIR) {
+                dirs.emplace(dirPath + dirInfo->d_name);
+                continue;
+            }
+        }
+    }
+
+    return files;
 }
 
 size_t File::GetHashKey()
