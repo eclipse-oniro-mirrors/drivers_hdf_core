@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -264,7 +264,8 @@ static void UsbPnpNotifyAddInterfaceInitInfo(struct UsbPnpDeviceInfo *deviceInfo
         infoTable->interfaceInfo[0].interfaceProtocol = infoData.infoData->interfaceProtocol;
         infoTable->interfaceInfo[0].interfaceNumber = infoData.infoData->interfaceNumber;
     } else {
-        uint8_t i, j;
+        uint8_t i;
+        uint8_t j;
         for (i = 0, j = 0; i < deviceInfo->info.numInfos; i++) {
             if (deviceInfo->interfaceRemoveStatus[i] == true) {
                 HDF_LOGI("%s:%d j = %hhu deviceInfo->interfaceRemoveStatus[%hhu] is true!", __func__, __LINE__, j, i);

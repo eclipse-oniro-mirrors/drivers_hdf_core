@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -139,7 +139,8 @@ static HdfTestCaseList g_hdfUsbDeviceTestCaseList[] = {
 
 int32_t HdfUsbDeviceEntry(HdfTestMsg *msg)
 {
-    int32_t result, i;
+    int32_t result;
+    int32_t i;
 
     if (msg == NULL) {
         HDF_LOGE("%s is fail: HdfTestMsg is NULL!", __func__);
