@@ -76,7 +76,8 @@ StringBuilder &StringBuilder::Append(const std::string &string)
 
 StringBuilder &StringBuilder::AppendFormat(const char *format, ...)
 {
-    va_list args, argsCopy;
+    va_list args;
+    va_list argsCopy;
 
     va_start(args, format);
     va_copy(argsCopy, args);

@@ -169,8 +169,8 @@ class HdfAddHandler(HdfCommandHandlerBase):
                         framework_hdf, adapter_model_path,
                         data_model, *args_tuple)
             else:
-                file_path = {}
-                model_level_config = {}
+                file_path = ""
+                model_level_config = ""
         base_config = {
             'module_name': module,
             'module_path': file_path,
@@ -427,6 +427,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
     def _add_create_common(self, add_driver, args_tuple):
         _, _, module, driver, board, _, device = args_tuple
         state, file_list, head_list = add_driver.add_driver(*args_tuple)
+        file_path = []
         if board == "hispark_taurus":
             file_path = add_driver.add_liteos(file_list, head_list)
         elif board.endswith("linux"):
@@ -435,8 +436,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
             file_path = add_driver.add_kernel(file_list, head_list)
         elif board.startswith("hispark_taurus_standard_kernel"):
             file_path = add_driver.add_kernel(file_list, head_list)
-        else:
-            file_path = []
+
         config_item = {
             'module_name': module,
             'module_path': file_path,
