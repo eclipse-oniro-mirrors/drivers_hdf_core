@@ -66,18 +66,34 @@
           "name": "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
             "header": {
               "header_files": [
-                "osal.h"
+                "hdf_base.h",
+                "hdf_sbuf.h",
+                "hdf_log.h"
               ],
-              "header_base": "//drivers/hdf_core/framework/include"
+              "header_base": "//drivers/hdf_core/framework/include/utils"
           }
         },
         {
           "name": "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
             "header": {
               "header_files": [
-                "osal.h"
+                "osal_mem.h",
+                "osal_mutex.h",
+                "osal_thread.h"
               ],
-              "header_base": "//drivers/hdf_core/framework/include"
+              "header_base": "//drivers/hdf_core/framework/include/osal"
+          }
+        },
+        {
+          "name": "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_platform",
+            "header": {
+              "header_files": [
+                "i2c_if.h",
+                "spi_if.h",
+                "gpio_if.h",
+                "platform_if.h"
+              ],
+              "header_base": "//drivers/hdf_core/framework/include/platform"
           }
         }
       ],

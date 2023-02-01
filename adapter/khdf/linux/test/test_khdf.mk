@@ -75,4 +75,6 @@ ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include
     -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/core/include \
     -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/common/include \
     -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../include/audio \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../test/unittest/model/audio/include
+    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../test/unittest/model/audio/include \
+    -I$(srctree)/drivers/hdf/framework/include/platform \
+    -I$(srctree)/drivers/hdf/framework/support/platform/include/i2c
