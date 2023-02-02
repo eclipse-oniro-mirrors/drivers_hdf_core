@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -41,7 +41,8 @@ static void EmmcTestReleaseHandle(DevHandle handle)
 
 static int32_t TestEmmcGetCid(struct EmmcTester *tester)
 {
-    int32_t ret, i;
+    int32_t ret;
+    int32_t i;
     uint8_t cid[EMMC_CID_LEN] = {0};
 
     ret = EmmcGetCid(tester->handle, cid, EMMC_CID_LEN);

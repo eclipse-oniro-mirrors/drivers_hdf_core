@@ -3,7 +3,7 @@
  *
  * linux sdio driver implement.
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -367,7 +367,8 @@ static struct sdio_func *LinuxSdioSearchFunc(uint32_t funcNum, uint16_t vendorId
     struct mmc_card *card = NULL;
     struct mmc_host *host = NULL;
     struct sdio_func *func = NULL;
-    uint32_t i, j;
+    uint32_t i;
+    uint32_t j;
 
     for (i = 0; i < MMC_SLOT_NUM; i++) {
         host = GetMmcHost(i);

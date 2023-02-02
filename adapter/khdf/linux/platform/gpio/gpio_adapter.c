@@ -3,7 +3,7 @@
  *
  * gpio driver adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -123,7 +123,8 @@ static irqreturn_t LinuxGpioIrqBridge(int irq, void *data)
 
 static int32_t LinuxGpioSetIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t mode)
 {
-    int ret, irq;
+    int ret;
+    int irq;
     unsigned long flags = 0;
     uint16_t gpio;
 

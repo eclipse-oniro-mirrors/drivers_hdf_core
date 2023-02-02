@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -729,7 +729,8 @@ static void HdmiFillSpdInfoFrame(struct HdmiSpdInfoFrame *spd,
                                  const char *vendorName, const char *productName,
                                  enum HdmiSpdSdi sdi)
 {
-    uint32_t len, length;
+    uint32_t len;
+    uint32_t length;
 
     if (memset_s(spd, sizeof(struct HdmiSpdInfoFrame), 0, sizeof(struct HdmiSpdInfoFrame)) != EOK) {
         HDF_LOGE("fill spd infoFrame, memset_s fail.");

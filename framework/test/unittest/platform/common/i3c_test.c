@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -368,7 +368,8 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 {
     int32_t ret;
     uint32_t time = 0;
-    struct OsalThreadParam cfg1, cfg2;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
@@ -392,7 +393,7 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
     }
 
     while (*count1 == 0 || *count2 == 0) {
-        HDF_LOGE("waitting testing thread finish...");
+        HDF_LOGV("waitting testing I3c thread finish...");
         OsalMSleep(I3C_TEST_WAIT_TIMES);
         time++;
         if (time > I3C_TEST_WAIT_TIMEOUT) {
@@ -405,10 +406,11 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 static int32_t I3cTestThreadFunc(OsalThreadEntry func)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
-    int32_t count1, count2;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
-    count1 = count2 = 0;
     ret = OsalThreadCreate(&thread1, func, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
@@ -417,7 +419,7 @@ static int32_t I3cTestThreadFunc(OsalThreadEntry func)
 
     ret = OsalThreadCreate(&thread2, func, (void *)&count2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("create test thread2 fail:%d", ret);
         (void)OsalThreadDestroy(&thread1);
         return ret;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -82,7 +82,9 @@ static int32_t HdmiEdidBlockCheckSum(uint8_t *data)
 
 static int32_t HdmiEdidVendorInfoPhase(struct HdmiEdid *edid)
 {
-    uint16_t data, i, tmpData;
+    uint16_t data;
+    uint16_t i;
+    uint16_t tmpData;
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     struct HdmiEdidFirstBlockInfo *block = (struct HdmiEdidFirstBlockInfo *)edid->raw;
 
@@ -221,7 +223,8 @@ static uint32_t HdmiEdidGetStandardTimingVertPixel(uint32_t aspectRatio, uint32_
 
 static int32_t HdmiEdidStandardTimingPhase(struct HdmiEdid *edid)
 {
-    uint32_t i, aspectRatio;
+    uint32_t i;
+    uint32_t aspectRatio;
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     struct HdmiEdidFirstBlockInfo *block = (struct HdmiEdidFirstBlockInfo *)edid->raw;
     uint8_t *data = block->stdTiming;
@@ -506,7 +509,8 @@ static void HdmiEdidExtAdbDepthAndMaxRatePhase(struct HdmiEdidAudioInfo *audio, 
 
 static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
 {
-    uint8_t i, formatCode;
+    uint8_t i;
+    uint8_t formatCode;
 
     /*
      * Each Short Audio Descriptor is 3-bytes long. There can be up to 31 bytes following any tag,
@@ -546,7 +550,8 @@ static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *s
     uint8_t len)
 {
     uint8_t i;
-    uint32_t vicAll, vicLower;
+    uint32_t vicAll;
+    uint32_t vicLower;
     uint32_t implicitNative = 0;
 
     for (i = 0; i < len; i++) {
@@ -660,7 +665,8 @@ static void HdmiEdidVsdbSinkLatencyPhase(struct HdmiSinkDeviceCapability *sinkCa
 static void HdmiEdidVsdbVicInfoPhase(struct HdmiSinkDeviceCapability *sinkCap,
     const uint8_t *data, uint8_t vicLen, uint8_t *offset)
 {
-    uint8_t i, index;
+    uint8_t i;
+    uint8_t index;
     /* see hdmi spec 1.4 table 8-13. */
     uint32_t hdmi4kVic[] = {
         0,
@@ -967,7 +973,8 @@ static void HdmiEdidExtUseExtDataBlockY420VdbPhase(struct HdmiSinkDeviceCapabili
 static void HdmiEdidExtUseExtDataBlockY420CmdbPhase(struct HdmiSinkDeviceCapability *sinkCap,
     uint8_t *data, uint8_t len)
 {
-    uint32_t i, loop;
+    uint32_t i;
+    uint32_t loop;
 
     /*
      * When the Length field is set to 1, the Y420CMDB does not include a YCBCR 4:2:0 Capability Bit Map and

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -270,7 +270,8 @@ int32_t HdmiScdcScrambleGet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *s
 
 bool HdmiScdcSinkSupport(struct HdmiScdc *scdc)
 {
-    uint8_t srcVer, i;
+    uint8_t srcVer;
+    uint8_t i;
     int32_t ret;
 
     if (scdc == NULL) {

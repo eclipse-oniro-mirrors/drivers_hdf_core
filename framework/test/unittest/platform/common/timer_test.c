@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -240,7 +240,8 @@ static void MultiThreadSourceRecycle(struct OsalThread *thread1, struct OsalThre
 static int32_t TimerTestMultiThread(const struct TimerTest *test)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
     DevHandle handle1 = NULL;
     DevHandle handle2 = NULL;
     thread1.realThread = NULL;

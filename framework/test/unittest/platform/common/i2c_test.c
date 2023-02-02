@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -224,7 +224,8 @@ static int32_t I2cTestWriteRead(void)
 
 static int I2cTestThreadFunc(void *param)
 {
-    int32_t i, ret;
+    int32_t i;
+    int32_t ret;
     struct I2cTester *tester = NULL;
 
     tester = I2cTesterGet();
@@ -253,7 +254,8 @@ static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 {
     int32_t ret;
     uint32_t time = 0;
-    struct OsalThreadParam cfg1, cfg2;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
@@ -277,24 +279,24 @@ static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread 
     }
 
     while (*count1 == 0 || *count2 == 0) {
-        HDF_LOGD("waitting testing thread finish...");
+        HDF_LOGV("waitting testing thread finish...");
         OsalMSleep(I2C_TEST_WAIT_TIMES);
         time++;
         if (time > I2C_TEST_WAIT_TIMEOUT) {
             break;
         }
     }
-
     return ret;
 }
 
 static int32_t I2cTestMultiThread(void)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
-    int32_t count1, count2;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
-    count1 = count2 = 0;
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
@@ -304,7 +306,7 @@ static int32_t I2cTestMultiThread(void)
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("create test thread2 fail:%d", ret);
         return ret;
     }
 

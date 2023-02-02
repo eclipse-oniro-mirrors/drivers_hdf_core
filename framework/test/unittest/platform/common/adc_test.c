@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -158,13 +158,13 @@ static int AdcTestThreadFunc(void *param)
     return val;
 }
 
-
 static int32_t AdcTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2,
     const int32_t *count1, const int32_t *count2)
 {
     int32_t ret;
     uint32_t time = 0;
-    struct OsalThreadParam cfg1, cfg2;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
@@ -202,7 +202,8 @@ static int32_t AdcTestStartThread(struct OsalThread *thread1, struct OsalThread 
 static int32_t AdcTestMultiThread(void)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
     int32_t count1 = 0;
     int32_t count2 = 0;
 
@@ -215,7 +216,7 @@ static int32_t AdcTestMultiThread(void)
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)AdcTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread1 failed:%d", ret);
+        HDF_LOGE("create test thread2 failed:%d", ret);
         return ret;
     }
 

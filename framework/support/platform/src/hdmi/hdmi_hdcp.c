@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -53,7 +53,8 @@ static int32_t HdmiHdcpWrite(struct HdmiHdcp *hdcp, enum HdmiHdcpPortOffset offs
 
 static bool HdmiHdcpCheckKvs(const uint8_t *ksv, uint32_t len)
 {
-    uint32_t i, j;
+    uint32_t i;
+    uint32_t j;
     uint32_t cnt = 0;
 
     for (i = 0; i < len; i++) {
@@ -123,7 +124,8 @@ static int32_t HdmiHdcpWriteMsgAn(struct HdmiHdcp *hdcp)
 
 static int32_t HdmiHdcpReadMsgHv(struct HdmiHdcp *hdcp)
 {
-    uint8_t offset, i;
+    uint8_t offset;
+    uint8_t i;
     uint8_t vhNum = HDMI_HDCP_MSG_ALL_VH_LEN / HDMI_HDCP_MSG_PER_VH_LEN;
     int32_t ret;
 
