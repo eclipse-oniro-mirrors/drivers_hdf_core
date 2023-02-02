@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -313,7 +313,8 @@ static int32_t CodecSetSapmConfigInfo(struct CodecData *codeData, struct AudioRe
 
 static int32_t CodecSetKcontrolInfo(struct CodecData *codeData, struct AudioRegCfgGroupNode **regCfgGroup)
 {
-    uint16_t index, enumIndex = 0;
+    uint16_t index = 0;
+    uint16_t enumIndex = 0;
     struct AudioControlConfig  *compItem = NULL;
     struct AudioMixerControl   *ctlRegCfgItem = NULL;
     struct AudioEnumCtrlConfig *enumCtlRegCfgItem = NULL;
