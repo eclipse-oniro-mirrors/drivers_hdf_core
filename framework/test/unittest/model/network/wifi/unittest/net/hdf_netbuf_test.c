@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -360,7 +360,8 @@ static int32_t HdfNetBufTest010(void)
 */
 static int32_t HdfNetBufTest011(void)
 {
-    uint32_t ret, dstDataLen;
+    uint32_t ret;
+    uint32_t dstDataLen;
     NetBuf *dst = NetBufAlloc(DEFAULT_NETBUF_SIZE);
     NetBuf *src = NetBufAlloc(DEFAULT_NETBUF_SIZE);
     if (dst == NULL || src == NULL) {
@@ -863,7 +864,8 @@ pTestCaseFunc g_hdfNetBufQueueTestCaseLists[] = {
 // HDFNetBuf test case Entry
 int32_t HdfNetBufTest(void)
 {
-    int32_t ret, i;
+    int32_t ret;
+    int32_t i;
 
     for (i = 0; i < sizeof(g_hdfNetBufTestCaseLists) / sizeof(g_hdfNetBufTestCaseLists[0]); ++i) {
         if (g_hdfNetBufTestCaseLists[i] != NULL) {
@@ -882,7 +884,8 @@ int32_t HdfNetBufTest(void)
 // HdfNetBufQueue test case Entry
 int32_t HdfNetBufQueueTest(void)
 {
-    int32_t ret, i;
+    int32_t ret;
+    int32_t i;
 
     for (i = 0; i < sizeof(g_hdfNetBufQueueTestCaseLists) / sizeof(g_hdfNetBufQueueTestCaseLists[0]); ++i) {
         if (g_hdfNetBufQueueTestCaseLists[i] != NULL) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -52,7 +52,9 @@ static int32_t DeinitEth(struct EthDevice *ethDevice)
 #if (_PRE_OS_VERSION_LITEOS == _PRE_OS_VERSION)
 static int32_t SetEthNetworkAddr(struct NetDevice *netDev)
 {
-    IpV4Addr ip, netmask, gw;
+    IpV4Addr ip;
+    IpV4Addr netmask;
+    IpV4Addr gw;
 
     ip.addr = 0x0A01a8c0UL;      /* 192, 168, 1. 10 */
     netmask.addr = 0x00ffffffUL; /* 255, 255, 255, 0 */
