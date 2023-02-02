@@ -3,7 +3,7 @@
  *
  * hi35xx mipi_tx driver implement
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -664,7 +664,8 @@ static void MipiTxDrvSetPayloadData(const unsigned char *cmd, unsigned short cmd
 {
     int32_t ret;
     U_GEN_PLD_DATA genPldData;
-    int i, j;
+    int i;
+    int j;
 
     genPldData.u32 = g_mipiTxRegsVa->GEN_PLD_DATA.u32;
 
@@ -846,7 +847,8 @@ static int MipiTxSendShortPacket(unsigned char virtualChannel,
 static int MipiTxGetReadFifoData(unsigned int getDataSize, unsigned char *dataBuf)
 {
     U_GEN_PLD_DATA pldData;
-    unsigned int i, j;
+    unsigned int i;
+    unsigned int j;
 
     for (i = 0; i < getDataSize / 4; i++) {   /* 4byte once */
         if (MipiTxWaitReadFifoNotEmpty() != HDF_SUCCESS) {

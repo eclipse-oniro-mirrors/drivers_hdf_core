@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -678,7 +678,8 @@ int32_t MmcSendReadWriteBlocks(struct MmcCntlr *cntlr, struct MmcRwData *info)
 static int32_t EmmcDecodeCsd(struct MmcCntlr *cntlr)
 {
     struct MmcCsd *csd = NULL;
-    uint32_t unit, factor;
+    uint32_t unit;
+    uint32_t factor;
     uint32_t *rawCsd = NULL;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
@@ -751,7 +752,8 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
     uint32_t i;
     struct MmcCid *cid = NULL;
     uint32_t *rawCid = NULL;
-    uint8_t specVers, cbx;
+    uint8_t specVers;
+    uint8_t cbx;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -1231,7 +1233,9 @@ static int32_t EmmcSelectHs200(struct MmcCntlr *cntlr, struct EmmcDevice *emmcDe
 static uint32_t EmmcGetPowerClassValue(struct MmcCntlr *cntlr, struct EmmcExtCsd *extCsd)
 {
     uint32_t val = 0;
-    uint32_t vdd, busWidthBit, clock;
+    uint32_t vdd;
+    uint32_t busWidthBit;
+    uint32_t clock;
 
     busWidthBit = (cntlr->curDev->workPara.width == BUS_WIDTH8) ?
         EMMC_EXT_CSD_BUS_WIDTH_8 : EMMC_EXT_CSD_BUS_WIDTH_4;
@@ -1415,7 +1419,8 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
     struct EmmcExtCsd *extCsd)
 {
     int32_t error;
-    uint32_t index, ddrMode;
+    uint32_t index;
+    uint32_t ddrMode;
     enum MmcBusWidth width;
     const enum MmcBusWidth busWidths[] = { BUS_WIDTH8, BUS_WIDTH4, BUS_WIDTH1 };
     uint32_t busWidthBit[][2] = {
@@ -1948,7 +1953,8 @@ static int32_t SdDecodeSSr(struct MmcCntlr *cntlr, uint32_t *rawSsr, uint32_t le
     struct SdSsr *ssr = NULL;
     struct SdScr *scr = NULL;
     struct SdDevice *sdDev = NULL;
-    uint32_t eraseSize, eraseTimeout;
+    uint32_t eraseSize;
+    uint32_t eraseTimeout;
 
     if (cntlr == NULL || cntlr->curDev == NULL || rawSsr == NULL || len == 0) {
         return HDF_ERR_INVALID_PARAM;
@@ -2029,7 +2035,8 @@ static void SdDecodeCid(struct MmcCntlr *cntlr)
 static void SdSetBlockCapacity(struct MmcCntlr *cntlr)
 {
     struct SdDevice *sdDev = (struct SdDevice *)cntlr->curDev;
-    uint32_t gibVal, mibVal;
+    uint32_t gibVal;
+    uint32_t mibVal;
 
     sdDev->mmc.eraseSize = sdDev->mmc.reg.csd.eraseSize;
     sdDev->mmc.capacity = sdDev->mmc.reg.csd.capacity <<
@@ -2042,7 +2049,8 @@ static void SdSetBlockCapacity(struct MmcCntlr *cntlr)
 
 static void SdDecodeCsdRev1Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uint32_t *rawCsd)
 {
-    uint32_t unit, factor;
+    uint32_t unit;
+    uint32_t factor;
 
     /* TAAC: [119:112]; TAAC bit position-->Time unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 115, 4);
@@ -2096,7 +2104,8 @@ static void SdDecodeCsdRev1Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uin
 
 static void SdDecodeCsdRev2Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uint32_t *rawCsd)
 {
-    uint32_t unit, factor;
+    uint32_t unit;
+    uint32_t factor;
 
     cntlr->curDev->state.bits.blockAddr = 1;
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
@@ -2915,7 +2924,8 @@ int32_t SdioReadWriteByte(struct MmcCntlr *cntlr, bool writeFlag,
 static int32_t SdioReadWriteRemainBytes(struct MmcCntlr *cntlr, struct SdioCmdParam *param,
     uint8_t *data, uint32_t size, uint32_t addr)
 {
-    uint32_t maxBlkSize, curSize;
+    uint32_t maxBlkSize;
+    uint32_t curSize;
     struct SdioDevice *dev = (struct SdioDevice *)cntlr->curDev;
     uint32_t remLen = size;
     uint32_t curAddr = addr;
@@ -2961,11 +2971,12 @@ static void SdioFillRwExtendedCmdParam(struct SdioCmdParam *param,
 
 int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
 {
-    uint32_t maxBlkNum, maxBlkSize, curblkNum, curSize, curAddr, remLen;
+    uint32_t maxBlkNum;
+    uint32_t curblkNum;
+    uint32_t curSize;
     int32_t err;
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
-    uint8_t *buffer = NULL;
 
     if (cntlr == NULL || info == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -2975,7 +2986,7 @@ int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    maxBlkSize = MMC_MIN(cntlr->maxBlkSize, dev->curFunction->maxBlkSize);
+    uint32_t maxBlkSize = MMC_MIN(cntlr->maxBlkSize, dev->curFunction->maxBlkSize);
     maxBlkSize = MMC_MIN(maxBlkSize, BYTES_PER_BLOCK);
     if (maxBlkSize == 0) {
         return HDF_ERR_INVALID_PARAM;
@@ -2984,9 +2995,9 @@ int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    remLen = info->size;
-    curAddr = info->addr;
-    buffer = info->buf;
+    uint32_t remLen = info->size;
+    uint32_t curAddr = info->addr;
+    uint8_t *buffer = info->buf;
     SdioFillRwExtendedCmdParam(&param, dev, info);
     if (info->scatterFlag == true) {
         return SdioRwExtended(cntlr, &param, buffer, MMC_MAX(1, remLen / maxBlkSize), MMC_MIN(remLen, maxBlkSize));
@@ -3490,7 +3501,8 @@ static int32_t SdioReadCisTplField(struct MmcCntlr *cntlr, uint32_t addr, uint8_
 static void SdioDecodeCisTplManfId(struct MmcCntlr *cntlr, struct SdioFunction *function,
     struct SdioCisTuple *tuple)
 {
-    uint16_t vendorId, deviceId;
+    uint16_t vendorId;
+    uint16_t deviceId;
     struct SdioDevice *dev = NULL;
 
     if (tuple->tplLink < SDIO_CIS_TPL_MANFID_MIN_SIZE) {
@@ -3644,7 +3656,8 @@ static int32_t SdioFillTplInfo(struct MmcCntlr *cntlr, struct SdioCisTuple *tupl
 static int32_t SdioDecodeCis(struct MmcCntlr *cntlr, struct SdioFunction *function, uint32_t cisStartAddr)
 {
     int32_t ret = HDF_SUCCESS;
-    uint8_t tplCode, tplLink;
+    uint8_t tplCode;
+    uint8_t tplLink;
     struct SdioCisTuple *tuple = NULL;
     uint32_t addr = cisStartAddr;
 
@@ -3695,7 +3708,9 @@ static int32_t SdioDecodeCis(struct MmcCntlr *cntlr, struct SdioFunction *functi
 
 static int32_t SdioReadCis(struct MmcCntlr *cntlr, struct SdioFunction *function)
 {
-    uint32_t funcNum, i, cisStartAddr;
+    uint32_t funcNum;
+    uint32_t i;
+    uint32_t cisStartAddr;
     uint8_t data;
     int32_t ret;
     struct SdioCmdParam param = {0};
