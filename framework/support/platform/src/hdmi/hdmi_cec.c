@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -134,7 +134,8 @@ struct HdmiCecMsgLenInfo g_cecMsg[] = {
 
 static struct HdmiCecMsgLenInfo *HdmiCecGetMsgLenInfo(uint8_t opcode)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
 
     len = sizeof(g_cecMsg) / sizeof(g_cecMsg[0]);
     for (i = 0; i < len; i++) {
@@ -1096,7 +1097,8 @@ void HdmiCecEncodingReportAudioStatusMsg(struct HdmiCecMsg *msg, uint8_t audioMu
 void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg,
     const uint8_t *id, const uint8_t *code, uint32_t len, bool response)
 {
-    uint32_t num, i;
+    uint32_t num;
+    uint32_t i;
 
     if (id == NULL || code == NULL || len == 0) {
         HDF_LOGE("encoding request short audio descriptor, input param invalid.");
@@ -1116,7 +1118,8 @@ void HdmiCecEncodingRequestShortAudioDescriptorMsg(struct HdmiCecMsg *msg,
 
 void HdmiCecEncodingReportShortAudioDescriptorMsg(struct HdmiCecMsg *msg, const uint32_t *descriptor, uint32_t len)
 {
-    uint32_t num, i;
+    uint32_t num;
+    uint32_t i;
 
     if (descriptor == NULL || len == 0) {
         HDF_LOGE("encoding report short audio descriptor, input param invalid.");
@@ -1620,7 +1623,8 @@ static void HdmiCecMsgDefaultHandle(struct HdmiCntlr *cntlr,
 static void HdmiCecMsgHandle(struct HdmiCntlr *cntlr, struct HdmiCecMsg *msg,
     struct HdmiCecMsg *txMsg, uint8_t opcode)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
 
     struct HdmiCecHandleMsgFuncMap funcMap[] = {
         { HDMI_CEC_OPCODE_GET_CEC_VERSION, HdmiCecHandleGetCecVersionMsg },
@@ -1673,7 +1677,9 @@ static void HdmiCecReceivedMsgHandle(struct HdmiCntlr *cntlr, struct HdmiCecMsg 
 int32_t HdmiCecReceivedMsg(struct HdmiCec *cec, struct HdmiCecMsg *msg)
 {
     struct HdmiCntlr *cntlr = NULL;
-    uint8_t opcode, initiator, destination;
+    uint8_t opcode;
+    uint8_t initiator;
+    uint8_t destination;
 
     if (cec == NULL || cec->priv == NULL || msg == NULL) {
         HDF_LOGE("cec receive msg, input param invalid.");

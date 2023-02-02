@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -27,7 +27,8 @@ struct PcieDispatchFunc {
 
 static int32_t PcieCmdRead(struct PcieCntlr *cntlr, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    uint32_t len, pos;
+    uint32_t len;
+    uint32_t pos;
     uint8_t *buf = NULL;
     int32_t ret;
 
@@ -67,7 +68,8 @@ EXIT:
 
 static int32_t PcieCmdWrite(struct PcieCntlr *cntlr, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    uint32_t size, pos;
+    uint32_t size;
+    uint32_t pos;
     uint8_t *buf = NULL;
     (void)reply;
 

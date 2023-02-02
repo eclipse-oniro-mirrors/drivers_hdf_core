@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -367,11 +367,15 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
     const int32_t *count1, const int32_t *count2)
 {
     int32_t ret;
-    uint32_t time;
+    uint32_t time = 0;
     struct OsalThreadParam cfg1;
     struct OsalThreadParam cfg2;
 
-    time = 0;
+    if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+        memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+        HDF_LOGE("%s:memset_s fail.", __func__);
+        return HDF_ERR_IO;
+    }
     cfg1.name = "I3cTestThread-1";
     cfg2.name = "I3cTestThread-2";
     cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
@@ -386,15 +390,6 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
     ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("start test thread2 fail:%d", ret);
-        while (*count1 == 0) {
-            HDF_LOGE("waitting testing thread1 finish...");
-            OsalMSleep(I3C_TEST_WAIT_TIMES);
-            time++;
-            if (time > I3C_TEST_WAIT_TIMEOUT) {
-                break;
-            }
-        }
-        return ret;
     }
 
     while (*count1 == 0 || *count2 == 0) {
@@ -405,16 +400,17 @@ static int32_t I3cTestStartThread(struct OsalThread *thread1, struct OsalThread 
             break;
         }
     }
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t I3cTestThreadFunc(OsalThreadEntry func)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
-    int32_t count1, count2;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
-    count1 = count2 = 0;
     ret = OsalThreadCreate(&thread1, func, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
@@ -423,7 +419,7 @@ static int32_t I3cTestThreadFunc(OsalThreadEntry func)
 
     ret = OsalThreadCreate(&thread2, func, (void *)&count2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("create test thread2 fail:%d", ret);
         (void)OsalThreadDestroy(&thread1);
         return ret;
     }
@@ -431,14 +427,11 @@ static int32_t I3cTestThreadFunc(OsalThreadEntry func)
     ret = I3cTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("test start thread fail:%d", ret);
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        return ret;
     }
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static struct I3cTestEntry g_multiThreadEntry[] = {

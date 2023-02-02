@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -237,7 +237,8 @@ enum HdmiDeepColor HdmiCommonColorDepthConvertToDeepClolor(enum HdmiVideoBitDept
 enum HdmiVic HdmiCommonGetVic(enum HdmiVideoTiming timing,
     enum HdmiPictureAspectRatio aspect, bool enable3d)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
     enum HdmiVic vic = 0;
 
     len = sizeof(g_ceaVideoDefInfoMap) / sizeof(g_ceaVideoDefInfoMap[0]);
@@ -261,7 +262,8 @@ enum HdmiVic HdmiCommonGetVic(enum HdmiVideoTiming timing,
 
 static struct HdmiVideoDefInfo *HdmiCommonGetCommFormatInfo(enum HdmiVic vic)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
 
     len = sizeof(g_ceaVideoDefInfoMap) / sizeof(g_ceaVideoDefInfoMap[0]);
     for (i = 0; i < len; i++) {
@@ -274,7 +276,8 @@ static struct HdmiVideoDefInfo *HdmiCommonGetCommFormatInfo(enum HdmiVic vic)
 
 static struct HdmiVideoDefInfo *HdmiCommonGetVesaFormatInfo(enum HdmiVideoTiming timing)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
 
     len = sizeof(g_vesaVideoDefInfoMap) / sizeof(g_vesaVideoDefInfoMap[0]);
     for (i = 0; i < len; i++) {
@@ -302,7 +305,8 @@ struct HdmiVideoDefInfo *HdmiCommonGetVideoDefInfo(enum HdmiVideoTiming timing,
 
 enum HdmiVideoTiming HdmiCommonGetVideoTiming(enum HdmiVic vic, enum HdmiPictureAspectRatio aspect)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
     enum HdmiVideoTiming timing = HDMI_VIDEO_TIMING_NONE;
 
     len = sizeof(g_ceaVideoDefInfoMap) / sizeof(g_ceaVideoDefInfoMap[0]);
@@ -317,7 +321,8 @@ enum HdmiVideoTiming HdmiCommonGetVideoTiming(enum HdmiVic vic, enum HdmiPicture
 
 struct HdmiVideo4kInfo *HdmiCommonGetVideo4kInfo(uint32_t _4kVic)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
 
     len = sizeof(g_video4kInfoMap) / sizeof(g_video4kInfoMap[0]);
     for (i = 0; i < len; i++) {
@@ -331,7 +336,8 @@ struct HdmiVideo4kInfo *HdmiCommonGetVideo4kInfo(uint32_t _4kVic)
 
 enum HdmiVideoTiming HdmiCommonGetVideo4kTiming(uint32_t _4kVic)
 {
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
     enum HdmiVideoTiming timing = HDMI_VIDEO_TIMING_NONE;
 
     len = sizeof(g_video4kInfoMap) / sizeof(g_video4kInfoMap[0]);

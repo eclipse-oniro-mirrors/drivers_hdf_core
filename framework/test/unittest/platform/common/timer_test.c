@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -152,96 +152,136 @@ static int TimerPeriodTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
-static int32_t TimerTestMultiThread(const struct TimerTest *test)
+static int32_t TimerTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2)
 {
     int32_t ret;
     uint32_t time = 0;
-    struct OsalThread thread1, thread2;
-    struct OsalThreadParam cfg1, cfg2;
-    DevHandle handle1 = NULL;
-    DevHandle handle2 = NULL;
-    if (test == NULL) {
-        HDF_LOGE("%s: timer test NULL", __func__);
-        return HDF_FAILURE;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
+
+    if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+        memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+        HDF_LOGE("%s:memset_s fail.", __func__);
+        return HDF_ERR_IO;
     }
-    thread1.realThread = NULL;
-    thread2.realThread = NULL;
 
-    do {
-        handle1 = HwTimerOpen(TIMER_TEST_TIME_ID_THREAD1);
-        if (handle1 == NULL) {
-            HDF_LOGE("%s: timer test get handle1 fail", __func__);
-            ret = HDF_FAILURE;
+    cfg1.name = "TimerTestThread-once";
+    cfg2.name = "TimerTestThread-period";
+    cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
+    cfg1.stackSize = cfg2.stackSize = TIMER_TEST_STACK_SIZE;
+
+    ret = OsalThreadStart(thread1, &cfg1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("testing start timer thread1 failed:%d", ret);
+        return ret;
+    }
+
+    ret = OsalThreadStart(thread2, &cfg2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("testing start timer thread2 failed:%d", ret);
+    }
+
+    while (g_theard1Flag == false || g_theard2Flag == false) {
+        HDF_LOGD("[%d]waitting testing timer thread finish...", time);
+        OsalSleep(TIMER_TEST_WAIT_TIMEOUT);
+        time++;
+        if (time > TIMER_TEST_WAIT_TIMES) {
             break;
         }
-        handle2 = HwTimerOpen(TIMER_TEST_TIME_ID_THREAD2);
-        if (handle2 == NULL) {
-            HDF_LOGE("%s: timer test get handle2 fail", __func__);
-            ret = HDF_FAILURE;
-            break;
-        }
+    }
+    return ret;
+}
 
-        ret = OsalThreadCreate(&thread1, (OsalThreadEntry)TimerOnceTestThreadFunc, (void *)handle1);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("create test once timer fail:%d", ret);
-            ret = HDF_FAILURE;
-            break;
-        }
+static int32_t TimerTestCreateThread(struct OsalThread *thread1, struct OsalThread *thread2,
+    DevHandle handle1, DevHandle handle2)
+{
+    int32_t ret;
 
-        ret = OsalThreadCreate(&thread2, (OsalThreadEntry)TimerPeriodTestThreadFunc, (void *)handle2);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("create test period timer fail:%d", ret);
-            ret = HDF_FAILURE;
-            break;
-        }
+    ret = OsalThreadCreate(thread1, (OsalThreadEntry)TimerOnceTestThreadFunc, (void *)handle1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("create test once timer failed:%d", ret);
+        return ret;
+    }
 
-        cfg1.name = "TimerTestThread-once";
-        cfg2.name = "TimerTestThread-period";
-        cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
-        cfg1.stackSize = cfg2.stackSize = TIMER_TEST_STACK_SIZE;
+    ret = OsalThreadCreate(thread2, (OsalThreadEntry)TimerPeriodTestThreadFunc, (void *)handle2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("create test period timer failed:%d", ret);
+        return ret;
+    }
 
-        ret = OsalThreadStart(&thread1, &cfg1);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("start test thread1 fail:%d", ret);
-            ret = HDF_FAILURE;
-            break;
-        }
+    return HDF_SUCCESS;
+}
 
-        ret = OsalThreadStart(&thread2, &cfg2);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("start test thread2 fail:%d", ret);
-            ret = HDF_FAILURE;
-            break;
-        }
-
-        while (g_theard1Flag == false || g_theard2Flag == false) {
-            HDF_LOGD("[%d]waitting testing timer thread finish...", time);
-            OsalSleep(TIMER_TEST_WAIT_TIMEOUT);
-            time++;
-            if (time > TIMER_TEST_WAIT_TIMES) {
-                break;
-            }
-        }
-        ret = HDF_SUCCESS;
-    } while (0);
-
+static void MultiThreadSourceRecycle(struct OsalThread *thread1, struct OsalThread *thread2,
+    DevHandle handle1, DevHandle handle2)
+{
     if (handle1 != NULL) {
         HwTimerClose(handle1);
         handle1 = NULL;
     }
+
     if (handle2 != NULL) {
         HwTimerClose(handle2);
         handle2 = NULL;
     }
-    if (thread1.realThread != NULL) {
-        (void)OsalThreadDestroy(&thread1);
+
+    if (thread1->realThread != NULL) {
+        (void)OsalThreadDestroy(thread1);
     }
-    if (thread2.realThread != NULL) {
-        (void)OsalThreadDestroy(&thread2);
+
+    if (thread2->realThread != NULL) {
+        (void)OsalThreadDestroy(thread2);
     }
+
     g_theard1Flag = false;
     g_theard2Flag = false;
-    return ret;
+}
+
+static int32_t TimerTestMultiThread(const struct TimerTest *test)
+{
+    int32_t ret;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    DevHandle handle1 = NULL;
+    DevHandle handle2 = NULL;
+    thread1.realThread = NULL;
+    thread2.realThread = NULL;
+
+    if (test == NULL) {
+        HDF_LOGE("%s: timer test NULL", __func__);
+        return HDF_FAILURE;
+    }
+
+    handle1 = HwTimerOpen(TIMER_TEST_TIME_ID_THREAD1);
+    if (handle1 == NULL) {
+        HDF_LOGE("%s: timer test get handle1 failed", __func__);
+        MultiThreadSourceRecycle(&thread1, &thread2, handle1, handle2);
+        return HDF_FAILURE;
+    }
+
+    handle2 = HwTimerOpen(TIMER_TEST_TIME_ID_THREAD2);
+    if (handle2 == NULL) {
+        HDF_LOGE("%s: timer test get handle2 failed", __func__);
+        MultiThreadSourceRecycle(&thread1, &thread2, handle1, handle2);
+        return HDF_FAILURE;
+    }
+
+    ret = TimerTestCreateThread(&thread1, &thread2, handle1, handle2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: timer test create thread failed", __func__);
+        MultiThreadSourceRecycle(&thread1, &thread2, handle1, handle2);
+        return ret;
+    }
+
+    ret = TimerTestStartThread(&thread1, &thread2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("timer test start thread failed:%d", ret);
+        MultiThreadSourceRecycle(&thread1, &thread2, handle1, handle2);
+        return ret;
+    }
+
+    MultiThreadSourceRecycle(&thread1, &thread2, handle1, handle2);
+    return HDF_SUCCESS;
 }
 
 static int32_t TimerTestReliability(const struct TimerTest *test)

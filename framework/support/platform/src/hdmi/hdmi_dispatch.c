@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -249,7 +249,8 @@ static int32_t HdmiCmdUnregisterHpdCallbackFunc(struct HdmiCntlr *cntlr, struct 
 int32_t HdmiIoDispatch(struct HdfDeviceIoClient *client, int32_t cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct HdmiCntlr *cntlr = NULL;
-    uint32_t i, len;
+    uint32_t i;
+    uint32_t len;
     struct HdmiDispatchFunc dispatchFunc[] = {
         { HDMI_CMD_OPEN, HdmiCmdOpen },
         { HDMI_CMD_CLOSE, HdmiCmdClose },
