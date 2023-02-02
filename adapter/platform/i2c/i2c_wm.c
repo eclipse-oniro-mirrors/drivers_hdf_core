@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Jiangsu Hoperun Software Co., Ltd.
+ * Copyright (c) 2022-2023 Jiangsu Hoperun Software Co., Ltd.
  *
  * This file is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -271,7 +271,9 @@ static void i2cDriverRelease(struct HdfDeviceObject *device)
 static int32_t i2c_send(struct I2cMsg *msg)
 {
     uint16_t len;
-    uint8_t ifack, ifstop, ifstart;
+    uint8_t ifack;
+    uint8_t ifstop;
+    uint8_t ifstart;
 
     len = msg->len;
     ifstop = 0;

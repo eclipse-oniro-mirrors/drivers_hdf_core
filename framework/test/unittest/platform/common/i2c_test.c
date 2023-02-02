@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -25,6 +25,7 @@
 #define I2C_TEST_MLTTHD_TIMES  1000
 #define I2C_TEST_STACK_SIZE    (1024 * 100)
 #define I2C_TEST_WAIT_TIMES    200
+#define I2C_TEST_WAIT_TIMEOUT  40
 
 static struct I2cMsg g_msgs[I2C_TEST_MSG_NUM];
 static uint8_t *g_buf;
@@ -247,61 +248,76 @@ static int I2cTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
+static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2,
+    const int32_t *count1, const int32_t *count2)
+{
+    int32_t ret;
+    uint32_t time = 0;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
+
+    if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+        memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+        HDF_LOGE("%s:memset_s fail.", __func__);
+        return HDF_ERR_IO;
+    }
+    cfg1.name = "I2cTestThread-1";
+    cfg2.name = "I2cTestThread-2";
+    cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
+    cfg1.stackSize = cfg2.stackSize = I2C_TEST_STACK_SIZE;
+
+    ret = OsalThreadStart(thread1, &cfg1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("start test thread1 fail:%d", ret);
+        return ret;
+    }
+
+    ret = OsalThreadStart(thread2, &cfg2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("start test thread2 fail:%d", ret);
+    }
+
+    while (*count1 == 0 || *count2 == 0) {
+        HDF_LOGD("waitting testing thread finish...");
+        OsalMSleep(I2C_TEST_WAIT_TIMES);
+        time++;
+        if (time > I2C_TEST_WAIT_TIMEOUT) {
+            break;
+        }
+    }
+
+    return ret;
+}
+
 static int32_t I2cTestMultiThread(void)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
-    struct OsalThreadParam cfg1, cfg2;
-    int32_t count1, count2;
-
-    count1 = count2 = 0;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
         HDF_LOGE("create test thread1 fail:%d", ret);
-        return HDF_FAILURE;
+        return ret;
     }
 
-    cfg1.name = "I2cTestThread-1";
-    cfg2.name = "I2cTestThread-2";
-    cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
-    cfg1.stackSize = cfg2.stackSize = I2C_TEST_STACK_SIZE;
-
-    ret = OsalThreadStart(&thread1, &cfg1);
+    ret = I2cTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        HDF_LOGE("start test thread1 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
-    ret = OsalThreadStart(&thread2, &cfg2);
-    if (ret != HDF_SUCCESS) {
-        while (count1 == 0) {
-            HDF_LOGD("waitting testing thread finish...");
-            OsalMSleep(I2C_TEST_WAIT_TIMES);
-        }
-        (void)OsalThreadDestroy(&thread1);
-        (void)OsalThreadDestroy(&thread2);
-        HDF_LOGE("start test thread2 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
-    while (count1 == 0 || count2 == 0) {
-        HDF_LOGD("waitting testing thread finish...");
-        OsalMSleep(I2C_TEST_WAIT_TIMES);
+        HDF_LOGE("test start thread fail:%d", ret);
     }
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t I2cTestReliability(void)

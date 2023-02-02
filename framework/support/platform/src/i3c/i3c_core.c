@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -245,7 +245,8 @@ struct I3cDevice *I3cGetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr
 
 static int32_t I3cDeviceDefineI3cDevices(struct I3cDevice *device)
 {
-    int32_t ret, addr;
+    int32_t ret;
+    int32_t addr;
 
     ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_I3C_DEVICE);
     if (ret != HDF_SUCCESS) {
