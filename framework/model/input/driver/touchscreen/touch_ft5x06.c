@@ -196,36 +196,49 @@ static void SetAbility(ChipDevice *device)
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_TRACKING_ID].max = MAX_POINT;
 }
 
-static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum, int32_t version)
+static int32_t SelectDataPin(int32_t version, int32_t *offset, int32_t *tpLen, int32_t *crcLen)
 {
-    int32_t i = NUM_0, x = NUM_0, y = NUM_0;
-    int32_t offset = NUM_0, tplen = NUM_0, crclen = NUM_0, type = NUM_0;
     switch (version) {
         case EDT_M06:
-            offset = NUM_5; /* where the actual touch data starts */
-            tplen = NUM_4;  /* data comes in so called frames */
-            crclen = NUM_1; /* length of the crc data */
-            break;
+            *offset = NUM_5; /* where the actual touch data starts */
+            *tpLen = NUM_4;  /* data comes in so called frames */
+            *crcLen = NUM_1; /* length of the crc data */
+            return HDF_SUCCESS;
         case EDT_M09:
         case EDT_M12:
         case EV_FT:
         case GENERIC_FT:
-            offset = NUM_3;
-            tplen = NUM_6;
-            crclen = NUM_0;
-            break;
+            *offset = NUM_3;
+            *tpLen = NUM_6;
+            *crcLen = NUM_0;
+            return HDF_SUCCESS;
         default:
             return HDF_FAILURE;
     }
+}
 
-    for (i = NUM_0; i < pointNum; i++) {
-        u8 *rdbuf = &buf[i * tplen + offset];
+static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum, int32_t version)
+{
+    int32_t i = 0;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t offset = 0;
+    int32_t tpLen = 0;
+    int32_t crcLen = 0;
+    int32_t type = 0;
+
+    if (SelectDataPin(version, &offset, &tpLen, &crcLen) != HDF_SUCCESS) {
+        HDF_LOGE("%s: SelectDataPin version %d not support", __func__, version);
+        return HDF_FAILURE;
+    }
+
+    for (i = 0; i < pointNum; i++) {
+        u8 *rdbuf = &buf[i * tpLen + offset];
 
         type = rdbuf[NUM_0] >> NUM_6;
         /* ignore Reserved events */
         if (type == TOUCH_EVENT_RESERVED) {
             return HDF_FAILURE;
-            continue;
         }
         /* M06 sometimes sends bogus coordinates in TOUCH_DOWN */
         if (version == EDT_M06 && type == TOUCH_EVENT_DOWN) {
@@ -250,7 +263,7 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         frame->definedEvent = frame->fingers[i].status;
 
         if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT)
-        && (pointNum == NUM_0)) {
+        && (pointNum == 0)) {
             return HDF_FAILURE;
         }
     }
