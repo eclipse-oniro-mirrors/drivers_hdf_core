@@ -372,6 +372,8 @@ class HdfLinuxScan(object):
                                  re_split_list[-1].strip()])
 
     def name_split_func(self, result, config_enable_lines):
+        enable_list_temp = []
+        name_split_dict_temp = {}
         enable_list = []
         name_split_dict = {}
         for enable_key, enable_value in result.items():
@@ -379,8 +381,8 @@ class HdfLinuxScan(object):
             if key in config_enable_lines:
                 if isinstance(enable_value, dict):
                     enable_list, name_split_dict = self.operate_dict(
-                        enable_key, name_split_dict, enable_value,
-                        config_enable_lines, enable_list)
+                        enable_key, name_split_dict_temp, enable_value,
+                        config_enable_lines, enable_list_temp)
                 elif isinstance(enable_value, list):
                     if enable_key.find("HDF") != -1:
                         k2 = ''.join(

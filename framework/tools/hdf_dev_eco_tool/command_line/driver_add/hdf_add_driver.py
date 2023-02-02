@@ -444,6 +444,7 @@ class HdfAddDriver(object):
         return result_path_source, result_path_head
 
     def __get_enable_config(self):
+        device_enable_config = None
         templates_dir = hdf_utils.get_templates_lite_dir()
         templates_model_dir = []
         for path, dir_name, _ in os.walk(templates_dir):
@@ -477,9 +478,11 @@ class HdfAddDriver(object):
                 else:
                     device_enable_config = [
                         "LOSCFG_DRIVERS_HDF_SENSOR_ACCEL=y\n"]
+
+        if device_enable_config:
+            return device_enable_config[0]
         else:
-            device_enable_config = [""]
-        return device_enable_config[0]
+            return ""
 
     def get_model_template_list(self, module, board):
         templates_dir = hdf_utils.get_templates_lite_dir()
