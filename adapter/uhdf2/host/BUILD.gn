@@ -33,7 +33,7 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libhdf_host") {
-    if (target_cpu == "arm64") {
+    if (target_cpu == "arm64" || target_cpu == "x86_64") {
       defines = [ "__ARCH64__" ]
     }
 
