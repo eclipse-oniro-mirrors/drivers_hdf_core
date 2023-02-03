@@ -114,8 +114,8 @@ static HdfTestCaseList g_hdfAudioTestCaseList[] = {
 
 int32_t HdfAudioEntry(HdfTestMsg *msg)
 {
-    int32_t result = 0;
-    int32_t i = 0;
+    int32_t result;
+    int32_t i;
 
     if (msg == NULL) {
         HDF_LOGE("%s is fail: HdfTestMsg is NULL!", __func__);
