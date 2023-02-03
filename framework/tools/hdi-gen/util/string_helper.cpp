@@ -154,7 +154,8 @@ std::string StringHelper::StrToUpper(const std::string &value)
 
 std::string StringHelper::Format(const char *format, ...)
 {
-    va_list args, argsCopy;
+    va_list args;
+    va_list argsCopy;
 
     va_start(args, format);
     va_copy(argsCopy, args);

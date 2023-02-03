@@ -495,8 +495,8 @@ class HdiAddHandler(HdfCommandHandlerBase):
             temp_replace_list = []
             new_line = ""
         if not set(temp_replace_list) < set(temp_lines):
-            new_line = new_line.encode('utf-8')
-            temp_lines.append(new_line)
+            new_line_temp = new_line.encode('utf-8')
+            temp_lines.append(new_line_temp)
             self.writer_lines_binary(target_config_file_path, temp_lines)
         return target_config_file_path
 
