@@ -12,10 +12,10 @@
 #include "osal_mem.h"
 #include "securec.h"
 
-#define HDF_LOG_TAG hdf_sbuf_impl_raw
+#define HDF_LOG_TAG                hdf_sbuf_impl_raw
 #define HDF_SBUF_GROW_SIZE_DEFAULT 256
-#define HDF_SBUF_MAX_SIZE (512 * 1024) // 512KB
-#define HDF_SBUF_ALIGN 4
+#define HDF_SBUF_MAX_SIZE          (512 * 1024) // 512KB
+#define HDF_SBUF_ALIGN             4
 
 #ifndef INT16_MAX
 #ifdef S16_MAX
@@ -204,8 +204,8 @@ static bool SbufRawImplWrite(struct HdfSBufImpl *impl, const uint8_t *data, uint
     }
     writeableSize = SbufRawImplGetLeftWriteSize(sbuf);
     if (alignSize > writeableSize) {
-        size_t growSize = (alignSize > HDF_SBUF_GROW_SIZE_DEFAULT) ? (alignSize + HDF_SBUF_GROW_SIZE_DEFAULT)
-                                                                   : HDF_SBUF_GROW_SIZE_DEFAULT;
+        size_t growSize = (alignSize > HDF_SBUF_GROW_SIZE_DEFAULT) ? (alignSize + HDF_SBUF_GROW_SIZE_DEFAULT) :
+                                                                     HDF_SBUF_GROW_SIZE_DEFAULT;
         if (!SbufRawImplGrow(sbuf, growSize)) {
             return false;
         }
@@ -476,35 +476,39 @@ static void SbufRawImplTransDataOwnership(struct HdfSBufImpl *impl)
 
 static void SbufInterfaceAssign(struct HdfSBufImpl *inf)
 {
-    inf->writeBuffer = SbufRawImplWriteBuffer;
-    inf->writeUint64 = SbufRawImplWriteUint64;
-    inf->writeUint32 = SbufRawImplWriteUint32;
-    inf->writeUint16 = SbufRawImplWriteUint16;
-    inf->writeUint8 = SbufRawImplWriteUint8;
-    inf->writeInt64 = SbufRawImplWriteInt64;
-    inf->writeInt32 = SbufRawImplWriteInt32;
-    inf->writeInt16 = SbufRawImplWriteInt16;
-    inf->writeInt8 = SbufRawImplWriteInt8;
-    inf->writeString = SbufRawImplWriteString;
-    inf->readBuffer = SbufRawImplReadBuffer;
-    inf->readUint64 = SbufRawImplReadUint64;
-    inf->readUint32 = SbufRawImplReadUint32;
-    inf->readUint16 = SbufRawImplReadUint16;
-    inf->readUint8 = SbufRawImplReadUint8;
-    inf->readInt64 = SbufRawImplReadInt64;
-    inf->readInt32 = SbufRawImplReadInt32;
-    inf->readInt16 = SbufRawImplReadInt16;
-    inf->readInt8 = SbufRawImplReadInt8;
-    inf->readString = SbufRawImplReadString;
-    inf->getData = SbufRawImplGetData;
-    inf->flush = SbufRawImplFlush;
-    inf->getCapacity = SbufRawImplGetCapacity;
-    inf->getDataSize = SbufRawImplGetDataSize;
-    inf->setDataSize = SbufRawImplSetDataSize;
-    inf->recycle = SbufRawImplRecycle;
-    inf->move = SbufRawImplMove;
-    inf->copy = SbufRawImplCopy;
-    inf->transDataOwnership = SbufRawImplTransDataOwnership;
+    static struct HdfSBufImpl rawImpl = {
+        .writeBuffer = SbufRawImplWriteBuffer,
+        .writeUint64 = SbufRawImplWriteUint64,
+        .writeUint32 = SbufRawImplWriteUint32,
+        .writeUint16 = SbufRawImplWriteUint16,
+        .writeUint8 = SbufRawImplWriteUint8,
+        .writeInt64 = SbufRawImplWriteInt64,
+        .writeInt32 = SbufRawImplWriteInt32,
+        .writeInt16 = SbufRawImplWriteInt16,
+        .writeInt8 = SbufRawImplWriteInt8,
+        .writeString = SbufRawImplWriteString,
+        .readBuffer = SbufRawImplReadBuffer,
+        .readUint64 = SbufRawImplReadUint64,
+        .readUint32 = SbufRawImplReadUint32,
+        .readUint16 = SbufRawImplReadUint16,
+        .readUint8 = SbufRawImplReadUint8,
+        .readInt64 = SbufRawImplReadInt64,
+        .readInt32 = SbufRawImplReadInt32,
+        .readInt16 = SbufRawImplReadInt16,
+        .readInt8 = SbufRawImplReadInt8,
+        .readString = SbufRawImplReadString,
+        .getData = SbufRawImplGetData,
+        .flush = SbufRawImplFlush,
+        .getCapacity = SbufRawImplGetCapacity,
+        .getDataSize = SbufRawImplGetDataSize,
+        .setDataSize = SbufRawImplSetDataSize,
+        .recycle = SbufRawImplRecycle,
+        .move = SbufRawImplMove,
+        .copy = SbufRawImplCopy,
+        .transDataOwnership = SbufRawImplTransDataOwnership,
+    };
+
+    (void)memcpy_s(inf, sizeof(struct HdfSBufImpl), &rawImpl, sizeof(struct HdfSBufImpl));
 }
 
 static struct HdfSBufRaw *SbufRawImplNewInstance(size_t capacity)

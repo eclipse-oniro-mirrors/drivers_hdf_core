@@ -331,6 +331,8 @@ int HdfIoserviceGroupGetServiceCount(const struct HdfIoServiceGroup *group);
  */
 int32_t HdfGetServiceNameByDeviceClass(DeviceClass deviceClass, struct HdfSBuf *reply);
 
+
+int32_t HdfIoServiceDispatch(struct HdfIoService *ioService, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

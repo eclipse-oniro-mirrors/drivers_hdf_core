@@ -3,7 +3,7 @@
  *
  * i2c driver adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -20,6 +20,7 @@
 #include "hdf_device_desc.h"
 #include "hdf_log.h"
 #include "i2c_core.h"
+#include "i2c_msg.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG i2c_linux_adapter
@@ -44,10 +45,10 @@ static struct i2c_msg *CreateLinuxI2cMsgs(struct I2cMsg *msgs, int16_t count)
     return linuxMsgs;
 }
 
-static inline void FreeLinxI2cMsgs(struct i2c_msg *msgs, int16_t count)
+static inline void FreeLinuxI2cMsgs(struct i2c_msg *msgs, int16_t count)
 {
-    OsalMemFree(msgs);
     (void)count;
+    OsalMemFree(msgs);
 }
 
 static int32_t LinuxI2cTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t count)
@@ -70,7 +71,7 @@ static int32_t LinuxI2cTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int
     }
 
     ret = i2c_transfer((struct i2c_adapter *)cntlr->priv, linuxMsgs, count);
-    FreeLinxI2cMsgs(linuxMsgs, count);
+    FreeLinuxI2cMsgs(linuxMsgs, count);
     return ret;
 }
 
