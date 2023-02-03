@@ -37,7 +37,7 @@ std::string FileDetail::Dump() const
     return sb.ToString();
 }
 
-bool Preprocessor::Preprocess(std::vector<std::string> &compileSourceFiles)
+bool Preprocessor::Preprocess(std::vector<FileDetail> &fileDetails)
 {
     std::vector<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
 
@@ -53,13 +53,33 @@ bool Preprocessor::Preprocess(std::vector<std::string> &compileSourceFiles)
     }
 
     // calculate the order of idl files to compile by counter-topological sorting
-    if (!CheckCircularReference(allFileDetails, compileSourceFiles)) {
+    if (!CheckCircularReference(allFileDetails, fileDetails)) {
         return false;
     }
+
     return true;
 }
 
-bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles) const
+bool Preprocessor::UnitPreprocess(FileDetailMap &fileDetails)
+{
+    std::vector<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
+    // check all path of idl files
+    if (!CheckAllFilesPath(sourceFiles)) {
+        return false;
+    }
+
+    for (const auto &sourceFile : sourceFiles) {
+        FileDetail info;
+        if (!ParseFileDetail(sourceFile, info)) {
+            return false;
+        }
+        fileDetails[info.GetFullName()] = info;
+    }
+
+    return true;
+}
+
+bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles)
 {
     if (sourceFiles.empty()) {
         Logger::E(TAG, "no source files");
@@ -127,7 +147,7 @@ bool Preprocessor::ParseFileDetail(const std::string &sourceFile, FileDetail &in
     return true;
 }
 
-bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info) const
+bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
 {
     Token token = lexer.PeekToken();
     if (token.kind_ != TokenType::PACKAGE) {
@@ -139,6 +159,12 @@ bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info) const
     token = lexer.PeekToken();
     if (token.kind_ != TokenType::ID) {
         Logger::E(TAG, "%s: expected package name before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
+        return false;
+    }
+
+    if (!CheckPackageName(info.filePath_, token.value_)) {
+        Logger::E(TAG, "%s:package name '%s' does not match file path '%s'", LocInfo(token).c_str(),
+            token.value_.c_str(), info.filePath_.c_str());
         return false;
     }
     info.packageName_ = token.value_;
@@ -153,7 +179,7 @@ bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info) const
     return true;
 }
 
-bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info) const
+bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
 {
     Token token = lexer.PeekToken();
     while (token.kind_ != TokenType::END_OF_FILE) {
@@ -212,10 +238,12 @@ bool Preprocessor::LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDeta
     return true;
 }
 
-bool Preprocessor::CheckCircularReference(FileDetailMap &allFileDetails, std::vector<std::string> &compileSourceFiles)
+bool Preprocessor::CheckCircularReference(const FileDetailMap &allFileDetails,
+    std::vector<FileDetail> &compileSourceFiles)
 {
+    FileDetailMap allFileDetailsTemp = allFileDetails;
     std::queue<FileDetail> fileQueue;
-    for (const auto &filePair : allFileDetails) {
+    for (const auto &filePair : allFileDetailsTemp) {
         const FileDetail &file = filePair.second;
         if (file.imports_.size() == 0) {
             fileQueue.push(file);
@@ -226,9 +254,9 @@ bool Preprocessor::CheckCircularReference(FileDetailMap &allFileDetails, std::ve
     while (!fileQueue.empty()) {
         FileDetail curFile = fileQueue.front();
         fileQueue.pop();
-        compileSourceFiles.push_back(curFile.filePath_);
+        compileSourceFiles.push_back(allFileDetails.at(curFile.GetFullName()));
 
-        for (auto &filePair : allFileDetails) {
+        for (auto &filePair : allFileDetailsTemp) {
             FileDetail &otherFile = filePair.second;
             if (otherFile.imports_.empty()) {
                 continue;
@@ -245,11 +273,11 @@ bool Preprocessor::CheckCircularReference(FileDetailMap &allFileDetails, std::ve
         }
     }
 
-    if (compileSourceFiles.size() == allFileDetails.size()) {
+    if (compileSourceFiles.size() == allFileDetailsTemp.size()) {
         return true;
     }
 
-    PrintCyclefInfo(allFileDetails);
+    PrintCyclefInfo(allFileDetailsTemp);
     return false;
 }
 
@@ -293,6 +321,23 @@ void Preprocessor::FindCycle(const std::string &curNode, FileDetailMap &allFiles
     }
 
     trace.pop_back();
+}
+
+/*
+ * filePath: ./ohos/interface/foo/v1_0/IFoo.idl
+ * package ohos.hdi.foo.v1_0;
+ */
+bool Preprocessor::CheckPackageName(const std::string &filePath, const std::string &packageName)
+{
+    std::string pkgToPath = Options::GetInstance().GetPackagePath(packageName);
+
+    size_t index = filePath.rfind(SEPARATOR);
+    if (index == std::string::npos) {
+        return false;
+    }
+
+    std::string parentDir = filePath.substr(0, index);
+    return parentDir == pkgToPath;
 }
 } // namespace HDI
 } // namespace OHOS

@@ -32,6 +32,11 @@ AST_SOURCE := $(wildcard $(AST_SOURCE_DIR)/*.cpp)
 AST_OBJS_DIR := $(BUILD_DIR)/ast
 AST_OBJS := $(addprefix $(AST_OBJS_DIR)/, $(patsubst %.cpp, %.o, $(notdir $(AST_SOURCE))))
 
+HASH_SOURCE_DIR := $(PWD)/hash
+HASH_SOURCE := $(wildcard $(HASH_SOURCE_DIR)/*.cpp)
+HASH_OBJS_DIR := $(BUILD_DIR)/hash
+HASH_OBJS := $(addprefix $(HASH_OBJS_DIR)/, $(patsubst %.cpp, %.o, $(notdir $(HASH_SOURCE))))
+
 UTIL_SOURCE_DIR := $(PWD)/util
 UTIL_SOURCE := $(wildcard $(UTIL_SOURCE_DIR)/*.cpp)
 UTIL_OBJS_DIR := $(BUILD_DIR)/util
@@ -47,7 +52,7 @@ MAIN_OBJS := $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(MAIN_SOURCE)))
 
 all:$(TARGET)
 
-$(TARGET) : $(BOUNDS_CHECK_OBJS) $(UTIL_OBJS) $(AST_OBJS) $(LEXER_OBJS) $(PREPROCESSOR_OBJS) $(PARSER_OBJS) $(CODEGEN_OBJS) $(MAIN_OBJS)
+$(TARGET) : $(BOUNDS_CHECK_OBJS) $(UTIL_OBJS) $(HASH_OBJS) $(AST_OBJS) $(LEXER_OBJS) $(PREPROCESSOR_OBJS) $(PARSER_OBJS) $(CODEGEN_OBJS) $(MAIN_OBJS)
 	$(Q) $(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 	$(Q) echo $(TARGET):build successful.
 
@@ -73,6 +78,10 @@ $(LEXER_OBJS_DIR)/%.o : $(LEXER_SOURCE_DIR)/%.cpp
 
 $(AST_OBJS_DIR)/%.o : $(AST_SOURCE_DIR)/%.cpp
 	$(Q) mkdir -p $(AST_OBJS_DIR)
+	$(Q) $(CXX) $(CXXFLAGS) $(INCLUDES) -c $^ -o $@
+
+$(HASH_OBJS_DIR)/%.o : $(HASH_SOURCE_DIR)/%.cpp
+	$(Q) mkdir -p $(HASH_OBJS_DIR)
 	$(Q) $(CXX) $(CXXFLAGS) $(INCLUDES) -c $^ -o $@
 
 $(UTIL_OBJS_DIR)/%.o : $(UTIL_SOURCE_DIR)/%.cpp

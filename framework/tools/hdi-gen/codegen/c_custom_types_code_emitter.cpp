@@ -241,15 +241,7 @@ void CCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFile
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
-
-    const AST::TypeStringMap &types = ast_->GetTypes();
-    for (const auto &pair : types) {
-        AutoPtr<ASTType> type = pair.second;
-        if (type->GetTypeKind() == TypeKind::TYPE_STRUCT || type->GetTypeKind() == TypeKind::TYPE_UNION) {
-            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
-            break;
-        }
-    }
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 }
 
 void CCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)

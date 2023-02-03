@@ -23,19 +23,19 @@
 
 namespace OHOS {
 namespace HDI {
-const char *Options::optSupportArgs = "c:d:r:";
+const char *Options::optSupportArgs = "c:d:r:o:D:";
 static struct option g_longOpts[] = {
     {"help",         no_argument,       nullptr, 'h'},
     {"version",      no_argument,       nullptr, 'v'},
     {"gen-c",        no_argument,       nullptr, 'C'},
     {"gen-cpp",      no_argument,       nullptr, 'P'},
     {"gen-java",     no_argument,       nullptr, 'J'},
-    {"gen-hash",     no_argument,       nullptr, 'H'},
+    {"hash",         no_argument,       nullptr, 'H'},
     {"build-target", required_argument, nullptr, 'p'},
     {"module-name",  required_argument, nullptr, 'N'},
     {"passthrough",  no_argument,       nullptr, 'T'},
     {"kernel",       no_argument,       nullptr, 'K'},
-    {"dump-ast",     no_argument,       nullptr, 'D'},
+    {"dump-ast",     no_argument,       nullptr, 'A'},
     {nullptr,        0,                 nullptr, 0  }
 };
 
@@ -53,30 +53,40 @@ Options &Options::Parse(int argc, char *argv[])
     int optIndex = 0;
 
     while ((op = getopt_long(argc, argv, optSupportArgs, g_longOpts, &optIndex)) != OPT_END) {
-        SetOptionData(op);
+        switch (op) {
+            case 'c':
+                AddSources(optarg);
+                break;
+            case 'd':
+                SetOutDir(optarg);
+                break;
+            case 'r':
+                AddPackagePath(optarg);
+                break;
+            case 'o':
+                outPutFile_ = optarg;
+                break;
+            case 'D':
+                AddSourcesByDir(optarg);
+                break;
+            default:
+                SetLongOption(op);
+                break;
+        }
     }
     CheckOptions();
 
     return *this;
 }
 
-void Options::SetOptionData(char op)
+void Options::SetLongOption(char op)
 {
     switch (op) {
-        case 'c':
-            AddSources(optarg);
-            break;
-        case 'd':
-            SetOutDir(optarg);
-            break;
         case 'h':
             doShowUsage_ = true;
             break;
         case 'v':
             doShowVersion_ = true;
-            break;
-        case 'r':
-            AddPackagePath(optarg);
             break;
         case 'K':
             doModeKernel_ = true;
@@ -102,7 +112,7 @@ void Options::SetOptionData(char op)
         case 'H':
             doGetHashKey_ = true;
             break;
-        case 'D':
+        case 'A':
             doDumpAST_ = true;
             break;
         case '?':
@@ -142,6 +152,15 @@ void Options::AddSources(const std::string &sourceFile)
 {
     doCompile_ = true;
     sourceFiles_.push_back(sourceFile);
+}
+
+void Options::AddSourcesByDir(const std::string &dir)
+{
+    std::set<std::string> sourceFiles = File::FindFiles(dir);
+    if (!sourceFiles.empty()) {
+        doCompile_ = true;
+        sourceFiles_.insert(sourceFiles_.end(), sourceFiles.begin(), sourceFiles.end());
+    }
 }
 
 void Options::SetOutDir(const std::string &dir)
@@ -197,7 +216,7 @@ void Options::CheckOptions()
         }
     } else {
         if (doGetHashKey_ || doDumpAST_ || doGenerateCode_ || doOutDir_) {
-            errors_.push_back(StringHelper::Format("%s: no '-c' option.", program_.c_str()));
+            errors_.push_back(StringHelper::Format("%s: no idl files.", program_.c_str()));
             return;
         }
     }
@@ -226,18 +245,20 @@ void Options::ShowUsage() const
            "  --help                          Display command line options\n"
            "  --version                       Display toolchain version information\n"
            "  --dump-ast                      Display the AST of the compiled file\n"
-           "  -r <rootPackage>:<rootPath>     set root path of root package\n"
+           "  -r <rootPackage>:<rootPath>     Set root path of root package\n"
            "  -c <*.idl>                      Compile the .idl file\n"
+           "  -D <directory>                  Directory of the idl file\n"
            "  --gen-hash                      Generate hash key of the idl file\n"
            "  --gen-c                         Generate C code\n"
            "  --gen-cpp                       Generate C++ code\n"
            "  --gen-java                      Generate Java code\n"
            "  --kernel                        Generate kernel-mode ioservice stub code,"
            "default user-mode ioservice stub code\n"
-           "  --passthrough                   Generate code that only supports pass through mode"
+           "  --passthrough                   Generate code that only supports pass through mode\n"
            "  --module-name <module name>     Set driver module name\n"
            "  --build-target <target name>    Generate client code, server code or all code\n"
-           "  -d <directory>                  Place generated codes into <directory>\n");
+           "  -d <directory>                  Place generated codes into <directory>\n"
+           "  -o <file>                       Place the output into <file>\n");
 }
 
 /*
