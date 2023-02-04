@@ -63,9 +63,29 @@ void DevHostDumpDeInit(void)
     g_dumpHostNode.dumpHost = NULL;
 }
 
+static bool DevHostCheckDumpExist(const char *servName)
+{
+    struct DumpServiceNode *pos = NULL;
+    bool findFlag = false;
+    OsalMutexLock(&g_dumpHostNode.mutex);
+    DLIST_FOR_EACH_ENTRY(pos, &g_dumpHostNode.list, struct DumpServiceNode, node) {
+        if (strcmp(pos->servName, servName) == 0) {
+            findFlag = true;
+            break;
+        }
+    }
+    OsalMutexUnlock(&g_dumpHostNode.mutex);
+    return findFlag;
+}
+
 int32_t DevHostRegisterDumpService(const char *servName, DevHostDumpFunc dump)
 {
     if (dump == NULL || servName == NULL) {
+        return HDF_FAILURE;
+    }
+
+    if (DevHostCheckDumpExist(servName)) {
+        HDF_LOGE("%{public}s service %{public}s dump function exist", __func__, servName);
         return HDF_FAILURE;
     }
 
@@ -130,6 +150,7 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
             if (pos->dumpService) {
                 pos->dumpService(data, reply);
                 dumpFlag = true;
+                break;
             }
         }
         OsalMutexUnlock(&g_dumpHostNode.mutex);
