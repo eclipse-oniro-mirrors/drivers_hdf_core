@@ -145,8 +145,8 @@ static int HdfSample1DriverInit(struct HdfDeviceObject *deviceObject)
     struct SampleDriverPmListener *pmListener = GetPmListenerInstance();
     int ret = HdfPmRegisterPowerListener(deviceObject, &pmListener->powerListener);
     HDF_LOGI("%s:register power listener, ret = %{public}d", __func__, ret);
-    (void)DevHostRegisterDumpService("sample1_driver_service", DevHostSample1DumpHost);
-    (void)DevHostRegisterDumpHost(DevHostSample1DumpService);
+    (void)DevHostRegisterDumpService("sample1_driver_service", DevHostSample1DumpService);
+    (void)DevHostRegisterDumpHost(DevHostSample1DumpHost);
     return HDF_SUCCESS;
 }
 

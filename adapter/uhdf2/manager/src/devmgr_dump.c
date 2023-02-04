@@ -80,15 +80,21 @@ static int32_t DevMgrDumpHost(uint32_t argv, struct HdfSBuf *data, struct HdfSBu
 
     struct DevHostServiceClnt *hostClnt = NULL;
     int32_t ret = HDF_FAILURE;
+    bool findFlag = false;
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HDF_LOGI("%{public}s hostName:%{public}s %{public}s", __func__, hostClnt->hostName, hostName);
         if (strcmp(hostClnt->hostName, hostName) != 0) {
             continue;
         }
+        findFlag = true;
         if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
+            (void)HdfSbufWriteString(reply, "The host does not start\n");
             continue;
         }
         ret = hostClnt->hostService->Dump(hostClnt->hostService, hostData, reply);
+    }
+    if (!findFlag) {
+        (void)HdfSbufWriteString(reply, "The host does not exist\n");
     }
 
     HdfSbufRecycle(hostData);
@@ -107,6 +113,7 @@ static int32_t DevMgrDumpServiceFindHost(const char *servName, struct HdfSBuf *d
     int32_t ret = HDF_FAILURE;
     const char *name = NULL;
     struct HdfSListNode *node = NULL;
+    bool findFlag = false;
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&iterator, &hostClnt->devices);
         while (HdfSListIteratorHasNext(&iterator)) {
@@ -123,8 +130,12 @@ static int32_t DevMgrDumpServiceFindHost(const char *servName, struct HdfSBuf *d
             if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
                 continue;
             }
+            findFlag = true;
             ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
         }
+    }
+    if (!findFlag) {
+        (void)HdfSbufWriteString(reply, "The service does not exist\n");
     }
 
     return ret;

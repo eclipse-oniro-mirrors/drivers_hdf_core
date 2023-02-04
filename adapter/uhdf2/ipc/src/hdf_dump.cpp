@@ -55,7 +55,7 @@ int32_t HdfDump(int32_t fd, const std::vector<std::u16string> &args)
         return HDF_FAILURE;
     }
 
-    int32_t ret = HDF_FAILURE;
+    int32_t ret = HDF_SUCCESS;
     std::string result;
     const char *value = nullptr;
 
@@ -69,17 +69,14 @@ int32_t HdfDump(int32_t fd, const std::vector<std::u16string> &args)
     }
 
     // Convert vector to sbuf structure
-    for (int32_t i = 0; i < argv; i++) {
+    for (uint32_t i = 0; i < argv; i++) {
         HDF_LOGI("%{public}s para:%{public}s", __func__, OHOS::Str16ToStr8(args.at(i)).data());
         if (!HdfSbufWriteString(data, OHOS::Str16ToStr8(args.at(i)).data())) {
             goto FINISHED;
         }
     }
 
-    ret = g_dump(data, reply);
-    if (ret != HDF_SUCCESS) {
-        goto FINISHED;
-    }
+    (void)g_dump(data, reply);
 
     value = HdfSbufReadString(reply);
     while (value != nullptr) {
