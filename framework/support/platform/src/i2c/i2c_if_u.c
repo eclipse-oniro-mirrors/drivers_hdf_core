@@ -146,8 +146,9 @@ DevHandle I2cOpen(int16_t number)
             HDF_LOGE("I2cOpen: read handle fail!");
             break;
         }
-        i2cHandle->handle = (DevHandle)handle;
-        return (DevHandle)i2cHandle;
+        DevHandle devHandle = (DevHandle)(uintptr_t)handle;
+        i2cHandle->handle = devHandle;
+        return devHandle;
     } while (0);
 
     I2cHandleRelease(i2cHandle);
