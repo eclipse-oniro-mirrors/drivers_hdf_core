@@ -293,7 +293,9 @@ static int32_t LiteNetDevAdd(struct NetDeviceImpl *netDeviceImpl)
     struct NetDeviceAdapterLite *liteNdPri = (struct NetDeviceAdapterLite *)netDeviceImpl->osPrivate;
     struct NetDevice *lwipNd = netDeviceImpl->netDevice;
     struct netif *lwipNf = NULL;
-    ip4_addr_t gw, ipaddr, netmask;
+    ip4_addr_t gw;
+    ip4_addr_t ipaddr;
+    ip4_addr_t netmask;
     IP4_ADDR(&gw, 0, 0, 0, 0);
     IP4_ADDR(&ipaddr, 0, 0, 0, 0);
     IP4_ADDR(&netmask, 0, 0, 0, 0);
