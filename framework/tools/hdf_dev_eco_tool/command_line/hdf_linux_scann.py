@@ -372,31 +372,24 @@ class HdfLinuxScan(object):
                                  re_split_list[-1].strip()])
 
     def name_split_func(self, result, config_enable_lines):
-        enable_list_temp = []
-        name_split_dict_temp = {}
         enable_list = []
         name_split_dict = {}
         for enable_key, enable_value in result.items():
             key = "%s=y\n" % enable_key
-            if key in config_enable_lines:
-                if isinstance(enable_value, dict):
-                    enable_list, name_split_dict = self.operate_dict(
-                        enable_key, name_split_dict_temp, enable_value,
-                        config_enable_lines, enable_list_temp)
-                elif isinstance(enable_value, list):
-                    if enable_key.find("HDF") != -1:
-                        k2 = ''.join(
-                            ["HDF", enable_key.split("HDF")[-1]]
-                        ).lower()
-                    else:
-                        k2 = enable_key.lower()
-                    name_split_dict[k2] = []
-                    for name in enable_value:
-                        child_enable_list, str1 = self.get_driver(name)
-                        enable_list.extend(child_enable_list)
-                        name_split_dict.get(k2).append(str1)
-            else:
+            if key not in config_enable_lines:
                 continue
+            if isinstance(enable_value, list):
+                if enable_key.find("HDF") != -1:
+                    k2 = ''.join(
+                        ["HDF", enable_key.split("HDF")[-1]]
+                    ).lower()
+                else:
+                    k2 = enable_key.lower()
+                name_split_dict[k2] = []
+                for name in enable_value:
+                    child_enable_list, str1 = self.get_driver(name)
+                    enable_list.extend(child_enable_list)
+                    name_split_dict.get(k2).append(str1)
         return name_split_dict, enable_list
 
     def get_driver(self, name):

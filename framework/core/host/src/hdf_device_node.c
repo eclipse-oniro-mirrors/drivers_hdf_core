@@ -225,8 +225,9 @@ void HdfDeviceNodeDestruct(struct HdfDeviceNode *devNode)
     }
     HDF_LOGI("release devnode %{public}s", devNode->servName);
     switch (devNode->devStatus) {
-        case DEVNODE_LAUNCHED: // fall-through
+        case DEVNODE_LAUNCHED:
             HdfDeviceUnlaunchNode(devNode);
+            /* fall-through */
         case DEVNODE_INITED:
             HdfDeviceTokenFreeInstance(devNode->token);
             devNode->token = NULL;
