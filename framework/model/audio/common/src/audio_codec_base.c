@@ -15,15 +15,15 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
-#define COMM_SHIFT_8BIT      (8)
-#define COMM_MASK_FF         (0xFF)
-#define COMM_WAIT_TIMES      (10) // ms
+#define COMM_SHIFT_8BIT     8
+#define COMM_MASK_FF        0xFF
+#define COMM_WAIT_TIMES     10  // ms
 
-#define I2C_REG_LEN         (1)
-#define I2C_REG_MSGLEN      (3)
-#define I2C_MSG_NUM         (2)
-#define I2C_MSG_BUF_SIZE_1_BUTE    (1)
-#define I2C_MSG_BUF_SIZE_2_BUTE    (2)
+#define I2C_REG_LEN         1
+#define I2C_REG_MSGLEN      3
+#define I2C_MSG_NUM         2
+#define I2C_MSG_BUF_SIZE_1  1
+#define I2C_MSG_BUF_SIZE_2  2
 
 static char *g_audioSapmCompNameList[AUDIO_SAPM_COMP_NAME_LIST_MAX] = {
     "ADCL",         "ADCR",         "DACL",         "DACR",         // [0], [1] [2], [3]
@@ -167,8 +167,8 @@ int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecDat
     }
 
     if (codecData->regConfig != NULL) {
-        ADM_LOG_ERR("g_codecData regConfig  fail!");
-        return HDF_FAILURE;
+        ADM_LOG_INFO("g_codecData regConfig has been parsed!");
+        return HDF_SUCCESS;
     }
 
     codecData->regConfig = (struct AudioRegCfgData *)OsalMemCalloc(sizeof(*(codecData->regConfig)));
@@ -189,11 +189,12 @@ int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecDat
 
 int32_t CodecDaiGetPortConfigInfo(const struct HdfDeviceObject *device, struct DaiData *codecData)
 {
-    if (AudioGetPortConfig(device, &codecData->portInfo) != HDF_SUCCESS) {
-        return HDF_FAILURE;
+    if (device == NULL || codecData == NULL) {
+        ADM_LOG_ERR("<device> or <codecData> is a null pointer!");
+        return HDF_ERR_INVALID_PARAM;
     }
 
-    return HDF_SUCCESS;
+    return AudioGetPortConfig(device, &codecData->portInfo);
 }
 
 static int32_t SapmCtrlToSapmComp(struct AudioSapmComponent *sapmComponents,
@@ -514,11 +515,11 @@ static int32_t CodecI2cMsgFill(struct I2cTransferParam *i2cTransferParam, const 
             return HDF_ERR_MALLOC_FAIL;
         }
         msgBuf[0] = regs[0];
-        if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_1_BUTE) {
+        if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_1) {
             msgBuf[1] = (uint8_t)regAttr->value;
-        } else if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_2_BUTE) {
+        } else if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_2) {
             msgBuf[1] = (regAttr->value >> COMM_SHIFT_8BIT); // High 8 bit
-            msgBuf[I2C_MSG_BUF_SIZE_2_BUTE] = (uint8_t)(regAttr->value & COMM_MASK_FF);    // Low 8 bit
+            msgBuf[I2C_MSG_BUF_SIZE_2] = (uint8_t)(regAttr->value & COMM_MASK_FF);    // Low 8 bit
         } else {
             AUDIO_DRIVER_LOG_ERR("i2cRegDataLen is invalid");
             return HDF_FAILURE;
@@ -578,9 +579,9 @@ static int32_t CodecI2cTransfer(struct I2cTransferParam *i2cTransferParam, struc
         return HDF_FAILURE;
     }
     if (rwFlag == I2C_FLAG_READ) {
-        if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_1_BUTE) {
+        if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_1) {
             regAttr->value = msgs[1].buf[0];
-        } else if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_2_BUTE) {
+        } else if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_2) {
             regAttr->value = (msgs[1].buf[0] << COMM_SHIFT_8BIT) | msgs[1].buf[1]; // result value 16 bit
         } else {
             AUDIO_DRIVER_LOG_ERR("i2cRegDataLen is invalid");
