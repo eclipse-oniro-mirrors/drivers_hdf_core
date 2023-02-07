@@ -13,6 +13,10 @@
 
 import("//build/ohos.gni")
 
+config("camera_metadata_config") {
+  include_dirs = [ "./include" ]
+}
+
 ohos_shared_library("metadata") {
   install_enable = true
   cflags = [
@@ -20,7 +24,7 @@ ohos_shared_library("metadata") {
     "-Wall",
   ]
   cflags_cc = cflags
-  include_dirs = [ "include" ]
+  all_dependent_configs = [ ":camera_metadata_config" ]
   if (defined(ohos_lite)) {
     sources = [
       "src/camera_metadata_info.cpp",
