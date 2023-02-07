@@ -22,9 +22,9 @@ DEVICE_NAME=$4
 HDF_COMMON_PATCH="common"
 
 ln_list=(
-    $OHOS_SOURCE_ROOT/drivers/hdf_core/adapter/khdf/linux    drivers/hdf/khdf
-    $OHOS_SOURCE_ROOT/drivers/hdf_core/framework             drivers/hdf/framework
-    $OHOS_SOURCE_ROOT/drivers/hdf_core/framework/include     include/hdf
+    drivers/hdf_core/adapter/khdf/linux    drivers/hdf/khdf
+    drivers/hdf_core/framework             drivers/hdf/framework
+    drivers/hdf_core/framework/include     include/hdf
 )
 
 cp_list=(
@@ -48,7 +48,8 @@ function ln_hdf_repos()
 {
     for ((i=0; i<${#ln_list[*]}; i+=2))
     do
-        ln -sf ${ln_list[$i]} ${ln_list[$(expr $i + 1)]}
+        SOFT_RELATIVE_PATH=$(realpath --relative-to=${ln_list[$(expr $i + 1)]} ${OHOS_SOURCE_ROOT})
+        ln -sf ${SOFT_RELATIVE_PATH#*/}/${ln_list[$i]} ${ln_list[$(expr $i + 1)]}
     done
 }
 
