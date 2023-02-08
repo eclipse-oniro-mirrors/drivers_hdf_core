@@ -224,7 +224,8 @@ static int32_t I2cTestWriteRead(void)
 
 static int I2cTestThreadFunc(void *param)
 {
-    int32_t i, ret;
+    int32_t i;
+    int32_t ret;
     struct I2cTester *tester = NULL;
 
     tester = I2cTesterGet();
