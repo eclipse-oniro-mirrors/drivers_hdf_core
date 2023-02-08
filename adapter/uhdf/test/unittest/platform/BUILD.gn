@@ -70,6 +70,7 @@ if (board_name == "hi3516dv300" || board_name == "hispark_taurus") {
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_uart_test.cpp",
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_watchdog_test.cpp",
         "//drivers/hdf_core/framework/test/unittest/platform/common/dac_test.c",
+        "//drivers/hdf_core/framework/test/unittest/platform/common/pcie_test.c",
         "//drivers/hdf_core/framework/test/unittest/platform/common/pin_test.c",
         "//drivers/hdf_core/framework/test/unittest/platform/common/timer_test.c",
         "//drivers/hdf_core/framework/test/unittest/platform/common/uart_test.c",

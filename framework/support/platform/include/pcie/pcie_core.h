@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -12,6 +12,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "osal_mutex.h"
+#include "pcie_if.h"
 #include "platform_core.h"
 
 #ifdef __cplusplus
@@ -23,12 +24,16 @@ extern "C" {
 struct PcieCntlr;
 
 struct PcieCntlrOps {
-    int32_t (*read)(struct PcieCntlr *cntlr, uint32_t pos, uint8_t *data, uint32_t len);
-    int32_t (*write)(struct PcieCntlr *cntlr, uint32_t pos, uint8_t *data, uint32_t len);
+    int32_t (*read)(struct PcieCntlr *cntlr, uint32_t mode, uint32_t pos, uint8_t *data, uint32_t len);
+    int32_t (*write)(struct PcieCntlr *cntlr, uint32_t mode, uint32_t pos, uint8_t *data, uint32_t len);
+    int32_t (*dmaMap)(struct PcieCntlr *cntlr, uintptr_t addr, uint32_t len, uint8_t dir);
+    void (*dmaUnmap)(struct PcieCntlr *cntlr, uintptr_t addr, uint32_t len, uint8_t dir);
+    int32_t (*registerIrq)(struct PcieCntlr *cntlr);
+    void (*unregisterIrq)(struct PcieCntlr *cntlr);
 };
 
 struct PcieDevCfgInfo {
-    uint32_t busNum;
+    uint16_t busNum;
     uint32_t vendorId;
     uint32_t devId;
 };
@@ -37,23 +42,28 @@ struct PcieCntlr {
     struct IDeviceIoService service;
     struct HdfDeviceObject *hdfDevObj;
     struct PlatformDevice device;
-    struct OsalMutex mutex;
+    OsalSpinlock spin;
     struct PcieCntlrOps *ops;
     struct PcieDevCfgInfo devInfo;
+    PcieCallbackFunc cb;
+    PcieCallbackFunc dmaCb;
+    uintptr_t dmaData;
+    uint32_t len;
+    uint8_t dir;
     void *priv;
 };
 
 static inline void PcieCntlrLock(struct PcieCntlr *cntlr)
 {
     if (cntlr != NULL) {
-        (void)OsalMutexLock(&cntlr->mutex);
+        (void)OsalSpinLock(&cntlr->spin);
     }
 }
 
 static inline void PcieCntlrUnlock(struct PcieCntlr *cntlr)
 {
     if (cntlr != NULL) {
-        (void)OsalMutexUnlock(&cntlr->mutex);
+        (void)OsalSpinUnlock(&cntlr->spin);
     }
 }
 
@@ -70,9 +80,15 @@ static inline struct PcieCntlr *PcieCntlrGetByBusNum(uint16_t num)
 int32_t PcieCntlrParse(struct PcieCntlr *cntlr, struct HdfDeviceObject *obj);
 int32_t PcieCntlrAdd(struct PcieCntlr *cntlr);
 void PcieCntlrRemove(struct PcieCntlr *cntlr);
+int32_t PcieCntlrCallback(struct PcieCntlr *cntlr);
+int32_t PcieCntlrDmaCallback(struct PcieCntlr *cntlr);
 
-int32_t PcieCntlrRead(struct PcieCntlr *cntlr, uint32_t pos, uint8_t *data, uint32_t len);
-int32_t PcieCntlrWrite(struct PcieCntlr *cntlr, uint32_t pos, uint8_t *data, uint32_t len);
+int32_t PcieCntlrRead(struct PcieCntlr *cntlr, uint32_t mode, uint32_t pos, uint8_t *data, uint32_t len);
+int32_t PcieCntlrWrite(struct PcieCntlr *cntlr, uint32_t mode, uint32_t pos, uint8_t *data, uint32_t len);
+int32_t PcieCntlrRegisterIrq(struct PcieCntlr *cntlr, PcieCallbackFunc cb);
+void PcieCntlrUnregisterIrq(struct PcieCntlr *cntlr);
+int32_t PcieCntlrDmaMap(struct PcieCntlr *cntlr, PcieCallbackFunc cb, uintptr_t addr, uint32_t len, uint8_t dir);
+void PcieCntlrDmaUnmap(struct PcieCntlr *cntlr, uintptr_t addr, uint32_t len, uint8_t dir);
 
 #ifdef __cplusplus
 #if __cplusplus
