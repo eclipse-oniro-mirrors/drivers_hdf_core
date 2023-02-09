@@ -61,6 +61,13 @@ config DRIVERS_HDF_PLATFORM_I2C
     help
       Answer Y to enable HDF platform i2c driver.
 
+config USER_I2C_SUPPORT
+    bool "Enable HDF platform i2c user interface"
+    default y
+    depends on DRIVERS_HDF_PLATFORM
+    help
+      Answer N to disable HDF platform i2c user interface.
+
 config DRIVERS_HDF_PLATFORM_REGULATOR
     bool "Enable HDF platform regulator driver"
     default n
