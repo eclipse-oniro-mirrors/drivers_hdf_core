@@ -273,7 +273,7 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
 
     int ret = 0;
     auto startTime = GetNanoTime();
-    uint64_t currentTime = startTime;
+    int64_t currentTime = startTime;
     while (true) {
         if (waitTimeNanoSec != 0) {
             currentTime = GetNanoTime();
