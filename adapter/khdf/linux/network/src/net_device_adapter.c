@@ -3,7 +3,7 @@
  *
  * net device adapter of linux
  *
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -83,7 +83,7 @@ static struct net_device_stats* NetDevGetStats(struct net_device *dev)
     priv = (struct FullNetDevicePriv *)netdev_priv(dev);
     if (priv == NULL || priv->dev == NULL || priv->impl == NULL || priv->impl->netDevice == NULL) {
         HDF_LOGE("%s fail : priv NULL!", __func__);
-        return NULL;
+        return &netStats;
     }
     netDev = priv->impl->netDevice;
     netDevIf = netDev->netDeviceIf;
@@ -98,10 +98,9 @@ static struct net_device_stats* NetDevGetStats(struct net_device *dev)
             netStats.tx_errors = stats->txErrors;
             netStats.rx_dropped = stats->rxDropped;
             netStats.tx_dropped = stats->txDropped;
-            return &netStats;
         }
     }
-    return NULL;
+    return &netStats;
 }
 
 static int NetDevChangeMtu(struct net_device *dev, int mtu)
