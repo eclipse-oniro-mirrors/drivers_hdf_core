@@ -6,7 +6,6 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 #include "i2c_core.h"
-
 #include "hdf_device_desc.h"
 #include "hdf_log.h"
 #include "i2c_msg.h"
@@ -228,7 +227,7 @@ int32_t I2cCntlrTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t co
     return ret;
 }
 
-#ifdef USER_I2C_SUPPORT
+#if defined(LOSCFG_USER_I2C_SUPPORT) || defined(CONFIG_USER_I2C_SUPPORT)
 static int32_t I2cIoDoTransfer(struct I2cCntlr *cntlr, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct I2cMsg *msgs = NULL;
@@ -259,7 +258,6 @@ static int32_t I2cIoDoTransfer(struct I2cCntlr *cntlr, struct HdfSBuf *data, str
 // user data format:handle---count---count data records of I2cUserMsg;
 static int32_t I2cManagerIoTransfer(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     int16_t number;
     uint32_t handle;
     struct I2cCntlr *cntlr = NULL;
@@ -369,7 +367,7 @@ static int32_t I2cManagerBind(struct HdfDeviceObject *device)
     }
 
     manager->device = device;
-#ifdef USER_I2C_SUPPORT
+#if defined(LOSCFG_USER_I2C_SUPPORT) || defined(CONFIG_USER_I2C_SUPPORT)
     device->service = &manager->service;
     device->service->Dispatch = I2cManagerDispatch;
 #endif // USER_I2C_SUPPORT

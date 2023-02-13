@@ -5,27 +5,14 @@
  *
  * Copyright (c) 2023 Huawei Device Co., Ltd.
  *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
+ * HDF is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
  */
 
 #include "i2c_msg.h"
-#include <linux/dma-buf.h>
-
 #include "i2c_service.h"
 #include "osal_mem.h"
-
-struct I2cMsgDma {
-    struct I2cMsg msg;
-    struct dma_buf *buf;
-};
 
 int32_t AssignReplayBuffer(uint32_t lenReply, uint8_t **bufReply, struct I2cMsg *msgs, int16_t count)
 {
@@ -57,7 +44,7 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
     size_t msgSize = sizeof(struct I2cMsg) * count;
     uint8_t *buf = NULL;
 
-    msgs = OsalMemAlloc(msgSize + sizeof(void *));
+    msgs = OsalMemCalloc(msgSize + sizeof(void *));
     bufReply = (uint8_t **)((uint8_t *)msgs + msgSize);
 
     for (i = 0; i < count; i++) {
@@ -74,7 +61,7 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
         if ((msgs[i].flags & I2C_FLAG_READ) != 0) {
             lenReply += msgs[i].len;
         } else if ((!HdfSbufReadBuffer(data, (const void **)&buf, &len)) || (buf == NULL)) {
-            HDF_LOGE("%s: read msg[%d] buf fail", i, __func__);
+            HDF_LOGE("%s: read msg[%d] buf fail", __func__, i);
         } else {
             msgs[i].len = len;
             msgs[i].buf = buf;
@@ -132,6 +119,7 @@ int32_t I2cMsgsWriteToSbuf(struct I2cMsg *msgs, int16_t count, struct HdfSBuf *r
 void I2cMsgsFree(struct I2cMsg *msgs, int16_t count)
 {
     uint8_t **bufReply = NULL;
+
     if (msgs == NULL) {
         return;
     }

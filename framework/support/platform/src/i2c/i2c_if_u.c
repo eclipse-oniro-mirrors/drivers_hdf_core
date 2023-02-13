@@ -115,6 +115,7 @@ static struct I2cManagerService *I2cManagerGetService(void)
 DevHandle I2cOpen(int16_t number)
 {
     struct I2cManagerService *i2cManager = I2cManagerGetService();
+
     if (i2cManager == NULL) {
         HDF_LOGE("I2cOpen: i2c manager invalid");
         return NULL;
@@ -148,7 +149,7 @@ DevHandle I2cOpen(int16_t number)
         }
         DevHandle devHandle = (DevHandle)(uintptr_t)handle;
         i2cHandle->handle = devHandle;
-        return devHandle;
+        return (DevHandle)i2cHandle;
     } while (0);
 
     I2cHandleRelease(i2cHandle);
@@ -287,6 +288,7 @@ static int32_t I2cServiceTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t
         HDF_LOGE("%{public}s: failed to reset sbuf", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
+
     do {
         if (!HdfSbufWriteUint32(i2cHandle->data, (uint32_t)(uintptr_t)i2cHandle->handle)) {
             HDF_LOGE("I2cTransfer: write handle fail!");

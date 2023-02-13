@@ -59,7 +59,8 @@ endif
 
 ifeq ($(LOSCFG_DRIVERS_HDF_PLATFORM_I2C), y)
     LOCAL_SRCS += $(HDF_FRAMEWORKS)/support/platform/src/i2c/i2c_if.c \
-    $(HDF_FRAMEWORKS)/support/platform/src/i2c/i2c_core.c
+    $(HDF_FRAMEWORKS)/support/platform/src/i2c/i2c_core.c \
+    $(HDF_FRAMEWORKS)/support/platform/src/i2c/i2c_msg.c
     LOCAL_SRCS += ./src/i2c_dev.c
 endif
 

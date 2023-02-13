@@ -65,6 +65,7 @@ hdf_driver(module_name) {
     sources += [
       "$HDF_FRAMEWORKS_PATH/support/platform/src/i2c/i2c_core.c",
       "$HDF_FRAMEWORKS_PATH/support/platform/src/i2c/i2c_if.c",
+      "$HDF_FRAMEWORKS_PATH/support/platform/src/i2c/i2c_msg.c",
       "src/i2c_dev.c",
     ]
   }
