@@ -560,7 +560,7 @@ static int32_t CodecI2cTransfer(struct I2cTransferParam *i2cTransferParam, struc
     }
     i2cHandle = I2cOpen(i2cTransferParam->i2cBusNumber);
     if (i2cHandle == NULL) {
-        AUDIO_DRIVER_LOG_ERR("open i2cBus:%u failed! i2cHandle:%p", i2cTransferParam->i2cBusNumber, i2cHandle);
+        AUDIO_DRIVER_LOG_ERR("open i2cBus:%u failed!", i2cTransferParam->i2cBusNumber);
         return HDF_FAILURE;
     }
     if (rwFlag == I2C_FLAG_READ) {

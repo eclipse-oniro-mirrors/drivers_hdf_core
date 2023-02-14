@@ -602,7 +602,6 @@ static int MipiDsiDevProcShow(struct seq_file *m, void *v)
 {
     seq_printf(m, "\nModule: [MIPI_TX], Build Time["__DATE__", "__TIME__"]\n");
     MipiDsiDevProcDevShow(m);
-    HDF_LOGI("%s: v %p", __func__, v);
     HDF_LOGI("%s: success.", __func__);
     return 0;
 }

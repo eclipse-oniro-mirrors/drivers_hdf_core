@@ -1097,7 +1097,6 @@ static int MipiRxProcShow(SysProcEntryTag *s, void *v)
 {
     SysSeqPrintf(s, "\nModule: [MIPI_RX], Build Time["__DATE__", "__TIME__"]\n");
     MipiProcShow(s);
-    HDF_LOGI("%s: v %p", __func__, v);
     HDF_LOGI("%s: success.", __func__);
     return HDF_SUCCESS;
 }

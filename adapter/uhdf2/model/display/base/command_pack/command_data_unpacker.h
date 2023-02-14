@@ -128,7 +128,6 @@ public:
         HDF_LOGI("readPos_          =%{public}zu\n", readPos_);
         HDF_LOGI("curSecOffset_     =%{public}zu\n", curSecOffset_);
         HDF_LOGI("curSecLen_        =%{public}d\n", curSecLen_);
-        HDF_LOGI("data_             =%{public}p\n", data_);
         uint32_t i = 0;
         for (; sizeof(int32_t) * i < packSize_;) {
             HDF_LOGI("%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));

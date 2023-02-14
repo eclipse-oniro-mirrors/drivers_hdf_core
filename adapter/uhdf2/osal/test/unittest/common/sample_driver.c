@@ -114,7 +114,7 @@ static int32_t SampleDriverDispatch(
 
 static int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
 {
-    HDF_LOGD("%{public}s::enter!, deviceObject=%{public}p", __func__, deviceObject);
+    HDF_LOGD("%{public}s::enter!", __func__);
     if (deviceObject == NULL) {
         return HDF_FAILURE;
     }
@@ -129,7 +129,7 @@ static int HdfSampleDriverBind(struct HdfDeviceObject *deviceObject)
 
 static int HdfSampleDriverInit(struct HdfDeviceObject *deviceObject)
 {
-    HDF_LOGD("%{public}s::enter!, deviceObject=%{public}p", __func__, deviceObject);
+    HDF_LOGD("%{public}s::enter!", __func__);
     if (deviceObject == NULL) {
         HDF_LOGE("%{public}s::ptr is null!", __func__);
         return HDF_FAILURE;

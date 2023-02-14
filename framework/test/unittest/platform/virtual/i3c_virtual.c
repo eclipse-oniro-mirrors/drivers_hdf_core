@@ -67,7 +67,7 @@ static int32_t VirtualI3cXferI2cOneMsgPolling(const struct VirtualI3cCntlr *virt
 
     (void)virtual;
     (void)msg;
-    PLAT_LOGV("%s: msg:%p, addr:%x, flags:0x%x, len=%d", __func__, msg, msg->addr, msg->flags, msg->len);
+    PLAT_LOGV("%s: flags:0x%x, len=%d", __func__, msg->flags, msg->len);
 
     return HDF_SUCCESS;
 }

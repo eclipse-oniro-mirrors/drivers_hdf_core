@@ -319,7 +319,6 @@ int32_t WatchdogTestExecute(int cmd)
             continue;
         }
         ret = g_entry[i].func(tester);
-        HDF_LOGI("%s : handle: %p\n", __func__, tester->handle);
         break;
     }
 

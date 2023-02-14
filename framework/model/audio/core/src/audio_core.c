@@ -174,7 +174,7 @@ static int32_t AudioSeekPlatformDevice(struct AudioRuntimeDeivces *rtd, const st
 {
     struct PlatformDevice *platform = NULL;
     if (rtd == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input params check error: rtd=%p, configData=%p.", rtd, configData);
+        ADM_LOG_ERR("Input params check error");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (configData->platformName == NULL) {
@@ -198,7 +198,7 @@ static int32_t AudioSeekCpuDaiDevice(struct AudioRuntimeDeivces *rtd, const stru
 {
     struct DaiDevice *cpuDai = NULL;
     if (rtd == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input params check error: rtd=%p, configData=%p.", rtd, configData);
+        ADM_LOG_ERR("Input params check error");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (configData->cpuDaiName == NULL) {
@@ -230,7 +230,7 @@ static int32_t AudioSeekCodecDevice(struct AudioRuntimeDeivces *rtd, const struc
     struct DaiDevice *codecDai = NULL;
 
     if ((rtd == NULL) || (configData == NULL)) {
-        ADM_LOG_ERR("Input params check error: rtd=%p, configData=%p.", rtd, configData);
+        ADM_LOG_ERR("Input params check error");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (configData->codecName == NULL) {
@@ -267,7 +267,7 @@ static int32_t AudioSeekDspDevice(struct AudioRuntimeDeivces *rtd, const struct 
     struct DaiDevice *dspDai = NULL;
 
     if ((rtd == NULL) || (configData == NULL)) {
-        ADM_LOG_ERR("Input params check error: rtd=%p, configData=%p.", rtd, configData);
+        ADM_LOG_ERR("Input params check error");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (configData->dspName == NULL) {
@@ -642,7 +642,7 @@ struct AudioKcontrol *AudioAddControl(const struct AudioCard *audioCard, const s
     struct AudioKcontrol *control = NULL;
 
     if ((audioCard == NULL) || (ctrl == NULL)) {
-        ADM_LOG_ERR("Input params check error: audioCard=%p, ctrl=%p.", audioCard, ctrl);
+        ADM_LOG_ERR("Input params check error");
         return NULL;
     }
 
