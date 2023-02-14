@@ -413,8 +413,7 @@ static void MuxSetPathStatus(const struct AudioSapmComponent *sapmComponent, str
     uint32_t shift;
 
     if (sapmComponent == NULL || sapmComponent->codec == NULL) {
-        ADM_LOG_ERR("input MuxSet params check error: sapmComponent=%p, enumKtl=%p.",
-            sapmComponent, enumKtl);
+        ADM_LOG_ERR("input MuxSet params check error");
         return;
     }
     if (path == NULL || path->name == NULL) {
@@ -464,7 +463,7 @@ static void MuxValueSetPathStatus(const struct AudioSapmComponent *sapmComponent
     uint32_t item;
     uint32_t shift;
     if (sapmComponent == NULL || sapmComponent->codec == NULL) {
-        ADM_LOG_ERR("input muxValueSet params check error: cpt=%p.", sapmComponent);
+        ADM_LOG_ERR("input muxValueSet params check error");
         return;
     }
     if (path == NULL || path->name == NULL) {
@@ -562,7 +561,7 @@ static int32_t AudioSapmSetPathStatus(const struct AudioSapmComponent *sapmCompo
     struct AudioSapmpath *path, int32_t i)
 {
     if ((sapmComponent == NULL) || (path == NULL)) {
-        ADM_LOG_ERR("input params check error: sapmComponent=%p, path=%p.", sapmComponent, path);
+        ADM_LOG_ERR("input params check error");
         return HDF_FAILURE;
     }
     switch (sapmComponent->sapmType) {
@@ -595,10 +594,8 @@ static int32_t AudioSapmConnectMux(struct AudioCard *audioCard,
     int32_t i;
     struct AudioEnumKcontrol *enumKtl = NULL;
 
-    if ((audioCard == NULL) || (source == NULL) || (sink == NULL) ||
-        (path == NULL) || (controlName == NULL)) {
-        ADM_LOG_ERR("input params check error: audioCard=%p, source=%p, sink=%p, path=%p, controlName=%p.",
-            audioCard, source, sink, path, controlName);
+    if ((audioCard == NULL) || (source == NULL) || (sink == NULL) || (path == NULL) || (controlName == NULL)) {
+        ADM_LOG_ERR("input params check error");
         return HDF_FAILURE;
     }
 
@@ -633,10 +630,8 @@ static int32_t AudioSapmConnectMixer(struct AudioCard *audioCard,
 {
     int32_t i;
 
-    if ((audioCard == NULL) || (source == NULL) || (sink == NULL) ||
-        (path == NULL) || (controlName == NULL)) {
-        ADM_LOG_ERR("input params check error: audioCard=%p, source=%p, sink=%p, path=%p, controlName=%p.",
-            audioCard, source, sink, path, controlName);
+    if ((audioCard == NULL) || (source == NULL) || (sink == NULL) || (path == NULL) || (controlName == NULL)) {
+        ADM_LOG_ERR("input params check error");
         return HDF_FAILURE;
     }
 
@@ -727,7 +722,7 @@ static int32_t AudioSampStaticOrDynamicPath(struct AudioCard *audioCard,
 static void AudioSampExtComponentsCheck(struct AudioSapmComponent *cptSource, struct AudioSapmComponent *cptSink)
 {
     if ((cptSource == NULL) || (cptSink == NULL)) {
-        ADM_LOG_ERR("input params check error: cptSource=%p, cptSink=%p.", cptSource, cptSink);
+        ADM_LOG_ERR("input params check error");
         return;
     }
 
@@ -1440,7 +1435,7 @@ int32_t AudioCodecSapmSetEnumCtrlOps(const struct AudioKcontrol *kcontrol,
     struct AudioEnumKcontrol *enumCtrl = NULL;
 
     if ((kcontrol == NULL) || (kcontrol->privateValue <= 0) || (elemValue == NULL)) {
-        ADM_LOG_ERR("input params: kcontrol is NULL or elemValue=%p.", elemValue);
+        ADM_LOG_ERR("input params: kcontrol is NULL or elemValue is NULL");
         return HDF_ERR_INVALID_OBJECT;
     }
     codec = AudioKcontrolGetCodec(kcontrol);

@@ -481,7 +481,7 @@ static int32_t TestPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObj
     struct HdfSBuf *data = NULL;
 
     if ((deviceObject == NULL) || (g_testUsbPnpInfo == NULL)) {
-        HDF_LOGE("%s deviceObject=%px or g_testUsbPnpInfo=%px is NULL", __func__, deviceObject, g_testUsbPnpInfo);
+        HDF_LOGE("%s deviceObject or g_testUsbPnpInfo is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -752,9 +752,9 @@ static void UsbPnpNotifyReadPnpInfo(struct HdfSBuf *data)
         OsalMutexUnlock(&deviceInfo->lock);
     }
 
-    HDF_LOGI("%s:%d infoSize=%d g_usbPnpInfo=%px-%d-%d-%d-%d-%d-%d read success!", __func__, __LINE__, infoSize,
-        &g_usbPnpInfo, g_usbPnpInfo.devNum, g_usbPnpInfo.busNum, g_usbPnpInfo.interfaceNumber,
-        g_usbPnpInfo.interfaceClass, g_usbPnpInfo.interfaceSubClass, g_usbPnpInfo.interfaceProtocol);
+    HDF_LOGI("%s:%d infoSize=%d g_usbPnpInfo=%d-%d-%d-%d-%d-%d read success!", __func__, __LINE__, infoSize,
+        g_usbPnpInfo.devNum, g_usbPnpInfo.busNum, g_usbPnpInfo.interfaceNumber, g_usbPnpInfo.interfaceClass,
+        g_usbPnpInfo.interfaceSubClass, g_usbPnpInfo.interfaceProtocol);
 }
 
 static int32_t UsbPnpGetDevices(struct HdfSBuf *reply)

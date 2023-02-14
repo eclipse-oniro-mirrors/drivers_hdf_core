@@ -457,11 +457,11 @@ static void TestReadPnpInfo(struct HdfSBuf *data)
 
     flag = HdfSbufReadBuffer(data, (const void **)(&g_testUsbPnpInfo), &infoSize);
     if ((!flag) || (g_testUsbPnpInfo == NULL)) {
-        HDF_LOGE("%s: fail to read g_testUsbPnpInfo, flag=%d, g_testUsbPnpInfo=%px", __func__, flag, g_testUsbPnpInfo);
+        HDF_LOGE("%s: fail to read g_testUsbPnpInfo, flag=%d", __func__, flag);
         return;
     }
 
-    HDF_LOGI("%s:%d infoSize=%d g_testUsbPnpInfo=%px read success!", __func__, __LINE__, infoSize, g_testUsbPnpInfo);
+    HDF_LOGI("%s:%d infoSize=%d g_testUsbPnpInfo read success!", __func__, __LINE__, infoSize);
 }
 
 static void TestPnpNotifyFillInfoTable(struct UsbPnpNotifyMatchInfoTable *infoTable)
@@ -502,7 +502,7 @@ static int32_t TestPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObj
     struct HdfSBuf *data = NULL;
 
     if ((deviceObject == NULL) || (g_testUsbPnpInfo == NULL)) {
-        HDF_LOGE("%s deviceObject=%px or g_testUsbPnpInfo=%px is NULL", __func__, deviceObject, g_testUsbPnpInfo);
+        HDF_LOGE("%s deviceObject or g_testUsbPnpInfo is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 

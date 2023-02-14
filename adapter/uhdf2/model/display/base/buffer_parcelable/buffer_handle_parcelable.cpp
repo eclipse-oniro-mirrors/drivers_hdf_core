@@ -255,7 +255,6 @@ std::string BufferHandleParcelable::Dump() const
     os << "size:" << handle_->size << ", ";
     os << "format:" << handle_->format << ", ";
     os << "usage:" << handle_->usage << ", ";
-    os << "phyAddr:" << handle_->phyAddr << ", ";
     os << "key:" << handle_->key << ", ";
     os << "}\nreserveFds[" << handle_->reserveFds << "]:{";
 

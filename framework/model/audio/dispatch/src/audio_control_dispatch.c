@@ -494,7 +494,7 @@ static int32_t ControlHostElemList(const struct HdfDeviceIoClient *client,
     struct AudioCtlElemListReport *dst = NULL;
 
     if (client == NULL || reqData == NULL || rspData == NULL) {
-        ADM_LOG_ERR("Input params check error: client=%p, reqData=%p, rspData=%p.", client, reqData, rspData);
+        ADM_LOG_ERR("Input params check error");
         return HDF_FAILURE;
     }
 

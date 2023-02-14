@@ -315,8 +315,8 @@ static int32_t MtdDevicePageTransferUnlocked(struct MtdDevice *mtdDevice, struct
     }
 
 #ifdef MTD_DEBUG
-    HDF_LOGD("%s: mtdPage-> type=%d, addr=0x%jx, databuf=%p, datalen=%zu, oobbuf=%p, ooblen=%zu", __func__,
-        mtdPage->type, mtdPage->addr, mtdPage->dataBuf, mtdPage->dataLen, mtdPage->oobBuf, mtdPage->oobLen);
+    HDF_LOGD(
+        "%s: mtdPage-> type=%d, datalen=%zu, ooblen=%zu", __func__, mtdPage->type, mtdPage->dataLen, mtdPage->oobLen);
 #endif
 
     ret = mtdDevice->ops->pageTransfer(mtdDevice, mtdPage);
@@ -343,7 +343,7 @@ static int32_t MtdDeviceCheckMsg(struct MtdDevice *mtdDevice, struct MtdMsg *msg
     }
 
     if ((msg->addr + msg->len) > mtdDevice->capacity) {
-        HDF_LOGE("%s: over range, addr=%jx, len=%zu", __func__, msg->addr, msg->len);
+        HDF_LOGE("%s: over range, len=%zu", __func__, msg->len);
         return HDF_ERR_INVALID_PARAM;
     }
 

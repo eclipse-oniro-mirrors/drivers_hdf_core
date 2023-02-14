@@ -139,7 +139,7 @@ struct CanMsgPool *CanMsgPoolCreate(size_t size)
         OsalAtomicSet(&pool->holders[i].available, 1);
     }
 
-    HDF_LOGI("CanMsgPoolCreate: pool = %p", pool);
+    HDF_LOGI("CanMsgPoolCreate end");
     return pool;
 }
 
@@ -161,6 +161,6 @@ void CanMsgPoolDestroy(struct CanMsgPool *pool)
         }
         drain--;
     };
-    HDF_LOGI("CanMsgPoolDestroy: pool = %p", pool);
+    HDF_LOGI("CanMsgPoolDestroy end");
     OsalMemFree(pool);
 }

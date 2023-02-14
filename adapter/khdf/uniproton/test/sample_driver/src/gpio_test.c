@@ -43,7 +43,7 @@
 
 static int32_t TestCaseGpioIrqHandler1(uint16_t gpio, void *data)
 {
-    HDF_LOGE("%s: irq triggered! on gpio:%u, data=%p", __func__, gpio, data);
+    HDF_LOGE("%s: irq triggered! on gpio:%u", __func__, gpio);
     uint16_t val = 0;
     GpioRead(GPIO_PIN_1, &val);
     if (val) {
@@ -56,7 +56,7 @@ static int32_t TestCaseGpioIrqHandler1(uint16_t gpio, void *data)
 
 static int32_t TestCaseGpioIrqHandler2(uint16_t gpio, void *data)
 {
-    HDF_LOGE("%s: irq triggered! on gpio:%u, data=%p", __func__, gpio, data);
+    HDF_LOGE("%s: irq triggered! on gpio:%u", __func__, gpio);
     uint16_t val = 0;
     GpioRead(GPIO_PIN_0, &val);
     if (val) {
@@ -69,7 +69,7 @@ static int32_t TestCaseGpioIrqHandler2(uint16_t gpio, void *data)
 
 static int32_t TestCaseGpioIrqHandler3(uint16_t gpio, void *data)
 {
-    HDF_LOGE("%s: irq triggered! on gpio:%u, data=%p", __func__, gpio, data);
+    HDF_LOGE("%s: irq triggered! on gpio:%u", __func__, gpio);
     uint16_t val = 0;
     GpioRead(GPIO_PIN_2, &val);
     if (val) {

@@ -171,7 +171,6 @@ public:
         HDF_LOGI("curSecOffset_         =%{public}zu\n", curSecOffset_);
         HDF_LOGI("settingSecLen_        =%{public}d\n", settingSecLen_);
         HDF_LOGI("curSecLenPos_         =%{public}zu\n", curSecLenPos_);
-        HDF_LOGI("data_                 =%{public}p\n", data_);
         uint32_t i = 0;
         for (; sizeof(int32_t) * i < writePos_;) {
             HDF_LOGI("%{public}08x ", *reinterpret_cast<uint32_t *>(data_ + sizeof(int32_t) * i));

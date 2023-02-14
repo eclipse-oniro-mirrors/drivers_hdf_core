@@ -365,7 +365,7 @@ static void AudioUsbQueuePendingOutputUrbs(struct AudioUsbEndpoint *endpoint)
 
         err = usb_submit_urb(urbCtx->urb, GFP_ATOMIC);
         if (err < HDF_SUCCESS) {
-            AUDIO_DEVICE_LOG_ERR("Unable to submit urb #%d: %d (urb %p)\n", urbCtx->index, err, urbCtx->urb);
+            AUDIO_DEVICE_LOG_ERR("Unable to submit urb #%d: %d\n", urbCtx->index, err);
         } else {
             set_bit(urbCtx->index, &endpoint->activeMask);
         }
