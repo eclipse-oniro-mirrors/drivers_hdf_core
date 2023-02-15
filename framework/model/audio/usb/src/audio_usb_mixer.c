@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -744,7 +744,8 @@ int32_t AudioUsbSetCurMixValue(struct UsbMixerElemInfo *mixElemInfo, int32_t cha
 
 static int32_t AudioUsbParseUnit(struct UsbMixerBuild *state, int32_t unitId);
 
-static int32_t AudioUsbCheckMatrixBitmap(uint8_t *bmap, int32_t itemChannels, int32_t outChannel, int32_t numOuts)
+static int32_t AudioUsbCheckMatrixBitmap(const uint8_t *bmap, int32_t itemChannels,
+    int32_t outChannel, int32_t numOuts)
 {
     int32_t idx = itemChannels * numOuts + outChannel;
     int32_t bit = idx >> USB_SHIFT_SIZE_3;
@@ -1482,7 +1483,6 @@ static void AudioUsbBuildFeatureCtlSub(
     if (ret != HDF_SUCCESS || kcontrol == NULL) {
         AUDIO_DEVICE_LOG_INFO("AudioUsbFeatureCtlInit fail or kcontrol  is null");
         OsalMemFree(mixElemInfo);
-        OsalMemFree(kcontrol->name);
         return;
     }
 
@@ -1708,7 +1708,7 @@ static int32_t AudioUsbParseMixerUnit(struct UsbMixerBuild *state, int32_t unitI
     int32_t inputPins, pin, err;
     int32_t numIns = 0;
     int32_t itemChannels = 0;
-    struct MixerUnitCtlParam mixCtlParam;
+    struct MixerUnitCtlParam mixCtlParam = {0};
 
     err = AudioUsbMixerUnitGetChannels(state, desc);
     if (err < 0) {
