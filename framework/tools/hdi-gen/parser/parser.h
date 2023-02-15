@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -157,7 +157,7 @@ private:
 
     AutoPtr<ASTExpr> ParseNumExpr();
 
-    bool CheckNumber(const std::string& integerVal);
+    bool CheckNumber(const std::string& integerVal) const;
 
     bool CheckType(const Token &token, const AutoPtr<ASTType> &type);
 
@@ -175,7 +175,7 @@ private:
 
     inline static bool IsPrimitiveType(Token token)
     {
-        return token.kind_ >= TokenType::BOOLEAN && token.kind_ <= TokenType::ASHMEM;
+        return token.kind >= TokenType::BOOLEAN && token.kind <= TokenType::ASHMEM;
     }
 
     bool AddAst(const AutoPtr<AST> &ast);

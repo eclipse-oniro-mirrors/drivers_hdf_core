@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -90,7 +90,7 @@ void CppServiceImplCodeEmitter::EmitServiceImplConstructor(StringBuilder &sb, co
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", implName_.c_str());
 }
 
-void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix)
+void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -163,7 +163,7 @@ void CppServiceImplCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
 }
 
-void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix)
+void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);

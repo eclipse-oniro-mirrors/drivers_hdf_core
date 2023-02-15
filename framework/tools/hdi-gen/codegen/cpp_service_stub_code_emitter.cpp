@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -95,7 +95,7 @@ void CppServiceStubCodeEmitter::EmitStubUsingNamespace(StringBuilder &sb) const
     sb.Append("using namespace OHOS;\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubBody(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubBody(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append("public:\n");
     EmitStubConstructorDecl(sb, prefix);
@@ -229,7 +229,7 @@ void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
 }
 
-void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     if (!interface_->IsSerializable()) {
         EmitGetMethodImpl(sb, prefix);
@@ -314,7 +314,7 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, c
     sb.Append("}\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -326,7 +326,7 @@ void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std
 }
 
 void CppServiceStubCodeEmitter::EmitStubMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("int32_t %s::%s%s(MessageParcel& %s, MessageParcel& %s, MessageOption& %s)\n",
         stubName_.c_str(), stubName_.c_str(), method->GetName().c_str(), dataParcelName_.c_str(),

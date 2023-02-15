@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -115,7 +115,7 @@ void CCodeEmitter::EmitLicense(StringBuilder &sb)
     sb.Append(ast_->GetLicense()).Append("\n\n");
 }
 
-void CCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName)
+void CCodeEmitter::EmitHeadMacro(StringBuilder &sb, const std::string &fullName) const
 {
     std::string macroName = MacroName(fullName);
     sb.Append("#ifndef ").Append(macroName).Append("\n");

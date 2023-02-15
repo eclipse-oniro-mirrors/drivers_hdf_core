@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -75,7 +75,7 @@ void CClientProxyCodeEmitter::EmitPassthroughProxyInclusions(StringBuilder &sb)
     }
 }
 
-void CClientProxyCodeEmitter::EmitPassthroughGetInstanceMethod(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitPassthroughGetInstanceMethod(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %s *%sGetInstance(const char *serviceName, bool isStub)\n",
         interfaceName_.c_str(), interfaceName_.c_str());
@@ -85,7 +85,7 @@ void CClientProxyCodeEmitter::EmitPassthroughGetInstanceMethod(StringBuilder &sb
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitPassthroughReleaseInstanceMethod(StringBuilder &sb)
+void CClientProxyCodeEmitter::EmitPassthroughReleaseInstanceMethod(StringBuilder &sb) const
 {
     sb.AppendFormat("void %sReleaseInstance(const char *serviceName, struct %s *instance, bool isStub)\n",
         interfaceName_.c_str(), interfaceName_.c_str());

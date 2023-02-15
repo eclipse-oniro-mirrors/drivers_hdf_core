@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -35,7 +35,7 @@ private:
 
     void EmitStubDecl(StringBuilder &sb);
 
-    void EmitStubBody(StringBuilder &sb, const std::string &prefix);
+    void EmitStubBody(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubConstructorDecl(StringBuilder &sb, const std::string &prefix) const;
 
@@ -54,7 +54,7 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix);
+    void EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
@@ -64,9 +64,9 @@ private:
 
     void EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix);
 
-    void EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix);
+    void EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubCallMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 

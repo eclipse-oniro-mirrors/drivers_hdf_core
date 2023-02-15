@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -142,7 +142,7 @@ void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const s
     sb.Append(prefix).Append("}\n");
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix)
+void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -154,7 +154,7 @@ void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const s
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("@Override\n");
     if (method->GetParameterNumber() == 0) {

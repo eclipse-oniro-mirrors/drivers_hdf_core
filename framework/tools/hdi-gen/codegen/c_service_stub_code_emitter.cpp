@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -240,7 +240,7 @@ void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb) const
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitReleaseInstanceMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitReleaseInstanceMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("void %sReleaseInstance(const char *serviceName, struct %s *instance, bool isStub)\n",
         interfaceName_.c_str(), interfaceName_.c_str());
@@ -272,7 +272,7 @@ void CServiceStubCodeEmitter::EmitServiceStubMethodImpls(StringBuilder &sb, cons
 }
 
 void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "static int32_t SerStub%s(struct %s *serviceImpl, struct HdfSBuf *%s, struct HdfSBuf *%s)\n",

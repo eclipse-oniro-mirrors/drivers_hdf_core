@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -104,7 +104,7 @@ void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const st
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", proxyName_.c_str());
 }
 
-void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);
@@ -188,7 +188,8 @@ void CppClientProxyCodeEmitter::EmitPassthroughProxySourceInclusions(StringBuild
     }
 }
 
-void CppClientProxyCodeEmitter::EmitPassthroughGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppClientProxyCodeEmitter::EmitPassthroughGetInstanceMethodImpl(StringBuilder &sb,
+    const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string &serviceName, bool isStub)\n",
         interface_->GetName().c_str(), interface_->GetName().c_str());

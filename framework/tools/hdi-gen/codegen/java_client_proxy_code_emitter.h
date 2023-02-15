@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -41,9 +41,9 @@ private:
 
     void EmitProxyConstructor(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix);
+    void EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
