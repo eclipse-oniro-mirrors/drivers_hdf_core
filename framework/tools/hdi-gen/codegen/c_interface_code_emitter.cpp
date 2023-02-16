@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -117,7 +117,7 @@ void CInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
     sb.Append("};\n");
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix)
+void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix) const
 {
     for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
         AutoPtr<ASTMethod> method = interface_->GetMethod(i);

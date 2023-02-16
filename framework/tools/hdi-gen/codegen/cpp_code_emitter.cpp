@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -141,7 +141,7 @@ std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &
     return result;
 }
 
-std::string CppCodeEmitter::EmitPackageToNameSpace(const std::string &packageName)
+std::string CppCodeEmitter::EmitPackageToNameSpace(const std::string &packageName) const
 {
     if (packageName.empty()) {
         return packageName;

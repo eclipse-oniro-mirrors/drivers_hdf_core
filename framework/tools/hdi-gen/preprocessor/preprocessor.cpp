@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -150,29 +150,29 @@ bool Preprocessor::ParseFileDetail(const std::string &sourceFile, FileDetail &in
 bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
 {
     Token token = lexer.PeekToken();
-    if (token.kind_ != TokenType::PACKAGE) {
-        Logger::E(TAG, "%s: expected 'package' before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
+    if (token.kind != TokenType::PACKAGE) {
+        Logger::E(TAG, "%s: expected 'package' before '%s' token", LocInfo(token).c_str(), token.value.c_str());
         return false;
     }
     lexer.GetToken();
 
     token = lexer.PeekToken();
-    if (token.kind_ != TokenType::ID) {
-        Logger::E(TAG, "%s: expected package name before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
+    if (token.kind != TokenType::ID) {
+        Logger::E(TAG, "%s: expected package name before '%s' token", LocInfo(token).c_str(), token.value.c_str());
         return false;
     }
 
-    if (!CheckPackageName(info.filePath_, token.value_)) {
+    if (!CheckPackageName(info.filePath_, token.value)) {
         Logger::E(TAG, "%s:package name '%s' does not match file path '%s'", LocInfo(token).c_str(),
-            token.value_.c_str(), info.filePath_.c_str());
+            token.value.c_str(), info.filePath_.c_str());
         return false;
     }
-    info.packageName_ = token.value_;
+    info.packageName_ = token.value;
     lexer.GetToken();
 
     token = lexer.PeekToken();
-    if (token.kind_ != TokenType::SEMICOLON) {
-        Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
+    if (token.kind != TokenType::SEMICOLON) {
+        Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).c_str(), token.value.c_str());
         return false;
     }
     lexer.GetToken();
@@ -182,8 +182,8 @@ bool Preprocessor::ParsePackage(Lexer &lexer, FileDetail &info)
 bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
 {
     Token token = lexer.PeekToken();
-    while (token.kind_ != TokenType::END_OF_FILE) {
-        if (token.kind_ != TokenType::IMPORT) {
+    while (token.kind != TokenType::END_OF_FILE) {
+        if (token.kind != TokenType::IMPORT) {
             lexer.GetToken();
             token = lexer.PeekToken();
             continue;
@@ -191,22 +191,22 @@ bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
 
         lexer.GetToken();
         token = lexer.PeekToken();
-        if (token.kind_ != TokenType::ID) {
-            Logger::E(TAG, "%s: expected import name before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
+        if (token.kind != TokenType::ID) {
+            Logger::E(TAG, "%s: expected import name before '%s' token", LocInfo(token).c_str(), token.value.c_str());
             return false;
         }
 
-        if (!File::CheckValid(Options::GetInstance().GetImportFilePath(token.value_))) {
-            Logger::E(TAG, "%s: import invalid package '%s'", LocInfo(token).c_str(), token.value_.c_str());
+        if (!File::CheckValid(Options::GetInstance().GetImportFilePath(token.value))) {
+            Logger::E(TAG, "%s: import invalid package '%s'", LocInfo(token).c_str(), token.value.c_str());
             return false;
         }
 
-        info.imports_.emplace(token.value_);
+        info.imports_.emplace(token.value);
         lexer.GetToken();
 
         token = lexer.PeekToken();
-        if (token.kind_ != TokenType::SEMICOLON) {
-            Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).c_str(), token.value_.c_str());
+        if (token.kind != TokenType::SEMICOLON) {
+            Logger::E(TAG, "%s:expected ';' before '%s' token", LocInfo(token).c_str(), token.value.c_str());
             return false;
         }
         lexer.GetToken();
