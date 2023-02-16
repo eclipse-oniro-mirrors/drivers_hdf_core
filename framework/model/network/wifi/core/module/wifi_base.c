@@ -414,7 +414,7 @@ static int32_t WifiCmdEnableEapol(const RequestContext *context, struct HdfSBuf 
         HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
-    eapol.callback = (void *)HdfWifiEventEapolRecv;
+    eapol.callback = HdfWifiEventEapolRecv;
     eapol.context = NULL;
 
     HDF_LOGD("%s: Wifi cmd EnableEapol finished", __func__);

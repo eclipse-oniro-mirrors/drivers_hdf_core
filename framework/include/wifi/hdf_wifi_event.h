@@ -461,15 +461,13 @@ int32_t HdfWifiEventTimeoutDisconnected(const struct NetDevice *netDev);
  * @since 1.0
  * @version 1.0
  */
-int32_t HdfWifiEventEapolRecv(const char *name, void *context);
+void HdfWifiEventEapolRecv(const char *name, void *context);
 
 /**
  * @brief Reports the WLAN driver reset result.
  *
  * @param chipId Indicates the chip ID. This parameter cannot be null.
  * @param resetStatus Indicates the WLAN driver reset result.
- *
- * @return Returns <b>0</b> if the result is reported successfully; returns <b>-1</b> otherwise.
  *
  * @since 1.0
  * @version 1.0
