@@ -91,8 +91,6 @@ void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
     sb.Append("\n");
     EmitHeadExternC(sb);
     sb.Append("\n");
-    EmitForwardDeclaration(sb);
-    sb.Append("\n");
     EmitCustomTypeDecls(sb);
     sb.Append("\n");
     EmitCustomTypeFuncDecl(sb);
@@ -110,18 +108,23 @@ void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
 void CCustomTypesCodeEmitter::EmitHeaderInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
-    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
-    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
     GetStdlibInclusions(headerFiles);
+    GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
-void CCustomTypesCodeEmitter::EmitForwardDeclaration(StringBuilder &sb)
+void CCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
-    sb.Append("struct HdfSBuf;\n");
+    for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
+        AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
+        if (type->GetTypeKind() == TypeKind::TYPE_STRUCT) {
+            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
+            break;
+        }
+    }
 }
 
 void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb) const
@@ -237,7 +240,6 @@ void CCustomTypesCodeEmitter::EmitSoucreInclusions(StringBuilder &sb)
 void CCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
-    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 }
