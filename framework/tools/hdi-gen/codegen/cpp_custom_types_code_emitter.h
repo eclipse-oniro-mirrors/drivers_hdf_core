@@ -32,7 +32,7 @@ private:
 
     void EmitHeaderFileInclusions(StringBuilder &sb);
 
-    void EmitForwardDeclaration(StringBuilder &sb);
+    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
     void EmitUsingNamespace(StringBuilder &sb) override;
 
