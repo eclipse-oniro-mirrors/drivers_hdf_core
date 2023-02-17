@@ -89,6 +89,43 @@ void ASTSmqType::EmitCppReadVar(const std::string &parcelName, const std::string
         "std::make_shared<SharedMemQueue<%s>>(*%s);\n", innerType_->EmitCppType().c_str(), metaVarName.c_str());
 }
 
+void ASTSmqType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
+{
+    sb.Append(prefix).AppendFormat(
+        "if (%s == nullptr || !%s->IsGood() || %s->GetMeta() == nullptr || ", name.c_str(), name.c_str(), name.c_str());
+    sb.AppendFormat("!%s->GetMeta()->Marshalling(%s)) {\n", name.c_str(), parcelName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTSmqType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
+{
+    size_t index = name.find('.');
+    std::string memberName = (index == std::string::npos) ? name : StringHelper::SubStr(name, index + 1);
+    std::string metaVarName = StringHelper::Format("%sMeta_", memberName.c_str());
+
+    sb.Append(prefix).AppendFormat(
+        "std::shared_ptr<SharedMemQueueMeta<%s>> %s = ", innerType_->EmitCppType().c_str(), metaVarName.c_str());
+    sb.AppendFormat(
+        "SharedMemQueueMeta<%s>::UnMarshalling(%s);\n", innerType_->EmitCppType().c_str(), parcelName.c_str());
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", metaVarName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: SharedMemQueueMeta is nullptr\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n\n");
+
+    if (emitType) {
+        sb.Append(prefix).AppendFormat("%s %s = ", EmitCppType(TypeMode::LOCAL_VAR).c_str(), memberName.c_str());
+    } else {
+        sb.Append(prefix).AppendFormat("%s = ", name.c_str());
+    }
+
+    sb.AppendFormat(
+        "std::make_shared<SharedMemQueue<%s>>(*%s);\n", innerType_->EmitCppType().c_str(), metaVarName.c_str());
+}
+
 bool ASTAshmemType::IsAshmemType()
 {
     return true;
@@ -125,7 +162,7 @@ void ASTAshmemType::EmitCppWriteVar(const std::string &parcelName, const std::st
 {
     sb.Append(prefix).AppendFormat(
         "if (%s == nullptr || !%s.WriteAshmem(%s)) {\n", name.c_str(), parcelName.c_str(), name.c_str());
-    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
@@ -141,8 +178,34 @@ void ASTAshmemType::EmitCppReadVar(const std::string &parcelName, const std::str
     }
 
     sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
-    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: read an invalid ashmem object\", __func__);\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read ashmem object\", __func__);\n");
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTAshmemType::EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, unsigned int innerLevel) const
+{
+    sb.Append(prefix).AppendFormat(
+        "if (%s == nullptr || !%s.WriteAshmem(%s)) {\n", name.c_str(), parcelName.c_str(), name.c_str());
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to write %s\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return false;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void ASTAshmemType::EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+    const std::string &prefix, bool emitType, unsigned int innerLevel) const
+{
+    if (emitType) {
+        sb.Append(prefix).AppendFormat(
+            "%s %s = %s.ReadAshmem();\n", EmitCppType().c_str(), name.c_str(), parcelName.c_str());
+    } else {
+        sb.Append(prefix).AppendFormat("%s = %s.ReadAshmem();\n", name.c_str(), parcelName.c_str());
+    }
+
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read ashmem object\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 } // namespace HDI
