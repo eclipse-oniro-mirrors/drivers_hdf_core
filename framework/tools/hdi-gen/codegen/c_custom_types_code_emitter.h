@@ -34,7 +34,7 @@ private:
 
     void EmitHeaderInclusions(StringBuilder &sb);
 
-    void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
+    void EmitForwardDeclaration(StringBuilder &sb) const;
 
     void EmitCustomTypeDecls(StringBuilder &sb) const;
 

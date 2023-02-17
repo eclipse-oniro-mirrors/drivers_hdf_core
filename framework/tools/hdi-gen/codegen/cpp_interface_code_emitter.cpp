@@ -84,6 +84,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceInclusions(StringBuilder &sb)
 
 void CppInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
     headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_base");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");

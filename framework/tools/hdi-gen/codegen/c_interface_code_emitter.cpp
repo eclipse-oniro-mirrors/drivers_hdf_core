@@ -88,6 +88,7 @@ void CInterfaceCodeEmitter::EmitImportInclusions(StringBuilder &sb)
 
 void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
         headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
