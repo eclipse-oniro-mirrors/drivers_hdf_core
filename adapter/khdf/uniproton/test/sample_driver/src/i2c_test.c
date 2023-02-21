@@ -134,7 +134,6 @@ static int32_t TestCaseI2cWriteRead(void)
 
 void HdfI2cTestAllEntry(void)
 {
-    int32_t timecounter;
     int32_t ret;
     printf("I2C test init\r\n");
     ret = TestCaseI2cWriteRead();

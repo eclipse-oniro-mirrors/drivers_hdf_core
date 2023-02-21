@@ -94,9 +94,8 @@ static int32_t TestCaseGpioDir(void)
 {
     int32_t gpio;
     uint16_t dir;
-    int32_t ret;
     for (gpio = 0; gpio < GPIO_PIN_NUMS; gpio++) {
-        ret = GpioGetDir(gpio, &dir);
+        int32_t ret = GpioGetDir(gpio, &dir);
         if (ret == HDF_SUCCESS && dir == GPIO_Mode_IN) {
             printf("HDF Gpio mode input.\n\r");
             ret = GpioSetDir(gpio, GPIO_Mode_OUT);
@@ -176,7 +175,6 @@ static int32_t TestCaseGpioEnableIrq(void)
 static int32_t TestCaseGpioWriteRead(void)
 {
     uint8_t val = 0;
-    int32_t times;
     int32_t ret;
     uint16_t read;
     for (int gpio = 0; gpio < GPIO_PIN_NUMS; gpio++) {
