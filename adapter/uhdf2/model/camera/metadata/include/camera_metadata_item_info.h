@@ -165,9 +165,11 @@ static item_info_t g_ohosDeviceZoom[OHOS_DEVICE_ZOOM_END - OHOS_DEVICE_ZOOM_STAR
 
 static item_info_t g_ohosStreamAbility[OHOS_STREAM_ABILITY_END - OHOS_STREAM_ABILITY_START] = {
     [OHOS_ABILITY_STREAM_AVAILABLE_BASIC_CONFIGURATIONS -
-        OHOS_STREAM_ABILITY_START] = {"streamAvailableConfigurations", META_TYPE_INT32,             -1},
+        OHOS_STREAM_ABILITY_START] = {"streamAvailableConfigurations", META_TYPE_INT32, -1},
     [OHOS_STREAM_AVAILABLE_FORMATS -
         OHOS_STREAM_ABILITY_START] = {"streamAvailableFormats",        META_TYPE_INT32, -1},
+    [OHOS_ABILITY_STREAM_AVAILABLE_EXTEND_CONFIGURATIONS -
+        OHOS_STREAM_ABILITY_START] = {"streamExtendConfigurations",    META_TYPE_INT32, -1},
 };
 
 static item_info_t g_ohosStreamJpeg[OHOS_STREAM_JPEG_END - OHOS_STREAM_JPEG_START] = {
