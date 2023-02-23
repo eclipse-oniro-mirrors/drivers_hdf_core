@@ -911,7 +911,8 @@ static void AudioUsbGetFormatSub(struct AudioUsbDriver *audioUsbDriver, struct u
         (*audioUsbFormat)->channels == 1 && (*audioUsbFormat)->formats == AUDIO_USB_PCM_FMTBIT_S16_LE) {
         usbFmtbm = true;
     }
-    if (le16_to_cpu(epDesc->wMaxPacketSize) == (*audioUsbFormat)->maxPackSize * FRAME_SIZE_2) {
+    if (*audioUsbFormat != NULL &&
+        le16_to_cpu(epDesc->wMaxPacketSize) == (*audioUsbFormat)->maxPackSize * FRAME_SIZE_2) {
         maxPackSizebm = true;
     }
     if (uacFmtbm && usbFmtbm && uacFmt->protocol == UAC_VERSION_1 && maxPackSizebm) {
