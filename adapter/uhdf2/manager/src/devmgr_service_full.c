@@ -33,11 +33,11 @@ static Map g_hostMap = {0};
 static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt, struct HdfRemoteService *service)
 {
     OsalMutexLock(&hostClnt->hostLock);
-    hostClnt->hostPid = INVALID_PID;
     struct DevHostServiceProxy *hostProxy = (struct DevHostServiceProxy *)hostClnt->hostService;
     if (hostProxy != NULL) {
         if ((hostProxy->remote != NULL) && ((uintptr_t)hostProxy->remote == (uintptr_t)service)) {
             HDF_LOGI("%{public}s hostId: %{public}u remove current hostService", __func__, hostClnt->hostId);
+            hostClnt->hostPid = INVALID_PID;
             DevHostServiceProxyRecycle(hostProxy);
             hostClnt->hostService = NULL;
             HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
@@ -90,7 +90,10 @@ static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *
     struct IDriverInstaller *installer = DriverInstallerGetInstance();
     if (installer != NULL && installer->StartDeviceHost != NULL) {
         HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
-        hostClnt->hostPid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName, true);
+        int pid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName, true);
+        OsalMutexLock(&hostClnt->hostLock);
+        hostClnt->hostPid = pid;
+        OsalMutexUnlock(&hostClnt->hostLock);
         return hostClnt->hostPid;
     }
     return INVALID_PID;
