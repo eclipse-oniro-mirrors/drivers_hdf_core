@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020--2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,13 +19,21 @@
 #define PCIE_VIRTUAL_ADAPTER_READ_DATA_1 0x95
 #define PCIE_VIRTUAL_ADAPTER_READ_DATA_2 0x27
 #define PCIE_VIRTUAL_ADAPTER_READ_DATA_3 0x89
+#define PCIE_VIRTUAL_DIR_MAX             1
 
 struct PcieVirtualAdapterHost {
     struct PcieCntlr cntlr;
+    uintptr_t dmaData;
+    uint32_t len;
+    uint8_t dir;
+    bool irqRegistered;
 };
 
-static int32_t PcieVirtualAdapterRead(struct PcieCntlr *cntlr, uint32_t pos, uint8_t *data, uint32_t len)
+static int32_t PcieVirtualAdapterRead(struct PcieCntlr *cntlr, uint32_t mode,
+    uint32_t pos, uint8_t *data, uint32_t len)
 {
+    (void)mode;
+    (void)pos;
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -47,17 +55,86 @@ static int32_t PcieVirtualAdapterRead(struct PcieCntlr *cntlr, uint32_t pos, uin
     return HDF_SUCCESS;
 }
 
-static int32_t PcieVirtualAdapterWrite(struct PcieCntlr *cntlr, uint32_t pos, uint8_t *data, uint32_t len)
+static int32_t PcieVirtualAdapterWrite(struct PcieCntlr *cntlr, uint32_t mode,
+    uint32_t pos, uint8_t *data, uint32_t len)
 {
+    (void)mode;
+    (void)pos;
+    (void)data;
+    (void)len;
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
     return HDF_SUCCESS;
 }
 
+static int32_t PcieVirtualAdapterDmaMap(struct PcieCntlr *cntlr, uintptr_t addr,
+    uint32_t len, uint8_t dir)
+{
+    struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
+
+    if (host == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (addr == 0 || dir > PCIE_DMA_TO_DEVICE) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (host->dmaData != 0) {
+        return HDF_ERR_DEVICE_BUSY;
+    }
+    host->dmaData = addr;
+    host->len = len;
+    host->dir = dir;
+
+    return PcieCntlrDmaCallback(cntlr);
+}
+
+static void PcieVirtualAdapterDmaUnmap(struct PcieCntlr *cntlr, uintptr_t addr, uintptr_t len, uint8_t dir)
+{
+    struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
+
+    if (host == NULL || dir > PCIE_VIRTUAL_DIR_MAX) {
+        return;
+    }
+    if (addr != host->dmaData || len != host->len || dir != host->dir) {
+        return;
+    }
+    host->dmaData = 0;
+    host->len = 0;
+    host->dir = 0;
+}
+
+int32_t PcieVirtualRegIrq(struct PcieCntlr *cntlr)
+{
+    struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
+
+    if (host == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (host->irqRegistered == true) {
+        return HDF_ERR_DEVICE_BUSY;
+    }
+    host->irqRegistered = true;
+    return PcieCntlrCallback(cntlr); // test interrupt callback access
+}
+
+void PcieVirtualUnregIrq(struct PcieCntlr *cntlr)
+{
+    struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
+
+    if (host == NULL) {
+        return;
+    }
+    host->irqRegistered = false;
+}
+
 static struct PcieCntlrOps g_pcieVirtualAdapterHostOps = {
     .read = PcieVirtualAdapterRead,
     .write = PcieVirtualAdapterWrite,
+    .dmaMap = PcieVirtualAdapterDmaMap,
+    .dmaUnmap = PcieVirtualAdapterDmaUnmap,
+    .registerIrq = PcieVirtualRegIrq,
+    .unregisterIrq = PcieVirtualUnregIrq,
 };
 
 static int32_t PcieVirtualAdapterBind(struct HdfDeviceObject *obj)
@@ -89,12 +166,12 @@ static int32_t PcieVirtualAdapterBind(struct HdfDeviceObject *obj)
         goto ERR;
     }
 
-    HDF_LOGD("PcieVirtualAdapterBind: success.");
+    HDF_LOGI("PcieVirtualAdapterBind: success.");
     return HDF_SUCCESS;
 ERR:
     PcieCntlrRemove(&(host->cntlr));
     OsalMemFree(host);
-    HDF_LOGD("PcieAdapterBind: fail, err = %d.", ret);
+    HDF_LOGE("PcieVirtualAdapterBind: fail, err = %d.", ret);
     return ret;
 }
 
@@ -102,7 +179,7 @@ static int32_t PcieVirtualAdapterInit(struct HdfDeviceObject *obj)
 {
     (void)obj;
 
-    HDF_LOGD("PcieVirtualAdapterInit: success.");
+    HDF_LOGI("PcieVirtualAdapterInit: success.");
     return HDF_SUCCESS;
 }
 
@@ -122,7 +199,7 @@ static void PcieVirtualAdapterRelease(struct HdfDeviceObject *obj)
     PcieCntlrRemove(cntlr);
     host = (struct PcieVirtualAdapterHost *)cntlr;
     OsalMemFree(host);
-    HDF_LOGD("PcieAdapterRelease: success.");
+    HDF_LOGI("PcieVirtualAdapterRelease: success.");
 }
 
 struct HdfDriverEntry g_pcieVirtualDriverEntry = {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -10,6 +10,10 @@
 #include "hdf_log.h"
 #include "osal_mem.h"
 #include "platform_listener_common.h"
+#include "securec.h"
+
+#define IRQ_CB_NUM    0
+#define DMA_CB_NUM    1
 
 int RtcOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
 {
@@ -38,6 +42,49 @@ int RtcOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
         rtc->func(index);
     }
     return HDF_SUCCESS;
+}
+
+int PcieOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
+{
+    struct PlatformUserListenerPcieParam *pcie = NULL;
+    struct PlatformUserListener *userListener = NULL;
+    uint8_t *buf = NULL;
+    uint32_t num;
+    uint32_t len;
+
+    if (priv == NULL || data == NULL || id != PLATFORM_LISTENER_EVENT_PCIE_NOTIFY) {
+        HDF_LOGE("PcieOnDevEventReceive id %d param error", id);
+        return HDF_FAILURE;
+    }
+
+    userListener = (struct PlatformUserListener *)priv;
+    pcie = (struct PlatformUserListenerPcieParam *)userListener->data;
+    if (pcie == NULL || pcie->func == NULL) {
+        HDF_LOGE("PcieOnDevEventReceive pcie id %d error", id);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufReadUint32(data, &num)) {
+        HDF_LOGE("PcieOnDevEventReceive: read num fail");
+        return HDF_ERR_IO;
+    }
+    if (num == DMA_CB_NUM) {
+        if (pcie->dmaData == 0 || pcie->len == 0) {
+            HDF_LOGE("PcieOnDevEventReceive: invalid DMA data");
+            return HDF_ERR_INVALID_PARAM;
+        }
+        if (pcie->dir == PCIE_DMA_FROM_DEVICE) {
+            if (!HdfSbufReadBuffer(data, (const void **)&buf, &len)) {
+                HDF_LOGE("PcieOnDevEventReceive: sbuf read buffer failed");
+                return HDF_ERR_IO;
+            }
+            if (memcpy_s((void *)pcie->dmaData, pcie->len, buf, len) != EOK) {
+                HDF_LOGE("PcieOnDevEventReceive: memory copy failed");
+                return HDF_ERR_IO;
+            }
+        }
+    }
+    return pcie->func(pcie->handle);
 }
 
 int TimerOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
@@ -217,4 +264,29 @@ struct PlatformUserListenerManager *PlatformUserListenerManagerGet(enum Platform
 
     HDF_LOGD("PlatformUserListenerManagerGet moudle %d success", moudle);
     return manager;
+}
+
+void PlatformUserListenerManagerDestory(struct PlatformUserListenerManager *manager)
+{
+    struct PlatformUserListener *pos = NULL;
+    struct PlatformUserListener *tmp = NULL;
+
+    if (manager == NULL) {
+        HDF_LOGE("PlatformUserListenerDestory manager null");
+        return;
+    }
+    if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
+        HDF_LOGE("%s: OsalMutexLock failed", __func__);
+        return;
+    }
+    DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->listeners, struct PlatformUserListener, node) {
+        (void)HdfDeviceUnregisterEventListener(manager->service, pos->listener);
+        OsalMemFree(pos->listener);
+        OsalMemFree(pos->data);
+        DListRemove(&pos->node);
+        OsalMemFree(pos);
+    }
+    (void)OsalMutexUnlock(&manager->lock);
+    (void)OsalMutexDestroy(&manager->lock);
+    OsalMemFree(manager);
 }

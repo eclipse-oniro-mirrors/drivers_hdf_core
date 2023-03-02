@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -13,9 +13,7 @@
 
 #ifndef __USER__
 #include "devsvc_manager_clnt.h"
-#endif
-
-#ifdef __USER__
+#else
 #include "hdf_io_service_if.h"
 #endif
 

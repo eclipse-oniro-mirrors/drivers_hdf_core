@@ -14,18 +14,11 @@
 
 int32_t HdfPcieUnitTestEntry(HdfTestMsg *msg)
 {
-    struct PcieTester *tester = NULL;
-
     if (msg == NULL) {
-        HDF_LOGE("HdfPcieUnitTestEntry: msg is NULL");
         return HDF_FAILURE;
     }
-    tester = GetPcieTester();
-    if (tester == NULL || tester->TestEntry == NULL) {
-        HDF_LOGE("HdfPcieUnitTestEntry: tester/TestEntry is NULL");
-        msg->result = HDF_FAILURE;
-        return HDF_FAILURE;
-    }
-    msg->result = tester->TestEntry(tester, msg->subCmd);
-    return msg->result;
+
+    msg->result = PcieTestExecute(msg->subCmd);
+
+    return HDF_SUCCESS;
 }
