@@ -307,7 +307,8 @@ std::set<std::string> File::FindFiles(const std::string &rootDir)
             continue;
         }
 
-        for (struct dirent *dirInfo = readdir(dir); dirInfo != nullptr; dirInfo = readdir(dir)) {
+        struct dirent *dirInfo = readdir(dir);
+        for (; dirInfo != nullptr; dirInfo = readdir(dir)) {
             if (strcmp(dirInfo->d_name, ".") == 0 || strcmp(dirInfo->d_name, "..") == 0) {
                 continue;
             }
