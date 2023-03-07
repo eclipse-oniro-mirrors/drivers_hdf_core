@@ -72,7 +72,7 @@ static int DevSvcManagerProxyAddService(
     struct IDevSvcManager *inst, struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
-    if (service == NULL || servInfo->servName == NULL) {
+    if (service == NULL || servInfo == NULL || servInfo->servName == NULL) {
         HDF_LOGE("%{public}s:service or name is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -112,7 +112,7 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
     struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
-    if (service == NULL || servInfo->servName == NULL) {
+    if (service == NULL || servInfo == NULL || servInfo->servName == NULL) {
         HDF_LOGE("%{public}s:service or name is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
