@@ -105,8 +105,6 @@ export class XTexture {
         return this.tmpCutid - 1;
     }
     makeCut(rid, x = 0, y = 0, w = -1, h = -1, ww = -1, hh = -1) {
-        // if (this.ximages[rid].stat != 1) return -1;
-
         if (ww == -1) ww = this.ximages[rid].w;
         if (hh == -1) hh = this.ximages[rid].h;
         if (w == -1) w = ww;
