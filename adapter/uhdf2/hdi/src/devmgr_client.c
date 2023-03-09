@@ -234,6 +234,7 @@ struct HDIDeviceManager *HDIDeviceManagerGet(void)
     if (!HdfRemoteServiceSetInterfaceDesc(remote, "HDI.IDeviceManager.V1_0")) {
         HDF_LOGE("%{public}s: failed to init interface desc", __func__);
         HdfRemoteServiceRecycle(remote);
+        HDIDeviceManagerRelease(iDevMgr);
         return NULL;
     }
     iDevMgr->remote = remote;

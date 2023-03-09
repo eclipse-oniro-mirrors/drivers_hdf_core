@@ -456,6 +456,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     struct ServStatListenerHolder *listenerHolder =
         ServStatListenerHolderCreate((uintptr_t)listenerRemote, listenClass);
     if (listenerHolder == NULL) {
+        HdfRemoteServiceRecycle(listenerRemote);
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -595,6 +596,7 @@ int DevSvcManagerStubStart(struct IDevSvcManager *svcmgr)
     }
     if (!HdfRemoteServiceSetInterfaceDesc(inst->remote, "HDI.IServiceManager.V1_0")) {
         HDF_LOGE("%{public}s: failed to init interface desc", __func__);
+        HdfRemoteServiceRecycle(inst->remote);
         return HDF_ERR_INVALID_OBJECT;
     }
 
