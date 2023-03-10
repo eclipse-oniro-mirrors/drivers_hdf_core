@@ -7,8 +7,8 @@
  */
 
 #include <securec.h>
-#include <osal_mem.h>
 #include "camera_buffer_manager_adapter.h"
+#include "osal_mem.h"
 #include "contig_dma.h"
 
 struct ContigBuffer {

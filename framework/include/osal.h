@@ -9,6 +9,9 @@
 #ifndef OSAL_H
 #define OSAL_H
 
+#include "hdf_base.h"
+#include "hdf_dlist.h"
+#include "hdf_log.h"
 #include "osal_firmware.h"
 #include "osal_irq.h"
 #include "osal_mem.h"
@@ -18,8 +21,5 @@
 #include "osal_thread.h"
 #include "osal_time.h"
 #include "osal_timer.h"
-#include "hdf_base.h"
-#include "hdf_log.h"
-#include "hdf_dlist.h"
 
 #endif /* OSAL_H */

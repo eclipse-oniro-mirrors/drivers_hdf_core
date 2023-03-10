@@ -53,8 +53,6 @@ if (is_standard_system) {
       "$HDF_FRAMEWORKS/support/platform/include/fwk",
     ]
 
-    #    deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
-
     defines = [ "__USER__" ]
 
     if (is_standard_system) {

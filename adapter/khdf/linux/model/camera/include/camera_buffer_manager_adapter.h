@@ -11,8 +11,8 @@
 
 #include <hdf_dlist.h>
 #include <osal_atomic.h>
-#include <osal_spinlock.h>
 #include <osal_mutex.h>
+#include <osal_spinlock.h>
 #include <linux/wait.h>
 #include <linux/dma-buf.h>
 #include "buffer_queue.h"

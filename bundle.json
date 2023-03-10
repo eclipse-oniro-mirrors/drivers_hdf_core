@@ -144,15 +144,6 @@
               ],
               "header_base": "//drivers/hdf_core/framework/include/platform"
           }
-        },
-        {
-          "name": "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-            "header": {
-              "header_files": [
-                "hdf_object.h"
-              ],
-              "header_base": "//drivers/hdf_core/interfaces/inner_api/core"
-          }
         }
       ],
       "test": [

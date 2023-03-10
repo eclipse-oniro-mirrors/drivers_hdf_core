@@ -7,16 +7,16 @@
  */
 
 #include "message_router.h"
-#include "hdf_base.h"
 #ifdef USERSPACE_CLIENT_SUPPORT
 #include <signal.h>
 #include <unistd.h>
 #endif
+#include "hdf_base.h"
 #include "hdf_log.h"
+#include "message_dispatcher.h"
+#include "message_router_inner.h"
 #include "osal_mutex.h"
 #include "securec.h"
-#include "message_router_inner.h"
-#include "message_dispatcher.h"
 
 #ifdef USERSPACE_CLIENT_SUPPORT
 #define HDF_LOG_TAG UMsgEngine

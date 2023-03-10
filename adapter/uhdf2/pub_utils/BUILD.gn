@@ -18,10 +18,10 @@ config("lib_utils_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
-    "//drivers/hdf_core/interfaces/inner_api/core",
+    "../../../interfaces/inner_api/osal/shared",
+    "../../../interfaces/inner_api/osal/uhdf",
+    "../../../interfaces/inner_api/utils",
+    "../../../interfaces/inner_api/core",
   ]
 }
 if (defined(ohos_lite)) {
@@ -30,15 +30,13 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libpub_utils") {
-    include_dirs = [
-      "$hdf_framework_path/utils/include",
-    ]
+    include_dirs = [ "$hdf_framework_path/utils/include" ]
     public_configs = [ ":lib_utils_pub_config" ]
     sources = [
       "$hdf_framework_path/support/posix/src/osal_mem.c",
       "$hdf_framework_path/support/posix/src/osal_time.c",
-      "$hdf_framework_path/utils/src/hdf_sbuf.c",
       "$hdf_framework_path/utils/src/hdf_cstring.c",
+      "$hdf_framework_path/utils/src/hdf_sbuf.c",
       "$hdf_framework_path/utils/src/hdf_sbuf_impl_raw.c",
     ]
 

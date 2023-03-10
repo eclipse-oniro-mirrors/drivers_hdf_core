@@ -24,7 +24,6 @@
 #include "devsvc_manager_proxy.h"
 #include "hdf_cstring.h"
 #include "hdf_log.h"
-//#include "hdf_remote_adapter_if.h"
 #include "hdf_remote_service.h"
 #include "hdf_sbuf.h"
 #include "hdf_slist.h"

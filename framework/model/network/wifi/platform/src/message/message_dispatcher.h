@@ -8,11 +8,12 @@
 
 #ifndef MESSAGE_DISPATCHER_H
 #define MESSAGE_DISPATCHER_H
-#include "osal_mutex.h"
+
 #include "hdf_wlan_priority_queue.h"
+#include "message_config.h"
+#include "osal_mutex.h"
 #include "shared_obj.h"
 #include "sidecar.h"
-#include "message_config.h"
 
 #define BAD_DISPATCHER_ID 255
 #define DISPATCHER_ID_AUTO 254

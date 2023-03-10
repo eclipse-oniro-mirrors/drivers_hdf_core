@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -9,7 +9,6 @@
 #ifndef USB_DDK_PNP_LOADER_H
 #define USB_DDK_PNP_LOADER_H
 
-//#include "devmgr_service_if.h"
 #include "hdf_dlist.h"
 #include "hdf_sbuf.h"
 #include "hdf_usb_pnp_manage.h"

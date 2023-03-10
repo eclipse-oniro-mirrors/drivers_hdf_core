@@ -6,11 +6,11 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 #include "hdf_wlan_priority_queue.h"
+#include "hdf_log.h"
+#include "hdf_wlan_queue.h"
 #include "securec.h"
 #include "osal_sem.h"
 #include "osal_mem.h"
-#include "hdf_log.h"
-#include "hdf_wlan_queue.h"
 
 #define MAX_PRIORITY_LEVEL 8
 

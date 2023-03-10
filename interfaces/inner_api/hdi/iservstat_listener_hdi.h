@@ -19,7 +19,6 @@
 #include <iremote_broker.h>
 #include <iremote_stub.h>
 
-//#include "hdf_io_service_if.h"
 #include "hdf_device_class.h"
 
 namespace OHOS {

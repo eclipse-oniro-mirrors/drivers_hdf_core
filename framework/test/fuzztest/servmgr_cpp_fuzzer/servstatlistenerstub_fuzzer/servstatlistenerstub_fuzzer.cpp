@@ -9,8 +9,8 @@
 #include "servstatlistenerstub_fuzzer.h"
 #include <cstddef>
 #include <cstdint>
-#include "hdf_log.h"
 #include "hdf_base.h"
+#include "hdf_log.h"
 #include "iservstat_listener_hdi.h"
 
 using namespace OHOS::HDI::ServiceManager::V1_0;

@@ -72,11 +72,9 @@ ohos_shared_library("hdf_platform") {
   ]
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_deps = [ "//drivers/hdf_core/adapter/uhdf/manager:hdf_core" ]
 
-  external_deps = [
-    "hdf_core:hdf_core",
-    "hdf_core:hdf_posix_osal",
-  ]
+  external_deps = [ "hdf_core:hdf_posix_osal" ]
 
   defines = [ "__USER__" ]
 
