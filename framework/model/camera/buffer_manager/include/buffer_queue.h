@@ -9,9 +9,9 @@
 #ifndef CAMERA_QUEUE_H
 #define CAMERA_QUEUE_H
 
-#include <osal/osal_atomic.h>
-#include <osal/osal_spinlock.h>
-#include <osal/osal_mutex.h>
+#include <osal_atomic.h>
+#include <osal_spinlock.h>
+#include <osal_mutex.h>
 #include <camera/camera_product.h>
 #include "hdf_dlist.h"
 #include "camera_buffer.h"

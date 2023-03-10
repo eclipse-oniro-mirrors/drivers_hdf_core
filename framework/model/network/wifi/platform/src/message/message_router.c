@@ -12,8 +12,8 @@
 #include <signal.h>
 #include <unistd.h>
 #endif
-#include "utils/hdf_log.h"
-#include "osal/osal_mutex.h"
+#include "hdf_log.h"
+#include "osal_mutex.h"
 #include "securec.h"
 #include "message_router_inner.h"
 #include "message_dispatcher.h"

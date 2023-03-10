@@ -46,6 +46,10 @@ ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/core/host/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/core/shared/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/include/core \
+    -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+    -I$(srctree)/drivers/hdf/inner_api/utils \
+    -I$(srctree)/drivers/hdf/inner_api/core \
+    -I$(srctree)/drivers/hdf/inner_api/host/shared \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/core/common/include/host \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/utils/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/include/wifi \

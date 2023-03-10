@@ -26,4 +26,5 @@ cflags = [
 platform_fuzzexternal_deps = [
   "c_utils:utils",
   "hiviewdfx_hilog_native:libhilog",
+  "hdf_core:libhdf_utils",
 ]

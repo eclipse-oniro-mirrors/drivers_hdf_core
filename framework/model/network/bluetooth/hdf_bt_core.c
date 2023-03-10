@@ -13,9 +13,9 @@
 #include "hdf_device_desc.h"
 #include "hdf_io_service_if.h"
 #include "hdf_log.h"
-#include "osal/osal_io.h"
-#include "osal/osal_mem.h"
-#include "osal/osal_spinlock.h"
+#include "osal_io.h"
+#include "osal_mem.h"
+#include "osal_spinlock.h"
 #include "platform/gpio_if.h"
 
 #define HDF_LOG_TAG HDF_BT

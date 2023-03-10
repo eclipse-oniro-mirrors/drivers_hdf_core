@@ -10,7 +10,7 @@
 #define HDF_CHIP_H
 
 #include "hdf_chip_config.h"
-#include "osal/osal_time.h"
+#include "osal_time.h"
 
 struct HdfReset;
 struct HdfPower;

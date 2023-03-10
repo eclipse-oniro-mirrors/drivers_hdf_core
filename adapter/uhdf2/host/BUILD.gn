@@ -13,18 +13,14 @@
 
 import("//build/ohos.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
-config("libhdf_host_all_dependent_config") {
+config("libhdf_host_public_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "$hdf_framework_path/core/manager/include",
-    "$hdf_framework_path/core/host/include",
-    "$hdf_framework_path/core/shared/include",
-    "$hdf_uhdf_path/include/host",
-    "$hdf_uhdf_path/shared/include",
-    "$hdf_uhdf_path/manager/include",
-    "include",
+    "//drivers/hdf_core/interfaces/inner_api/core",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/host/shared",
+    "//drivers/hdf_core/interfaces/inner_api/host/uhdf",
   ]
 }
 if (defined(ohos_lite)) {
@@ -37,16 +33,18 @@ if (defined(ohos_lite)) {
       defines = [ "__ARCH64__" ]
     }
 
-    all_dependent_configs = [ ":libhdf_host_all_dependent_config" ]
+    public_configs = [ ":libhdf_host_public_config" ]
     include_dirs = [
       "$hdf_framework_path/core/manager/include",
       "$hdf_framework_path/core/host/include",
       "$hdf_framework_path/core/shared/include",
+      "$hdf_framework_path/utils/include",
       "$hdf_uhdf_path/include/host",
       "$hdf_uhdf_path/shared/include",
       "$hdf_uhdf_path/manager/include",
       "$hdf_uhdf_path/security/include",
       "$hdf_uhdf_path/utils/include",
+      "$hdf_uhdf_path/osal/include",
       "include",
     ]
 
@@ -84,14 +82,11 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/shared/src/hcb_config_entry.c",
     ]
 
-    deps = [
-      "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
-      "$hdf_uhdf_path/utils:libhdf_utils",
-    ]
-
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
+        "hdf_core:libhdf_ipc_adapter",
+        "hdf_core:libhdf_utils",
         "hiviewdfx_hilog_native:libhilog",
       ]
     } else {
@@ -105,25 +100,26 @@ if (defined(ohos_lite)) {
 
   ohos_executable("hdf_devhost") {
     include_dirs = [
-      "//commonlibrary/c_utils/base/include",
       "$hdf_framework_path/core/manager/include",
       "$hdf_framework_path/core/host/include",
       "$hdf_framework_path/core/shared/include",
-      "$hdf_uhdf_path/ipc/include",
-      "$hdf_uhdf_path/osal/include",
+      "$hdf_framework_path/utils/include",
       "$hdf_uhdf_path/include/host",
       "$hdf_uhdf_path/shared/include",
       "$hdf_uhdf_path/manager/include",
+      "$hdf_uhdf_path/osal/include",
+      "//drivers/hdf_core/interfaces/inner_api/core",
       "include",
     ]
 
     sources = [ "devhost.c" ]
 
-    deps = [ "$hdf_uhdf_path/host:libhdf_host" ]
-
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
+        "hdf_core:libhdf_host",
+        "hdf_core:libhdf_ipc_adapter",
+        "hdf_core:libhdf_utils",
         "hiviewdfx_hilog_native:libhilog",
         "init:libbegetutil",
       ]

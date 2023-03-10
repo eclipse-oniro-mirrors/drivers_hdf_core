@@ -7,8 +7,8 @@
  */
 
 #include <securec.h>
-#include <utils/hdf_log.h>
-#include <osal/osal_mem.h>
+#include <hdf_log.h>
+#include <osal_mem.h>
 #include <core/hdf_device_desc.h>
 #include <camera/camera_product.h>
 #include "camera_config_parser.h"

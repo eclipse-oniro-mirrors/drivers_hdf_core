@@ -10,7 +10,7 @@
 #define SIDECAR_H
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "osal/osal_sem.h"
+#include "osal_sem.h"
 #include "message_types.h"
 #include "hdf_sbuf.h"
 

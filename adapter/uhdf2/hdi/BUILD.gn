@@ -21,17 +21,9 @@ config("libhdi_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "$hdf_framework_path/utils/include",
-    "$hdf_framework_path/include/core",
-    "$hdf_framework_path/include/utils",
-    "$hdf_framework_path/core/shared/include",
-    "$hdf_uhdf_path/ipc/include",
-    "$hdf_uhdf_path/hdi/include",
-    "$hdf_uhdf_path/include/hdi",
-    "$hdf_uhdf_path/shared/include",
-    "$hdf_uhdf_path/osal/include",
-    "//drivers/peripheral/base",
+    "//drivers/hdf_core/interfaces/inner_api/hdi",
+    "//drivers/hdf_core/interfaces/inner_api/hdi/base",
+    "//drivers/hdf_core/interfaces/inner_api/core",
   ]
 }
 if (defined(ohos_lite)) {
@@ -45,18 +37,26 @@ if (defined(ohos_lite)) {
     }
 
     include_dirs = [
-      "$hdf_framework_path/core/sec/include",
       "$hdf_framework_path/core/shared/include",
       "$hdf_framework_path/core/host/include",
       "$hdf_framework_path/core/manager/include",
+      "$hdf_framework_path/include/utils",
+      "$hdf_framework_path/include/osal",
+      "$hdf_framework_path/utils/include",
+      "$hdf_framework_path/include/core",
       "$hdf_uhdf_path/include/devhost",
       "$hdf_uhdf_path/devhost/include",
       "$hdf_uhdf_path/devmgr/include",
       "$hdf_uhdf_path/host/include",
       "$hdf_uhdf_path/manager/include",
-      "$hdf_uhdf_path/include/host",
+      "$hdf_uhdf_path/include/hdi",
+      "$hdf_uhdf_path/ipc/include",
+      "//drivers/hdf_core/interfaces/inner_api/ipc",
+      "//drivers/hdf_core/interfaces/inner_api/utils",
+      "//drivers/hdf_core/interfaces/inner_api/host/shared",
+      "//drivers/hdf_core/interfaces/inner_api/host/uhdf",
     ]
-    all_dependent_configs = [ ":libhdi_pub_config" ]
+    public_configs = [ ":libhdi_pub_config" ]
     sources = [
       "$hdf_framework_path/core/shared/src/service_status.c",
       "src/buffer_util.c",
@@ -73,14 +73,11 @@ if (defined(ohos_lite)) {
       "src/stub_collector.cpp",
     ]
 
-    deps = [
-      "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
-      "$hdf_uhdf_path/utils:libhdf_utils",
-    ]
-
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
+        "hdf_core:libhdf_ipc_adapter",
+        "hdf_core:libpub_utils",
         "hiviewdfx_hilog_native:libhilog",
         "ipc:ipc_single",
         "samgr:samgr_proxy",

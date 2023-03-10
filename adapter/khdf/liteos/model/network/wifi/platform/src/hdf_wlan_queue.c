@@ -30,8 +30,8 @@
 
 #include "hdf_wlan_queue.h"
 #include "los_queue.h"
-#include "osal/osal_mem.h"
-#include "utils/hdf_log.h"
+#include "osal_mem.h"
+#include "hdf_log.h"
 
 typedef struct HdfWlanQueueImpl {
     HdfWlanQueue queue;

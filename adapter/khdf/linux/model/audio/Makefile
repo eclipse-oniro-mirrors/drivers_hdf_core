@@ -99,6 +99,10 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -lm -lc -lgcc -std=gnu99 -Werror\
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/core \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/utils \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/osal \
+             -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+             -I$(srctree)/drivers/hdf/inner_api/utils \
+             -I$(srctree)/drivers/hdf/inner_api/core \
+             -I$(srctree)/drivers/hdf/inner_api/host/shared \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/platform \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/config \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/audio \

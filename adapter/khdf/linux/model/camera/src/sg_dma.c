@@ -7,8 +7,8 @@
  */
 
 #include <securec.h>
-#include <utils/hdf_log.h>
-#include <osal/osal_mem.h>
+#include <hdf_log.h>
+#include <osal_mem.h>
 #include "sg_dma.h"
 
 struct SgDmaBuffer {

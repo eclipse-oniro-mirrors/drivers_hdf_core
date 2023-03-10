@@ -9,7 +9,9 @@
 #ifndef USB_DDK_PNP_LOADER_H
 #define USB_DDK_PNP_LOADER_H
 
-#include "devmgr_service_if.h"
+//#include "devmgr_service_if.h"
+#include "hdf_dlist.h"
+#include "hdf_sbuf.h"
 #include "hdf_usb_pnp_manage.h"
 
 typedef enum { USB_PNP_NORMAL_STATUS, USB_PNP_ADD_STATUS, USB_PNP_REMOVE_STATUS } UsbPnpDriverStatus;

@@ -8,7 +8,7 @@
 
 #ifndef MESSAGE_DISPATCHER_H
 #define MESSAGE_DISPATCHER_H
-#include "osal/osal_mutex.h"
+#include "osal_mutex.h"
 #include "hdf_wlan_priority_queue.h"
 #include "shared_obj.h"
 #include "sidecar.h"

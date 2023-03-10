@@ -18,17 +18,8 @@ config("libhdf_ipc_adapter_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
-    "//drivers/hdf_core/framework/core/adapter/syscall/include",
-    "//drivers/hdf_core/framework/core/adapter/vnode/include",
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/include/core/",
-    "//drivers/hdf_core/adapter/uhdf2/shared/include",
-    "include",
+    "//drivers/hdf_core/interfaces/inner_api/ipc",
+    "//drivers/hdf_core/interfaces/inner_api/core",
   ]
 }
 if (defined(ohos_lite)) {
@@ -37,7 +28,11 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libhdf_ipc_adapter") {
-    include_dirs = []
+    include_dirs = [
+      "include",
+      "//drivers/hdf_core/framework/utils/include",
+      "//drivers/hdf_core/framework/core/shared/include",
+    ]
 
     public_configs = [ ":libhdf_ipc_adapter_pub_config" ]
 
@@ -48,11 +43,10 @@ if (defined(ohos_lite)) {
       "src/hdf_sbuf_impl_hipc.cpp",
     ]
 
-    deps = [ "$hdf_uhdf_path/utils:libhdf_utils" ]
-
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
+        "hdf_core:libpub_utils",
         "hiviewdfx_hilog_native:libhilog",
         "ipc:ipc_single",
         "samgr:samgr_proxy",

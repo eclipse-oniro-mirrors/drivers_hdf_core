@@ -7,7 +7,7 @@
  */
 #include "hdf_base.h"
 #include "securec.h"
-#include "utils/hdf_log.h"
+#include "hdf_log.h"
 #include "message_router.h"
 #include "message_router_inner.h"
 #include "sidecar.h"

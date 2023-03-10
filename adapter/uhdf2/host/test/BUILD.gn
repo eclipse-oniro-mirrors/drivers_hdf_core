@@ -52,7 +52,8 @@ ohos_unittest("DevHostTest") {
   sources = [ "unittest/devhost_test.cpp" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
+    "//drivers/hdf_core/framework/core/shared/include",
+    "//drivers/hdf_core/framework/core/manager/include",
     "//drivers/hdf_core/framework/include/osal",
     "//drivers/hdf_core/framework/include/utils",
     "//drivers/hdf_core/framework/utils/include",

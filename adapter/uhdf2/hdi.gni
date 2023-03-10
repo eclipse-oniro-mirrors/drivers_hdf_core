@@ -71,6 +71,9 @@ template("hdi") {
       "$hdf_uhdf_path/osal/include",
       "$hdf_uhdf_path/ipc/include",
       "$hdf_framework_path/include/utils",
+      "//drivers/hdf_core/interfaces/inner_api/utils",
+      "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
+      "//drivers/hdf_core/interfaces/inner_api/hdi",
     ]
     include_dirs += hdi_build_info.include_dirs
   }
@@ -131,14 +134,12 @@ template("hdi") {
         external_deps = [
           "c_utils:utils",
           "hdf_core:libhdi",
+          "hdf_core:libpub_utils",
           "hiviewdfx_hilog_native:libhilog",
         ]
 
         if (invoker.language == "c") {
-          external_deps += [
-            "hdf_core:libhdf_ipc_adapter",
-            "hdf_core:libhdf_utils",
-          ]
+          external_deps += [ "hdf_core:libhdf_ipc_adapter" ]
         } else if (invoker.language == "cpp") {
           external_deps += [ "ipc:ipc_single" ]
         }

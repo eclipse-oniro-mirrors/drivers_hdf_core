@@ -110,4 +110,5 @@ set_defaults("hdf_driver") {
   configs = [ "$HDFTOPDIR:hdf_config" ]
   visibility = [ "$HDFTOPDIR:*" ]
   visibility += [ "//drivers/hdf_core/adapter/*" ]
+  visibility += [ "//drivers/hdf_core/interfaces/*" ]
 }

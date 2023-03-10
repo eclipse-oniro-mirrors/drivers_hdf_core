@@ -7,8 +7,8 @@
  */
 
 #include <securec.h>
-#include <utils/hdf_log.h>
-#include <osal/osal_mem.h>
+#include <hdf_log.h>
+#include <osal_mem.h>
 #include "osal_uaccess.h"
 #include "buffer_queue.h"
 #include "camera_buffer_manager_adapter.h"

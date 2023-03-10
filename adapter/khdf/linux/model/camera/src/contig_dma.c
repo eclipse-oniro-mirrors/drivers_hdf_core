@@ -7,7 +7,7 @@
  */
 
 #include <securec.h>
-#include <osal/osal_mem.h>
+#include <osal_mem.h>
 #include "camera_buffer_manager_adapter.h"
 #include "contig_dma.h"
 

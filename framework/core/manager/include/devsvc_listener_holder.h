@@ -9,7 +9,7 @@
 #ifndef DEVICE_SERVICE_LISTENER_HOLDER_H
 #define DEVICE_SERVICE_LISTENER_HOLDER_H
 
-#include "hdf_service_status.h"
+#include "hdf_service_status_inner.h"
 #include "hdf_dlist.h"
 
 struct ServStatListenerHolder {

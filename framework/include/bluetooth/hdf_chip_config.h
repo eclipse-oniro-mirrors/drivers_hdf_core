@@ -12,7 +12,7 @@
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
-#include "osal/osal_mem.h"
+#include "osal_mem.h"
 #include "securec.h"
 
 #define HDF_CHIP_MAX_POWER_SUPPORTED 2

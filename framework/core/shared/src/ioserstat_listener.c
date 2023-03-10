@@ -8,6 +8,7 @@
 
 #include "ioservstat_listener.h"
 #include "osal_mem.h"
+#include "hdf_service_status_inner.h"
 
 static int OnIoServiceEventReceive(
     struct HdfDevEventlistener *listener, struct HdfIoService *service, uint32_t id, struct HdfSBuf *data)

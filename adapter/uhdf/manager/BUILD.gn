@@ -12,52 +12,60 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
 
 config("hdf_core_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "$HDF_FRAMEWORKS/core/adapter/vnode/include",
-    "$HDF_FRAMEWORKS/core/adapter/syscall/include",
-    "$HDF_FRAMEWORKS/core/shared/include",
-    "$HDF_FRAMEWORKS/core/host/include",
-    "$HDF_FRAMEWORKS/core/manager/include",
-    "$HDF_FRAMEWORKS/include/core",
-    "$HDF_FRAMEWORKS/include/utils",
-    "$HDF_FRAMEWORKS/utils/include",
-    "$HDF_FRAMEWORKS/include/osal",
-    "$HDF_FRAMEWORKS/../adapter/uhdf/posix/include",
-    "//third_party/bounds_checking_function/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "//drivers/hdf_core/interfaces/inner_api/core",
   ]
 }
 
-ohos_shared_library("hdf_core") {
-  include_dirs = []
+if (defined(ohos_lite)) {
+  ohos_shared_library("hdf_core") {
+    output_extension = "z.so"
+    HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
+    include_dirs = [
+      "$HDF_FRAMEWORKS/core/adapter/vnode/include",
+      "$HDF_FRAMEWORKS/core/adapter/syscall/include",
+      "$HDF_FRAMEWORKS/core/shared/include",
+      "$HDF_FRAMEWORKS/core/host/include",
+      "$HDF_FRAMEWORKS/core/manager/include",
+      "$HDF_FRAMEWORKS/include/core",
+      "$HDF_FRAMEWORKS/include/utils",
+      "$HDF_FRAMEWORKS/utils/include",
+    ]
 
-  public_configs = [ ":hdf_core_pub_config" ]
+    public_configs = [ ":hdf_core_pub_config" ]
 
-  sources = [
-    "$HDF_FRAMEWORKS/core/adapter/syscall/src/hdf_devmgr_adapter.c",
-    "$HDF_FRAMEWORKS/core/adapter/syscall/src/hdf_syscall_adapter.c",
-    "$HDF_FRAMEWORKS/core/shared/src/hdf_io_service.c",
-    "$HDF_FRAMEWORKS/core/shared/src/ioserstat_listener.c",
-    "$HDF_FRAMEWORKS/core/shared/src/service_status.c",
-    "$HDF_FRAMEWORKS/core/shared/src/svcmgr_ioservice.c",
-    "$HDF_FRAMEWORKS/utils/src/hdf_sbuf.c",
-    "$HDF_FRAMEWORKS/utils/src/hdf_sbuf_impl_raw.c",
-  ]
+    sources = [
+      "$HDF_FRAMEWORKS/core/adapter/syscall/src/hdf_devmgr_adapter.c",
+      "$HDF_FRAMEWORKS/core/adapter/syscall/src/hdf_syscall_adapter.c",
+      "$HDF_FRAMEWORKS/core/shared/src/hdf_io_service.c",
+      "$HDF_FRAMEWORKS/core/shared/src/ioserstat_listener.c",
+      "$HDF_FRAMEWORKS/core/shared/src/service_status.c",
+      "$HDF_FRAMEWORKS/core/shared/src/svcmgr_ioservice.c",
+      "$HDF_FRAMEWORKS/utils/src/hdf_sbuf.c",
+      "$HDF_FRAMEWORKS/utils/src/hdf_sbuf_impl_raw.c",
+    ]
 
-  deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
-    "//third_party/bounds_checking_function:libsec_shared",
-  ]
+    deps = [
+      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+      "//third_party/bounds_checking_function:libsec_shared",
+    ]
 
-  defines = [ "__USER__" ]
+    external_deps = [ "hdf_core:hdf_posix_osal" ]
+    defines = [ "__USER__" ]
 
-  # install_images = [ chipset_base_dir ]
-  subsystem_name = "hdf"
-  part_name = "hdf_core"
+    # install_images = [ chipset_base_dir ]
+    subsystem_name = "hdf"
+    part_name = "hdf_core"
+  }
+} else {
+  group("hdf_core") {
+    deps = []
+  }
 }

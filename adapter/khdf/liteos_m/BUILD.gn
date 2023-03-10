@@ -78,5 +78,9 @@ config("hdf_config") {
     "$HDF_FRAMEWORKS_PATH/core/common/include/host",
     "$HDF_FRAMEWORKS_PATH/core/adapter/vnode/include",
     "$HDF_FRAMEWORKS_PATH/core/adapter/syscall/include",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/host/shared",
+    "//drivers/hdf_core/interfaces/inner_api/core",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
   ]
 }

@@ -52,6 +52,10 @@ hdf_driver(module_name) {
     ]
     include_dirs += [
       "$USB_PNP_NOTIFY_SHARED_ROOT/include",
+      "//drivers/hdf_core/interfaces/inner_api/core",
+      "//drivers/hdf_core/interfaces/inner_api/utils",
+      "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+      "//drivers/hdf_core/interfaces/inner_api/host/shared",
       "$FRAMEWORKS_USB_DDK_HOST/include",
     ]
     public_configs = [ ":public" ]
