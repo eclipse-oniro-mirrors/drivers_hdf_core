@@ -93,7 +93,8 @@ private:
 template <typename T>
 SharedMemQueue<T>::SharedMemQueue(uint32_t elementCount, SmqType type)
 {
-    if (elementCount > UINT16_MAX) {
+    if (elementCount == 0 || elementCount > UINT16_MAX) {
+        HDF_LOGE("invalid elementCount for smq:%{public}u", elementCount);
         return;
     }
 
