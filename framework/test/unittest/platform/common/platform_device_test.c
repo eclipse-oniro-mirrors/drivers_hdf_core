@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,7 +26,7 @@ static int32_t PlatformDeviceTestSetName(struct PlatformDevice *device)
 {
     int32_t ret;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestSetName: enter!");
     // should set name success
     ret = PlatformDeviceSetName(device, "platform_device_name_%d", 1);
     CHECK_EQ_RETURN(ret, HDF_SUCCESS, ret);
@@ -46,7 +46,7 @@ static int32_t PlatformDeviceTestSetName(struct PlatformDevice *device)
     // clean the name after test
     PlatformDeviceClearName(device);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestSetName: exit!");
     return HDF_SUCCESS;
 }
 
@@ -57,7 +57,7 @@ static int32_t PlatformDeviceTestGetDevice(struct PlatformDevice *device)
     int32_t refCntAfterGet;
     int32_t refCntAfterPut;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestGetDevice: enter!");
     device->name = "platform_device_test_get";
     refCntBeforeGet = PlatformDeviceRefCount(device);
     ret = PlatformDeviceGet(device);
@@ -85,7 +85,7 @@ static int32_t PlatformDeviceTestGetDevice(struct PlatformDevice *device)
     // ref count should decrease by 2 after put
     CHECK_EQ_RETURN(refCntAfterPut, refCntBeforeGet, ret);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestGetDevice: exit!");
     return HDF_SUCCESS;
 }
 
@@ -97,7 +97,7 @@ static int32_t PlatformDeviceTestWaitEvent(struct PlatformDevice *device)
     uint32_t mask = eventA | eventB;
     uint32_t events;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestWaitEvent: enter!");
     device->name = "platform_device_test_event";
     // should not wait success before post
     ret = PlatformDeviceWaitEvent(device, mask, PLAT_DEV_WAIT_TIMEOUT, &events);
@@ -109,11 +109,11 @@ static int32_t PlatformDeviceTestWaitEvent(struct PlatformDevice *device)
 
     // should wait success after post
     ret = PlatformDeviceWaitEvent(device, mask, PLAT_DEV_WAIT_TIMEOUT, &events);
-    PLAT_LOGD("%s: events:%x", __func__, events);
+    PLAT_LOGD("PlatformDeviceTestWaitEvent: events:%x!", events);
     CHECK_EQ_RETURN(ret, HDF_SUCCESS, ret);
     CHECK_EQ_RETURN(events, eventA | eventB, ret);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestWaitEvent: exit!");
     return HDF_SUCCESS;
 }
 
@@ -123,7 +123,7 @@ static int32_t PlatformDeviceTestAddDevice(struct PlatformDevice *device)
     struct PlatformManager *manager = NULL;
     struct PlatformDevice *deviceGet = NULL;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestAddDevice: enter!");
     device->name = "platform_device_test_add";
     // should create manager success
     ret = PlatformManagerCreate("platform_test_manager", &manager);
@@ -145,7 +145,7 @@ static int32_t PlatformDeviceTestAddDevice(struct PlatformDevice *device)
     deviceGet = PlatformManagerGetDeviceByNumber(manager, device->number);
     CHECK_EQ_RETURN(deviceGet, NULL, ret);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestAddDevice: exit!");
     return HDF_SUCCESS;
 }
 
@@ -162,7 +162,7 @@ static int32_t PlatformDeviceTestCreateService(struct PlatformDevice *device)
 {
     int32_t ret;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestCreateService: enter!");
     device->name = "platform_device_test_create_service";
     ret = PlatformDeviceCreateService(device, TestDispatch);
     CHECK_EQ_RETURN(ret, HDF_SUCCESS, ret);
@@ -173,7 +173,7 @@ static int32_t PlatformDeviceTestCreateService(struct PlatformDevice *device)
     PlatformDeviceDestroyService(device);
     CHECK_EQ_RETURN(device->service, NULL, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestCreateService: exit!");
     return HDF_SUCCESS;
 }
 
@@ -184,7 +184,7 @@ static int32_t PlatformDeviceTestBindDevice(struct PlatformDevice *device)
     struct IDeviceIoService service;
     struct PlatformDevice *devFromHdf = NULL;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestBindDevice: enter!");
     device->name = "platform_device_test_bind";
     device->service = &service;
     ret = PlatformDeviceBind(device, &hdfDev);
@@ -199,7 +199,7 @@ static int32_t PlatformDeviceTestBindDevice(struct PlatformDevice *device)
     CHECK_EQ_RETURN(device->hdfDev, NULL, ret);
     CHECK_EQ_RETURN(hdfDev.service, NULL, ret);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestBindDevice: exit!");
     return HDF_SUCCESS;
 }
 
@@ -210,7 +210,7 @@ static int32_t PlatformDeviceTestReliability(struct PlatformDevice *device)
     struct HdfDeviceObject hdfDev;
     struct PlatformDevice *devGet = NULL;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformDeviceTestReliability: enter!");
     device->name = "platform_device_test_reliability";
     ret = PlatformDeviceInit(NULL);
     CHECK_NE_RETURN(ret, HDF_SUCCESS, HDF_FAILURE);
@@ -255,7 +255,7 @@ static int32_t PlatformDeviceTestReliability(struct PlatformDevice *device)
     devGet = PlatformDeviceFromHdfDev(NULL);
     CHECK_NULL_RETURN(devGet, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformDeviceTestReliability: exit!");
     return HDF_SUCCESS;
 }
 
@@ -298,12 +298,12 @@ int PlatformDeviceTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        PLAT_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        PLAT_LOGE("PlatformDeviceTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if ((ret = PlatformDeviceInit(&device)) != HDF_SUCCESS) {
-        PLAT_LOGE("%s: init failed, ret = %d", __func__, ret);
+        PLAT_LOGE("PlatformDeviceTestExecute: init failed, ret = %d!", ret);
         return ret;
     }
 

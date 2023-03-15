@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,20 +18,21 @@ static struct DacTestConfig g_config;
 
 static int32_t DacTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    HDF_LOGD("%s: enter!", __func__);
+    HDF_LOGD("DacTestDispatch: enter!");
 
     (void)client;
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("DacTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("DacTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("DacTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -45,37 +46,37 @@ static int32_t DacTestReadConfig(struct DacTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("DacTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint32(node, "devNum", &config->devNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read devNum failed", __func__);
+        HDF_LOGE("DacTestReadConfig: read devNum fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "channel", &config->channel, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read channel failed", __func__);
+        HDF_LOGE("DacTestReadConfig: read channel fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "maxChannel", &config->maxChannel, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxChannel failed", __func__);
+        HDF_LOGE("DacTestReadConfig: read maxChannel fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "dataWidth", &config->dataWidth, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read dataWidth failed", __func__);
+        HDF_LOGE("DacTestReadConfig: read dataWidth fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "rate", &config->rate, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read rate failed", __func__);
+        HDF_LOGE("DacTestReadConfig: read rate fail!");
         return ret;
     }
 
@@ -88,25 +89,25 @@ static int32_t DacTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("DacTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
 
     ret = DacTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("DacTestBind: read config fail!");
         return ret;
     }
     service.Dispatch = DacTestDispatch;
     device->service = &service;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("DacTestBind: done!");
     return HDF_SUCCESS;
 }
 
 static int32_t DacTestInit(struct HdfDeviceObject *device)
 {
     (void)device;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("DacTestInit: done!");
     return HDF_SUCCESS;
 }
 
@@ -115,7 +116,7 @@ static void DacTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("DacTestRelease: done!");
     return;
 }
 

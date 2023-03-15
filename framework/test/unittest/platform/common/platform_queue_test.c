@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -25,25 +25,27 @@ struct PlatformQueueTestMsg {
 static int32_t PlatformQueueTestHandle(struct PlatformQueue *queue, struct PlatformMsg *msg)
 {
     struct PlatformQueueTestMsg *tmsg = (struct PlatformQueueTestMsg *)msg;
+
     if (msg == NULL) {
+        PLAT_LOGE("PlatformQueueTestHandle: msg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (queue == NULL) {
         tmsg->status = HDF_ERR_INVALID_OBJECT;
-        PLAT_LOGE("%s: queue object is NULL", __func__);
+        PLAT_LOGE("PlatformQueueTestHandle: queue object is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (msg->data != queue) {
         tmsg->status = HDF_ERR_INVALID_OBJECT;
-        PLAT_LOGE("%s: queue object is wrong", __func__);
+        PLAT_LOGE("PlatformQueueTestHandle: queue object is wrong!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (msg->code != TEST_CODE_A) {
         tmsg->status = HDF_ERR_INVALID_PARAM;
-        PLAT_LOGE("%s: code is wrong:%d", __func__, msg->code);
+        PLAT_LOGE("PlatformQueueTestHandle: code is wrong:%d!", msg->code);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -57,7 +59,7 @@ static int32_t PlatformQueueTestAddAndWait(struct PlatformQueue *pq)
     int32_t ret;
     struct PlatformQueueTestMsg tmsg;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformQueueTestAddAndWait: enter!");
     tmsg.msg.code = TEST_CODE_A;
     tmsg.msg.data = pq;
     tmsg.status = -1;
@@ -82,7 +84,7 @@ static int32_t PlatformQueueTestAddAndWait(struct PlatformQueue *pq)
     }
 
     (void)OsalSemDestroy(&tmsg.sem);
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformQueueTestAddAndWait: exit!");
     return HDF_SUCCESS;
 }
 
@@ -91,14 +93,14 @@ static int32_t PlatformQueueTestReliability(struct PlatformQueue *pq)
     int32_t ret;
     struct PlatformMsg msg;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformQueueTestReliability: enter");
     ret = PlatformQueueAddMsg(NULL, &msg);
     CHECK_NE_RETURN(ret, HDF_SUCCESS, ret);
 
     ret = PlatformQueueAddMsg(pq, NULL);
     CHECK_NE_RETURN(ret, HDF_SUCCESS, ret);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformQueueTestReliability: exit!");
     return HDF_SUCCESS;
 }
 
@@ -136,19 +138,19 @@ int PlatformQueueTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        PLAT_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        PLAT_LOGE("PlatformQueueTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     pq = PlatformQueueCreate(PlatformQueueTestHandle, "platform_queue_test", NULL);
     if (pq == NULL) {
-        PLAT_LOGE("%s: create queue failed", __func__);
+        PLAT_LOGE("PlatformQueueTestExecute: create queue fail!");
         return HDF_FAILURE;
     }
 
     ret = PlatformQueueStart(pq);
     if (ret != HDF_SUCCESS) {
-        PLAT_LOGE("%s: start queue failed, ret = %d", __func__, ret);
+        PLAT_LOGE("PlatformQueueTestExecute: start queue fail, ret = %d", ret);
         PlatformQueueDestroy(pq);
         return ret;
     }

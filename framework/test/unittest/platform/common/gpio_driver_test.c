@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -17,20 +17,21 @@ static struct GpioTestConfig g_config;
 
 static int32_t GpioTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    HDF_LOGD("%s: enter!", __func__);
+    HDF_LOGD("GpioTestDispatch: enter!");
 
     (void)client;
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("GpioTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: failed to write reply!", __func__);
+            HDF_LOGE("GpioTestDispatch: fail to write reply!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("GpioTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -45,23 +46,23 @@ static int32_t GpioReadNameTestInfos(struct GpioTestConfig *config, const struct
 
     ret = drsOps->GetString(node, "testNameOne", &tempName, "NULL");
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read testNameOne!", __func__);
+        HDF_LOGE("GpioReadNameTestInfos: fail to read testNameOne!");
         return ret;
     }
 
     if (strcpy_s(config->testNameOne, NAME_SIZE_MAX, tempName) != EOK) {
-        HDF_LOGE("%s: failed to copy testNameOne!", __func__);
+        HDF_LOGE("GpioReadNameTestInfos: fail to copy testNameOne!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetString(node, "testNameTwo", &tempName, "NULL");
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read testNameTwo!", __func__);
+        HDF_LOGE("GpioReadNameTestInfos: fail to read testNameTwo!");
         return ret;
     }
 
     if (strcpy_s(config->testNameTwo, NAME_SIZE_MAX, tempName) != EOK) {
-        HDF_LOGE("%s: failed to copy testNameTwo!", __func__);
+        HDF_LOGE("GpioReadNameTestInfos: fail to copy testNameTwo!");
         return HDF_FAILURE;
     }
 
@@ -76,41 +77,41 @@ static int32_t GpioTestReadConfig(struct GpioTestConfig *config, const struct De
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint16 == NULL) {
-        HDF_LOGE("%s: invalid drs ops!", __func__);
+        HDF_LOGE("GpioTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint16(node, "gpio", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read gpio!", __func__);
+        HDF_LOGE("GpioTestReadConfig: fail to read gpio!");
         return ret;
     }
     config->gpio = (uint16_t)tmp;
 
     ret = drsOps->GetUint16(node, "gpioTestTwo", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read gpioTestTwo!", __func__);
+        HDF_LOGE("GpioTestReadConfig: fail to read gpioTestTwo!");
         return ret;
     }
     config->gpioTestTwo = (uint16_t)tmp;
 
     ret = drsOps->GetUint16(node, "gpioIrq", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read gpioIrq!", __func__);
+        HDF_LOGE("GpioTestReadConfig: fail to read gpioIrq!");
         return ret;
     }
     config->gpioIrq = (uint16_t)tmp;
 
     ret = drsOps->GetUint16(node, "testUserApi", &tmp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGW("%s: failed to read gpioIrq, using 0 as default!", __func__);
+        HDF_LOGW("GpioTestReadConfig: fail to read gpioIrq, using 0 as default!");
         config->testUserApi = 0;
     }
     config->testUserApi = (uint16_t)tmp;
 
     ret = GpioReadNameTestInfos(config, node, drsOps);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read name test infos!", __func__);
+        HDF_LOGE("GpioTestReadConfig: fail to read name test infos!");
         return ret;
     }
 
@@ -123,19 +124,19 @@ static int32_t GpioTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is NULL!", __func__);
+        HDF_LOGE("GpioTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
 
     ret = GpioTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read config!", __func__);
+        HDF_LOGE("GpioTestBind: fail to read config!");
         return ret;
     }
 
     service.Dispatch = GpioTestDispatch;
     device->service = &service;
-
+    HDF_LOGI("GpioTestBind: done!");
     return HDF_SUCCESS;
 }
 

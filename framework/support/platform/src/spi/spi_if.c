@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -29,7 +29,7 @@ static struct SpiCntlr *SpiGetCntlrByBusNum(uint32_t num)
 
     ret = snprintf_s(name, HOST_NAME_LEN + 1, HOST_NAME_LEN, "HDF_PLATFORM_SPI_%u", num);
     if (ret < 0) {
-        HDF_LOGE("%s: snprintf_s failed", __func__);
+        HDF_LOGE("SpiGetCntlrByBusNum: snprintf_s fail!");
         return NULL;
     }
     cntlr = (struct SpiCntlr *)DevSvcManagerClntGetService(name);
@@ -41,6 +41,7 @@ int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
     struct SpiClient *client = NULL;
 
     if (handle == NULL) {
+        HDF_LOGE("SpiTransfer: handle is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     client = (struct SpiClient *)handle;
@@ -72,6 +73,7 @@ int32_t SpiSetCfg(DevHandle handle, struct SpiCfg *cfg)
     struct SpiClient *client = NULL;
 
     if (handle == NULL) {
+        HDF_LOGE("SpiSetCfg: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     client = (struct SpiClient *)handle;
@@ -83,6 +85,7 @@ int32_t SpiGetCfg(DevHandle handle, struct SpiCfg *cfg)
     struct SpiClient *client = NULL;
 
     if (handle == NULL) {
+        HDF_LOGE("SpiGetCfg: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     client = (struct SpiClient *)handle;
@@ -95,14 +98,14 @@ void SpiClose(DevHandle handle)
     struct SpiClient *client = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("SpiClose: handle is null!");
         return;
     }
 
     client = (struct SpiClient *)handle;
     ret = SpiCntlrClose(client->cntlr, client->csNum);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: error, ret is %d", __func__, ret);
+        HDF_LOGE("SpiClose: error, ret is %d!", ret);
     }
     OsalMemFree(handle);
 }
@@ -114,23 +117,24 @@ DevHandle SpiOpen(const struct SpiDevInfo *info)
     struct SpiCntlr *cntlr = NULL;
 
     if (info == NULL) {
+        HDF_LOGE("SpiOpen: info is null!");
         return NULL;
     }
     cntlr = SpiGetCntlrByBusNum(info->busNum);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("SpiOpen: cntlr is null!");
         return NULL;
     }
 
     object = (struct SpiClient *)OsalMemCalloc(sizeof(*object));
     if (object == NULL) {
-        HDF_LOGE("%s: object malloc error", __func__);
+        HDF_LOGE("SpiOpen: object malloc error!");
         return NULL;
     }
 
     ret = SpiCntlrOpen(cntlr, info->csNum);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: SpiCntlrOpen error, ret is %d", __func__, ret);
+        HDF_LOGE("SpiOpen: spi cntlr open error, ret is %d!", ret);
         OsalMemFree(object);
         return NULL;
     }

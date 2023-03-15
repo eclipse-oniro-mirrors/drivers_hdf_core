@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,6 +26,7 @@ static int32_t MipiDsiTestMallocBuf(struct MipiDsiTest *test)
 static int32_t MipiDsiTestSetUp(struct MipiDsiTest *test)
 {
     if (test == NULL) {
+        HDF_LOGE("MipiDsiTestSetUp: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -33,20 +34,21 @@ static int32_t MipiDsiTestSetUp(struct MipiDsiTest *test)
         test->handle = MipiDsiOpen(test->devNo);
     }
     if (test->handle == NULL) {
-        HDF_LOGE("%s: fail!", __func__);
+        HDF_LOGE("MipiDsiTestSetUp: fail!");
         return HDF_FAILURE;
     }
 #ifdef CONFIG_DRIVERS_HDF_PLATFORM_IMX8MM_MIPI_DSI
     MipiDsiAttach(test->handle, "toshiba,panel-tc358775");
 #endif
     test->fails = 0;
-    HDF_LOGD("%s: devNo:0x%x", __func__, test->devNo);
+    HDF_LOGD("MipiDsiTestSetUp: devNo:0x%x", test->devNo);
     return MipiDsiTestMallocBuf(test);
 }
 
 static void MipiDsiTestTearDown(struct MipiDsiTest *test)
 {
     if (test == NULL) {
+        HDF_LOGE("MipiDsiTestTearDown: test is null!");
         return;
     }
     if (test->handle != NULL) {
@@ -112,7 +114,7 @@ static int32_t MipiDsiTxRxTest(struct MipiDsiTest *test)
     } else if (ret == HDF_ERR_NOT_SUPPORT) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: fail", __func__);
+    HDF_LOGE("MipiDsiTxRxTest: fail!");
     return HDF_FAILURE;
 }
 
@@ -141,10 +143,10 @@ static int32_t MipiDsiTestByCmd(struct MipiDsiTest *test, int32_t cmd)
             ret = MipiDsiToLpToHsTest(test);
             break;
         default:
-            HDF_LOGE("%s: not support", __func__);
+            HDF_LOGE("MipiDsiTestByCmd: not support!");
             break;
     }
-    HDF_LOGI("test cmd %d, ret %d", cmd, ret);
+    HDF_LOGI("MipiDsiTestByCmd: test cmd %d, ret: %d!", cmd, ret);
     return ret;
 }
 
@@ -153,11 +155,12 @@ static int32_t MipiDsiTestDoTest(struct MipiDsiTest *test, int32_t cmd)
     int32_t ret;
 
     if (test == NULL) {
+        HDF_LOGE("MipiDsiTestDoTest: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = MipiDsiTestSetUp(test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: setup fail!", __func__);
+        HDF_LOGE("MipiDsiTestDoTest: setup fail, ret: %d!", ret);
         return ret;
     }
 #ifdef MIPI_DSI_TEST_ON_INIT
@@ -167,8 +170,8 @@ static int32_t MipiDsiTestDoTest(struct MipiDsiTest *test, int32_t cmd)
             test->fails++;
         }
     }
-    HDF_LOGI("\n\n%s: **********PASS:%u  FAIL:%u**************\n\n",
-        __func__, test->total - test->fails, test->fails);
+    HDF_LOGI("\n\nMipiDsiTestDoTest: **********PASS:%u  FAIL:%u**************\n\n",
+        test->total - test->fails, test->fails);
     ret = (test->fails > 0) ? HDF_FAILURE : HDF_SUCCESS;
 #else
     ret = MipiDsiTestByCmd(test, cmd);
@@ -210,7 +213,7 @@ static int32_t MipiDsiTestBind(struct HdfDeviceObject *device)
     test.doTest = MipiDsiTestDoTest;
     device->service = &test.service;
 #ifdef MIPI_DSI_TEST_ON_INIT
-    HDF_LOGI("%s: test on init!", __func__);
+    HDF_LOGI("MipiDsiTestBind: test on init!");
     test.doTest(&test, -1);
 #endif
     return HDF_SUCCESS;

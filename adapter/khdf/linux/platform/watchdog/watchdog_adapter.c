@@ -3,7 +3,7 @@
  *
  * linux watchdog driver adapter.
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -55,16 +55,18 @@ static int32_t WdtOpenFile(struct WatchdogCntlr *wdt)
     mm_segment_t oldfs;
 
     if (wdt == NULL) {
+        HDF_LOGE("WdtOpenFile: wdt is null!");
         return HDF_FAILURE;
     }
     if (sprintf_s(name, WATCHDOG_NAME_LEN - 1, "/dev/watchdog%d", wdt->wdtId) < 0) {
+        HDF_LOGE("WdtOpenFile: sprintf_s fail!");
         return HDF_FAILURE;
     }
     oldfs = get_fs();
     set_fs(KERNEL_DS);
     fp = filp_open(name, O_RDWR, 0600); /* 0600 : for open mode */
     if (IS_ERR(fp)) {
-        HDF_LOGE("filp_open %s fail", name);
+        HDF_LOGE("WdtOpenFile: filp_open %s fail!", name);
         if (PTR_ERR(fp) == HDF_ERR_DEVICE_BUSY) {
             set_fs(oldfs);
             return HDF_ERR_DEVICE_BUSY;
@@ -90,21 +92,23 @@ static void WdtAdapterClose(struct WatchdogCntlr *wdt)
     set_fs(oldfs);
     wdt->priv = NULL;
 }
+
 static int32_t WdtAdapterStart(struct WatchdogCntlr *wdt)
 {
     struct file *fp = NULL;
     unsigned long arg = WDIOS_ENABLECARD;
 
     if (wdt == NULL) {
+        HDF_LOGE("WdtAdapterStart: wdt is null!");
         return HDF_FAILURE;
     }
     if (wdt->priv == NULL) {
-        HDF_LOGE("cntlr is not opened");
+        HDF_LOGE("WdtAdapterStart: cntlr is not opened!");
         return HDF_FAILURE;
     }
     fp = wdt->priv;
     if (WdtAdapterIoctlInner(fp, WDIOC_SETOPTIONS, (unsigned long)&arg) != 0) {
-        HDF_LOGE("WDIOC_SETOPTIONS WDIOS_ENABLECARD fail");
+        HDF_LOGE("WdtAdapterStart: WDIOC_SETOPTIONS WDIOS_ENABLECARD fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -116,10 +120,11 @@ static int32_t WdtAdapterStop(struct WatchdogCntlr *wdt)
     unsigned long arg = WDIOS_DISABLECARD;
 
     if (fp == NULL) {
+        HDF_LOGE("WdtAdapterStop: wdt is null!");
         return HDF_FAILURE;
     }
     if (WdtAdapterIoctlInner(fp, WDIOC_SETOPTIONS, (unsigned long)&arg) != 0) {
-        HDF_LOGE("%s WDIOC_SETOPTIONS WDIOS_DISABLECARD fail", __func__);
+        HDF_LOGE("WdtAdapterStop: WDIOC_SETOPTIONS WDIOS_DISABLECARD fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -130,11 +135,12 @@ static int32_t WdtAdapterFeed(struct WatchdogCntlr *wdt)
     struct file *fp = NULL;
 
     if (wdt->priv == NULL) {
+        HDF_LOGE("WdtAdapterFeed: wdt priv is null!");
         return HDF_FAILURE;
     }
     fp = (struct file *)wdt->priv;
     if (WdtAdapterIoctlInner(fp, WDIOC_KEEPALIVE, 0) != 0) {
-        HDF_LOGE("WDIOC_KEEPALIVE fail");
+        HDF_LOGE("WdtAdapterFeed: WDIOC_KEEPALIVE fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -169,17 +175,19 @@ static int32_t WdtAdapterGetStatus(struct WatchdogCntlr *wdt, int32_t *status)
     struct watchdog_device *wdd = NULL;
 
     if (fp == NULL || fp->private_data == NULL) {
+        HDF_LOGE("WdtAdapterGetStatus: fp or private_data is null!");
         return HDF_FAILURE;
     }
     wdd = WdtCoreDataToWdd(fp->private_data);
     if (wdd == NULL) {
+        HDF_LOGE("WdtAdapterGetStatus: wdd is null!");
         return HDF_FAILURE;
     }
     if (watchdog_active(wdd) != 0) {
-        HDF_LOGE("WDT is ACTIVE");
+        HDF_LOGE("WdtAdapterGetStatus: WDT is ACTIVE!");
         *status = (int32_t)WATCHDOG_START;
     } else {
-        HDF_LOGE("WDT is not ACTIVE");
+        HDF_LOGE("WdtAdapterGetStatus: WDT is not ACTIVE!");
         *status = (int32_t)WATCHDOG_STOP;
     }
     return HDF_SUCCESS;
@@ -191,12 +199,13 @@ static int32_t WdtAdapterSetTimeout(struct WatchdogCntlr *wdt, uint32_t seconds)
     unsigned long arg;
 
     if (wdt->priv == NULL) {
+        HDF_LOGE("WdtAdapterSetTimeout: wdt priv is null!");
         return HDF_FAILURE;
     }
     fp = (struct file *)wdt->priv;
     arg = seconds;
     if (WdtAdapterIoctlInner(fp, WDIOC_SETTIMEOUT, (unsigned long)&arg) != 0) {
-        HDF_LOGE("WDIOC_SETTIMEOUT fail");
+        HDF_LOGE("WdtAdapterSetTimeout: WDIOC_SETTIMEOUT fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -208,11 +217,12 @@ static int32_t WdtAdapterGetTimeout(struct WatchdogCntlr *wdt, uint32_t *seconds
     unsigned long arg;
 
     if (wdt->priv == NULL) {
+        HDF_LOGE("WdtAdapterGetTimeout: wdt priv is null!");
         return HDF_FAILURE;
     }
     fp = (struct file *)wdt->priv;
     if (WdtAdapterIoctlInner(fp, WDIOC_GETTIMEOUT, (unsigned long)&arg) != 0) {
-        HDF_LOGE("WDIOC_GETTIMEOUT fail");
+        HDF_LOGE("WdtAdapterGetTimeout: WDIOC_GETTIMEOUT fail!");
         return HDF_FAILURE;
     }
     *seconds = arg;
@@ -236,24 +246,24 @@ static int32_t HdfWdtBind(struct HdfDeviceObject *obj)
     struct DeviceResourceIface *drsOps = NULL;
     int32_t ret;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("HdfWdtBind: entry!");
     if (obj == NULL || obj->property == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
     wdt = (struct WatchdogCntlr *)OsalMemCalloc(sizeof(*wdt));
     if (wdt == NULL) {
-        HDF_LOGE("%s: malloc wdt fail!", __func__);
+        HDF_LOGE("HdfWdtBind: malloc wdt fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops!", __func__);
+        HDF_LOGE("HdfWdtBind: invalid drs ops!");
         OsalMemFree(wdt);
         return HDF_FAILURE;
     }
     ret = drsOps->GetUint16(obj->property, "id", &wdt->wdtId, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read wdtId fail, ret %d!", __func__, ret);
+        HDF_LOGE("HdfWdtBind: read wdtId fail, ret %d!", ret);
         OsalMemFree(wdt);
         return ret;
     }
@@ -261,11 +271,11 @@ static int32_t HdfWdtBind(struct HdfDeviceObject *obj)
     wdt->device = obj;
     ret = WatchdogCntlrAdd(wdt);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: err add watchdog:%d", __func__, ret);
+        HDF_LOGE("HdfWdtBind: err add watchdog:%d!", ret);
         OsalMemFree(wdt);
         return ret;
     }
-    HDF_LOGI("%s: dev service %s init success!", __func__, HdfDeviceGetServiceName(obj));
+    HDF_LOGI("HdfWdtBind: dev service %s init success!", HdfDeviceGetServiceName(obj));
     return HDF_SUCCESS;
 }
 
@@ -279,12 +289,14 @@ static void HdfWdtRelease(struct HdfDeviceObject *obj)
 {
     struct WatchdogCntlr *wdt = NULL;
 
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("HdfWdtRelease: enter!");
     if (obj == NULL) {
+        HDF_LOGE("HdfWdtRelease: obj is null!");
         return;
     }
     wdt = WatchdogCntlrFromDevice(obj);
     if (wdt == NULL) {
+        HDF_LOGE("HdfWdtRelease: wdt is null!");
         return;
     }
     WatchdogCntlrRemove(wdt);

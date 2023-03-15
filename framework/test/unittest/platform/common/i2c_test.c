@@ -238,9 +238,9 @@ static int I2cTestThreadFunc(void *param)
         ret = I2cTransfer(tester->handle, g_msgs, I2C_TEST_MSG_NUM);
         if (ret != I2C_TEST_MSG_NUM) {
 #ifdef __USER__
-            HDF_LOGE("I2cTransfer-user err in multithread test:%d", ret);
+            HDF_LOGE("I2cTestThreadFunc: I2cTransfer-user err in multithread test, ret: %d", ret);
 #else
-            HDF_LOGE("I2cTransfer-kerl err in multithread test:%d", ret);
+            HDF_LOGE("I2cTestThreadFunc: I2cTransfer-kerl err in multithread test, ret: %d", ret);
 #endif
         }
     }
@@ -259,7 +259,7 @@ static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
-        HDF_LOGE("%s:memset_s fail.", __func__);
+        HDF_LOGE("I2cTestStartThread: memset_s fail!");
         return HDF_ERR_IO;
     }
     cfg1.name = "I2cTestThread-1";
@@ -269,17 +269,17 @@ static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 
     ret = OsalThreadStart(thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread1 fail:%d", ret);
+        HDF_LOGE("I2cTestStartThread: start test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread2 fail:%d", ret);
+        HDF_LOGE("I2cTestStartThread: start test thread2 fail, ret: %d!", ret);
     }
 
     while (*count1 == 0 || *count2 == 0) {
-        HDF_LOGV("waitting testing thread finish...");
+        HDF_LOGD("I2cTestStartThread: waitting testing thread finish...");
         OsalMSleep(I2C_TEST_WAIT_TIMES);
         time++;
         if (time > I2C_TEST_WAIT_TIMEOUT) {
@@ -299,20 +299,20 @@ static int32_t I2cTestMultiThread(void)
 
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("I2cTestMultiThread: create test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread2 fail:%d", ret);
+        HDF_LOGE("I2cTestMultiThread: create test thread2 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = I2cTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("test start thread fail:%d", ret);
+        HDF_LOGE("I2cTestMultiThread: test start thread fail, ret: %d!", ret);
     }
 
     (void)OsalThreadDestroy(&thread1);
@@ -353,7 +353,7 @@ static int32_t I2cTestPeformance(void)
 
     tester = I2cTesterGet();
     if (tester == NULL || tester->handle == NULL) {
-        HDF_LOGE("%s:get tester fail", __func__);
+        HDF_LOGE("I2cTestPeformance: get tester fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -363,7 +363,8 @@ static int32_t I2cTestPeformance(void)
 
     if (handle != NULL) {
         useTime = endMs - startMs;
-        HDF_LOGI("----->interface performance test:[start - end] < 1ms[%s]\r\n", useTime < 1 ? "yes" : "no");
+        HDF_LOGI("I2cTestPeformance: ----->interface performance test:[start - end] < 1ms[%s]\r\n",
+            useTime < 1 ? "yes" : "no");
         I2cClose(handle);
         return HDF_SUCCESS;
     }

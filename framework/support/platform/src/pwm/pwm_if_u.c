@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,13 +22,13 @@ static void *PwmGetDevByNum(uint32_t num)
 
     ret = snprintf_s(name, PWM_NAME_LEN + 1, PWM_NAME_LEN, "HDF_PLATFORM_PWM_%u", num);
     if (ret < 0) {
-        HDF_LOGE("%s: snprintf_s failed", __func__);
+        HDF_LOGE("PwmGetDevByNum: snprintf_s fail!");
         return NULL;
     }
 
     pwm = (void *)HdfIoServiceBind(name);
     if (pwm == NULL) {
-        HDF_LOGE("%s: HdfIoServiceBind failed", __func__);
+        HDF_LOGE("PwmGetDevByNum: HdfIoServiceBind fail!");
         return NULL;
     }
 
@@ -38,6 +38,7 @@ static void *PwmGetDevByNum(uint32_t num)
 static void PwmPutObjByPointer(const void *obj)
 {
     if (obj == NULL) {
+        HDF_LOGE("PwmPutObjByPointer: obj is null!");
         return;
     }
 
@@ -50,20 +51,20 @@ DevHandle PwmOpen(uint32_t num)
     void *pwm = PwmGetDevByNum(num);
 
     if (pwm == NULL) {
-        HDF_LOGE("%s: dev is null", __func__);
+        HDF_LOGE("PwmOpen: pwm is null!");
         return NULL;
     }
 
     struct HdfIoService *service = (struct HdfIoService *)pwm;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("PwmOpen: service is invalid!");
         PwmPutObjByPointer(pwm);
         return NULL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PWM_IO_GET, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmDeviceGet error, ret %d", __func__, ret);
+        HDF_LOGE("PwmOpen: PwmDeviceGet error, ret: %d!", ret);
         PwmPutObjByPointer(pwm);
         return NULL;
     }
@@ -77,20 +78,20 @@ void PwmClose(DevHandle handle)
     struct HdfIoService *service = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: dev is null", __func__);
+        HDF_LOGE("PwmClose: dev is null!");
         return;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("PwmClose: service is invalid!");
         PwmPutObjByPointer(handle);
         return;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PWM_IO_PUT, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmDevicePut error, ret %d", __func__, ret);
+        HDF_LOGE("PwmClose: PwmDevicePut error, ret: %d!", ret);
     }
 
     PwmPutObjByPointer(handle);
@@ -103,30 +104,30 @@ int32_t PwmSetConfig(DevHandle handle, struct PwmConfig *config)
     struct HdfIoService *service = NULL;
 
     if (handle == NULL || config == NULL) {
-        HDF_LOGE("%s: param is NULL", __func__);
+        HDF_LOGE("PwmSetConfig: handle or config is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("PwmSetConfig: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     buf = HdfSbufObtainDefaultSize();
     if (buf == NULL) {
-        HDF_LOGE("%s: failed to obtain buf", __func__);
+        HDF_LOGE("PwmSetConfig: fail to obtain buf!");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfSbufWriteBuffer(buf, config, sizeof(struct PwmConfig))) {
-        HDF_LOGE("%s: sbuf write cfg failed", __func__);
+        HDF_LOGE("PwmSetConfig: sbuf write cfg fail!");
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PWM_IO_SET_CONFIG, buf, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service PWM_IO_SET_CONFIG error, ret %d", __func__, ret);
+        HDF_LOGE("PwmSetConfig: service PWM_IO_SET_CONFIG error, ret: %d!", ret);
     }
 
     HdfSbufRecycle(buf);
@@ -142,41 +143,41 @@ int32_t PwmGetConfig(DevHandle handle, struct PwmConfig *config)
     uint32_t rLen;
 
     if (handle == NULL || config == NULL) {
-        HDF_LOGE("%s: param is NULL", __func__);
+        HDF_LOGE("PwmGetConfig: handle or config is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("PwmGetConfig: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
+        HDF_LOGE("PwmGetConfig: fail to obtain reply!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PWM_IO_GET_CONFIG, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service PWM_IO_GET_CONFIG error, ret %d", __func__, ret);
+        HDF_LOGE("PwmGetConfig: service PWM_IO_GET_CONFIG error, ret: %d!", ret);
         HdfSbufRecycle(reply);
         return ret;
     }
 
     if (!HdfSbufReadBuffer(reply, &rBuf, &rLen)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("PwmGetConfig: sbuf read buffer fail!");
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
     if (rLen != sizeof(struct PwmConfig)) {
-        HDF_LOGE("%s: sbuf read buffer len error %u != %zu", __func__, rLen, sizeof(struct PwmConfig));
+        HDF_LOGE("PwmGetConfig: sbuf read buffer len error %u != %zu", rLen, sizeof(struct PwmConfig));
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
     if (memcpy_s(config, sizeof(struct PwmConfig), rBuf, rLen) != EOK) {
-        HDF_LOGE("%s: memcpy rBuf failed", __func__);
+        HDF_LOGE("PwmGetConfig: memcpy rBuf fail!");
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
@@ -199,7 +200,7 @@ static int32_t PwmConfigTransSet(DevHandle handle, enum PwmSetConfigType type, s
     int32_t ret;
 
     if (PwmGetConfig(handle, &nowCfg) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmGetConfig fail", __func__);
+        HDF_LOGE("PwmConfigTransSet: PwmGetConfig fail!");
         return HDF_FAILURE;
     }
 
@@ -221,13 +222,13 @@ static int32_t PwmConfigTransSet(DevHandle handle, enum PwmSetConfigType type, s
             nowCfg.status = config->status;
             break;
         default:
-            HDF_LOGE("%s: type %d not support", __func__, type);
+            HDF_LOGE("PwmConfigTransSet: type %d is not support!", type);
             return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = PwmSetConfig(handle, &nowCfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set [%d] cfg fail, org val[%u].", __func__, type, curValue);
+        HDF_LOGE("PwmConfigTransSet: set [%d] cfg fail, org val[%u]!", type, curValue);
         return HDF_FAILURE;
     }
 
@@ -238,16 +239,17 @@ int32_t PwmSetPeriod(DevHandle handle, uint32_t period)
     struct PwmConfig config;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmSetPeriod: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (memset_s(&config, sizeof(struct PwmConfig), 0, sizeof(struct PwmConfig)) != EOK) {
+        HDF_LOGE("PwmSetPeriod: memset_s fail!");
         return HDF_ERR_IO;
     }
     config.period = period;
     if (PwmConfigTransSet(handle, PWM_SET_CONFIG_PERIOD, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmConfigTransSet fail", __func__);
+        HDF_LOGE("PwmSetPeriod: PwmConfigTransSet fail!");
         return HDF_FAILURE;
     }
 
@@ -259,15 +261,16 @@ int32_t PwmSetDuty(DevHandle handle, uint32_t duty)
     struct PwmConfig config;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmSetDuty: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (memset_s(&config, sizeof(struct PwmConfig), 0, sizeof(struct PwmConfig)) != EOK) {
+        HDF_LOGE("PwmSetDuty: memset_s fail!");
         return HDF_ERR_IO;
     }
     config.duty = duty;
     if (PwmConfigTransSet(handle, PWM_SET_CONFIG_DUTY, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmConfigTransSet fail", __func__);
+        HDF_LOGE("PwmSetDuty: PwmConfigTransSet fail!");
         return HDF_FAILURE;
     }
 
@@ -279,16 +282,17 @@ int32_t PwmSetPolarity(DevHandle handle, uint8_t polarity)
     struct PwmConfig config;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmSetPolarity: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (memset_s(&config, sizeof(struct PwmConfig), 0, sizeof(struct PwmConfig)) != EOK) {
+        HDF_LOGE("PwmSetPolarity: memset_s fail!");
         return HDF_ERR_IO;
     }
     config.polarity = polarity;
     if (PwmConfigTransSet(handle, PWM_SET_CONFIG_POLARITY, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmConfigTransSet fail", __func__);
+        HDF_LOGE("PwmSetPolarity: PwmConfigTransSet fail!");
         return HDF_FAILURE;
     }
 
@@ -300,16 +304,17 @@ int32_t PwmEnable(DevHandle handle)
     struct PwmConfig config;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmEnable: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (memset_s(&config, sizeof(struct PwmConfig), 0, sizeof(struct PwmConfig)) != EOK) {
+        HDF_LOGE("PwmEnable: memset_s fail!");
         return HDF_ERR_IO;
     }
     config.status = PWM_ENABLE_STATUS;
     if (PwmConfigTransSet(handle, PWM_SET_CONFIG_STATUS, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmConfigTransSet fail", __func__);
+        HDF_LOGE("PwmEnable: PwmConfigTransSet fail!");
         return HDF_FAILURE;
     }
 
@@ -321,7 +326,7 @@ int32_t PwmDisable(DevHandle handle)
     struct PwmConfig config;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmDisable: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -330,7 +335,7 @@ int32_t PwmDisable(DevHandle handle)
     }
     config.status = PWM_DISABLE_STATUS;
     if (PwmConfigTransSet(handle, PWM_SET_CONFIG_STATUS, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmConfigTransSet fail", __func__);
+        HDF_LOGE("PwmDisable: PwmConfigTransSet fail!");
         return HDF_FAILURE;
     }
 

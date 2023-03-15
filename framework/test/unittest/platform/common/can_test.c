@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -68,7 +68,7 @@ static void CanMsgInitByParms(struct CanMsg *msg, uint32_t id, uint32_t ide, uin
     msg->id = id;
     msg->rtr = rtr;
     if (memset_s(msg->data, sizeof(msg->data), data, sizeof(msg->data)) != EOK) {
-        HDF_LOGW("CanMsgInitByParms: init data failed");
+        HDF_LOGW("CanMsgInitByParms: init data fail!");
     }
     msg->dlc = sizeof(msg->data);
     msg->error = 0;
@@ -90,14 +90,14 @@ static int32_t CanTestGetConfig(struct CanTestConfig *config)
     do {
         reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
         if (reply == NULL) {
-            HDF_LOGE("CanTestGetConfig: failed to obtain reply!");
+            HDF_LOGE("CanTestGetConfig: fail to obtain reply!");
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
 
         ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("CanTestGetConfig: remote dispatch fail:%d", ret);
+            HDF_LOGE("CanTestGetConfig: remote dispatch fail, ret:%d!", ret);
             break;
         }
 
@@ -150,7 +150,7 @@ static int32_t CanTestSetUpEveryCase(void)
     struct CanTestConfig config;
 
     if (CanTestGetConfig(&config) != HDF_SUCCESS) {
-        HDF_LOGW("CanTestSetUpEveryCase: get config failed, using default config...");
+        HDF_LOGW("CanTestSetUpEveryCase: get config fail, using default config...");
         config.bitRate = CAN_TEST_BIT_RATE;
         config.workMode = CAN_TEST_WORK_MODE;
         config.busNum = CAN_TEST_BUS_NUM;
@@ -291,14 +291,14 @@ static struct OsalThread *CanTestStartTestThread(OsalThreadEntry entry, DevHandl
     ret = OsalThreadCreate(thread, (OsalThreadEntry)entry, (void *)handle);
     if (ret != HDF_SUCCESS) {
         OsalMemFree(thread);
-        HDF_LOGE("create test thread fail:%d", ret);
+        HDF_LOGE("CanTestStartTestThread: create test thread fail, ret: %d!", ret);
         return NULL;
     }
 
     if (memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg)) != EOK) {
         (void)OsalThreadDestroy(thread);
         OsalMemFree(thread);
-        HDF_LOGE("%s:memset_s fail.", __func__);
+        HDF_LOGE("CanTestStartTestThread: memset_s fail!");
         return NULL;
     }
     threadCfg.name = (char *)"CanTestPoller";
@@ -309,7 +309,7 @@ static struct OsalThread *CanTestStartTestThread(OsalThreadEntry entry, DevHandl
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(thread);
         OsalMemFree(thread);
-        HDF_LOGE("start test thread2 fail:%d", ret);
+        HDF_LOGE("CanTestStartTestThread: start test thread2 fail, ret: %d!", ret);
         return NULL;
     }
 
@@ -319,6 +319,7 @@ static struct OsalThread *CanTestStartTestThread(OsalThreadEntry entry, DevHandl
 static void CanTestStopTestThread(struct OsalThread *thread)
 {
     if (thread == NULL) {
+        HDF_LOGE("CanTestStopTestThread: thread is null!");
         return;
     }
     (void)OsalThreadDestroy(thread);
@@ -489,7 +490,7 @@ int32_t CanTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        HDF_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        HDF_LOGE("CanTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 

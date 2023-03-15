@@ -36,6 +36,7 @@
 static int32_t LinuxGpioWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t val)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioWrite: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     gpio_set_value_cansleep(cntlr->start + local, val);
@@ -45,13 +46,14 @@ static int32_t LinuxGpioWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t 
 static int32_t LinuxGpioRead(struct GpioCntlr *cntlr, uint16_t local, uint16_t *val)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioRead: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (val != NULL) {
         *val = (gpio_get_value_cansleep(cntlr->start + local) == 0) ? GPIO_VAL_LOW : GPIO_VAL_HIGH;
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: val is NULL!\n", __func__);
+    HDF_LOGE("LinuxGpioRead: val is null!\n");
     return HDF_ERR_BSP_PLT_API_ERR;
 }
 
@@ -61,6 +63,7 @@ static int32_t LinuxGpioSetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t
     int val;
 
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioSetDir: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     switch (dir) {
@@ -81,7 +84,7 @@ static int32_t LinuxGpioSetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t
             }
             break;
         default:
-            HDF_LOGE("%s: invalid dir:%d\n", __func__, dir);
+            HDF_LOGE("LinuxGpioSetDir: invalid dir:%d!\n", dir);
             return HDF_ERR_INVALID_PARAM;
     }
     return HDF_SUCCESS;
@@ -92,6 +95,7 @@ static int32_t LinuxGpioGetDir(struct GpioCntlr *cntlr, uint16_t local, uint16_t
     int dirGet;
 
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioGetDir: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     dirGet = gpiod_get_direction(gpio_to_desc(cntlr->start + local));
@@ -129,24 +133,25 @@ static int32_t LinuxGpioSetIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t
     uint16_t gpio;
 
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioSetIrq: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     gpio = cntlr->start + local;
 
     irq = gpio_to_irq(gpio);
     if (irq < 0) {
-        HDF_LOGE("%s: gpio(%u) to irq fail:%d", __func__, gpio, irq);
+        HDF_LOGE("LinuxGpioSetIrq: gpio(%u) to irq fail:%d!", gpio, irq);
         return HDF_ERR_BSP_PLT_API_ERR;
     }
     flags |= (mode & GPIO_IRQ_TRIGGER_RISING) == 0 ? 0 : IRQF_TRIGGER_RISING;
     flags |= (mode & GPIO_IRQ_TRIGGER_FALLING) == 0 ? 0 : IRQF_TRIGGER_FALLING;
     flags |= (mode & GPIO_IRQ_TRIGGER_HIGH) == 0 ? 0 : IRQF_TRIGGER_HIGH;
     flags |= (mode & GPIO_IRQ_TRIGGER_LOW) == 0 ? 0 : IRQF_TRIGGER_LOW;
-    HDF_LOGI("%s: gona request normal irq:%d(%u)\n", __func__, irq, gpio);
+    HDF_LOGI("LinuxGpioSetIrq: gona request normal irq:%d(%u)!\n", irq, gpio);
     ret = request_irq(irq, LinuxGpioIrqBridge, flags,
         "LinuxIrqBridge", (void *)(uintptr_t)gpio);
     if (ret != 0) {
-        HDF_LOGI("%s: gona request threaded irq:%d(%u)\n", __func__, irq, gpio);
+        HDF_LOGI("LinuxGpioSetIrq: gona request threaded irq:%d(%u)!\n", irq, gpio);
         flags |= IRQF_ONESHOT;
         ret = request_threaded_irq(irq, LinuxGpioIrqBridge, LinuxGpioIrqDummy, flags,
             "LinuxIrqBridge", (void *)(uintptr_t)gpio);
@@ -163,15 +168,16 @@ static int32_t LinuxGpioUnsetIrq(struct GpioCntlr *cntlr, uint16_t local)
     uint16_t gpio;
 
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioUnsetIrq: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     gpio = cntlr->start + local;
     irq = gpio_to_irq(gpio);
     if (irq < 0) {
-        HDF_LOGE("%s: gpio(%u) to irq fail:%d", __func__, gpio, irq);
+        HDF_LOGE("LinuxGpioUnsetIrq: gpio(%u) to irq fail:%d!", gpio, irq);
         return HDF_ERR_BSP_PLT_API_ERR;
     }
-    HDF_LOGI("%s: gona free irq:%d\n", __func__, irq);
+    HDF_LOGI("LinuxGpioUnsetIrq: gona free irq:%d!\n", irq);
     free_irq(irq, (void *)(uintptr_t)gpio);
     return HDF_SUCCESS;
 }
@@ -182,12 +188,13 @@ static inline int32_t LinuxGpioEnableIrq(struct GpioCntlr *cntlr, uint16_t local
     uint16_t gpio;
 
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioEnableIrq: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     gpio = cntlr->start + local;
     irq = gpio_to_irq(gpio);
     if (irq < 0) {
-        HDF_LOGE("%s: gpio(%u) to irq fail:%d", __func__, gpio, irq);
+        HDF_LOGE("LinuxGpioEnableIrq: gpio(%u) to irq fail:%d!", gpio, irq);
         return HDF_ERR_BSP_PLT_API_ERR;
     }
     enable_irq(irq);
@@ -200,12 +207,13 @@ static inline int32_t LinuxGpioDisableIrq(struct GpioCntlr *cntlr, uint16_t loca
     uint16_t gpio;
 
     if (cntlr == NULL) {
+        HDF_LOGE("LinuxGpioDisableIrq: cntlr is null!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     gpio = cntlr->start + local;
     irq = gpio_to_irq(gpio);
     if (irq < 0) {
-        HDF_LOGE("%s: gpio(%u) to irq fail:%d", __func__, gpio, irq);
+        HDF_LOGE("LinuxGpioDisableIrq: gpio(%u) to irq fail:%d!", gpio, irq);
         return HDF_ERR_BSP_PLT_API_ERR;
     }
     disable_irq_nosync(irq); // nosync default in case used in own irq
@@ -236,17 +244,18 @@ static int LinuxGpioMatchProbe(struct gpio_chip *chip, void *data)
 
     (void)data;
     if (chip == NULL) {
+        HDF_LOGE("LinuxGpioMatchProbe: chip is null!\n");
         return 0;
     }
-    HDF_LOGI("%s: find gpio chip(start:%d, count:%u)", __func__, chip->base, chip->ngpio);
+    HDF_LOGI("LinuxGpioMatchProbe: find gpio chip(start:%d, count:%u)", chip->base, chip->ngpio);
     if (chip->base >= LINUX_GPIO_NUM_MAX || (chip->base + chip->ngpio) > LINUX_GPIO_NUM_MAX) {
-        HDF_LOGW("%s: chip(base:%d-num:%u) exceed range", __func__, chip->base, chip->ngpio);
+        HDF_LOGW("LinuxGpioMatchProbe: chip(base:%d-num:%u) exceed range!", chip->base, chip->ngpio);
         return 0;
     }
 
     cntlr = (struct GpioCntlr *)OsalMemCalloc(sizeof(*cntlr));
     if (cntlr == NULL) {
-        HDF_LOGE("%s: malloc cntlr fail!", __func__);
+        HDF_LOGE("LinuxGpioMatchProbe: malloc cntlr fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -255,26 +264,26 @@ static int LinuxGpioMatchProbe(struct gpio_chip *chip, void *data)
     cntlr->count = (uint16_t)chip->ngpio;
     ret = GpioCntlrAdd(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: add gpio controller(start:%d, count:%u) fail:%d!",
-            __func__, cntlr->start, cntlr->count, ret);
+        HDF_LOGE("LinuxGpioMatchProbe: add gpio controller(start:%d, count:%u) fail:%d!",
+            cntlr->start, cntlr->count, ret);
         OsalMemFree(cntlr);
         return ret;
     }
 
-    HDF_LOGI("%s: add gpio controller(start:%d, count:%u) succeed",
-        __func__, cntlr->start, cntlr->count);
+    HDF_LOGI("LinuxGpioMatchProbe: add gpio controller(start:%d, count:%u) succeed!",
+        cntlr->start, cntlr->count);
     return 0; // return 0 to continue
 }
 
 static int32_t LinuxGpioInit(struct HdfDeviceObject *device)
 {
     if (device == NULL) {
-        HDF_LOGE("%s: Fail, device is NULL.", __func__);
+        HDF_LOGE("LinuxGpioInit: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     (void)gpiochip_find(device, LinuxGpioMatchProbe);
-    HDF_LOGI("%s: dev service:%s init done!", __func__, HdfDeviceGetServiceName(device));
+    HDF_LOGI("LinuxGpioInit: dev service:%s init done!", HdfDeviceGetServiceName(device));
     return HDF_SUCCESS;
 }
 
@@ -284,23 +293,24 @@ static int LinuxGpioMatchRelease(struct gpio_chip *chip, void *data)
 
     (void)data;
     if (chip == NULL) {
+        HDF_LOGE("LinuxGpioMatchRelease: chip is null!");
         return 0;
     }
-    HDF_LOGI("%s: find gpio chip(start:%d, count:%u)", __func__, chip->base, chip->ngpio);
+    HDF_LOGI("LinuxGpioMatchRelease: find gpio chip(start:%d, count:%u)", chip->base, chip->ngpio);
     if (chip->base >= LINUX_GPIO_NUM_MAX || (chip->base + chip->ngpio) > LINUX_GPIO_NUM_MAX) {
-        HDF_LOGW("%s: chip(base:%d-num:%u) exceed range", __func__, chip->base, chip->ngpio);
+        HDF_LOGW("LinuxGpioMatchRelease: chip(base:%d-num:%u) exceed range!", chip->base, chip->ngpio);
         return 0;
     }
 
     cntlr = GpioCntlrGetByGpio((uint16_t)chip->base);
     if (cntlr == NULL) {
-        HDF_LOGW("%s: get cntlr failed for base:%d!", __func__, chip->base);
+        HDF_LOGW("LinuxGpioMatchRelease: get cntlr failed for base:%d!", chip->base);
         return 0;
     }
     GpioCntlrPut(cntlr); // !!! be careful to keep the reference count balanced
 
-    HDF_LOGI("%s: gona remove gpio controller(start:%d, count:%u)",
-        __func__, cntlr->start, cntlr->count);
+    HDF_LOGI("LinuxGpioMatchRelease: gona remove gpio controller(start:%d, count:%u)",
+        cntlr->start, cntlr->count);
     GpioCntlrRemove(cntlr);
     OsalMemFree(cntlr);
     return 0; // return 0 to continue
@@ -309,7 +319,7 @@ static int LinuxGpioMatchRelease(struct gpio_chip *chip, void *data)
 static void LinuxGpioRelease(struct HdfDeviceObject *device)
 {
     if (device == NULL) {
-        HDF_LOGE("%s: device is null!", __func__);
+        HDF_LOGE("LinuxGpioRelease: device is null!");
         return;
     }
 

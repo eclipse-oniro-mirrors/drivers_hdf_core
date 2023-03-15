@@ -23,14 +23,15 @@ static int32_t PcieTestDispatch(struct HdfDeviceIoClient *client, int cmd, struc
 
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("PcieTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteUint32(reply, g_config.busNum)) {
-            HDF_LOGE("%s: write busNum failed", __func__);
+            HDF_LOGE("PcieTestDispatch: write busNum fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("PcieTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -44,13 +45,13 @@ static int32_t PcieTestReadConfig(const struct DeviceResourceNode *node)
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("PcieTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint32(node, "busNum", &(g_config.busNum), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read bus num failed", __func__);
+        HDF_LOGE("PcieTestReadConfig: read bus num fail!");
         return ret;
     }
 
@@ -62,13 +63,13 @@ static int32_t PcieTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("PcieTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
 
     service.Dispatch = PcieTestDispatch;
     device->service = &service;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("PcieTestBind: done!");
     return HDF_SUCCESS;
 }
 
@@ -76,10 +77,10 @@ static int32_t PcieTestInit(struct HdfDeviceObject *device)
 {
     int32_t ret = PcieTestReadConfig(device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("PcieTestInit: read config fail!");
         return ret;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("PcieTestInit: done!");
     return HDF_SUCCESS;
 }
 
@@ -88,7 +89,7 @@ static void PcieTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("PcieTestRelease: done!");
     return;
 }
 

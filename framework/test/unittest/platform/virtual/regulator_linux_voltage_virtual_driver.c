@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -67,7 +67,7 @@ static int g_virStatus = VIR_REGULATOR_STATUS_OFF;
 static int VirtualVoltageRegulatorEnable(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualVoltageRegulatorEnable: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -78,7 +78,7 @@ static int VirtualVoltageRegulatorEnable(struct regulator_dev *rdev)
 static int VirtualVoltageRegulatorDisable(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualVoltageRegulatorDisable: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -89,7 +89,7 @@ static int VirtualVoltageRegulatorDisable(struct regulator_dev *rdev)
 static int VirtualVoltageRegulatorIsEnabled(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualVoltageRegulatorIsEnabled: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -101,7 +101,7 @@ static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int min
 {
     (void)selector;
     if ((rdev == NULL) || (rdev->constraints == NULL)) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualVoltageRegulatorSetVoltage: rdev or constraints is null!");
         return HDF_FAILURE;
     }
 
@@ -118,7 +118,7 @@ static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int min
 static int VirtualVoltageRegulatorGetVoltage(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualVoltageRegulatorGetVoltage: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -144,7 +144,7 @@ static struct regulator_desc g_virtualVoltageRegulatorDesc = {
 static int VirtualVoltageRegulatorPlatformProbe(struct platform_device *platformDev)
 {
     if (platformDev == NULL) {
-        HDF_LOGE("%s: platformDev null!", __func__);
+        HDF_LOGE("VirtualVoltageRegulatorPlatformProbe: platformDev is null!");
         return HDF_FAILURE;
     }
     struct VirtualVoltageRegulatorDev *data;
@@ -161,12 +161,13 @@ static int VirtualVoltageRegulatorPlatformProbe(struct platform_device *platform
 
     data->dev = regulator_register(&g_virtualVoltageRegulatorDesc, &config);
     if (IS_ERR(data->dev)) {
-        HDF_LOGE("%s: failed to register regulator %s\n", __func__, g_virtualVoltageRegulatorDesc.name);
+        HDF_LOGE("VirtualVoltageRegulatorPlatformProbe: fail to register regulator %s\n",
+            g_virtualVoltageRegulatorDesc.name);
         return PTR_ERR(data->dev);
     }
 
     platform_set_drvdata(platformDev, data);
-    HDF_LOGI("%s: success", __func__);
+    HDF_LOGI("VirtualVoltageRegulatorPlatformProbe: success!");
     return 0;
 }
 
@@ -177,7 +178,7 @@ static int VirtualVoltageRegulatorPlatformRemove(struct platform_device *platfor
     regulator_unregister(rdev->dev);
 
     platform_set_drvdata(platformDev, NULL);
-    HDF_LOGI("VirtualVoltageRegulatorPlatformRemove");
+    HDF_LOGI("VirtualVoltageRegulatorPlatformRemove: success!");
     return 0;
 }
 
@@ -192,19 +193,19 @@ static struct platform_driver g_virtualVoltageRegulatorPlatformDriver = {
 
 int VirtualVoltageRegulatorAdapterInit(void)
 {
-    HDF_LOGI("VirtualVoltageRegulatorAdapterInit");
+    HDF_LOGI("VirtualVoltageRegulatorAdapterInit: enter!");
     int ret = platform_device_register(&g_virtualVoltageRegulatorPlatformDevice);
     if (ret == 0) {
         ret = platform_driver_register(&g_virtualVoltageRegulatorPlatformDriver);
     } else {
-        HDF_LOGE("VirtualVoltageRegulatorAdapterInit:device register fail %d", ret);
+        HDF_LOGE("VirtualVoltageRegulatorAdapterInit:device register fail, ret: %d!", ret);
     }
     return ret;
 }
 
 static int __init VirtualVoltageRegulatorInit(void)
 {
-    HDF_LOGI("VirtualVoltageRegulatorInit");
+    HDF_LOGI("VirtualVoltageRegulatorInit: enter!");
     int ret = platform_device_register(&g_virtualVoltageRegulatorPlatformDevice);
     if (ret == 0) {
         ret = platform_driver_register(&g_virtualVoltageRegulatorPlatformDriver);
@@ -214,7 +215,7 @@ static int __init VirtualVoltageRegulatorInit(void)
 
 static void __exit VirtualVoltageRegulatorExit(void)
 {
-    HDF_LOGI("VirtualVoltageRegulatorExit");
+    HDF_LOGI("VirtualVoltageRegulatorExit: enter!");
     platform_device_unregister(&g_virtualVoltageRegulatorPlatformDevice);
     platform_driver_unregister(&g_virtualVoltageRegulatorPlatformDriver);
 }

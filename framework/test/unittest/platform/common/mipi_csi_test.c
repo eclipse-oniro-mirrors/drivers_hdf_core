@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -24,31 +24,32 @@ enum InterfaceType {
 
 static int32_t MipiCsiTestSetUp(struct MipiCsiTest *test)
 {
-    HDF_LOGI("%s: enter!", __func__);
+    HDF_LOGI("MipiCsiTestSetUp: enter!");
 
     if (test == NULL) {
-        HDF_LOGE("%s: test is NULL.", __func__);
+        HDF_LOGE("MipiCsiTestSetUp: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (test->handle == NULL) {
-        HDF_LOGE("%s: enter! cntlrId:0x%x", __func__, test->cntlrId);
+        HDF_LOGE("MipiCsiTestSetUp: enter, cntlrId:0x%x!", test->cntlrId);
         test->cntlrId = 0;
         test->handle = MipiCsiOpen(test->cntlrId);
         if (test->handle == NULL) {
-            HDF_LOGE("%s: failed.", __func__);
+            HDF_LOGE("MipiCsiTestSetUp: fail!");
             return HDF_FAILURE;
         }
     }
 
     test->fails = 0;
-    HDF_LOGD("%s: cntlrId:0x%x", __func__, test->cntlrId);
+    HDF_LOGD("MipiCsiTestSetUp: cntlrId:0x%x!", test->cntlrId);
     return HDF_SUCCESS;
 }
 
 static void MipiCsiTestTearDown(struct MipiCsiTest *test)
 {
     if (test == NULL) {
+        HDF_LOGE("MipiCsiTestTearDown: test is null!");
         return;
     }
     if (test->handle != NULL) {
@@ -72,6 +73,7 @@ static void InitLvdsDevAttr(LvdsDevAttr *lvdsAttr)
     LvdsDevAttr attr;
 
     if (lvdsAttr == NULL) {
+        HDF_LOGE("InitLvdsDevAttr: lvdsAttr is null!");
         return;
     }
 
@@ -142,11 +144,13 @@ static void InitLvdsDevAttr(LvdsDevAttr *lvdsAttr)
 static void InitMipiDevAttr(MipiDevAttr *mipiAttr)
 {
     MipiDevAttr attr;
+
     if (mipiAttr == NULL) {
+        HDF_LOGE("InitMipiDevAttr: mipiAttr is null!");
         return;
     }
 
-    HDF_LOGI("%s: enter.", __func__);
+    HDF_LOGI("InitMipiDevAttr: enter!");
     (void)memset_s(&attr, sizeof(MipiDevAttr), 0, sizeof(MipiDevAttr));
     // Hi3516CV500 (DATA_TYPE_RAW_12BIT), Hi3516EV200 (DATA_TYPE_RAW_12BIT)
     attr.inputDataType = DATA_TYPE_RAW_12BIT;
@@ -211,13 +215,13 @@ static void InitComboDevAttr(struct MipiCsiTest *test)
 
     interType = MipiGetIntputModeType(attr.inputMode);
     if (interType == INTERFACE_MIPI) {
-        HDF_LOGI("%s: call[InitMipiDevAttr].", __func__);
+        HDF_LOGI("InitComboDevAttr: call[InitMipiDevAttr]!");
         InitMipiDevAttr(&attr.mipiAttr);
     } else if (interType == INTERFACE_LVDS) {
-        HDF_LOGI("%s: call[InitLvdsDevAttr].", __func__);
+        HDF_LOGI("InitComboDevAttr: call[InitLvdsDevAttr]!");
         InitLvdsDevAttr(&attr.lvdsAttr);
     } else {
-        HDF_LOGE("%s: interType = %d is error!", __func__, attr.inputMode);
+        HDF_LOGE("InitComboDevAttr: interType = %d is error!", attr.inputMode);
     }
 
     test->attr = attr;
@@ -233,7 +237,7 @@ static int32_t MipiCsiSetComboDevAttrTest(struct MipiCsiTest *test)
         return HDF_SUCCESS;
     }
 
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiSetComboDevAttrTest: fail!");
     return ret;
 }
 
@@ -248,7 +252,7 @@ static int32_t MipiCsiSetPhyCmvmodeTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiSetPhyCmvmodeTest: fail!");
 
     return ret;
 }
@@ -263,7 +267,7 @@ static int32_t MipiCsiResetSensorTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiResetSensorTest: fail!");
 
     return ret;
 }
@@ -278,7 +282,7 @@ static int32_t MipiCsiUnresetSensorTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiUnresetSensorTest: fail!");
 
     return ret;
 }
@@ -293,7 +297,7 @@ static int32_t MipiCsiResetRxTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiResetRxTest: fail!");
 
     return ret;
 }
@@ -308,7 +312,7 @@ static int32_t MipiCsiUnresetRxTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiUnresetRxTest: fail!");
 
     return ret;
 }
@@ -323,7 +327,7 @@ static int32_t MipiCsiSetHsModeTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiSetHsModeTest: fail!");
 
     return ret;
 }
@@ -338,7 +342,7 @@ static int32_t MipiCsiEnableMipiClockTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiEnableMipiClockTest: fail!");
 
     return ret;
 }
@@ -353,7 +357,7 @@ static int32_t MipiCsiDisableMipiClockTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiDisableMipiClockTest: fail!");
 
     return ret;
 }
@@ -368,7 +372,7 @@ static int32_t MipiCsiEnableSensorClockTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiEnableSensorClockTest: fail!");
 
     return ret;
 }
@@ -383,7 +387,7 @@ static int32_t MipiCsiDisableSensorClockTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiDisableSensorClockTest: fail!");
 
     return ret;
 }
@@ -411,7 +415,7 @@ static int32_t MipiCsiSetExtDataTypeTest(struct MipiCsiTest *test)
     if ((ret == HDF_SUCCESS) || (ret == HDF_ERR_NOT_SUPPORT)) {
         return HDF_SUCCESS;
     }
-    HDF_LOGE("%s: failed.", __func__);
+    HDF_LOGE("MipiCsiSetExtDataTypeTest: fail!");
 
     return ret;
 }
@@ -421,11 +425,11 @@ static int32_t MipiCsiTestByCmd(struct MipiCsiTest *test, uint8_t cmd)
     int32_t ret = HDF_FAILURE;
 
     if (test == NULL) {
-        HDF_LOGE("%s: test is NULL", __func__);
+        HDF_LOGE("MipiCsiTestByCmd: test is null!");
         return ret;
     }
 
-    HDF_LOGI("%s: test cmd %u, enter.", __func__, cmd);
+    HDF_LOGI("MipiCsiTestByCmd: test cmd %u, enter!", cmd);
     switch (cmd) {
         case MIPI_CSI_TEST_SET_HS_MODE:
             ret = MipiCsiSetHsModeTest(test);
@@ -464,10 +468,10 @@ static int32_t MipiCsiTestByCmd(struct MipiCsiTest *test, uint8_t cmd)
             ret = MipiCsiUnresetSensorTest(test);
             break;
         default:
-            HDF_LOGE("%s: not support", __func__);
+            HDF_LOGE("MipiCsiTestByCmd: not support!");
             break;
     }
-    HDF_LOGI("%s: test cmd %u, ret %d done.", __func__, cmd, ret);
+    HDF_LOGI("MipiCsiTestByCmd: test cmd %u, ret %d done!", cmd, ret);
 
     return ret;
 }
@@ -488,7 +492,7 @@ static int32_t MipiCsiTestDoTest(struct MipiCsiTest *test, uint8_t cmd)
     }
     ret = MipiCsiTestSetUp(test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: setup fail!", __func__);
+        HDF_LOGE("MipiCsiTestDoTest: setup fail!");
         return ret;
     }
 
@@ -497,7 +501,7 @@ static int32_t MipiCsiTestDoTest(struct MipiCsiTest *test, uint8_t cmd)
             test->fails++;
         }
     }
-    HDF_LOGI("\n\n%s: **********PASS:%u  FAIL:%u**************\n\n",
+    HDF_LOGI("\n\nMipiCsiTestDoTest: **********PASS:%u  FAIL:%u**************\n\n",
         __func__, test->total - test->fails, test->fails);
     ret = (test->fails > 0) ? HDF_FAILURE : HDF_SUCCESS;
     MipiCsiTestTearDown(test);
@@ -505,7 +509,7 @@ static int32_t MipiCsiTestDoTest(struct MipiCsiTest *test, uint8_t cmd)
     if (cmd == 0) {
         ret = MipiCsiTestSetUp(test);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiTestSetUp] failed!", __func__);
+            HDF_LOGE("MipiCsiTestDoTest: [MipiCsiTestSetUp] fail!");
             return ret;
         }
     }
@@ -528,7 +532,7 @@ static int32_t MipiCsiTestBind(struct HdfDeviceObject *device)
     test.doTest = MipiCsiTestDoTest;
     device->service = &test.service;
 #ifdef MIPI_CSI_TEST_SELF
-    HDF_LOGI("%s: test on init!", __func__);
+    HDF_LOGI("MipiCsiTestBind: test on init!");
     test.doTest(&test, -1);
 #endif
     return HDF_SUCCESS;

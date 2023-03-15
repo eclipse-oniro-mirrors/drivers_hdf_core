@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -72,19 +72,19 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     msg.len = SPI_BUF_SIZE;
     msg.rbuf = reinterpret_cast<uint8_t *>(malloc(SPI_BUF_SIZE));
     if (msg.rbuf == nullptr) {
-        HDF_LOGE("%{public}s:malloc rbuf failed", __func__);
+        HDF_LOGE("SpiFuzzTest: malloc rbuf fail!");
         return false;
     }
     msg.wbuf = reinterpret_cast<uint8_t *>(malloc(SPI_BUF_SIZE));
     if (msg.wbuf == nullptr) {
-        HDF_LOGE("%{public}s:malloc wbuf failed", __func__);
+        HDF_LOGE("SpiFuzzTest: malloc wbuf fail!");
         free(msg.rbuf);
         return false;
     }
     if (memcpy_s(reinterpret_cast<void *>(msg.wbuf), SPI_BUF_SIZE, params->buf, SPI_BUF_SIZE) != EOK) {
         free(msg.rbuf);
         free(msg.wbuf);
-        HDF_LOGE("%{public}s:memcpy buf failed", __func__);
+        HDF_LOGE("SpiFuzzTest: memcpy buf fail!");
         return false;
     }
     cfg.maxSpeedHz = params->desMaxSpeedHz;
@@ -93,7 +93,7 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     cfg.bitsPerWord = params->desBitsPerWord;
     handle = SpiOpen(&info);
     if (handle == nullptr) {
-        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        HDF_LOGE("SpiFuzzTest: handle is nullptr!");
         return false;
     }
     SpiFuzzDoTest(handle, &info, &msg, &cfg);
@@ -109,12 +109,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
     if (data == nullptr) {
-        HDF_LOGE("%{public}s:data is null", __func__);
+        HDF_LOGE("LLVMFuzzerTestOneInput: spi fuzz test data is nullptr!");
         return 0;
     }
 
     if (size < sizeof(struct AllParameters)) {
-        HDF_LOGE("%{public}s:size is small", __func__);
+        HDF_LOGE("LLVMFuzzerTestOneInput: spi fuzz test size is small!");
         return 0;
     }
     OHOS::SpiFuzzTest(data, size);

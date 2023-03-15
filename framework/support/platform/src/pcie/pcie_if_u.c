@@ -51,7 +51,7 @@ DevHandle PcieOpen(uint16_t busNum)
     if (service->priv == NULL) {
         struct PlatformUserListenerManager *manager = PlatformUserListenerManagerGet(PLATFORM_MODULE_PCIE);
         if (manager == NULL) {
-            HDF_LOGE("%s: PlatformUserListenerManagerGet fail!", __func__);
+            HDF_LOGE("PcieOpen: PlatformUserListenerManagerGet fail!");
             HdfIoServiceRecycle(service);
             return NULL;
         }
@@ -71,7 +71,7 @@ static int32_t PcieGetDataFromReply(struct HdfSBuf *reply, uint8_t *data, uint32
         return HDF_ERR_IO;
     }
     if (size != rLen) {
-        HDF_LOGE("PcieGetDataFromReply: err len:%u, rLen:%u", size, rLen);
+        HDF_LOGE("PcieGetDataFromReply: err len:%u, rLen:%u!", size, rLen);
         if (rLen > size) {
             rLen = size;
         }
@@ -91,46 +91,46 @@ int32_t PcieRead(DevHandle handle, uint32_t mode, uint32_t pos, uint8_t *data, u
     struct HdfIoService *service = (struct HdfIoService *)handle;
 
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("PcieUserRead: service is invalid");
+        HDF_LOGE("PcieRead: service is invalid");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (data == NULL || mode > PCIE_IO || len == 0) {
-        HDF_LOGE("PcieUserRead: invalid parameter");
+        HDF_LOGE("PcieRead: invalid parameter");
         return HDF_ERR_INVALID_PARAM;
     }
 
     struct HdfSBuf *buf = HdfSbufObtainDefaultSize();
     if (buf == NULL) {
-        HDF_LOGE("PcieUserRead: failed to obtain buf");
+        HDF_LOGE("PcieRead: fail to obtain buf!");
         return HDF_ERR_MALLOC_FAIL;
     }
     do {
         if (!HdfSbufWriteUint32(buf, mode)) {
-            HDF_LOGE("PcieUserRead: sbuf write uint32 failed");
+            HDF_LOGE("PcieRead: sbuf write uint32 fail!");
             ret = HDF_ERR_IO;
             break;
         }
         if (!HdfSbufWriteUint32(buf, len)) {
-            HDF_LOGE("PcieUserRead: sbuf write uint32 failed");
+            HDF_LOGE("PcieRead: sbuf write uint32 fail!");
             ret = HDF_ERR_IO;
             break;
         }
         if (!HdfSbufWriteUint32(buf, pos)) {
-            HDF_LOGE("PcieUserRead: sbuf write uint64 failed");
+            HDF_LOGE("PcieRead: sbuf write uint64 fail!");
             ret = HDF_ERR_IO;
             break;
         }
 
         reply = HdfSbufObtainDefaultSize();
         if (reply == NULL) {
-            HDF_LOGE("PcieUserRead: failed to obtain reply");
+            HDF_LOGE("PcieRead: fail to obtain reply!");
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
 
         ret = service->dispatcher->Dispatch(&service->object, PCIE_CMD_READ, buf, reply);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("PcieUserRead: failed to write, ret %d", ret);
+            HDF_LOGE("PcieRead: fail to write, ret: %d!", ret);
         } else {
             ret = PcieGetDataFromReply(reply, data, len);
         }
@@ -148,42 +148,42 @@ int32_t PcieWrite(DevHandle handle, uint32_t mode, uint32_t pos, uint8_t *data, 
     struct HdfIoService *service = (struct HdfIoService *)handle;
 
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("PcieUserWrite: service is invalid");
+        HDF_LOGE("PcieWrite: service is invalid");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (data == NULL || mode > PCIE_IO || len == 0) {
-        HDF_LOGE("PcieUserWrite: invalid parameter");
+        HDF_LOGE("PcieWrite: invalid parameter");
         return HDF_ERR_INVALID_PARAM;
     }
     buf = HdfSbufObtainDefaultSize();
     if (buf == NULL) {
-        HDF_LOGE("PcieUserWrite: failed to obtain buf");
+        HDF_LOGE("PcieWrite: fail to obtain buf!");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfSbufWriteUint32(buf, mode)) {
-        HDF_LOGE("PcieUserWrite: sbuf write mode failed");
+        HDF_LOGE("PcieWrite: sbuf write mode fail!");
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteUint32(buf, len)) {
-        HDF_LOGE("PcieUserWrite: sbuf write len failed");
+        HDF_LOGE("PcieWrite: sbuf write len fail!");
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteUint32(buf, pos)) {
-        HDF_LOGE("PcieUserWrite: sbuf write pos failed");
+        HDF_LOGE("PcieWrite: sbuf write pos fail!");
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteBuffer(buf, data, len)) {
-        HDF_LOGE("PcieUserWrite: sbuf write buffer failed");
+        HDF_LOGE("PcieWrite: sbuf write buffer fail!");
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PCIE_CMD_WRITE, buf, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PcieUserWrite: failed to write, ret %d", ret);
+        HDF_LOGE("PcieWrite: fail to write, ret: %d!", ret);
     }
 
     HdfSbufRecycle(buf);
@@ -197,7 +197,7 @@ static int32_t PcieRegListener(
 
     param = OsalMemCalloc(sizeof(struct PlatformUserListenerPcieParam));
     if (param == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc param fail", __func__);
+        HDF_LOGE("PcieRegListener: OsalMemCalloc param fail!");
         return HDF_ERR_IO;
     }
     param->handle = (DevHandle)service;
@@ -210,7 +210,7 @@ static int32_t PcieRegListener(
 
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, num, (void *)param,
         PcieOnDevEventReceive) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PlatformUserListenerReg fail", __func__);
+        HDF_LOGE("PcieRegListener: PlatformUserListenerReg fail!");
         OsalMemFree(param);
         return HDF_ERR_IO;
     }
@@ -222,15 +222,15 @@ static int32_t DmaToDevice(
     DevHandle handle, PcieCallbackFunc cb, struct HdfSBuf *data, uintptr_t addr, uint32_t len)
 {
     if (!HdfSbufWriteUint8(data, PCIE_DMA_TO_DEVICE)) {
-        HDF_LOGE("DmaToDevice: sbuf write dir failed");
+        HDF_LOGE("DmaToDevice: sbuf write dir fail!");
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteUint32(data, len)) {
-        HDF_LOGE("DmaToDevice: sbuf write len failed");
+        HDF_LOGE("DmaToDevice: sbuf write len fail!");
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteBuffer(data, (const void *)addr, len)) {
-        HDF_LOGE("DmaToDevice: sbuf write buffer failed");
+        HDF_LOGE("DmaToDevice: sbuf write buffer fail!");
         return HDF_ERR_IO;
     }
 
@@ -246,11 +246,11 @@ static int32_t DeviceToDma(
     DevHandle handle, PcieCallbackFunc cb, struct HdfSBuf *data, uintptr_t addr, uint32_t len)
 {
     if (!HdfSbufWriteUint8(data, PCIE_DMA_FROM_DEVICE)) {
-        HDF_LOGE("DeviceToDma: sbuf write dir failed");
+        HDF_LOGE("DeviceToDma: sbuf write dir fail!");
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteUint32(data, len)) {
-        HDF_LOGE("DeviceToDma: sbuf write len failed");
+        HDF_LOGE("DeviceToDma: sbuf write len fail!");
         return HDF_ERR_IO;
     }
 
@@ -269,18 +269,18 @@ int32_t PcieDmaMap(DevHandle handle, PcieCallbackFunc cb, uintptr_t addr, uint32
     struct HdfIoService *service = (struct HdfIoService *)handle;
 
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("PcieDmaMap: service is invalid");
+        HDF_LOGE("PcieDmaMap: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (addr == 0) {
-        HDF_LOGE("PcieDmaMap: invalid addr");
+        HDF_LOGE("PcieDmaMap: invalid addr!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("PcieDmaMap: failed to obtain data");
+        HDF_LOGE("PcieDmaMap: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (dir == PCIE_DMA_FROM_DEVICE) {
@@ -294,13 +294,13 @@ int32_t PcieDmaMap(DevHandle handle, PcieCallbackFunc cb, uintptr_t addr, uint32
     }
     if (ret != HDF_SUCCESS) {
         HdfSbufRecycle(data);
-        HDF_LOGE("PcieDmaMap: failed to map DMA, ret %d", ret);
+        HDF_LOGE("PcieDmaMap: failed to map DMA, ret: %d!", ret);
         return ret;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PCIE_CMD_DMA_MAP, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PcieDmaMap: failed, ret %d", ret);
+        HDF_LOGE("PcieDmaMap: fail, ret: %d!", ret);
         PlatformUserListenerDestory(service->priv, DMA_CB_NUM);
     }
 
@@ -324,18 +324,18 @@ void PcieDmaUnmap(DevHandle handle, uintptr_t addr, uint32_t len, uint8_t dir)
     PlatformUserListenerDestory(service->priv, DMA_CB_NUM);
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("PcieDmaUnmap: failed to obtain data");
+        HDF_LOGE("PcieDmaUnmap: fail to obtain data!");
         return;
     }
     if (!HdfSbufWriteUint8(data, dir)) {
-        HDF_LOGE("PcieDmaUnmap: sbuf write dir failed");
+        HDF_LOGE("PcieDmaUnmap: sbuf write dir fail!");
         HdfSbufRecycle(data);
         return;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, PCIE_CMD_DMA_UNMAP, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PcieDmaUnmap: failed, ret %d", ret);
+        HDF_LOGE("PcieDmaUnmap: fail, ret: %d!", ret);
     }
     HdfSbufRecycle(data);
     return;
@@ -353,12 +353,12 @@ int32_t PcieRegisterIrq(DevHandle handle, PcieCallbackFunc cb)
 
     ret = PcieRegListener(service, cb, IRQ_CB_NUM, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: register listener fail:%d", __func__, ret);
+        HDF_LOGE("PcieRegisterIrq: register listener fail, ret: %d!", ret);
         return ret;
     }
     ret = service->dispatcher->Dispatch(&service->object, PCIE_CMD_REG_IRQ, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PcieRegisterIrq: failed, ret %d", ret);
+        HDF_LOGE("PcieRegisterIrq: fail, ret: %d!", ret);
     }
 
     return ret;
@@ -377,7 +377,7 @@ void PcieUnregisterIrq(DevHandle handle)
     PlatformUserListenerDestory(service->priv, IRQ_CB_NUM);
     ret = service->dispatcher->Dispatch(&service->object, PCIE_CMD_UNREG_IRQ, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PcieUnregisterIrq: failed, ret %d", ret);
+        HDF_LOGE("PcieUnregisterIrq: fail, ret: %d!", ret);
     }
 
     return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -16,20 +16,21 @@ static struct I2cTestConfig g_config;
 
 static int32_t I2cTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    HDF_LOGD("%s: enter!", __func__);
+    HDF_LOGD("I2cTestDispatch: enter!");
 
     (void)client;
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("I2cTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("I2cTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("I2cTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -43,37 +44,37 @@ static int32_t I2cTestReadConfig(struct I2cTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("I2cTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint16(node, "bus_num", &config->busNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read bus num failed", __func__);
+        HDF_LOGE("I2cTestReadConfig: read bus num fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "dev_addr", &config->devAddr, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read dev addr failed", __func__);
+        HDF_LOGE("I2cTestReadConfig: read dev addr fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "reg_len", &config->regLen, 1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read reg len failed", __func__);
+        HDF_LOGE("I2cTestReadConfig: read reg len fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "reg_addr", &config->regAddr, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read reg addr failed", __func__);
+        HDF_LOGE("I2cTestReadConfig: read reg addr fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "buf_size", &config->bufSize, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read buf size failed", __func__);
+        HDF_LOGE("I2cTestReadConfig: read buf size fail!");
         return ret;
     }
 
@@ -86,13 +87,13 @@ static int32_t I2cTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("I2cTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
 
     ret = I2cTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("I2cTestBind: read config fail!");
         return ret;
     }
 

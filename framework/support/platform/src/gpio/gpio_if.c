@@ -108,13 +108,13 @@ int32_t GpioGetByName(const char *gpioName)
     struct GpioCntlr *cntlr = NULL;
 
     if (gpioName == NULL || strlen(gpioName) > GPIO_NAME_LEN) {
-        HDF_LOGE("%s: gpioName is NULL or gpioName len out of range!", __func__);
+        HDF_LOGE("GpioGetByName: gpioName is null or gpioName len out of range!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     cntlr = GpioCntlrGetByGpioName(gpioName);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL!", __func__);
+        HDF_LOGE("GpioGetByName: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 

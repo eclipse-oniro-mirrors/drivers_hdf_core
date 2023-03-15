@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -49,20 +49,20 @@ int32_t EmmcServiceGetCid(struct HdfIoService *service, uint8_t *cid, uint32_t s
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("EmmcServiceGetCid: failed to obtain reply!");
+        HDF_LOGE("EmmcServiceGetCid: fail to obtain reply!");
         ret = HDF_ERR_MALLOC_FAIL;
         goto __EXIT;
     }
 
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("EmmcServiceGetCid: dispatcher or Dispatch is NULL!");
+        HDF_LOGE("EmmcServiceGetCid: dispatcher or Dispatch is null!");
         ret = HDF_ERR_NOT_SUPPORT;
         goto __EXIT;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, EMMC_CMD_GET_CID, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("EmmcServiceGetCid: failed to send service call:%d", ret);
+        HDF_LOGE("EmmcServiceGetCid: fail to send service call, ret: %d!", ret);
         goto __EXIT;
     }
 
@@ -85,15 +85,18 @@ static int32_t EmmcDeviceGetFromHandle(DevHandle handle, struct EmmcDevice **emm
     struct MmcDevice *mmc = NULL;
 
     if (handle == NULL) {
+        HDF_LOGE("EmmcDeviceGetFromHandle: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (emmc == NULL) {
+        HDF_LOGE("EmmcDeviceGetFromHandle: emmc is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     mmc = MmcCntlrGetDevice((struct MmcCntlr *)handle);
     if (mmc == NULL) {
+        HDF_LOGE("EmmcDeviceGetFromHandle: mmc is null!");
         return HDF_PLT_ERR_NO_DEV;
     }
     if (mmc->type != MMC_DEV_EMMC) {
@@ -114,7 +117,7 @@ int32_t EmmcGetCid(DevHandle handle, uint8_t *cid, uint32_t size)
     int32_t ret;
 #endif
     if (handle == NULL) {
-        HDF_LOGE("EmmcGetCid: handle is NULL!");
+        HDF_LOGE("EmmcGetCid: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -137,6 +140,7 @@ int32_t EmmcGetCid(DevHandle handle, uint8_t *cid, uint32_t size)
 void EmmcGetHuid(uint8_t *cid, uint32_t size)
 {
     DevHandle handle = NULL;
+
     if (cid == NULL || size == 0) {
         HDF_LOGE("EmmcGetUdid: error parms!");
         return;

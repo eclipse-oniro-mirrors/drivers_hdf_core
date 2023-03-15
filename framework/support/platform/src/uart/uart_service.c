@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -21,30 +21,30 @@ static int32_t UartIoRead(struct UartHost *host, struct HdfSBuf *data, struct Hd
     uint8_t *buf = NULL;
 
     if (!HdfSbufReadUint32(data, &len)) {
-        HDF_LOGE("%s: sbuf read data len failed", __func__);
+        HDF_LOGE("UartIoRead: sbuf read data len fail!");
         return HDF_ERR_IO;
     }
 
     if (len == 0 || len >= UART_RBUF_MALLOC_SIZE_MAX) {
-        HDF_LOGE("%s: invalid buf len:%u", __func__, len);
+        HDF_LOGE("UartIoRead: invalid buf len:%u!", len);
         return HDF_ERR_INVALID_PARAM;
     }
 
     buf = (uint8_t *)OsalMemCalloc(len);
     if (buf == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc error", __func__);
+        HDF_LOGE("UartIoRead: OsalMemCalloc error!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = UartHostRead(host, buf, len);
     if (ret < 0) {
-        HDF_LOGE("%s: Uart host read failed:%d", __func__, ret);
+        HDF_LOGE("UartIoRead: Uart host read fail, ret: %d!", ret);
         OsalMemFree(buf);
         return HDF_ERR_IO;
     }
 
     if (!HdfSbufWriteBuffer(reply, (ret == 0) ? NULL : buf, ret)) {
-        HDF_LOGE("%s: sbuf write buffer failed", __func__);
+        HDF_LOGE("UartIoRead: sbuf write buffer fail!");
         OsalMemFree(buf);
         return HDF_ERR_IO;
     }
@@ -59,7 +59,7 @@ static int32_t UartIoWrite(struct UartHost *host, struct HdfSBuf *data)
     uint8_t *buf = NULL;
 
     if (!HdfSbufReadBuffer(data, (const void **)&buf, &size)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("UartIoWrite: sbuf read buffer fail!");
         return HDF_ERR_IO;
     }
     return UartHostWrite(host, buf, size);
@@ -72,10 +72,11 @@ static int32_t UartIoGetBaud(struct UartHost *host, struct HdfSBuf *reply)
 
     ret = UartHostGetBaud(host, &baudRate);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("UartIoGetBaud: uart get baud fail, ret: %d!", ret);
         return ret;
     }
     if (!HdfSbufWriteUint32(reply, baudRate)) {
-        HDF_LOGE("%s: sbuf write buffer failed", __func__);
+        HDF_LOGE("UartIoGetBaud: sbuf write buffer fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -86,7 +87,7 @@ static int32_t UartIoSetBaud(struct UartHost *host, struct HdfSBuf *data)
     uint32_t baudRate;
 
     if (!HdfSbufReadUint32(data, &baudRate)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("UartIoSetBaud: sbuf read baudRate fail!");
         return HDF_ERR_IO;
     }
     return UartHostSetBaud(host, baudRate);
@@ -99,10 +100,11 @@ static int32_t UartIoGetAttribute(struct UartHost *host, struct HdfSBuf *reply)
 
     ret = UartHostGetAttribute(host, &attribute);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("UartIoGetAttribute: uart get attribute fail, ret: %d!", ret);
         return ret;
     }
     if (!HdfSbufWriteBuffer(reply, &attribute, sizeof(attribute))) {
-        HDF_LOGE("%s: sbuf write buffer failed", __func__);
+        HDF_LOGE("UartIoGetAttribute: sbuf write attribute fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -114,12 +116,12 @@ static int32_t UartIoSetAttribute(struct UartHost *host, struct HdfSBuf *data)
     struct UartAttribute *attribute = NULL;
 
     if (!HdfSbufReadBuffer(data, (const void **)&attribute, &size)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("UartIoSetAttribute: sbuf read buffer fail!");
         return HDF_ERR_IO;
     }
 
     if (size != sizeof(*attribute)) {
-        HDF_LOGE("%s: sbuf read size not match, exp:%zu, got:%u", __func__, sizeof(*attribute), size);
+        HDF_LOGE("UartIoSetAttribute: sbuf read size not match, exp:%zu, got:%u!", sizeof(*attribute), size);
         return HDF_ERR_IO;
     }
 
@@ -131,7 +133,7 @@ static int32_t UartIoSetTransMode(struct UartHost *host, struct HdfSBuf *data)
     uint32_t mode;
 
     if (!HdfSbufReadUint32(data, &mode)) {
-        HDF_LOGE("%s: sbuf read mode failed", __func__);
+        HDF_LOGE("UartIoSetTransMode: sbuf read mode fail!");
         return HDF_ERR_IO;
     }
     return UartHostSetTransMode(host, mode);
@@ -142,17 +144,17 @@ int32_t UartIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf
     struct UartHost *host = NULL;
 
     if (client == NULL) {
-        HDF_LOGE("%s: client is NULL", __func__);
+        HDF_LOGE("UartIoDispatch: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (client->device == NULL) {
-        HDF_LOGE("%s: client->device is NULL", __func__);
+        HDF_LOGE("UartIoDispatch: client->device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (client->device->service == NULL) {
-        HDF_LOGE("%s: client->device->service is NULL", __func__);
+        HDF_LOGE("UartIoDispatch: client->device->service is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -177,6 +179,7 @@ int32_t UartIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf
         case UART_IO_SET_TRANSMODE:
             return UartIoSetTransMode(host, data);
         default:
+            HDF_LOGE("UartIoDispatch: cmd %d is not support!", cmd);
             return HDF_ERR_NOT_SUPPORT;
     }
 }

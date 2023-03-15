@@ -35,6 +35,7 @@ static int32_t PcieVirtualAdapterRead(struct PcieCntlr *cntlr, uint32_t mode,
     (void)mode;
     (void)pos;
     if (cntlr == NULL) {
+        HDF_LOGE("PcieVirtualAdapterRead: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (len == PCIE_VIRTUAL_ADAPTER_ONE_BYTE) {
@@ -63,6 +64,7 @@ static int32_t PcieVirtualAdapterWrite(struct PcieCntlr *cntlr, uint32_t mode,
     (void)data;
     (void)len;
     if (cntlr == NULL) {
+        HDF_LOGE("PcieVirtualAdapterWrite: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return HDF_SUCCESS;
@@ -74,12 +76,15 @@ static int32_t PcieVirtualAdapterDmaMap(struct PcieCntlr *cntlr, uintptr_t addr,
     struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
 
     if (host == NULL) {
+        HDF_LOGE("PcieVirtualAdapterDmaMap: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (addr == 0 || dir > PCIE_DMA_TO_DEVICE) {
+        HDF_LOGE("PcieVirtualAdapterDmaMap: addr or dir is invaild!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (host->dmaData != 0) {
+        HDF_LOGE("PcieVirtualAdapterDmaMap: pcie dma has been mapped!");
         return HDF_ERR_DEVICE_BUSY;
     }
     host->dmaData = addr;
@@ -94,9 +99,11 @@ static void PcieVirtualAdapterDmaUnmap(struct PcieCntlr *cntlr, uintptr_t addr, 
     struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
 
     if (host == NULL || dir > PCIE_VIRTUAL_DIR_MAX) {
+        HDF_LOGE("PcieVirtualAdapterDmaUnmap: host is NULL or dir is invalid!");
         return;
     }
     if (addr != host->dmaData || len != host->len || dir != host->dir) {
+        HDF_LOGE("PcieVirtualAdapterDmaUnmap: invalid addr or len or dir!");
         return;
     }
     host->dmaData = 0;
@@ -109,9 +116,11 @@ int32_t PcieVirtualRegIrq(struct PcieCntlr *cntlr)
     struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
 
     if (host == NULL) {
+        HDF_LOGE("PcieVirtualRegIrq: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (host->irqRegistered == true) {
+        HDF_LOGE("PcieVirtualRegIrq: irq has been registered!");
         return HDF_ERR_DEVICE_BUSY;
     }
     host->irqRegistered = true;
@@ -123,6 +132,7 @@ void PcieVirtualUnregIrq(struct PcieCntlr *cntlr)
     struct PcieVirtualAdapterHost *host = (struct PcieVirtualAdapterHost *)cntlr;
 
     if (host == NULL) {
+        HDF_LOGE("PcieVirtualUnregIrq: host is null!");
         return;
     }
     host->irqRegistered = false;
@@ -143,13 +153,13 @@ static int32_t PcieVirtualAdapterBind(struct HdfDeviceObject *obj)
     int32_t ret;
 
     if (obj == NULL) {
-        HDF_LOGE("PcieVirtualAdapterBind: Fail, device is NULL.");
+        HDF_LOGE("PcieVirtualAdapterBind: fail, device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     host = (struct PcieVirtualAdapterHost *)OsalMemCalloc(sizeof(struct PcieVirtualAdapterHost));
     if (host == NULL) {
-        HDF_LOGE("PcieVirtualAdapterBind: no mem for PcieAdapterHost.");
+        HDF_LOGE("PcieVirtualAdapterBind: no mem for PcieAdapterHost!");
         return HDF_ERR_MALLOC_FAIL;
     }
     host->cntlr.ops = &g_pcieVirtualAdapterHostOps;
@@ -189,11 +199,13 @@ static void PcieVirtualAdapterRelease(struct HdfDeviceObject *obj)
     struct PcieVirtualAdapterHost *host = NULL;
 
     if (obj == NULL) {
+        HDF_LOGE("PcieVirtualAdapterRelease: obj is null!");
         return;
     }
 
     cntlr = (struct PcieCntlr *)obj->service;
     if (cntlr == NULL) {
+        HDF_LOGE("PcieVirtualAdapterRelease: cntlr is null!");
         return;
     }
     PcieCntlrRemove(cntlr);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,13 +30,15 @@ static struct EmmcDeviceOps g_emmcOps = {
 int32_t EmmcDeviceGetCid(struct EmmcDevice *dev, uint8_t *cid, uint32_t len)
 {
     if (dev == NULL) {
+        HDF_LOGE("EmmcDeviceGetCid: dev is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cid == NULL || len == 0) {
+        HDF_LOGE("EmmcDeviceGetCid: cid is null or len is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (dev->emmcOps == NULL || dev->emmcOps->getCid == NULL) {
-        HDF_LOGE("EmmcDeviceGetCid: ops or getCid is NULL.");
+        HDF_LOGE("EmmcDeviceGetCid: emmcOps or getCid is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return dev->emmcOps->getCid(dev, cid, len);
@@ -45,7 +47,7 @@ int32_t EmmcDeviceGetCid(struct EmmcDevice *dev, uint8_t *cid, uint32_t len)
 void EmmcDeviceAddOps(struct EmmcDevice *dev, struct EmmcDeviceOps *ops)
 {
     if (dev == NULL) {
-        HDF_LOGE("EmmcDeviceAddOps: dev is NULL.");
+        HDF_LOGE("EmmcDeviceAddOps: dev is null!");
         return;
     }
     if (ops == NULL) {

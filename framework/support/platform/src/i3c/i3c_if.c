@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -27,7 +27,7 @@ int32_t I3cTransfer(DevHandle handle, struct I3cMsg *msgs, int16_t count, enum T
     int32_t ret = HDF_SUCCESS;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL!", __func__);
+        HDF_LOGE("I3cTransfer: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 

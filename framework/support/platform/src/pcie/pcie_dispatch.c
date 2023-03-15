@@ -67,7 +67,7 @@ static int32_t PcieCmdRead(struct PcieCntlr *cntlr, struct HdfSBuf *data, struct
         return ret;
     }
     if (!HdfSbufWriteBuffer(reply, buf, len)) {
-        HDF_LOGE("PcieCmdRead: sbuf write buffer failed");
+        HDF_LOGE("PcieCmdRead: sbuf write buffer fail!");
         OsalMemFree(buf);
         return HDF_ERR_IO;
     }
@@ -97,7 +97,7 @@ static int32_t PcieCmdWrite(struct PcieCntlr *cntlr, struct HdfSBuf *data)
         return HDF_ERR_IO;
     }
     if (!HdfSbufReadBuffer(data, (const void **)&buf, &size)) {
-        HDF_LOGE("PcieCmdWrite: sbuf read buffer failed");
+        HDF_LOGE("PcieCmdWrite: sbuf read buffer fail!");
         return HDF_ERR_IO;
     }
     if (len == 0 || len != size) {
@@ -114,23 +114,23 @@ static int32_t PcieIoDmaCb(DevHandle handle)
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("PcieIoDmaCb: cntlr is NULL");
+        HDF_LOGE("PcieIoDmaCb: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("PcieIoDmaCb: failed to obtain data");
+        HDF_LOGE("PcieIoDmaCb: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfSbufWriteUint32(data, DMA_CB_NUM)) {
-        HDF_LOGE("PcieIoDmaCb: sbuf write num failed");
+        HDF_LOGE("PcieIoDmaCb: sbuf write num fail!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
     if (cntlr->dir == PCIE_DMA_FROM_DEVICE) {
         if (!HdfSbufWriteBuffer(data, (const void *)cntlr->dmaData, cntlr->len)) {
-            HDF_LOGE("PcieIoDmaCb: sbuf write buffer failed");
+            HDF_LOGE("PcieIoDmaCb: sbuf write buffer fail!");
             HdfSbufRecycle(data);
             return HDF_ERR_IO;
         }
@@ -150,7 +150,7 @@ static int32_t DmaToDevice(struct PcieCntlr *cntlr, struct HdfSBuf *data, uint32
     uint32_t size;
 
     if (!HdfSbufReadBuffer(data, (const void **)&buf, &size) || size != len) {
-        HDF_LOGE("DmaToDevice: sbuf read buffer failed");
+        HDF_LOGE("DmaToDevice: sbuf read buffer fail!");
         return HDF_ERR_IO;
     }
     cntlr->dmaData = (uintptr_t)buf;
@@ -218,12 +218,10 @@ static int32_t PcieCmdDmaUnmap(struct PcieCntlr *cntlr, struct HdfSBuf *data)
         return HDF_ERR_IO;
     }
 
-    if (cntlr->dir == PCIE_DMA_FROM_DEVICE) {
-        PcieCntlrDmaUnmap(cntlr, cntlr->dmaData, cntlr->len, dir);
-        OsalMemFree((void *)cntlr->dmaData);
-        cntlr->dmaData = 0;
-        cntlr->len = 0;
-    }
+    PcieCntlrDmaUnmap(cntlr, cntlr->dmaData, cntlr->len, dir);
+    OsalMemFree((void *)cntlr->dmaData);
+    cntlr->dmaData = 0;
+    cntlr->len = 0;
 
     return HDF_SUCCESS;
 }
@@ -235,17 +233,17 @@ static int32_t PcieIoCallback(DevHandle handle)
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("PcieIoCallback: cntlr is NULL");
+        HDF_LOGE("PcieIoCallback: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("PcieIoCallback: failed to obtain data");
+        HDF_LOGE("PcieIoCallback: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfSbufWriteUint32(data, IRQ_CB_NUM)) {
-        HDF_LOGE("PcieIoCallback: sbuf write num failed");
+        HDF_LOGE("PcieIoCallback: sbuf write num fail!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
@@ -271,13 +269,13 @@ int32_t PcieIoDispatch(struct HdfDeviceIoClient *client, int32_t cmd, struct Hdf
     struct PcieCntlr *cntlr = NULL;
 
     if (client == NULL || client->device == NULL) {
-        HDF_LOGE("PcieIoDispatch: client or hdf dev obj is NULL");
+        HDF_LOGE("PcieIoDispatch: client or hdf dev obj is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     cntlr = (struct PcieCntlr *)client->device->service;
     if (cntlr == NULL) {
-        HDF_LOGE("PcieIoDispatch: service is NULL");
+        HDF_LOGE("PcieIoDispatch: service is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -14,9 +14,10 @@
 
 int32_t HdfPinTestEntry(HdfTestMsg *msg)
 {
-    HDF_LOGD("%s: enter", __func__);
+    HDF_LOGD("HdfPinTestEntry: enter!");
 
     if (msg == NULL) {
+        HDF_LOGE("HdfPinTestEntry: msg is null!");
         return HDF_FAILURE;
     }
 

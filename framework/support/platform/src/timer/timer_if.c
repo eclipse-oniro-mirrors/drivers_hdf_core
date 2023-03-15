@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -17,13 +17,14 @@ DevHandle HwTimerOpen(const uint32_t number)
 void HwTimerClose(DevHandle handle)
 {
     struct TimerCntrl *cntrl = (struct TimerCntrl *)handle;
+
     if (cntrl == NULL) {
-        HDF_LOGE("%s: cntrl is null", __func__);
+        HDF_LOGE("HwTimerClose: cntrl is null!");
         return;
     }
 
     if (TimerCntrlClose(cntrl) != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerCntrlClose fail", __func__);
+        HDF_LOGE("HwTimerClose: timer cnltr close fail!");
         return;
     }
 }
@@ -31,13 +32,14 @@ void HwTimerClose(DevHandle handle)
 int32_t HwTimerSet(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
 {
     struct TimerCntrl *cntrl = (struct TimerCntrl *)handle;
+
     if (cntrl == NULL || cb == NULL) {
-        HDF_LOGE("%s: cntrl is null", __func__);
+        HDF_LOGE("HwTimerSet: cntrl or cb is null!");
         return HDF_FAILURE;
     }
 
     if (TimerCntrlSet(cntrl, useconds, cb) != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerCntrlSet fail", __func__);
+        HDF_LOGE("HwTimerSet: timer cnltr set fail!");
         return HDF_FAILURE;
     }
 
@@ -47,13 +49,14 @@ int32_t HwTimerSet(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
 int32_t HwTimerSetOnce(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
 {
     struct TimerCntrl *cntrl = (struct TimerCntrl *)handle;
+
     if (cntrl == NULL || cb == NULL) {
-        HDF_LOGE("%s: cntrl is null", __func__);
+        HDF_LOGE("HwTimerSetOnce: cntrl or cb is null!");
         return HDF_FAILURE;
     }
 
     if (TimerCntrlSetOnce(cntrl, useconds, cb) != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerCntrlSetOnce fail", __func__);
+        HDF_LOGE("HwTimerSetOnce: timer cntlr set once fail!");
         return HDF_FAILURE;
     }
 
@@ -63,13 +66,14 @@ int32_t HwTimerSetOnce(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
 int32_t HwTimerGet(DevHandle handle, uint32_t *useconds, bool *isPeriod)
 {
     struct TimerCntrl *cntrl = (struct TimerCntrl *)handle;
+
     if (cntrl == NULL || useconds == NULL || isPeriod == NULL) {
-        HDF_LOGE("%s: param is null", __func__);
+        HDF_LOGE("HwTimerGet: cntlr or useconds or isPeriod is null!");
         return HDF_FAILURE;
     }
 
     if (TimerCntrlGet(cntrl, useconds, isPeriod) != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerCntrlGet fail", __func__);
+        HDF_LOGE("HwTimerGet: timer cntlr get fail!");
         return HDF_FAILURE;
     }
 
@@ -79,13 +83,14 @@ int32_t HwTimerGet(DevHandle handle, uint32_t *useconds, bool *isPeriod)
 int32_t HwTimerStart(DevHandle handle)
 {
     struct TimerCntrl *cntrl = (struct TimerCntrl *)handle;
+
     if (cntrl == NULL) {
-        HDF_LOGE("%s: cntrl is null", __func__);
+        HDF_LOGE("HwTimerStart: cntrl is null!");
         return HDF_FAILURE;
     }
 
     if (TimerCntrlStart(cntrl) != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerCntrlStart fail", __func__);
+        HDF_LOGE("HwTimerStart: timer cntlr start fail!");
         return HDF_FAILURE;
     }
 
@@ -95,13 +100,14 @@ int32_t HwTimerStart(DevHandle handle)
 int32_t HwTimerStop(DevHandle handle)
 {
     struct TimerCntrl *cntrl = (struct TimerCntrl *)handle;
+
     if (cntrl == NULL) {
-        HDF_LOGE("%s: cntrl is null", __func__);
+        HDF_LOGE("HwTimerStop: cntrl is null!");
         return HDF_FAILURE;
     }
 
     if (TimerCntrlStop(cntrl) != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerCntrlStop fail", __func__);
+        HDF_LOGE("HwTimerStop: timer cntlr stop fail!");
         return HDF_FAILURE;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -21,11 +21,13 @@ DevHandle AdcOpen(uint32_t number)
 
     device = AdcDeviceGet(number);
     if (device == NULL) {
+        HDF_LOGE("AdcOpen: device is null!");
         return NULL;
     }
 
     ret = AdcDeviceStart(device);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("AdcOpen: adc device start fail!");
         return NULL;
     }
 
@@ -37,6 +39,7 @@ void AdcClose(DevHandle handle)
     struct AdcDevice *device = (struct AdcDevice *)handle;
 
     if (device == NULL) {
+        HDF_LOGE("AdcClose: device is null!");
         return;
     }
 
@@ -47,7 +50,7 @@ void AdcClose(DevHandle handle)
 int32_t AdcRead(DevHandle handle, uint32_t channel, uint32_t *val)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: invalid handle!", __func__);
+        HDF_LOGE("AdcRead: invalid handle!");
         return HDF_ERR_INVALID_PARAM;
     }
     return AdcDeviceRead((struct AdcDevice *)handle, channel, val);

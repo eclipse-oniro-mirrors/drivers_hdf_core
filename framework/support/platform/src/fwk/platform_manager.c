@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -31,6 +31,7 @@ static int32_t PlatformManagerInit(struct PlatformManager *manager)
     DListHeadInit(&manager->devices);
 
     if ((ret = PlatformDeviceInit(&manager->device)) != HDF_SUCCESS) {
+        PLAT_LOGE("PlatformManagerInit: device init fail!");
         return ret;
     }
 
@@ -45,6 +46,7 @@ static void PlatformManagerClearDevice(struct PlatformManager *manager)
     struct PlatformDevice *pos = NULL;
 
     if (manager == NULL) {
+        PLAT_LOGE("PlatformManagerClearDevice: manager is null!");
         return;
     }
 
@@ -77,6 +79,7 @@ int32_t PlatformManagerCreate(const char *name, struct PlatformManager **manager
     managerNew->device.name = name;
     if ((ret = PlatformManagerInit(managerNew)) != HDF_SUCCESS) {
         OsalMemFree(managerNew);
+        PLAT_LOGE("PlatformManagerCreate: platform manager init fail!");
         return ret;
     }
     *manager = managerNew;
@@ -86,6 +89,7 @@ int32_t PlatformManagerCreate(const char *name, struct PlatformManager **manager
 void PlatformManagerDestroy(struct PlatformManager *manager)
 {
     if (manager == NULL) {
+        PLAT_LOGE("PlatformManagerDestroy: manager is null!");
         return;
     }
     PlatformManagerUninit(manager);
@@ -100,7 +104,7 @@ struct PlatformManager *PlatformManagerGet(int module)
 
     info = PlatformModuleInfoGet(module);
     if (info == NULL) {
-        PLAT_LOGE("PlatformManagerGet: get module(%d) info failed", module);
+        PLAT_LOGE("PlatformManagerGet: get module(%d) info fail!", module);
         return NULL;
     }
 
@@ -108,7 +112,7 @@ struct PlatformManager *PlatformManagerGet(int module)
     if (info->priv == NULL) {
         ret = PlatformManagerCreate(info->moduleName, &manager);
         if (ret != HDF_SUCCESS) {
-            PLAT_LOGE("PlatformManagerGet: create manager failed:%d", ret);
+            PLAT_LOGE("PlatformManagerGet: create manager fail, ret: %d!", ret);
         } else {
             info->priv = manager;
         }
@@ -129,13 +133,13 @@ static int32_t PlatformManagerAddDeviceDefault(struct PlatformManager *manager, 
     DLIST_FOR_EACH_ENTRY(tmp, &manager->devices, struct PlatformDevice, node) {
         if (device->number == tmp->number) {
             repeatId = true;
-            PLAT_LOGE("%s: device:%s(%d) num repeated in manager:%s", __func__,
+            PLAT_LOGE("PlatformManagerAddDeviceDefault: device:%s(%d) num repeated in manager:%s!",
                 device->name, device->number, manager->device.name);
             break;
         }
         if (device->name != NULL && device->name == tmp->name) {
             repeatName = true;
-            PLAT_LOGE("%s: device:%s(%d) name repeated in manager:%s", __func__,
+            PLAT_LOGE("PlatformManagerAddDeviceDefault: device:%s(%d) name repeated in manager:%s!",
                 device->name, device->number, manager->device.name);
             break;
         }
@@ -158,10 +162,12 @@ int32_t PlatformManagerAddDevice(struct PlatformManager *manager, struct Platfor
     struct PlatformDevice *pos = NULL;
 
     if (manager == NULL || device == NULL) {
+        PLAT_LOGE("PlatformManagerAddDevice: manager or device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (PlatformDeviceGet(device) != HDF_SUCCESS) { // keep a reference by manager
+        PLAT_LOGE("PlatformManagerAddDevice: get device fail!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
@@ -169,7 +175,7 @@ int32_t PlatformManagerAddDevice(struct PlatformManager *manager, struct Platfor
     DLIST_FOR_EACH_ENTRY(pos, &manager->devices, struct PlatformDevice, node) {
         if (pos == device) {
             PlatformManagerUnlock(manager);
-            PLAT_LOGE("%s: device:%s(%d) already in manager:%s", __func__,
+            PLAT_LOGE("PlatformManagerAddDevice: device:%s(%d) already in manager:%s!",
                 device->name, device->number, manager->device.name);
             PlatformDevicePut(device);
             return HDF_PLT_ERR_OBJ_REPEAT;
@@ -183,11 +189,11 @@ int32_t PlatformManagerAddDevice(struct PlatformManager *manager, struct Platfor
     PlatformManagerUnlock(manager);
 
     if (ret == HDF_SUCCESS) {
-        PLAT_LOGD("%s: add dev:%s(%d) to %s success", __func__,
+        PLAT_LOGD("PlatformManagerAddDevice: add dev:%s(%d) to %s success!",
             device->name, device->number, manager->device.name);
     } else {
         PlatformDevicePut(device);
-        PLAT_LOGE("%s: add dev:%s(%d) to %s failed:%d", __func__,
+        PLAT_LOGE("PlatformManagerAddDevice: add dev:%s(%d) to %s fail, ret:%d!",
             device->name, device->number, manager->device.name, ret);
     }
 
@@ -197,12 +203,13 @@ int32_t PlatformManagerAddDevice(struct PlatformManager *manager, struct Platfor
 static int32_t PlatformManagerDelDeviceDefault(const struct PlatformManager *manager, struct PlatformDevice *device)
 {
     if (manager == NULL || device == NULL) {
+        PLAT_LOGE("PlatformManagerDelDeviceDefault: manager or device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (!DListIsEmpty(&device->node)) {
         DListRemove(&device->node);
     } else {
-        PLAT_LOGE("%s: device:%s already moved", __func__, device->name);
+        PLAT_LOGE("PlatformManagerDelDeviceDefault: device:%s already moved!", device->name);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -215,6 +222,7 @@ int32_t PlatformManagerDelDevice(struct PlatformManager *manager, struct Platfor
     struct PlatformDevice *pos = NULL;
 
     if (manager == NULL || device == NULL) {
+        PLAT_LOGE("PlatformManagerDelDevice: manager or device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -225,7 +233,7 @@ int32_t PlatformManagerDelDevice(struct PlatformManager *manager, struct Platfor
         }
     }
     if (pos != device) {
-        PLAT_LOGE("%s: device:%s(%d) not in manager:%s", __func__,
+        PLAT_LOGE("PlatformManagerDelDevice: device:%s(%d) not in manager:%s!",
             device->name, device->number, manager->device.name);
         PlatformManagerUnlock(manager);
         return HDF_PLT_ERR_NO_DEV;
@@ -239,10 +247,10 @@ int32_t PlatformManagerDelDevice(struct PlatformManager *manager, struct Platfor
 
     if (ret == HDF_SUCCESS) {
         PlatformDevicePut(device);  // put the reference hold by manager
-        PLAT_LOGD("%s: remove %s(%d) from %s success", __func__,
+        PLAT_LOGD("PlatformManagerDelDevice: remove %s(%d) from %s success!",
             device->name, device->number, manager->device.name);
     } else {
-        PLAT_LOGE("%s: remove %s(%d) from %s failed:%d", __func__,
+        PLAT_LOGE("PlatformManagerDelDevice: remove %s(%d) from %s fail, ret:%d!",
             device->name, device->number, manager->device.name, ret);
     }
     return ret;
@@ -255,10 +263,11 @@ struct PlatformDevice *PlatformManagerFindDevice(struct PlatformManager *manager
     struct PlatformDevice *pdevice = NULL;
 
     if (manager == NULL || match == NULL) {
+        PLAT_LOGE("PlatformManagerFindDevice: manager or match is null!");
         return NULL;
     }
     if (manager->devices.prev == NULL || manager->devices.next == NULL) {
-        PLAT_LOGD("PlatformManagerFindDevice: devices not init.");
+        PLAT_LOGE("PlatformManagerFindDevice: devices not init!");
         return NULL;
     }
 
@@ -287,6 +296,7 @@ static bool PlatformDeviceMatchByNumber(struct PlatformDevice *device, void *dat
 struct PlatformDevice *PlatformManagerGetDeviceByNumber(struct PlatformManager *manager, uint32_t number)
 {
     if (manager == NULL) {
+        PLAT_LOGE("PlatformManagerGetDeviceByNumber: manager is null!");
         return NULL;
     }
     return PlatformManagerFindDevice(manager, (void *)(uintptr_t)number, PlatformDeviceMatchByNumber);
@@ -297,6 +307,7 @@ static bool PlatformDeviceMatchByName(struct PlatformDevice *device, void *data)
     const char *name = (const char *)data;
 
     if (name == NULL || device->name == NULL) {
+        PLAT_LOGE("PlatformDeviceMatchByName: name or device->name is null!");
         return false;
     }
 
@@ -306,6 +317,7 @@ static bool PlatformDeviceMatchByName(struct PlatformDevice *device, void *data)
 struct PlatformDevice *PlatformManagerGetDeviceByName(struct PlatformManager *manager, const char *name)
 {
     if (manager == NULL) {
+        PLAT_LOGE("PlatformManagerGetDeviceByName: manager is null!");
         return NULL;
     }
     return PlatformManagerFindDevice(manager, (void *)name, PlatformDeviceMatchByName);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -31,12 +31,12 @@ struct I2sTestFunc {
 static int32_t I2sSetCfgTest(struct I2sTest *test)
 {
     if (test == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sSetCfgTest: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    HDF_LOGD("%s:sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
-        channelIfMode[%u], mclk[%u], bclk[%u], writeChannel[%u], i2slFsSel[%u]", __func__,
+    HDF_LOGD("I2sSetCfgTest: sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
+        channelIfMode[%u], mclk[%u], bclk[%u], writeChannel[%u], i2slFsSel[%u]",
         test->sampleRate, test->type, test->channelMode, test->samplePrecision,
         test->channelIfMode, test->mclk, test->bclk, test->writeChannel, test->i2slFsSel);
 
@@ -59,15 +59,15 @@ static int32_t I2sSetCfgTest(struct I2sTest *test)
 static int32_t I2sGetCfgTest(struct I2sTest *test)
 {
     if (test == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sGetCfgTest: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     struct I2sCfg cfg;
     I2sGetCfg(test->handle, &cfg);
 
-    HDF_LOGD("%s:sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
-        channelIfMode[%u], mclk[%u], bclk[%u], writeChannel[%u], i2slFsSel[%u]", __func__,
+    HDF_LOGD("I2sGetCfgTest: sampleRate[%u], type[%u], channelMode[%u], samplePrecision[%u], \
+        channelIfMode[%u], mclk[%u], bclk[%u], writeChannel[%u], i2slFsSel[%u]",
         test->sampleRate, test->type, test->channelMode, test->samplePrecision,
         test->channelIfMode, test->mclk, test->bclk, test->writeChannel, test->i2slFsSel);
     return HDF_SUCCESS;
@@ -76,7 +76,7 @@ static int32_t I2sGetCfgTest(struct I2sTest *test)
 static int32_t I2sOpenTest(struct I2sTest *test)
 {
     if (test == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sOpenTest: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -86,7 +86,7 @@ static int32_t I2sOpenTest(struct I2sTest *test)
 static int32_t I2sCloseTest(struct I2sTest *test)
 {
     if (test == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sCloseTest: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -96,7 +96,7 @@ static int32_t I2sCloseTest(struct I2sTest *test)
 static int32_t I2sEnableTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL || test->wbuf == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sEnableTest: test or handle or wbuf is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -107,7 +107,7 @@ static int32_t I2sEnableTest(struct I2sTest *test)
 static int32_t I2sDisableTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL || test->wbuf == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sDisableTest: test or handle or wbuf is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -119,29 +119,29 @@ static int32_t I2sDisableTest(struct I2sTest *test)
 static int32_t I2sPlayTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL || test->wbuf == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sPlayTest: test or handle or wbuf is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     OsalFile file;
     int32_t size = OsalFileOpen(&file, TEST_WRITE_FILE_PATH_NAME, O_CREAT | OSAL_O_RDWR, OSAL_S_IREAD);
     if (size < 0) {
-        printf("[%s] OsalFileOpen ret[%d] error\n", __func__, size);
+        printf("[I2sPlayTest] OsalFileOpen ret[%d] error!\n", size);
         return HDF_FAILURE;
     }
 
     uint32_t readBuff = I2S_WRITE_BUFF_SIZE;
     do {
         size = OsalFileRead(&file, test->wbuf, readBuff);
-        printf("[%s] read file size[%d]", __func__, size);
+        printf("[I2sPlayTest] read file size[%d]", size);
         if (size > 0) {
             uint32_t wlen = 0;
             int ret = I2sWrite(test->handle, test->wbuf, size, &wlen);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: I2sPlayTest error", __func__);
+                HDF_LOGE("I2sPlayTest: I2sPlayTest error!");
                 return HDF_FAILURE;
             }
-            printf("[%s] [%d] I2sPlayTest wlen[%u]\n", __func__, ret, wlen);
+            printf("[I2sPlayTest] [%d] I2sPlayTest wlen[%u]\n", ret, wlen);
         }
     } while (size > 0);
 
@@ -156,14 +156,14 @@ static int32_t I2sPlayTest(struct I2sTest *test)
 static int32_t I2sRecordTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL || test->rbuf == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sRecordTest: test or handle or rbuf is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     OsalFile file;
     int32_t ret = OsalFileOpen(&file, TEST_READ_FILE_PATH_NAME, O_CREAT | OSAL_O_RDWR, OSAL_S_IWRITE);
     if (ret < 0) {
-        HDF_LOGE("[%s] OsalFileOpen ret[%d] error\n", __func__, ret);
+        HDF_LOGE("[I2sRecordTest] OsalFileOpen ret[%d] error!\n", ret);
         return HDF_FAILURE;
     }
 
@@ -173,16 +173,16 @@ static int32_t I2sRecordTest(struct I2sTest *test)
         test->len = I2S_DATA_BUF_SIZE;
         (void)memset_s(test->rbuf, I2S_DATA_BUF_SIZE, 0xee, I2S_DATA_BUF_SIZE);
         if (I2sRead(test->handle, test->rbuf, test->len, &test->len) != HDF_SUCCESS) {
-            HDF_LOGE("%s: I2sRecordTest error \n", __func__);
+            HDF_LOGE("I2sRecordTest: I2sRecordTest error!\n");
             return HDF_FAILURE;
         }
         if (test->len == 0) {
-            HDF_LOGD("%s: not available data.\n", __func__);
+            HDF_LOGD("I2sRecordTest: not available data!\n");
         } else {
             totalLen += test->len;
             ret = OsalFileWrite(&file, test->rbuf, test->len);
             if (ret < -1) {
-                HDF_LOGE("%s: write file error \n", __func__);
+                HDF_LOGE("I2sRecordTest: write file error!\n");
                 OsalFileClose(&file);
                 return HDF_FAILURE;
             }
@@ -198,22 +198,22 @@ static int32_t I2sRecordTest(struct I2sTest *test)
 static int32_t I2sReadTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL || test->rbuf == NULL  || test->wbuf == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sReadTest: test or handle or rbuf or wbuf is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (I2sRead(test->handle, test->rbuf, test->len, &test->len) != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sRead error \n", __func__);
+        HDF_LOGE("I2sReadTest: I2sRead error!\n");
         return HDF_FAILURE;
     }
 
     if (test->len > I2S_DATA_BUF_SIZE) {
-        HDF_LOGE("%s:I2sRead read data too large \n", __func__);
+        HDF_LOGE("I2sReadTest: I2sRead read data too large!\n");
         return HDF_FAILURE;
     }
 
     if (memcpy_s(test->wbuf, I2S_DATA_BUF_SIZE, test->rbuf, test->len) != EOK) {
-        HDF_LOGE("%s: memcpy buf failed", __func__);
+        HDF_LOGE("I2sReadTest: memcpy buf fail!");
         return HDF_ERR_IO;
     }
 
@@ -223,12 +223,12 @@ static int32_t I2sReadTest(struct I2sTest *test)
 static int32_t I2sWriteTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL || test->wbuf == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sWriteTest: test or handle or wbuf is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (I2sWrite(test->handle, test->wbuf, test->len, &test->len) != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sWriteTest error \n", __func__);
+        HDF_LOGE("I2sWriteTest: I2sWriteTest error!\n");
         return HDF_FAILURE;
     }
 
@@ -239,7 +239,7 @@ static int32_t I2sWriteTest(struct I2sTest *test)
 static int32_t I2sWriteStartTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sWriteStartTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -250,13 +250,13 @@ static int32_t I2sWriteStartTest(struct I2sTest *test)
 static int32_t I2sReadStartTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sReadStartTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     
     I2sStartRead(test->handle);
     if (test->rbuf != NULL) {
-        HDF_LOGI("%s: rbuf[0] = [%u]\n", __func__, test->rbuf[0]);
+        HDF_LOGI("I2sReadStartTest: rbuf[0] = [%u]\n", test->rbuf[0]);
     }
 
     return HDF_SUCCESS;
@@ -265,7 +265,7 @@ static int32_t I2sReadStartTest(struct I2sTest *test)
 static int32_t I2sWriteStopTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sWriteStopTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -276,13 +276,13 @@ static int32_t I2sWriteStopTest(struct I2sTest *test)
 static int32_t I2sReadStopTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sReadStopTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     
     I2sStopRead(test->handle);
     if (test->rbuf != NULL) {
-        HDF_LOGI("%s: rbuf[0] = [%u]\n", __func__, test->rbuf[0]);
+        HDF_LOGI("I2sReadStopTest: rbuf[0] = [%u]\n", test->rbuf[0]);
     }
 
     return HDF_SUCCESS;
@@ -291,7 +291,7 @@ static int32_t I2sReadStopTest(struct I2sTest *test)
 static int32_t I2sReliabilityTest(struct I2sTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("I2sReliabilityTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -299,7 +299,7 @@ static int32_t I2sReliabilityTest(struct I2sTest *test)
     (void)I2sReadTest(NULL);
 
     (void)test;
-    HDF_LOGE("%s: success", __func__);
+    HDF_LOGD("I2sReliabilityTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -326,23 +326,23 @@ static int32_t I2sTestEntry(struct I2sTest *test, int32_t cmd)
     int32_t i;
     int32_t ret = HDF_ERR_NOT_SUPPORT;
 
-    HDF_LOGE("I2s test-- -- -- -- -- -->%s: enter cmd %d", __func__, cmd);
+    HDF_LOGE("I2s test-- -- -- -- -- -->I2sTestEntry: enter cmd %d", cmd);
 
     if (test == NULL) {
-        HDF_LOGE("%s: test null cmd %d", __func__, cmd);
+        HDF_LOGE("I2sTestEntry: test is null, cmd %d!", cmd);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     test->handle = I2sOpen(0);
     if (test->handle == NULL) {
-        HDF_LOGE("%s: i2s test get handle fail", __func__);
+        HDF_LOGE("I2sTestEntry: i2s test get handle fail!");
         return HDF_FAILURE;
     }
 
     for (i = 0; i < sizeof(g_i2sTestFunc) / sizeof(g_i2sTestFunc[0]); i++) {
         if (cmd == g_i2sTestFunc[i].type && g_i2sTestFunc[i].Func != NULL) {
             ret = g_i2sTestFunc[i].Func(test);
-            HDF_LOGE("%s: cmd %d ret %d", __func__, cmd, ret);
+            HDF_LOGE("I2sTestEntry: cmd %d ret %d", cmd, ret);
             break;
         }
     }
@@ -358,7 +358,7 @@ static int32_t I2sTestBind(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = &test.service;
     } else {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("I2sTestBind: device is null!");
     }
     return HDF_SUCCESS;
 }
@@ -366,20 +366,20 @@ static int32_t I2sTestBind(struct HdfDeviceObject *device)
 static int32_t I2sTestInitBuf(struct I2sTest *test)
 {
     if (test == NULL) {
-        HDF_LOGE("%s: test is null", __func__);
+        HDF_LOGE("I2sTestInitBuf: test is null!");
         return HDF_FAILURE;
     }
 
     test->len = I2S_DATA_BUF_SIZE;
     test->wbuf = (uint8_t *)OsalMemCalloc(test->len);
     if (test->wbuf == NULL) {
-        HDF_LOGE("%s: wbuf OsalMemCalloc error\n", __func__);
+        HDF_LOGE("I2sTestInitBuf: wbuf OsalMemCalloc error!\n");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     test->rbuf = (uint8_t *)OsalMemCalloc(test->len);
     if (test->rbuf == NULL) {
-        HDF_LOGE("%s: rbuf OsalMemCalloc error\n", __func__);
+        HDF_LOGE("I2sTestInitBuf: rbuf OsalMemCalloc error!\n");
         OsalMemFree(test->wbuf);
         return HDF_ERR_MALLOC_FAIL;
     }
@@ -393,29 +393,29 @@ static int32_t I2sTestInitCodecFromHcs(struct I2sTest *test, const struct Device
 
     face = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (face == NULL) {
-        HDF_LOGE("%s: face is null", __func__);
+        HDF_LOGE("I2sTestInitCodecFromHcs: face is null!");
         return HDF_FAILURE;
     }
 
     int32_t ret = face->GetUint8(node, "writeChannel", &test->writeChannel, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read writeChannel fail", __func__);
+        HDF_LOGE("I2sTestInitCodecFromHcs: read writeChannel fail!");
         return HDF_FAILURE;
     }
     ret = face->GetUint8(node, "i2slFsSel", &test->i2slFsSel, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read i2slFsSel fail", __func__);
+        HDF_LOGE("I2sTestInitCodecFromHcs: read i2slFsSel fail!");
         return HDF_FAILURE;
     }
 
     ret = face->GetUint8(node, "channelMode", &test->channelMode, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read channelMode fail", __func__);
+        HDF_LOGE("I2sTestInitCodecFromHcs: read channelMode fail!");
         return HDF_FAILURE;
     }
     ret = face->GetUint8(node, "channelIfMode", &test->channelIfMode, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read channelIfMode fail", __func__);
+        HDF_LOGE("I2sTestInitCodecFromHcs: read channelIfMode fail!");
         return HDF_FAILURE;
     }
 
@@ -429,44 +429,46 @@ static int32_t I2sTestInitFromHcs(struct I2sTest *test, const struct DeviceResou
 
     face = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (face == NULL) {
-        HDF_LOGE("%s: face is null", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: face is null!");
         return HDF_FAILURE;
     }
     if (face->GetUint32 == NULL || face->GetUint32Array == NULL) {
-        HDF_LOGE("%s: GetUint32 or GetUint32Array not support", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: GetUint32 or GetUint32Array not support!");
         return HDF_ERR_NOT_SUPPORT;
     }
     ret = face->GetUint8(node, "sampleRate", &test->sampleRate, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read sampleRate fail", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: read sampleRate fail!");
         return HDF_FAILURE;
     }
     ret = face->GetUint8(node, "type", &test->type, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read type fail", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: read type fail!");
         return HDF_FAILURE;
     }
     ret = face->GetUint8(node, "samplePrecision", &test->samplePrecision, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read samplePrecision fail", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: read samplePrecision fail!");
         return HDF_FAILURE;
     }
     ret = face->GetUint32(node, "MCLK", &test->mclk, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read MCLK fail", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: read MCLK fail!");
         return HDF_FAILURE;
     }
     ret = face->GetUint32(node, "BCLK", &test->bclk, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read BCLK fail", __func__);
+        HDF_LOGE("I2sTestInitFromHcs: read BCLK fail!");
         return HDF_FAILURE;
     }
 
     if (I2sTestInitCodecFromHcs (test, node) != HDF_SUCCESS) {
+        HDF_LOGE("I2sTestInitFromHcs: init codec from hcs fail!");
         return HDF_FAILURE;
     }
 
     if (I2sTestInitBuf (test) != HDF_SUCCESS) {
+        HDF_LOGE("I2sTestInitFromHcs: init buf fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -477,16 +479,16 @@ static int32_t I2sTestInit(struct HdfDeviceObject *device)
     struct I2sTest *test = NULL;
 
     if (device == NULL || device->service == NULL || device->property == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("I2sTestInit: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
     test = (struct I2sTest *)device->service;
     if (I2sTestInitFromHcs(test, device->property) != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sTestInitFromHcs failed", __func__);
+        HDF_LOGE("I2sTestInit: I2sTestInitFromHcs fail!");
         return HDF_FAILURE;
     }
 
-    HDF_LOGE("%s: success", __func__);
+    HDF_LOGD("I2sTestInit: success!");
     test->TestEntry = I2sTestEntry;
     return HDF_SUCCESS;
 }
@@ -496,10 +498,12 @@ static void I2sTestRelease(struct HdfDeviceObject *device)
     struct I2sTest *test = NULL;
 
     if (device == NULL) {
+        HDF_LOGE("I2sTestRelease: device is null!");
         return;
     }
     test = (struct I2sTest *)device->service;
     if (test == NULL) {
+        HDF_LOGE("I2sTestRelease: test is null!");
         return;
     }
     if (test->wbuf != NULL) {

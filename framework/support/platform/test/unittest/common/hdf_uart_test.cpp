@@ -55,10 +55,7 @@ HWTEST_F(HdfLiteUartTest, UartSetTransModeTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_TRANSMODE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_TRANSMODE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -71,10 +68,7 @@ HWTEST_F(HdfLiteUartTest, UartWriteTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_WRITE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_WRITE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -87,10 +81,7 @@ HWTEST_F(HdfLiteUartTest, UartReadTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = { TEST_PAL_UART_TYPE, UART_TEST_CMD_READ, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_READ));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -103,10 +94,7 @@ HWTEST_F(HdfLiteUartTest, UartSetBaudTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_BAUD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_BAUD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -119,10 +107,7 @@ HWTEST_F(HdfLiteUartTest, UartGetBaudTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_GET_BAUD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_GET_BAUD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -135,10 +120,7 @@ HWTEST_F(HdfLiteUartTest, UartSetAttributeTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_ATTRIBUTE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_ATTRIBUTE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -151,10 +133,7 @@ HWTEST_F(HdfLiteUartTest, UartGetAttributeTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_GET_ATTRIBUTE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_GET_ATTRIBUTE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -167,10 +146,7 @@ HWTEST_F(HdfLiteUartTest, UartReliabilityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_RELIABILITY));
-    printf("%s: exit!\n", __func__);
 }
 
 /**

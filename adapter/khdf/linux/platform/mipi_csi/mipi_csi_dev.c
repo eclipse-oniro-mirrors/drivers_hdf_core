@@ -3,7 +3,7 @@
  *
  * create vfs node for mipi-csi
  *
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -84,33 +84,33 @@ static int32_t RegisterDevice(const char *name, uint8_t id, unsigned short mode,
     struct miscdevice *dev = NULL;
 
     if ((name == NULL) || (ops == NULL) || (id >= MAX_CNTLR_CNT)) {
-        HDF_LOGE("%s: name, ops or id is error.", __func__);
+        HDF_LOGE("RegisterDevice: name, ops or id is error!");
         return HDF_ERR_INVALID_PARAM;
     }
     dev = OsalMemCalloc(sizeof(struct miscdevice));
     if (dev == NULL) {
-        HDF_LOGE("%s: [OsalMemCalloc] failed.", __func__);
+        HDF_LOGE("RegisterDevice: [OsalMemCalloc] fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     dev->fops = ops;
     dev->name = OsalMemCalloc(MAX_DEV_NAME_LEN + 1);
     if (dev->name == NULL) {
         OsalMemFree(dev);
-        HDF_LOGE("%s: [OsalMemCalloc] failed.", __func__);
+        HDF_LOGE("RegisterDevice: [OsalMemCalloc] fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (id != 0) { /* 0 : id */
         if (snprintf_s((char *)dev->name, MAX_DEV_NAME_LEN + 1, MAX_DEV_NAME_LEN, "%s%u", name, id) < 0) {
             OsalMemFree((char *)dev->name);
             OsalMemFree(dev);
-            HDF_LOGE("%s: [snprintf_s] failed.", __func__);
+            HDF_LOGE("RegisterDevice: [snprintf_s] fail!");
             return HDF_FAILURE;
         }
     } else {
         if (memcpy_s((char *)dev->name, MAX_DEV_NAME_LEN, name, strlen(name)) != EOK) {
             OsalMemFree((char *)dev->name);
             OsalMemFree(dev);
-            HDF_LOGE("%s: [memcpy_s] failed.", __func__);
+            HDF_LOGE("RegisterDevice: [memcpy_s] fail!");
             return HDF_ERR_IO;
         }
     }
@@ -121,15 +121,15 @@ static int32_t RegisterDevice(const char *name, uint8_t id, unsigned short mode,
     // register_driver and misc_register are used in different os.
     error = misc_register(dev);
     if (error < 0) {
-        HDF_LOGE("%s: id %u cannot register miscDev on minor=%d (err=%d)",
-            __func__, id, MISC_DYNAMIC_MINOR, error);
+        HDF_LOGE("RegisterDevice: id %u cannot register miscDev on minor=%d (err=%d)!",
+            id, MISC_DYNAMIC_MINOR, error);
         OsalMemFree((char *)dev->name);
         OsalMemFree(dev);
         return error;
     }
 
     g_vfsPara.miscDev = dev;
-    HDF_LOGI("%s: create inode ok, name = %s, minor = %d", __func__, dev->name, dev->minor);
+    HDF_LOGI("RegisterDevice: create inode ok, name = %s, minor = %d", dev->name, dev->minor);
 
     return HDF_SUCCESS;
 }
@@ -139,12 +139,12 @@ static void UnregisterDevice(uint8_t id)
     struct miscdevice *dev = NULL;
 
     if (id >= MAX_CNTLR_CNT) {
-        HDF_LOGE("%s: id error.", __func__);
+        HDF_LOGE("UnregisterDevice: id error!");
         return;
     }
     dev = g_vfsPara.miscDev;
     if (dev == NULL) {
-        HDF_LOGE("%s: dev is NULL.", __func__);
+        HDF_LOGE("UnregisterDevice: dev is null!");
         return;
     }
 
@@ -154,13 +154,13 @@ static void UnregisterDevice(uint8_t id)
     dev->name = NULL;
     OsalMemFree(dev);
     dev = NULL;
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("UnregisterDevice: success!");
 }
 
 static struct MipiCsiCntlr *GetCntlr(const SysProcEntryTag *s)
 {
     if (s == NULL) {
-        HDF_LOGE("%s: s is NULL.", __func__);
+        HDF_LOGE("GetCntlr: s is null!");
         return NULL;
     }
     return g_vfsPara.cntlr;
@@ -171,12 +171,12 @@ static int MipiSetComboDevAttr(struct MipiCsiVfsPara *vfsPara, ComboDevAttr *pAt
     int ret;
 
     if (vfsPara == NULL) {
-        HDF_LOGE("%s: vfsPara is NULL.", __func__);
+        HDF_LOGE("MipiSetComboDevAttr: vfsPara is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (SysMutexLock(&(vfsPara->lock))) {
-        HDF_LOGE("%s: [OsalMutexLock] failed.", __func__);
+        HDF_LOGE("MipiSetComboDevAttr: [OsalMutexLock] fail!");
         return HDF_FAILURE;
     }
     ret = MipiCsiCntlrSetComboDevAttr(vfsPara->cntlr, pAttr);
@@ -188,17 +188,17 @@ static int MipiSetComboDevAttr(struct MipiCsiVfsPara *vfsPara, ComboDevAttr *pAt
 static int MipiSetExtDataType(struct MipiCsiVfsPara *vfsPara, ExtDataType *dataType)
 {
     if (vfsPara == NULL) {
-        HDF_LOGE("%s: vfsPara is NULL.", __func__);
+        HDF_LOGE("MipiSetExtDataType: vfsPara is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (dataType == NULL) {
-        HDF_LOGE("%s: dataType is NULL.", __func__);
+        HDF_LOGE("MipiSetExtDataType: dataType is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (SysMutexLock(&(vfsPara->lock))) {
-        HDF_LOGE("%s: [OsalMutexLock] failed.", __func__);
+        HDF_LOGE("MipiSetExtDataType: [OsalMutexLock] fail!");
         return HDF_FAILURE;
     }
     MipiCsiCntlrSetExtDataType(vfsPara->cntlr, dataType);
@@ -210,12 +210,12 @@ static int MipiSetExtDataType(struct MipiCsiVfsPara *vfsPara, ExtDataType *dataT
 static int MipiSetPhyCmvmode(struct MipiCsiVfsPara *vfsPara, uint8_t devno, PhyCmvMode cmvMode)
 {
     if (vfsPara == NULL) {
-        HDF_LOGE("%s: vfsPara is NULL.", __func__);
+        HDF_LOGE("MipiSetPhyCmvmode: vfsPara is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (SysMutexLock(&(vfsPara->lock))) {
-        HDF_LOGE("%s: [OsalMutexLock] failed.", __func__);
+        HDF_LOGE("MipiSetPhyCmvmode: [OsalMutexLock] fail!");
         return HDF_FAILURE;
     }
     MipiCsiCntlrSetPhyCmvmode(vfsPara->cntlr, devno, cmvMode);
@@ -230,7 +230,7 @@ static long MipiRxIoctl(struct file *filep, unsigned int cmd, unsigned long arg)
     struct MipiCsiCntlr *cntlr = g_vfsPara.cntlr;
     int ret = HDF_FAILURE;
     if ((argp == NULL) || (cntlr == NULL)) {
-        HDF_LOGE("%s: argp or cntlr is NULL.", __func__);
+        HDF_LOGE("MipiRxIoctl: argp or cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     (void)filep;
@@ -284,7 +284,7 @@ static long MipiRxIoctl(struct file *filep, unsigned int cmd, unsigned long arg)
         default:
             break;
     }
-    HDF_LOGI("%s: cmd = %d %s.", __func__, cmd, (ret == HDF_SUCCESS) ? "success" : "failed");
+    HDF_LOGI("MipiRxIoctl: cmd = %d %s!", cmd, (ret == HDF_SUCCESS) ? "success" : "failed");
     return ret;
 }
 
@@ -307,11 +307,11 @@ static int32_t ProcRegister(const char *name, uint8_t id, unsigned short mode, c
     int32_t ret;
 
     if ((name == NULL) || (ops == NULL) || (id >= MAX_CNTLR_CNT)) {
-        HDF_LOGE("%s: name, ops or id is error.", __func__);
+        HDF_LOGE("ProcRegister: name, ops or id is error!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (memset_s(procName, MAX_DEV_NAME_LEN + 1, 0, MAX_DEV_NAME_LEN + 1) != EOK) {
-        HDF_LOGE("%s: [memcpy_s] failed.", __func__);
+        HDF_LOGE("ProcRegister: [memcpy_s] fail!");
         return HDF_ERR_IO;
     }
     if (id != 0) {
@@ -320,17 +320,17 @@ static int32_t ProcRegister(const char *name, uint8_t id, unsigned short mode, c
         ret = snprintf_s(procName, MAX_DEV_NAME_LEN + 1, MAX_DEV_NAME_LEN, "%s", name);
     }
     if (ret < 0) {
-        HDF_LOGE("%s: procName %s [snprintf_s] fail", __func__, procName);
+        HDF_LOGE("ProcRegister: procName %s [snprintf_s] fail!", procName);
         return HDF_FAILURE;
     }
 
     // proc_create and CreateProcEntry are used in different os.
     entry = proc_create(procName, mode, NULL, ops);
     if (entry == NULL) {
-        HDF_LOGE("%s: [proc_create] name %s fail", __func__, procName);
+        HDF_LOGE("ProcRegister: [proc_create] name %s fail!", procName);
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("ProcRegister: success!");
     return HDF_SUCCESS;
 }
 
@@ -340,11 +340,11 @@ static void ProcUnregister(const char *name, uint8_t id)
     int32_t ret;
 
     if (id >= MAX_CNTLR_CNT) {
-        HDF_LOGE("%s: id error.", __func__);
+        HDF_LOGE("ProcUnregister: id error!");
         return;
     }
     if (memset_s(procName, MAX_DEV_NAME_LEN + 1, 0, MAX_DEV_NAME_LEN + 1) != EOK) {
-        HDF_LOGE("%s: [memcpy_s] failed.", __func__);
+        HDF_LOGE("ProcUnregister: [memcpy_s] fail!");
         return;
     }
     if (id != 0) {
@@ -353,13 +353,13 @@ static void ProcUnregister(const char *name, uint8_t id)
         ret = snprintf_s(procName, MAX_DEV_NAME_LEN + 1, MAX_DEV_NAME_LEN, "%s", name);
     }
     if (ret < 0) {
-        HDF_LOGE("%s: [snprintf_s] failed.", __func__);
+        HDF_LOGE("ProcUnregister: [snprintf_s] fail!");
         return;
     }
 
     // remove_proc_entry and ProcFreeEntry are used in different os.
     remove_proc_entry(procName, NULL);
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("ProcUnregister: success!");
 }
 
 static const char *MipiGetIntputModeName(InputMode inputMode)
@@ -512,7 +512,7 @@ static void ProcShowMipiDevice(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr)
 
     ret = MipiCsiDebugGetMipiDevCtx(cntlr, &tag);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetMipiDevCtx] failed.", __func__);
+        HDF_LOGE("ProcShowMipiDevice: [MipiCsiDebugGetMipiDevCtx] fail!");
         return;
     }
 
@@ -558,7 +558,7 @@ static void ProcShowMipiLane(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr)
 
     ret = MipiCsiDebugGetMipiDevCtx(cntlr, &tag);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetMipiDevCtx] failed.", __func__);
+        HDF_LOGE("ProcShowMipiLane: [MipiCsiDebugGetMipiDevCtx] fail!");
         return;
     }
 
@@ -600,7 +600,7 @@ static unsigned int GetPhyData(struct MipiCsiCntlr *cntlr, int phyId, int laneId
 
     ret = MipiCsiDebugGetPhyData(cntlr, phyId, laneId, &laneData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetPhyData] failed.", __func__);
+        HDF_LOGE("GetPhyData: [MipiCsiDebugGetPhyData] fail!");
         return 0;
     }
 
@@ -614,7 +614,7 @@ static unsigned int GetPhyMipiLinkData(struct MipiCsiCntlr *cntlr, int phyId, in
 
     ret = MipiCsiDebugGetPhyMipiLinkData(cntlr, phyId, laneId, &laneData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetPhyMipiLinkData] failed.", __func__);
+        HDF_LOGE("GetPhyMipiLinkData: [MipiCsiDebugGetPhyMipiLinkData] fail!");
         return 0;
     }
 
@@ -628,7 +628,7 @@ static unsigned int GetPhyLvdsLinkData(struct MipiCsiCntlr *cntlr, int phyId, in
 
     ret = MipiCsiDebugGetPhyLvdsLinkData(cntlr, phyId, laneId, &laneData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetPhyLvdsLinkData] failed.", __func__);
+        HDF_LOGE("GetPhyLvdsLinkData: [MipiCsiDebugGetPhyLvdsLinkData] fail!");
         return 0;
     }
 
@@ -682,7 +682,7 @@ static void ProcShowMipiDetectInfo(SysProcEntryTag *s, struct MipiCsiCntlr *cntl
         for (vcNum = 0; vcNum < WDR_VC_NUM; vcNum++) {
             ret = MipiCsiDebugGetMipiImgsizeStatis(cntlr, devnoArray[devnoIdx], vcNum, &imageSize);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: [MipiCsiDebugGetMipiImgsizeStatis] failed.", __func__);
+                HDF_LOGE("ProcShowMipiDetectInfo: [MipiCsiDebugGetMipiImgsizeStatis] fail!");
                 return;
             }
             SysSeqPrintf(s, "%6d%3d%8u%8u\n",
@@ -706,7 +706,7 @@ static void ProcShowLvdsDetectInfo(SysProcEntryTag *s, struct MipiCsiCntlr *cntl
         for (vcNum = 0; vcNum < WDR_VC_NUM; vcNum++) {
             ret = MipiCsiDebugGetLvdsImgsizeStatis(cntlr, devnoArray[devnoIdx], vcNum, &imageSize);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: [MipiCsiDebugGetLvdsImgsizeStatis] failed.", __func__);
+                HDF_LOGE("ProcShowLvdsDetectInfo: [MipiCsiDebugGetLvdsImgsizeStatis] fail!");
                 return;
             }
             SysSeqPrintf(s, "%6d%3d%8d%8d\n",
@@ -727,7 +727,7 @@ static void ProcShowLvdsLaneDetectInfo(SysProcEntryTag *s, struct MipiCsiCntlr *
 
     ret = MipiCsiDebugGetMipiDevCtx(cntlr, &tag);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetMipiDevCtx] failed.", __func__);
+        HDF_LOGE("ProcShowLvdsLaneDetectInfo: [MipiCsiDebugGetMipiDevCtx] fail!");
         return;
     }
 
@@ -742,7 +742,7 @@ static void ProcShowLvdsLaneDetectInfo(SysProcEntryTag *s, struct MipiCsiCntlr *
             }
             ret = MipiCsiDebugGetLvdsLaneImgsizeStatis(cntlr, devnoArray[devnoIdx], lane, &imageSize);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: [MipiCsiDebugGetLvdsLaneImgsizeStatis] failed.", __func__);
+                HDF_LOGE("ProcShowLvdsLaneDetectInfo: [MipiCsiDebugGetLvdsLaneImgsizeStatis] fail!");
                 return;
             }
 
@@ -761,7 +761,7 @@ static void ProcShowMipiHsMode(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr)
 
     ret = MipiCsiDebugGetMipiDevCtx(cntlr, &tag);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetMipiDevCtx] failed.", __func__);
+        HDF_LOGE("ProcShowMipiHsMode: [MipiCsiDebugGetMipiDevCtx] fail!");
         return;
     }
 
@@ -785,7 +785,7 @@ static void ProcShowPhyCilIntErrCnt(SysProcEntryTag *s, struct MipiCsiCntlr *cnt
     for (phyId = 0; phyId < MIPI_RX_MAX_PHY_NUM; phyId++) {
         ret = MipiCsiDebugGetPhyErrIntCnt(cntlr, phyId, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetPhyErrIntCnt] failed.", __func__);
+            HDF_LOGE("ProcShowPhyCilIntErrCnt: [MipiCsiDebugGetPhyErrIntCnt] fail!");
             return;
         }
 
@@ -823,7 +823,7 @@ static void ProcShowMipirxCrcErr(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr,
         devno = devnoArray[devnoIdx];
         ret = MipiCsiDebugGetMipiErrInt(cntlr, devno, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetMipiErrInt] failed.", __func__);
+            HDF_LOGE("ProcShowMipirxCrcErr: [MipiCsiDebugGetMipiErrInt] fail!");
             return;
         }
 
@@ -858,7 +858,7 @@ static void ProcShowMipirxVcErr(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr,
         devno = devnoArray[devnoIdx];
         ret = MipiCsiDebugGetMipiErrInt(cntlr, devno, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetMipiErrInt] failed.", __func__);
+            HDF_LOGE("ProcShowMipirxVcErr: [MipiCsiDebugGetMipiErrInt] fail!");
             return;
         }
         SysSeqPrintf(s, "%8d%7d%7d%7d%7d%11d%11d%11d%11d\n",
@@ -880,7 +880,7 @@ static void ProcShowMipirxVcErr(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr,
         devno = devnoArray[devnoIdx];
         ret = MipiCsiDebugGetMipiErrInt(cntlr, devno, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetMipiErrInt] failed.", __func__);
+            HDF_LOGE("ProcShowMipirxVcErr: [MipiCsiDebugGetMipiErrInt] fail!");
             return;
         }
         SysSeqPrintf(s, "%8d%11d%11d%11d%11d%12d%12d%12d%12d\n",
@@ -912,7 +912,7 @@ static void ProcShowMipirxFifoErr(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr
         devno = devnoArray[devnoIdx];
         ret = MipiCsiDebugGetMipiErrInt(cntlr, devno, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetMipiErrInt] failed.", __func__);
+            HDF_LOGE("ProcShowMipirxFifoErr: [MipiCsiDebugGetMipiErrInt] fail!");
             return;
         }
 
@@ -948,7 +948,7 @@ static void ProcShowLvdsIntErr(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr,
         devno = devnoArray[devnoIdx];
         ret = MipiCsiDebugGetLvdsErrIntCnt(cntlr, devno, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetLvdsErrIntCnt] failed.", __func__);
+            HDF_LOGE("ProcShowLvdsIntErr: [MipiCsiDebugGetLvdsErrIntCnt] fail!");
             return;
         }
 
@@ -973,7 +973,7 @@ static void ProcShowAlignIntErr(SysProcEntryTag *s, struct MipiCsiCntlr *cntlr)
     for (devno = 0; devno < MIPI_RX_MAX_DEV_NUM; devno++) {
         ret = MipiCsiDebugGetAlignErrIntCnt(cntlr, devno, &tag);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: [MipiCsiDebugGetAlignErrIntCnt] failed.", __func__);
+            HDF_LOGE("ProcShowAlignIntErr: [MipiCsiDebugGetAlignErrIntCnt] fail!");
             continue;
         }
         SysSeqPrintf(s, "%8s%14s%10s%10s%10s%10s\n",
@@ -992,8 +992,9 @@ static void MipiLvdsProcShow(int mipiCnt, int lvdsCnt, uint8_t devnoMipi[MIPI_RX
     uint8_t devnoLvds[MIPI_RX_MAX_DEV_NUM], SysProcEntryTag *s)
 {
     struct MipiCsiCntlr *cntlr = GetCntlr(s);
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("MipiLvdsProcShow: cntlr is null!");
         return;
     }
 
@@ -1042,17 +1043,17 @@ static int32_t GetMipiOrLvdsDeviceCount(SysProcEntryTag *s, int *pmipiCnt, int *
     struct MipiCsiCntlr *cntlr = NULL;
 
     if ((pmipiCnt == NULL) || (plvdsCnt == NULL) || (devnoMipi == NULL) || (devnoLvds == NULL)) {
-        HDF_LOGE("%s: pmipiCnt, plvdsCnt and other parameters are invalid.", __func__);
+        HDF_LOGE("GetMipiOrLvdsDeviceCount: pmipiCnt or plvdsCnt or devnoMipi or devnoLvds is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
     cntlr = GetCntlr(s);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("GetMipiOrLvdsDeviceCount: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = MipiCsiDebugGetMipiDevCtx(cntlr, &tag);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiCsiDebugGetMipiDevCtx] failed.", __func__);
+        HDF_LOGE("GetMipiOrLvdsDeviceCount: [MipiCsiDebugGetMipiDevCtx] fail!");
         return ret;
     }
 
@@ -1087,7 +1088,7 @@ static void MipiProcShow(SysProcEntryTag *s)
 
     ret = GetMipiOrLvdsDeviceCount(s, &mipiCnt, &lvdsCnt, devnoMipi, devnoLvds);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [GetMipiOrLvdsDeviceCount] failed.", __func__);
+        HDF_LOGE("MipiProcShow: [GetMipiOrLvdsDeviceCount] fail!");
         return;
     }
     MipiLvdsProcShow(mipiCnt, lvdsCnt, devnoMipi, devnoLvds, s);
@@ -1097,14 +1098,14 @@ static int MipiRxProcShow(SysProcEntryTag *s, void *v)
 {
     SysSeqPrintf(s, "\nModule: [MIPI_RX], Build Time["__DATE__", "__TIME__"]\n");
     MipiProcShow(s);
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiRxProcShow: success!");
     return HDF_SUCCESS;
 }
 
 static int MipiCsiDevProcOpen(struct inode *inode, struct file *file)
 {
     (void)inode;
-    HDF_LOGI("%s: enter.", __func__);
+    HDF_LOGI("MipiCsiDevProcOpen: enter!");
     return single_open(file, MipiRxProcShow, NULL);
 }
 
@@ -1140,7 +1141,7 @@ static int MipiRxOpen(struct inode *inode, struct file *filep)
     (void)filep;
 
     g_vfsPara.cntlr = MipiCsiCntlrGet(0);
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiRxOpen: success!");
 
     return HDF_SUCCESS;
 }
@@ -1153,7 +1154,7 @@ static int MipiRxRelease(struct inode *inode, struct file *filep)
     if (g_vfsPara.cntlr != NULL) {
         MipiCsiCntlrPut(g_vfsPara.cntlr);
     }
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiRxRelease: success!");
 
     return HDF_SUCCESS;
 }
@@ -1175,14 +1176,14 @@ int MipiCsiDevModuleInit(uint8_t id)
     /* 0660 : node mode */
     ret = RegisterDevice(MIPI_RX_DEV_NAME, id, 0660, (struct file_operations *)&g_mipiRxFops);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [RegisterDevice] fail: %d.", __func__, ret);
+        HDF_LOGE("MipiCsiDevModuleInit: [RegisterDevice] fail, ret: %d!", ret);
         return ret;
     }
 #ifdef CONFIG_HI_PROC_SHOW_SUPPORT
     ret = ProcRegister(MIPI_RX_PROC_NAME, id, 0440, &g_procMipiCsiDevOps); /* 0440 : proc file mode */
     if (ret != HDF_SUCCESS) {
         UnregisterDevice(id);
-        HDF_LOGE("%s: [ProcRegister] fail: %d.", __func__, ret);
+        HDF_LOGE("MipiCsiDevModuleInit: [ProcRegister] fail, ret: %d!", ret);
         return ret;
     }
 #endif
@@ -1193,11 +1194,11 @@ int MipiCsiDevModuleInit(uint8_t id)
 #ifdef CONFIG_HI_PROC_SHOW_SUPPORT
         ProcUnregister(MIPI_RX_PROC_NAME, id);
 #endif
-        HDF_LOGE("%s: [MipiRxInit] failed.", __func__);
+        HDF_LOGE("MipiCsiDevModuleInit: [MipiRxInit] fail!");
         return ret;
     }
 
-    HDF_LOGI("%s: success!", __func__);
+    HDF_LOGI("MipiCsiDevModuleInit: success!");
     return ret;
 }
 
@@ -1209,7 +1210,7 @@ void MipiCsiDevModuleExit(uint8_t id)
 #endif
     UnregisterDevice(id);
 
-    HDF_LOGI("%s: success!", __func__);
+    HDF_LOGI("MipiCsiDevModuleExit: success!");
 }
 
 #ifdef __cplusplus

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -33,12 +33,12 @@ void I2cClose(DevHandle handle)
 int32_t I2cTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t count)
 {
     if (handle == NULL) {
+        HDF_LOGE("I2cTransfer: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (msgs == NULL || count <= 0) {
-        HDF_LOGE("I2cTransfer: err params! msgs:%s, count:%hd",
-            (msgs == NULL) ? "0" : "x", count);
+        HDF_LOGE("I2cTransfer: err params! msgs:%s, count:%hd!", (msgs == NULL) ? "0" : "x", count);
         return HDF_ERR_INVALID_PARAM;
     }
 

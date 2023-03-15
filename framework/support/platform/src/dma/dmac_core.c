@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -21,43 +21,43 @@
 static int32_t DmacCntlrCheckOps(struct DmaCntlr *cntlr)
 {
     if (cntlr->getChanInfo == NULL) {
-        HDF_LOGE("%s: getChanInfo is null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: getChanInfo is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmaChanEnable == NULL) {
-        HDF_LOGE("%s: dmaChanEnable is null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmaChanEnable is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmaM2mChanEnable == NULL) {
-        HDF_LOGE("%s: dmaM2mChanEnable is null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmaM2mChanEnable is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacChanDisable == NULL) {
-        HDF_LOGE("%s: dmacChanDisable is null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacChanDisable is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacCacheInv == NULL) {
-        HDF_LOGE("%s: dmacCacheInv null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacCacheInv is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacCacheFlush == NULL) {
-        HDF_LOGE("%s: dmacCacheFlush null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacCacheFlush is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacPaddrToVaddr == NULL) {
-        HDF_LOGE("%s: dmacPaddrToVaddr null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacPaddrToVaddr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacVaddrToPaddr == NULL) {
-        HDF_LOGE("%s: dmacVaddrToPaddr null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacVaddrToPaddr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacGetChanStatus == NULL) {
-        HDF_LOGE("%s: dmacGetChanStatus null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacGetChanStatus is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmacGetCurrDestAddr == NULL) {
-        HDF_LOGE("%s: dmacGetCurrDestAddr null", __func__);
+        HDF_LOGE("DmacCntlrCheckOps: dmacGetCurrDestAddr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return HDF_SUCCESS;
@@ -66,15 +66,15 @@ static int32_t DmacCntlrCheckOps(struct DmaCntlr *cntlr)
 static int32_t DmacCntlrCheckParam(struct DmaCntlr *cntlr)
 {
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("DmacCntlrCheckParam: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->maxTransSize == 0) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("DmacCntlrCheckParam: maxTransSize is invaild!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->channelNum == 0 || cntlr->channelNum > DMAC_CHAN_NUM_MAX) {
-        HDF_LOGE("%s: invalid channelNum:%u", __func__, cntlr->channelNum);
+        HDF_LOGE("DmacCntlrCheckParam: invalid channelNum:%u!", cntlr->channelNum);
         return HDF_ERR_INVALID_OBJECT;
     }
     return HDF_SUCCESS;
@@ -86,10 +86,12 @@ static int32_t DmacCntlrCheckInit(struct DmaCntlr *cntlr)
 
     ret = DmacCntlrCheckParam(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("DmacCntlrCheckInit: dmac cntlr check param fail!");
         return ret;
     }
     ret = DmacCntlrCheckOps(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("DmacCntlrCheckInit: dmac cntlr check ops fail!");
         return ret;
     }
     return HDF_SUCCESS;
@@ -101,10 +103,11 @@ static int32_t DmacCntlrCheck(struct DmaCntlr *cntlr)
 
     ret = DmacCntlrCheckInit(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("DmacCntlrCheck: dmac cntlr check init fail!");
         return ret;
     }
     if (cntlr->channelList == NULL) {
-        HDF_LOGE("%s: channelList is null", __func__);
+        HDF_LOGE("DmacCntlrCheck: channelList is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return HDF_SUCCESS;
@@ -115,10 +118,12 @@ struct DmaCntlr *DmaCntlrCreate(struct HdfDeviceObject *device)
     struct DmaCntlr *cntlr = NULL;
 
     if (device == NULL) {
+        HDF_LOGE("DmaCntlrCreate: device is null!");
         return NULL;
     }
     cntlr = (struct DmaCntlr *)OsalMemCalloc(sizeof(struct DmaCntlr));
     if (cntlr == NULL) {
+        HDF_LOGE("DmaCntlrCreate: memcalloc cntlr fail!");
         return NULL;
     }
     cntlr->device = device;
@@ -142,7 +147,7 @@ void DmaCntlrDestroy(struct DmaCntlr *cntlr)
     uint16_t i;
 
     if (cntlr == NULL || cntlr->channelNum > DMAC_CHAN_NUM_MAX) {
-        HDF_LOGE("dma cntlr null or channel invalid!");
+        HDF_LOGE("DmaCntlrDestroy: dma cntlr is null or channel is invalid!");
         return;
     }
     if (cntlr->channelList != NULL) {
@@ -183,15 +188,16 @@ static int32_t DmacWaitM2mSendComplete(struct DmaCntlr *cntlr, struct DmacChanIn
     uint32_t ret;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmacWaitM2mSendComplete: dmac cntlr check fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = DmaEventWait(&chanInfo->waitEvent, DMAC_EVENT_DONE | DMAC_EVENT_ERROR, DMA_EVENT_WAIT_DEF_TIME);
     if (ret == DMAC_EVENT_ERROR) {
-        HDF_LOGE("%s: wait event error", __func__);
+        HDF_LOGE("DmacWaitM2mSendComplete: wait event error!");
         return DMAC_CHN_ERROR;
     } else if (ret == LOS_ERRNO_EVENT_READ_TIMEOUT) {
-        HDF_LOGE("%s: wait event timeout", __func__);
+        HDF_LOGE("DmacWaitM2mSendComplete: wait event timeout!");
         return DMAC_CHN_TIMEOUT;
     }
 
@@ -205,6 +211,7 @@ static int32_t DmacAllocateChannel(struct DmaCntlr *cntlr)
     uint32_t flags;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmacAllocateChannel: dmac cntlr check fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -217,6 +224,7 @@ static int32_t DmacAllocateChannel(struct DmaCntlr *cntlr)
         }
     }
     OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
+    HDF_LOGE("DmacAllocateChannel: dmac allocate channel fail!");
     return HDF_FAILURE;
 }
 
@@ -225,6 +233,7 @@ static void DmacFreeChannel(struct DmaCntlr *cntlr, uint16_t channel)
     uint32_t flags;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmacFreeChannel: dmac cntlr check fail!");
         return;
     }
 
@@ -241,13 +250,13 @@ static struct DmacChanInfo *DmacRequestChannel(struct DmaCntlr *cntlr, struct Dm
     struct DmacChanInfo *chanInfo = NULL;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS || msg == NULL) {
-        HDF_LOGE("%s: cntlr check failed or msg invalid", __func__);
+        HDF_LOGE("DmacRequestChannel: cntlr check fail or msg is null!");
         return NULL;
     }
 
     chan = DmacAllocateChannel(cntlr);
     if (chan < 0) {
-        HDF_LOGE("%s: allocate channel failed", __func__);
+        HDF_LOGE("DmacRequestChannel: dmac allocate channel fail!");
         return NULL;
     }
     chanInfo = &(cntlr->channelList[chan]);
@@ -256,11 +265,11 @@ static struct DmacChanInfo *DmacRequestChannel(struct DmaCntlr *cntlr, struct Dm
     ret = cntlr->getChanInfo(cntlr, chanInfo, msg);
     if (ret < 0) {
         DmacFreeChannel(cntlr, chan);
-        HDF_LOGE("%s: get channel info failed ret = %d", __func__, ret);
+        HDF_LOGE("DmacRequestChannel: get channel info fail, ret = %d!", ret);
         return NULL;
     }
 #ifdef DMA_CORE_DEBUG
-    HDF_LOGD("chan = %d, type = %d srcWidth = %u, destWidth = %u, config = 0x%x, lliEnflag = 0x%x",
+    HDF_LOGD("DmacRequestChannel: chan = %d, type = %d srcWidth = %u, destWidth = %u, config = 0x%x, lliEnflag = 0x%x",
         chan, chanInfo->transType, chanInfo->srcWidth, chanInfo->destWidth, chanInfo->config, chanInfo->lliEnFlag);
 #endif
     return chanInfo;
@@ -282,7 +291,8 @@ static inline size_t DmacAlignedTransMax(size_t maxSize, uint8_t srcWidth, uint8
 
     ret = ((maxWidth == 0) ? maxSize : (maxSize - (maxSize % maxWidth)));
 #ifdef DMA_CORE_DEBUG
-    HDF_LOGD("%s: max:%zu, srcwidth:%u, dstwidth:%hhu, alignedmax:%zu", __func__, maxSize, srcWidth, destWidth, ret);
+    HDF_LOGD("DmacAlignedTransMax: max:%zu, srcwidth:%u, dstwidth:%hhu, alignedmax:%zu!",
+        maxSize, srcWidth, destWidth, ret);
 #endif
     return ret;
 }
@@ -302,13 +312,13 @@ static int32_t DmacFillLli(struct DmaCntlr *cntlr, struct DmacChanInfo *chanInfo
         return HDF_ERR_INVALID_OBJECT;
     }
     if (chanInfo == NULL || chanInfo->lli == NULL) {
-        HDF_LOGE("%s: chanInfo or lli is null", __func__);
+        HDF_LOGE("DmacFillLli: chanInfo or lli is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     alignedMax = DmacAlignedTransMax(cntlr->maxTransSize, chanInfo->srcWidth, chanInfo->destWidth);
     if (alignedMax == 0) {
-        HDF_LOGE("%s: maxTransSize:%zu srcWidth:%u dstWidth:%u", __func__,
-            cntlr->maxTransSize, chanInfo->srcWidth, chanInfo->destWidth);
+        HDF_LOGE("DmacFillLli: maxTransSize:%zu srcWidth:%u dstWidth:%u!", cntlr->maxTransSize,
+            chanInfo->srcWidth, chanInfo->destWidth);
         return HDF_ERR_INVALID_PARAM;
     }
     plli = chanInfo->lli;
@@ -333,7 +343,7 @@ static int32_t DmacFillLli(struct DmaCntlr *cntlr, struct DmacChanInfo *chanInfo
         plli->config = chanInfo->config;
 
 #ifdef DMA_CORE_DEBUG
-        HDF_LOGD("plli=0x%lx, next=0x%lx, count=0x%lx, src=0x%lx, dst=0x%lx, cfg=0x%lx",
+        HDF_LOGD("DmacFillLli: plli=0x%lx, next=0x%lx, count=0x%lx, src=0x%lx, dst=0x%lx, cfg=0x%lx",
             (uintptr_t)cntlr->dmacVaddrToPaddr(plli), plli->nextLli,
             plli->count, plli->srcAddr, plli->destAddr, plli->config);
 #endif
@@ -352,11 +362,12 @@ static int32_t DmacAllocLli(struct DmacChanInfo *chanInfo, size_t length, size_t
     void *allocAddr = NULL;
 
     if (chanInfo == NULL || maxSize == 0) {
+        HDF_LOGE("DmacAllocLli: chanInfo is null or maxSize is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
     lliNum = (length / maxSize) + ((length % maxSize) > 0 ? 1 : 0);
     if (lliNum > 2048) {  /* 2048: lliNum is not more than 2048 */
-        HDF_LOGE("%s: lliNum %zu is bigger than 2048", __func__, lliNum);
+        HDF_LOGE("DmacAllocLli: lliNum %zu is bigger than 2048!", lliNum);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -364,11 +375,12 @@ static int32_t DmacAllocLli(struct DmacChanInfo *chanInfo, size_t length, size_t
     allocLength = ALIGN(allocLength, CACHE_ALIGNED_SIZE);
     allocAddr = OsalMemAllocAlign(DMA_ALIGN_SIZE, allocLength);
     if (allocAddr == NULL) {
-        HDF_LOGE("%s: alloc lli mem failed", __func__);
+        HDF_LOGE("DmacAllocLli: memalloc lli fail!");
         return HDF_FAILURE;
     }
     if (memset_s(allocAddr, allocLength, 0, allocLength) != EOK) {
         OsalMemFree(allocAddr);
+        HDF_LOGE("DmacAllocLli: memset_s fail");
         return HDF_FAILURE;
     }
 
@@ -384,11 +396,11 @@ static int32_t DmacPeriphTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
 
     chanInfo = DmacRequestChannel(cntlr, msg);
     if (chanInfo == NULL) {
-        HDF_LOGE("%s: request channel failed", __func__);
+        HDF_LOGE("DmacPeriphTransfer: request channel fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (msg->srcAddr == 0 && msg->destAddr == 0) {
-        HDF_LOGE("%s: src addr & dest addr both null", __func__);
+        HDF_LOGE("DmacPeriphTransfer: src addr & dest addr both null!");
         return HDF_ERR_INVALID_PARAM;
     }
     chanInfo->callbackData = msg->para;
@@ -397,17 +409,19 @@ static int32_t DmacPeriphTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
         DmacAlignedTransMax(cntlr->maxTransSize, chanInfo->srcWidth, chanInfo->destWidth));
     if (ret != HDF_SUCCESS) {
         DmacFreeChannel(cntlr, chanInfo->channel);
+        HDF_LOGE("DmacPeriphTransfer: dmac aligned trans max fail!");
         return ret;
     }
     ret = DmacFillLli(cntlr, chanInfo, msg->srcAddr, msg->destAddr, msg->transLen);
     if (ret != HDF_SUCCESS) {
         DmacFreeLli(chanInfo);
         DmacFreeChannel(cntlr, chanInfo->channel);
+        HDF_LOGE("DmacPeriphTransfer: dmac fill Lli fail!");
         return ret;
     }
     ret = cntlr->dmaChanEnable(cntlr, chanInfo);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: enable channel failed", __func__);
+        HDF_LOGE("DmacPeriphTransfer: enable channel fail!");
         DmacFreeLli(chanInfo);
         DmacFreeChannel(cntlr, chanInfo->channel);
         return HDF_FAILURE;
@@ -424,12 +438,13 @@ static int32_t DmacM2mTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
     struct DmacChanInfo *chanInfo = NULL;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmacM2mTransfer: dmac cntlr check fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     chanInfo = DmacRequestChannel(cntlr, msg);
     if (chanInfo == NULL) {
-        HDF_LOGE("%s: request channel failed", __func__);
+        HDF_LOGE("DmacM2mTransfer: request channel fail!");
         return HDF_FAILURE;
     }
     chanInfo->callback = msg->cb;
@@ -442,7 +457,7 @@ static int32_t DmacM2mTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
         ret = cntlr->dmaM2mChanEnable(cntlr, chanInfo, msg->srcAddr + dmaCount * cntlr->maxTransSize,
             msg->destAddr + dmaCount * cntlr->maxTransSize, dmaSize);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: enable channel m2m failed", __func__);
+            HDF_LOGE("DmacM2mTransfer: enable channel m2m fail!");
             DmacFreeChannel(cntlr, chanInfo->channel);
             if (chanInfo->callback != NULL) {
                 chanInfo->callback(chanInfo->callbackData, DMAC_CHN_ERROR);
@@ -451,7 +466,7 @@ static int32_t DmacM2mTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
         }
         ret = DmacWaitM2mSendComplete(cntlr, chanInfo);
         if (ret != DMAC_CHN_SUCCESS) {
-            HDF_LOGE("%s: m2m transfer failed, ret = %d", __func__, ret);
+            HDF_LOGE("DmacM2mTransfer: m2m transfer fail, ret = %d!", ret);
             DmacFreeChannel(cntlr, chanInfo->channel);
             if (chanInfo->callback != NULL) {
                 chanInfo->callback(chanInfo->callbackData, ret);
@@ -473,9 +488,11 @@ int32_t DmaCntlrTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
     uintptr_t phyAddr;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmaCntlrTransfer: dmac cntlr check fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (msg == NULL) {
+        HDF_LOGE("DmaCntlrTransfer: msg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (msg->transType == TRASFER_TYPE_P2M) {
@@ -491,7 +508,7 @@ int32_t DmaCntlrTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
     } else if (msg->transType == TRASFER_TYPE_M2M) {
         return DmacM2mTransfer(cntlr, msg);
     } else {
-        HDF_LOGE("%s: invalid transType %d", __func__, msg->transType);
+        HDF_LOGE("DmaCntlrTransfer: invalid transType %d!", msg->transType);
         return HDF_FAILURE;
     }
     return DmacPeriphTransfer(cntlr, msg);
@@ -500,6 +517,7 @@ int32_t DmaCntlrTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
 uintptr_t DmaGetCurrChanDestAddr(struct DmaCntlr *cntlr, uint16_t chan)
 {
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmaGetCurrChanDestAddr: dmac cntlr check fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return cntlr->dmacGetCurrDestAddr(cntlr, chan);
@@ -512,11 +530,12 @@ static uint32_t DmacIsr(uint32_t irq, void *dev)
     struct DmaCntlr *cntlr = (struct DmaCntlr *)dev;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
+        HDF_LOGE("DmacIsr: dmac cntlr check fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (irq != cntlr->irq || cntlr->channelNum > DMAC_CHAN_NUM_MAX) {
-        HDF_LOGE("%s: cntlr parm err! irq:%d, channel:%u", __func__, cntlr->irq, cntlr->channelNum);
+        HDF_LOGE("DmacIsr: cntlr parm err! irq:%d, channel:%u!", cntlr->irq, cntlr->channelNum);
         return HDF_ERR_INVALID_OBJECT;
     }
     for (i = 0; i < cntlr->channelNum; i++) {
@@ -537,19 +556,20 @@ int32_t DmacCntlrAdd(struct DmaCntlr *cntlr)
 
     ret = DmacCntlrCheckInit(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("DmacCntlrAdd: dmac cntlr check fail!");
         return ret;
     }
 
     (void)OsalSpinInit(&cntlr->lock);
     ret = OsalRegisterIrq(cntlr->irq, 0, (OsalIRQHandle)DmacIsr, "PlatDmac", cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: request irq %u failed, ret = %d", __func__, cntlr->irq, ret);
+        HDF_LOGE("DmacCntlrAdd: request irq %u fail, ret = %d!", cntlr->irq, ret);
         (void)OsalSpinDestroy(&cntlr->lock);
         return ret;
     }
     cntlr->channelList = (struct DmacChanInfo *)OsalMemCalloc(sizeof(struct DmacChanInfo) * cntlr->channelNum);
     if (cntlr->channelList == NULL) {
-        HDF_LOGE("%s: alloc channel list failed", __func__);
+        HDF_LOGE("DmacCntlrAdd: memcalloc channelList fail!");
         (void)OsalUnregisterIrq(cntlr->irq, cntlr);
         (void)OsalSpinDestroy(&cntlr->lock);
         return HDF_ERR_MALLOC_FAIL;

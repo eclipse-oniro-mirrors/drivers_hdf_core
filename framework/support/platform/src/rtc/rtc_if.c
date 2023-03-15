@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,7 +22,7 @@ DevHandle RtcOpen(void)
 
     host = (struct RtcHost *)DevSvcManagerClntGetService("HDF_PLATFORM_RTC");
     if (host == NULL) {
-        HDF_LOGE("rtc get service name fail");
+        HDF_LOGE("RtcOpen: rtc get service name fail!");
         return NULL;
     }
 
@@ -37,7 +37,7 @@ void RtcClose(DevHandle handle)
 int32_t RtcReadTime(DevHandle handle, struct RtcTime *time)
 {
     if (handle == NULL || time == NULL) {
-        HDF_LOGE("%s: handle or time is null", __func__);
+        HDF_LOGE("RtcReadTime: handle or time is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -47,12 +47,12 @@ int32_t RtcReadTime(DevHandle handle, struct RtcTime *time)
 int32_t RtcWriteTime(DevHandle handle, const struct RtcTime *time)
 {
     if (handle == NULL || time == NULL) {
-        HDF_LOGE("%s: handle or time is null", __func__);
+        HDF_LOGE("RtcWriteTime: handle or time is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (RtcIsInvalid(time) == RTC_TRUE) {
-        HDF_LOGE("%s: time invalid", __func__);
+        HDF_LOGE("RtcWriteTime: time is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -62,7 +62,7 @@ int32_t RtcWriteTime(DevHandle handle, const struct RtcTime *time)
 int32_t RtcReadAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, struct RtcTime *time)
 {
     if (handle == NULL || time == NULL) {
-        HDF_LOGE("%s: handle or time is null", __func__);
+        HDF_LOGE("RtcReadAlarm: handle or time is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -72,12 +72,12 @@ int32_t RtcReadAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, struct Rtc
 int32_t RtcWriteAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, const struct RtcTime *time)
 {
     if (handle == NULL || time == NULL) {
-        HDF_LOGE("%s: handle or time is null", __func__);
+        HDF_LOGE("RtcWriteAlarm: handle or time is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (RtcIsInvalid(time) == RTC_TRUE) {
-        HDF_LOGE("%s: time invalid", __func__);
+        HDF_LOGE("RtcWriteAlarm: time is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -87,7 +87,7 @@ int32_t RtcWriteAlarm(DevHandle handle, enum RtcAlarmIndex alarmIndex, const str
 int32_t RtcRegisterAlarmCallback(DevHandle handle, enum RtcAlarmIndex alarmIndex, RtcAlarmCallback cb)
 {
     if (handle == NULL || cb == NULL) {
-        HDF_LOGE("%s: handle or cb is null", __func__);
+        HDF_LOGE("RtcRegisterAlarmCallback: handle or cb is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -97,7 +97,7 @@ int32_t RtcRegisterAlarmCallback(DevHandle handle, enum RtcAlarmIndex alarmIndex
 int32_t RtcAlarmInterruptEnable(DevHandle handle, enum RtcAlarmIndex alarmIndex, uint8_t enable)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is null", __func__);
+        HDF_LOGE("RtcAlarmInterruptEnable: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -107,7 +107,7 @@ int32_t RtcAlarmInterruptEnable(DevHandle handle, enum RtcAlarmIndex alarmIndex,
 int32_t RtcGetFreq(DevHandle handle, uint32_t *freq)
 {
     if (handle == NULL || freq == NULL) {
-        HDF_LOGE("%s: handle or freq is null", __func__);
+        HDF_LOGE("RtcGetFreq: handle or freq is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -117,7 +117,7 @@ int32_t RtcGetFreq(DevHandle handle, uint32_t *freq)
 int32_t RtcSetFreq(DevHandle handle, uint32_t freq)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is null", __func__);
+        HDF_LOGE("RtcSetFreq: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -127,7 +127,7 @@ int32_t RtcSetFreq(DevHandle handle, uint32_t freq)
 int32_t RtcReset(DevHandle handle)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is null", __func__);
+        HDF_LOGE("RtcReset: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -137,7 +137,7 @@ int32_t RtcReset(DevHandle handle)
 int32_t RtcReadReg(DevHandle handle, uint8_t usrDefIndex, uint8_t *value)
 {
     if (handle == NULL ||value == NULL) {
-        HDF_LOGE("%s: handle or value is null", __func__);
+        HDF_LOGE("RtcReadReg: handle or value is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -147,7 +147,7 @@ int32_t RtcReadReg(DevHandle handle, uint8_t usrDefIndex, uint8_t *value)
 int32_t RtcWriteReg(DevHandle handle, uint8_t usrDefIndex, uint8_t value)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is null", __func__);
+        HDF_LOGE("RtcWriteReg: handle is null");
         return HDF_ERR_INVALID_OBJECT;
     }
 

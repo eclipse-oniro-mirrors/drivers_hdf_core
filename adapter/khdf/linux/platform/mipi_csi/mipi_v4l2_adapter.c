@@ -3,7 +3,7 @@
  *
  * Mipi v4l2 adapter driver.
  *
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -133,11 +133,11 @@ static int LinuxEnumMbusCode(struct v4l2_subdev *sd,
     (void)cfg;
 
     if (code == NULL) {
-        HDF_LOGE("%s: code is NULL.", __func__);
+        HDF_LOGE("LinuxEnumMbusCode: code is null!");
         return -EINVAL;
     }
     if (code->index > 0) {
-        HDF_LOGE("%s: code->index is invalid.", __func__);
+        HDF_LOGE("LinuxEnumMbusCode: code->index is invalid!");
         return -EINVAL;
     }
 
@@ -154,7 +154,7 @@ static void LinuxUpdatePadFormat(const struct AdapterDrvData *drvData,
     (void)mode;
 
     if ((drvData == NULL) || (fmt == NULL)) {
-        HDF_LOGE("%s: drvData or fmt is NULL.", __func__);
+        HDF_LOGE("LinuxUpdatePadFormat: drvData or fmt is null!");
         return;
     }
     fmt->format = drvData->fmt.format;
@@ -212,7 +212,7 @@ static int SetStream(int enable)
     mutex_lock(&drvData->mutex);
     if (camera->streaming == enable) {
         mutex_unlock(&drvData->mutex);
-        HDF_LOGE("%s: streaming-flag is not change.", __func__);
+        HDF_LOGE("SetStream: streaming-flag is not change!");
         return 0;
     }
 
@@ -262,7 +262,7 @@ static int LinuxInitControls(struct AdapterDrvData *drvData)
     if (ctrl_hdlr == NULL) {
         ret = v4l2_ctrl_handler_init(ctrl_hdlr, CTRLS_COUNT);
         if (ret != 0) {
-            HDF_LOGE("%s: [v4l2_ctrl_handler_init] failed.", __func__);
+            HDF_LOGE("LinuxInitControls: [v4l2_ctrl_handler_init] fail!");
             return ret;
         }
     }
@@ -302,7 +302,7 @@ static int LinuxInitControls(struct AdapterDrvData *drvData)
     }
     if (ctrl_hdlr->error) {
         ret = ctrl_hdlr->error;
-        HDF_LOGE("%s: control init failed: %d", __func__, ret);
+        HDF_LOGE("LinuxInitControls: control init fail, ret: %d!", ret);
         v4l2_ctrl_handler_free(ctrl_hdlr);
         return ret;
     }
@@ -317,18 +317,19 @@ static int32_t MipiCsiAdapterTraceMipiCfg(ComboDevAttr *attr)
     MipiDevAttr *cfg = NULL;
 
     if (attr == NULL) {
-        HDF_LOGE("%s: attr is NULL!", __func__);
+        HDF_LOGE("MipiCsiAdapterTraceMipiCfg: attr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     cfg = &(attr->mipiAttr);
-    HDF_LOGD("%s: inputDataType = %d, wdrMode = %d", __func__, cfg->inputDataType, cfg->wdrMode);
+    HDF_LOGD("MipiCsiAdapterTraceMipiCfg: inputDataType = %d, wdrMode = %d!", cfg->inputDataType, cfg->wdrMode);
     for (i = 0; i < MIPI_LANE_NUM; i++) {
-        HDF_LOGD("laneId[%d] = %d", i, cfg->laneId[i]);
+        HDF_LOGD("MipiCsiAdapterTraceMipiCfg: laneId[%d] = %d!", i, cfg->laneId[i]);
     }
 
-    HDF_LOGD("%s: inputMode = %d, dataRate = %d, imgRect(x = %d, y = %d, width = %d, height = %d).",
-        __func__, attr->inputMode, attr->dataRate, attr->imgRect.x, attr->imgRect.y,
+    HDF_LOGD("MipiCsiAdapterTraceMipiCfg: inputMode = %d, dataRate = %d, \
+        imgRect(x = %d, y = %d, width = %d, height = %d)!",
+        attr->inputMode, attr->dataRate, attr->imgRect.x, attr->imgRect.y,
         attr->imgRect.width, attr->imgRect.height);
 
     return HDF_SUCCESS;
@@ -337,14 +338,16 @@ static int32_t MipiCsiAdapterTraceMipiCfg(ComboDevAttr *attr)
 static int32_t MipiCsiAdapterTraceCameraCfg(struct CameraDrvData *camera)
 {
     const struct CameraSensorMode *mode = NULL;
+
     if (camera == NULL) {
-        HDF_LOGE("%s: camera is NULL!", __func__);
+        HDF_LOGE("MipiCsiAdapterTraceCameraCfg: camera is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     mode = camera->cur_mode;
-    HDF_LOGD("%s: link_freq = %lld", __func__, camera->link_freqs);
-    HDF_LOGD("%s: fll_def = %d, fll_min = %d, llp = %d.", __func__, mode->fll_def, mode->fll_min, mode->llp);
+    HDF_LOGD("MipiCsiAdapterTraceCameraCfg: link_freq = %lld!", camera->link_freqs);
+    HDF_LOGD("MipiCsiAdapterTraceCameraCfg: fll_def = %d, fll_min = %d, llp = %d!",
+        mode->fll_def, mode->fll_min, mode->llp);
 
     return HDF_SUCCESS;
 }
@@ -356,7 +359,7 @@ static int32_t MipiCsiAdapterSetComboDevAttr(struct MipiCsiCntlr *cntlr, ComboDe
     struct v4l2_mbus_framefmt *fmt = NULL;
 
     if ((drvData == NULL) || (pAttr == NULL)) {
-        HDF_LOGE("%s: drvData or pAttr is NULL!", __func__);
+        HDF_LOGE("MipiCsiAdapterSetComboDevAttr: drvData or pAttr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -397,7 +400,7 @@ static int32_t MipiCsiAdapterProbeV4l2(struct MipiCsiCntlr *cntlr)
     struct CameraDrvData *camera = NULL;
 
     if ((drvData == NULL) || (drvData->camera == NULL)) {
-        HDF_LOGE("%s: drvData or drvData->camera is NULL.", __func__);
+        HDF_LOGE("MipiCsiAdapterProbeV4l2: drvData or drvData->camera is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -406,7 +409,7 @@ static int32_t MipiCsiAdapterProbeV4l2(struct MipiCsiCntlr *cntlr)
     v4l2_subdev_init(camera->sd, &g_cameraSubdevOps);
     ret = LinuxInitControls(drvData);
     if (ret) {
-        HDF_LOGE("%s: failed to init controls: %d", __func__, ret);
+        HDF_LOGE("MipiCsiAdapterProbeV4l2: fail to init controls, ret: %d!", ret);
         v4l2_ctrl_handler_free(camera->sd->ctrl_handler);
         return HDF_FAILURE;
     }
@@ -421,13 +424,13 @@ static int32_t MipiCsiAdapterSetDrvData(struct MipiCsiCntlr *cntlr, void *camera
     struct AdapterDrvData *drvData = (struct AdapterDrvData *)cntlr->priv;
 
     if ((drvData == NULL) || (cameraData == NULL)) {
-        HDF_LOGE("%s: drvData or cameraData is NULL!", __func__);
+        HDF_LOGE("MipiCsiAdapterSetDrvData: drvData or cameraData is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     drvData->camera = (struct CameraDrvData *)cameraData;
     ret = MipiCsiAdapterTraceCameraCfg(drvData->camera);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: trace Camera Cfg failed!", __func__);
+        HDF_LOGE("MipiCsiAdapterSetDrvData: trace camera cfg fail!");
         return HDF_FAILURE;
     }
     ret = MipiCsiAdapterProbeV4l2(cntlr);
@@ -452,7 +455,7 @@ static void MipiCsiAdapterRemoveV4l2(const struct MipiCsiCntlr *cntlr)
     struct CameraDrvData *camera = NULL;
 
     if ((drvData == NULL) || (drvData->camera == NULL)) {
-        HDF_LOGE("%s: drvData or drvData->camera is NULL!", __func__);
+        HDF_LOGE("MipiCsiAdapterRemoveV4l2: drvData or drvData->camera is null!");
         return;
     }
 
@@ -470,14 +473,14 @@ static int32_t MipiCsiAdapterBind(struct HdfDeviceObject *device)
 {
     int32_t ret;
 
-    HDF_LOGI("%s: enter.", __func__);
+    HDF_LOGI("MipiCsiAdapterBind: enter!");
     g_mipiRx.priv = &g_adapterDrvData;
     g_mipiRx.ops = &g_method;
     ret = MipiCsiRegisterCntlr(&g_mipiRx, device);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiCsiAdapterBind: success!");
 
     return HDF_SUCCESS;
 }
@@ -486,7 +489,7 @@ static int32_t MipiCsiAdapterInit(struct HdfDeviceObject *device)
 {
     (void)device;
 
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiCsiAdapterInit: success!");
     return HDF_SUCCESS;
 }
 
@@ -495,19 +498,19 @@ static void MipiCsiAdapterRelease(struct HdfDeviceObject *device)
     struct MipiCsiCntlr *cntlr = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL.", __func__);
+        HDF_LOGE("MipiCsiAdapterRelease: device is null!");
         return;
     }
     cntlr = MipiCsiCntlrFromDevice(device);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("MipiCsiAdapterRelease: cntlr is null!");
         return;
     }
     MipiCsiAdapterRemoveV4l2(cntlr);
     MipiCsiUnregisterCntlr(cntlr);
     cntlr->priv = NULL;
 
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiCsiAdapterRelease: success!");
 }
 
 struct HdfDriverEntry g_mipiCsiLinuxDriverEntry = {

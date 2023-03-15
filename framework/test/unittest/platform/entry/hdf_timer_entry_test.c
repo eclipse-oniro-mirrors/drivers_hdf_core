@@ -15,6 +15,7 @@
 int32_t HdfTimerUnitTestEntry(HdfTestMsg *msg)
 {
     if (msg == NULL) {
+        HDF_LOGE("HdfTimerUnitTestEntry: msg is null!");
         return HDF_FAILURE;
     }
 

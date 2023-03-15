@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -146,7 +146,7 @@ struct MtdDevice *g_nandMtd;
 // from device/hisilicon/drivers/xxxx/mtd/nand/src/common/nand.c
 int nand_init(void)
 {
-    HDF_LOGI("%s: this is a stub cause new mtd drivers has been used", __func__);
+    HDF_LOGI("nand_init: this is a stub cause new mtd drivers has been used!");
     return 0;
 }
 
@@ -156,12 +156,12 @@ int hinand_read(void *memaddr, unsigned long start, unsigned long size)
     int32_t ret;
 
     if (g_nandMtd == NULL) {
-        HDF_LOGE("%s: g_nandMtd is null", __func__);
+        HDF_LOGE("hinand_read: g_nandMtd is null!");
         return -ENODEV;
     }
     ret = MtdDeviceRead(g_nandMtd, (off_t)start, (size_t)size, (uint8_t *)memaddr);
     if ((unsigned long)ret != size) {
-        HDF_LOGE("%s: ret=%d, size=%lu", __func__, ret, size);
+        HDF_LOGE("hinand_read: ret=%d, size=%lu!", ret, size);
     }
     return ((unsigned long)ret == size) ? HDF_SUCCESS : ret;
 }
@@ -171,12 +171,12 @@ int hinand_write(void *memaddr, unsigned long start, unsigned long size)
     int32_t ret;
 
     if (g_nandMtd == NULL) {
-        HDF_LOGE("%s: g_nandMtd is null", __func__);
+        HDF_LOGE("hinand_write: g_nandMtd is null!");
         return -ENODEV;
     }
     ret = MtdDeviceWrite(g_nandMtd, (off_t)start, (size_t)size, (const uint8_t *)memaddr);
     if ((unsigned long)ret != size) {
-        HDF_LOGE("%s: ret=%d, size=%lu", __func__, ret, size);
+        HDF_LOGE("hinand_write: ret=%d, size=%lu!", ret, size);
     }
     return ((unsigned long)ret == size) ? HDF_SUCCESS : ret;
 }
@@ -187,12 +187,12 @@ int hinand_erase(unsigned long start, unsigned long size)
     off_t failAddr;
 
     if (g_nandMtd == NULL) {
-        HDF_LOGE("%s: g_nandMtd is null", __func__);
+        HDF_LOGE("hinand_erase: g_nandMtd is null!");
         return -ENODEV;
     }
     ret = MtdDeviceErase(g_nandMtd, (off_t)start, (size_t)size, &failAddr);
     if (ret != 0) {
-        HDF_LOGE("%s: MtdDeviceErase failed, ret=%d", __func__, ret);
+        HDF_LOGE("hinand_erase: MtdDeviceErase fail, ret= %d!", ret);
     }
     return ret;
 }
@@ -202,12 +202,12 @@ int hinand_yaffs_read(void *memaddr, unsigned long start, unsigned long size)
     int32_t ret;
 
     if (g_nandMtd == NULL) {
-        HDF_LOGE("%s: g_nandMtd is null", __func__);
+        HDF_LOGE("hinand_yaffs_read: g_nandMtd is null!");
         return -ENODEV;
     }
     ret = MtdDeviceReadWithOob(g_nandMtd, (off_t)start, (size_t)size, (uint8_t *)memaddr);
     if ((unsigned long)ret != size) {
-        HDF_LOGE("%s: ret=%d, size=%lu", __func__, ret, size);
+        HDF_LOGE("hinand_yaffs_read: ret=%d, size=%lu!", ret, size);
     }
     return ((unsigned long)ret == size) ? HDF_SUCCESS : ret;
 }
@@ -217,12 +217,12 @@ int hinand_yaffs_write(void *memaddr, unsigned long start, unsigned long size)
     int32_t ret;
 
     if (g_nandMtd == NULL) {
-        HDF_LOGE("%s: g_nandMtd is null", __func__);
+        HDF_LOGE("hinand_yaffs_write: g_nandMtd is null!");
         return -ENODEV;
     }
     ret = MtdDeviceWriteWithOob(g_nandMtd, (off_t)start, (size_t)size, (uint8_t *)memaddr);
     if ((unsigned long)ret != size) {
-        HDF_LOGE("%s: ret=%d, size=%lu", __func__, ret, size);
+        HDF_LOGE("hinand_yaffs_write: ret=%d, size=%lu!", ret, size);
     }
     return ((unsigned long)ret == size) ? HDF_SUCCESS : ret;
 }
@@ -239,7 +239,7 @@ int hinand_yaffs_nand_block_markbad(loff_t ofs)
 
 int spinor_init(void)
 {
-    HDF_LOGI("%s: this function has been hacked ...", __func__);
+    HDF_LOGI("spinor_init: this function has been hacked ...");
     return HDF_SUCCESS;
 }
 
@@ -249,6 +249,7 @@ static int MtdDeviceLegacyNandErase(MtdInfoLegacy *mtd, EraseInfoLegacy *ops)
     off_t failAddr;
 
     if (mtd == NULL || ops == NULL) {
+        HDF_LOGE("MtdDeviceLegacyNandErase: mtd or ops is null!");
         return -EINVAL;
     }
     ops->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
@@ -265,7 +266,7 @@ static int MtdDeviceLegacyNandRead(MtdInfoLegacy *mtd, off_t addr, size_t len, s
     int ret;
 
     if (mtd == NULL || mtd->priv == NULL || retlen == NULL || buf == NULL) {
-        HDF_LOGE("%s: function parameter is null", __func__);
+        HDF_LOGE("MtdDeviceLegacyNandRead: function parameter is null!");
         return -EINVAL;
     }
 
@@ -279,7 +280,7 @@ static int MtdDeviceLegacyNandWrite(MtdInfoLegacy *mtd, off_t addr, size_t len, 
     int ret;
 
     if (mtd == NULL || retlen == NULL) {
-        HDF_LOGE("%s: function parameter is null", __func__);
+        HDF_LOGE("MtdDeviceLegacyNandWrite: function parameter is null!");
         return -EINVAL;
     }
 
@@ -293,7 +294,7 @@ static int MtdDeviceLegacyNandReadOob(MtdInfoLegacy *mtd, off_t addr, size_t len
     int ret;
 
     if (mtd == NULL || retlen == NULL) {
-        HDF_LOGE("%s: function parameter is null", __func__);
+        HDF_LOGE("MtdDeviceLegacyNandReadOob: function parameter is null!");
         return -EINVAL;
     }
 
@@ -307,7 +308,7 @@ static int MtdDeviceLegacyNandWriteOob(MtdInfoLegacy *mtd, off_t addr, size_t le
     int ret;
 
     if (mtd == NULL || retlen == NULL) {
-        HDF_LOGE("%s: function parameter is null", __func__);
+        HDF_LOGE("MtdDeviceLegacyNandWriteOob: function parameter is null!");
         return -EINVAL;
     }
 
@@ -319,6 +320,7 @@ static int MtdDeviceLegacyNandWriteOob(MtdInfoLegacy *mtd, off_t addr, size_t le
 static int MtdDeviceLegacyBlockIsBad(MtdInfoLegacy *mtd, off_t ofs)
 {
     if (mtd == NULL) {
+        HDF_LOGE("MtdDeviceLegacyBlockIsBad: mtd is null!");
         return -EINVAL;
     }
 
@@ -328,6 +330,7 @@ static int MtdDeviceLegacyBlockIsBad(MtdInfoLegacy *mtd, off_t ofs)
 static int MtdDeviceLegacyBlockMarkBad(MtdInfoLegacy *mtd, off_t ofs)
 {
     if (mtd == NULL) {
+        HDF_LOGE("MtdDeviceLegacyBlockMarkBad: mtd is null!");
         return -EINVAL;
     }
 
@@ -337,6 +340,7 @@ static int MtdDeviceLegacyBlockMarkBad(MtdInfoLegacy *mtd, off_t ofs)
 void MtdDeviceLegacyFillMtdInfo(struct MtdDevice *mtdDevice)
 {
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDeviceLegacyFillMtdInfo: mtdDevice is null!");
         return;
     }
     nand_mtd = &g_mtdInfo;

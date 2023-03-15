@@ -20,24 +20,25 @@ int RtcOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
     struct PlatformUserListenerRtcParam *rtc = NULL;
     struct PlatformUserListener *userListener = NULL;
     uint8_t index;
+
     if (priv == NULL || data == NULL) {
-        HDF_LOGE("RtcOnDevEventReceive id %d param error", id);
+        HDF_LOGE("RtcOnDevEventReceive: id %d param error!", id);
         return HDF_FAILURE;
     }
 
     userListener = (struct PlatformUserListener *)priv;
     rtc = (struct PlatformUserListenerRtcParam *)userListener->data;
     if (rtc == NULL || rtc->func == NULL) {
-        HDF_LOGE("RtcOnDevEventReceive rtc id %d error", id);
+        HDF_LOGE("RtcOnDevEventReceive: rtc id %d error!", id);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint8(data, &index)) {
-        HDF_LOGE("RtcOnDevEventReceive id %d read sbuf fail", id);
+        HDF_LOGE("RtcOnDevEventReceive: id %d read sbuf fail!", id);
         return HDF_ERR_IO;
     }
 
-    HDF_LOGD("RtcOnDevEventReceive event %d index:%d == index:%d", id, index, rtc->index);
+    HDF_LOGD("RtcOnDevEventReceive: event %d index:%d == index:%d!", id, index, rtc->index);
     if ((id == PLATFORM_LISTENER_EVENT_RTC_ALARM_NOTIFY) && (index == rtc->index)) {
         rtc->func(index);
     }
@@ -53,33 +54,33 @@ int PcieOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
     uint32_t len;
 
     if (priv == NULL || data == NULL || id != PLATFORM_LISTENER_EVENT_PCIE_NOTIFY) {
-        HDF_LOGE("PcieOnDevEventReceive id %d param error", id);
+        HDF_LOGE("PcieOnDevEventReceive: id %d param error!", id);
         return HDF_FAILURE;
     }
 
     userListener = (struct PlatformUserListener *)priv;
     pcie = (struct PlatformUserListenerPcieParam *)userListener->data;
     if (pcie == NULL || pcie->func == NULL) {
-        HDF_LOGE("PcieOnDevEventReceive pcie id %d error", id);
+        HDF_LOGE("PcieOnDevEventReceive: pcie id %d error!", id);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint32(data, &num)) {
-        HDF_LOGE("PcieOnDevEventReceive: read num fail");
+        HDF_LOGE("PcieOnDevEventReceive: read num fail!");
         return HDF_ERR_IO;
     }
     if (num == DMA_CB_NUM) {
         if (pcie->dmaData == 0 || pcie->len == 0) {
-            HDF_LOGE("PcieOnDevEventReceive: invalid DMA data");
+            HDF_LOGE("PcieOnDevEventReceive: invalid DMA data!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (pcie->dir == PCIE_DMA_FROM_DEVICE) {
             if (!HdfSbufReadBuffer(data, (const void **)&buf, &len)) {
-                HDF_LOGE("PcieOnDevEventReceive: sbuf read buffer failed");
+                HDF_LOGE("PcieOnDevEventReceive: sbuf read buffer fail!");
                 return HDF_ERR_IO;
             }
             if (memcpy_s((void *)pcie->dmaData, pcie->len, buf, len) != EOK) {
-                HDF_LOGE("PcieOnDevEventReceive: memory copy failed");
+                HDF_LOGE("PcieOnDevEventReceive: memory copy fail!");
                 return HDF_ERR_IO;
             }
         }
@@ -92,24 +93,25 @@ int TimerOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
     struct PlatformUserListenerTimerParam *timer = NULL;
     struct PlatformUserListener *userListener = NULL;
     uint32_t handle;
+
     if (priv == NULL || data == NULL) {
-        HDF_LOGE("TimerOnDevEventReceive id %d param error", id);
+        HDF_LOGE("TimerOnDevEventReceive: id %d param error!", id);
         return HDF_FAILURE;
     }
 
     userListener = (struct PlatformUserListener *)priv;
     timer = (struct PlatformUserListenerTimerParam *)userListener->data;
     if (timer == NULL || timer->func == NULL) {
-        HDF_LOGE("TimerOnDevEventReceive timer id %d error", id);
+        HDF_LOGE("TimerOnDevEventReceive: timer id %d error!", id);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint32(data, &handle)) {
-        HDF_LOGE("TimerOnDevEventReceive id %d read sbuf fail", id);
+        HDF_LOGE("TimerOnDevEventReceive: id %d read sbuf fail", id);
         return HDF_ERR_IO;
     }
 
-    HDF_LOGD("TimerOnDevEventReceive event %d handle:%d == handle:%d", id, handle, timer->handle);
+    HDF_LOGD("TimerOnDevEventReceive: event %d handle:%d == handle:%d!", id, handle, timer->handle);
     if ((id == PLATFORM_LISTENER_EVENT_TIMER_NOTIFY) && (handle == timer->handle)) {
         timer->func(handle);
     }
@@ -121,24 +123,25 @@ int GpioOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data)
     struct PlatformUserListenerGpioParam *gpio = NULL;
     struct PlatformUserListener *userListener = NULL;
     uint16_t gpioId;
+
     if (priv == NULL || data == NULL) {
-        HDF_LOGE("GpioOnDevEventReceive id %d param error", id);
+        HDF_LOGE("GpioOnDevEventReceive: id %d param error!", id);
         return HDF_FAILURE;
     }
 
     userListener = (struct PlatformUserListener *)priv;
     gpio = (struct PlatformUserListenerGpioParam *)userListener->data;
     if (gpio == NULL || gpio->data == NULL || gpio->func == NULL) {
-        HDF_LOGE("GpioOnDevEventReceive id %d gpio error", id);
+        HDF_LOGE("GpioOnDevEventReceive: id %d gpio error!", id);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint16(data, &gpioId)) {
-        HDF_LOGE("GpioOnDevEventReceive id %d read sbuf fail", id);
+        HDF_LOGE("GpioOnDevEventReceive: id %d read sbuf fail!", id);
         return HDF_ERR_IO;
     }
 
-    HDF_LOGD("GpioOnDevEventReceive event %d gpioId:%d == gpio:%d", id, gpioId, gpio->gpio);
+    HDF_LOGD("GpioOnDevEventReceive: event %d gpioId:%d == gpio:%d!", id, gpioId, gpio->gpio);
     if ((id == PLATFORM_LISTENER_EVENT_GPIO_INT_NOTIFY) && (gpioId == gpio->gpio)) {
         gpio->func(gpioId, gpio->data);
     }
@@ -153,13 +156,13 @@ static struct PlatformUserListener *PlatformUserListenerInit(
 
     userListener = OsalMemCalloc(sizeof(struct PlatformUserListener));
     if (userListener == NULL) {
-        HDF_LOGE("PlatformUserListenerInit userListener get failed");
+        HDF_LOGE("PlatformUserListenerInit: userListener get fail!");
         return NULL;
     }
 
     listener = OsalMemCalloc(sizeof(struct HdfDevEventlistener));
     if (listener == NULL) {
-        HDF_LOGE("PlatformUserListenerInit hdf listener get failed");
+        HDF_LOGE("PlatformUserListenerInit: memcalloc hdf listener fail!");
         OsalMemFree(userListener);
         return NULL;
     }
@@ -172,13 +175,13 @@ static struct PlatformUserListener *PlatformUserListenerInit(
     listener->callBack = callback;
     listener->priv = userListener;
     if (HdfDeviceRegisterEventListener(manager->service, listener) != HDF_SUCCESS) {
-        HDF_LOGE("PlatformUserListenerInit HdfDeviceRegisterEventListener failed");
+        HDF_LOGE("PlatformUserListenerInit: HdfDeviceRegisterEventListener fail!");
         OsalMemFree(userListener);
         OsalMemFree(listener);
         return NULL;
     }
 
-    HDF_LOGD("PlatformUserListenerInit get listener for %d %d success", manager->moudle, num);
+    HDF_LOGD("PlatformUserListenerInit: get listener for %d %d success!", manager->moudle, num);
     return userListener;
 }
 
@@ -187,13 +190,14 @@ int32_t PlatformUserListenerReg(
 {
     struct PlatformUserListener *pos = NULL;
     struct PlatformUserListener *node = NULL;
+
     if (manager == NULL || callback == NULL) {
-        HDF_LOGE("PlatformUserListenerReg param null");
+        HDF_LOGE("PlatformUserListenerReg: manager or callback is null!");
         return HDF_FAILURE;
     }
 
     if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
-        HDF_LOGE("PlatformUserListenerReg: OsalMutexLock failed");
+        HDF_LOGE("PlatformUserListenerReg: OsalMutexLock fail!");
         return HDF_FAILURE;
     };
     DLIST_FOR_EACH_ENTRY(pos, &manager->listeners, struct PlatformUserListener, node) {
@@ -205,7 +209,7 @@ int32_t PlatformUserListenerReg(
 
     node = PlatformUserListenerInit(manager, num, data, callback);
     if (node == NULL) {
-        HDF_LOGE("PlatformUserListenerReg PlatformUserListenerInit fail");
+        HDF_LOGE("PlatformUserListenerReg: PlatformUserListenerInit fail!");
         (void)OsalMutexUnlock(&manager->lock);
         return HDF_FAILURE;
     }
@@ -219,19 +223,20 @@ void PlatformUserListenerDestory(struct PlatformUserListenerManager *manager, ui
 {
     struct PlatformUserListener *pos = NULL;
     struct PlatformUserListener *tmp = NULL;
+
     if (manager == NULL) {
-        HDF_LOGE("PlatformUserListenerDestory manager null");
+        HDF_LOGE("PlatformUserListenerDestory: manager is null!");
         return;
     }
     if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
-        HDF_LOGE("%s: OsalMutexLock failed", __func__);
+        HDF_LOGE("PlatformUserListenerDestory: OsalMutexLock fail!");
         return;
     }
     DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->listeners, struct PlatformUserListener, node) {
         if (pos->num == num) {
-            HDF_LOGD("PlatformUserListenerDestory: node [%d][%d] find, then del", manager->moudle, num);
+            HDF_LOGD("PlatformUserListenerDestory: node [%d][%d] find, then del!", manager->moudle, num);
             if (HdfDeviceUnregisterEventListener(manager->service, pos->listener) != HDF_SUCCESS) {
-                HDF_LOGE("PlatformUserListenerDestory unregister fail");
+                HDF_LOGE("PlatformUserListenerDestory: unregister fail!");
                 (void)OsalMutexUnlock(&manager->lock);
                 return;
             }
@@ -249,20 +254,21 @@ void PlatformUserListenerDestory(struct PlatformUserListenerManager *manager, ui
 struct PlatformUserListenerManager *PlatformUserListenerManagerGet(enum PlatformModuleType moudle)
 {
     struct PlatformUserListenerManager *manager = OsalMemCalloc(sizeof(struct PlatformUserListenerManager));
+
     if (manager == NULL) {
-        HDF_LOGE("PlatformUserListenerManagerGet manager get failed");
+        HDF_LOGE("PlatformUserListenerManagerGet: manager get fail!");
         return NULL;
     }
 
     manager->moudle = moudle;
     DListHeadInit(&manager->listeners);
     if (OsalMutexInit(&manager->lock) != HDF_SUCCESS) {
-        HDF_LOGE("PlatformUserListenerManagerGet moudle %d OsalSpinInit fail", moudle);
+        HDF_LOGE("PlatformUserListenerManagerGet: moudle %d OsalSpinInit fail!", moudle);
         OsalMemFree(manager);
         return NULL;
     }
 
-    HDF_LOGD("PlatformUserListenerManagerGet moudle %d success", moudle);
+    HDF_LOGD("PlatformUserListenerManagerGet: moudle %d success!", moudle);
     return manager;
 }
 
@@ -272,11 +278,11 @@ void PlatformUserListenerManagerDestory(struct PlatformUserListenerManager *mana
     struct PlatformUserListener *tmp = NULL;
 
     if (manager == NULL) {
-        HDF_LOGE("PlatformUserListenerDestory manager null");
+        HDF_LOGE("PlatformUserListenerDestory manager is null!");
         return;
     }
     if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
-        HDF_LOGE("%s: OsalMutexLock failed", __func__);
+        HDF_LOGE("PlatformUserListenerManagerDestory: OsalMutexLock fail!");
         return;
     }
     DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->listeners, struct PlatformUserListener, node) {

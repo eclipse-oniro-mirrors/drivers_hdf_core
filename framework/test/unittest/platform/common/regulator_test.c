@@ -39,7 +39,7 @@ enum RegulatorCurrent {
 static int32_t RegulatorEnableTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorEnableTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -50,7 +50,7 @@ static int32_t RegulatorEnableTest(struct RegulatorTest *test)
 static int32_t RegulatorDisableTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorDisableTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -61,7 +61,7 @@ static int32_t RegulatorDisableTest(struct RegulatorTest *test)
 static int32_t RegulatorForceDisableTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorForceDisableTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -72,7 +72,7 @@ static int32_t RegulatorForceDisableTest(struct RegulatorTest *test)
 static int32_t RegulatorSetVoltageTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorSetVoltageTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -81,7 +81,7 @@ static int32_t RegulatorSetVoltageTest(struct RegulatorTest *test)
     }
 
     if (RegulatorSetVoltage(test->handle, test->minUv, test->maxUv) != HDF_SUCCESS) {
-        HDF_LOGE("%s:[%d, %d] test fail", __func__, test->maxUv, test->minUv);
+        HDF_LOGE("RegulatorSetVoltageTest: [%d, %d] test fail", test->maxUv, test->minUv);
         return HDF_FAILURE;
     }
 
@@ -91,7 +91,7 @@ static int32_t RegulatorSetVoltageTest(struct RegulatorTest *test)
 static int32_t RegulatorGetVoltageTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorGetVoltageTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -100,7 +100,7 @@ static int32_t RegulatorGetVoltageTest(struct RegulatorTest *test)
     }
 
     if (RegulatorGetVoltage(test->handle, &test->uv) != HDF_SUCCESS) {
-        HDF_LOGE("%s: test fail", __func__);
+        HDF_LOGE("RegulatorGetVoltageTest: test fail!");
         return HDF_FAILURE;
     }
 
@@ -110,7 +110,7 @@ static int32_t RegulatorGetVoltageTest(struct RegulatorTest *test)
 static int32_t RegulatorSetCurrentTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorSetCurrentTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -119,7 +119,7 @@ static int32_t RegulatorSetCurrentTest(struct RegulatorTest *test)
     }
 
     if (RegulatorSetCurrent(test->handle, test->minUa, test->maxUa) != HDF_SUCCESS) {
-        HDF_LOGE("%s:[%d, %d] test fail", __func__, test->minUa, test->maxUa);
+        HDF_LOGE("RegulatorSetCurrentTest: [%d, %d] test fail!", test->minUa, test->maxUa);
         return HDF_FAILURE;
     }
 
@@ -129,7 +129,7 @@ static int32_t RegulatorSetCurrentTest(struct RegulatorTest *test)
 static int32_t RegulatorGetCurrentTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorGetCurrentTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -138,7 +138,7 @@ static int32_t RegulatorGetCurrentTest(struct RegulatorTest *test)
     }
 
     if (RegulatorGetCurrent(test->handle, &test->ua) != HDF_SUCCESS) {
-        HDF_LOGE("%s: test fail", __func__);
+        HDF_LOGE("RegulatorGetCurrentTest: test fail!");
         return HDF_FAILURE;
     }
 
@@ -148,17 +148,17 @@ static int32_t RegulatorGetCurrentTest(struct RegulatorTest *test)
 static int32_t RegulatorGetStatusTest(struct RegulatorTest *test)
 {
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorGetStatusTest: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (RegulatorGetStatus(test->handle, &test->status) != HDF_SUCCESS) {
-        HDF_LOGE("%s: test fail", __func__);
+        HDF_LOGE("RegulatorGetStatusTest: test fail!");
         return HDF_FAILURE;
     }
 
     if ((test->status != REGULATOR_STATUS_ON) && (test->status != REGULATOR_STATUS_OFF)) {
-        HDF_LOGE("%s: regulator status invalid %d", __func__, test->status);
+        HDF_LOGE("RegulatorGetStatusTest: regulator status invalid %d!", test->status);
         return HDF_FAILURE;
     }
 
@@ -169,13 +169,13 @@ static int RegulatorTestThreadFunc(void *param)
 {
     DevHandle handle = RegulatorOpen("regulator_virtual_1");
     if (handle == NULL) {
-        HDF_LOGE("%s: regulator test get handle fail", __func__);
+        HDF_LOGE("RegulatorTestThreadFunc: regulator test get handle fail!");
         *((int32_t *)param) = 1;
         return HDF_FAILURE;
     }
 
     if (RegulatorSetVoltage(handle, VOLTAGE_250_UV, VOLTAGE_2500_UV) != HDF_SUCCESS) {
-        HDF_LOGE("%s:test fail", __func__);
+        HDF_LOGE("RegulatorTestThreadFunc: test fail!");
         RegulatorClose(handle);
         *((int32_t *)param) = 1;
         return HDF_FAILURE;
@@ -196,7 +196,7 @@ static int32_t RegulatorTestStartThread(struct OsalThread *thread1, struct OsalT
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
-        HDF_LOGE("%s:memset_s fail.", __func__);
+        HDF_LOGE("RegulatorTestStartThread: memset_s fail!");
         return HDF_ERR_IO;
     }
     cfg1.name = "RegulatorTestThread-1";
@@ -206,17 +206,17 @@ static int32_t RegulatorTestStartThread(struct OsalThread *thread1, struct OsalT
 
     ret = OsalThreadStart(thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread1 fail:%d", ret);
+        HDF_LOGE("RegulatorTestStartThread: start test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread2 fail:%d", ret);
+        HDF_LOGE("RegulatorTestStartThread: start test thread2 fail, ret: %d!", ret);
     }
 
     while (*count1 == 0 || *count2 == 0) {
-        HDF_LOGE("waitting testing Regulator thread finish...");
+        HDF_LOGE("RegulatorTestStartThread: waitting testing Regulator thread finish...");
         OsalMSleep(REGULATOR_TEST_WAIT_TIMES);
         time++;
         if (time > REGULATOR_TEST_WAIT_TIMEOUT) {
@@ -237,20 +237,20 @@ static int32_t RegulatorTestMultiThread(struct RegulatorTest *test)
     (void)test;
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)RegulatorTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("RegulatorTestMultiThread: create test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)RegulatorTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread2 fail:%d", ret);
+        HDF_LOGE("RegulatorTestMultiThread: create test thread2 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = RegulatorTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("test start thread fail:%d", ret);
+        HDF_LOGE("RegulatorTestMultiThread: test start thread fail, ret: %d!", ret);
     }
 
     (void)OsalThreadDestroy(&thread1);
@@ -262,7 +262,7 @@ static int32_t RegulatorTestReliability(struct RegulatorTest *test)
 {
     HDF_LOGD("RegulatorTestReliability: test for Regulator ...");
     if (test == NULL || test->handle == NULL) {
-        HDF_LOGE("%s: test null", __func__);
+        HDF_LOGE("RegulatorTestReliability: test or handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -291,14 +291,14 @@ static int32_t RegulatorTestEntry(struct RegulatorTest *test, int32_t cmd)
     int32_t ret = HDF_ERR_NOT_SUPPORT;
 
     if (test == NULL || test->name == NULL) {
-        HDF_LOGE("%s: test null cmd %d", __func__, cmd);
+        HDF_LOGE("RegulatorTestEntry: test or name is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cmd != REGULATOR_MULTI_THREAD_TEST) {
         test->handle = RegulatorOpen(test->name);
         if (test->handle == NULL) {
-            HDF_LOGE("%s: regulator test get handle fail", __func__);
+            HDF_LOGE("RegulatorTestEntry: regulator test get handle fail!");
             return HDF_FAILURE;
         }
     }
@@ -306,7 +306,7 @@ static int32_t RegulatorTestEntry(struct RegulatorTest *test, int32_t cmd)
     for (i = 0; i < sizeof(g_regulatorTestFunc) / sizeof(g_regulatorTestFunc[0]); i++) {
         if (cmd == g_regulatorTestFunc[i].type && g_regulatorTestFunc[i].Func != NULL) {
             ret = g_regulatorTestFunc[i].Func(test);
-            HDF_LOGD("%s: cmd %d ret %d", __func__, cmd, ret);
+            HDF_LOGD("RegulatorTestEntry: cmd %d ret %d!", cmd, ret);
             break;
         }
     }
@@ -324,10 +324,10 @@ static int32_t RegulatorTestBind(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = &test.service;
     } else {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("RegulatorTestBind: device is null!");
     }
 
-    HDF_LOGI("RegulatorTestBind success\r\n");
+    HDF_LOGI("RegulatorTestBind: success!\r\n");
     return HDF_SUCCESS;
 }
 
@@ -338,51 +338,51 @@ static int32_t RegulatorTestInitFromHcs(struct RegulatorTest *test, const struct
 
     face = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (face == NULL) {
-        HDF_LOGE("%s: face is null", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: face is null!");
         return HDF_FAILURE;
     }
     if (face->GetUint32 == NULL || face->GetUint32Array == NULL) {
-        HDF_LOGE("%s: GetUint32 or GetUint32Array not support", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: GetUint32 or GetUint32Array not support");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = face->GetString(node, "name", &(test->name), "ERROR");
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read name fail!", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: read name fail!");
         return HDF_FAILURE;
     }
 
     ret = face->GetUint8(node, "mode", &test->mode, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read mode fail!", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: read mode fail!");
         return HDF_FAILURE;
     }
 
     ret = face->GetUint32(node, "minUv", &test->minUv, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read minUv fail!", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: read minUv fail!");
         return HDF_FAILURE;
     }
 
     ret = face->GetUint32(node, "maxUv", &test->maxUv, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxUv fail!", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: read maxUv fail!");
         return HDF_FAILURE;
     }
 
     ret = face->GetUint32(node, "minUa", &test->minUa, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read minUa fail!", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: read minUa fail!");
         return HDF_FAILURE;
     }
 
     ret = face->GetUint32(node, "maxUa", &test->maxUa, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxUa fail!", __func__);
+        HDF_LOGE("RegulatorTestInitFromHcs: read maxUa fail!");
         return HDF_FAILURE;
     }
 
-    HDF_LOGI("regulator test init:[%s][%d]--[%d][%d]--[%d][%d]!",
+    HDF_LOGI("RegulatorTestInitFromHcs: regulator test init:[%s][%d]--[%d][%d]--[%d][%d]!",
         test->name, test->mode, test->minUv, test->maxUv, test->minUa, test->maxUa);
 
     return HDF_SUCCESS;
@@ -392,7 +392,7 @@ static int32_t RegulatorTestInit(struct HdfDeviceObject *device)
 {
     struct RegulatorTest *test = NULL;
 
-    HDF_LOGI("RegulatorTestInit in\r\n");
+    HDF_LOGI("RegulatorTestInit: enter!\r\n");
 
 #if defined(CONFIG_DRIVERS_HDF_PLATFORM_REGULATOR)
     VirtualVoltageRegulatorAdapterInit();
@@ -400,18 +400,18 @@ static int32_t RegulatorTestInit(struct HdfDeviceObject *device)
 #endif
 
     if (device == NULL || device->service == NULL || device->property == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("RegulatorTestInit: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
     test = (struct RegulatorTest *)device->service;
 
     if (RegulatorTestInitFromHcs(test, device->property) != HDF_SUCCESS) {
-        HDF_LOGE("%s: RegulatorTestInitFromHcs failed", __func__);
+        HDF_LOGE("RegulatorTestInit: RegulatorTestInitFromHcs fail!");
         return HDF_FAILURE;
     }
 
     test->TestEntry = RegulatorTestEntry;
-    HDF_LOGI("%s: success", __func__);
+    HDF_LOGI("RegulatorTestInit: success!");
 
     return HDF_SUCCESS;
 }

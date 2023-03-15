@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -25,17 +25,18 @@ int32_t MtdBlockInit(struct MtdDevice *mtdDevice)
     int32_t ret;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdBlockInit: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (MtdDeviceGet(mtdDevice) == NULL) {
-        HDF_LOGE("%s: get mtd device failed", __func__);
+        HDF_LOGE("MtdBlockInit: get mtd device fail!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     ret = MtdBlockOsInit(mtdDevice);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: os init failed, ret = %d", __func__, ret);
+        HDF_LOGE("MtdBlockInit: os init fail, ret = %d!", ret);
         MtdDevicePut(mtdDevice);
         return ret;
     }

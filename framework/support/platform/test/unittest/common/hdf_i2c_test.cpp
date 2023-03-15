@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -36,9 +36,9 @@ void HdfLiteI2cTest::SetUpTestCase()
 
     ret = I2cTestExecute(I2C_TEST_CMD_SETUP_ALL);
     if (ret != 0) {
-        printf("%s: User SetUp FAIL:%d\n\r", __func__, ret);
+        printf("SetUpTestCase: User SetUp FAIL:%d\n\r", ret);
     }
-    printf("%s: exit!\n", __func__);
+    printf("SetUpTestCase: exit!\n");
 }
 
 void HdfLiteI2cTest::TearDownTestCase()
@@ -50,9 +50,9 @@ void HdfLiteI2cTest::TearDownTestCase()
 
     ret = I2cTestExecute(I2C_TEST_CMD_TEARDOWN_ALL);
     if (ret != 0) {
-        printf("%s: User TearDown FAIL:%d\n\r", __func__, ret);
+        printf("TearDownTestCase: User TearDown FAIL:%d\n\r", ret);
     }
-    printf("%s: exit!\n", __func__);
+    printf("TearDownTestCase: exit!\n");
 }
 
 void HdfLiteI2cTest::SetUp()
@@ -73,9 +73,7 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestTransfer001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_TRANSFER, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_TRANSFER));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -88,9 +86,7 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestWriteRead001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_WRITE_READ, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_WRITE_READ));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -103,9 +99,7 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestMultiThread001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_MULTI_THREAD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_MULTI_THREAD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -118,9 +112,7 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestReliability001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_RELIABILITY));
-    printf("%s: exit!\n", __func__);
 }
 
 /**

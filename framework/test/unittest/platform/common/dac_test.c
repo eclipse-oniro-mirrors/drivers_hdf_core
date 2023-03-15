@@ -29,41 +29,42 @@ static int32_t DacTestGetConfig(struct DacTestConfig *config)
 
     service = HdfIoServiceBind("DAC_TEST");
     if (service == NULL) {
+        HDF_LOGE("DacTestGetConfig: service is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     do {
         reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
         if (reply == NULL) {
-            HDF_LOGE("%s: failed to obtain reply", __func__);
+            HDF_LOGE("DacTestGetConfig: fail to obtain reply!");
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
 
         ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: remote dispatch failed", __func__);
+            HDF_LOGE("DacTestGetConfig: remote dispatch fail!");
             break;
         }
 
         if (!HdfSbufReadBuffer(reply, &buf, &len)) {
-            HDF_LOGE("%s: read buf failed", __func__);
+            HDF_LOGE("DacTestGetConfig: read buf fail!");
             ret = HDF_ERR_IO;
             break;
         }
 
         if (len != sizeof(*config)) {
-            HDF_LOGE("%s: config size:%zu, read size:%u", __func__, sizeof(*config), len);
+            HDF_LOGE("DacTestGetConfig: config size:%zu, read size:%u!", sizeof(*config), len);
             ret = HDF_ERR_IO;
             break;
         }
 
         if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
-            HDF_LOGE("%s: memcpy buf failed", __func__);
+            HDF_LOGE("DacTestGetConfig: memcpy buf fail!");
             ret = HDF_ERR_IO;
             break;
         }
-        HDF_LOGD("%s: exit", __func__);
+        HDF_LOGD("DacTestGetConfig: exit!");
         ret = HDF_SUCCESS;
     } while (0);
     HdfSbufRecycle(reply);
@@ -82,12 +83,12 @@ static struct DacTester *DacTesterGet(void)
     }
     ret = DacTestGetConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: write config failed:%d", __func__, ret);
+        HDF_LOGE("DacTesterGet: write config fail, ret: %d!", ret);
         return NULL;
     }
     tester.handle = DacOpen(tester.config.devNum);
     if (tester.handle == NULL) {
-        HDF_LOGE("%s: open dac device:%u failed", __func__, tester.config.devNum);
+        HDF_LOGE("DacTesterGet: open dac device:%u fail!", tester.config.devNum);
         return NULL;
     }
     hasInit = true;
@@ -103,14 +104,14 @@ static int32_t DacTestWrite(void)
 
     tester = DacTesterGet();
     if (tester == NULL || tester->handle == NULL) {
-        HDF_LOGE("%s: get tester failed", __func__);
+        HDF_LOGE("DacTestWrite: get tester fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
     for (i = 0; i < TEST_DAC_VAL_NUM; i++) {
         value[i] = i;
         ret = DacWrite(tester->handle, tester->config.channel, value[i]);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: write value failed:%u, ret:%d", __func__, value[i], ret);
+            HDF_LOGE("DacTestWrite: write value fail:%u, ret: %d!", value[i], ret);
             return HDF_ERR_IO;
         }
     }
@@ -127,7 +128,7 @@ static int DacTestThreadFunc(void *param)
 
     tester = DacTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: get tester failed", __func__);
+        HDF_LOGE("DacTestThreadFunc: get tester fail!");
         *((int32_t *)param) = 1;
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -135,7 +136,7 @@ static int DacTestThreadFunc(void *param)
         val = i;
         ret = DacWrite(tester->handle, tester->config.channel, val);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: DacWrite failed, ret:%d", __func__, ret);
+            HDF_LOGE("DacTestThreadFunc: DacWrite fail, ret: %d!", ret);
             *((int32_t *)param) = 1;
             return HDF_ERR_IO;
         }
@@ -155,7 +156,7 @@ static int32_t DacTestStartThread(struct OsalThread *thread1, struct OsalThread 
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
-        HDF_LOGE("%s:memset_s failed.", __func__);
+        HDF_LOGE("DacTestStartThread: memset_s fail!");
         return HDF_ERR_IO;
     }
 
@@ -166,17 +167,17 @@ static int32_t DacTestStartThread(struct OsalThread *thread1, struct OsalThread 
 
     ret = OsalThreadStart(thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread1 failed:%d", ret);
+        HDF_LOGE("DacTestStartThread: start test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread2 failed:%d", ret);
+        HDF_LOGE("DacTestStartThread: start test thread2 fail, ret: %d!", ret);
     }
 
     while (*count1 == 0 || *count2 == 0) {
-        HDF_LOGV("waitting testing thread finish...");
+        HDF_LOGD("DacTestStartThread: waitting testing thread finish...");
         OsalMSleep(DAC_TEST_WAIT_TIMES);
         time++;
         if (time > DAC_TEST_WAIT_TIMEOUT) {
@@ -196,20 +197,20 @@ static int32_t DacTestMultiThread(void)
 
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)DacTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 failed:%d", ret);
+        HDF_LOGE("DacTestMultiThread: create test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)DacTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread2 failed:%d", ret);
+        HDF_LOGE("DacTestMultiThread: create test thread2 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = DacTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("test start thread failed:%d", ret);
+        HDF_LOGE("DacTestMultiThread: test start thread fail, ret: %d!", ret);
     }
 
     (void)OsalThreadDestroy(&thread1);
@@ -227,11 +228,11 @@ static int32_t DacTestReliability(void)
     if (tester == NULL || tester->handle == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
-    HDF_LOGD("%s: test dfr for DacRead ...", __func__);
     // invalid handle
     (void)DacWrite(NULL, tester->config.channel, val);
     // invalid channel
     (void)DacWrite(tester->handle, tester->config.maxChannel + 1, val);
+    HDF_LOGI("DacTestReliability: done!");
     return HDF_SUCCESS;
 }
 
@@ -252,20 +253,21 @@ static int32_t DacIfPerformanceTest(void)
     val = 0;
     tester = DacTesterGet();
     if (tester == NULL || tester->handle == NULL) {
-        HDF_LOGE("%s: get tester failed", __func__);
+        HDF_LOGE("DacIfPerformanceTest: get tester fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     startMs = OsalGetSysTimeMs();
     ret = DacWrite(tester->handle, tester->config.channel, val);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: write value failed:%u, ret:%d", __func__, val, ret);
+        HDF_LOGE("DacIfPerformanceTest: write value fail:%u, ret: %d!", val, ret);
         return HDF_ERR_IO;
     }
     endMs = OsalGetSysTimeMs();
 
     useTime = endMs - startMs;
-    HDF_LOGI("----->interface performance test:[start - end] < 1ms[%s]\r\n", useTime < 1 ? "yes" : "no");
+    HDF_LOGI("DacIfPerformanceTest----->interface performance test:[start - end] < 1ms[%{pubilc}s]\r\n",
+        useTime < 1 ? "yes" : "no");
     return HDF_SUCCESS;
 }
 
@@ -287,9 +289,9 @@ int32_t DacTestExecute(int cmd)
     int32_t ret = HDF_ERR_NOT_SUPPORT;
 
     if (cmd > DAC_TEST_CMD_MAX) {
-        HDF_LOGE("%s: invalid cmd:%d", __func__, cmd);
+        HDF_LOGE("DacTestExecute: invalid cmd:%d", cmd);
         ret = HDF_ERR_NOT_SUPPORT;
-        HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+        HDF_LOGE("[DacTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
         return ret;
     }
 
@@ -301,6 +303,6 @@ int32_t DacTestExecute(int cmd)
         break;
     }
 
-    HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    HDF_LOGE("[DacTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
     return ret;
 }

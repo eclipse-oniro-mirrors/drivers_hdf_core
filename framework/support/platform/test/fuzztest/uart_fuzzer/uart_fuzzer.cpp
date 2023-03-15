@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -38,7 +38,7 @@ static bool UartFuzzTest(const uint8_t *data, size_t size)
     number = randNum(MIN, MAX);
     handle = UartOpen(UART_FUZZ_PORT);
     if (handle == nullptr) {
-        HDF_LOGE("%{public}s:handle is nullptr", __func__);
+        HDF_LOGE("UartFuzzTest: handle is nullptr!");
         return false;
     }
     switch (static_cast<ApiTestCmd>(number)) {
@@ -64,12 +64,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
     if (data == nullptr) {
-        HDF_LOGE("%{public}s:data is null", __func__);
+        HDF_LOGE("LLVMFuzzerTestOneInput: uart fuzz test data is nullptr!");
         return 0;
     }
 
     if (size < sizeof(struct AllParameters)) {
-        HDF_LOGE("%{public}s:size is small", __func__);
+        HDF_LOGE("LLVMFuzzerTestOneInput: uart fuzz test size is small!");
         return 0;
     }
     OHOS::UartFuzzTest(data, size);

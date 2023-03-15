@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -21,15 +21,18 @@ int32_t MmcBlockInit(struct MmcDevice *mmcDevice)
     struct MmcBlock *mb = NULL;
 
     if (mmcDevice == NULL) {
+        HDF_LOGE("MmcBlockInit: mmcDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (MmcDeviceGet(mmcDevice) == NULL) {
+        HDF_LOGE("MmcBlockInit: mmcDevice get fail!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     mb = (struct MmcBlock *)OsalMemCalloc(sizeof(*mb));
     if (mb == NULL) {
+        HDF_LOGE("MmcBlockInit: memcalloc fail!");
         PlatformDevicePut(&mmcDevice->device);
         return HDF_ERR_MALLOC_FAIL;
     }
@@ -44,13 +47,13 @@ int32_t MmcBlockInit(struct MmcDevice *mmcDevice)
     if (ret <= 0) {
         OsalMemFree(mb);
         PlatformDevicePut(&mmcDevice->device);
-        HDF_LOGE("%s: format block dev name failed, ret = %d", __func__, ret);
+        HDF_LOGE("MmcBlockInit: format block dev name fail, ret = %d!", ret);
         return HDF_PLT_ERR_OS_API;
     }
 
     ret = MmcBlockOsInit(mmcDevice);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: mmc block os init failed, ret = %d", __func__, ret);
+        HDF_LOGE("MmcBlockInit: mmc block os init fail, ret = %d!", ret);
         OsalMemFree(mb);
         PlatformDevicePut(&mmcDevice->device);
         return ret;

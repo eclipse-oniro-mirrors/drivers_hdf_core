@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -64,12 +64,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
     if (data == nullptr) {
-        HDF_LOGE("%{public}s:data is null", __func__);
+        HDF_LOGE("LLVMFuzzerTestOneInput: gpio fuzz test data is nullptr!");
         return 0;
     }
 
     if (size < sizeof(struct AllParameters)) {
-        HDF_LOGE("%{public}s:size is small", __func__);
+        HDF_LOGE("LLVMFuzzerTestOneInput: gpio fuzz test size is small!");
         return 0;
     }
 

@@ -3,7 +3,7 @@
  *
  * Mipi drm adapter driver.
  *
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -31,11 +31,11 @@
 static struct mipi_dsi_device *GetLinuxPanel(const struct MipiDsiCntlr *cntlr)
 {
     if (cntlr == NULL) {
-        HDF_LOGE("%s: dev is NULL!", __func__);
+        HDF_LOGE("GetLinuxPanel: dev is null!");
         return NULL;
     }
     if (cntlr->devNo >= MAX_CNTLR_CNT) {
-        HDF_LOGE("%s: dev is NULL!", __func__);
+        HDF_LOGE("GetLinuxPanel: dev is null!");
         return NULL;
     }
 
@@ -50,27 +50,27 @@ static int32_t MipiDsiAdapterAttach(struct MipiDsiCntlr *cntlr, uint8_t *name)
     struct mipi_dsi_device *linuxPanel;
 
     if ((cntlr == NULL) || (name == NULL)) {
-        HDF_LOGE("%s: cntlr or name is NULL!", __func__);
+        HDF_LOGE("MipiDsiAdapterAttach: cntlr or name is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->devNo >= MAX_CNTLR_CNT) {
-        HDF_LOGE("%s: cntlr->devNo is erro!", __func__);
+        HDF_LOGE("MipiDsiAdapterAttach: cntlr->devNo is erro!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     panelNode = of_find_compatible_node(NULL, NULL, name);
     if (panelNode == NULL) {
-        HDF_LOGE("%s: [of_find_compatible_node] failed!", __func__);
+        HDF_LOGE("MipiDsiAdapterAttach: [of_find_compatible_node] fail!");
         return HDF_FAILURE;
     }
     linuxPanel = of_find_mipi_dsi_device_by_node(panelNode);
     if (linuxPanel == NULL) {
-        HDF_LOGE("%s: [of_find_mipi_dsi_device_by_node] failed!", __func__);
+        HDF_LOGE("MipiDsiAdapterAttach: [of_find_mipi_dsi_device_by_node] fail!");
         return HDF_FAILURE;
     }
     ret = mipi_dsi_attach(linuxPanel);
     if (ret < 0) {
-        HDF_LOGE("%s: mipi_dsi_attach failed.", __func__);
+        HDF_LOGE("MipiDsiAdapterAttach: mipi_dsi_attach fail!");
         return HDF_FAILURE;
     }
     cntlr->priv = (DevHandle)linuxPanel;
@@ -83,16 +83,16 @@ static int32_t MipiDsiAdapterSetDrvData(struct MipiDsiCntlr *cntlr, void *panelD
     struct mipi_dsi_device *linuxPanel;
 
     if ((cntlr == NULL) || (panelData == NULL)) {
-        HDF_LOGE("%s: cntlr or panelData is NULL!", __func__);
+        HDF_LOGE("MipiDsiAdapterSetDrvData: cntlr or panelData is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->devNo >= MAX_CNTLR_CNT) {
-        HDF_LOGE("%s: cntlr->devNo is erro!", __func__);
+        HDF_LOGE("MipiDsiAdapterSetDrvData: cntlr->devNo is erro!");
         return HDF_ERR_INVALID_PARAM;
     }
     linuxPanel = GetLinuxPanel(cntlr);
     if (linuxPanel == NULL) {
-        HDF_LOGE("%s: linuxPanel is NULL!", __func__);
+        HDF_LOGE("MipiDsiAdapterSetDrvData: linuxPanel is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     mipi_dsi_set_drvdata(linuxPanel, panelData);
@@ -106,12 +106,12 @@ static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
     struct mipi_dsi_device *linuxPanel;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("MipiDsiAdapterSetCmd: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     linuxPanel = GetLinuxPanel(cntlr);
     if (linuxPanel == NULL) {
-        HDF_LOGE("%s: linuxPanel is NULL!", __func__);
+        HDF_LOGE("MipiDsiAdapterSetCmd: linuxPanel is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -119,20 +119,20 @@ static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
         (cmd->dataType == MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM) || // 0x23
         (cmd->dataType == MIPI_DSI_GENERIC_LONG_WRITE)) { // 0x29
         ret = mipi_dsi_generic_write(linuxPanel, cmd->payload, cmd->dataLen);
-        HDF_LOGD("%s: [mipi_dsi_generic_write] dataType = 0x%x, payload = 0x%x, dataLen = 0x%x",
-            __func__, cmd->dataType, cmd->payload[0], cmd->dataLen);
+        HDF_LOGD("MipiDsiAdapterSetCmd: [mipi_dsi_generic_write] dataType = 0x%x, payload = 0x%x, dataLen = 0x%x",
+            cmd->dataType, cmd->payload[0], cmd->dataLen);
         if (ret < 0) {
-            HDF_LOGE("%s: [mipi_dsi_generic_write] failed.", __func__);
+            HDF_LOGE("MipiDsiAdapterSetCmd: [mipi_dsi_generic_write] fail!");
             return HDF_FAILURE;
         }
     } else if ((cmd->dataType == MIPI_DSI_DCS_SHORT_WRITE) || // 0x05
         (cmd->dataType == MIPI_DSI_DCS_SHORT_WRITE_PARAM) || // 0x15
         (cmd->dataType == MIPI_DSI_DCS_LONG_WRITE)) { // 0x39
         ret = mipi_dsi_dcs_write_buffer(linuxPanel, cmd->payload, cmd->dataLen);
-        HDF_LOGD("%s: [mipi_dsi_dcs_write_buffer] dataType = 0x%x, payload = 0x%x, dataLen = 0x%x",
-            __func__, cmd->dataType, cmd->payload[0], cmd->dataLen);
+        HDF_LOGD("MipiDsiAdapterSetCmd: [mipi_dsi_dcs_write_buffer] dataType = 0x%x, payload = 0x%x, dataLen = 0x%x",
+            cmd->dataType, cmd->payload[0], cmd->dataLen);
         if (ret < 0) {
-            HDF_LOGE("%s: [mipi_dsi_dcs_write_buffer] failed.", __func__);
+            HDF_LOGE("MipiDsiAdapterSetCmd: [mipi_dsi_dcs_write_buffer] fail!");
             return HDF_FAILURE;
         }
     } else {
@@ -140,10 +140,10 @@ static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
             cmd->payload = NULL;
         }
         ret = mipi_dsi_dcs_write(linuxPanel, cmd->dataType, cmd->payload, cmd->dataLen);
-        HDF_LOGD("%s: [mipi_dsi_dcs_write] dataType = 0x%x, dataLen = 0x%x",
-            __func__, cmd->dataType, cmd->dataLen);
+        HDF_LOGD("MipiDsiAdapterSetCmd: [mipi_dsi_dcs_write] dataType = 0x%x, dataLen = 0x%x",
+            cmd->dataType, cmd->dataLen);
         if (ret < 0) {
-            HDF_LOGE("%s: [mipi_dsi_dcs_write] failed.", __func__);
+            HDF_LOGE("MipiDsiAdapterSetCmd: [mipi_dsi_dcs_write] fail!");
             return HDF_FAILURE;
         }
     }
@@ -163,12 +163,12 @@ static int32_t MipiDsiAdapterGetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
     struct mipi_dsi_device *linuxPanel;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("MipiDsiAdapterGetCmd: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     linuxPanel = GetLinuxPanel(cntlr);
     if (linuxPanel == NULL) {
-        HDF_LOGE("%s: linuxPanel is NULL!", __func__);
+        HDF_LOGE("MipiDsiAdapterGetCmd: linuxPanel is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -176,18 +176,18 @@ static int32_t MipiDsiAdapterGetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
         params = cmd->payload;
         numParams = cmd->dataLen;
         ret = mipi_dsi_generic_read(linuxPanel, params, numParams, out, readLen);
-        HDF_LOGD("%s: [mipi_dsi_generic_read] dataType = 0x%x, payload = 0x%x, readLen = 0x%x",
-            __func__, cmd->dataType, cmd->payload[0], readLen);
+        HDF_LOGD("MipiDsiAdapterGetCmd: [mipi_dsi_generic_read] dataType = 0x%x, payload = 0x%x, readLen = 0x%x",
+            cmd->dataType, cmd->payload[0], readLen);
         if (ret < 0) {
-            HDF_LOGE("%s: [mipi_dsi_generic_read] failed.", __func__);
+            HDF_LOGE("MipiDsiAdapterGetCmd: [mipi_dsi_generic_read] fail!");
             return HDF_FAILURE;
         }
     } else {
         ret = mipi_dsi_dcs_read(linuxPanel, cmd->dataType, out, readLen);
-        HDF_LOGD("%s: [mipi_dsi_dcs_read] dataType = 0x%x, readLen = 0x%x",
-            __func__, cmd->dataType, readLen);
+        HDF_LOGD("MipiDsiAdapterGetCmd: [mipi_dsi_dcs_read] dataType = 0x%x, readLen = 0x%x",
+            cmd->dataType, readLen);
         if (ret < 0) {
-            HDF_LOGE("%s: [mipi_dsi_dcs_read] failed.", __func__);
+            HDF_LOGE("MipiDsiAdapterGetCmd: [mipi_dsi_dcs_read] fail!");
             return HDF_FAILURE;
         }
     }
@@ -216,15 +216,15 @@ static int32_t MipiDsiAdapterBind(struct HdfDeviceObject *device)
 {
     int32_t ret;
 
-    HDF_LOGI("%s: enter.", __func__);
+    HDF_LOGI("MipiDsiAdapterBind: enter!");
     g_mipiTx.priv = NULL;
     g_mipiTx.ops = &g_method;
     ret = MipiDsiRegisterCntlr(&g_mipiTx, device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: [MipiDsiRegisterCntlr] failed.", __func__);
+        HDF_LOGE("MipiDsiAdapterBind: [MipiDsiRegisterCntlr] fail!");
         return ret;
     }
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiDsiAdapterBind: success!");
 
     return HDF_SUCCESS;
 }
@@ -233,7 +233,7 @@ static int32_t MipiDsiAdapterInit(struct HdfDeviceObject *device)
 {
     (void)device;
 
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiDsiAdapterInit: success!");
     return HDF_SUCCESS;
 }
 
@@ -242,18 +242,18 @@ static void MipiDsiAdapterRelease(struct HdfDeviceObject *device)
     struct MipiDsiCntlr *cntlr;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL.", __func__);
+        HDF_LOGE("MipiDsiAdapterRelease: device is null!");
         return;
     }
     cntlr = MipiDsiCntlrFromDevice(device);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("MipiDsiAdapterRelease: cntlr is null!");
         return;
     }
     MipiDsiUnregisterCntlr(cntlr);
     cntlr->priv = NULL;
 
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("MipiDsiAdapterRelease: success!");
 }
 
 struct HdfDriverEntry g_mipiDsiLinuxDriverEntry = {

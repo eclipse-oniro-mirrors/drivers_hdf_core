@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -35,6 +35,7 @@ static int32_t MmcDispatch(struct MmcCntlr *cntlr, int cmd, struct HdfSBuf *data
             break;
         default:
             ret = HDF_ERR_NOT_SUPPORT;
+            HDF_LOGE("MmcDispatch: cmd: %d is not support!", cmd);
             break;
     }
     return ret;
@@ -46,17 +47,18 @@ static int32_t EmmcCmdGetCid(struct MmcCntlr *cntlr, struct HdfSBuf *reply)
     uint8_t cid[EMMC_CID_LEN] = {0};
 
     if (reply == NULL || cntlr == NULL) {
+        HDF_LOGE("EmmcCmdGetCid: reply or cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = EmmcDeviceGetCid((struct EmmcDevice *)cntlr->curDev, cid, EMMC_CID_LEN);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCmdGetCid: get cid fail!");
+        HDF_LOGE("EmmcCmdGetCid: get cid fail, ret: %d!", ret);
         return ret;
     }
 
     if (HdfSbufWriteBuffer(reply, cid, EMMC_CID_LEN) == false) {
-        HDF_LOGE("MmcCmdGetCid: write back cid fail!");
+        HDF_LOGE("EmmcCmdGetCid: write back cid fail!");
         return HDF_ERR_IO;
     }
 
@@ -74,6 +76,7 @@ static int32_t EmmcDispatch(struct MmcCntlr *cntlr, int cmd, struct HdfSBuf *dat
             break;
         default:
             ret = HDF_ERR_NOT_SUPPORT;
+            HDF_LOGE("EmmcDispatch: cmd: %d is not support!", cmd);
             break;
     }
     return ret;
@@ -94,13 +97,13 @@ int32_t MmcIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf 
     struct MmcCntlr *cntlr = NULL;
 
     if (client == NULL || client->device == NULL) {
-        HDF_LOGE("MmcIoDispatch: client or hdf dev obj is NULL");
+        HDF_LOGE("MmcIoDispatch: client or hdf dev obj is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     cntlr = (struct MmcCntlr *)client->device->service;
     if (cntlr == NULL) {
-        HDF_LOGE("MmcIoDispatch: service is NULL");
+        HDF_LOGE("MmcIoDispatch: service is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 

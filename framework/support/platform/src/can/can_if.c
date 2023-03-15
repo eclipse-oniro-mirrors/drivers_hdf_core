@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -17,6 +17,7 @@ int32_t CanBusOpen(int32_t number, DevHandle *handle)
 
     ret = CanClientCreateByNumber(number, &client);
     if (ret == HDF_SUCCESS) {
+        HDF_LOGE("CanBusOpen: create can client fail!");
         *handle = (DevHandle)client;
     }
     return ret;

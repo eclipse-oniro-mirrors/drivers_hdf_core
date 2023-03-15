@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -31,7 +31,7 @@ static int32_t VirtualAdcStart(struct AdcDevice *device)
     struct VirtualAdcDevice *virtual = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device is null", __func__);
+        HDF_LOGE("VirtualAdcStart: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -46,13 +46,13 @@ static int32_t VirtualAdcRead(struct AdcDevice *device, uint32_t channel, uint32
     struct VirtualAdcDevice *virtual = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device is null", __func__);
+        HDF_LOGE("VirtualAdcRead: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     virtual = (struct VirtualAdcDevice *)device;
     if (channel >= virtual->channels || val == NULL) {
-        HDF_LOGE("%s: invalid channel or val is null", __func__);
+        HDF_LOGE("VirtualAdcRead: invalid channel or val is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -79,29 +79,29 @@ static int32_t VirtualAdcReadDrs(struct VirtualAdcDevice *virtual, const struct 
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("VirtualAdcReadDrs: invalid drs ops!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = drsOps->GetUint32(node, "devNum", &virtual->devNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read devNum failed", __func__);
+        HDF_LOGE("VirtualAdcReadDrs: read devNum fail, ret: %d!", ret);
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "dataWidth", &virtual->dataWidth, 0);
     if (ret != HDF_SUCCESS || virtual->dataWidth == 0 || virtual->dataWidth >= ADC_MAX_DATA_WIDTH) {
-        HDF_LOGE("%s: read dataWidth failed", __func__);
+        HDF_LOGE("VirtualAdcReadDrs: read dataWidth fail, ret: %d!", ret);
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "channels", &virtual->channels, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read channels failed", __func__);
+        HDF_LOGE("VirtualAdcReadDrs: read channels fail, ret: %d!", ret);
         return ret;
     }
-    HDF_LOGD("%s: success, devNum=%u, dataWidth=%u, channels=%u",
-        __func__, virtual->devNum, virtual->dataWidth, virtual->channels);
+    HDF_LOGD("VirtualAdcReadDrs: success, devNum=%u, dataWidth=%u, channels=%u!",
+        virtual->devNum, virtual->dataWidth, virtual->channels);
 
     return HDF_SUCCESS;
 }
@@ -112,19 +112,19 @@ static int32_t VirtualAdcInit(struct HdfDeviceObject *device)
     struct VirtualAdcDevice *virtual = NULL;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is null", __func__);
+        HDF_LOGE("VirtualAdcInit: device or property is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     virtual = (struct VirtualAdcDevice *)OsalMemCalloc(sizeof(*virtual));
     if (virtual == NULL) {
-        HDF_LOGE("%s: alloc virtual failed", __func__);
+        HDF_LOGE("VirtualAdcInit: alloc virtual fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = VirtualAdcReadDrs(virtual, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read drs failed:%d", __func__, ret);
+        HDF_LOGE("VirtualAdcInit: read drs fail, ret: %d!", ret);
         OsalMemFree(virtual);
         return ret;
     }
@@ -134,12 +134,12 @@ static int32_t VirtualAdcInit(struct HdfDeviceObject *device)
     virtual->device.ops = &g_method;
     ret = AdcDeviceAdd(&virtual->device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: add adc virtual device:%u failed", __func__, virtual->devNum);
+        HDF_LOGE("VirtualAdcInit: add adc virtual device:%u fail, ret: %d!", virtual->devNum, ret);
         OsalMemFree(virtual);
         return ret;
     }
 
-    HDF_LOGI("%s: adc virtual driver init success.", __func__);
+    HDF_LOGI("VirtualAdcInit: adc virtual driver init success!");
     return ret;
 }
 
@@ -150,21 +150,21 @@ static void VirtualAdcRelease(struct HdfDeviceObject *device)
     struct AdcDevice *dev = NULL;
     struct DeviceResourceIface *drsOps = NULL;
 
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("VirtualAdcRelease: enter!");
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is null", __func__);
+        HDF_LOGE("VirtualAdcRelease: device or property is null!");
         return;
     }
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("VirtualAdcRelease: invalid drs ops!");
         return;
     }
 
     ret = drsOps->GetUint32(device->property, "devNum", (uint32_t *)&devNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read devNum failed", __func__);
+        HDF_LOGE("VirtualAdcRelease: read devNum fail, ret: %d!", ret);
         return;
     }
 

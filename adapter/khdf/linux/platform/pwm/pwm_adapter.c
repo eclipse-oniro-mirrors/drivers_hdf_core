@@ -3,7 +3,7 @@
  *
  * pwm driver adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -29,12 +29,12 @@ static int32_t HdfPwmOpen(struct PwmDev *pwm)
     struct pwm_device *device = NULL;
 
     if (pwm == NULL) {
-        HDF_LOGE("%s: pwm is null", __func__);
+        HDF_LOGE("HdfPwmOpen: pwm is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     device = pwm_request(pwm->num, NULL);
     if (IS_ERR(device)) {
-        HDF_LOGE("%s: pwm_request pwm%d fail", __func__, pwm->num);
+        HDF_LOGE("HdfPwmOpen: pwm_request pwm%d fail!", pwm->num);
         return HDF_FAILURE;
     }
     pwm->cfg.period = device->state.period;
@@ -48,7 +48,7 @@ static int32_t HdfPwmOpen(struct PwmDev *pwm)
 static int32_t HdfPwmClose(struct PwmDev *pwm)
 {
     if (pwm == NULL) {
-        HDF_LOGE("%s: pwm is null", __func__);
+        HDF_LOGE("HdfPwmClose: pwm is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     pwm_free((struct pwm_device *)pwm->priv);
@@ -61,7 +61,7 @@ static int32_t HdfPwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     struct pwm_state state;
 
     if (pwm == NULL || pwm->priv == NULL || config == NULL) {
-        HDF_LOGE("%s: hp reg or config is null", __func__);
+        HDF_LOGE("HdfPwmSetConfig: pwm or priv or config is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -69,14 +69,14 @@ static int32_t HdfPwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     state.enabled = (config->status == PWM_ENABLE_STATUS) ? true : false;
     state.period = config->period;
     state.polarity = config->polarity;
-    HDF_LOGI("%s: set PwmConfig: number %u, period %u, duty %u, polarity %u, enable %u.",
-        __func__, config->number, config->period, config->duty, config->polarity, config->status);
+    HDF_LOGI("HdfPwmSetConfig: set PwmConfig: number %u, period %u, duty %u, polarity %u, enable %u!",
+        config->number, config->period, config->duty, config->polarity, config->status);
     ret = pwm_apply_state(pwm->priv, &state);
     if (ret < 0) {
-        HDF_LOGE("%s: [pwm_apply_state] failed.", __func__);
+        HDF_LOGE("HdfPwmSetConfig: [pwm_apply_state] fail!");
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s: success.", __func__);
+    HDF_LOGI("HdfPwmSetConfig: success!");
     return HDF_SUCCESS;
 }
 
@@ -99,23 +99,23 @@ static int32_t HdfPwmInit(struct HdfDeviceObject *obj)
     struct PwmDev *pwm = NULL;
     struct DeviceResourceIface *iface = NULL;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("HdfPwmInit: entry!");
     if (obj == NULL) {
-        HDF_LOGE("%s: obj is null", __func__);
+        HDF_LOGE("HdfPwmInit: obj is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     iface = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (iface == NULL || iface->GetUint32 == NULL) {
-        HDF_LOGE("%s: face is invalid", __func__);
+        HDF_LOGE("HdfPwmInit: iface or GetUint32 is null!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(obj->property, "num", &num, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read num fail", __func__);
+        HDF_LOGE("HdfPwmInit: read num fail!");
         return HDF_FAILURE;
     }
     pwm = (struct PwmDev *)OsalMemCalloc(sizeof(*pwm));
     if (pwm == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc pwm error", __func__);
+        HDF_LOGE("HdfPwmInit: OsalMemCalloc pwm error!");
         return HDF_ERR_MALLOC_FAIL;
     }
     pwm->cfg.number = 0;
@@ -124,7 +124,7 @@ static int32_t HdfPwmInit(struct HdfDeviceObject *obj)
     pwm->busy = false;
     ret = PwmDeviceAdd(obj, pwm);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: error probe, ret is %d", __func__, ret);
+        HDF_LOGE("HdfPwmInit: error probe, ret is %d!", ret);
         OsalMemFree(pwm);
     }
     return ret;
@@ -134,14 +134,14 @@ static void HdfPwmRelease(struct HdfDeviceObject *obj)
 {
     struct PwmDev *pwm = NULL;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("HdfPwmRelease: entry!");
     if (obj == NULL) {
-        HDF_LOGE("%s: obj is null", __func__);
+        HDF_LOGE("HdfPwmRelease: obj is null!");
         return;
     }
     pwm = (struct PwmDev *)obj->service;
     if (pwm == NULL) {
-        HDF_LOGE("%s: pwm is null", __func__);
+        HDF_LOGE("HdfPwmRelease: pwm is null!");
         return;
     }
     PwmDeviceRemove(obj, pwm);
