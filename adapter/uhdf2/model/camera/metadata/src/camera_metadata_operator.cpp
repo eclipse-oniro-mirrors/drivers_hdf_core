@@ -495,7 +495,7 @@ int UpdateCameraMetadataItemByIndex(common_metadata_header_t *dst, uint32_t inde
     }
 
     METADATA_DEBUG_LOG("UpdateCameraMetadataItemByIndex end");
-    return CAM_META_SUCCESS;
+    return ret;
 }
 
 int UpdateCameraMetadataItem(common_metadata_header_t *dst, uint32_t item, const void *data,
@@ -572,7 +572,7 @@ int DeleteCameraMetadataItemByIndex(common_metadata_header_t *dst, uint32_t inde
     }
     dst->item_count -= 1;
     METADATA_DEBUG_LOG("DeleteCameraMetadataItemByIndex end");
-    return CAM_META_SUCCESS;
+    return ret;
 }
 
 int DeleteCameraMetadataItem(common_metadata_header_t *dst, uint32_t item)
