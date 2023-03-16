@@ -328,7 +328,7 @@ bool MetadataUtils::WriteMetadata(const camera_metadata_item_t &item, MessagePar
 
 std::string MetadataUtils::EncodeToString(std::shared_ptr<CameraMetadata> metadata)
 {
-    int32_t ret, dataLen;
+    int32_t ret;
     const int32_t headerLength = sizeof(common_metadata_header_t);
     const int32_t itemLen = sizeof(camera_metadata_item_entry_t);
     const int32_t itemFixedLen = static_cast<int32_t>(offsetof(camera_metadata_item_entry_t, data));
@@ -358,7 +358,7 @@ std::string MetadataUtils::EncodeToString(std::shared_ptr<CameraMetadata> metada
         }
         encodeData += itemFixedLen;
         encodeDataLen -= itemFixedLen;
-        dataLen = itemLen - itemFixedLen;
+        int32_t dataLen = itemLen - itemFixedLen;
         ret = memcpy_s(encodeData, encodeDataLen,  &(item->data), dataLen);
         if (ret != EOK) {
             METADATA_ERR_LOG("MetadataUtils::EncodeToString Failed to copy memory for item data field");
@@ -384,7 +384,7 @@ std::string MetadataUtils::EncodeToString(std::shared_ptr<CameraMetadata> metada
 
 std::shared_ptr<CameraMetadata> MetadataUtils::DecodeFromString(std::string setting)
 {
-    uint32_t ret, dataLen;
+    uint32_t ret;
     uint32_t totalLen = setting.capacity();
     const uint32_t headerLength = sizeof(common_metadata_header_t);
     const uint32_t itemLen = sizeof(camera_metadata_item_entry_t);
@@ -427,7 +427,7 @@ std::shared_ptr<CameraMetadata> MetadataUtils::DecodeFromString(std::string sett
             return {};
         }
         decodeData += itemFixedLen;
-        dataLen = itemLen - itemFixedLen;
+        uint32_t dataLen = itemLen - itemFixedLen;
         ret = memcpy_s(&(item->data), dataLen,  decodeData, dataLen);
         if (ret != EOK) {
             METADATA_ERR_LOG("MetadataUtils::DecodeFromString Failed to copy memory for item data field");
