@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -129,39 +129,39 @@ static int32_t VirtualRegulatorContinueReadHcs(struct RegulatorNode *regNode, co
     int32_t ret;
     struct DeviceResourceIface *drsOps = NULL;
 
-    HDF_LOGD("VirtualRegulatorContinueReadHcs enter:");
+    HDF_LOGD("VirtualRegulatorContinueReadHcs enter!");
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetString == NULL) {
-        HDF_LOGE("%s: invalid drs ops fail!", __func__);
+        HDF_LOGE("VirtualRegulatorContinueReadHcs: invalid drs ops fail!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint32(node, "minUv", &regNode->regulatorInfo.constraints.minUv, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read minUv fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorContinueReadHcs: read minUv fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = drsOps->GetUint32(node, "maxUv", &regNode->regulatorInfo.constraints.maxUv, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxUv fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorContinueReadHcs: read maxUv fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = drsOps->GetUint32(node, "minUa", &regNode->regulatorInfo.constraints.minUa, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read minUa fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorContinueReadHcs: read minUa fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = drsOps->GetUint32(node, "maxUa", &regNode->regulatorInfo.constraints.maxUa, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxUa fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorContinueReadHcs: read maxUa fail, ret: %d!", ret);
+        return ret;
     }
 
-    HDF_LOGD("regulatorInfo:[%s][%d][%d]--[%d][%d]--[%d][%d]!",
+    HDF_LOGD("VirtualRegulatorContinueReadHcs: regulatorInfo:[%s][%d][%d]--[%d][%d]--[%d][%d]!",
         regNode->regulatorInfo.name, regNode->regulatorInfo.constraints.alwaysOn,
         regNode->regulatorInfo.constraints.mode,
         regNode->regulatorInfo.constraints.minUv, regNode->regulatorInfo.constraints.maxUv,
@@ -179,26 +179,26 @@ static int32_t VirtualRegulatorReadHcs(struct RegulatorNode *regNode, const stru
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetString == NULL) {
-        HDF_LOGE("%s: invalid drs ops fail!", __func__);
+        HDF_LOGE("VirtualRegulatorReadHcs: invalid drs ops fail!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetString(node, "name", &(regNode->regulatorInfo.name), "ERROR");
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read name fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorReadHcs: read name fail, ret: %d!", ret);
+        return ret;
     }
     if (regNode->regulatorInfo.name != NULL) {
         HDF_LOGD("VirtualRegulatorReadHcs:name[%s]", regNode->regulatorInfo.name);
     } else {
-        HDF_LOGE("VirtualRegulatorReadHcs:name NULL");
+        HDF_LOGE("VirtualRegulatorReadHcs:name is null!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetString(node, "parentName", &(regNode->regulatorInfo.parentName), "ERROR");
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read parentName fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorReadHcs: read parentName fail, ret: %d!", ret);
+        return ret;
     }
     if (regNode->regulatorInfo.parentName != NULL) {
         HDF_LOGD("VirtualRegulatorReadHcs:parentName[%s]", regNode->regulatorInfo.parentName);
@@ -209,8 +209,8 @@ static int32_t VirtualRegulatorReadHcs(struct RegulatorNode *regNode, const stru
 
     ret = drsOps->GetUint8(node, "mode", &regNode->regulatorInfo.constraints.mode, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read mode fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualRegulatorReadHcs: read mode fail, ret: %d!", ret);
+        return ret;
     }
 
     if (VirtualRegulatorContinueReadHcs(regNode, node) != HDF_SUCCESS) {
@@ -228,7 +228,7 @@ static int32_t VirtualRegulatorParseAndInit(struct HdfDeviceObject *device, cons
 
     regNode = (struct RegulatorNode *)OsalMemCalloc(sizeof(*regNode));
     if (regNode == NULL) {
-        HDF_LOGE("%s: malloc node fail!", __func__);
+        HDF_LOGE("VirtualRegulatorParseAndInit: malloc node fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -236,7 +236,7 @@ static int32_t VirtualRegulatorParseAndInit(struct HdfDeviceObject *device, cons
 
     ret = VirtualRegulatorReadHcs(regNode, node);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read drs fail! ret:%d", __func__, ret);
+        HDF_LOGE("VirtualRegulatorParseAndInit: read drs fail, ret: %d!", ret);
         OsalMemFree(regNode);
         regNode = NULL;
         return ret;
@@ -247,7 +247,7 @@ static int32_t VirtualRegulatorParseAndInit(struct HdfDeviceObject *device, cons
 
     ret = RegulatorNodeAdd(regNode);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: add regulator controller fail:%d!", __func__, ret);
+        HDF_LOGE("VirtualRegulatorParseAndInit: add regulator controller fail, ret: %d!", ret);
         OsalMemFree(regNode);
         regNode = NULL;
         return ret;
@@ -261,27 +261,27 @@ static int32_t VirtualRegulatorInit(struct HdfDeviceObject *device)
     const struct DeviceResourceNode *childNode = NULL;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is NULL", __func__);
+        HDF_LOGE("VirtualRegulatorInit: device or property is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {
         ret = VirtualRegulatorParseAndInit(device, childNode);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:VirtualRegulatorParseAndInit fail", __func__);
-            return HDF_FAILURE;
+            HDF_LOGE("VirtualRegulatorInit: VirtualRegulatorParseAndInit fail, ret: %d!", ret);
+            return ret;
         }
     }
-    HDF_LOGI("%s: success", __func__);
+    HDF_LOGI("VirtualRegulatorInit: success!");
     return HDF_SUCCESS;
 }
 
 static void VirtualRegulatorRelease(struct HdfDeviceObject *device)
 {
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("VirtualRegulatorRelease: enter!");
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is NULL", __func__);
+        HDF_LOGE("VirtualRegulatorRelease: device or property is null!");
         return;
     }
 

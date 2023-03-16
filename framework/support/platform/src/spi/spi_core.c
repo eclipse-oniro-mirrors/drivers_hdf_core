@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,11 +22,11 @@ int32_t SpiCntlrOpen(struct SpiCntlr *cntlr, uint32_t csNum)
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiCntlrOpen: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->method == NULL || cntlr->method->Open == NULL) {
-        HDF_LOGE("%s: Open not support", __func__);
+        HDF_LOGE("SpiCntlrOpen: method or Open is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
     (void)OsalMutexLock(&(cntlr->lock));
@@ -41,11 +41,11 @@ int32_t SpiCntlrClose(struct SpiCntlr *cntlr, uint32_t csNum)
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiCntlrClose: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->method == NULL || cntlr->method->Close == NULL) {
-        HDF_LOGE("%s: Close not support", __func__);
+        HDF_LOGE("SpiCntlrClose: method or Close is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
     (void)OsalMutexLock(&(cntlr->lock));
@@ -60,11 +60,11 @@ int32_t SpiCntlrTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiMsg *
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiCntlrTransfer: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->method == NULL || cntlr->method->Transfer == NULL) {
-        HDF_LOGE("%s: transfer not support", __func__);
+        HDF_LOGE("SpiCntlrTransfer: method or Transfer is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -80,12 +80,12 @@ int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiCntlrSetCfg: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (cntlr->method == NULL || cntlr->method->SetCfg == NULL) {
-        HDF_LOGE("%s: not support", __func__);
+        HDF_LOGE("SpiCntlrSetCfg: method or SetCfg is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -110,12 +110,12 @@ int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiCntlrGetCfg: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (cntlr->method == NULL || cntlr->method->GetCfg == NULL) {
-        HDF_LOGE("%s: not support", __func__);
+        HDF_LOGE("SpiCntlrGetCfg: method or GetCfg is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -148,7 +148,7 @@ static int32_t SpiMsgsRwProcess(
     for (i = 0; i < count; i++) {
         if ((!HdfSbufReadBuffer(data, (const void **)&userMsg, &len)) || (userMsg == NULL) ||
             (len != sizeof(struct SpiUserMsg))) {
-            HDF_LOGE("%s: read msg[%d] userMsg fail!", __func__, i);
+            HDF_LOGE("SpiMsgsRwProcess: read msg[%d] userMsg fail!", i);
             return HDF_ERR_IO;
         }
 
@@ -164,7 +164,8 @@ static int32_t SpiMsgsRwProcess(
         }
         if ((userMsg->rwFlag & SPI_USER_MSG_WRITE) == SPI_USER_MSG_WRITE) {
             if ((!HdfSbufReadBuffer(data, (const void **)&buf, &len)) || (buf == NULL) || (len != msgs[i].len)) {
-                HDF_LOGE("%s: read msg[%d] wbuf fail, len[%u], msgs[i].len[%u]!", __func__, i, len, msgs[i].len);
+                HDF_LOGE("SpiMsgsRwProcess: read msg[%d] wbuf fail, len[%u], msgs[%d].len[%u]!", i,
+                    len, i, msgs[i].len);
             } else {
                 msgs[i].wbuf = buf;
             }
@@ -172,7 +173,7 @@ static int32_t SpiMsgsRwProcess(
     }
 
     if ((!HdfSbufReadUint32(data, &rbufLen)) || (rbufLen != *lenReply)) {
-        HDF_LOGE("%s: read rbufLen failed %u != %u!", __func__, rbufLen, *lenReply);
+        HDF_LOGE("SpiMsgsRwProcess: read rbufLen failed %u != %u!", rbufLen, *lenReply);
         return HDF_ERR_IO;
     }
 
@@ -191,23 +192,25 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
     struct SpiMsg *msgs = NULL;
 
     if (!HdfSbufReadUint32(data, &count) || (count == 0)) {
-        HDF_LOGE("%s: read count failed!", __func__);
+        HDF_LOGE("SpiTransferRebuildMsgs: read count fail!");
         return HDF_ERR_IO;
     }
 
     msgs = OsalMemCalloc(sizeof(struct SpiMsg) * count);
     if (msgs == NULL) {
+        HDF_LOGE("SpiTransferRebuildMsgs: memcalloc fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (SpiMsgsRwProcess(data, count, &tmpFlag, msgs, &lenReply) != HDF_SUCCESS) {
-        HDF_LOGE("%s: SpiMsgsRwProcess fail!", __func__);
+        HDF_LOGE("SpiTransferRebuildMsgs: SpiMsgsRwProcess fail!");
         return HDF_FAILURE;
     }
 
     if (lenReply > 0) {
         bufReply = OsalMemCalloc(lenReply);
         if (bufReply == NULL) {
+            HDF_LOGE("SpiTransferRebuildMsgs: memcalloc fail!");
             return HDF_ERR_MALLOC_FAIL;
         }
         for (i = 0, buf = bufReply; i < count && buf < (bufReply + lenReply); i++) {
@@ -235,7 +238,7 @@ static int32_t SpiTransferWriteBackMsgs(struct HdfSBuf *reply, struct SpiMsg *ms
         }
 
         if (!HdfSbufWriteBuffer(reply, msgs[i].rbuf, msgs[i].len)) {
-            HDF_LOGE("%s: write msg[%u] reply failed!", __func__, i);
+            HDF_LOGE("SpiTransferWriteBackMsgs: write msg[%u] reply fail!", i);
             return HDF_ERR_IO;
         }
     }
@@ -251,18 +254,19 @@ static int32_t SpiIoTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct HdfS
     uint8_t *bufReply = NULL;
 
     if (data == NULL || reply == NULL) {
+        HDF_LOGE("SpiIoTransfer: data or reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = SpiTransferRebuildMsgs(data, &msgs, &count, &bufReply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: rebuild msgs fail:%d", __func__, ret);
+        HDF_LOGE("SpiIoTransfer: rebuild msgs fail, ret: %d!", ret);
         goto EXIT;
     }
 
     ret = SpiCntlrTransfer(cntlr, csNum, msgs, count);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: do transfer failed:%d", __func__, ret);
+        HDF_LOGE("SpiIoTransfer: do transfer fail, ret: %d!", ret);
         goto EXIT;
     }
 
@@ -290,7 +294,7 @@ static int32_t SpiIoSetConfig(struct SpiCntlr *cntlr, uint32_t csNum, struct Hdf
     struct SpiCfg *cfg = NULL;
 
     if (!HdfSbufReadBuffer(data, (const void **)&cfg, &len) || sizeof(*cfg) != len) {
-        HDF_LOGE("%s: read buffer failed!", __func__);
+        HDF_LOGE("SpiIoSetConfig: read buffer fail!");
         return HDF_ERR_IO;
     }
     return SpiCntlrSetCfg(cntlr, csNum, cfg);
@@ -303,12 +307,12 @@ static int32_t SpiIoGetConfig(struct SpiCntlr *cntlr, uint32_t csNum, struct Hdf
 
     ret = SpiCntlrGetCfg(cntlr, csNum, &cfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: get cfg failed!", __func__);
+        HDF_LOGE("SpiIoGetConfig: get cfg fail!");
         return ret;
     }
 
     if (!HdfSbufWriteBuffer(reply, &cfg, sizeof(cfg))) {
-        HDF_LOGE("%s: write buffer failed!", __func__);
+        HDF_LOGE("SpiIoGetConfig: write buffer fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -321,18 +325,18 @@ static int32_t SpiIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct H
     struct SpiCntlr *cntlr = NULL;
 
     if (client == NULL || client->device == NULL || client->device->service == NULL) {
-        HDF_LOGE("%s: invalid client", __func__);
+        HDF_LOGE("SpiIoDispatch: invalid client!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     cntlr = (struct SpiCntlr *)client->device->service;
     if (data == NULL) {
-        HDF_LOGE("%s: data is NULL", __func__);
+        HDF_LOGE("SpiIoDispatch: data is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (!HdfSbufReadUint32(data, &csNum)) {
-        HDF_LOGE("%s: read csNum failed!", __func__);
+        HDF_LOGE("SpiIoDispatch: read csNum fail!");
         return HDF_ERR_IO;
     }
 
@@ -348,6 +352,7 @@ static int32_t SpiIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct H
         case SPI_IO_TRANSFER:
             return SpiIoTransfer(cntlr, csNum, data, reply);
         default:
+            HDF_LOGE("SpiIoDispatch: cmd %d is not support!", cmd);
             ret = HDF_ERR_NOT_SUPPORT;
             break;
     }
@@ -357,6 +362,7 @@ static int32_t SpiIoDispatch(struct HdfDeviceIoClient *client, int cmd, struct H
 void SpiCntlrDestroy(struct SpiCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("SpiCntlrDestroy: device is null!");
         return;
     }
     (void)OsalMutexDestroy(&(cntlr->lock));
@@ -368,13 +374,13 @@ struct SpiCntlr *SpiCntlrCreate(struct HdfDeviceObject *device)
     struct SpiCntlr *cntlr = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiCntlrCreate: device is null!");
         return NULL;
     }
 
     cntlr = (struct SpiCntlr *)OsalMemCalloc(sizeof(*cntlr));
     if (cntlr == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc error", __func__);
+        HDF_LOGE("SpiCntlrCreate: OsalMemCalloc error!");
         return NULL;
     }
     cntlr->device = device;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,7 +30,7 @@ static int32_t VirtualDacWrite(struct DacDevice *device, uint32_t channel, uint3
     (void)device;
     (void)channel;
     (void)val;
-    HDF_LOGI("%s: done!", __func__);
+    HDF_LOGI("VirtualDacWrite: done!");
 
     return HDF_SUCCESS;
 }
@@ -38,20 +38,20 @@ static int32_t VirtualDacWrite(struct DacDevice *device, uint32_t channel, uint3
 static inline int32_t VirtualDacStart(struct DacDevice *device)
 {
     (void)device;
-    HDF_LOGI("%s: done!", __func__);
+    HDF_LOGI("VirtualDacStart: done!");
     return HDF_SUCCESS;
 }
 
 static inline int32_t VirtualDacStop(struct DacDevice *device)
 {
     (void)device;
-    HDF_LOGI("%s: done!", __func__);
+    HDF_LOGI("VirtualDacStop: done!");
     return HDF_SUCCESS;
 }
 
 static inline void VirtualDacDeviceInit(struct VirtualDacDevice *virtual)
 {
-    HDF_LOGI("%s: device:%u init done!", __func__, virtual->deviceNum);
+    HDF_LOGI("VirtualDacDeviceInit: device:%u init done!", virtual->deviceNum);
 }
 
 static const struct DacMethod g_method = {
@@ -66,19 +66,19 @@ static int32_t VirtualDacReadDrs(struct VirtualDacDevice *virtual, const struct 
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL || drsOps->GetUint16 == NULL) {
-        HDF_LOGE("%s: Invalid drs ops fail!", __func__);
+        HDF_LOGE("VirtualDacReadDrs: invalid drs ops fail!");
         return HDF_FAILURE;
     }
     if (drsOps->GetUint32(node, "deviceNum", &virtual->deviceNum, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: Read deviceNum fail!", __func__);
+        HDF_LOGE("VirtualDacReadDrs: read deviceNum fail!");
         return HDF_ERR_IO;
     }
     if (drsOps->GetUint32(node, "validChannel", &virtual->validChannel, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: Read validChannel fail!", __func__);
+        HDF_LOGE("VirtualDacReadDrs: read validChannel fail!");
         return HDF_ERR_IO;
     }
     if (drsOps->GetUint32(node, "rate", &virtual->rate, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: Read rate fail!", __func__);
+        HDF_LOGE("VirtualDacReadDrs: read rate fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -92,13 +92,13 @@ static int32_t VirtualDacParseAndInit(struct HdfDeviceObject *device, const stru
 
     virtual = (struct VirtualDacDevice *)OsalMemCalloc(sizeof(*virtual));
     if (virtual == NULL) {
-        HDF_LOGE("%s: Malloc virtual fail!", __func__);
+        HDF_LOGE("VirtualDacParseAndInit: malloc virtual fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = VirtualDacReadDrs(virtual, node);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Read drs fail! ret:%d", __func__, ret);
+        HDF_LOGE("VirtualDacParseAndInit: read drs fail, ret: %d!", ret);
         OsalMemFree(virtual);
         virtual = NULL;
         return ret;
@@ -110,7 +110,7 @@ static int32_t VirtualDacParseAndInit(struct HdfDeviceObject *device, const stru
     virtual->device.ops = &g_method;
     ret = DacDeviceAdd(&virtual->device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: add Dac controller failed! ret = %d", __func__, ret);
+        HDF_LOGE("VirtualDacParseAndInit: add dac device fail, ret = %d!", ret);
         OsalMemFree(virtual);
         virtual = NULL;
         return ret;
@@ -125,7 +125,7 @@ static int32_t VirtualDacInit(struct HdfDeviceObject *device)
     const struct DeviceResourceNode *childNode = NULL;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is NULL", __func__);
+        HDF_LOGE("VirtualDacInit: device or property is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -149,13 +149,13 @@ static void VirtualDacRemoveByNode(const struct DeviceResourceNode *node)
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops fail!", __func__);
+        HDF_LOGE("VirtualDacRemoveByNode: invalid drs ops fail!");
         return;
     }
 
     ret = drsOps->GetUint16(node, "devNum", (uint16_t *)&devNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read devNum fail!", __func__);
+        HDF_LOGE("VirtualDacRemoveByNode: read devNum fail, ret: %d!", ret);
         return;
     }
 
@@ -174,7 +174,7 @@ static void VirtualDacRelease(struct HdfDeviceObject *device)
     const struct DeviceResourceNode *childNode = NULL;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is NULL", __func__);
+        HDF_LOGE("VirtualDacRelease: device or property is null!");
         return;
     }
 

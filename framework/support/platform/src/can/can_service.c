@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -41,12 +41,13 @@ int32_t CanServiceBind(struct HdfDeviceObject *device)
     struct IDeviceIoService *service = NULL;
 
     if (device == NULL) {
+        HDF_LOGE("CanServiceBind: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct IDeviceIoService *)OsalMemCalloc(sizeof(*service));
     if (service == NULL) {
-        HDF_LOGE("CanServiceBind: alloc service failed!");
+        HDF_LOGE("CanServiceBind: memcalloc service fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 

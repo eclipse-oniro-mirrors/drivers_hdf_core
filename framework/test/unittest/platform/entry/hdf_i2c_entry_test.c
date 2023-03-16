@@ -7,6 +7,7 @@
  */
 
 #include "hdf_i2c_entry_test.h"
+#include "hdf_log.h"
 #include "i2c_test.h"
 
 #define HDF_LOG_TAG hdf_i2c_entry_test
@@ -14,6 +15,7 @@
 int32_t HdfI2cTestEntry(HdfTestMsg *msg)
 {
     if (msg == NULL) {
+        HDF_LOGE("HdfI2cTestEntry: msg is null!");
         return HDF_FAILURE;
     }
 

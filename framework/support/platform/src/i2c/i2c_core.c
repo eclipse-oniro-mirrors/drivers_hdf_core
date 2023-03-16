@@ -30,6 +30,7 @@ static struct I2cManager *g_i2cManager = NULL;
 static int32_t I2cCntlrLockDefault(struct I2cCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("I2cCntlrLockDefault: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return OsalMutexLock(&cntlr->lock);
@@ -38,6 +39,7 @@ static int32_t I2cCntlrLockDefault(struct I2cCntlr *cntlr)
 static void I2cCntlrUnlockDefault(struct I2cCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("I2cCntlrUnlockDefault: cntlr is null!");
         return;
     }
     (void)OsalMutexUnlock(&cntlr->lock);
@@ -209,17 +211,17 @@ int32_t I2cCntlrTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t co
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2cCntlrTransfer: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->ops == NULL || cntlr->ops->transfer == NULL) {
-        HDF_LOGE("%s: ops or transfer is null", __func__);
+        HDF_LOGE("I2cCntlrTransfer: ops or transfer is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (I2cCntlrLock(cntlr) != HDF_SUCCESS) {
-        HDF_LOGE("%s: lock controller fail", __func__);
+        HDF_LOGE("I2cCntlrTransfer: lock controller fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->transfer(cntlr, msgs, count);
@@ -236,18 +238,19 @@ static int32_t I2cIoDoTransfer(struct I2cCntlr *cntlr, struct HdfSBuf *data, str
     int32_t ret = HDF_SUCCESS;
 
     if (I2cMsgsRebuildFromSbuf(data, &msgs, &count) != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to rebuild i2c msg", __func__);
+        HDF_LOGE("I2cIoDoTransfer: fail to rebuild i2c msg!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     transCnt = I2cCntlrTransfer(cntlr, msgs, count);
     if (transCnt != count) {
         I2cMsgsFree(msgs, count);
+        HDF_LOGE("I2cIoDoTransfer: i2c transfer fail!");
         return HDF_ERR_IO;
     }
 
     if (I2cMsgsWriteToSbuf(msgs, count, reply) != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to write i2c msg", __func__);
+        HDF_LOGE("I2cIoDoTransfer: fail to write i2c msg!");
         ret = HDF_ERR_INVALID_PARAM;
     }
     I2cMsgsFree(msgs, count);
@@ -263,17 +266,18 @@ static int32_t I2cManagerIoTransfer(struct HdfSBuf *data, struct HdfSBuf *reply)
     struct I2cCntlr *cntlr = NULL;
 
     if (data == NULL || reply == NULL) {
+        HDF_LOGE("I2cManagerIoTransfer: data or reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (!HdfSbufReadUint32(data, &handle)) {
-        HDF_LOGE("%s: read handle fail", __func__);
+        HDF_LOGE("I2cManagerIoTransfer: read handle fail!");
         return HDF_ERR_IO;
     }
 
     number = (int16_t)(handle - I2C_HANDLE_SHIFT);
     cntlr = I2cManagerFindCntlr(number);
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->transfer == NULL) {
-        HDF_LOGE("%s: invalid cntlr num %d", __func__, number);
+        HDF_LOGE("I2cManagerIoTransfer: invalid cntlr num %d!", number);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -286,19 +290,23 @@ static int32_t I2cManagerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
     uint32_t handle;
 
     if (!HdfSbufReadUint16(data, (uint16_t *)&number)) {
+        HDF_LOGE("I2cManagerIoOpen: read nuber fail!");
         return HDF_ERR_IO;
     }
 
     if (number < 0 || number >= I2C_BUS_MAX || reply == NULL) {
+        HDF_LOGE("I2cManagerIoOpen: number is invalid or reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (I2cCntlrGet(number) == NULL) {
+        HDF_LOGE("I2cManagerIoOpen: i2c cnltr get fail!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     handle = (uint32_t)(number + I2C_HANDLE_SHIFT);
     if (!HdfSbufWriteUint32(reply, handle)) {
+        HDF_LOGE("I2cManagerIoOpen: write handle fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -311,11 +319,13 @@ static int32_t I2cManagerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     (void)reply;
     if (!HdfSbufReadUint32(data, &handle)) {
+        HDF_LOGE("I2cManagerIoClose: read handle fail!");
         return HDF_ERR_IO;
     }
 
     number = (int16_t)(handle - I2C_HANDLE_SHIFT);
     if (number < 0 || number >= I2C_BUS_MAX) {
+        HDF_LOGE("I2cManagerIoClose: number is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
     I2cCntlrPut(I2cManagerFindCntlr(number));
@@ -336,6 +346,7 @@ static int32_t I2cManagerDispatch(
         case I2C_IO_TRANSFER:
             return I2cManagerIoTransfer(data, reply);
         default:
+            HDF_LOGE("I2cManagerDispatch: cmd %d is not support!", cmd);
             ret = HDF_ERR_NOT_SUPPORT;
             break;
     }
@@ -347,9 +358,9 @@ static int32_t I2cManagerBind(struct HdfDeviceObject *device)
     int32_t ret;
     struct I2cManager *manager = NULL;
 
-    HDF_LOGI("I2cManagerBind: Enter!");
+    HDF_LOGI("I2cManagerBind: enter!");
     if (device == NULL) {
-        HDF_LOGE("I2cManagerBind: device is NULL");
+        HDF_LOGE("I2cManagerBind: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -361,7 +372,7 @@ static int32_t I2cManagerBind(struct HdfDeviceObject *device)
 
     ret = OsalMutexInit(&manager->lock);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("I2cManagerBind: mutex init fail:%d", ret);
+        HDF_LOGE("I2cManagerBind: mutex init fail, ret: %d!", ret);
         OsalMemFree(manager);
         return HDF_FAILURE;
     }
@@ -385,9 +396,9 @@ static void I2cManagerRelease(struct HdfDeviceObject *device)
 {
     struct I2cManager *manager = NULL;
 
-    HDF_LOGI("I2cManagerRelease: enter");
+    HDF_LOGI("I2cManagerRelease: enter!");
     if (device == NULL) {
-        HDF_LOGI("I2cManagerRelease: device is null");
+        HDF_LOGI("I2cManagerRelease: device is null!");
         return;
     }
     manager = (struct I2cManager *)device->service;

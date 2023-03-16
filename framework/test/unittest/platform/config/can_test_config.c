@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,18 +18,19 @@ static int32_t CanTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct
 {
     (void)client;
     (void)data;
-    HDF_LOGD("%s: enter!", __func__);
+    HDF_LOGD("CanTestDispatch: enter!");
 
     if (cmd != 0) {
+        HDF_LOGE("CanTestDispatch: cmd: %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (reply == NULL) {
-        HDF_LOGE("%s: reply is null!", __func__);
+        HDF_LOGE("CanTestDispatch: reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-        HDF_LOGE("%s: write reply failed", __func__);
+        HDF_LOGE("CanTestDispatch: write reply fail!");
         return HDF_ERR_IO;
     }
 
@@ -50,23 +51,23 @@ static int32_t CanTestReadConfig(struct CanTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("CanTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint16(node, "bus_num", &config->busNum, CAN_TEST_BUS_NUM);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGW("%s: read bus num failed, using default ...", __func__);
+        HDF_LOGW("CanTestReadConfig: read bus num failed, using default ...");
     }
 
     ret = drsOps->GetUint32(node, "bit_rate", &config->bitRate, CAN_TEST_BIT_RATE);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGW("%s: read bit rate failed, using default ...", __func__);
+        HDF_LOGW("CanTestReadConfig: read bit rate failed, using default ...");
     }
 
     ret = drsOps->GetUint8(node, "work_mode", &config->workMode, CAN_TEST_WORK_MODE);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGW("%s: read reg len failed, using default ...", __func__);
+        HDF_LOGW("CanTestReadConfig: read reg len failed, using default ...");
     }
 
     return HDF_SUCCESS;
@@ -78,17 +79,17 @@ static int32_t CanTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("CanTestBind: device is null!");
         return HDF_ERR_IO;
     }
 
     if (device->property == NULL) {
-        HDF_LOGI("%s: property not configed, using default", __func__);
+        HDF_LOGI("CanTestBind: property not configed, using default!");
         CanTestSetDftConfig(&g_config);
     } else {
         ret = CanTestReadConfig(&g_config, device->property);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: read config failed", __func__);
+            HDF_LOGE("CanTestBind: read config fail, ret: %d!", ret);
             return ret;
         }
     }

@@ -36,27 +36,27 @@ static int32_t PcieTestGetConfig(struct PcieTestConfig *config)
 
     service = HdfIoServiceBind("PCIE_TEST");
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: bind service failed", __func__);
+        HDF_LOGE("PcieTestGetConfig: bind service fail!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
+        HDF_LOGE("PcieTestGetConfig: fail to obtain reply!");
         HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: remote dispatch failed", __func__);
+        HDF_LOGE("PcieTestGetConfig: remote dispatch fail!");
         HdfSbufRecycle(reply);
         HdfIoServiceRecycle(service);
         return ret;
     }
 
     if (!HdfSbufReadUint32(reply, &config->busNum)) {
-        HDF_LOGE("%s: read busNum failed", __func__);
+        HDF_LOGE("PcieTestGetConfig: read busNum fail!");
         HdfSbufRecycle(reply);
         HdfIoServiceRecycle(service);
         return HDF_ERR_IO;
@@ -73,12 +73,12 @@ static DevHandle PcieTesterGet(void)
 
     ret = PcieTestGetConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed:%d", __func__, ret);
+        HDF_LOGE("PcieTesterGet: read config fail, ret: %d!", ret);
         return NULL;
     }
     tester.handle = PcieOpen(tester.config.busNum);
     if (tester.handle == NULL) {
-        HDF_LOGE("%s: open pcie %u failed", __func__, tester.config.busNum);
+        HDF_LOGE("PcieTesterGet: open pcie %u fail!", tester.config.busNum);
         return NULL;
     }
 
@@ -88,7 +88,7 @@ static DevHandle PcieTesterGet(void)
 static void PcieTesterPut(struct PcieTester *tester)
 {
     if (tester == NULL) {
-        HDF_LOGE("%s: tester is NULL", __func__);
+        HDF_LOGE("PcieTesterPut: tester is null!");
         return;
     }
     PcieClose(tester->handle);
@@ -104,37 +104,37 @@ static int32_t TestPcieReadAndWrite(struct PcieTester *tester)
 
     ret = PcieRead(tester->handle, PCIE_CONFIG, PCIE_TEST_DISABLE_ADDR, &disable, sizeof(disable));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PcieRead failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestPcieReadAndWrite: PcieRead fail, ret = %d!", ret);
         return ret;
     }
-    HDF_LOGD("%s: disable is %d", __func__, disable);
+    HDF_LOGD("TestPcieReadAndWrite: disable is %d!", disable);
     ret = PcieWrite(tester->handle, PCIE_CONFIG, PCIE_TEST_DISABLE_ADDR, &disable, sizeof(disable));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PcieWrite failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestPcieReadAndWrite: PcieWrite fail, ret = %d!", ret);
         return ret;
     }
 
     ret = PcieRead(tester->handle, PCIE_CONFIG, PCIE_TEST_UPPER_ADDR, (uint8_t *)&upper, sizeof(upper));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PcieRead failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestPcieReadAndWrite: PcieRead fail, ret = %d!", ret);
         return ret;
     }
-    HDF_LOGD("%s: upper is 0x%x", __func__, upper);
+    HDF_LOGD("TestPcieReadAndWrite: upper is 0x%x!", upper);
     ret = PcieWrite(tester->handle, PCIE_CONFIG, PCIE_TEST_UPPER_ADDR, (uint8_t *)&upper, sizeof(upper));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PcieWrite failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestPcieReadAndWrite: PcieWrite fail, ret = %d!", ret);
         return ret;
     }
 
     ret = PcieRead(tester->handle, PCIE_CONFIG, PCIE_TEST_CMD_ADDR, (uint8_t *)&cmd, sizeof(cmd));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PcieRead failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestPcieReadAndWrite: PcieRead fail, ret = %d!", ret);
         return ret;
     }
-    HDF_LOGD("%s: cmd is 0x%x", __func__, cmd);
+    HDF_LOGD("TestPcieReadAndWrite: cmd is 0x%x!", cmd);
     ret = PcieWrite(tester->handle, PCIE_CONFIG, PCIE_TEST_CMD_ADDR, (uint8_t *)&cmd, sizeof(cmd));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PcieWrite failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestPcieReadAndWrite: PcieWrite fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -142,7 +142,7 @@ static int32_t TestPcieReadAndWrite(struct PcieTester *tester)
 int32_t TestPcieDmaCb(DevHandle handle)
 {
     (void)handle;
-    HDF_LOGI("TestPcieDmaCb: trigger");
+    HDF_LOGI("TestPcieDmaCb: trigger!");
     return HDF_SUCCESS;
 }
 
@@ -152,18 +152,18 @@ static int32_t TestPcieDmaMapAndUnmap(struct PcieTester *tester)
     uintptr_t buf = 0;
 
     if (tester->handle == NULL) {
-        HDF_LOGE("%s: invalid tester", __func__);
+        HDF_LOGE("TestPcieDmaMapAndUnmap: invalid tester!");
         return HDF_ERR_INVALID_PARAM;
     }
     buf = (uintptr_t)OsalMemAllocAlign(DMA_ALIGN_SIZE, DMA_TEST_LEN);
     if (buf == 0) {
-        HDF_LOGE("%s: malloc fail", __func__);
+        HDF_LOGE("TestPcieDmaMapAndUnmap: malloc fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     /* dma to device */
     ret = PcieDmaMap(tester->handle, TestPcieDmaCb, buf, DMA_TEST_LEN, PCIE_DMA_TO_DEVICE);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed ret = %d", __func__, ret);
+        HDF_LOGE("TestPcieDmaMapAndUnmap: fail, ret = %d!", ret);
         OsalMemFree((void *)buf);
         return ret;
     }
@@ -172,7 +172,7 @@ static int32_t TestPcieDmaMapAndUnmap(struct PcieTester *tester)
     /* device to dma */
     ret = PcieDmaMap(tester->handle, TestPcieDmaCb, buf, DMA_TEST_LEN, PCIE_DMA_FROM_DEVICE);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed ret = %d", __func__, ret);
+        HDF_LOGE("TestPcieDmaMapAndUnmap: fail, ret = %d!", ret);
         OsalMemFree((void *)buf);
         return ret;
     }
@@ -185,7 +185,7 @@ static int32_t TestPcieDmaMapAndUnmap(struct PcieTester *tester)
 int32_t TestPcieIrqCb(DevHandle handle)
 {
     (void)handle;
-    HDF_LOGI("TestPcieIrqCb: trigger");
+    HDF_LOGI("TestPcieIrqCb: trigger!");
     return HDF_SUCCESS;
 }
 
@@ -194,7 +194,7 @@ static int32_t TestPcieRegAndUnregIrq(struct PcieTester *tester)
     int32_t ret;
     ret = PcieRegisterIrq(tester->handle, TestPcieIrqCb);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: register irq fail", __func__);
+        HDF_LOGE("TestPcieRegAndUnregIrq: register irq fail!");
         return ret;
     }
 
@@ -215,13 +215,13 @@ int32_t PcieTestExecute(int cmd)
     struct PcieTester *tester = NULL;
 
     if (cmd > PCIE_TEST_MAX) {
-        HDF_LOGE("%s: invalid cmd:%d", __func__, cmd);
+        HDF_LOGE("PcieTestExecute: invalid cmd: %d!", cmd);
         return ret;
     }
 
     tester = PcieTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: get tester failed", __func__);
+        HDF_LOGE("PcieTestExecute: get tester fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -232,7 +232,7 @@ int32_t PcieTestExecute(int cmd)
         }
     }
 
-    HDF_LOGI("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    HDF_LOGI("[PcieTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
     PcieTesterPut(tester);
     return ret;
 }

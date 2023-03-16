@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -23,14 +23,15 @@ static int32_t WatchdogTestDispatch(struct HdfDeviceIoClient *client, int cmd,
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("WatchdogTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("WatchdogTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("WatchdogTestDispatch: cmd: %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -45,26 +46,26 @@ static int32_t WatchdogTestReadConfig(struct WatchdogTestConfig *config, const s
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("WatchdogTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint32(node, "id", &temp, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read id failed", __func__);
+        HDF_LOGE("WatchdogTestReadConfig: read id fail, ret: %d!", ret);
         return ret;
     }
     config->id = temp;
 
     ret = drsOps->GetUint32(node, "timeoutSet", &config->timeoutSet, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read timeoutSet failed", __func__);
+        HDF_LOGE("WatchdogTestReadConfig: read timeoutSet fail, ret: %d!", ret);
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "feedTime", &config->feedTime, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read feedTime failed", __func__);
+        HDF_LOGE("WatchdogTestReadConfig: read feedTime fail, ret: %d!", ret);
         return ret;
     }
 
@@ -77,12 +78,12 @@ static int32_t WatchdogTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("WatchdogTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
     ret = WatchdogTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("WatchdogTestBind: read config fail, ret: %d!", ret);
         return ret;
     }
     service.Dispatch = WatchdogTestDispatch;
@@ -101,7 +102,7 @@ static void WatchdogTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("WatchdogTestRelease: done!");
     return;
 }
 

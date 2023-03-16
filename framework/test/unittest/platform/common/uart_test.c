@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -27,68 +27,68 @@ static int32_t UartTestGetConfig(struct UartTestConfig *config)
 
     service = HdfIoServiceBind("UART_TEST");
     if (service == NULL) {
-        HDF_LOGE("%s: failed to bind service", __func__);
+        HDF_LOGE("UartTestGetConfig: fail to bind service!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     do {
         reply = HdfSbufObtainDefaultSize();
         if (reply == NULL) {
-            HDF_LOGE("%s: Failed to obtain reply", __func__);
+            HDF_LOGE("UartTestGetConfig: fail to obtain reply!");
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
 
         ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: Remote dispatch failed", __func__);
+            HDF_LOGE("UartTestGetConfig: remote dispatch fail, ret: %d!", ret);
             break;
         }
 
         if (!HdfSbufReadUint32(reply, &config->port)) {
-            HDF_LOGE("%s: Read port failed", __func__);
+            HDF_LOGE("UartTestGetConfig: read port fail!");
             ret = HDF_ERR_IO;
             break;
         }
         if (!HdfSbufReadUint32(reply, &config->len)) {
-            HDF_LOGE("%s: Read len failed", __func__);
+            HDF_LOGE("UartTestGetConfig: read len fail!");
             ret = HDF_ERR_IO;
             break;
         }
 
         if (!HdfSbufReadBuffer(reply, (const void **)&buf, &len)) {
-            HDF_LOGE("%s: Read buf failed", __func__);
+            HDF_LOGE("UartTestGetConfig: read buf fail!");
             ret = HDF_ERR_IO;
             break;
         }
 
         if (len != config->len) {
-            HDF_LOGE("%s: config len:%u, read size:%u", __func__, config->len, len);
+            HDF_LOGE("UartTestGetConfig: config len:%u, read size:%u!", config->len, len);
             ret = HDF_ERR_IO;
             break;
         }
         config->wbuf = NULL;
         config->wbuf = (uint8_t *)OsalMemCalloc(len);
         if (config->wbuf == NULL) {
-            HDF_LOGE("%s: malloc wbuf failed", __func__);
+            HDF_LOGE("UartTestGetConfig: malloc wbuf fail!");
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
         config->rbuf = NULL;
         config->rbuf = (uint8_t *)OsalMemCalloc(len);
         if (config->rbuf == NULL) {
-            HDF_LOGE("%s: malloc rbuf failed", __func__);
+            HDF_LOGE("UartTestGetConfig: malloc rbuf fail!");
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
 
         if (memcpy_s(config->wbuf, config->len, buf, len) != EOK) {
-            HDF_LOGE("%s: Memcpy wbuf failed", __func__);
+            HDF_LOGE("UartTestGetConfig: Memcpy wbuf fail!");
             ret = HDF_ERR_IO;
             break;
         }
 
-        HDF_LOGD("%s: Done", __func__);
+        HDF_LOGD("UartTestGetConfig: done!");
         ret = HDF_SUCCESS;
     } while (0);
     HdfSbufRecycle(reply);
@@ -111,13 +111,13 @@ static struct UartTester *UartTesterGet(void)
 
     ret = UartTestGetConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed:%d", __func__, ret);
+        HDF_LOGE("UartTesterGet: read config fail, ret: %d!", ret);
         UartBufFree(&tester.config);
         return NULL;
     }
     tester.handle = UartOpen(tester.config.port);
     if (tester.handle == NULL) {
-        HDF_LOGE("%s: open uart port:%u fail!", __func__, tester.config.port);
+        HDF_LOGE("UartTesterGet: open uart port:%u fail!", tester.config.port);
         UartBufFree(&tester.config);
         return NULL;
     }
@@ -127,7 +127,7 @@ static struct UartTester *UartTesterGet(void)
 static void UartTesterPut(struct UartTester *tester)
 {
     if (tester == NULL || tester->handle == NULL) {
-        HDF_LOGE("%s: uart handle is null", __func__);
+        HDF_LOGE("UartTesterPut: tester or uart handle is null!");
         return;
     }
     UartBufFree(&tester->config);
@@ -140,12 +140,12 @@ static int32_t UartWriteTest(struct UartTester *tester)
     int32_t ret;
 
     ret = UartWrite(tester->handle, tester->config.wbuf, tester->config.len);
-    HDF_LOGE("%s: len is %d", __func__, tester->config.len);
+    HDF_LOGD("UartWriteTest: len is %d", tester->config.len);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: write failed", __func__);
+        HDF_LOGE("UartWriteTest: write fail!");
         return HDF_FAILURE;
     }
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartWriteTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -155,15 +155,15 @@ static int32_t UartReadTest(struct UartTester *tester)
 
     ret = UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: transmode error.", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartReadTest: transmode error, ret: %d!", ret);
+        return ret;
     }
     ret = UartRead(tester->handle, tester->config.rbuf, tester->config.len);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read failed", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartReadTest: read fail, ret: %d!", ret);
+        return ret;
     }
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartReadTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -174,10 +174,10 @@ static int32_t UartSetBaudTest(struct UartTester *tester)
 
     ret = UartSetBaud(tester->handle, BAUD_921600);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set baud failed", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartSetBaudTest: set baud fail, ret: %d!", ret);
+        return ret;
     }
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartSetBaudTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -188,10 +188,10 @@ static int32_t UartGetBaudTest(struct UartTester *tester)
 
     ret = UartGetBaud(tester->handle, &baud);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: get baud failed", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartGetBaudTest: get baud fail, ret: %d!", ret);
+        return ret;
     }
-    HDF_LOGD("%s: baud %u success", __func__, baud);
+    HDF_LOGD("UartGetBaudTest: baud %u success!", baud);
     return HDF_SUCCESS;
 }
 
@@ -209,10 +209,10 @@ static int32_t UartSetAttributeTest(struct UartTester *tester)
     attribute.fifoTxEn = UART_ATTR_TX_FIFO_EN;
     ret = UartSetAttribute(tester->handle, &attribute);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set attribute failed", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartSetAttributeTest: set attribute fail, ret: %d!", ret);
+        return ret;
     }
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartSetAttributeTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -223,17 +223,17 @@ static int32_t UartGetAttributeTest(struct UartTester *tester)
 
     ret = UartGetAttribute(tester->handle, &attribute);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: get attribute failed", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartGetAttributeTest: get attribute fail, ret: %d!", ret);
+        return ret;
     }
-    HDF_LOGD("dataBits %u", attribute.dataBits);
-    HDF_LOGD("parity %u", attribute.parity);
-    HDF_LOGD("stopBits %u", attribute.stopBits);
-    HDF_LOGD("rts %u", attribute.rts);
-    HDF_LOGD("cts %u", attribute.cts);
-    HDF_LOGD("fifoRxEn %u", attribute.fifoRxEn);
-    HDF_LOGD("fifoTxEn %u", attribute.fifoTxEn);
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartGetAttributeTest: dataBits %u", attribute.dataBits);
+    HDF_LOGD("UartGetAttributeTest: parity %u", attribute.parity);
+    HDF_LOGD("UartGetAttributeTest: stopBits %u", attribute.stopBits);
+    HDF_LOGD("UartGetAttributeTest: rts %u", attribute.rts);
+    HDF_LOGD("UartGetAttributeTest: cts %u", attribute.cts);
+    HDF_LOGD("UartGetAttributeTest: fifoRxEn %u", attribute.fifoRxEn);
+    HDF_LOGD("UartGetAttributeTest: fifoTxEn %u", attribute.fifoTxEn);
+    HDF_LOGD("UartGetAttributeTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -243,10 +243,10 @@ static int32_t UartSetTransModeTest(struct UartTester *tester)
 
     ret = UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set transmode failed", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("UartSetTransModeTest: set transmode fail, ret: %d!", ret);
+        return ret;
     }
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartSetTransModeTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -269,7 +269,7 @@ static int32_t UartReliabilityTest(struct UartTester *tester)
     (void)UartSetAttribute(tester->handle, NULL);
     (void)UartGetAttribute(tester->handle, &attribute);
     (void)UartGetAttribute(tester->handle, NULL);
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("UartReliabilityTest: success!");
     return HDF_SUCCESS;
 }
 
@@ -277,6 +277,7 @@ static int32_t UartIfPerformanceTest(struct UartTester *tester)
 {
 #ifdef __LITEOS__
     if (tester == NULL) {
+        HDF_LOGE("UartIfPerformanceTest: tester is null!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -286,12 +287,17 @@ static int32_t UartIfPerformanceTest(struct UartTester *tester)
     uint64_t endMs;
     uint64_t useTime;    // ms
 
+    if (tester == NULL) {
+        HDF_LOGE("UartIfPerformanceTest: tester is null!");
+        return HDF_FAILURE;
+    }
     startMs = OsalGetSysTimeMs();
     UartGetBaud(tester->handle, &baudRate);
     endMs = OsalGetSysTimeMs();
 
     useTime = endMs - startMs;
-    HDF_LOGI("----->interface performance test:[start - end] < 1ms[%s]\r\n", useTime < 1 ? "yes" : "no");
+    HDF_LOGI("UartIfPerformanceTest: ----->interface performance test:[start - end] < 1ms[%s]\r\n",
+        useTime < 1 ? "yes" : "no");
     return HDF_SUCCESS;
 }
 
@@ -321,14 +327,14 @@ int32_t UartTestExecute(int cmd)
 
     tester = UartTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: tester is null", __func__);
+        HDF_LOGE("UartTestExecute: tester is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cmd > UART_TEST_CMD_MAX) {
-        HDF_LOGE("%s: invalid cmd:%d", __func__, cmd);
+        HDF_LOGE("UartTestExecute: invalid cmd:%d!", cmd);
         ret = HDF_ERR_NOT_SUPPORT;
-        HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+        HDF_LOGE("[UartTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
         UartTesterPut(tester);
         return ret;
     }
@@ -341,7 +347,7 @@ int32_t UartTestExecute(int cmd)
         break;
     }
 
-    HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    HDF_LOGE("[UartTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
     UartTesterPut(tester);
     return ret;
 }

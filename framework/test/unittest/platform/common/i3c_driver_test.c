@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,20 +18,21 @@ static struct I3cTestConfig g_config;
 
 static int32_t I3cTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    HDF_LOGD("%s: enter!", __func__);
+    HDF_LOGD("I3cTestDispatch: enter!");
 
     (void)client;
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("I3cTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("I3cTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("I3cTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -45,37 +46,37 @@ static int32_t I3cTestReadConfig(struct I3cTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint16 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("I3cTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint16(node, "busId", &config->busId, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read busId failed", __func__);
+        HDF_LOGE("I3cTestReadConfig: read busId fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "devAddr", &config->devAddr, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read dev addr failed", __func__);
+        HDF_LOGE("I3cTestReadConfig: read dev addr fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "regLen", &config->regLen, 1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read reg len failed", __func__);
+        HDF_LOGE("I3cTestReadConfig: read reg len fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "regAddr", &config->regAddr, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read reg addr failed", __func__);
+        HDF_LOGE("I3cTestReadConfig: read reg addr fail!");
         return ret;
     }
 
     ret = drsOps->GetUint16(node, "bufSize", &config->bufSize, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read buf size failed", __func__);
+        HDF_LOGE("I3cTestReadConfig: read buf size fail!");
         return ret;
     }
     return HDF_SUCCESS;
@@ -87,25 +88,25 @@ static int32_t I3cTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("I3cTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
 
     ret = I3cTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("I3cTestBind: read config fail!");
         return ret;
     }
     service.Dispatch = I3cTestDispatch;
     device->service = &service;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("I3cTestBind: done!");
     return HDF_SUCCESS;
 }
 
 static int32_t I3cTestInit(struct HdfDeviceObject *device)
 {
     (void)device;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("I3cTestInit: done!");
     return HDF_SUCCESS;
 }
 
@@ -114,7 +115,7 @@ static void I3cTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("I3cTestRelease: done!");
     return;
 }
 

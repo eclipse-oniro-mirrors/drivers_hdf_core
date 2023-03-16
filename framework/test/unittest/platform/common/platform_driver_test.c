@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -35,7 +35,7 @@ static int32_t PlatformTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL) {
-        PLAT_LOGE("%s: device is null!", __func__);
+        PLAT_LOGE("PlatformTestBind: device is null!");
         return HDF_ERR_IO;
     }
 

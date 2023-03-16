@@ -46,18 +46,22 @@ static void I2cHandleRelease(struct I2cHandle *handle)
 static struct I2cHandle *I2cHandleInstance(struct I2cManagerService *manager)
 {
     struct I2cHandle *handle = OsalMemCalloc(sizeof(struct I2cHandle));
+
     if (handle == NULL) {
+        HDF_LOGE("I2cHandleInstance: handle is null!");
         return NULL;
     }
 
     if (OsalMutexInit(&handle->lock) != HDF_SUCCESS) {
         OsalMemFree(handle);
+        HDF_LOGE("I2cHandleInstance: mutex init fail!");
         return NULL;
     }
 
     handle->data = HdfSbufObtain(I2C_BUFF_SIZE);
     handle->reply = HdfSbufObtain(I2C_BUFF_SIZE);
     if (handle->data == NULL || handle->reply == NULL) {
+        HDF_LOGE("I2cHandleInstance: fail to obtain data or reply!");
         I2cHandleRelease(handle);
     }
     handle->i2cManager = manager;
@@ -68,6 +72,7 @@ static int32_t I2cHandleSbufCheckResize(struct HdfSBuf **sbuf)
 {
     struct HdfSBuf *buf = *sbuf;
     int32_t ret = HDF_SUCCESS;
+
     if (buf != NULL && HdfSbufGetCapacity(buf) <= I2C_BUFF_SIZE) {
         return HDF_SUCCESS;
     }
@@ -75,7 +80,7 @@ static int32_t I2cHandleSbufCheckResize(struct HdfSBuf **sbuf)
     HdfSbufRecycle(buf);
     buf = HdfSbufObtain(I2C_BUFF_SIZE);
     if (buf == NULL) {
-        HDF_LOGE("%{public}s: failed to obtain sbuf", __func__);
+        HDF_LOGE("I2cHandleSbufCheckResize: fail to obtain buf!");
         ret = HDF_ERR_MALLOC_FAIL;
     }
     *sbuf = buf;
@@ -86,6 +91,7 @@ static int32_t I2cHandleSbufReset(struct I2cHandle *i2cHandle)
 {
     if (I2cHandleSbufCheckResize(&i2cHandle->data) != HDF_SUCCESS ||
         I2cHandleSbufCheckResize(&i2cHandle->reply) != HDF_SUCCESS) {
+        HDF_LOGE("I2cHandleSbufReset: sbuf check resize data or reply fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -105,7 +111,7 @@ static struct I2cManagerService *I2cManagerGetService(void)
 
     manager.ioService = HdfIoServiceBind(I2C_SERVICE_NAME);
     if (manager.ioService == NULL) {
-        HDF_LOGE("failed to get i2c IoService");
+        HDF_LOGE("I2cManagerGetService: fail to get i2c IoService!");
         return NULL;
     }
 
@@ -117,18 +123,19 @@ DevHandle I2cOpen(int16_t number)
     struct I2cManagerService *i2cManager = I2cManagerGetService();
 
     if (i2cManager == NULL) {
-        HDF_LOGE("I2cOpen: i2c manager invalid");
+        HDF_LOGE("I2cOpen: i2c manager is invalid!");
         return NULL;
     }
 
     struct I2cHandle *i2cHandle = I2cHandleInstance(i2cManager);
     if (i2cHandle == NULL) {
+        HDF_LOGE("I2cOpen: i2cHandle is null!");
         return NULL;
     }
 
     do {
         if (I2cHandleSbufReset(i2cHandle) != HDF_SUCCESS) {
-            HDF_LOGE("%{public}s: failed to reset sbuf", __func__);
+            HDF_LOGE("I2cOpen: fail to reset sbuf!");
             break;
         }
 
@@ -139,7 +146,7 @@ DevHandle I2cOpen(int16_t number)
 
         int32_t ret = HdfIoServiceDispatch(i2cManager->ioService, I2C_IO_OPEN, i2cHandle->data, i2cHandle->reply);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("I2cOpen: service call open fail:%d", ret);
+            HDF_LOGE("I2cOpen: service call open fail, ret: %d!", ret);
             break;
         }
         uint32_t handle = 0;
@@ -174,23 +181,23 @@ void I2cClose(DevHandle handle)
     }
     struct I2cHandle *i2cHandle = (struct I2cHandle *)handle;
     if (!IsI2cHandleValid(i2cHandle)) {
-        HDF_LOGE("%{public}s: invalid i2c handle", __func__);
+        HDF_LOGE("I2cClose: invalid i2c handle!");
         return;
     }
 
     if (I2cHandleSbufReset(i2cHandle)) {
-        HDF_LOGE("%{public}s: failed to reset sbuf", __func__);
+        HDF_LOGE("I2cClose: fail to reset sbuf!");
         return;
     }
 
     if (!HdfSbufWriteUint32(i2cHandle->data, (uint32_t)(uintptr_t)i2cHandle->handle)) {
-        HDF_LOGE("%{public}s: failed to write handle", __func__);
+        HDF_LOGE("I2cClose: failed to write handle!");
         return;
     }
 
     int32_t ret = HdfIoServiceDispatch(i2cHandle->i2cManager->ioService, I2C_IO_CLOSE, i2cHandle->data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s: close handle fail:%d", __func__, ret);
+        HDF_LOGE("I2cClose: close handle fail, ret: %d!", ret);
     }
     I2cHandleRelease(i2cHandle);
 }
@@ -210,18 +217,18 @@ static int32_t WriteI2cMsgs(struct HdfSBuf *data, struct I2cMsg *msgs, int16_t c
         userMsgs.len = msgs[i].len;
         userMsgs.flags = msgs[i].flags;
         if (!HdfSbufWriteBuffer(data, &userMsgs, sizeof(struct I2cUserMsg))) {
-            HDF_LOGE("%{public}s: write userMsgs[%hd] buf fail!", __func__, i);
+            HDF_LOGE("WriteI2cMsgs: write userMsgs[%hd] buf fail!", i);
             return HDF_ERR_IO;
         }
 
         if (msgs[i].len > I2C_BUFF_SIZE ||
             ((msgs[i].flags & I2C_FLAG_READ) && (msgs[i].len + sizeof(uint64_t) > I2C_BUFF_SIZE))) {
-            HDF_LOGE("%{public}s: msg data size %{public}u out of range", __func__, msgs[i].len);
+            HDF_LOGE("WriteI2cMsgs: msg data size %{public}u out of range!", msgs[i].len);
             return HDF_ERR_OUT_OF_RANGE;
         }
 
         if (!HdfSbufWriteBuffer(data, (uint8_t *)msgs[i].buf, msgs[i].len)) {
-            HDF_LOGE("%{public}s: failed to write msg[%hd] buf ", __func__, i);
+            HDF_LOGE("WriteI2cMsgs: fail to write msg[%hd] buf!", i);
             return HDF_ERR_IO;
         }
     }
@@ -243,7 +250,7 @@ static int32_t I2cMsgReadBack(struct HdfSBuf *data, struct I2cMsg *msg)
         return HDF_ERR_IO;
     }
     if (msg->len != rLen) {
-        HDF_LOGW("I2cMsgReadBack: err len:%u, rLen:%u", msg->len, rLen);
+        HDF_LOGW("I2cMsgReadBack: err len:%u, rLen:%u!", msg->len, rLen);
         if (rLen > msg->len) {
             rLen = msg->len;
         }
@@ -265,6 +272,7 @@ static int32_t ReadI2cMsgs(struct HdfSBuf *reply, struct I2cMsg *msgs, int16_t c
 
         int32_t ret = I2cMsgReadBack(reply, &msgs[i]);
         if (ret != HDF_SUCCESS) {
+            HDF_LOGE("ReadI2cMsgs: i2c msg read back fail!");
             return ret;
         }
     }
@@ -278,30 +286,31 @@ static int32_t I2cServiceTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t
     struct I2cHandle *i2cHandle = (struct I2cHandle *)handle;
 
     if (!IsI2cHandleValid(i2cHandle)) {
-        HDF_LOGE("I2cTransfer: invalid i2c handle");
+        HDF_LOGE("I2cServiceTransfer: invalid i2c handle!");
         return HDF_ERR_INVALID_OBJECT;
     }
     OsalMutexLock(&i2cHandle->lock);
 
     if (I2cHandleSbufReset(i2cHandle)) {
         OsalMutexUnlock(&i2cHandle->lock);
-        HDF_LOGE("%{public}s: failed to reset sbuf", __func__);
+        HDF_LOGE("I2cServiceTransfer: fail to reset sbuf!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     do {
         if (!HdfSbufWriteUint32(i2cHandle->data, (uint32_t)(uintptr_t)i2cHandle->handle)) {
-            HDF_LOGE("I2cTransfer: write handle fail!");
+            HDF_LOGE("I2cServiceTransfer: write handle fail!");
             break;
         }
         if (WriteI2cMsgs(i2cHandle->data, msgs, count) != HDF_SUCCESS) {
-            HDF_LOGE("I2cTransfer: failed to write msgs!");
+            HDF_LOGE("I2cServiceTransfer: fail to write msgs!");
             break;
         }
 
         struct HdfIoService *ioService = i2cHandle->i2cManager->ioService;
-        if (HdfIoServiceDispatch(ioService, I2C_IO_TRANSFER, i2cHandle->data, i2cHandle->reply) != HDF_SUCCESS) {
-            HDF_LOGE("I2cServiceTransfer: failed to send service call:%d", ret);
+        ret = HdfIoServiceDispatch(ioService, I2C_IO_TRANSFER, i2cHandle->data, i2cHandle->reply);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("I2cServiceTransfer: fail to send service call, ret: %d!", ret);
             break;
         }
 
@@ -319,15 +328,17 @@ static int32_t I2cServiceTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t
 int32_t I2cTransfer(DevHandle handle, struct I2cMsg *msgs, int16_t count)
 {
     if (handle == NULL) {
+        HDF_LOGE("I2cTransfer: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (msgs == NULL || count <= 0) {
+        HDF_LOGE("I2cTransfer: msg is null or count is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (count > I2C_MSG_COUNT_MAX) {
-        HDF_LOGE("%s: too many i2c msg", __func__);
+        HDF_LOGE("I2cTransfer: too many i2c msg!");
         return HDF_ERR_OUT_OF_RANGE;
     }
 

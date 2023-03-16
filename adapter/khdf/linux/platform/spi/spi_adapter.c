@@ -3,7 +3,7 @@
  *
  * spi driver adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -67,7 +67,7 @@ static struct SpiDev *SpiFindDeviceByCsNum(const struct SpiCntlr *cntlr, uint32_
     struct SpiDev *tmpDev = NULL;
 
     if (cntlr->numCs <= cs) {
-        HDF_LOGE("%s: invalid cs %u", __func__, cs);
+        HDF_LOGE("SpiFindDeviceByCsNum: invalid cs %u!", cs);
         return NULL;
     }
     DLIST_FOR_EACH_ENTRY_SAFE(dev, tmpDev, &(cntlr->list), struct SpiDev, list) {
@@ -85,12 +85,12 @@ static int32_t SpiAdapterSetCfg(struct SpiCntlr *cntlr, struct SpiCfg *cfg)
     struct spi_device *spidev = NULL;
 
     if (cntlr == NULL || cfg == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiAdapterSetCfg: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL || dev->priv == NULL) {
-        HDF_LOGE("%s: dev is invalid", __func__);
+        HDF_LOGE("SpiAdapterSetCfg: dev is invalid!");
         return HDF_FAILURE;
     }
 
@@ -100,7 +100,7 @@ static int32_t SpiAdapterSetCfg(struct SpiCntlr *cntlr, struct SpiCfg *cfg)
     spidev->mode = HdfSpiModeToLinuxMode(cfg->mode);
     ret = spi_setup(spidev);
     if (ret != 0) {
-        HDF_LOGE("%s: spi_setup fail, ret is %d", __func__, ret);
+        HDF_LOGE("SpiAdapterSetCfg: spi_setup fail, ret is %d!", ret);
         return HDF_FAILURE;
     }
 
@@ -113,12 +113,12 @@ static int32_t SpiAdapterGetCfg(struct SpiCntlr *cntlr, struct SpiCfg *cfg)
     struct SpiDev *dev = NULL;
 
     if (cntlr == NULL || cfg == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiAdapterGetCfg: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL || dev->priv == NULL) {
-        HDF_LOGE("%s: fail, dev is invalid", __func__);
+        HDF_LOGE("SpiAdapterGetCfg: fail, dev is invalid!");
         return HDF_FAILURE;
     }
 
@@ -133,7 +133,7 @@ static bool SpiAdapterIsDefaultTransferOneMessage(const struct SpiCntlr *cntlr)
 
     spiDev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (spiDev == NULL || spiDev ->priv == NULL) {
-        HDF_LOGE("%s fail, spidev is null\n", __func__);
+        HDF_LOGE("SpiAdapterIsDefaultTransferOneMessage: fail, spidev is null!\n");
         return false;
     }
 
@@ -157,13 +157,13 @@ static int32_t SpiAdapterTransferOneMsg(struct SpiCntlr *cntlr, struct SpiMsg *m
 
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL || dev->priv == NULL) {
-        HDF_LOGE("%s fail, spidev is null\n", __func__);
+        HDF_LOGE("SpiAdapterTransferOneMsg: fail, spidev is null!\n");
         return HDF_FAILURE;
     }
 
     transfer = kcalloc(1, sizeof(*transfer), GFP_KERNEL);
     if (transfer == NULL) {
-        HDF_LOGE("%s: transfer alloc memory failed", __func__);
+        HDF_LOGE("SpiAdapterTransferOneMsg: transfer alloc memory fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -187,14 +187,14 @@ static int32_t SpiAdapterTransferDefault(struct SpiCntlr *cntlr, struct SpiMsg *
     uint32_t i;
 
     if (cntlr == NULL || msgs == NULL || count == 0) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiAdapterTransferDefault: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     for (i = 0; i < count; i++) {
         ret = SpiAdapterTransferOneMsg(cntlr, &msgs[i]);
         if (ret != 0) {
-            HDF_LOGE("%s: transfer one failed:%d", __func__, ret);
+            HDF_LOGE("SpiAdapterTransferDefault: transfer one fail, ret: %d!", ret);
             return HDF_PLT_ERR_OS_API;
         }
     }
@@ -210,19 +210,19 @@ static int32_t SpiAdapterTransferDifferent(struct SpiCntlr *cntlr, struct SpiMsg
     struct spi_transfer *transfer = NULL;
 
     if (cntlr == NULL || msg == NULL || count == 0) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiAdapterTransferDifferent: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL || dev->priv == NULL) {
-        HDF_LOGE("%s fail, spidev is null\n", __func__);
+        HDF_LOGE("SpiAdapterTransferDifferent: fail, spidev is null!\n");
         return HDF_FAILURE;
     }
 
     transfer = kcalloc(count, sizeof(*transfer), GFP_KERNEL);
     if (transfer == NULL) {
-        HDF_LOGE("%s: transfer alloc memory failed", __func__);
+        HDF_LOGE("SpiAdapterTransferDifferent: transfer alloc memory fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -268,7 +268,7 @@ static struct SpiDev *SpiDevCreat(struct SpiCntlr *cntlr)
 
     dev = (struct SpiDev *)OsalMemCalloc(sizeof(*dev));
     if (dev == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc dev error", __func__);
+        HDF_LOGE("SpiDevCreat: OsalMemCalloc dev error!");
         return NULL;
     }
 
@@ -284,7 +284,7 @@ static int32_t SpiFindDeviceFromBus(struct device *dev, void *para)
     struct SpiCntlr *cntlr = (struct SpiCntlr *)para;
 
     if (dev == NULL || cntlr == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("SpiFindDeviceFromBus: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -293,11 +293,11 @@ static int32_t SpiFindDeviceFromBus(struct device *dev, void *para)
 
     if (spidev->master == NULL) {
         put_device(&spidev->dev);
-        HDF_LOGE("%s: spi_device %s is invalid", __func__, GetSpiDevName(&spidev->dev));
+        HDF_LOGE("SpiFindDeviceFromBus: spi_device %s is invalid!", GetSpiDevName(&spidev->dev));
         return HDF_ERR_INVALID_PARAM;
     }
-    HDF_LOGI("%s: spi_device %s, find success", __func__, GetSpiDevName(&spidev->dev));
-    HDF_LOGI("%s: spi_device bus_num %d, chip_select %d", __func__,
+    HDF_LOGI("SpiFindDeviceFromBus: spi_device %s, find success!", GetSpiDevName(&spidev->dev));
+    HDF_LOGI("SpiFindDeviceFromBus: spi_device bus_num %d, chip_select %d!",
         spidev->master->bus_num, spidev->chip_select);
 
     if (spidev->master->bus_num == cntlr->busNum && spidev->chip_select == cntlr->curCs) {
@@ -322,19 +322,19 @@ static int32_t SpiAdapterOpen(struct SpiCntlr *cntlr)
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: fail, cntlr is NULL", __func__);
+        HDF_LOGE("SpiAdapterOpen: fail, cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     ret = bus_for_each_dev(&spi_bus_type, NULL, (void *)cntlr, SpiFindDeviceFromBus);
     if (ret != SPI_DEV_FIND_SUCCESS) {
-        HDF_LOGE("%s: spidev find fail, ret is %d", __func__, ret);
+        HDF_LOGE("SpiAdapterOpen: spidev find fail, ret is %d!", ret);
         return HDF_FAILURE;
     }
     if (SpiAdapterIsDefaultTransferOneMessage(cntlr)) {
-        HDF_LOGD("%s: use default method", __func__);
+        HDF_LOGD("SpiAdapterOpen: use default method!");
         cntlr->method->Transfer = SpiAdapterTransferDefault;
     } else {
-        HDF_LOGD("%s: use different method", __func__);
+        HDF_LOGD("SpiAdapterOpen: use different method!");
         cntlr->method->Transfer = SpiAdapterTransferDifferent;
     }
     return HDF_SUCCESS;
@@ -346,19 +346,19 @@ static int32_t SpiAdapterClose(struct SpiCntlr *cntlr)
     struct spi_device *spidev = NULL;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: fail, cntlr is NULL", __func__);
+        HDF_LOGE("SpiAdapterClose: fail, cntlr is null!");
         return HDF_FAILURE;
     }
 
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL) {
-        HDF_LOGE("%s fail, dev is NULL", __func__);
+        HDF_LOGE("SpiAdapterClose: fail, dev is null!");
         return HDF_FAILURE;
     }
 
     spidev = (struct spi_device *)dev->priv;
     if (spidev == NULL) {
-        HDF_LOGE("%s fail, spidev is NULL", __func__);
+        HDF_LOGE("SpiAdapterClose: fail, spidev is null!");
         return HDF_FAILURE;
     }
     put_device(&spidev->dev);
@@ -398,7 +398,7 @@ static int SpiAdapterRegisterDummyController(void)
     pdev.id = -1;
     pdev.dev.release = SpiPlatformDeviceRelease;
     if (platform_device_register(&pdev) != 0) {
-        HDF_LOGE("register platform device fail");
+        HDF_LOGE("SpiAdapterRegisterDummyController: register platform device fail!");
         return HDF_PLT_ERR_OS_API;
     }
 
@@ -408,7 +408,7 @@ static int SpiAdapterRegisterDummyController(void)
     dummyCntlr = devm_spi_alloc_master(&pdev.dev, 0);
 #endif
     if (dummyCntlr == NULL) {
-        HDF_LOGE("%s: alloc dummyCntlr fail", __func__);
+        HDF_LOGE("SpiAdapterRegisterDummyController: alloc dummyCntlr fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     dummyCntlr->slave = false;
@@ -416,7 +416,7 @@ static int SpiAdapterRegisterDummyController(void)
     dummyCntlr->num_chipselect = 1;
     dummyCntlr->transfer_one = SpiAdapterTransferOneDummy;
     if (devm_spi_register_controller(&pdev.dev, dummyCntlr) != 0) {
-        HDF_LOGE("register dummy controller fail");
+        HDF_LOGE("SpiAdapterRegisterDummyController: register dummy controller fail!");
         return HDF_PLT_ERR_OS_API;
     }
     g_linuxDefaultTransferOneMessage = dummyCntlr->transfer_one_message;
@@ -430,15 +430,15 @@ static int32_t SpiGetBaseCfgFromHcs(struct SpiCntlr *cntlr, const struct DeviceR
     struct DeviceResourceIface *iface = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
 
     if (iface == NULL || iface->GetUint32 == NULL) {
-        HDF_LOGE("%s: face is invalid", __func__);
+        HDF_LOGE("SpiGetBaseCfgFromHcs: face is invalid!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "busNum", &cntlr->busNum, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read busNum fail", __func__);
+        HDF_LOGE("SpiGetBaseCfgFromHcs: read busNum fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "numCs", &cntlr->numCs, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read numCs fail", __func__);
+        HDF_LOGE("SpiGetBaseCfgFromHcs: read numCs fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -449,13 +449,13 @@ static int SpiCntlrInit(struct SpiCntlr *cntlr, const struct HdfDeviceObject *de
     int ret;
 
     if (device->property == NULL) {
-        HDF_LOGE("%s: property is NULL", __func__);
+        HDF_LOGE("SpiCntlrInit: property is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = SpiGetBaseCfgFromHcs(cntlr, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: SpiGetBaseCfgFromHcs error", __func__);
+        HDF_LOGE("SpiCntlrInit: SpiGetBaseCfgFromHcs error!");
         return HDF_FAILURE;
     }
 
@@ -467,13 +467,13 @@ static int32_t HdfSpiDeviceBind(struct HdfDeviceObject *device)
 {
     int ret;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("HdfSpiDeviceBind: entry!");
     if (device == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = SpiAdapterRegisterDummyController();
     if (ret != 0) {
-        HDF_LOGE("%s: Register Dummy fail, ret is %d", __func__, ret);
+        HDF_LOGE("HdfSpiDeviceBind: Register Dummy fail, ret is %d!", ret);
         return HDF_FAILURE;
     }
 
@@ -485,20 +485,20 @@ static int32_t HdfSpiDeviceInit(struct HdfDeviceObject *device)
     int ret;
     struct SpiCntlr *cntlr = NULL;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("HdfSpiDeviceInit: entry!");
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("HdfSpiDeviceInit: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     cntlr = SpiCntlrFromDevice(device);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL", __func__);
+        HDF_LOGE("HdfSpiDeviceInit: cntlr is null!");
         return HDF_FAILURE;
     }
 
     ret = SpiCntlrInit(cntlr, device);
     if (ret != 0) {
-        HDF_LOGE("%s: SpiCntlrInit error", __func__);
+        HDF_LOGE("HdfSpiDeviceInit: SpiCntlrInit error!");
         return HDF_FAILURE;
     }
     return ret;
@@ -510,14 +510,14 @@ static void HdfSpiDeviceRelease(struct HdfDeviceObject *device)
     struct SpiDev *dev = NULL;
     struct SpiDev *tmpDev = NULL;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("HdfSpiDeviceRelease: entry!");
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("HdfSpiDeviceRelease: device is null!");
         return;
     }
     cntlr = SpiCntlrFromDevice(device);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL", __func__);
+        HDF_LOGE("HdfSpiDeviceRelease: cntlr is null!");
         return;
     }
 

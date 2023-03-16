@@ -15,6 +15,7 @@
 int32_t HdfPcieUnitTestEntry(HdfTestMsg *msg)
 {
     if (msg == NULL) {
+        HDF_LOGE("HdfPcieUnitTestEntry: msg is null!");
         return HDF_FAILURE;
     }
 

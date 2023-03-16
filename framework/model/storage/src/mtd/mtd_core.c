@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -17,42 +17,42 @@
 static int32_t MtdDeviceCheckParms(struct MtdDevice *mtdDevice)
 {
     if (mtdDevice->index < 0 || mtdDevice->index >= MTD_DEVICE_NUM_MAX) {
-        HDF_LOGE("%s: invalid index: %d", __func__, mtdDevice->index);
+        HDF_LOGE("MtdDeviceCheckParms: invalid index: %d!", mtdDevice->index);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->name == NULL) {
-        HDF_LOGE("%s: name is NULL", __func__);
+        HDF_LOGE("MtdDeviceCheckParms: name is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->type >= MTD_TYPE_MAX) {
-        HDF_LOGE("%s: invalid mtd type:%d", __func__, mtdDevice->type);
+        HDF_LOGE("MtdDeviceCheckParms: invalid mtd type:%d!", mtdDevice->type);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->idLen > MTD_FLASH_ID_LEN_MAX) {
-        HDF_LOGE("%s: invalid idLen:%u", __func__, mtdDevice->idLen);
+        HDF_LOGE("MtdDeviceCheckParms: invalid idLen:%u!", mtdDevice->idLen);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->capacity == 0) {
-        HDF_LOGE("%s: invalid capacity:%zu", __func__, mtdDevice->capacity);
+        HDF_LOGE("MtdDeviceCheckParms: invalid capacity:%zu!", mtdDevice->capacity);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->eraseSize == 0) {
-        HDF_LOGE("%s: invalid erase size:%zu", __func__, mtdDevice->eraseSize);
+        HDF_LOGE("MtdDeviceCheckParms: invalid erase size:%zu!", mtdDevice->eraseSize);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->writeSize == 0) {
-        HDF_LOGE("%s: invalid write size:%zu", __func__, mtdDevice->writeSize);
+        HDF_LOGE("MtdDeviceCheckParms: invalid write size:%zu!", mtdDevice->writeSize);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->readSize == 0) {
-        HDF_LOGE("%s: invalid read size:%zu", __func__, mtdDevice->readSize);
+        HDF_LOGE("MtdDeviceCheckParms: invalid read size:%zu!", mtdDevice->readSize);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -78,6 +78,7 @@ static void MtdDeviceDump(struct MtdDevice *mtdDevice)
 static int32_t MtdDeviceLockDefault(struct MtdDevice *mtdDevice)
 {
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDeviceLockDefault: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return OsalMutexLock(&mtdDevice->lock);
@@ -99,7 +100,8 @@ struct PlatformManager *MtdManagerGet(void)
     if (g_mtdManager == NULL) {
         ret = PlatformManagerCreate("STORAGE_MTD", &g_mtdManager);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("MtdManagerGet: create manager failed:%d", ret);
+            HDF_LOGE("MtdManagerGet: create manager fail, ret: %d!", ret);
+            return NULL;
         }
     }
     return g_mtdManager;
@@ -110,17 +112,19 @@ int32_t MtdDeviceAdd(struct MtdDevice *mtdDevice)
     int32_t ret;
 
     if (mtdDevice == NULL || mtdDevice->ops == NULL) {
+        HDF_LOGE("MtdDeviceAdd: mtdDevice or ops is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = MtdDeviceCheckParms(mtdDevice);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceAdd: mtd device check parms fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = OsalMutexInit(&mtdDevice->lock);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: mutex init failed, ret=%d", __func__, ret);
+        HDF_LOGE("MtdDeviceAdd: mutex init fail, ret: %d!", ret);
         return ret;
     }
 
@@ -137,7 +141,7 @@ int32_t MtdDeviceAdd(struct MtdDevice *mtdDevice)
     mtdDevice->device.number = mtdDevice->index;
     ret = PlatformDeviceAdd(&mtdDevice->device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: mtd device add fail", __func__);
+        HDF_LOGE("MtdDeviceAdd: mtd device add fail!, ret: %d!", ret);
         return ret;
     }
 
@@ -145,12 +149,14 @@ int32_t MtdDeviceAdd(struct MtdDevice *mtdDevice)
 
     ret = MtdCharInit(mtdDevice);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceAdd: mtd char init fail, ret: %d!", ret);
         PlatformDeviceDel(&mtdDevice->device);
         return ret;
     }
 
     ret = MtdBlockInit(mtdDevice);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceAdd: mtd block init fail, ret: %d!", ret);
         PlatformDeviceDel(&mtdDevice->device);
         return ret;
     }
@@ -173,16 +179,18 @@ int32_t MtdDeviceLock(struct MtdDevice *mtdDevice)
     int32_t ret;
 
     if (mtdDevice == NULL || mtdDevice->ops == NULL) {
+        HDF_LOGE("MtdDeviceLock: mtdDevice or ops is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->ops->lock == NULL) {
+        HDF_LOGE("MtdDeviceLock: lock is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = mtdDevice->ops->lock(mtdDevice);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: lock mtd device failed, ret=%d", __func__, ret);
+        HDF_LOGE("MtdDeviceLock: lock mtd device fail, ret: %d!", ret);
     }
     return ret;
 }
@@ -212,11 +220,11 @@ static void MtdDumpBuf(uint8_t *buf, size_t len)
         for (i = 0, lidx = 0; i < line; i++, lidx += MTD_DUMP_SIGLE_WIDTH, buf++) {
             ret = snprintf_s(lineBuf + lidx, MTD_DUMP_SIGLE_WIDTH + 1, MTD_DUMP_SIGLE_WIDTH, "%02x", *buf);
             if (ret < 0) {
-                HDF_LOGD("%s: format string failed, ret=%d", __func__, ret);
+                HDF_LOGD("MtdDumpBuf: format string fail, ret: %d!", ret);
                 return;
             }
         }
-        HDF_LOGD("0x%08zx : %s", idx, lineBuf);
+        HDF_LOGD("MtdDumpBuf: 0x%08zx : %s", idx, lineBuf);
         idx += line;
     }
     return;
@@ -227,16 +235,18 @@ static int32_t MtdDeviceEraseUnlock(struct MtdDevice *mtdDevice, off_t addr, siz
     int32_t ret;
 
     if (mtdDevice == NULL || mtdDevice->ops == NULL) {
+        HDF_LOGE("MtdDeviceEraseUnlock: mtdDevice or ops is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->ops->erase == NULL) {
+        HDF_LOGE("MtdDeviceEraseUnlock: erase is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = mtdDevice->ops->erase(mtdDevice, addr, len, faddr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: erase mtd device failed, addr=%jx, ret=%d", __func__, addr, ret);
+        HDF_LOGE("MtdDeviceEraseUnlock: erase mtd device fail, addr: %jx, ret: %d!", addr, ret);
     }
     return ret;
 }
@@ -246,6 +256,7 @@ ssize_t MtdDeviceErase(struct MtdDevice *mtdDevice, off_t addr, size_t len, off_
     int32_t ret;
 
     if ((ret = MtdDeviceLock(mtdDevice)) != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceErase: mtd device lock fail!");
         return ret;
     }
     ret = MtdDeviceEraseUnlock(mtdDevice, addr, len, failAddr);
@@ -266,14 +277,16 @@ static int32_t MtdDeviceMarkBadBlockUnlocked(struct MtdDevice *mtdDevice, off_t 
     int32_t ret;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDeviceMarkBadBlockUnlocked: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (mtdDevice->ops == NULL || mtdDevice->ops->markBadBlock == NULL) {
+        HDF_LOGE("MtdDeviceMarkBadBlockUnlocked: ops or markBadBlock is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
     ret = mtdDevice->ops->markBadBlock(mtdDevice, addr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: mark bad block failed, addr=%jx, ret=%d", __func__, addr, ret);
+        HDF_LOGE("MtdDeviceMarkBadBlockUnlocked: mark bad block fail, addr: %jx, ret: %d!", addr, ret);
     }
     return ret;
 }
@@ -283,6 +296,7 @@ bool MtdDeviceIsBadBlock(struct MtdDevice *mtdDevice, off_t addr)
     bool ret = false;
 
     if (MtdDeviceLock(mtdDevice) != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceIsBadBlock: mtd device lock fail!");
         return false;
     }
     ret = MtdDeviceIsBadBlockUnlocked(mtdDevice, addr);
@@ -295,6 +309,7 @@ int32_t MtdDeviceMarkBadBlock(struct MtdDevice *mtdDevice, off_t addr)
     int32_t ret;
 
     if ((ret = MtdDeviceLock(mtdDevice)) != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceMarkBadBlock: mtd device lock fail!");
         return ret;
     }
     ret = MtdDeviceMarkBadBlockUnlocked(mtdDevice, addr);
@@ -307,21 +322,23 @@ static int32_t MtdDevicePageTransferUnlocked(struct MtdDevice *mtdDevice, struct
     int32_t ret;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDevicePageTransferUnlocked: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->ops == NULL || mtdDevice->ops->pageTransfer == NULL) {
+        HDF_LOGE("MtdDevicePageTransferUnlocked: ops or pageTransfer is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
 #ifdef MTD_DEBUG
-    HDF_LOGD(
-        "%s: mtdPage-> type=%d, datalen=%zu, ooblen=%zu", __func__, mtdPage->type, mtdPage->dataLen, mtdPage->oobLen);
+    HDF_LOGD("MtdDevicePageTransferUnlocked: mtdPage-> type=%d, datalen=%zu, ooblen=%zu",
+        mtdPage->type, mtdPage->dataLen, mtdPage->oobLen);
 #endif
 
     ret = mtdDevice->ops->pageTransfer(mtdDevice, mtdPage);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: do page transfer failed, ret = %d, addr = 0x%jx", __func__, ret, mtdPage->addr);
+        HDF_LOGE("MtdDevicePageTransferUnlocked: do page transfer fail, ret: %d, addr: 0x%jx!", ret, mtdPage->addr);
     }
     return ret;
 }
@@ -331,25 +348,28 @@ static int32_t MtdDeviceCheckMsg(struct MtdDevice *mtdDevice, struct MtdMsg *msg
     size_t oobSize;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDeviceCheckMsg: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (msg == NULL) {
+        HDF_LOGE("MtdDeviceCheckMsg: msg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (msg->buf == NULL) {
+        HDF_LOGE("MtdDeviceCheckMsg: buf is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if ((msg->addr + msg->len) > mtdDevice->capacity) {
-        HDF_LOGE("%s: over range, len=%zu", __func__, msg->len);
+        HDF_LOGE("MtdDeviceCheckMsg: over range, len=%zu!", msg->len);
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (msg->type == MTD_MSG_TYPE_ERASE) {
         if ((msg->addr % mtdDevice->eraseSize) != 0) {
-            HDF_LOGE("%s: not erase size aligned, addr=%jd, erase size=%zu", __func__,
+            HDF_LOGE("MtdDeviceCheckMsg: not erase size aligned, addr=%jd, erase size=%zu!",
                 msg->addr, mtdDevice->eraseSize);
             return HDF_ERR_INVALID_PARAM;
         }
@@ -359,7 +379,7 @@ static int32_t MtdDeviceCheckMsg(struct MtdDevice *mtdDevice, struct MtdMsg *msg
     oobSize = (msg->withOob) ? mtdDevice->oobSize : 0;
     if ((msg->addr % mtdDevice->writeSize) != 0 || (msg->len % (mtdDevice->writeSize + oobSize)) != 0) {
         if (msg->type != MTD_MSG_TYPE_READ || msg->withOob) {
-            HDF_LOGE("%s: not page aligned, addr=%jd, type=%d, withOob=%d", __func__,
+            HDF_LOGE("MtdDeviceCheckMsg: not page aligned, addr=%jd, type=%d, withOob=%d!",
                 msg->addr, msg->type, msg->withOob);
             return HDF_ERR_INVALID_PARAM;
         }
@@ -384,10 +404,10 @@ static int32_t MtdDeviceWriteReadByPageUnlock(struct MtdDevice *mtdDevice, struc
     for (addr = msg->addr, buf = msg->buf; (dataLenLeft > 0) && addr < mtdDevice->capacity;) {
         if (MtdDeviceIsBadBlockUnlocked(mtdDevice, addr)) {
             if (!msg->skipBad) {
-                HDF_LOGE("%s: failed on bad block @0x%jx", __func__, addr);
+                HDF_LOGE("MtdDeviceWriteReadByPageUnlock: failed on bad block @0x%jx!", addr);
                 return HDF_ERR_IO;
             }
-            HDF_LOGW("%s: skip bad block @0x%jx", __func__, addr);
+            HDF_LOGW("MtdDeviceWriteReadByPageUnlock: skip bad block @0x%jx!", addr);
             addr = (addr & ~(mtdDevice->eraseSize - 1)) + mtdDevice->eraseSize;
             continue;
         }
@@ -418,7 +438,7 @@ static int32_t MtdDeviceWriteReadByPageUnlock(struct MtdDevice *mtdDevice, struc
     }
 
     if (dataLenLeft > 0) {
-        HDF_LOGE("%s: no enough space, dataLenLeft=%zu, addr=0x%jx", __func__, dataLenLeft, addr);
+        HDF_LOGE("MtdDeviceWriteReadByPageUnlock: no enough space, dataLenLeft=%zu, addr=0x%jx!", dataLenLeft, addr);
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -430,10 +450,12 @@ static int32_t MtdDeviceRequest(struct MtdDevice *mtdDevice, struct MtdMsg *msg)
 
     ret = MtdDeviceCheckMsg(mtdDevice, msg);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceRequest: mtd device check msg fail, ret: %d!", ret);
         return ret;
     }
 
     if ((ret = MtdDeviceLock(mtdDevice)) != HDF_SUCCESS) {
+        HDF_LOGE("MtdDeviceRequest: mtd device lock fail, ret: %d!", ret);
         return ret;
     }
 
@@ -446,6 +468,7 @@ static int32_t MtdDeviceRequest(struct MtdDevice *mtdDevice, struct MtdMsg *msg)
             ret = MtdDeviceEraseUnlock(mtdDevice, msg->addr, msg->len, &msg->faddr);
             break;
         default:
+            HDF_LOGE("MtdDeviceRequest: type is not support!");
             ret = HDF_ERR_NOT_SUPPORT;
             break;
     }
@@ -460,15 +483,18 @@ ssize_t MtdDeviceWrite(struct MtdDevice *mtdDevice, off_t to, size_t len, const 
     struct MtdMsg msg;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDeviceWrite: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->ops == NULL) {
+        HDF_LOGE("MtdDeviceWrite: ops is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (mtdDevice->ops->write != NULL) {
         if ((ret = MtdDeviceLock(mtdDevice)) != HDF_SUCCESS) {
+            HDF_LOGE("MtdDeviceWrite: mtd device lock fail, ret: %d!", ret);
             return ret;
         }
         ret = mtdDevice->ops->write(mtdDevice, to, len, buf);
@@ -492,15 +518,18 @@ ssize_t MtdDeviceRead(struct MtdDevice *mtdDevice, off_t from, size_t len, uint8
     struct MtdMsg msg;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdDeviceRead: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (mtdDevice->ops == NULL) {
+        HDF_LOGE("MtdDeviceRead: ops is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (mtdDevice->ops->read != NULL) {
         if ((ret = MtdDeviceLock(mtdDevice)) != HDF_SUCCESS) {
+            HDF_LOGE("MtdDeviceRead: mtd device lock fail, ret: %d!", ret);
             return ret;
         }
         ret = mtdDevice->ops->read(mtdDevice, from, len, buf);

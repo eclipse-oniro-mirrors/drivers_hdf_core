@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -20,15 +20,18 @@ static int32_t SdioDeviceGetFromHandle(DevHandle handle, struct SdioDevice **sdi
     struct MmcDevice *mmc = NULL;
 
     if (handle == NULL) {
+        HDF_LOGE("SdioDeviceGetFromHandle: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (sdio == NULL) {
+        HDF_LOGE("SdioDeviceGetFromHandle: sdio is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     mmc = MmcCntlrGetDevice((struct MmcCntlr *)handle);
     if (mmc == NULL) {
+        HDF_LOGE("SdioDeviceGetFromHandle: mmc is null!");
         return HDF_PLT_ERR_NO_DEV;
     }
     if (mmc->type != MMC_DEV_SDIO && mmc->type != MMC_DEV_COMBO) {
@@ -61,7 +64,7 @@ DevHandle SdioOpen(int16_t mmcBusNum, struct SdioFunctionConfig *config)
     if (cntlr->ops != NULL && cntlr->ops->rescanSdioDev != NULL) {
         ret = cntlr->ops->rescanSdioDev(cntlr);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("SdioOpen: sdio rescan fail!");
+            HDF_LOGE("SdioOpen: sdio rescan fail, ret: %d!", ret);
             MmcClose(handle);
             return NULL;
         }
@@ -69,14 +72,14 @@ DevHandle SdioOpen(int16_t mmcBusNum, struct SdioFunctionConfig *config)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioOpen: get sdio dev fail!");
+        HDF_LOGE("SdioOpen: get sdio dev fail, ret: %d!", ret);
         MmcClose(handle);
         return NULL;
     }
     ret = SdioDeviceFindFunction(sdio, config);
     MmcDevicePut((struct MmcDevice *)sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioOpen: set function fail!");
+        HDF_LOGE("SdioOpen: set function fail, ret: %d!", ret);
         MmcClose(handle);
         return NULL;
     }
@@ -96,7 +99,7 @@ int32_t SdioReadBytes(DevHandle handle, uint8_t *data, uint32_t addr, uint32_t s
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioReadBytes: get sdio dev fail!");
+        HDF_LOGE("SdioReadBytes: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceIncrAddrReadBytes(sdio, data, addr, size);
@@ -111,7 +114,7 @@ int32_t SdioWriteBytes(DevHandle handle, uint8_t *data, uint32_t addr, uint32_t 
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioWriteBytes: get sdio dev fail!");
+        HDF_LOGE("SdioWriteBytes: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceIncrAddrWriteBytes(sdio, data, addr, size);
@@ -127,7 +130,7 @@ int32_t SdioReadBytesFromFixedAddr(DevHandle handle, uint8_t *data,
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioReadBytesFromFixedAddr: get sdio dev fail!");
+        HDF_LOGE("SdioReadBytesFromFixedAddr: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceFixedAddrReadBytes(sdio, data, addr, size, scatterLen);
@@ -143,7 +146,7 @@ int32_t SdioWriteBytesToFixedAddr(DevHandle handle, uint8_t *data,
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioWriteBytesToFixedAddr: get sdio dev fail!");
+        HDF_LOGE("SdioWriteBytesToFixedAddr: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceFixedAddrWriteBytes(sdio, data, addr, size, scatterLen);
@@ -158,7 +161,7 @@ int32_t SdioReadBytesFromFunc0(DevHandle handle, uint8_t *data, uint32_t addr, u
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioReadBytesFromFunc0: get sdio dev fail!");
+        HDF_LOGE("SdioReadBytesFromFunc0: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceFunc0ReadBytes(sdio, data, addr, size);
@@ -173,7 +176,7 @@ int32_t SdioWriteBytesToFunc0(DevHandle handle, uint8_t *data, uint32_t addr, ui
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioWriteBytesToFunc0: get sdio dev fail!");
+        HDF_LOGE("SdioWriteBytesToFunc0: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceFunc0WriteBytes(sdio, data, addr, size);
@@ -188,7 +191,7 @@ int32_t SdioSetBlockSize(DevHandle handle, uint32_t blockSize)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioSetBlockSize: get sdio dev fail!");
+        HDF_LOGE("SdioSetBlockSize: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceSetBlockSize(sdio, blockSize);
@@ -203,7 +206,7 @@ int32_t SdioGetCommonInfo(DevHandle handle, SdioCommonInfo *info, SdioCommonInfo
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioGetCommonInfo: get sdio dev fail!");
+        HDF_LOGE("SdioGetCommonInfo: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceGetCommonInfo(sdio, info, infoType);
@@ -218,7 +221,7 @@ int32_t SdioSetCommonInfo(DevHandle handle, SdioCommonInfo *info, SdioCommonInfo
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioSetCommonInfo: get sdio dev fail!");
+        HDF_LOGE("SdioSetCommonInfo: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceSetCommonInfo(sdio, info, infoType);
@@ -233,7 +236,7 @@ int32_t SdioFlushData(DevHandle handle)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioFlushData: get sdio dev fail!");
+        HDF_LOGE("SdioFlushData: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceFlushData(sdio);
@@ -248,12 +251,12 @@ void SdioClaimHost(DevHandle handle)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioClaimHost: get sdio dev fail!");
+        HDF_LOGE("SdioClaimHost: get sdio dev fail, ret: %d!", ret);
         return;
     }
     ret = SdioDeviceClaimHost(sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioClaimHost: claim host fail!");
+        HDF_LOGE("SdioClaimHost: claim host fail, ret: %d!", ret);
     }
     MmcDevicePut((struct MmcDevice *)sdio);
 }
@@ -265,12 +268,12 @@ void SdioReleaseHost(DevHandle handle)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioReleaseHost: get sdio dev fail!");
+        HDF_LOGE("SdioReleaseHost: get sdio dev fail, ret: %d!", ret);
         return;
     }
     ret = SdioDeviceReleaseHost(sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioReleaseHost: claim host fail!");
+        HDF_LOGE("SdioReleaseHost: claim host fail, ret: %d!", ret);
     }
     MmcDevicePut((struct MmcDevice *)sdio);
 }
@@ -282,7 +285,7 @@ int32_t SdioEnableFunc(DevHandle handle)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioEnableFunc: get sdio dev fail!");
+        HDF_LOGE("SdioEnableFunc: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceEnableFunc(sdio);
@@ -297,7 +300,7 @@ int32_t SdioDisableFunc(DevHandle handle)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioDisableFunc: get sdio dev fail!");
+        HDF_LOGE("SdioDisableFunc: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceDisableFunc(sdio);
@@ -312,7 +315,7 @@ int32_t SdioClaimIrq(DevHandle handle, SdioIrqHandler *irqHandler)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioClaimIrq: get sdio dev fail!");
+        HDF_LOGE("SdioClaimIrq: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceClaimIrq(sdio, irqHandler);
@@ -327,7 +330,7 @@ int32_t SdioReleaseIrq(DevHandle handle)
 
     ret = SdioDeviceGetFromHandle(handle, &sdio);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SdioReleaseIrq: get sdio dev fail!");
+        HDF_LOGE("SdioReleaseIrq: get sdio dev fail, ret: %d!", ret);
         return ret;
     }
     ret = SdioDeviceReleaseIrq(sdio);

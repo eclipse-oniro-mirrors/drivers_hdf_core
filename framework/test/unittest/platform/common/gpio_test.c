@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -28,51 +28,51 @@ static int32_t GpioTestGetConfig(struct GpioTestConfig *config)
     const void *buf = NULL;
     uint32_t len;
 
-    HDF_LOGD("%s: enter!", __func__);
+    HDF_LOGD("GpioTestGetConfig: enter!");
     service = HdfIoServiceBind("GPIO_TEST");
     if (service == NULL) {
-        HDF_LOGE("%s: failed to bind gpio test server!", __func__);
+        HDF_LOGE("GpioTestGetConfig: fail to bind gpio test server!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply!", __func__);
+        HDF_LOGE("GpioTestGetConfig: fail to obtain reply!");
         HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: remote dispatch failed:%d!", __func__, ret);
+        HDF_LOGE("GpioTestGetConfig: remote dispatch fail, ret: %d!", ret);
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return ret;
     }
 
     if (!HdfSbufReadBuffer(reply, &buf, &len)) {
-        HDF_LOGE("%s: failed to read buf!", __func__);
+        HDF_LOGE("GpioTestGetConfig: fail to read buf!");
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
 
     if (len != sizeof(*config)) {
-        HDF_LOGE("%s: config size:%zu, but read size:%u!", __func__, sizeof(*config), len);
+        HDF_LOGE("GpioTestGetConfig: config size:%zu, but read size:%u!", sizeof(*config), len);
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
 
     if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
-        HDF_LOGE("%s: failed to memcpy buf!", __func__);
+        HDF_LOGE("GpioTestGetConfig: fail to memcpy buf!");
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
 
     HdfSbufRecycle(reply);
-    HDF_LOGD("%s: exit!", __func__);
+    HDF_LOGD("GpioTestGetConfig: exit!");
     HdfIoServiceRecycle(service);
     return HDF_SUCCESS;
 }
@@ -84,15 +84,16 @@ static struct GpioTester *GpioTesterGet(void)
     static struct GpioTester *pTester = NULL;
 
     if (pTester != NULL) {
+        HDF_LOGE("GpioTesterGet: pTester is null!");
         return pTester;
     }
 
     ret = GpioTestGetConfig(&tester.cfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to get config:%d!", __func__, ret);
+        HDF_LOGE("GpioTesterGet: fail to get config, ret: %d!", ret);
         return NULL;
     }
-    HDF_LOGI("%s: gpio=%u, gpioIrq=%u, testUserApi=%u, gpioTestTwo=%u, testNameOne=%s, testNameTwo=%s!", __func__,
+    HDF_LOGI("GpioTesterGet: gpio=%u, gpioIrq=%u, testUserApi=%u, gpioTestTwo=%u, testNameOne=%s, testNameTwo=%s!",
         tester.cfg.gpio, tester.cfg.gpioIrq, tester.cfg.testUserApi, tester.cfg.gpioTestTwo, tester.cfg.testNameOne,
         tester.cfg.testNameTwo);
 
@@ -107,18 +108,18 @@ static int32_t GpioTestSetUp(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestSetUp: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = GpioGetDir(tester->cfg.gpio, &tester->oldDir);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to get old dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestSetUp: fail to get old dir, ret: %d!", ret);
         return ret;
     }
     ret = GpioRead(tester->cfg.gpio, &tester->oldVal);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read old val, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestSetUp: fail to read old val, ret: %d!", ret);
         return ret;
     }
 
@@ -135,13 +136,13 @@ static int32_t GpioTestTearDown(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestTearDown: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = GpioSetDir(tester->cfg.gpio, tester->oldDir);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to set old dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestTearDown: fail to set old dir, ret: %d!", ret);
         return ret;
     }
     if (tester->oldDir == GPIO_DIR_IN) {
@@ -149,7 +150,7 @@ static int32_t GpioTestTearDown(void)
     }
     ret = GpioWrite(tester->cfg.gpio, tester->oldVal);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to write old val, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestTearDown: fail to write old val, ret: %d!", ret);
         return ret;
     }
 
@@ -165,7 +166,7 @@ static int32_t GpioTestSetGetDir(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failde to get tester!", __func__);
+        HDF_LOGE("GpioTestSetGetDir: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -174,16 +175,16 @@ static int32_t GpioTestSetGetDir(void)
 
     ret = GpioSetDir(tester->cfg.gpio, dirSet);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to set dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestSetGetDir: fail to set dir, ret: %d!", ret);
         return ret;
     }
     ret = GpioGetDir(tester->cfg.gpio, &dirGet);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to get dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestSetGetDir: fail to get dir, ret: %d!", ret);
         return ret;
     }
     if (dirSet != dirGet) {
-        HDF_LOGE("%s: set dir:%u, but get:%u!", __func__, dirSet, dirGet);
+        HDF_LOGE("GpioTestSetGetDir: set dir:%u, but get:%u!", dirSet, dirGet);
         return HDF_FAILURE;
     }
     /* change the value and test one more time */
@@ -191,16 +192,16 @@ static int32_t GpioTestSetGetDir(void)
     dirGet = GPIO_DIR_OUT;
     ret = GpioSetDir(tester->cfg.gpio, dirSet);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to set dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestSetGetDir: fail to set dir, ret: %d!", ret);
         return ret;
     }
     ret = GpioGetDir(tester->cfg.gpio, &dirGet);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failde to get dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestSetGetDir: fail to get dir, ret: %d!", ret);
         return ret;
     }
     if (dirSet != dirGet) {
-        HDF_LOGE("%s: set dir:%hu, but get:%hu!", __func__, dirSet, dirGet);
+        HDF_LOGE("GpioTestSetGetDir: set dir:%hu, but get:%hu!", dirSet, dirGet);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -215,13 +216,13 @@ static int32_t GpioTestWriteRead(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestWriteRead: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = GpioSetDir(tester->cfg.gpio, GPIO_DIR_OUT);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to set dir, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestWriteRead: fail to set dir, ret: %d!", ret);
         return ret;
     }
     valWrite = GPIO_VAL_LOW;
@@ -229,16 +230,16 @@ static int32_t GpioTestWriteRead(void)
 
     ret = GpioWrite(tester->cfg.gpio, valWrite);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to write val:%hu, ret:%d!", __func__, valWrite, ret);
+        HDF_LOGE("GpioTestWriteRead: failed to write val:%hu, ret: %d!", valWrite, ret);
         return ret;
     }
     ret = GpioRead(tester->cfg.gpio, &valRead);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestWriteRead: fail to read, ret: %d!", ret);
         return ret;
     }
     if (valWrite != valRead) {
-        HDF_LOGE("%s: write:%u, but get:%u!", __func__, valWrite, valRead);
+        HDF_LOGE("GpioTestWriteRead: write:%u, but get:%u!", valWrite, valRead);
         return HDF_FAILURE;
     }
     /* change the value and test one more time */
@@ -246,16 +247,16 @@ static int32_t GpioTestWriteRead(void)
     valRead = GPIO_VAL_LOW;
     ret = GpioWrite(tester->cfg.gpio, valWrite);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed towrite val:%u, ret:%d!", __func__, valWrite, ret);
+        HDF_LOGE("GpioTestWriteRead: fail towrite val:%u, ret: %d!", valWrite, ret);
         return ret;
     }
     ret = GpioRead(tester->cfg.gpio, &valRead);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestWriteRead: fail to read, ret: %d!", ret);
         return ret;
     }
     if (valWrite != valRead) {
-        HDF_LOGE("%s: write:%u, but get:%u!", __func__, valWrite, valRead);
+        HDF_LOGE("GpioTestWriteRead: write:%u, but get:%u!", valWrite, valRead);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -265,7 +266,7 @@ static int32_t GpioTestIrqHandler(uint16_t gpio, void *data)
 {
     struct GpioTester *tester = (struct GpioTester *)data;
 
-    HDF_LOGE("%s: >>>>>>>>>>>>>>>>>>>>>enter gpio:%hu<<<<<<<<<<<<<<<<<<<<<<", __func__, gpio);
+    HDF_LOGE("GpioTestIrqHandler: >>>>>>>>>>>>>>>>>>>>>enter gpio:%hu<<<<<<<<<<<<<<<<<<<<<<", gpio);
     if (tester != NULL) {
         tester->irqCnt++;
         return GpioDisableIrq(gpio);
@@ -282,7 +283,7 @@ static inline void GpioTestHelperInversePin(uint16_t gpio, uint16_t mode)
     (void)GpioWrite(gpio, (valRead == GPIO_VAL_LOW) ? GPIO_VAL_HIGH : GPIO_VAL_LOW);
     (void)GpioRead(gpio, &valRead);
     (void)GpioGetDir(gpio, &dir);
-    HDF_LOGE("%s, gpio:%u, val:%u, dir:%u, mode:%x!", __func__, gpio, valRead, dir, mode);
+    HDF_LOGE("GpioTestHelperInversePin: gpio:%u, val:%u, dir:%u, mode:%x!", gpio, valRead, dir, mode);
 }
 
 static int32_t GpioTestIrqSharedFunc(struct GpioTester *tester, uint16_t mode, bool inverse)
@@ -290,21 +291,21 @@ static int32_t GpioTestIrqSharedFunc(struct GpioTester *tester, uint16_t mode, b
     int32_t ret;
     uint32_t timeout;
 
-    HDF_LOGE("%s: mark gona set irq ...", __func__);
+    HDF_LOGD("GpioTestIrqSharedFunc: mark gona set irq ...");
     ret = GpioSetIrq(tester->cfg.gpioIrq, mode, GpioTestIrqHandler, (void *)tester);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to set irq, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestIrqSharedFunc: fail to set irq, ret:%d!", ret);
         return ret;
     }
-    HDF_LOGE("%s: mark gona enable irq ...", __func__);
+    HDF_LOGD("GpioTestIrqSharedFunc: mark gona enable irq ...");
     ret = GpioEnableIrq(tester->cfg.gpioIrq);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to enable irq, ret:%d!", __func__, ret);
+        HDF_LOGE("GpioTestIrqSharedFunc: fail to enable irq, ret: %d!", ret);
         (void)GpioUnsetIrq(tester->cfg.gpioIrq, tester);
         return ret;
     }
 
-    HDF_LOGE("%s: mark gona inverse irq ...", __func__);
+    HDF_LOGD("GpioTestIrqSharedFunc: mark gona inverse irq ...");
     for (timeout = 0; tester->irqCnt == 0 && timeout <= tester->irqTimeout;
         timeout += GPIO_TEST_IRQ_DELAY) {
         if (inverse) {
@@ -317,12 +318,12 @@ static int32_t GpioTestIrqSharedFunc(struct GpioTester *tester, uint16_t mode, b
 
 #if defined(_LINUX_USER_) || defined(__KERNEL__)
     if (inverse) {
-        HDF_LOGI("%s: do not judge edge trigger!", __func__);
+        HDF_LOGI("GpioTestIrqSharedFunc: do not judge edge trigger!");
         return HDF_SUCCESS;
     }
 #endif
     if (tester->irqCnt == 0) {
-        HDF_LOGE("%s: failed to set mode:%x on %u!", __func__, mode, tester->cfg.gpioIrq);
+        HDF_LOGE("GpioTestIrqSharedFunc: fail to set mode:%x on %u!", mode, tester->cfg.gpioIrq);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -340,7 +341,7 @@ static int32_t GpioTestIrqEdge(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestIrqEdge: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -361,7 +362,7 @@ static int32_t GpioTestIrqThread(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestIrqThread: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -382,31 +383,35 @@ static int32_t GpioTestGetNumByName(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestGetNumByName: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = GpioGetByName(tester->cfg.testNameOne);
     if (ret < 0) {
-        HDF_LOGE("%s: name:%s failed to get gpio global number, ret:%d!", __func__, tester->cfg.testNameOne, ret);
+        HDF_LOGE("GpioTestGetNumByName: name:%s fail to get gpio global number, ret:%d!",
+            tester->cfg.testNameOne, ret);
         return ret;
     }
 
     if (ret != tester->cfg.gpio) {
-        HDF_LOGE("%s: gpio number are different. name:%s get gpio global number:%hu but gpio actual number:%hu!",
-            __func__, tester->cfg.testNameOne, (uint16_t)ret, tester->cfg.gpio);
+        HDF_LOGE("GpioTestGetNumByName: gpio number are different. \
+            name:%s get gpio global number:%hu but gpio actual number:%hu!",
+            tester->cfg.testNameOne, (uint16_t)ret, tester->cfg.gpio);
         return HDF_FAILURE;
     }
 
     ret = GpioGetByName(tester->cfg.testNameTwo);
     if (ret < 0) {
-        HDF_LOGE("%s: name:%s failed to get gpio global number, ret:%d!", __func__, tester->cfg.testNameTwo, ret);
+        HDF_LOGE("GpioTestGetNumByName: name:%s fail to get gpio global number, ret:%d!",
+            tester->cfg.testNameTwo, ret);
         return ret;
     }
 
     if (ret != tester->cfg.gpioTestTwo) {
-        HDF_LOGE("%s: gpio number are different. name:%s get gpio global number:%hu but gpio actual number :%hu!",
-            __func__, tester->cfg.testNameTwo, (uint16_t)ret, tester->cfg.gpioTestTwo);
+        HDF_LOGE("GpioTestGetNumByName: gpio number are different. \
+            name:%s get gpio global number:%hu but gpio actual number :%hu!",
+            tester->cfg.testNameTwo, (uint16_t)ret, tester->cfg.gpioTestTwo);
         return HDF_FAILURE;
     }
 
@@ -420,7 +425,7 @@ static int32_t GpioTestReliability(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioTestReliability: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -464,7 +469,7 @@ static int32_t GpioIfPerformanceTest(void)
 
     tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGE("%s: failed to get tester!", __func__);
+        HDF_LOGE("GpioIfPerformanceTest: fail to get tester!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -473,7 +478,8 @@ static int32_t GpioIfPerformanceTest(void)
     endMs = OsalGetSysTimeMs();
 
     useTime = endMs - startMs;
-    HDF_LOGI("----->interface performance test:[start - end] < 1ms[%s]\r\n", useTime < 1 ? "yes" : "no");
+    HDF_LOGI("GpioIfPerformanceTest: ----->interface performance test:[start - end] < 1ms[%s]\r\n",
+        useTime < 1 ? "yes" : "no");
     return HDF_SUCCESS;
 }
 
@@ -502,11 +508,11 @@ int32_t GpioTestExecute(int cmd)
 #if defined(_LINUX_USER_) || defined(__USER__)
     struct GpioTester *tester = GpioTesterGet();
     if (tester == NULL) {
-        HDF_LOGI("%s: tester is NULL!", __func__);
+        HDF_LOGI("GpioTestExecute: tester is null!");
         return HDF_SUCCESS;
     }
     if (tester->cfg.testUserApi == 0) {
-        HDF_LOGI("%s: do not test user api!", __func__);
+        HDF_LOGI("GpioTestExecute: do not test user api!");
         return HDF_SUCCESS;
     }
 #endif
@@ -517,7 +523,7 @@ int32_t GpioTestExecute(int cmd)
         }
         ret = GpioTestSetUp();
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: failed to setup!", __func__);
+            HDF_LOGE("GpioTestExecute: fail to setup!");
             return ret;
         }
 
@@ -528,10 +534,10 @@ int32_t GpioTestExecute(int cmd)
     }
 
     if (ret == HDF_ERR_NOT_SUPPORT) {
-        HDF_LOGE("%s: cmd:%d not supportted!", __func__, cmd);
+        HDF_LOGE("GpioTestExecute: cmd:%d is not support!", cmd);
     }
 
-    HDF_LOGI("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    HDF_LOGI("[GpioTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
     return ret;
 }
 
@@ -546,6 +552,6 @@ void GpioTestExecuteAll(void)
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 
-    HDF_LOGE("%s: **********PASS:%d  FAIL:%d************\n\n",
-        __func__, GPIO_TEST_MAX - fails, fails);
+    HDF_LOGE("GpioTestExecuteAll: **********PASS:%d  FAIL:%d************\n\n",
+        GPIO_TEST_MAX - fails, fails);
 }

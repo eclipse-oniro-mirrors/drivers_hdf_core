@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -45,12 +45,14 @@ static int32_t CanClientCreate(struct CanCntlr *cntlr, struct CanClient **client
 
     new = (struct CanClient *)OsalMemCalloc(sizeof(*new));
     if (new == NULL) {
+        HDF_LOGE("CanClientCreate: memcalloc new fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     new->rxBox = CanRxBoxCreate();
     if (new->rxBox == NULL) {
         OsalMemFree(new);
+        HDF_LOGE("CanClientCreate: can rxBox create fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -58,6 +60,7 @@ static int32_t CanClientCreate(struct CanCntlr *cntlr, struct CanClient **client
     if (ret != HDF_SUCCESS) {
         CanRxBoxDestroy(new->rxBox);
         OsalMemFree(new);
+        HDF_LOGE("CanClientCreate: can client attach fail!");
         return ret;
     }
 
@@ -72,12 +75,14 @@ int32_t CanClientCreateByNumber(int32_t busNum, struct CanClient **client)
 
     cntlr = CanCntlrGetByNumber(busNum);
     if (cntlr == NULL) {
+        HDF_LOGE("CanClientCreateByNumber: busNum get can cntlr fail!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     ret = CanClientCreate(cntlr, client);
     if (ret != HDF_SUCCESS) {
         CanCntlrPut(cntlr);
+        HDF_LOGE("CanClientCreateByNumber: can client create fail!");
         return ret;
     }
     return HDF_SUCCESS;
@@ -99,6 +104,7 @@ void CanClientDestroy(struct CanClient *client)
 int32_t CanClientWriteMsg(struct CanClient *client, const struct CanMsg *msg)
 {
     if (client == NULL) {
+        HDF_LOGE("CanClientWriteMsg: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return CanCntlrWriteMsg(client->cntlr, msg);
@@ -110,11 +116,13 @@ int32_t CanClientReadMsg(struct CanClient *client, struct CanMsg *msg, uint32_t 
     struct CanMsg *cmsg = NULL;
 
     if (client == NULL) {
+        HDF_LOGE("CanClientReadMsg: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = CanRxBoxGetMsg(client->rxBox, &cmsg, tms);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("CanClientReadMsg: can rxBox get msg fail!");
         return ret;
     }
 
@@ -126,6 +134,7 @@ int32_t CanClientReadMsg(struct CanClient *client, struct CanMsg *msg, uint32_t 
 int32_t CanClientAddFilter(struct CanClient *client, const struct CanFilter *filter)
 {
     if (client == NULL) {
+        HDF_LOGE("CanClientAddFilter: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return CanRxBoxAddFilter(client->rxBox, filter);
@@ -134,6 +143,7 @@ int32_t CanClientAddFilter(struct CanClient *client, const struct CanFilter *fil
 int32_t CanClientDelFilter(struct CanClient *client, const struct CanFilter *filter)
 {
     if (client == NULL) {
+        HDF_LOGE("CanClientDelFilter: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return CanRxBoxDelFilter(client->rxBox, filter);
@@ -142,6 +152,7 @@ int32_t CanClientDelFilter(struct CanClient *client, const struct CanFilter *fil
 int32_t CanClientSetCfg(struct CanClient *client, const struct CanConfig *cfg)
 {
     if (client == NULL) {
+        HDF_LOGE("CanClientSetCfg: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return CanCntlrSetCfg(client->cntlr, cfg);
@@ -150,6 +161,7 @@ int32_t CanClientSetCfg(struct CanClient *client, const struct CanConfig *cfg)
 int32_t CanClientGetCfg(struct CanClient *client, struct CanConfig *cfg)
 {
     if (client == NULL) {
+        HDF_LOGE("CanClientGetCfg: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return CanCntlrGetCfg(client->cntlr, cfg);
@@ -158,6 +170,7 @@ int32_t CanClientGetCfg(struct CanClient *client, struct CanConfig *cfg)
 int32_t CanClientGetState(struct CanClient *client)
 {
     if (client == NULL) {
+        HDF_LOGE("CanClientGetState: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return CanCntlrGetState(client->cntlr);

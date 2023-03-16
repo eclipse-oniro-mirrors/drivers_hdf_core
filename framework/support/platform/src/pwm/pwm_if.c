@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,13 +26,13 @@ static void *PwmGetDevByNum(uint32_t num)
     }
     ret = snprintf_s(name, PWM_NAME_LEN + 1, PWM_NAME_LEN, "HDF_PLATFORM_PWM_%u", num);
     if (ret < 0) {
-        HDF_LOGE("%s: snprintf_s failed", __func__);
+        HDF_LOGE("PwmGetDevByNum: snprintf_s fail!");
         OsalMemFree(name);
         return NULL;
     }
     pwm = (void *)DevSvcManagerClntGetService(name);
     if (pwm == NULL) {
-        HDF_LOGE("%s: get service failed", __func__);
+        HDF_LOGE("PwmGetDevByNum: get service fail!");
         OsalMemFree(name);
         return NULL;
     }
@@ -46,13 +46,13 @@ DevHandle PwmOpen(uint32_t num)
     void *pwm = PwmGetDevByNum(num);
 
     if (pwm == NULL) {
-        HDF_LOGE("%s: dev is null", __func__);
+        HDF_LOGE("PwmOpen: pwm is null!");
         return NULL;
     }
 
     ret = PwmDeviceGet((struct PwmDev *)pwm);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmDeviceGet failed, ret: %d", __func__, ret);
+        HDF_LOGE("PwmOpen: PwmDeviceGet fail, ret: %d!", ret);
         return NULL;
     }
     return (DevHandle)pwm;
@@ -61,12 +61,12 @@ DevHandle PwmOpen(uint32_t num)
 void PwmClose(DevHandle handle)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: dev is null", __func__);
+        HDF_LOGE("PwmClose: handle is null!");
         return;
     }
 
     if (PwmDevicePut((struct PwmDev *)handle) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmDevicePut fail", __func__);
+        HDF_LOGE("PwmClose: PwmDevicePut fail!");
         return;
     }
 }
@@ -78,14 +78,14 @@ int32_t PwmSetPeriod(DevHandle handle, uint32_t period)
     int32_t ret;
 
     if (PwmGetConfig(handle, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmGetConfig fail", __func__);
+        HDF_LOGE("PwmSetPeriod: PwmGetConfig fail!");
         return HDF_FAILURE;
     }
     curValue = config.period;
     config.period = period;
     ret = PwmSetConfig(handle, &config);
     if (ret == HDF_SUCCESS) {
-        HDF_LOGI("%s: success. period: %d -> %d.", __func__, curValue, config.period);
+        HDF_LOGI("PwmSetPeriod: success. period: %d -> %d!", curValue, config.period);
     }
     return ret;
 }
@@ -97,14 +97,14 @@ int32_t PwmSetDuty(DevHandle handle, uint32_t duty)
     int32_t ret;
 
     if (PwmGetConfig(handle, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmGetConfig fail", __func__);
+        HDF_LOGE("PwmSetDuty: PwmGetConfig fail!");
         return HDF_FAILURE;
     }
     curValue = config.duty;
     config.duty = duty;
     ret = PwmSetConfig(handle, &config);
     if (ret == HDF_SUCCESS) {
-        HDF_LOGI("%s: success. duty: %u -> %u.", __func__, curValue, config.duty);
+        HDF_LOGI("PwmSetDuty: success. duty: %u -> %u!", curValue, config.duty);
     }
     return ret;
 }
@@ -116,14 +116,14 @@ int32_t PwmSetPolarity(DevHandle handle, uint8_t polarity)
     int32_t ret;
 
     if (PwmGetConfig(handle, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmGetConfig fail", __func__);
+        HDF_LOGE("PwmSetPolarity: PwmGetConfig fail!");
         return HDF_FAILURE;
     }
     curValue = config.polarity;
     config.polarity = polarity;
     ret = PwmSetConfig(handle, &config);
     if (ret == HDF_SUCCESS) {
-        HDF_LOGI("%s: success. polarity: %d -> %d.", __func__, curValue, config.polarity);
+        HDF_LOGI("PwmSetPolarity: success. polarity: %d -> %d!", curValue, config.polarity);
     }
     return ret;
 }
@@ -135,14 +135,14 @@ int32_t PwmEnable(DevHandle handle)
     int32_t ret;
 
     if (PwmGetConfig(handle, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmGetConfig fail", __func__);
+        HDF_LOGE("PwmEnable: PwmGetConfig fail!");
         return HDF_FAILURE;
     }
     curValue = config.status;
     config.status = PWM_ENABLE_STATUS;
     ret = PwmSetConfig(handle, &config);
     if (ret == HDF_SUCCESS) {
-        HDF_LOGI("%s: success. enable: %u -> %hhu.", __func__, curValue, config.status);
+        HDF_LOGI("PwmEnable: success. enable: %u -> %hhu!", curValue, config.status);
     }
     return ret;
 }
@@ -154,14 +154,14 @@ int32_t PwmDisable(DevHandle handle)
     int32_t ret;
 
     if (PwmGetConfig(handle, &config) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmGetConfig fail", __func__);
+        HDF_LOGE("PwmDisable: PwmGetConfig fail!");
         return HDF_FAILURE;
     }
     curValue = config.status;
     config.status = PWM_DISABLE_STATUS;
     ret = PwmSetConfig(handle, &config);
     if (ret == HDF_SUCCESS) {
-        HDF_LOGI("%s: success. enable: %d -> %d.", __func__, curValue, config.status);
+        HDF_LOGI("PwmDisable: success. enable: %d -> %d!", curValue, config.status);
     }
     return ret;
 }
@@ -171,17 +171,17 @@ int32_t PwmSetConfig(DevHandle handle, struct PwmConfig *config)
     int32_t ret;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmSetConfig: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (config == NULL) {
-        HDF_LOGE("%s: config is NULL", __func__);
+        HDF_LOGE("PwmSetConfig: config is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = PwmDeviceSetConfig(handle, config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: PwmSetConfig failed, ret: %d", __func__, ret);
+        HDF_LOGE("PwmSetConfig: PwmSetConfig fail, ret: %d!", ret);
     }
 
     return HDF_SUCCESS;
@@ -192,11 +192,11 @@ int32_t PwmGetConfig(DevHandle handle, struct PwmConfig *config)
     struct PwmDev *pwm = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("PwmGetConfig: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (config == NULL) {
-        HDF_LOGE("%s: config is NULL", __func__);
+        HDF_LOGE("PwmGetConfig: config is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     pwm = (struct PwmDev *)handle;

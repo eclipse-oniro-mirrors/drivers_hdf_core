@@ -1,5 +1,5 @@
  /*
-  * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+  * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
   *
   * HDF is dual licensed: you can use it either under the terms of
   * the GPL, or the BSD license, at your option.
@@ -32,12 +32,15 @@
 int32_t MmcCntlrDoRequest(struct MmcCntlr *cntlr, struct MmcCmd *cmd)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrDoRequest: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cmd == NULL) {
+        HDF_LOGE("MmcCntlrDoRequest: cmd is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (cntlr->ops == NULL || cntlr->ops->request == NULL) {
+        HDF_LOGE("MmcCntlrDoRequest: ops or request is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
     return cntlr->ops->request(cntlr, cmd);
@@ -71,6 +74,7 @@ static int32_t MmcCntlrPlug(struct MmcCntlr *cntlr)
     uint32_t i;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrPlug: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (MmcCntlrDevPlugged(cntlr) != true) {
@@ -118,7 +122,7 @@ static int32_t MmcCntlrUnplug(struct MmcCntlr *cntlr)
     MmcCntlrLock(cntlr);
     MmcDeleteDev(cntlr);
     MmcCntlrUnlock(cntlr);
-    HDF_LOGD("host%d: a dev is removed!", cntlr->index);
+    HDF_LOGD("MmcCntlrUnplug: host%d: a dev is removed!", cntlr->index);
     return HDF_SUCCESS;
 }
 
@@ -188,6 +192,7 @@ static int32_t MmcMsgHandleDefault(struct PlatformQueue *queue, struct PlatformM
             ret = MmcCntlrSdioRescanHandle(cntlr);
             break;
         default:
+            HDF_LOGE("MmcMsgHandleDefault: not support!");
             ret = HDF_ERR_NOT_SUPPORT;
             break;
     }
@@ -218,12 +223,12 @@ static int32_t MmcCntlrQueueCreate(struct MmcCntlr *cntlr, bool needQueue)
     }
     cntlr->msgQueue = PlatformQueueCreate(MmcMsgHandleDefault, threadName, cntlr);
     if (cntlr->msgQueue == NULL) {
-        HDF_LOGE("MmcCntlrQueueCreate: failed to create msg queue!");
+        HDF_LOGE("MmcCntlrQueueCreate: fail to create msg queue!");
         return HDF_PLT_ERR_OS_API;
     }
     ret = PlatformQueueStart(cntlr->msgQueue);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrQueueCreate: failed to start msg queue!");
+        HDF_LOGE("MmcCntlrQueueCreate: fail to start msg queue!");
         PlatformQueueDestroy(cntlr->msgQueue);
     }
     return ret;
@@ -234,6 +239,7 @@ static int32_t MmcCntlrInit(struct MmcCntlr *cntlr, bool needQueue)
     int32_t ret;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrInit: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -279,18 +285,20 @@ int32_t MmcCntlrAdd(struct MmcCntlr *cntlr, bool needQueue)
     int32_t ret;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAdd: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = MmcCntlrInit(cntlr, needQueue);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("MmcCntlrAdd: cntlr init fail, ret: %d!", ret);
         return ret;
     }
 
     cntlr->device.manager = PlatformManagerGet(PLATFORM_MODULE_MMC);
     ret = PlatformDeviceAdd(&cntlr->device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrAdd: device add fail!");
+        HDF_LOGE("MmcCntlrAdd: device add fail, ret: %d!", ret);
         MmcCntlrUninit(cntlr);
         return ret;
     }
@@ -308,6 +316,7 @@ void MmcCntlrRemove(struct MmcCntlr *cntlr)
 void MmcCntlrSetDevice(struct MmcCntlr *cntlr, struct MmcDevice *mmc)
 {
     if (cntlr == NULL || mmc == NULL) {
+        HDF_LOGE("MmcCntlrSetDevice: cntlr or mmc is null!");
         return;
     }
     cntlr->curDev = mmc;
@@ -328,9 +337,11 @@ static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
     int32_t ret;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrPostMsg: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (mmcMsg == NULL) {
+        HDF_LOGE("MmcCntlrPostMsg: mmcMsg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -346,7 +357,7 @@ static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
     (void)OsalSemDestroy(&mmcMsg->sem);
     OsalMemFree(mmcMsg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrPostMsg: wait msg failed:%d", ret);
+        HDF_LOGE("MmcCntlrPostMsg: wait msg fail, ret: %d!", ret);
     }
     return ret;
 }
@@ -354,6 +365,7 @@ static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
 void MmcCntlrSetClock(struct MmcCntlr *cntlr, uint32_t clock)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setClock == NULL) {
+        HDF_LOGE("MmcCntlrSetClock: cntlr or ops or setClock is null!");
         return;
     }
     cntlr->curDev->workPara.clock = clock;
@@ -363,6 +375,7 @@ void MmcCntlrSetClock(struct MmcCntlr *cntlr, uint32_t clock)
 void MmcCntlrSetBusWidth(struct MmcCntlr *cntlr, enum MmcBusWidth width)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setBusWidth == NULL) {
+        HDF_LOGE("MmcCntlrSetBusWidth: cntlr or ops or setBusWidth is null!");
         return;
     }
     cntlr->curDev->workPara.width = width;
@@ -372,6 +385,7 @@ void MmcCntlrSetBusWidth(struct MmcCntlr *cntlr, enum MmcBusWidth width)
 void MmcCntlrSetBusTiming(struct MmcCntlr *cntlr, enum MmcBusTiming timing)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setBusTiming == NULL) {
+        HDF_LOGE("MmcCntlrSetBusTiming: cntlr or ops or setBusTiming is null!");
         return;
     }
     cntlr->curDev->workPara.timing = timing;
@@ -381,6 +395,7 @@ void MmcCntlrSetBusTiming(struct MmcCntlr *cntlr, enum MmcBusTiming timing)
 void MmcCntlrSetEnhanceStrobe(struct MmcCntlr *cntlr, bool enable)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setEnhanceStrobe == NULL) {
+        HDF_LOGE("MmcCntlrSetEnhanceStrobe: cntlr or ops or setEnhanceStrobe is null!");
         return;
     }
     cntlr->ops->setEnhanceStrobe(cntlr, enable);
@@ -389,6 +404,7 @@ void MmcCntlrSetEnhanceStrobe(struct MmcCntlr *cntlr, bool enable)
 int32_t MmcCntlrSwitchVoltage(struct MmcCntlr *cntlr, enum MmcVolt voltage)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->switchVoltage == NULL) {
+        HDF_LOGE("MmcCntlrSwitchVoltage: cntlr or ops or switchVoltage is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     return cntlr->ops->switchVoltage(cntlr, voltage);
@@ -397,6 +413,7 @@ int32_t MmcCntlrSwitchVoltage(struct MmcCntlr *cntlr, enum MmcVolt voltage)
 bool MmcCntlrDevReadOnly(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->devReadOnly == NULL) {
+        HDF_LOGE("MmcCntlrDevReadOnly: cntlr or ops or devReadOnly is null!");
         return false;
     }
     return cntlr->ops->devReadOnly(cntlr);
@@ -405,6 +422,7 @@ bool MmcCntlrDevReadOnly(struct MmcCntlr *cntlr)
 bool MmcCntlrDevPlugged(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
+        HDF_LOGE("MmcCntlrDevPlugged: cntlr or ops or devPlugged is null!");
         return false;
     }
 
@@ -417,6 +435,7 @@ bool MmcCntlrDevPlugged(struct MmcCntlr *cntlr)
 bool MmcCntlrDevBusy(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->devBusy == NULL) {
+        HDF_LOGE("MmcCntlrDevBusy: cntlr or ops or devBusy is null!");
         return true;
     }
 
@@ -426,6 +445,7 @@ bool MmcCntlrDevBusy(struct MmcCntlr *cntlr)
 int32_t MmcCntlrTune(struct MmcCntlr *cntlr, uint32_t cmdCode)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->tune == NULL) {
+        HDF_LOGE("MmcCntlrTune: cntlr or ops or tune is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     return cntlr->ops->tune(cntlr, cmdCode);
@@ -469,6 +489,7 @@ void MmcCntlrSelectWorkVoltage(struct MmcCntlr *cntlr, union MmcOcr *ocr)
 void MmcCntlrPowerUp(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
+        HDF_LOGE("MmcCntlrPowerUp: cntlr or ops is null!");
         return;
     }
 
@@ -513,6 +534,7 @@ void MmcCntlrPowerUp(struct MmcCntlr *cntlr)
 void MmcCntlrPowerOff(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
+        HDF_LOGE("MmcCntlrPowerOff: cntlr or ops is null!");
         return;
     }
 
@@ -535,6 +557,7 @@ int32_t MmcCntlrAllocDev(struct MmcCntlr *cntlr, enum MmcDevType devType)
     struct MmcDevice *mmc = NULL;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAllocDev: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -565,6 +588,7 @@ int32_t MmcCntlrAllocDev(struct MmcCntlr *cntlr, enum MmcDevType devType)
 void MmcCntlrFreeDev(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("MmcCntlrFreeDev: cntlr or curDev is null!");
         return;
     }
 
@@ -575,6 +599,7 @@ void MmcCntlrFreeDev(struct MmcCntlr *cntlr)
 bool MmcCntlrSupportUhs(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrSupportUhs: cntlr is null!");
         return false;
     }
 
@@ -591,6 +616,7 @@ bool MmcCntlrSupportUhs(struct MmcCntlr *cntlr)
 bool MmcCntlrSupportHighSpeed400EnhancedStrobe(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrSupportHighSpeed400EnhancedStrobe: cntlr is null!");
         return false;
     }
 
@@ -606,6 +632,7 @@ bool MmcCntlrSupportHighSpeed400EnhancedStrobe(struct MmcCntlr *cntlr)
 bool MmcCntlrSupportHighSpeed400(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrSupportHighSpeed400: cntlr is null!");
         return false;
     }
 
@@ -620,6 +647,7 @@ bool MmcCntlrSupportHighSpeed400(struct MmcCntlr *cntlr)
 bool MmcCntlrSupportHighSpeed200(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrSupportHighSpeed200: cntlr is null!");
         return false;
     }
 
@@ -635,6 +663,7 @@ bool MmcCntlrSdSupportCmd23(struct MmcCntlr *cntlr)
     struct SdDevice *dev = NULL;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("MmcCntlrSdSupportCmd23: cntlr or curDev is null!");
         return false;
     }
     if (cntlr->curDev->type != MMC_DEV_SD && cntlr->curDev->type != MMC_DEV_COMBO) {
@@ -653,6 +682,7 @@ bool MmcCntlrEmmcSupportCmd23(struct MmcCntlr *cntlr)
     struct EmmcDevice *dev = NULL;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("MmcCntlrEmmcSupportCmd23: cntlr or curDev is null!");
         return false;
     }
     if (cntlr->curDev->type != MMC_DEV_EMMC) {
@@ -673,6 +703,7 @@ int32_t MmcCntlrAddMsgToQueue(struct MmcCntlr *cntlr, struct MmcCmd *cmd,
     struct MmcMsg *msg = NULL;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAddMsgToQueue: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -691,9 +722,11 @@ int32_t MmcCntlrAddMsgToQueue(struct MmcCntlr *cntlr, struct MmcCmd *cmd,
 int32_t MmcCntlrAddRequestMsgToQueue(struct MmcCntlr *cntlr, struct MmcCmd *cmd)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAddRequestMsgToQueue: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
+        HDF_LOGE("MmcCntlrAddRequestMsgToQueue: ops or devPlugged is null!");
         return HDF_PLT_ERR_NO_DEV;
     }
     if (cntlr->ops->devPlugged(cntlr) == false) {
@@ -707,9 +740,11 @@ int32_t MmcCntlrAddRequestMsgToQueue(struct MmcCntlr *cntlr, struct MmcCmd *cmd)
 int32_t MmcCntlrAddDetectMsgToQueue(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAddDetectMsgToQueue: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
+        HDF_LOGE("MmcCntlrAddDetectMsgToQueue: ops or devPlugged is null!");
         return HDF_PLT_ERR_NO_DEV;
     }
 
@@ -727,9 +762,11 @@ int32_t MmcCntlrAddPlugMsgToQueue(struct MmcCntlr *cntlr)
     int32_t code;
 
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAddPlugMsgToQueue: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->devPlugged == NULL) {
+        HDF_LOGE("MmcCntlrAddPlugMsgToQueue: ops or devPlugged is null!");
         return HDF_PLT_ERR_NO_DEV;
     }
 
@@ -754,6 +791,7 @@ int32_t MmcCntlrAddPlugMsgToQueue(struct MmcCntlr *cntlr)
 int32_t MmcCntlrAddSdioRescanMsgToQueue(struct MmcCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("MmcCntlrAddSdioRescanMsgToQueue: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->devType != MMC_DEV_SDIO) {
@@ -772,7 +810,7 @@ static void SdioHandlePendingIrq(struct MmcCntlr *cntlr, struct SdioDevice *dev)
     struct SdioFunction *func = dev->curFunction;
 
     if (func == NULL) {
-        HDF_LOGE("MmcCntlrHandleSdioPendingIrq: cur func is NULL.");
+        HDF_LOGE("MmcCntlrHandleSdioPendingIrq: cur func is null!");
         return;
     }
     if (dev->irqPending == true && func->irqHandler != NULL) {
@@ -810,13 +848,13 @@ static int32_t SdioIrqThreadWorker(void *data)
     struct MmcCntlr *cntlr = NULL;
 
     if (dev == NULL) {
-        HDF_LOGE("SdioIrqThreadWorker: data is NULL.");
+        HDF_LOGE("SdioIrqThreadWorker: data is null!");
         return HDF_FAILURE;
     }
 
     cntlr = dev->sd.mmc.cntlr;
     if (cntlr == NULL) {
-        HDF_LOGE("SdioIrqThreadWorker: cntlr is NULL.");
+        HDF_LOGE("SdioIrqThreadWorker: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -843,25 +881,26 @@ int32_t MmcCntlrCreatSdioIrqThread(struct MmcCntlr *cntlr)
     struct SdioDevice *dev = NULL;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("MmcCntlrCreatSdioIrqThread: cntlr or curDev is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     dev = (struct SdioDevice *)cntlr->curDev;
     ret = OsalSemInit(&dev->sem, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrCreatSdioIrqThread: sem init fail.");
+        HDF_LOGE("MmcCntlrCreatSdioIrqThread: sem init fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadCreate(&dev->thread, (OsalThreadEntry)SdioIrqThreadWorker, dev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrCreatSdioIrqThread: thread create fail.");
+        HDF_LOGE("MmcCntlrCreatSdioIrqThread: thread create fail, ret: %d!", ret);
         (void)OsalSemDestroy(&dev->sem);
         return ret;
     }
 
     if (memset_s(&config, sizeof(config), 0, sizeof(config)) != EOK) {
-        HDF_LOGE("%s:memset_s fail.", __func__);
+        HDF_LOGE("MmcCntlrCreatSdioIrqThread: memset_s fail!");
         OsalThreadDestroy(&dev->thread);
         (void)OsalSemDestroy(&dev->sem);
         return HDF_ERR_IO;
@@ -888,6 +927,7 @@ void MmcCntlrDestroySdioIrqThread(struct MmcCntlr *cntlr)
     struct SdioDevice *dev = NULL;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("MmcCntlrDestroySdioIrqThread: cntlr or curDev is null!");
         return;
     }
 
@@ -957,7 +997,7 @@ void MmcCntlrNotifySdioIrqThread(struct MmcCntlr *cntlr)
 int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
 {
     if (cntlr == NULL || obj == NULL) {
-        HDF_LOGE("MmcCntlrParse: input param is NULL.");
+        HDF_LOGE("MmcCntlrParse: input param is null!");
         return HDF_FAILURE;
     }
 
@@ -1022,13 +1062,13 @@ int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
     int32_t ret;
 
     if (obj == NULL || cntlr == NULL) {
-        HDF_LOGE("MmcCntlrParse: input param is NULL.");
+        HDF_LOGE("MmcCntlrParse: input param is null!");
         return HDF_FAILURE;
     }
 
     node = obj->property;
     if (node == NULL) {
-        HDF_LOGE("MmcCntlrParse: drs node is NULL.");
+        HDF_LOGE("MmcCntlrParse: drs node is null!");
         return HDF_FAILURE;
     }
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
@@ -1039,14 +1079,14 @@ int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
 
     ret = drsOps->GetUint16(node, "hostId", &(cntlr->index), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrParse: read hostId fail!");
+        HDF_LOGE("MmcCntlrParse: read hostId fail, ret: %d", ret);
         return ret;
     }
     HDF_LOGD("MmcCntlrParse: hostId = %d", cntlr->index);
 
     ret = drsOps->GetUint32(node, "devType", &(cntlr->devType), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrParse: read devType fail!");
+        HDF_LOGE("MmcCntlrParse: read devType fail, ret: %d", ret);
         return ret;
     }
     HDF_LOGD("MmcCntlrParse: devType = %d", cntlr->devType);
@@ -1061,6 +1101,7 @@ int32_t MmcDeviceAdd(struct MmcDevice *mmc)
     int32_t ret;
 
     if (mmc == NULL || mmc->cntlr == NULL) {
+        HDF_LOGE("MmcDeviceAdd: mmc or cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (mmc->type >= MMC_DEV_INVALID) {
@@ -1083,13 +1124,14 @@ int32_t MmcDeviceAdd(struct MmcDevice *mmc)
     mmc->device.number = mmc->cntlr->device.number + MMC_CNTLR_NR_MAX;
 
     if (MmcCntlrGet(mmc->cntlr) == NULL) {
+        HDF_LOGE("MmcDeviceAdd: mmc cntlr get fail!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     mmc->device.manager = PlatformManagerGet(PLATFORM_MODULE_MMC);
     ret = PlatformDeviceAdd(&mmc->device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcDeviceAdd: mmc device add fail");
+        HDF_LOGE("MmcDeviceAdd: mmc device add fail, ret: %d!", ret);
         MmcCntlrPut(mmc->cntlr);
         return ret;
     }
@@ -1097,6 +1139,7 @@ int32_t MmcDeviceAdd(struct MmcDevice *mmc)
     if (mmc->type == MMC_DEV_EMMC || mmc->type == MMC_DEV_SD || mmc->type == MMC_DEV_COMBO) {
         ret = MmcBlockInit(mmc);
         if (ret != HDF_SUCCESS) {
+        HDF_LOGE("MmcDeviceAdd: mmc block init fail, ret: %d!", ret);
             MmcCntlrPut(mmc->cntlr);
             PlatformDeviceDel(&mmc->device);
             return ret;
@@ -1108,6 +1151,7 @@ int32_t MmcDeviceAdd(struct MmcDevice *mmc)
 void MmcDeviceRemove(struct MmcDevice *mmc)
 {
     if (mmc == NULL) {
+        HDF_LOGE("MmcDeviceRemove: mmc is null!");
         return;
     }
     if (mmc->type == MMC_DEV_EMMC || mmc->type == MMC_DEV_SD || mmc->type == MMC_DEV_COMBO) {
@@ -1120,11 +1164,12 @@ void MmcDeviceRemove(struct MmcDevice *mmc)
 struct MmcDevice *MmcDeviceGet(struct MmcDevice *mmc)
 {
     if (mmc == NULL) {
+        HDF_LOGE("MmcDeviceGet: mmc is null!");
         return NULL;
     }
 
     if (PlatformDeviceGet(&mmc->device) != HDF_SUCCESS) {
-        HDF_LOGE("MmcDeviceAdd: get device ref fail!");
+        HDF_LOGE("MmcDeviceGet: get device ref fail!");
         return NULL;
     }
     return mmc;
@@ -1133,6 +1178,7 @@ struct MmcDevice *MmcDeviceGet(struct MmcDevice *mmc)
 void MmcDevicePut(struct MmcDevice *mmc)
 {
     if (mmc == NULL) {
+        HDF_LOGE("MmcDevicePut: mmc is null!");
         return;
     }
     PlatformDevicePut(&mmc->device);

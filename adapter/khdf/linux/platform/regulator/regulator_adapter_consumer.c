@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -40,21 +40,21 @@ static int RegulatorAdapterConsumerPlatformProbe(struct platform_device *platfor
 {
     if (platform_dev != NULL) {
         LinuxRegulatorSetConsumerDev(&platform_dev->dev);
-        HDF_LOGI("%s success", __func__);
+        HDF_LOGI("RegulatorAdapterConsumerPlatformProbe: success!");
         return HDF_SUCCESS;
     }
 
-    HDF_LOGE("%s: fail", __func__);
+    HDF_LOGE("RegulatorAdapterConsumerPlatformProbe: fail!");
     return HDF_FAILURE;
 }
 
 static int RegulatorAdapterConsumerPlatformRemove(struct platform_device *platform_dev)
 {
     if (platform_dev == NULL) {
-        HDF_LOGE("%s: fail", __func__);
+        HDF_LOGE("RegulatorAdapterConsumerPlatformRemove: fail!");
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s: success", __func__);
+    HDF_LOGI("RegulatorAdapterConsumerPlatformRemove: success!");
     return HDF_SUCCESS;
 }
 
@@ -73,7 +73,7 @@ int RegulatorAdapterConsumerInit(void)
 
     ret = platform_device_register(&RegulatorAdapterConsumerPlatformDevice);
     if (ret != 0) {
-        HDF_LOGE("%s: fail", __func__);
+        HDF_LOGE("RegulatorAdapterConsumerInit: fail!");
         return ret;
     }
 
@@ -87,7 +87,7 @@ int __init RegulatorAdapterConsumerModuleInit(void)
 
     ret = platform_device_register(&RegulatorAdapterConsumerPlatformDevice);
     if (ret != 0) {
-        HDF_LOGE("%s: fail", __func__);
+        HDF_LOGE("RegulatorAdapterConsumerModuleInit: fail!");
         return ret;
     }
     ret = platform_driver_register(&RegulatorAdapterConsumerPlatformDriver);

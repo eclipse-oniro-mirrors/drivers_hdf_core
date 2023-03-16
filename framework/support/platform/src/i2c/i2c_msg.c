@@ -21,6 +21,7 @@ int32_t AssignReplayBuffer(uint32_t lenReply, uint8_t **bufReply, struct I2cMsg 
 
     *bufReply = OsalMemCalloc(lenReply);
     if (*bufReply == NULL) {
+        HDF_LOGE("AssignReplayBuffer: memCalloc for bufReply fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     for (i = 0, buf = *bufReply; i < count && buf < (*bufReply + lenReply); i++) {
@@ -45,12 +46,16 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
     uint8_t *buf = NULL;
 
     msgs = OsalMemCalloc(msgSize + sizeof(void *));
+    if (msgs == NULL) {
+        HDF_LOGE("RebuildMsgs: memCalloc for msgs fail!");
+        return HDF_ERR_MALLOC_FAIL;
+    }
     bufReply = (uint8_t **)((uint8_t *)msgs + msgSize);
 
     for (i = 0; i < count; i++) {
         if (!HdfSbufReadBuffer(data, (const void **)&userMsgs, &len) || (userMsgs == NULL) ||
             (len != sizeof(struct I2cUserMsg))) {
-            HDF_LOGE("%s: read userMsgs fail", __func__);
+            HDF_LOGE("RebuildMsgs: read userMsgs fail!");
             OsalMemFree(msgs);
             return HDF_ERR_IO;
         }
@@ -61,7 +66,7 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
         if ((msgs[i].flags & I2C_FLAG_READ) != 0) {
             lenReply += msgs[i].len;
         } else if ((!HdfSbufReadBuffer(data, (const void **)&buf, &len)) || (buf == NULL)) {
-            HDF_LOGE("%s: read msg[%d] buf fail", __func__, i);
+            HDF_LOGE("RebuildMsgs: read msg[%d] buf fail!", i);
         } else {
             msgs[i].len = len;
             msgs[i].buf = buf;
@@ -69,6 +74,7 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
     }
 
     if (lenReply > 0 && AssignReplayBuffer(lenReply, bufReply, msgs, count) != HDF_SUCCESS) {
+        HDF_LOGE("RebuildMsgs: assign replay buffer fail!");
         OsalMemFree(msgs);
         return HDF_FAILURE;
     }
@@ -84,12 +90,12 @@ int32_t I2cMsgsRebuildFromSbuf(struct HdfSBuf *data, struct I2cMsg **msgs, int16
     int32_t ret;
 
     if (!HdfSbufReadInt16(data, &msgCount)) {
-        HDF_LOGE("%s: read count fail", __func__);
+        HDF_LOGE("I2cMsgsRebuildFromSbuf: read count fail!");
         return HDF_ERR_IO;
     }
 
     if (msgCount <= 0) {
-        HDF_LOGE("%s: count %d out of range", __func__, msgCount);
+        HDF_LOGE("I2cMsgsRebuildFromSbuf: count %d out of range!", msgCount);
         return HDF_ERR_OUT_OF_RANGE;
     }
 
@@ -121,6 +127,7 @@ void I2cMsgsFree(struct I2cMsg *msgs, int16_t count)
     uint8_t **bufReply = NULL;
 
     if (msgs == NULL) {
+        HDF_LOGE("I2cMsgsFree: msgs is null!");
         return;
     }
 

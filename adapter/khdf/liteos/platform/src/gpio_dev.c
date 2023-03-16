@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -59,36 +59,36 @@ static int GpioExecCmd(uint16_t gpio, struct GpioBitInfo *info, int cmd)
         case GPIO_SET_DIR:
             ret = GpioSetDir(gpio, info->direction);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: set dir fail:%d", __func__, ret);
+                HDF_LOGE("GpioExecCmd: set dir fail, ret: %d!", ret);
                 return -1;
             }
-            PLAT_LOGV("%s: gpio:%hu set dir:%u done!", __func__, gpio, info->direction);
+            PLAT_LOGV("GpioExecCmd: gpio:%hu set dir:%u done!", gpio, info->direction);
             break;
         case GPIO_GET_DIR:
             ret = GpioGetDir(gpio, &tmp);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: get dir fail:%d", __func__, ret);
+                HDF_LOGE("GpioExecCmd: get dir fail, ret: %d!", ret);
                 return -1;
             }
             info->direction = (unsigned char)tmp;
-            PLAT_LOGV("%s: gpio:%hu get dir:%u done!", __func__, gpio, info->direction);
+            PLAT_LOGV("GpioExecCmd: gpio:%hu get dir:%u done!", gpio, info->direction);
             break;
         case GPIO_READ_BIT:
             ret = GpioRead(gpio, &tmp);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: read gpio fail:%d", __func__, ret);
+                HDF_LOGE("GpioExecCmd: read gpio fail, ret: %d!", ret);
                 return -1;
             }
             info->value = (unsigned char)tmp;
-            PLAT_LOGV("%s: gpio:%hu read:%u done!", __func__, gpio, info->value);
+            PLAT_LOGV("GpioExecCmd: gpio:%hu read:%u done!", gpio, info->value);
             break;
         case GPIO_WRITE_BIT:
             ret = GpioWrite(gpio, info->value);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: write gpio fail:%d", __func__, ret);
+                HDF_LOGE("GpioExecCmd: write gpio fail, ret: %d!", ret);
                 return -1;
             }
-            PLAT_LOGV("%s: gpio:%hu write:%u done!", __func__, gpio, info->value);
+            PLAT_LOGV("GpioExecCmd: gpio:%hu write:%u done!", gpio, info->value);
             break;
         default:
             return -1;
@@ -105,12 +105,12 @@ static int GpioIoctl(struct file *filep, int cmd, unsigned long arg)
     struct drv_data *drvData = NULL;
 
     if (arg == 0) {
-        HDF_LOGE("%s arg is 0", __func__);
+        HDF_LOGE("GpioIoctl: arg is 0!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
-        HDF_LOGE("%s: function parameter is null", __func__);
+        HDF_LOGE("GpioIoctl: function parameter is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -123,7 +123,7 @@ static int GpioIoctl(struct file *filep, int cmd, unsigned long arg)
         return -1;
     }
     gpio = info.groupnumber * bitNum + info.bitnumber;
-    PLAT_LOGV("%s: gn:%u, bn:%u, gpio:%hu", __func__, info.groupnumber, info.bitnumber, gpio);
+    PLAT_LOGV("GpioIoctl: gn:%u, bn:%u, gpio:%hu!", info.groupnumber, info.bitnumber, gpio);
 
     ret = GpioExecCmd(gpio, &info, cmd);
     if (ret != 0) {
@@ -134,7 +134,7 @@ static int GpioIoctl(struct file *filep, int cmd, unsigned long arg)
         ret = LOS_CopyFromKernel((VOID *)(uintptr_t)arg, sizeof(struct GpioBitInfo),
             &info, sizeof(struct GpioBitInfo));
         if (ret != 0) {
-            HDF_LOGE("%s: copy back fail:%d", __func__, ret);
+            HDF_LOGE("GpioIoctl: copy back fail, ret: %d!", ret);
             return -1;
         }
     }
@@ -155,10 +155,10 @@ int32_t GpioAddVfs(uint16_t bitNum)
 
     ret = register_driver(GPIO_VFS_NAME, &g_gpioDevOps, GPIO_VFS_MODE, (void *)(uintptr_t)bitNum);
     if (ret != 0) {
-        HDF_LOGE("%s: register vfs fail:%d", __func__, ret);
+        HDF_LOGE("GpioAddVfs: register vfs fail, ret: %d!", ret);
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s: register vfs success!", __func__);
+    HDF_LOGI("GpioAddVfs: register vfs success!");
     return HDF_SUCCESS;
 }
 
@@ -168,6 +168,6 @@ void GpioRemoveVfs(void)
 
     ret = unregister_driver(GPIO_VFS_NAME);
     if (ret != 0) {
-        HDF_LOGE("%s: unregister vfs fail!", __func__);
+        HDF_LOGE("GpioRemoveVfs: unregister vfs fail, ret: %d!", ret);
     }
 }

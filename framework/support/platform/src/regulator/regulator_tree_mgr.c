@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -20,7 +20,7 @@ static int RegulatorChildNodeAdd(struct RegulatorTreeInfo *pRegulator, struct Re
 
     nodeInfo = (struct RegulatorChildNode *)OsalMemCalloc(sizeof(*nodeInfo));
     if (nodeInfo == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc failed", __func__);
+        HDF_LOGE("RegulatorChildNodeAdd: OsalMemCalloc fail!");
         return HDF_FAILURE;
     }
     nodeInfo->child = child;
@@ -100,7 +100,7 @@ static struct DListHead *RegulatorTreeGetChild(const char *name)
     }
 
     (void)OsalMutexUnlock(&manager->lock);
-    HDF_LOGE("RegulatorTreeGetChild: get %s child failed!", name);
+    HDF_LOGE("RegulatorTreeGetChild: get %s child fail!", name);
     return NULL;
 }
 
@@ -129,13 +129,13 @@ bool RegulatorTreeIsChildAlwayson(const char *name)
     struct RegulatorChildNode *tmp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(nodeInfo, tmp, pList, struct RegulatorChildNode, node) {
         if (nodeInfo->child->regulatorInfo.constraints.alwaysOn) {
-            HDF_LOGD("RegulatorTreeIsChildAlwayson:%s's child %s alwaysOn true!",
+            HDF_LOGD("RegulatorTreeIsChildAlwayson: %s's child %s alwaysOn true!",
                 name, nodeInfo->child->regulatorInfo.name);
             return true;
         }
     }
 
-    HDF_LOGD("RegulatorTreeIsChildAlwayson:%s's all child alwaysOn false!", name);
+    HDF_LOGD("RegulatorTreeIsChildAlwayson: %s's all child alwaysOn false!", name);
     return false;
 }
 
@@ -149,13 +149,13 @@ bool RegulatorTreeIsChildStatusOn(const char *name)
     struct RegulatorChildNode *tmp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(nodeInfo, tmp, pList, struct RegulatorChildNode, node) {
         if (nodeInfo->child->regulatorInfo.status == REGULATOR_STATUS_ON) {
-            HDF_LOGD("RegulatorTreeIsChildAlwayson:%s's child %s status on!",
+            HDF_LOGD("RegulatorTreeIsChildStatusOn: %s's child %s status on!",
                 name, nodeInfo->child->regulatorInfo.name);
             return true;
         }
     }
 
-    HDF_LOGD("RegulatorTreeIsChildAlwayson:%s's all child status off!", name);
+    HDF_LOGD("RegulatorTreeIsChildStatusOn: %s's all child status off!", name);
     return false;
 }
 
@@ -169,12 +169,12 @@ bool RegulatorTreeIsAllChildDisable(const char *name)
     struct RegulatorChildNode *tmp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(nodeInfo, tmp, pList, struct RegulatorChildNode, node) {
         if (nodeInfo->child->regulatorInfo.status == REGULATOR_STATUS_ON) {
-            HDF_LOGI("RegulatorTreeIsAllChildDisable:%s's child %s on!", name, nodeInfo->child->regulatorInfo.name);
+            HDF_LOGI("RegulatorTreeIsAllChildDisable: %s's child %s on!", name, nodeInfo->child->regulatorInfo.name);
             return false;
         }
     }
 
-    HDF_LOGI("RegulatorTreeIsAllChildDisable:%s's all child off!", name);
+    HDF_LOGI("RegulatorTreeIsAllChildDisable: %s's all child off!", name);
     return true;
 }
 
@@ -408,7 +408,7 @@ int RegulatorTreeNodeRemoveAll(void)
 int RegulatorTreeManagerDestory(void)
 {
     if (RegulatorTreeNodeRemoveAll() != HDF_SUCCESS) {
-        HDF_LOGE("func:%s RegulatorTreeNodeRemoveAll failed", __func__);
+        HDF_LOGE("RegulatorTreeManagerDestory: RegulatorTreeNodeRemoveAll fail!");
     }
 
     struct RegulatorTreeManager *manager = g_regulatorTreeManager;
@@ -426,7 +426,7 @@ int RegulatorTreeManagerInit(void)
     CHECK_NULL_PTR_RETURN_VALUE(manager, HDF_FAILURE);
 
     if (OsalMutexInit(&manager->lock) != HDF_SUCCESS) {
-        HDF_LOGE("RegulatorTreeManagerInit: mutex init fail");
+        HDF_LOGE("RegulatorTreeManagerInit: mutex init fail!");
         OsalMemFree(manager);
         return HDF_FAILURE;
     }

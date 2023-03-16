@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -44,17 +44,20 @@ static int32_t UartDevOpen(struct file *filep)
     struct UartHost *host = NULL;
 
     if (filep == NULL || filep->f_vnode == NULL) {
+        HDF_LOGE("UartDevOpen: filep or f_vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
     host = (struct UartHost *)drv->priv;
     return UartHostRequest(host);
 }
+
 static int32_t UartDevRelease(struct file *filep)
 {
     struct UartHost *host = NULL;
 
     if (filep == NULL || filep->f_vnode == NULL) {
+        HDF_LOGE("UartDevRelease: filep or f_vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
@@ -71,6 +74,7 @@ static ssize_t UartDevRead(struct file *filep, char *buf, size_t count)
     struct UartHost *host = NULL;
 
     if (filep == NULL || filep->f_vnode == NULL) {
+        HDF_LOGE("UartDevRead: filep or f_vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
@@ -79,7 +83,7 @@ static ssize_t UartDevRead(struct file *filep, char *buf, size_t count)
     if (LOS_IsUserAddressRange((vaddr_t)(uintptr_t)buf, count)) {
         tmpBuf = (uint8_t *)OsalMemCalloc(count);
         if (tmpBuf == NULL) {
-            HDF_LOGE("%s: OsalMemCalloc error", __func__);
+            HDF_LOGE("UartDevRead: OsalMemCalloc error!");
             return HDF_ERR_MALLOC_FAIL;
         }
         size = UartHostRead(host, tmpBuf, count);
@@ -100,6 +104,7 @@ static ssize_t UartDevWrite(struct file *filep, const char *buf, size_t count)
     struct UartHost *host = NULL;
 
     if (filep == NULL || filep->f_vnode == NULL) {
+        HDF_LOGE("UartDevWrite: filep or f_vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
@@ -108,7 +113,7 @@ static ssize_t UartDevWrite(struct file *filep, const char *buf, size_t count)
     if (LOS_IsUserAddressRange((vaddr_t)(uintptr_t)buf, count)) {
         tmpBuf = (uint8_t *)OsalMemCalloc(count);
         if (tmpBuf == NULL) {
-            HDF_LOGE("%s: OsalMemCalloc error", __func__);
+            HDF_LOGE("UartDevWrite: OsalMemCalloc error!");
             return HDF_ERR_MALLOC_FAIL;
         }
         ret = (int32_t)LOS_ArchCopyFromUser(tmpBuf, buf, count);
@@ -148,11 +153,12 @@ static int32_t UartDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
     struct UartHost *host = NULL;
 
     if (arg == 0) {
-        HDF_LOGE("%s arg is 0", __func__);
+        HDF_LOGE("UartDevIoctl: arg is 0!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (filep == NULL || filep->f_vnode == NULL) {
+        HDF_LOGE("UartDevIoctl: filep or f_vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
@@ -161,7 +167,7 @@ static int32_t UartDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
     switch (cmd) {
         case UART_CFG_BAUDRATE:
             if (arg > ARG_MAX_RANG) {
-                HDF_LOGE("%s arg out of range", __func__);
+                HDF_LOGE("UartDevIoctl: arg out of range!");
                 ret = HDF_ERR_INVALID_PARAM;
                 break;
             }
@@ -182,7 +188,7 @@ static int32_t UartDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
             ret = LOS_OK;
             break;
         default:
-            HDF_LOGE("%s cmd %d not support", __func__, cmd);
+            HDF_LOGE("UartDevIoctl: cmd %d is not support!", cmd);
             ret = HDF_ERR_NOT_SUPPORT;
             break;
     }
@@ -195,6 +201,7 @@ static int uartdev_poll(struct file *filep, poll_table *table)
     struct UartHost *host = NULL;
 
     if (filep == NULL || filep->f_vnode == NULL) {
+        HDF_LOGE("uartdev_poll: filep or f_vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
@@ -222,31 +229,31 @@ static void UartAddRemoveDev(struct UartHost *host, bool add)
     char *devName = NULL;
 
     if (host == NULL || host->priv == NULL) {
-        HDF_LOGE("%s invalid parameter", __func__);
+        HDF_LOGE("UartAddRemoveDev: invalid parameter!");
         return;
     }
 
     devName = (char *)OsalMemCalloc(sizeof(char) * (MAX_DEV_NAME_SIZE + 1));
     if (devName == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc error", __func__);
+        HDF_LOGE("UartAddRemoveDev: OsalMemCalloc error!");
         return;
     }
     ret = snprintf_s(devName, MAX_DEV_NAME_SIZE + 1, MAX_DEV_NAME_SIZE, "/dev/uartdev-%d", host->num);
     if (ret < 0) {
-        HDF_LOGE("%s snprintf_s failed", __func__);
+        HDF_LOGE("UartAddRemoveDev snprintf_s fail!");
         OsalMemFree(devName);
         return;
     }
     if (add) {
         HDF_LOGI("create /dev/uartdev-%d", host->num);
         if (register_driver(devName, &g_uartDevFops, HDF_UART_FS_MODE, host) != HDF_SUCCESS) {
-            HDF_LOGE("%s: gen /dev/uartdev-%d fail!", __func__, host->num);
+            HDF_LOGE("UartAddRemoveDev: gen /dev/uartdev-%d fail!", host->num);
             OsalMemFree(devName);
             return;
         }
     } else {
         if (unregister_driver(devName) != HDF_SUCCESS) {
-            HDF_LOGE("%s: remove /dev/uartdev-%d fail!", __func__, host->num);
+            HDF_LOGE("UartAddRemoveDev: remove /dev/uartdev-%d fail!", host->num);
             OsalMemFree(devName);
             return;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -31,6 +31,7 @@ static int32_t PlatformManagerTestCreateDevices(void)
         g_platDevices[i] = (struct PlatformDevice *)OsalMemCalloc(sizeof(struct PlatformDevice));
         if (g_platDevices[i] == NULL) {
             ret = HDF_ERR_MALLOC_FAIL;
+            PLAT_LOGE("PlatformManagerTestCreateDevices: memcalloc platform device fail, ret: %d!", ret);
             goto CREATE_ERR__;
         }
         g_platDevices[i]->number = i + PLAT_MGR_TEST_DEV_NUM_START;
@@ -38,6 +39,7 @@ static int32_t PlatformManagerTestCreateDevices(void)
         if (ret != HDF_SUCCESS) {
             OsalMemFree(g_platDevices[i]);
             g_platDevices[i] = NULL;
+            PLAT_LOGE("PlatformManagerTestCreateDevices: platform device init fail, ret: %d!", ret);
             goto CREATE_ERR__;
         }
     }
@@ -79,7 +81,7 @@ static int32_t PlatformManagerTestAddAndDel(struct PlatformManager *manager)
     int32_t refCntAfterDel;
     int32_t number;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformManagerTestAddAndDel: enter!");
     // should add first device success
     device0->name = "platform_device0";
     refCntBeforeAdd = PlatformDeviceRefCount(device0);
@@ -127,7 +129,7 @@ static int32_t PlatformManagerTestAddAndDel(struct PlatformManager *manager)
     device0Get = PlatformManagerGetDeviceByNumber(manager, device0->number);
     CHECK_EQ_RETURN(device0Get, NULL, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformManagerTestAddAndDel: exit!");
     return HDF_SUCCESS;
 }
 
@@ -144,7 +146,7 @@ static int32_t PlatformManagerTestGetDevice(struct PlatformManager *manager)
     int32_t refCntBeforePut;
     int32_t refCntAfterPut;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformManagerTestGetDevice: enter!");
     // we add some devices first
     device0->name = "platform_device0";
     ret = PlatformManagerAddDevice(manager, device0);
@@ -186,7 +188,7 @@ static int32_t PlatformManagerTestGetDevice(struct PlatformManager *manager)
     // should dcrease refcount after put
     CHECK_EQ_RETURN(refCntBeforePut, refCntAfterPut + 1, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformManagerTestGetDevice: exit!");
     return HDF_SUCCESS;
 }
 
@@ -196,7 +198,7 @@ static int32_t PlatformManagerTestReliability(struct PlatformManager *manager)
     struct PlatformDevice *device = g_platDevices[0];
     int32_t number = device->number;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformManagerTestReliability: enter!");
     // should not add success when manager is NULL
     ret = PlatformManagerAddDevice(NULL, device);
     CHECK_NE_RETURN(ret, HDF_SUCCESS, HDF_FAILURE);
@@ -215,7 +217,7 @@ static int32_t PlatformManagerTestReliability(struct PlatformManager *manager)
     device = PlatformManagerGetDeviceByName(NULL, "platform_device0");
     CHECK_EQ_RETURN(device, NULL, HDF_FAILURE);
  
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformManagerTestReliability: exit!");
     return HDF_SUCCESS;
 }
 
@@ -254,19 +256,19 @@ int PlatformManagerTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        PLAT_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        PLAT_LOGE("PlatformManagerTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = PlatformManagerCreate("platform_test_manager", &manager);
     if (manager == NULL) {
-        PLAT_LOGE("%s: create manager failed:%d", __func__, ret);
+        PLAT_LOGE("PlatformManagerTestExecute: create manager fail, ret: %d!", ret);
         return HDF_FAILURE;
     }
 
     ret = PlatformManagerTestCreateDevices();
     if (ret != HDF_SUCCESS) {
-        PLAT_LOGE("%s: create devices failed:%d", __func__, ret);
+        PLAT_LOGE("PlatformManagerTestExecute: create devices fail, ret: %d!", ret);
         PlatformManagerDestroy(manager);
         return HDF_FAILURE;
     }

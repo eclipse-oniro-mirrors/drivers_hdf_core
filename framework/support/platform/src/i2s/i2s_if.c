@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,7 +30,7 @@ static struct I2sCntlr *I2sGetCntlrByBusNum(uint32_t num)
     }
     ret = snprintf_s(name, HOST_NAME_LEN + 1, HOST_NAME_LEN, "HDF_PLATFORM_I2S_%u", num);
     if (ret < 0) {
-        HDF_LOGE("%s: snprintf_s failed", __func__);
+        HDF_LOGE("I2sGetCntlrByBusNum: snprintf_s fail!");
         OsalMemFree(name);
         return NULL;
     }
@@ -42,14 +42,15 @@ static struct I2sCntlr *I2sGetCntlrByBusNum(uint32_t num)
 void I2sEnable(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sEnable: cntlr is null!");
         return;
     }
 
     int ret = I2sCntlrEnable(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrEnable fail", __func__);
+        HDF_LOGE("I2sEnable: i2s cntlr enable fail!");
         return;
     }
 }
@@ -57,14 +58,15 @@ void I2sEnable(DevHandle handle)
 void I2sDisable(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sDisable: cntlr is null!");
         return;
     }
 
     int ret = I2sCntlrDisable(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrDisable fail", __func__);
+        HDF_LOGE("I2sDisable: i2s cntlr disable fail!");
         return;
     }
 }
@@ -72,64 +74,69 @@ void I2sDisable(DevHandle handle)
 void I2sStartWrite(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sStartWrite: cntlr is null!");
         return;
     }
 
     int ret = I2sCntlrStartWrite(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrStartWrite fail", __func__);
+        HDF_LOGE("I2sStartWrite: i2s cntlr start write fail!");
     }
 }
 
 void I2sStopWrite(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sStopWrite: cntlr is null!");
         return;
     }
 
     int ret = I2sCntlrStopWrite(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrStopWrite fail", __func__);
+        HDF_LOGE("I2sStopWrite: i2s cntlr stop write fail!");
     }
 }
 
 void I2sStartRead(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sStartRead: cntlr is null!");
         return;
     }
 
     int ret = I2sCntlrStartRead(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sStartRead fail", __func__);
+        HDF_LOGE("I2sStartRead: i2s cntlr start read fail!");
     }
 }
 
 void I2sStopRead(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sStopRead: cntlr is null");
         return;
     }
 
     int ret = I2sCntlrStopRead(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrStopWrite fail", __func__);
+        HDF_LOGE("I2sStopRead: i2s cntlr stop read fail!");
     }
 }
 
 int32_t I2sWrite(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pWlen)
 {
     struct I2sMsg msg = {0};
+
     if (pWlen == NULL) {
-        HDF_LOGE("%s: pWlen is null", __func__);
+        HDF_LOGE("I2sWrite: pWlen is null!");
         return HDF_FAILURE;
     }
     *pWlen = 0;
@@ -141,7 +148,7 @@ int32_t I2sWrite(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pWlen)
         OsalMSleep(I2S_DATA_TRANSFER_PERIOD);
         int ret = I2sCntlrTransfer((struct I2sCntlr *)handle, &msg);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: I2sCntlrTransfer fail", __func__);
+            HDF_LOGE("I2sWrite: i2s cntlr transfer fail!");
         }
     } while (*pWlen == 0);
 
@@ -151,8 +158,9 @@ int32_t I2sWrite(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pWlen)
 int32_t I2sRead(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pRlen)
 {
     struct I2sMsg msg = {0};
+
     if (pRlen == NULL) {
-        HDF_LOGE("%s: pRlen is null", __func__);
+        HDF_LOGE("I2sRead: pRlen is null!");
         return HDF_FAILURE;
     }
     *pRlen = 0;
@@ -164,7 +172,7 @@ int32_t I2sRead(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pRlen)
         OsalMSleep(I2S_DATA_TRANSFER_PERIOD);
         int ret = I2sCntlrTransfer((struct I2sCntlr *)handle, &msg);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: I2sCntlrTransfer fail", __func__);
+            HDF_LOGE("I2sRead: i2s cntlr transfer fail!");
         }
     } while (*pRlen == 0);
 
@@ -177,13 +185,13 @@ DevHandle I2sOpen(int16_t number)
 
     cntlr = I2sGetCntlrByBusNum(number);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sOpen: cntlr is null!");
         return NULL;
     }
 
     int ret = I2sCntlrOpen(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrOpen fail", __func__);
+        HDF_LOGE("I2sOpen: i2s cntlr open fail!");
         return NULL;
     }
 
@@ -193,41 +201,43 @@ DevHandle I2sOpen(int16_t number)
 void I2sClose(DevHandle handle)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("I2sClose: cntlr is null!");
         return;
     }
 
     int ret = I2sCntlrClose(cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sClose fail", __func__);
+        HDF_LOGE("I2sClose: i2s cntlr close fail!");
     }
 }
 
 void I2sSetCfg(DevHandle handle, struct I2sCfg *cfg)
 {
-    if (handle == NULL || cfg == NULL) {
-        HDF_LOGE("%s: cntlr or cfg is null", __func__);
+    struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
+    if (cntlr == NULL || cfg == NULL) {
+        HDF_LOGE("I2sSetCfg: cntlr or cfg is null!");
         return;
     }
 
-    struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
-
     int ret = I2sCntlrSetCfg(cntlr, cfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrSetCfg fail", __func__);
+        HDF_LOGE("I2sSetCfg: i2s cntlr set cfg fail!");
     }
 }
 void I2sGetCfg(DevHandle handle, struct I2sCfg *cfg)
 {
     struct I2sCntlr *cntlr = (struct I2sCntlr *)handle;
+
     if (cntlr == NULL || cfg == NULL) {
-        HDF_LOGE("%s: cntlr or cfg is null", __func__);
+        HDF_LOGE("I2sGetCfg: cntlr or cfg is null!");
         return;
     }
 
     int ret = I2sCntlrGetCfg(cntlr, cfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: I2sCntlrSetCfg fail", __func__);
+        HDF_LOGE("I2sGetCfg: i2s cntlr get cfg fail!");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -67,7 +67,7 @@ static int g_virStatus = VIR_REGULATOR_STATUS_OFF;
 static int VirtualCurrentRegulatorEnable(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorEnable: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -78,7 +78,7 @@ static int VirtualCurrentRegulatorEnable(struct regulator_dev *rdev)
 static int VirtualCurrentRegulatorDisable(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorDisable: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -89,7 +89,7 @@ static int VirtualCurrentRegulatorDisable(struct regulator_dev *rdev)
 static int VirtualCurrentRegulatorIsEnabled(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorIsEnabled: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -100,7 +100,7 @@ static int VirtualCurrentRegulatorSetCurrent(struct regulator_dev *rdev, int min
     int maxUa)
 {
     if ((rdev == NULL) || (rdev->constraints == NULL)) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorSetCurrent: rdev or constraints is null!");
         return HDF_FAILURE;
     }
 
@@ -117,7 +117,7 @@ static int VirtualCurrentRegulatorSetCurrent(struct regulator_dev *rdev, int min
 static int VirtualCurrentRegulatorGetCurrent(struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
-        HDF_LOGE("%s: rdev NULL", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorGetCurrent: rdev is null!");
         return HDF_FAILURE;
     }
 
@@ -142,7 +142,7 @@ static struct regulator_desc g_virtualCurrentRegulatorDesc = {
 static int VirtualCurrentRegulatorPlatformProbe(struct platform_device *platformDev)
 {
     if (platformDev == NULL) {
-        HDF_LOGE("%s: platformDev null!", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorPlatformProbe: platformDev is null!");
         return HDF_FAILURE;
     }
     struct VirtualCurrentRegulatorDev *data;
@@ -150,7 +150,7 @@ static int VirtualCurrentRegulatorPlatformProbe(struct platform_device *platform
 
     data = devm_kzalloc(&platformDev->dev, sizeof(*data), GFP_KERNEL);
     if (!data) {
-        HDF_LOGE("%s: devm_kzalloc error!", __func__);
+        HDF_LOGE("VirtualCurrentRegulatorPlatformProbe: devm_kzalloc error!");
         return -ENOMEM;
     }
     config.dev = &platformDev->dev;
@@ -159,12 +159,13 @@ static int VirtualCurrentRegulatorPlatformProbe(struct platform_device *platform
 
     data->dev = regulator_register(&g_virtualCurrentRegulatorDesc, &config);
     if (IS_ERR(data->dev)) {
-        HDF_LOGE("%s: failed to register regulator %s\n", __func__, g_virtualCurrentRegulatorDesc.name);
+        HDF_LOGE("VirtualCurrentRegulatorPlatformProbe: fail to register regulator %s\n",
+            g_virtualCurrentRegulatorDesc.name);
         return PTR_ERR(data->dev);
     }
 
     platform_set_drvdata(platformDev, data);
-    HDF_LOGI("%s: success", __func__);
+    HDF_LOGI("VirtualCurrentRegulatorPlatformProbe: success!");
     return 0;
 }
 
@@ -175,7 +176,7 @@ static int VirtualCurrentRegulatorPlatformRemove(struct platform_device *platfor
     regulator_unregister(rdev->dev);
 
     platform_set_drvdata(platformDev, NULL);
-    HDF_LOGI("%s: success", __func__);
+    HDF_LOGI("VirtualCurrentRegulatorPlatformRemove: success!");
     return 0;
 }
 
@@ -194,7 +195,7 @@ int VirtualCurrentRegulatorAdapterInit(void)
     if (ret == 0) {
         ret = platform_driver_register(&g_virtualCurrentRegulatorPlatformDriver);
     } else {
-        HDF_LOGE("%s:device register fail %d", __func__, ret);
+        HDF_LOGE("VirtualCurrentRegulatorAdapterInit:device register fail, ret: %d!", ret);
     }
     return ret;
 }

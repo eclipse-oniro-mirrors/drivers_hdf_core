@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -23,7 +23,7 @@ static void *UartGetObjGetByBusNum(uint32_t num)
 
     ret = snprintf_s(name, UART_HOST_NAME_LEN + 1, UART_HOST_NAME_LEN, "HDF_PLATFORM_UART_%u", num);
     if (ret < 0) {
-        HDF_LOGE("%s: snprintf_s failed", __func__);
+        HDF_LOGE("UartGetObjGetByBusNum: snprintf_s fail!");
         return NULL;
     }
 
@@ -33,6 +33,7 @@ static void *UartGetObjGetByBusNum(uint32_t num)
 static void UartPutObjByPointer(const void *obj)
 {
     if (obj == NULL) {
+        HDF_LOGE("UartPutObjByPointer: obj is null!");
         return;
     }
 }
@@ -44,12 +45,12 @@ DevHandle UartOpen(uint32_t port)
 
     handle = UartGetObjGetByBusNum(port);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle error", __func__);
+        HDF_LOGE("UartOpen: get handle error!");
         return NULL;
     }
     ret = UartHostRequest((struct UartHost *)handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: UartHostRequest error, ret %d", __func__, ret);
+        HDF_LOGE("UartOpen: uart host request error, ret: %d!", ret);
         UartPutObjByPointer(handle);
         return NULL;
     }
@@ -60,12 +61,12 @@ void UartClose(DevHandle handle)
 {
     int32_t ret;
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is NULL", __func__);
+        HDF_LOGE("UartClose: handle is null!");
         return;
     }
     ret = UartHostRelease((struct UartHost *)handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: UartHostRelease error, ret %d", __func__, ret);
+        HDF_LOGE("UartClose: uart host release error, ret: %d!", ret);
     }
     UartPutObjByPointer(handle);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,15 +22,15 @@ static int32_t TimerTestDispatch(struct HdfDeviceIoClient *client, int cmd, stru
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("TimerTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("TimerTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
-        HDF_LOGE("%s: cmd not support", __func__);
+        HDF_LOGE("TimerTestDispatch: cmd: %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -44,30 +44,30 @@ static int32_t TimerTestReadConfig(struct TimerTestConfig *config, const struct 
 
     face = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (face == NULL) {
-        HDF_LOGE("%s: face is null", __func__);
+        HDF_LOGE("TimerTestReadConfig: face is null!");
         return HDF_FAILURE;
     }
     if (face->GetUint32 == NULL) {
-        HDF_LOGE("%s: GetUint32 not support", __func__);
+        HDF_LOGE("TimerTestReadConfig: GetUint32 not support!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = face->GetUint32(node, "number", &config->number, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read id fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("TimerTestReadConfig: read id fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = face->GetUint32(node, "useconds", &config->uSecond, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read useconds fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("TimerTestReadConfig: read useconds fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = face->GetUint32(node, "isPeriod", &config->isPeriod, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read isPeriod fail!", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("TimerTestReadConfig: read isPeriod fail, ret: %d!", ret);
+        return ret;
     }
 
     HDF_LOGD("timer test init:number[%u][%u][%d]", config->number, config->uSecond, config->isPeriod);
@@ -81,13 +81,13 @@ static int32_t TimerTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("TimerTestBind: device or config is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = TimerTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("TimerTestBind: read config fail, ret: %d!", ret);
         return ret;
     }
 
@@ -107,7 +107,7 @@ static void TimerTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("TimerTestRelease: done!");
     return;
 }
 

@@ -20,7 +20,7 @@ static int32_t PcieCntlrInit(struct PcieCntlr *cntlr)
     int32_t ret;
 
     if (cntlr == NULL || cntlr->hdfDevObj == NULL) {
-        HDF_LOGE("PcieCntlrInit: cntlr or hdfDevObj is NULL!");
+        HDF_LOGE("PcieCntlrInit: cntlr or hdfDevObj is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -49,12 +49,13 @@ int32_t PcieCntlrAdd(struct PcieCntlr *cntlr)
     int32_t ret;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid param", __func__);
+        HDF_LOGE("PcieCntlrAdd: invalid param!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = PcieCntlrInit(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("PcieCntlrAdd: pcie cntlr init fail!");
         return ret;
     }
 
@@ -83,13 +84,13 @@ int32_t PcieCntlrParse(struct PcieCntlr *cntlr, struct HdfDeviceObject *obj)
     int32_t ret;
 
     if (obj == NULL || cntlr == NULL) {
-        HDF_LOGE("PcieCntlrParse: input param is NULL.");
+        HDF_LOGE("PcieCntlrParse: input param is null!");
         return HDF_FAILURE;
     }
 
     node = obj->property;
     if (node == NULL) {
-        HDF_LOGE("PcieCntlrParse: drs node is NULL.");
+        HDF_LOGE("PcieCntlrParse: drs node is null!");
         return HDF_FAILURE;
     }
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
@@ -231,7 +232,7 @@ void PcieCntlrUnregisterIrq(struct PcieCntlr *cntlr)
 int32_t PcieCntlrCallback(struct PcieCntlr *cntlr)
 {
     if (cntlr == NULL) {
-        HDF_LOGE("PcieCntlrCallback: cntlr is NULL");
+        HDF_LOGE("PcieCntlrCallback: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->cb != NULL) {
@@ -243,7 +244,7 @@ int32_t PcieCntlrCallback(struct PcieCntlr *cntlr)
 int32_t PcieCntlrDmaCallback(struct PcieCntlr *cntlr)
 {
     if (cntlr == NULL) {
-        HDF_LOGE("PcieCntlrDmaCallback: cntlr is NULL");
+        HDF_LOGE("PcieCntlrDmaCallback: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->dmaCb != NULL) {

@@ -26,7 +26,7 @@ static struct PlatformManager *CanManagerGet(void)
     if (g_manager == NULL) {
         ret = PlatformManagerCreate("CAN_BUS_MANAGER", &g_manager);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("CanManagerGet: careate can manager failed:%d", ret);
+            HDF_LOGE("CanManagerGet: create can manager fail, ret: %d!", ret);
         }
     }
     return g_manager;
@@ -46,7 +46,7 @@ static int32_t CanIrqThreadWorker(void *data)
     struct CanCntlr *cntlr = (struct CanCntlr *)data;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+        HDF_LOGE("CanIrqThreadWorker: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -62,7 +62,7 @@ static int32_t CanIrqThreadWorker(void *data)
         }
         ret = CanCntlrOnNewMsg(cntlr, cntlr->irqMsg);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: CanCntlrOnNewMsg fail", __func__);
+            HDF_LOGE("CanIrqThreadWorker: CanCntlrOnNewMsg fail!");
         }
         cntlr->irqMsg = NULL;
         cntlr->threadStatus &= ~CAN_THREAD_PENDING;
@@ -78,18 +78,18 @@ static int32_t CanCntlrCreateThread(struct CanCntlr *cntlr)
     struct OsalThreadParam config;
 
     if (memset_s(&config, sizeof(config), 0, sizeof(config)) != EOK) {
-        HDF_LOGE("CanCntlrCreateThread:memset_s fail.");
+        HDF_LOGE("CanCntlrCreateThread: memset_s fail!");
         return HDF_ERR_IO;
     }
     ret = OsalSemInit(&cntlr->sem, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("CanCntlrCreateThread: sem init fail.");
+        HDF_LOGE("CanCntlrCreateThread: sem init fail!");
         return ret;
     }
 
     ret = OsalThreadCreate(&cntlr->thread, (OsalThreadEntry)CanIrqThreadWorker, cntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("CanCntlrCreateThread: thread create fail.");
+        HDF_LOGE("CanCntlrCreateThread: thread create fail!");
         (void)OsalSemDestroy(&cntlr->sem);
         return ret;
     }
@@ -100,7 +100,7 @@ static int32_t CanCntlrCreateThread(struct CanCntlr *cntlr)
     cntlr->threadStatus = 0;
     ret = OsalThreadStart(&cntlr->thread, &config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("CanCntlrCreateThread: thread start fail.");
+        HDF_LOGE("CanCntlrCreateThread: thread start fail!");
         OsalThreadDestroy(&cntlr->thread);
         (void)OsalSemDestroy(&cntlr->sem);
         return ret;
@@ -116,23 +116,23 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
     }
 
     if (cntlr->number < 0 || cntlr->number >= CAN_NUMBER_MAX) {
-        HDF_LOGE("CanCntlrCheckAndInit: invlaid can num:%d", cntlr->number);
+        HDF_LOGE("CanCntlrCheckAndInit: invlaid can num:%d!", cntlr->number);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     DListHeadInit(&cntlr->rxBoxList);
 
     if (CanCntlrCreateThread(cntlr) != HDF_SUCCESS) {
-        HDF_LOGE("CanCntlrCheckAndInit: create thread failed");
+        HDF_LOGE("CanCntlrCheckAndInit: create thread fail!");
         return HDF_FAILURE;
     }
     if (OsalMutexInit(&cntlr->lock) != HDF_SUCCESS) {
-        HDF_LOGE("CanCntlrCheckAndInit: init lock failed");
+        HDF_LOGE("CanCntlrCheckAndInit: init lock fail!");
         return HDF_FAILURE;
     }
 
     if (OsalMutexInit(&cntlr->rboxListLock) != HDF_SUCCESS) {
-        HDF_LOGE("CanCntlrCheckAndInit: init rx box list lock failed");
+        HDF_LOGE("CanCntlrCheckAndInit: init rx box list lock fail!");
         (void)OsalMutexDestroy(&cntlr->lock);
         return HDF_FAILURE;
     }
@@ -143,7 +143,7 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
 
     cntlr->msgPool = CanMsgPoolCreate(cntlr->msgPoolSize);
     if (cntlr->msgPool == NULL) {
-        HDF_LOGE("CanCntlrCheckAndInit: create can msg pool failed");
+        HDF_LOGE("CanCntlrCheckAndInit: create can msg pool fail!");
         (void)OsalMutexDestroy(&cntlr->rboxListLock);
         (void)OsalMutexDestroy(&cntlr->lock);
         return HDF_FAILURE;
@@ -171,13 +171,13 @@ static void CanCntlrDestroyThread(struct CanCntlr *cntlr)
 
 static void CanCntlrDeInit(struct CanCntlr *cntlr)
 {
-    HDF_LOGD("CanCntlrDeInit: enter");
+    HDF_LOGD("CanCntlrDeInit: enter!");
     CanCntlrDestroyThread(cntlr);
     CanMsgPoolDestroy(cntlr->msgPool);
     cntlr->msgPool = NULL;
     (void)OsalMutexDestroy(&cntlr->rboxListLock);
     (void)OsalMutexDestroy(&cntlr->lock);
-    HDF_LOGD("CanCntlrDeInit: exit");
+    HDF_LOGD("CanCntlrDeInit: exit!");
 }
 
 int32_t CanCntlrAdd(struct CanCntlr *cntlr)
@@ -186,6 +186,7 @@ int32_t CanCntlrAdd(struct CanCntlr *cntlr)
 
     ret = CanCntlrCheckAndInit(cntlr);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("CanCntlrAdd: can cntlr check and init fail!");
         return ret;
     }
 
@@ -193,6 +194,7 @@ int32_t CanCntlrAdd(struct CanCntlr *cntlr)
     ret = PlatformDeviceSetName(&cntlr->device, "CAN%d", cntlr->number);
     if (ret != HDF_SUCCESS) {
         CanCntlrDeInit(cntlr);
+        HDF_LOGE("CanCntlrAdd: set name for platform device fail!");
         return ret;
     }
 
@@ -200,22 +202,25 @@ int32_t CanCntlrAdd(struct CanCntlr *cntlr)
     if (cntlr->device.manager == NULL) {
         PlatformDeviceClearName(&cntlr->device);
         CanCntlrDeInit(cntlr);
+        HDF_LOGE("CanCntlrAdd: get can manager fail!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     if ((ret = PlatformDeviceAdd(&cntlr->device)) != HDF_SUCCESS) {
         PlatformDeviceClearName(&cntlr->device);
         CanCntlrDeInit(cntlr);
+        HDF_LOGE("CanCntlrAdd: add platform device fail!");
         return ret;
     }
 
-    HDF_LOGI("CanCntlrAdd: add controller %d success", cntlr->number);
+    HDF_LOGI("CanCntlrAdd: add controller %d success!", cntlr->number);
     return HDF_SUCCESS;
 }
 
 int32_t CanCntlrDel(struct CanCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("CanCntlrDel: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -225,7 +230,7 @@ int32_t CanCntlrDel(struct CanCntlr *cntlr)
     CanCntlrDeInit(cntlr);
 
     CanManagerDestroyIfNeed();
-    HDF_LOGI("CanCntlrDel: del controller %d success", cntlr->number);
+    HDF_LOGI("CanCntlrDel: del controller %d success!", cntlr->number);
     return HDF_SUCCESS;
 }
 
@@ -241,11 +246,13 @@ struct CanCntlr *CanCntlrGetByName(const char *name)
 
     manager = CanManagerGet();
     if (manager == NULL) {
+        HDF_LOGE("CanCntlrGetByName: get can manager fail!");
         return NULL;
     }
 
     pdevice = PlatformManagerGetDeviceByName(manager, name);
     if (pdevice == NULL) {
+        HDF_LOGE("CanCntlrGetByName: get platform device fail!");
         return NULL;
     }
 
@@ -259,11 +266,13 @@ struct CanCntlr *CanCntlrGetByNumber(int32_t number)
 
     manager = CanManagerGet();
     if (manager == NULL) {
+        HDF_LOGE("CanCntlrGetByNumber: get can manager fail!");
         return NULL;
     }
 
     pdevice = PlatformManagerGetDeviceByNumber(manager, number);
     if (pdevice == NULL) {
+        HDF_LOGE("CanCntlrGetByNumber: get platform device fail!");
         return NULL;
     }
 

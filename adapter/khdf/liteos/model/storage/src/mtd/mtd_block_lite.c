@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -120,6 +120,7 @@ int32_t MtdBlockOsInit(struct MtdDevice *mtdDevice)
     const char *devPath = NULL;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdBlockOsInit: register block dev(%s) fail, ret: %d!", devPath, ret);
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -133,10 +134,10 @@ int32_t MtdBlockOsInit(struct MtdDevice *mtdDevice)
 
     ret = register_blockdriver(devPath, GetDevNandOps(), MTD_LITE_BLOCK_DRV_MODE, mtdDevice);
     if (ret != 0) {
-        HDF_LOGE("%s: register block dev(%s) failed: %d", __func__, devPath, ret);
+        HDF_LOGE("MtdBlockOsInit: register block dev(%s) fail, ret: %d!", devPath, ret);
         return HDF_PLT_ERR_OS_API;
     }
-    HDF_LOGI("%s: register block dev(%s) success", __func__, devPath);
+    HDF_LOGI("MtdBlockOsInit: register block dev(%s) success!", devPath);
     return HDF_SUCCESS;
 }
 

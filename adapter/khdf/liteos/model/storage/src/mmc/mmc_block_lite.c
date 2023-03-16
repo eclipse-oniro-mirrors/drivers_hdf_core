@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -71,6 +71,7 @@ char *StorageBlockGetEmmcNodeName(void *block)
     struct MmcBlock *mb = (struct MmcBlock *)block;
 
     if (mb == NULL) {
+        HDF_LOGE("StorageBlockGetEmmcNodeName: mmc block is null!");
         return NULL;
     }
     return mb->name;
@@ -95,17 +96,18 @@ static ssize_t LiteosBlockRead(FAR struct Vnode *vnode, FAR unsigned char *buf,
     struct MmcBlock *mb = NULL;
 
     if (vnode == NULL || vnode->data == NULL) {
-        HDF_LOGE("%s: vnode is NULL or data of vnode is NULL", __func__);
+        HDF_LOGE("LiteosBlockRead: vnode is null or data of vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     max = (size_t)(-1);
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
 
     if (secStart >= max || nSecs >= max) {
+        HDF_LOGE("LiteosBlockRead: secStart or nSecs is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (mb == NULL) {
-        HDF_LOGE("%s: mmc block is null", __func__);
+        HDF_LOGE("LiteosBlockRead: mmc block is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -119,17 +121,18 @@ static ssize_t LiteosBlockWrite(FAR struct Vnode *vnode, FAR const unsigned char
     struct MmcBlock *mb = NULL;
 
     if (vnode == NULL || vnode->data == NULL) {
-        HDF_LOGE("%s: vnode is NULL or data of vnode is NULL", __func__);
+        HDF_LOGE("LiteosBlockWrite: vnode is null or data of vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     max = (size_t)(-1);
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
 
     if (secStart >= max || nSecs >= max) {
+        HDF_LOGE("LiteosBlockWrite: secStart or nSecs is invaild!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (mb == NULL) {
-        HDF_LOGE("%s: mmc block is null", __func__);
+        HDF_LOGE("LiteosBlockWrite: mmc block is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -141,14 +144,16 @@ static int LiteosBlockGeometry(FAR struct Vnode *vnode, FAR struct geometry *geo
     struct MmcBlock *mb = NULL;
 
     if (vnode == NULL || vnode->data == NULL) {
-        HDF_LOGE("%s: vnode is NULL or data of vnode is NULL", __func__);
+        HDF_LOGE("LiteosBlockGeometry: vnode is null or data of vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
     if (mb == NULL) {
+        HDF_LOGE("LiteosBlockGeometry: mmc block is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (geometry == NULL) {
+        HDF_LOGE("LiteosBlockGeometry: geometry is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     geometry->geo_available    = true;
@@ -166,20 +171,22 @@ static int32_t LiteosBlockSaveGeometry(FAR struct Vnode *vnode, unsigned long ar
     struct RtDeviceBlkGeometry rtGeo = {0};
 
     if (vnode == NULL || vnode->data == NULL) {
-        HDF_LOGE("%s: vnode is NULL or data of vnode is NULL", __func__);
+        HDF_LOGE("LiteosBlockSaveGeometry: vnode is null or data of vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = LiteosBlockGeometry(vnode, &gm);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("LiteosBlockSaveGeometry: block geometry fail, ret: %d!", ret);
         return ret;
     }
     rtGeo.sectorCount = gm.geo_nsectors;
     rtGeo.bytesPerSector = gm.geo_sectorsize;
     rtGeo.blockSize = RT_BLOCK_SIZE;
     ret = LOS_CopyFromKernel((void *)(uintptr_t)arg, sizeof(struct RtDeviceBlkGeometry),
-              &rtGeo, sizeof(struct RtDeviceBlkGeometry));
+        &rtGeo, sizeof(struct RtDeviceBlkGeometry));
     if (ret != 0) {
+        HDF_LOGE("LiteosBlockSaveGeometry: copy from kernel fail, ret: %d!", ret);
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -191,13 +198,13 @@ static int32_t MmcBlockGetAuSize(struct MmcBlock *mb, uint32_t *auSize)
     struct SdDevice *sd = NULL;
 
     if (mb == NULL || mb->mmc == NULL) {
-        HDF_LOGE("%s: mmc block or device is null", __func__);
+        HDF_LOGE("MmcBlockGetAuSize: mmc block or device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     mmc = (struct MmcDevice *)mb->mmc;
     if (mmc->type != MMC_DEV_SD) {
-        HDF_LOGE("%s: media is not sd", __func__);
+        HDF_LOGE("MmcBlockGetAuSize: media is not sd!");
         return HDF_ERR_NOT_SUPPORT;
     }
     sd = (struct SdDevice *)mmc;
@@ -215,7 +222,7 @@ static int32_t LiteosBlockIoctl(FAR struct Vnode *vnode, int cmd, unsigned long 
     struct MmcBlock *mb = NULL;
 
     if (vnode == NULL || vnode->data == NULL) {
-        HDF_LOGE("%s: vnode is NULL or data of vnode is NULL", __func__);
+        HDF_LOGE("LiteosBlockIoctl: vnode is null or data of vnode is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -282,12 +289,13 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
     struct MmcBlock *mb = NULL;
 
     if (mmcDevice == NULL || mmcDevice->mb == NULL) {
+        HDF_LOGE("MmcBlockOsInit: mmcDevice or mmc block is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     mb = mmcDevice->mb;
 
     if (mb->name[0] == '\0') {
-        HDF_LOGE("%s: mmc block name invalid", __func__);
+        HDF_LOGE("MmcBlockOsInit: mmc block name invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -299,13 +307,13 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
 
     ret = los_disk_init(mb->name, &g_blockOps, (void *)mb, diskId, info);
     if (ret != ENOERR) {
-        HDF_LOGE("%s: los_disk_init fail:%d", __func__, ret);
+        HDF_LOGE("MmcBlockOsInit: los_disk_init fail, ret: %d!", ret);
         return ret;
     }
 
     mb->osData = get_disk(diskId);
     if (mb->osData == NULL) {
-        HDF_LOGE("%s: los_disk_init fail:%d", __func__, ret);
+        HDF_LOGE("MmcBlockOsInit: los_disk_init fail, ret: %d!", ret);
         return HDF_PLT_ERR_OS_API;
     }
 
@@ -322,6 +330,7 @@ void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
     struct MmcBlock *mb = NULL;
 
     if (mmcDevice == NULL || mmcDevice->mb == NULL) {
+        HDF_LOGE("MmcBlockOsUninit: mmcDevice or mmc block is null!");
         return;
     }
     mb = mmcDevice->mb;

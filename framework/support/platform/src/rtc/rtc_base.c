@@ -40,7 +40,7 @@ uint8_t RtcIsInvalidDay(const uint8_t day, const uint8_t month, const uint16_t y
 uint8_t RtcIsInvalid(const struct RtcTime *time)
 {
     if (time == NULL) {
-        HDF_LOGE("RtcIsInvalid: time null");
+        HDF_LOGE("RtcIsInvalid: time is null!");
         return RTC_FALSE;
     }
 
@@ -58,7 +58,7 @@ uint8_t RtcGetWeekDay(const struct RtcTime *time)
 
     if ((time == NULL) || IS_INVALID_MONTH(time->month) || IS_INVALID_YEAR(time->year) ||
         (RtcIsInvalidDay(time->day, time->month, time->year) == RTC_TRUE)) {
-        HDF_LOGE("RtcGetWeekDay: time invalid");
+        HDF_LOGE("RtcGetWeekDay: time is invalid!");
         return RTC_FALSE;
     }
 
@@ -85,10 +85,10 @@ uint64_t RtcTimeToTimestamp(const struct RtcTime *time)
     int8_t month;
 
     if (time == NULL) {
-        HDF_LOGE("RtcTimeToTimestamp: time null");
+        HDF_LOGE("RtcTimeToTimestamp: time is null!");
         return RTC_FALSE;
     }
-    PLAT_LOGV("RtcToTimestamp:year-month-day hour:min:second ms %04u-%02u-%02u %02u:%02u:%02u .%03u",
+    PLAT_LOGV("RtcToTimestamp: year-month-day hour:min:second ms %04u-%02u-%02u %02u:%02u:%02u .%03u",
         time->year, time->month, time->day, time->hour, time->minute, time->second, time->millisecond);
     if (RtcIsInvalid(time) == RTC_TRUE) {
         HDF_LOGE("RtcTimeToTimestamp: time invalid");
@@ -118,7 +118,7 @@ void TimestampToRtcTime(struct RtcTime *time, const uint64_t seconds)
     uint32_t days = (uint32_t)(seconds / RTC_DAY_SECONDS);
 
     if (time == NULL) {
-        HDF_LOGE("TimestampToRtcTime: rtc null!");
+        HDF_LOGE("TimestampToRtcTime: time is null!");
         return;
     }
 
@@ -141,7 +141,7 @@ void TimestampToRtcTime(struct RtcTime *time, const uint64_t seconds)
 
     time->day += RTC_UNIT_DIFF;
     time->weekday = RtcGetWeekDay(time);
-    PLAT_LOGV("TimestampToRtc:year-month-day weekday hour:min:second ms %04u-%02u-%02u %u %02u:%02u:%02u .%03u",
+    PLAT_LOGV("TimestampToRtc: year-month-day weekday hour:min:second ms %04u-%02u-%02u %u %02u:%02u:%02u .%03u",
         time->year, time->month, time->day, time->weekday, time->hour, time->minute, time->second, time->millisecond);
 }
 #endif

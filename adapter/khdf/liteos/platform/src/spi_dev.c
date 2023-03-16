@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@
 static struct SpiDev *SpiDevGetDevFromFilep(struct file *filep)
 {
     if (filep == NULL) {
-        HDF_LOGE("%s: filep is invalid", __func__);
+        HDF_LOGE("SpiDevGetDevFromFilep: filep is invalid!");
         return NULL;
     }
 
@@ -50,7 +50,7 @@ static struct SpiDev *SpiDevGetDevFromFilep(struct file *filep)
     struct SpiDev *dev = (struct SpiDev *)(((struct drv_data *)vnode->data)->priv);
 
     if (dev == NULL || dev->cntlr == NULL) {
-        HDF_LOGE("%s: dev is invalid", __func__);
+        HDF_LOGE("SpiDevGetDevFromFilep: dev is invalid!");
         return NULL;
     }
     return dev;
@@ -62,9 +62,10 @@ static int32_t SpiDevOpen(struct file *filep)
 
     dev = SpiDevGetDevFromFilep(filep);
     if (dev == NULL) {
+        HDF_LOGE("SpiDevOpen: dev is null!");
         return HDF_ERR_INVALID_PARAM;
     }
-    HDF_LOGE("%s: spi bus is %d, cs is %d", __func__, dev->cntlr->busNum, dev->csNum);
+    HDF_LOGE("SpiDevOpen: spi bus is %d, cs is %d!", dev->cntlr->busNum, dev->csNum);
     return HDF_SUCCESS;
 }
 
@@ -76,11 +77,12 @@ static ssize_t SpiDevRead(struct file *filep, char *buf, size_t size)
     struct SpiDev *dev = NULL;
 
     if (buf == NULL || size == 0) {
-        HDF_LOGE("%s: buf or size %d is invalid", __func__, size);
+        HDF_LOGE("SpiDevRead: buf or size %d is invalid!", size);
         return HDF_ERR_INVALID_PARAM;
     }
     dev = SpiDevGetDevFromFilep(filep);
     if (dev == NULL) {
+        HDF_LOGE("SpiDevRead: spi get dev fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     msg.len = size;
@@ -88,7 +90,7 @@ static ssize_t SpiDevRead(struct file *filep, char *buf, size_t size)
     if (LOS_IsUserAddressRange((vaddr_t)(uintptr_t)buf, size)) {
         tmpReadBuf = (uint8_t *)OsalMemCalloc(size);
         if (tmpReadBuf == NULL) {
-            HDF_LOGE("%s: OsalMemCalloc error", __func__);
+            HDF_LOGE("SpiDevRead: OsalMemCalloc error!");
             return HDF_ERR_MALLOC_FAIL;
         }
         msg.rbuf = tmpReadBuf;
@@ -112,11 +114,12 @@ static ssize_t SpiDevWrite(struct file *filep, const char *buf, size_t size)
     struct SpiDev *dev = NULL;
 
     if (buf == NULL || size == 0) {
-        HDF_LOGE("%s: buf or size %d is invalid", __func__, size);
+        HDF_LOGE("SpiDevWrite: buf or size %d is invalid!", size);
         return HDF_ERR_INVALID_PARAM;
     }
     dev = SpiDevGetDevFromFilep(filep);
     if (dev == NULL) {
+        HDF_LOGE("SpiDevWrite: spi get dev fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     msg.len = size;
@@ -124,7 +127,7 @@ static ssize_t SpiDevWrite(struct file *filep, const char *buf, size_t size)
     if (LOS_IsUserAddressRange((vaddr_t)(uintptr_t)buf, size)) {
         tmpWriteBuf = (uint8_t *)OsalMemCalloc(size);
         if (tmpWriteBuf == NULL) {
-            HDF_LOGE("%s: OsalMemCalloc error", __func__);
+            HDF_LOGE("SpiDevWrite: OsalMemCalloc error!");
             return HDF_ERR_MALLOC_FAIL;
         }
         ret = LOS_CopyToKernel(tmpWriteBuf, size, buf, size);
@@ -150,27 +153,27 @@ static int32_t SpiDevGetCfg(struct SpiDev *dev, struct SpiCfg *mask, unsigned lo
     struct SpiCntlr *cntlr = dev->cntlr;
 
     if (arg == 0) {
-        HDF_LOGE("%s: arg is 0", __func__);
+        HDF_LOGE("SpiDevGetCfg: arg is 0!");
         return HDF_ERR_INVALID_PARAM;
     }
     ret = SpiCntlrGetCfg(cntlr, dev->csNum, &cfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: GetCfg error", __func__);
+        HDF_LOGE("SpiDevGetCfg: GetCfg error!");
         return HDF_FAILURE;
     }
     if (mask->mode == 1) {
         tmp = cfg.mode;
-        HDF_LOGI("%s: get mode 0x%x", __func__, tmp);
+        HDF_LOGI("SpiDevGetCfg: get mode 0x%x!", tmp);
     } else if (mask->bitsPerWord == 1) {
         tmp = cfg.bitsPerWord;
-        HDF_LOGI("%s: get word %u", __func__, tmp);
+        HDF_LOGI("SpiDevGetCfg: get word %u!", tmp);
     } else if (mask->maxSpeedHz == 1) {
         tmp = cfg.maxSpeedHz;
-        HDF_LOGI("%s: get maxspeed %d", __func__, tmp);
+        HDF_LOGI("SpiDevGetCfg: get maxspeed %d!", tmp);
     }
     ret = LOS_CopyFromKernel((void *)(uintptr_t)arg, sizeof(uint32_t), (void *)&tmp, sizeof(uint32_t));
     if (ret != 0) {
-        HDF_LOGE("%s: memery copy error", __func__);
+        HDF_LOGE("SpiDevGetCfg: memery copy error!");
     }
     return ret;
 }
@@ -183,28 +186,28 @@ static int32_t SpiDevSetCfg(struct SpiDev *dev, struct SpiCfg *mask, unsigned lo
     struct SpiCntlr *cntlr = dev->cntlr;
 
     if (arg == 0) {
-        HDF_LOGE("%s: arg is 0", __func__);
+        HDF_LOGE("SpiDevSetCfg: arg is 0!");
         return HDF_ERR_INVALID_PARAM;
     }
     ret = LOS_CopyToKernel((void *)&tmp, sizeof(uint32_t), (void *)(uintptr_t)arg, sizeof(uint32_t));
     if (ret != 0) {
-        HDF_LOGE("%s: memery copy error", __func__);
+        HDF_LOGE("SpiDevSetCfg: memery copy error!");
         return ret;
     }
 
     ret = SpiCntlrGetCfg(cntlr, dev->csNum, &cfg);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: GetCfg error", __func__);
+        HDF_LOGE("SpiDevSetCfg: GetCfg error!");
         return HDF_FAILURE;
     }
     if (mask->mode == 1) {
-        HDF_LOGI("%s: set mode 0x%x", __func__, tmp);
+        HDF_LOGI("SpiDevSetCfg: set mode 0x%x!", tmp);
         cfg.mode = tmp;
     } else if (mask->bitsPerWord == 1) {
-        HDF_LOGI("%s: set word %u", __func__, tmp);
+        HDF_LOGI("SpiDevSetCfg: set word %u!", tmp);
         cfg.bitsPerWord = tmp;
     } else if (mask->maxSpeedHz == 1) {
-        HDF_LOGI("%s: set maxspeed %d", __func__, tmp);
+        HDF_LOGI("SpiDevSetCfg: set maxspeed %d!", tmp);
         cfg.maxSpeedHz = tmp;
     }
     return SpiCntlrSetCfg(cntlr, dev->csNum, &cfg);
@@ -216,17 +219,17 @@ static struct SpiIocMsg *SpiDevGetIocMsgFromUser(unsigned long arg)
     struct SpiIocMsg *umsg = NULL;
 
     if (arg == 0) {
-        HDF_LOGE("%s: arg is 0", __func__);
+        HDF_LOGE("SpiDevGetIocMsgFromUser: arg is 0!");
         return NULL;
     }
     umsg = (struct SpiIocMsg *)OsalMemCalloc(sizeof(struct SpiIocMsg));
     if (umsg == NULL) {
-        HDF_LOGE("%s: melloc umsg error", __func__);
+        HDF_LOGE("SpiDevGetIocMsgFromUser: melloc umsg error!");
         return NULL;
     }
     ret = LOS_CopyToKernel((void *)umsg, sizeof(struct SpiIocMsg), (void *)(uintptr_t)arg, sizeof(struct SpiIocMsg));
     if (ret != 0) {
-        HDF_LOGE("%s: copy to kernel error", __func__);
+        HDF_LOGE("SpiDevGetIocMsgFromUser: copy to kernel error!");
         OsalMemFree(umsg);
         return NULL;
     }
@@ -242,13 +245,13 @@ static struct SpiMsg *SpiDevGetSpiMsgFromUser(struct SpiIocMsg *umsg)
     count = umsg->count;
     msg = (struct SpiMsg *)OsalMemCalloc(sizeof(struct SpiMsg) * count + sizeof(struct SpiMsg) * count);
     if (msg == NULL) {
-        HDF_LOGE("%s: melloc msg error", __func__);
+        HDF_LOGE("SpiDevGetSpiMsgFromUser: melloc msg error!");
         return NULL;
     }
     ret = LOS_CopyToKernel((void *)msg, sizeof(struct SpiMsg) * count,
         (void *)(umsg->msg), sizeof(struct SpiMsg) * count);
     if (ret != 0) {
-        HDF_LOGE("%s: copy to kernel error", __func__);
+        HDF_LOGE("SpiDevGetSpiMsgFromUser: copy to kernel error!");
         OsalMemFree(msg);
         return NULL;
     }
@@ -267,18 +270,18 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
         len += msg[i].len;
     }
     if (len <= 0) {
-        HDF_LOGE("%s: err, msg total len is %d", __func__, len);
+        HDF_LOGE("SpiDevRealTransfer: err, msg total len is %d!", len);
         return HDF_ERR_INVALID_PARAM;
     }
     wbuf = (uint8_t *)OsalMemCalloc(sizeof(uint8_t) * (len + len));
     if (wbuf == NULL) {
-        HDF_LOGE("%s: melloc wbuf error", __func__);
+        HDF_LOGE("SpiDevRealTransfer: melloc wbuf error!");
         return HDF_ERR_MALLOC_FAIL;
     }
     rbuf = wbuf + sizeof(uint8_t) * len;
     for (i = 0; i < count; i++) {
         if (LOS_CopyToKernel(wbuf + pos, msg[i].len, (void *)msg[i].wbuf, msg[i].len) != 0) {
-            HDF_LOGE("%s: copy to kernel error", __func__);
+            HDF_LOGE("SpiDevRealTransfer: copy to kernel error!");
             OsalMemFree(wbuf);
             return HDF_ERR_IO;
         }
@@ -291,13 +294,13 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
         pos += msg[i].len;
     }
     if (SpiCntlrTransfer(dev->cntlr, dev->csNum, kmsg, count) != HDF_SUCCESS) {
-        HDF_LOGE("%s: transfer error", __func__);
+        HDF_LOGE("SpiDevRealTransfer: transfer error!");
         OsalMemFree(wbuf);
         return HDF_FAILURE;
     }
     for (i = 0; i < count; i++) {
         if (LOS_CopyFromKernel((void *)msg[i].rbuf, msg[i].len, (void *)kmsg[i].rbuf, msg[i].len) != 0) {
-            HDF_LOGE("%s: copy from kernel error", __func__);
+            HDF_LOGE("SpiDevRealTransfer: copy from kernel error!");
             OsalMemFree(wbuf);
             return HDF_ERR_IO;
         }
@@ -320,12 +323,12 @@ static int32_t SpiDevTransfer(struct SpiDev *dev, unsigned long arg)
     }
     umsg = SpiDevGetIocMsgFromUser(arg);
     if (umsg == NULL) {
-        HDF_LOGE("%s: melloc umsg error", __func__);
+        HDF_LOGE("SpiDevTransfer: melloc umsg error!");
         return HDF_ERR_MALLOC_FAIL;
     }
     count = umsg->count;
     if (count <= 0) {
-        HDF_LOGE("%s: umsg error", __func__);
+        HDF_LOGE("SpiDevTransfer: umsg error!");
         OsalMemFree(umsg);
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -337,7 +340,7 @@ static int32_t SpiDevTransfer(struct SpiDev *dev, unsigned long arg)
     kmsg = msg + count;
     ret = SpiDevRealTransfer(dev, msg, kmsg, count);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: spi dev transfer error %d", __func__, ret);
+        HDF_LOGE("SpiDevTransfer: spi dev transfer error: %d!", ret);
     }
     OsalMemFree(msg);
     OsalMemFree(umsg);
@@ -352,6 +355,7 @@ static int32_t SpiDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
 
     dev = SpiDevGetDevFromFilep(filep);
     if (dev == NULL) {
+        HDF_LOGE("SpiDevIoctl: dev is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     switch (cmd) {
@@ -383,7 +387,7 @@ static int32_t SpiDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
             ret = SpiDevSetCfg(dev, &mask, arg);
             break;
         default:
-            HDF_LOGE("%s: cmd %d not support", __func__, cmd);
+            HDF_LOGE("SpiDevIoctl: cmd %d is not support!", cmd);
             ret = HDF_ERR_NOT_SUPPORT;
             break;
     }
@@ -404,29 +408,29 @@ static void SpiAddRemoveDev(struct SpiDev *dev, bool add)
     char *devName = NULL;
 
     if (dev == NULL || dev->cntlr == NULL) {
-        HDF_LOGE("%s invalid parameter", __func__);
+        HDF_LOGE("SpiAddRemoveDev invalid parameter!");
         return;
     }
     devName = (char *)OsalMemCalloc(sizeof(char) * (MAX_DEV_NAME_SIZE + 1));
     if (devName == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc error", __func__);
+        HDF_LOGE("SpiAddRemoveDev: OsalMemCalloc error!");
         return;
     }
     ret = snprintf_s(devName, MAX_DEV_NAME_SIZE + 1, MAX_DEV_NAME_SIZE, "/dev/spidev%u.%u",
         dev->cntlr->busNum, dev->csNum);
     if (ret < 0) {
-        HDF_LOGE("%s snprintf_s failed", __func__);
+        HDF_LOGE("SpiAddRemoveDev snprintf_s fail!");
         OsalMemFree(devName);
         return;
     }
     if (add) {
         HDF_LOGI("create /dev/spidev%u.%u", dev->cntlr->busNum, dev->csNum);
         if (register_driver(devName, &g_spiDevFops, HDF_SPI_FS_MODE, dev) != HDF_SUCCESS) {
-            HDF_LOGE("%s: gen /dev/spidev%u.%u", __func__, dev->cntlr->busNum, dev->csNum);
+            HDF_LOGE("SpiAddRemoveDev: gen /dev/spidev%u.%u", dev->cntlr->busNum, dev->csNum);
         }
     } else {
         if (unregister_driver(devName) != HDF_SUCCESS) {
-            HDF_LOGE("%s: remove /dev/spidev%u.%u", __func__, dev->cntlr->busNum, dev->csNum);
+            HDF_LOGE("SpiAddRemoveDev: remove /dev/spidev%u.%u", dev->cntlr->busNum, dev->csNum);
         }
     }
     OsalMemFree(devName);
@@ -445,16 +449,16 @@ void SpiRemoveDev(struct SpiDev *device)
 void SpiAddDev(struct SpiDev *device)
 {
     if (device != NULL && device->cntlr != NULL) {
-        HDF_LOGE("%s: add /dev/spidev%d.%d error", __func__, device->csNum, device->cntlr->busNum);
+        HDF_LOGE("SpiAddDev: add /dev/spidev%d.%d error", device->csNum, device->cntlr->busNum);
     }
-    HDF_LOGE("%s: LOSCFG_FS_VFS not define", __func__);
+    HDF_LOGE("SpiAddDev: LOSCFG_FS_VFS not define");
 }
 
 void SpiRemoveDev(struct SpiDev *device)
 {
     if (device != NULL && device->cntlr != NULL) {
-        HDF_LOGE("%s: remove /dev/spidev%d.%d error", __func__, device->csNum, device->cntlr->busNum);
+        HDF_LOGE("SpiRemoveDev: remove /dev/spidev%d.%d error", device->csNum, device->cntlr->busNum);
     }
-    HDF_LOGE("%s: LOSCFG_FS_VFS not define", __func__);
+    HDF_LOGE("SpiRemoveDev: LOSCFG_FS_VFS not define");
 }
 #endif /* end of LOSCFG_FS_VFS */

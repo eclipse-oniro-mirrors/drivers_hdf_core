@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -159,6 +159,7 @@ static void DumperPrintCharInfo(const struct DumperDataMgrNode *data)
 {
     char *val = (char *)(data->data.paddr);
     char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+
     int ret =
         snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
     if (ret > 0) {
@@ -170,7 +171,8 @@ static void DumperPrintStringInfo(const struct DumperDataMgrNode *data)
 {
     char *val = (char *)(data->data.paddr);
     char info[DUMPER_INFO_FILE_LEN + 1] = {0};
-    int ret = snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, val);
+    int ret = snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat,
+        data->data.name, val);
     if (ret > 0) {
         OutputDumperInfo(info);
     }
@@ -187,7 +189,7 @@ static void DumperPrintRegisterInfo(const struct DumperDataMgrNode *data)
     } else if (data->data.type == PLATFORM_DUMPER_REGISTERB) {
         value = OSAL_READB(regAddr);
     } else {
-        HDF_LOGE("DumperPrintRegisterInfo illegal type %d", data->data.type);
+        HDF_LOGE("DumperPrintRegisterInfo: illegal type: %d!", data->data.type);
         return;
     }
 
@@ -234,7 +236,7 @@ static int32_t DumperNodeSetPrintInfo(struct DumperDataMgrNode *node)
         }
     }
 
-    HDF_LOGE("DumperNodeSetPrintInfo: node [%s] type [%d] not find", node->data.name, node->data.type);
+    HDF_LOGE("DumperNodeSetPrintInfo: node [%s] type [%d] not find!", node->data.name, node->data.type);
     return HDF_FAILURE;
 }
 
@@ -242,13 +244,14 @@ struct PlatformDumper *PlatformDumperCreate(const char *name)
 {
     struct PlatformDumper *dumper = NULL;
     int32_t ret;
+
     if (name == NULL) {
-        HDF_LOGE("PlatformDumperCreate name null");
+        HDF_LOGE("PlatformDumperCreate: name is null!");
         return NULL;
     }
     dumper = OsalMemAlloc(sizeof(struct PlatformDumper));
     if (dumper == NULL) {
-        HDF_LOGE("PlatformDumperCreate malloc dumper for %s fail", name);
+        HDF_LOGE("PlatformDumperCreate: malloc dumper for %s fail!", name);
         return NULL;
     }
 
@@ -257,12 +260,12 @@ struct PlatformDumper *PlatformDumperCreate(const char *name)
     DListHeadInit(&dumper->dumperDatas);
     ret = OsalSpinInit(&dumper->spin);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperCreate dumper %s OsalSpinInit fail %d", name, ret);
+        HDF_LOGE("PlatformDumperCreate: dumper %s OsalSpinInit fail, ret: %d!", name, ret);
         OsalMemFree(dumper);
         return NULL;
     }
 
-    HDF_LOGD("PlatformDumperCreate dumper for %s success", name);
+    HDF_LOGD("PlatformDumperCreate: create dumper for %s success!", name);
     return dumper;
 }
 
@@ -270,21 +273,22 @@ static int32_t DumperAddNode(struct PlatformDumper *dumper, const struct Platfor
 {
     struct DumperDataMgrNode *pos = NULL;
     struct DumperDataMgrNode *node = NULL;
+
     if (data == NULL || data->name == NULL || data->paddr == NULL) {
-        HDF_LOGE("DumperAddNode: input param illegal");
+        HDF_LOGE("DumperAddNode: input param illegal!");
         return HDF_FAILURE;
     }
 
     DLIST_FOR_EACH_ENTRY(pos, &dumper->dumperDatas, struct DumperDataMgrNode, node) {
         if ((strcmp(pos->data.name, data->name) == 0) && (pos->data.type == data->type)) {
-            HDF_LOGE("DumperAddNode: node [%s][%d] existed", data->name, data->type);
+            HDF_LOGE("DumperAddNode: node [%s][%d] existed!", data->name, data->type);
             return HDF_FAILURE;
         }
     }
 
     node = OsalMemAlloc(sizeof(struct DumperDataMgrNode));
     if (node == NULL) {
-        HDF_LOGE("DumperAddNode: OsalMemAlloc node [%s] fail", data->name);
+        HDF_LOGE("DumperAddNode: OsalMemAlloc node [%s] fail!", data->name);
         return HDF_FAILURE;
     }
 
@@ -304,8 +308,9 @@ static int32_t DumperAddNode(struct PlatformDumper *dumper, const struct Platfor
 int32_t PlatformDumperAddData(struct PlatformDumper *dumper, const struct PlatformDumperData *data)
 {
     int32_t ret;
+
     if (dumper == NULL) {
-        HDF_LOGE("PlatformDumperAddData: input param illegal");
+        HDF_LOGE("PlatformDumperAddData: input param illegal!");
         return HDF_FAILURE;
     }
     (void)OsalSpinLock(&dumper->spin);
@@ -318,8 +323,9 @@ int32_t PlatformDumperAddData(struct PlatformDumper *dumper, const struct Platfo
 int32_t PlatformDumperAddDatas(struct PlatformDumper *dumper, struct PlatformDumperData datas[], int size)
 {
     int i;
+
     if (dumper == NULL || datas == NULL) {
-        HDF_LOGE("PlatformDumperAddDatas: input param illegal");
+        HDF_LOGE("PlatformDumperAddDatas: input param illegal!");
         return HDF_FAILURE;
     }
     (void)OsalSpinLock(&dumper->spin);
@@ -339,8 +345,9 @@ int32_t PlatformDumperDelData(struct PlatformDumper *dumper, const char *name, e
 {
     struct DumperDataMgrNode *pos = NULL;
     struct DumperDataMgrNode *tmp = NULL;
+
     if (dumper == NULL || name == NULL) {
-        HDF_LOGE("PlatformDumperDelData: input param illegal");
+        HDF_LOGE("PlatformDumperDelData: input param illegal!");
         return HDF_FAILURE;
     }
 
@@ -363,8 +370,9 @@ int32_t PlatformDumperClearDatas(struct PlatformDumper *dumper)
 {
     struct DumperDataMgrNode *pos = NULL;
     struct DumperDataMgrNode *tmp = NULL;
+
     if (dumper == NULL) {
-        HDF_LOGE("PlatformDumperClearDatas: dumper null");
+        HDF_LOGE("PlatformDumperClearDatas: dumper is null!");
         return HDF_FAILURE;
     }
 
@@ -381,15 +389,16 @@ int32_t PlatformDumperClearDatas(struct PlatformDumper *dumper)
 void PlatformDumperDestroy(struct PlatformDumper *dumper)
 {
     int32_t ret;
+
     if (dumper == NULL) {
-        HDF_LOGE("PlatformDumperDestroy dumper null");
+        HDF_LOGE("PlatformDumperDestroy: dumper is null!");
         return;
     }
 
     PlatformDumperClearDatas(dumper);
     ret = OsalSpinDestroy(&dumper->spin);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperDestroy dumper %s OsalSpinDestroy fail %d", dumper->name, ret);
+        HDF_LOGE("PlatformDumperDestroy: dumper %s OsalSpinDestroy fail, ret: %d!", dumper->name, ret);
     }
 
     OsalMemFree(dumper);
@@ -398,7 +407,7 @@ void PlatformDumperDestroy(struct PlatformDumper *dumper)
 int32_t PlatformDumperSetMethod(struct PlatformDumper *dumper, struct PlatformDumperMethod *ops)
 {
     if (dumper == NULL || ops == NULL) {
-        HDF_LOGE("PlatformDumperSetMethod: input param null");
+        HDF_LOGE("PlatformDumperSetMethod: input param null!");
         return HDF_FAILURE;
     }
     (void)OsalSpinLock(&dumper->spin);
@@ -431,8 +440,9 @@ int32_t PlatformDumperDump(struct PlatformDumper *dumper)
     struct DumperDataMgrNode *pos = NULL;
     char info[DUMPER_INFO_FILE_LEN + 1] = {0};
     int ret;
+
     if (dumper == NULL) {
-        HDF_LOGE("PlatformDumperDump: dumper null");
+        HDF_LOGE("PlatformDumperDump: dumper null!");
         return HDF_FAILURE;
     }
 

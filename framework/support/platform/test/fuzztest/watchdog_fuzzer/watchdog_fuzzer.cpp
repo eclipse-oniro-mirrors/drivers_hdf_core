@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -16,11 +16,11 @@ static bool WatchdogFuzzTest(const uint8_t *data, size_t size)
     DevHandle handle = nullptr;
 
     if (data == nullptr) {
-        HDF_LOGE("%{public}s:data is null", __func__);
+        HDF_LOGE("WatchdogFuzzTest: data is nullptr!");
         return false;
     }
     if (WatchdogOpen(0, &handle) != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s:open handle failed", __func__);
+        HDF_LOGE("WatchdogFuzzTest: open watchdog fail!");
         return false;
     }
     WatchdogSetTimeout(handle, *(reinterpret_cast<const uint32_t *>(data)));
