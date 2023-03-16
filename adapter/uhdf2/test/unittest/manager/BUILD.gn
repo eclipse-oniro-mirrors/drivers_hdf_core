@@ -83,6 +83,7 @@ ohos_unittest("hdf_adapter_uhdf_test_sbuf") {
     "//drivers/hdf_core/framework/include",
     "//drivers/hdf_core/framework/test/unittest/include",
     "//drivers/hdf_core/framework/test/unittest/manager",
+    "//drivers/hdf_core/adapter/uhdf2/ipc/include",
   ]
 
   defines = [ "__USER__" ]
@@ -129,6 +130,7 @@ ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
   include_dirs = [
     "//drivers/hdf_core/framework/test/unittest/include",
     "//drivers/hdf_core/framework/test/unittest/manager",
+    "//drivers/hdf_core/adapter/uhdf2/ipc/include",
   ]
 
   defines = [ "__USER__" ]
@@ -141,6 +143,9 @@ ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
+      "hdf_core:libhdf_ipc_adapter",
+      "hdf_core:libhdf_utils",
+      "hdf_core:libhdi",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_single",
     ]
@@ -151,8 +156,7 @@ ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
 module_output_path = "hdf_core/shared"
 ohos_unittest("hdf_adapter_uhdf_test_core_shared") {
   module_out_path = module_output_path
-  include_dirs = []
-
+  include_dirs = [ "//drivers/hdf_core/framework/core/shared/include" ]
   defines = [ "__USER__" ]
   sources = [ "//drivers/hdf_core/framework/core/shared/test/unittest/common/hdf_core_shared_test.cpp" ]
   deps = [

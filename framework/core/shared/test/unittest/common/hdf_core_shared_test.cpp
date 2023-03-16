@@ -19,7 +19,7 @@
 
 #include "hdf_device_info.h"
 #include "hdf_object_manager.h"
-#include "hdf_service_status.h"
+#include "hdf_service_status_inner.h"
 #include "osal_mem.h"
 
 namespace OHOS {

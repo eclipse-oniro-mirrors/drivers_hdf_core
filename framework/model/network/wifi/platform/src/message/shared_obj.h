@@ -8,8 +8,8 @@
 #ifndef SHARED_OBJ_H
 #define SHARED_OBJ_H
 
-#include "osal/osal_atomic.h"
-#include "osal/osal_mem.h"
+#include "osal_atomic.h"
+#include "osal_mem.h"
 
 #define SHARED_OBJ(OBJ_TYPE) enum MessageEngineStatus status;                \
     OsalAtomic refCount;                            \

@@ -82,6 +82,10 @@ ccflags-y += \
        -I$(srctree)/drivers/hdf/framework/core/common/include/manager \
        -I$(srctree)/drivers/hdf/framework/core/adapter/vnode/include \
        -I$(srctree)/drivers/hdf/framework/include/config \
+       -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+       -I$(srctree)/drivers/hdf/inner_api/host/shared \
+       -I$(srctree)/drivers/hdf/inner_api/utils \
+       -I$(srctree)/drivers/hdf/inner_api/core \
        -I$(srctree)/drivers/hdf/khdf/osal/include \
        -I$(srctree)/include/uapi/linux \
        -I$(srctree)/bounds_checking_function/include

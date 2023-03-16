@@ -17,18 +17,14 @@ config("hdf_osal_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
-    "//third_party/bounds_checking_function/include",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
   ]
 }
 if (defined(ohos_lite)) {
   ohos_shared_library("hdf_posix_osal") {
     output_extension = "z.so"
-    include_dirs = []
 
     public_configs = [ ":hdf_osal_pub_config" ]
 

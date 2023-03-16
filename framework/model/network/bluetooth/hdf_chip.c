@@ -11,7 +11,7 @@
 #include "hdf_device_desc.h"
 #include "hdf_power.h"
 #include "hdf_reset.h"
-#include "osal/osal_mem.h"
+#include "osal_mem.h"
 
 struct HdfVirtualDevice *CreateVirtualDevice(const struct HdfChipConfig *config)
 {

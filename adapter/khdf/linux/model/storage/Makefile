@@ -24,6 +24,10 @@ ccflags-y +=-I$(srctree)/drivers/hdf/framework/model/storage/include/mmc \
             -I$(srctree)/drivers/hdf/framework/support/platform/include/fwk \
             -I$(srctree)/drivers/hdf/framework/model/storage/include/mmc \
             -I$(srctree)/drivers/hdf/framework/include/config \
+            -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+            -I$(srctree)/drivers/hdf/inner_api/utils \
+            -I$(srctree)/drivers/hdf/inner_api/core \
+            -I$(srctree)/drivers/hdf/inner_api/host/shared \
             -I$(srctree)/drivers/hdf/khdf/osal/include \
             -I$(srctree)/bounds_checking_function/include
 

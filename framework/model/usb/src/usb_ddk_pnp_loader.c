@@ -9,15 +9,14 @@
 #include "usb_ddk_pnp_loader.h"
 #include <unistd.h>
 
-#include "devhost_service_clnt.h"
 #include "device_resource_if.h"
 #include "hcs_tree_if.h"
-#include "hdf_attribute_manager.h"
 #include "hdf_base.h"
 #include "hdf_cstring.h"
 #include "hdf_device_node.h"
 #include "hdf_device_object.h"
 #include "hdf_log.h"
+#include "hdf_dlist.h"
 #include "hdf_sbuf.h"
 #include "osal_file.h"
 #include "osal_mem.h"
@@ -27,7 +26,6 @@
 #ifndef __LITEOS__
 #include "usb_wrapper.h"
 #endif
-
 
 #define HDF_LOG_TAG USB_DDK_PNP_LOADER
 

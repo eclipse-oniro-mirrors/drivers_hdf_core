@@ -18,15 +18,13 @@ ohos_fuzztest("ServStatListenerStubCCFuzzTest") {
 
   sources = [ "servstatlistenerstub_fuzzer.cpp" ]
 
-  deps = [
-    "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
-    "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
-    "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
-  ]
+  deps = []
 
   external_deps = [
     "c_utils:utils",
+    "hdf_core:libhdf_ipc_adapter",
     "hdf_core:libhdf_utils",
+    "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
   ]

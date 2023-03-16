@@ -23,17 +23,19 @@ ohos_shared_library("libsample_driver") {
     "sample_hdi_service.cpp",
     "sample_hdi_service_stub.cpp",
   ]
-
-  deps = [
-    "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
-    "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
-    "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
-    "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
+  include_dirs = [
+    "$hdf_uhdf_path/host/include",
+    "$hdf_framework_path/core/shared/include",
+    "$hdf_framework_path/core/host/include",
+    "$hdf_framework_path/utils/include",
   ]
 
   external_deps = [
     "c_utils:utils",
+    "hdf_core:libhdf_host",
+    "hdf_core:libhdf_ipc_adapter",
     "hdf_core:libhdf_utils",
+    "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
   ]

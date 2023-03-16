@@ -40,6 +40,10 @@ LOCAL_INCLUDE := $(KHDF_AUDIO_BASE_ROOT_DIR)/third_party/bounds_checking_functio
                  $(KHDF_FRAMEWORK_ROOT_DIR)/include/core \
                  $(KHDF_FRAMEWORK_ROOT_DIR)/include/utils \
                  $(KHDF_FRAMEWORK_ROOT_DIR)/include/osal \
+                 $(KHDF_AUDIO_BASE_ROOT_DIR)/drivers/hdf_core/interfaces/inner_api/core \
+                 $(KHDF_AUDIO_BASE_ROOT_DIR)/drivers/hdf_core/interfaces/inner_api/utils \
+                 $(KHDF_AUDIO_BASE_ROOT_DIR)/drivers/hdf_core/interfaces/inner_api/osal/shared \
+                 $(KHDF_AUDIO_BASE_ROOT_DIR)/drivers/hdf_core/interfaces/inner_api/host/shared \
                  $(KHDF_FRAMEWORK_ROOT_DIR)/include/platform \
                  $(KHDF_FRAMEWORK_ROOT_DIR)/include/config \
                  $(KHDF_FRAMEWORK_ROOT_DIR)/include/audio \

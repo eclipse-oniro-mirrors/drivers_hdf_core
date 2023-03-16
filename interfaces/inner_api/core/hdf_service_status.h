@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -14,7 +14,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-struct HdfSBuf;
 struct ServiceStatusListener;
 
 enum ServiceStatusType {
@@ -22,11 +21,6 @@ enum ServiceStatusType {
     SERVIE_STATUS_CHANGE,
     SERVIE_STATUS_STOP,
     SERVIE_STATUS_MAX,
-};
-
-enum ServiceStatusListenerCmd {
-    SERVIE_STATUS_LISTENER_NOTIFY,
-    SERVIE_STATUS_LISTENER_MAX,
 };
 
 struct ServiceStatus {
@@ -42,9 +36,6 @@ struct ServiceStatusListener {
     OnServiceStatusReceived callback;
     void *priv;
 };
-
-int ServiceStatusMarshalling(struct ServiceStatus *status, struct HdfSBuf *buf);
-int ServiceStatusUnMarshalling(struct ServiceStatus *status, struct HdfSBuf *buf);
 
 #ifdef __cplusplus
 }

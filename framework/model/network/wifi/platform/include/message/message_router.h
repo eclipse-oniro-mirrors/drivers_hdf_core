@@ -9,7 +9,7 @@
 #ifndef MESSAGE_ROUTER_H
 #define MESSAGE_ROUTER_H
 #include "message_config.h"
-#include "osal/osal_mutex.h"
+#include "osal_mutex.h"
 #include "sidecar.h"
 #define DEFAULT_DISPATCHER_ID 0
 

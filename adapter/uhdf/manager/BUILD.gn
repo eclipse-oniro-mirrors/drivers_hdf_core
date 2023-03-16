@@ -12,11 +12,20 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
 
 config("hdf_core_pub_config") {
   visibility = [ ":*" ]
 
+  include_dirs = [
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "//drivers/hdf_core/interfaces/inner_api/core",
+  ]
+}
+
+ohos_shared_library("hdf_core") {
+  HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
   include_dirs = [
     "$HDF_FRAMEWORKS/core/adapter/vnode/include",
     "$HDF_FRAMEWORKS/core/adapter/syscall/include",
@@ -26,15 +35,7 @@ config("hdf_core_pub_config") {
     "$HDF_FRAMEWORKS/include/core",
     "$HDF_FRAMEWORKS/include/utils",
     "$HDF_FRAMEWORKS/utils/include",
-    "$HDF_FRAMEWORKS/include/osal",
-    "$HDF_FRAMEWORKS/../adapter/uhdf/posix/include",
-    "//third_party/bounds_checking_function/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
-}
-
-ohos_shared_library("hdf_core") {
-  include_dirs = []
 
   public_configs = [ ":hdf_core_pub_config" ]
 
@@ -51,10 +52,10 @@ ohos_shared_library("hdf_core") {
 
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
 
+  external_deps = [ "hdf_core:hdf_posix_osal" ]
   defines = [ "__USER__" ]
 
   # install_images = [ chipset_base_dir ]

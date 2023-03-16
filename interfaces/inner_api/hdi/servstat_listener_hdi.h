@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,19 +15,8 @@
 #ifndef HDI_SERVICE_STATUS_LISTENER_INF_H
 #define HDI_SERVICE_STATUS_LISTENER_INF_H
 
-/*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
- *
- * HDF is dual licensed: you can use it either under the terms of
- * the GPL, or the BSD license, at your option.
- * See the LICENSE file in the root of this repository for complete details.
- */
-#ifndef HDF_HDI_SERVICE_STATUS_H
-#define HDF_HDI_SERVICE_STATUS_H
-
 #include "hdf_types.h"
 #include "hdf_service_status.h"
-#include "hdf_io_service_if.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,7 +28,5 @@ void HdiServiceStatusListenerFree(struct ServiceStatusListener *listener);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* HDF_HDI_SERVICE_STATUS_H */
 
 #endif /* HDI_SERVICE_STATUS_LISTENER_INF_H */

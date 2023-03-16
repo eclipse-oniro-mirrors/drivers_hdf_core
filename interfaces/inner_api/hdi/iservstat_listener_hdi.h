@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,7 @@
 #include <iremote_broker.h>
 #include <iremote_stub.h>
 
-#include "hdf_io_service_if.h"
+#include "hdf_device_class.h"
 
 namespace OHOS {
 namespace HDI {

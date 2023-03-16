@@ -15,7 +15,7 @@
 
 #include "hdf_base.h"
 #include "hdf_log.h"
-#include "hdf_service_status.h"
+#include "hdf_service_status_inner.h"
 #include "iservstat_listener_hdi.h"
 
 #define HDF_LOG_TAG servstat_listener

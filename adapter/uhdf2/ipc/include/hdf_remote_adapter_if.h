@@ -45,10 +45,6 @@ bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struc
 
 bool HdfRemoteAdapterCheckInterfaceToken(struct HdfRemoteService *service, struct HdfSBuf *data);
 
-pid_t HdfRemoteGetCallingPid(void);
-
-pid_t HdfRemoteGetCallingUid(void);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -52,6 +52,10 @@ FRAMEWORKS_USB_DDK_HOST = $(LITEOSTOPDIR)/../../drivers/hdf_core/framework/model
 
 LOCAL_INCLUDE := $(USB_PNP_NOTIFY_ROOT)/include \
                  $(USB_PNP_NOTIFY_SHARED_ROOT)/include \
+                 $(LITEOSTOPDIR)/../../drivers/hdf_core/interfaces/inner_api/core \
+                 $(LITEOSTOPDIR)/../../drivers/hdf_core/interfaces/inner_api/utils \
+                 $(LITEOSTOPDIR)/../../drivers/hdf_core/interfaces/inner_api/osal/shared \
+                 $(LITEOSTOPDIR)/../../drivers/hdf_core/interfaces/inner_api/host/shared \
                  $(FRAMEWORKS_USB_DDK_HOST)/include
 
 LOCAL_SRCS += $(USB_PNP_NOTIFY_ROOT)/src/usb_pnp_notify.c \

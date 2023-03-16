@@ -18,15 +18,19 @@ module_output_path = "hdf_core/dev_attribute_serialize"
 
 ohos_unittest("dev_attribute_serialize_test") {
   module_out_path = module_output_path
-
+  include_dirs = [
+    "$hdf_uhdf_path/shared/include",
+    "$hdf_framework_path/core/shared/include",
+  ]
   sources = [ "dev_attribute_serialize_test.cpp" ]
 
-  deps = [
-    "$hdf_uhdf_path/host:libhdf_host",
-    "$hdf_uhdf_path/utils:libhdf_utils",
-  ]
+  deps = []
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "c_utils:utils",
+    "hdf_core:libhdf_host",
+    "hdf_core:libhdf_utils",
+  ]
 }
 
 ###########################end###########################

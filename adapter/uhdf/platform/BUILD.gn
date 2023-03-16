@@ -24,6 +24,9 @@ config("hdf_platform_pub_config") {
     "$HDF_FRAMEWORKS/include/osal",
     "$HDF_FRAMEWORKS/include/platform",
     "$HDF_FRAMEWORKS/support/platform/include",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "//drivers/hdf_core/interfaces/inner_api/core",
     "$HDF_FRAMEWORKS/support/platform/include/fwk",
     "$HDF_FRAMEWORKS/support/platform/include/gpio",
     "$HDF_FRAMEWORKS/support/platform/include/hdmi",
@@ -68,11 +71,10 @@ ohos_shared_library("hdf_platform") {
     "$HDF_FRAMEWORKS/support/platform/src/watchdog/watchdog_if_u.c",
   ]
 
-  deps = [
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
-    "//third_party/bounds_checking_function:libsec_shared",
-  ]
+  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_deps = [ "//drivers/hdf_core/adapter/uhdf/manager:hdf_core" ]
+
+  external_deps = [ "hdf_core:hdf_posix_osal" ]
 
   defines = [ "__USER__" ]
 

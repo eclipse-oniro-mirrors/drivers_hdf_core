@@ -58,7 +58,6 @@ if (defined(ohos_lite)) {
 
     include_dirs = [ "//drivers/hdf_core/framework/test/unittest/include" ]
 
-    deps = [ "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils" ]
     defines = [ "__OHOS__USER__" ]
     install_images = [ chipset_base_dir ]
     subsystem_name = "hdf"
@@ -66,6 +65,7 @@ if (defined(ohos_lite)) {
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
+        "hdf_core:libhdf_utils",
         "hiviewdfx_hilog_native:libhilog",
       ]
     } else {

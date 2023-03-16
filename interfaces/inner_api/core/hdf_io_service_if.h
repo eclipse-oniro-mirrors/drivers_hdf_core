@@ -30,6 +30,7 @@
 #ifndef HDF_IO_SERVICE_IF_H
 #define HDF_IO_SERVICE_IF_H
 
+#include "hdf_device_class.h"
 #include "hdf_dlist.h"
 #include "hdf_object.h"
 #include "hdf_sbuf.h"
@@ -40,24 +41,6 @@ extern "C" {
 
 struct HdfDevEventlistener;
 struct HdfIoService;
-
-/**
- * @brief Enumerates different classes of driver devices.
- *
- * @since 1.0
- */
-typedef enum {
-    DEVICE_CLASS_DEFAULT  = 0x1 << 0,    /** Default device */
-    DEVICE_CLASS_PLAT     = 0x1 << 1,    /** Platform device */
-    DEVICE_CLASS_SENSOR   = 0x1 << 2,    /** Sensor device */
-    DEVICE_CLASS_INPUT    = 0x1 << 3,    /** Input device */
-    DEVICE_CLASS_DISPLAY  = 0x1 << 4,    /** Display device */
-    DEVICE_CLASS_AUDIO    = 0x1 << 5,    /** Audio device */
-    DEVICE_CLASS_CAMERA   = 0x1 << 6,    /** Camera device */
-    DEVICE_CLASS_USB      = 0x1 << 7,    /** USB device */
-    DEVICE_CLASS_USERAUTH = 0x1 << 8,    /** UserAuth device */
-    DEVICE_CLASS_MAX      = 0x1 << 9,    /** Maximum value of a device class */
-} DeviceClass;
 
 /**
  * @brief Called when a driver event occurs.

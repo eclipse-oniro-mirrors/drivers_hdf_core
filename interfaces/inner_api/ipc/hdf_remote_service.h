@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #ifndef HDF_REMOTE_SERVICE_H
 #define HDF_REMOTE_SERVICE_H
 
+#include <unistd.h>
 #include "hdf_object.h"
 #include "hdf_sbuf.h"
 
@@ -57,6 +58,10 @@ bool HdfRemoteServiceSetInterfaceDesc(struct HdfRemoteService *service, const ch
 bool HdfRemoteServiceWriteInterfaceToken(struct HdfRemoteService *service, struct HdfSBuf *data);
 
 bool HdfRemoteServiceCheckInterfaceToken(struct HdfRemoteService *service, struct HdfSBuf *data);
+
+pid_t HdfRemoteGetCallingPid(void);
+
+pid_t HdfRemoteGetCallingUid(void);
 
 #ifdef __cplusplus
 }

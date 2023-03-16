@@ -17,14 +17,11 @@ import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 ohos_executable("hdf_devmgr") {
   defines = [ "__USER__" ]
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
     "$hdf_framework_path/core/manager/include",
     "$hdf_framework_path/core/common/include/manager/",
     "$hdf_framework_path/core/host/include",
     "$hdf_framework_path/core/shared/include",
-    "$hdf_uhdf_path/ipc/include",
-    "$hdf_uhdf_path/osal/include/",
-    "$hdf_uhdf_path/include/osal",
+    "$hdf_framework_path/utils/include",
     "$hdf_uhdf_path/include/host",
     "$hdf_uhdf_path/shared/include",
     "$hdf_uhdf_path/manager/include",
@@ -32,6 +29,9 @@ ohos_executable("hdf_devmgr") {
     "$hdf_uhdf_path/security/include",
     "$hdf_uhdf_path/utils/include",
     "include",
+    "//drivers/hdf_core/interfaces/inner_api/core",
+    "//drivers/hdf_core/interfaces/inner_api/host/shared",
+    "//drivers/hdf_core/interfaces/inner_api/host/uhdf",
   ]
 
   sources = [
@@ -61,13 +61,10 @@ ohos_executable("hdf_devmgr") {
     "src/servstat_listener_holder.c",
   ]
 
-  deps = [
-    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
-    "$hdf_uhdf_path/utils:libhdf_utils",
-  ]
-
   external_deps = [
     "c_utils:utils",
+    "hdf_core:libhdf_ipc_adapter",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
   ]

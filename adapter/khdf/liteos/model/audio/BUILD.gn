@@ -64,6 +64,9 @@ hdf_driver(module_name) {
     "$HDF_FRAMEWORKS_PATH/include/audio",
     "$HDF_FRAMEWORKS_PATH/ability/sbuf/include",
     "$HDF_FRAMEWORKS_PATH/core/common/include/host",
+    "//drivers/hdf_core/interfaces/inner_api/core",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
   ]
 
   if (defined(LOSCFG_DRIVERS_HDF_AUDIO_CODEC_HI3516)) {

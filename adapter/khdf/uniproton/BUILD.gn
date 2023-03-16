@@ -74,5 +74,9 @@ config("hdf_config") {
     "//drivers/hdf_core/adapter/khdf/uniproton/osal/include",
     "//drivers/hdf_core/adapter/khdf/uniproton/test/sample_driver/include",
     "//drivers/hdf_core/adapter/uhdf2/include/host",
+    "//drivers/hdf_core/interfaces/inner_api/core",
+    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "//drivers/hdf_core/interfaces/inner_api/host/shared",
   ]
 }

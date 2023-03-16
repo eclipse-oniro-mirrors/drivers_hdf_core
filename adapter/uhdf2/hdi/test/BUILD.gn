@@ -30,7 +30,10 @@ ohos_unittest("HdiServiceManagerTest") {
     "//third_party/googletest:gtest_main",
   ]
 
-  include_dirs = [ "$hdf_uhdf_path/host/test/unittest/sample_driver" ]
+  include_dirs = [
+    "$hdf_uhdf_path/host/test/unittest/sample_driver",
+    "$hdf_uhdf_path/utils/include",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -41,6 +44,10 @@ ohos_unittest("HdiServiceManagerTest") {
 
 ohos_unittest("HdiServiceManagerTestCC") {
   module_out_path = module_output_path
+  include_dirs = [
+    "$hdf_framework_path/core/shared/include",
+    "$hdf_uhdf_path/host/test/unittest/sample_driver",
+  ]
   sources = [ "servmgr/service_manager_hdi_test.cpp" ]
 
   deps = [
@@ -50,7 +57,6 @@ ohos_unittest("HdiServiceManagerTestCC") {
     "//third_party/googletest:gtest_main",
   ]
 
-  include_dirs = [ "$hdf_uhdf_path/host/test/unittest/sample_driver" ]
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
