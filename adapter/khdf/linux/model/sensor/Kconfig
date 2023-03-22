@@ -112,6 +112,24 @@ config DRIVERS_HDF_SENSOR_HALL_AK8789
     depends on DRIVERS_HDF_SENSOR_HALL
     help
       Answer Y to enable HDF hall ak8789 sensor driver.
+config DRIVERS_HDF_SENSOR_HUMIDITY
+    bool "Enable HDF humidity sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR
+    help
+      Answer Y to enable HDF humidity sensor driver.
+config DRIVERS_HDF_SENSOR_HUMIDITY_AHT20
+    bool "Enable HDF humidity aht20 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_HUMIDITY
+    help
+      Answer Y to enable HDF humidity aht20 sensor driver.
+config DRIVERS_HDF_SENSOR_HUMIDITY_SHT30
+    bool "Enable HDF humidity sht30 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_HUMIDITY
+    help
+      Answer Y to enable HDF humidity sht30 sensor driver.
 config DRIVERS_HDF_SENSOR_MAGNETIC
     bool "Enable HDF magnetic sensor driver"
     default n
@@ -136,3 +154,21 @@ config DRIVERS_HDF_SENSOR_PROXIMITY_APDS9960
     depends on DRIVERS_HDF_SENSOR_PROXIMITY
     help
       Answer Y to enable HDF proximity apds9960 sensor driver.
+config DRIVERS_HDF_SENSOR_TEMPERATURE
+    bool "Enable HDF temperature sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR
+    help
+      Answer Y to enable HDF temperature sensor driver.
+config DRIVERS_HDF_SENSOR_TEMPERATURE_AHT20
+    bool "Enable HDF temperature aht20 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_TEMPERATURE
+    help
+      Answer Y to enable HDF temperature aht20 sensor driver.
+config DRIVERS_HDF_SENSOR_TEMPERATURE_SHT30
+    bool "Enable HDF temperature sht30 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_TEMPERATURE
+    help
+      Answer Y to enable HDF temperature sht30 sensor driver.

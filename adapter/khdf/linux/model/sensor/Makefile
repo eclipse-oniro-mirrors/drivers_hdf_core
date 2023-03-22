@@ -52,6 +52,12 @@ obj-$(CONFIG_DRIVERS_HDF_SENSOR_HALL) += $(SENSOR_ROOT_DIR)/hall/sensor_hall_dri
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_HALL_AK8789) += $(SENSOR_ROOT_CHIPSET)/chipset/hall/hall_ak8789.o
 
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_HUMIDITY) += $(SENSOR_ROOT_DIR)/humidity/sensor_humidity_driver.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_HUMIDITY_AHT20) += $(SENSOR_ROOT_CHIPSET)/chipset/humidity/humidity_aht20.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_HUMIDITY_SHT30) += $(SENSOR_ROOT_CHIPSET)/chipset/humidity/humidity_sht30.o
+
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_MAGNETIC) += $(SENSOR_ROOT_DIR)/magnetic/sensor_magnetic_driver.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_MAGNETIC_LSM303) += $(SENSOR_ROOT_CHIPSET)/chipset/magnetic/magnetic_lsm303.o
@@ -61,6 +67,12 @@ obj-$(CONFIG_DRIVERS_HDF_SENSOR_GRAVITY) += $(SENSOR_ROOT_DIR)/accel/sensor_grav
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PEDOMETER) += $(SENSOR_ROOT_DIR)/pedometer/sensor_pedometer_driver.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PEDOMETER_BMI160) += $(SENSOR_ROOT_CHIPSET)/chipset/pedometer/pedometer_bmi160.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_TEMPERATURE) += $(SENSOR_ROOT_DIR)/temperature/sensor_temperature_driver.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_TEMPERATURE_AHT20) += $(SENSOR_ROOT_CHIPSET)/chipset/temperature/temperature_aht20.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_TEMPERATURE_SHT30) += $(SENSOR_ROOT_CHIPSET)/chipset/temperature/temperature_sht30.o
 
 ccflags-y += -I$(srctree)/drivers/hdf/framework/model/sensor/driver/include \
              -I$(srctree)/drivers/hdf/framework/model/sensor/driver/common/include \
@@ -77,6 +89,10 @@ ccflags-y += -I$(srctree)/drivers/hdf/framework/model/sensor/driver/include \
              -I$(srctree)/drivers/hdf/framework/model/sensor/driver/barometer \
              -I$(srctree)/drivers/hdf/peripheral/sensor/chipset/barometer \
              -I$(srctree)/drivers/hdf/framework/model/sensor/driver/hall \
+             -I$(srctree)/drivers/hdf/peripheral/sensor/chipset/humidity \
+             -I$(srctree)/drivers/hdf/framework/model/sensor/driver/humidity \
+             -I$(srctree)/drivers/hdf/peripheral/sensor/chipset/temperature \
+             -I$(srctree)/drivers/hdf/framework/model/sensor/driver/temperature \
              -I$(srctree)/drivers/hdf/peripheral/sensor/chipset/hall \
              -I$(srctree)/drivers/hdf/peripheral/sensor/chipset/magnetic \
              -I$(srctree)/drivers/hdf/framework/model/sensor/driver/magnetic \
