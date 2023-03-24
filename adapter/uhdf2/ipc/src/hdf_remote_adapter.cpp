@@ -384,3 +384,40 @@ pid_t HdfRemoteGetCallingUid(void)
 {
     return OHOS::IPCSkeleton::GetCallingUid();
 }
+
+int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
+    int code, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+    if (holder == nullptr) {
+        HDF_LOGE("%{public}s: failed to converts remote to holder", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (holder->remote_ == nullptr) {
+        HDF_LOGE("%{public}s: invaild holder, holder->remote is nullptr", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(holder->remote_.GetRefPtr());
+    if (stub == nullptr) {
+        HDF_LOGE("%{public}s: failed to converts holder->remote to IPCObjectStub object", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    OHOS::MessageParcel *dataParcel = nullptr;
+    OHOS::MessageParcel *replyParcel = nullptr;
+    OHOS::MessageOption option;
+
+    if (SbufToParcel(data, &dataParcel) != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s:invalid data sbuf object to dispatch", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (SbufToParcel(data, &replyParcel) != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s:invalid reply sbuf object to dispatch", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    return stub->IPCObjectStub::OnRemoteRequest(code, *dataParcel, *replyParcel, option);
+}

@@ -68,3 +68,8 @@ bool HdfRemoteServiceCheckInterfaceToken(struct HdfRemoteService *service, struc
     return HdfRemoteAdapterCheckInterfaceToken(service, data);
 }
 
+int HdfRemoteServiceDefaultDispatch(
+    struct HdfRemoteService *service, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    return HdfRemoteAdapterDefaultDispatch(service, code, data, reply);
+}
