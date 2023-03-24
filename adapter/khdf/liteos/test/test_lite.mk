@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -65,7 +65,7 @@ HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/test/unittest/uti
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/test/unittest
 HDF_TEST_INCLUDE += -I $(LITEOSTOPDIR)/bsd/compat/linuxkpi/include
 HDF_TEST_INCLUDE += -I $(LITEOSTOPDIR)/../../base/hiviewdfx/hilog_lite/interfaces/native/innerkits
-
+HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/include/wifi
 ifeq ($(LOSCFG_DRIVERS_HDF_WIFI), y)
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/test/unittest/model/network/wifi/unittest/netdevice
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/test/unittest/model/network/wifi/unittest/module
