@@ -63,6 +63,9 @@ pid_t HdfRemoteGetCallingPid(void);
 
 pid_t HdfRemoteGetCallingUid(void);
 
+int HdfRemoteServiceDefaultDispatch(
+    struct HdfRemoteService *service, int code, struct HdfSBuf *data, struct HdfSBuf *reply);
+
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */

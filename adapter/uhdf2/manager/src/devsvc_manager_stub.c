@@ -530,8 +530,8 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
             ret = DevSvcManagerStubListServiceByInterfaceDesc(super, data, reply);
             break;
         default:
-            HDF_LOGE("Unknown code : %{public}d", code);
-            ret = HDF_FAILURE;
+            ret = HdfRemoteServiceDefaultDispatch(stub->remote, code, data, reply);
+            break;
     }
     return ret;
 }

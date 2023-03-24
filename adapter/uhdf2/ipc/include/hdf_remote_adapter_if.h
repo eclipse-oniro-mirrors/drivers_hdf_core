@@ -45,6 +45,9 @@ bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struc
 
 bool HdfRemoteAdapterCheckInterfaceToken(struct HdfRemoteService *service, struct HdfSBuf *data);
 
+int HdfRemoteAdapterDefaultDispatch(
+    struct HdfRemoteService *service, int code, struct HdfSBuf *data, struct HdfSBuf *reply);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
