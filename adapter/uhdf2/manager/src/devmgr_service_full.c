@@ -22,6 +22,7 @@
 #include "hdf_map.h"
 #include "hdf_message_looper.h"
 #include "osal_message.h"
+#include "osal_time.h"
 
 #define HDF_LOG_TAG devmgr_service_full
 #define INVALID_PID (-1)
@@ -29,6 +30,7 @@
 static Map g_hostMap = {0};
 #define HOST_INIT_DIE_NUM 1
 #define HOST_MAX_DIE_NUM  3
+#define WAIT_HOST_DIED_TIME 20
 
 static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt, struct HdfRemoteService *service)
 {
@@ -89,6 +91,7 @@ static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *
     HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
     struct IDriverInstaller *installer = DriverInstallerGetInstance();
     if (installer != NULL && installer->StartDeviceHost != NULL) {
+        OsalMSleep(WAIT_HOST_DIED_TIME);
         HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
         int pid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName, true);
         OsalMutexLock(&hostClnt->hostLock);
