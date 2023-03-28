@@ -139,14 +139,13 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
             ret = DevmgrServiceStubDispatchListAllDevice(super, reply);
             break;
         default:
-            break;
+            return HdfRemoteServiceDefaultDispatch(serviceStub->remote, code, data, reply);
     }
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%{public}s devmgr service stub dispach failed, cmd id is %{public}d, ret = %{public}d", __func__,
             code, ret);
         HdfSbufWriteInt32(reply, ret);
     }
-
     return ret;
 }
 
