@@ -7,7 +7,6 @@
  */
 
 #include "i2s_if.h"
-#include "los_vm_zone.h"
 #include "devsvc_manager_clnt.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
