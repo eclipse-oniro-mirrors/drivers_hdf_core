@@ -30,8 +30,16 @@ bool CppServiceImplCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppServiceImplCodeEmitter::EmitCode()
 {
-    EmitImplHeaderFile();
-    EmitImplSourceFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH:
+        case GenMode::IPC: {
+            EmitImplHeaderFile();
+            EmitImplSourceFile();
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void CppServiceImplCodeEmitter::EmitImplHeaderFile()
@@ -92,12 +100,9 @@ void CppServiceImplCodeEmitter::EmitServiceImplConstructor(StringBuilder &sb, co
 
 void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitServiceImplMethodDecl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 }
 
@@ -165,12 +170,9 @@ void CppServiceImplCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
 
 void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitServiceImplMethodImpl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 }
 

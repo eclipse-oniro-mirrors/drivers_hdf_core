@@ -15,9 +15,9 @@
 
 namespace OHOS {
 namespace HDI {
-bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode)
+bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, GenMode mode)
 {
-    if (!Reset(ast, targetDirectory, isKernelCode)) {
+    if (!Reset(ast, targetDirectory, mode)) {
         return false;
     }
 
@@ -25,7 +25,7 @@ bool CodeEmitter::OutPut(const AutoPtr<AST> &ast, const std::string &targetDirec
     return true;
 }
 
-bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode)
+bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirectory, GenMode mode)
 {
     if (ast == nullptr || targetDirectory.empty()) {
         return false;
@@ -33,7 +33,7 @@ bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirect
 
     CleanData();
 
-    isKernelCode_ = isKernelCode;
+    mode_ = mode;
     ast_ = ast;
     if (ast_->GetASTFileType() == ASTFileType::AST_IFACE || ast_->GetASTFileType() == ASTFileType::AST_ICALLBACK) {
         interface_ = ast_->GetInterfaceDef();
@@ -73,7 +73,6 @@ bool CodeEmitter::Reset(const AutoPtr<AST> &ast, const std::string &targetDirect
 
 void CodeEmitter::CleanData()
 {
-    isKernelCode_ = false;
     ast_ = nullptr;
     interface_ = nullptr;
     directory_ = "";
@@ -147,8 +146,7 @@ std::string CodeEmitter::EmitMethodCmdID(const AutoPtr<ASTMethod> &method)
 void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat("enum {\n");
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(prefix + TAB).Append(EmitMethodCmdID(method)).Append(",\n");
     }
 
@@ -156,7 +154,7 @@ void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::stri
     sb.Append(prefix).Append("};\n");
 }
 
-std::string CodeEmitter::EmitVersionHeaderName(const std::string &name)
+std::string CodeEmitter::EmitVersionHeaderName(const std::string &name) const
 {
     return StringHelper::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).c_str());
 }

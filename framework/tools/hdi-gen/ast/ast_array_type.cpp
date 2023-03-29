@@ -729,7 +729,7 @@ void ASTArrayType::EmitCMallocVar(const std::string &name, const std::string &le
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTArrayType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTArrayType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     elementType_->RegisterWriteMethod(language, mode, methods);
     if (elementType_->IsPod()) {
@@ -739,7 +739,7 @@ void ASTArrayType::RegisterWriteMethod(Options::Language language, SerMode mode,
     }
 }
 
-void ASTArrayType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTArrayType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     elementType_->RegisterReadMethod(language, mode, methods);
     if (elementType_->IsPod()) {
@@ -749,16 +749,16 @@ void ASTArrayType::RegisterReadMethod(Options::Language language, SerMode mode, 
     }
 }
 
-void ASTArrayType::RegisterWritePodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTArrayType::RegisterWritePodArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     (void)mode;
     using namespace std::placeholders;
     std::string methodName = "WritePodArray";
     switch (language) {
-        case Options::Language::C:
+        case Language::C:
             methods.emplace(methodName, std::bind(&ASTArrayType::EmitCWriteMethods, this, _1, _2, _3, _4));
             break;
-        case Options::Language::CPP:
+        case Language::CPP:
             methods.emplace(methodName, std::bind(&ASTArrayType::EmitCppWriteMethods, this, _1, _2, _3, _4));
             break;
         default:
@@ -767,28 +767,28 @@ void ASTArrayType::RegisterWritePodArrayMethod(Options::Language language, SerMo
 }
 
 void ASTArrayType::RegisterWriteStringArrayMethod(
-    Options::Language language, SerMode mode, UtilMethodMap &methods) const
+    Language language, SerMode mode, UtilMethodMap &methods) const
 {
     (void)mode;
     using namespace std::placeholders;
-    if (language == Options::Language::C && elementType_->IsStringType()) {
+    if (language == Language::C && elementType_->IsStringType()) {
         methods.emplace("WriteStringArray", std::bind(&ASTArrayType::EmitCWriteStrArrayMethods, this, _1, _2, _3, _4));
     }
 }
 
-void ASTArrayType::RegisterReadPodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTArrayType::RegisterReadPodArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     std::string methodName = "ReadPodArray";
     switch (language) {
-        case Options::Language::C: {
+        case Language::C: {
             auto readMethod = mode == SerMode::PROXY_SER ?
                 std::bind(&ASTArrayType::EmitCReadMethods, this, _1, _2, _3, _4) :
                 std::bind(&ASTArrayType::EmitCStubReadMethods, this, _1, _2, _3, _4);
             methods.emplace(methodName, readMethod);
             break;
         }
-        case Options::Language::CPP:
+        case Language::CPP:
             methods.emplace(methodName, std::bind(&ASTArrayType::EmitCppReadMethods, this, _1, _2, _3, _4));
             break;
         default:
@@ -796,10 +796,10 @@ void ASTArrayType::RegisterReadPodArrayMethod(Options::Language language, SerMod
     }
 }
 
-void ASTArrayType::RegisterReadStringArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTArrayType::RegisterReadStringArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
-    if (language == Options::Language::C && elementType_->IsStringType()) {
+    if (language == Language::C && elementType_->IsStringType()) {
         auto readMethod = mode == SerMode::PROXY_SER ?
             std::bind(&ASTArrayType::EmitCReadStrArrayMethods, this, _1, _2, _3, _4) :
             std::bind(&ASTArrayType::EmitCStubReadStrArrayMethods, this, _1, _2, _3, _4);

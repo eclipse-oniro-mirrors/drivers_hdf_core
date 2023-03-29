@@ -39,7 +39,7 @@ std::string FileDetail::Dump() const
 
 bool Preprocessor::Preprocess(std::vector<FileDetail> &fileDetails)
 {
-    std::vector<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
+    std::set<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
 
     // check all path of idl files
     if (!CheckAllFilesPath(sourceFiles)) {
@@ -62,7 +62,7 @@ bool Preprocessor::Preprocess(std::vector<FileDetail> &fileDetails)
 
 bool Preprocessor::UnitPreprocess(FileDetailMap &fileDetails)
 {
-    std::vector<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
+    std::set<std::string> sourceFiles = Options::GetInstance().GetSourceFiles();
     // check all path of idl files
     if (!CheckAllFilesPath(sourceFiles)) {
         return false;
@@ -79,7 +79,7 @@ bool Preprocessor::UnitPreprocess(FileDetailMap &fileDetails)
     return true;
 }
 
-bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles)
+bool Preprocessor::CheckAllFilesPath(const std::set<std::string> &sourceFiles)
 {
     if (sourceFiles.empty()) {
         Logger::E(TAG, "no source files");
@@ -97,26 +97,24 @@ bool Preprocessor::CheckAllFilesPath(const std::vector<std::string> &sourceFiles
     return ret;
 }
 
-bool Preprocessor::AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails)
+bool Preprocessor::AnalyseImportInfo(std::set<std::string> sourceFiles, FileDetailMap &allFileDetails)
 {
-    if (sourceFiles.size() == 1) {
+    std::set<std::string> processSource(sourceFiles);
+    while (!processSource.empty()) {
+        auto fileIter = processSource.begin();
         FileDetail info;
-        if (!ParseFileDetail(sourceFiles[0], info)) {
+        if (!ParseFileDetail(*fileIter, info)) {
             return false;
         }
+
+        processSource.erase(fileIter);
         allFileDetails[info.GetFullName()] = info;
-        if (!LoadOtherIdlFiles(info, allFileDetails)) {
+        if (!LoadOtherIdlFiles(info, allFileDetails, processSource)) {
+            Logger::E(TAG, "failed to load other by %s", info.GetFullName().c_str());
             return false;
-        }
-    } else {
-        for (const auto &sourceFile : sourceFiles) {
-            FileDetail info;
-            if (!ParseFileDetail(sourceFile, info)) {
-                return false;
-            }
-            allFileDetails[info.GetFullName()] = info;
         }
     }
+
     return true;
 }
 
@@ -216,7 +214,8 @@ bool Preprocessor::ParseImports(Lexer &lexer, FileDetail &info)
     return true;
 }
 
-bool Preprocessor::LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails)
+bool Preprocessor::LoadOtherIdlFiles(
+    const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails, std::set<std::string> &sourceFiles)
 {
     for (const auto &importName : ownerFileDetail.imports_) {
         if (allFileDetails.find(importName) != allFileDetails.end()) {
@@ -224,16 +223,12 @@ bool Preprocessor::LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDeta
         }
 
         std::string otherFilePath = Options::GetInstance().GetImportFilePath(importName);
-        FileDetail otherFileDetail;
-        if (!ParseFileDetail(otherFilePath, otherFileDetail)) {
+        if (otherFilePath.empty()) {
+            Logger::E(TAG, "importName:%s, is failed", importName.c_str());
             return false;
         }
 
-        allFileDetails[otherFileDetail.GetFullName()] = otherFileDetail;
-        if (!LoadOtherIdlFiles(otherFileDetail, allFileDetails)) {
-            Logger::E(TAG, "failed to load file detail by import '%s'", otherFileDetail.filePath_.c_str());
-            return false;
-        }
+        sourceFiles.insert(otherFilePath);
     }
     return true;
 }

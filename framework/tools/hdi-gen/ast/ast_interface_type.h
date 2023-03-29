@@ -24,7 +24,7 @@ public:
     ASTInterfaceType()
         : ASTType(TypeKind::TYPE_INTERFACE, false),
         license_(),
-        attr_(new ASTInfAttr()),
+        attr_(new ASTAttr()),
         isSerializable_(false),
         methods_(),
         getVerMethod_()
@@ -43,24 +43,29 @@ public:
         return license_;
     }
 
-    void SetAttribute(const AutoPtr<ASTInfAttr> &attr)
+    void SetAttribute(const AutoPtr<ASTAttr> &attr)
     {
         if (attr != nullptr) {
             attr_ = attr;
-            if (attr_->isCallback_) {
+            if (attr_->HasValue(ASTAttr::CALLBACK)) {
                 isSerializable_ = true;
             }
         }
     }
 
+    inline AutoPtr<ASTAttr> GetAttribute() const
+    {
+        return attr_;
+    }
+
     inline bool IsOneWay() const
     {
-        return attr_->isOneWay_;
+        return attr_->HasValue(ASTAttr::ONEWAY);
     }
 
     inline bool IsCallback() const
     {
-        return attr_->isCallback_;
+        return attr_->HasValue(ASTAttr::CALLBACK);
     }
 
     inline void SetSerializable(bool isSerializable)
@@ -75,19 +80,24 @@ public:
 
     inline bool IsFull() const
     {
-        return attr_->isFull_;
+        return attr_->HasValue(ASTAttr::FULL);
     }
 
     inline bool IsLite() const
     {
-        return attr_->isLite_;
+        return attr_->HasValue(ASTAttr::LITE);
+    }
+
+    inline bool IsMini() const
+    {
+        return attr_->HasValue(ASTAttr::MINI);
     }
 
     void AddMethod(const AutoPtr<ASTMethod> &method);
 
-    AutoPtr<ASTMethod> GetMethod(size_t index);
+    std::vector<AutoPtr<ASTMethod>> GetMethodsBySystem(SystemLevel system) const;
 
-    inline size_t GetMethodNumber()
+    inline size_t GetMethodNumber() const
     {
         return methods_.size();
     }
@@ -145,9 +155,9 @@ public:
     void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner, StringBuilder &sb,
         const std::string &prefix) const override;
 
-    void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
+    void RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const override;
 
-    void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
+    void RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const override;
 
     void EmitCWriteMethods(
         StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
@@ -160,7 +170,7 @@ public:
 private:
     std::string license_;
 
-    AutoPtr<ASTInfAttr> attr_;
+    AutoPtr<ASTAttr> attr_;
     bool isSerializable_;
     std::vector<AutoPtr<ASTMethod>> methods_;
     AutoPtr<ASTMethod> getVerMethod_;

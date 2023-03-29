@@ -180,15 +180,15 @@ void ASTFdType::EmitJavaReadInnerVar(const std::string &parcelName, const std::s
         "%s %s = %s.readInt();\n", EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(), parcelName.c_str());
 }
 
-void ASTFdType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTFdType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     std::string methodName = StringHelper::Format("Write%s", ToString().c_str());
     switch (language) {
-        case Options::Language::C:
+        case Language::C:
             methods.emplace(methodName, std::bind(&ASTFdType::EmitCWriteMethods, this, _1, _2, _3, _4));
             break;
-        case Options::Language::CPP:
+        case Language::CPP:
             methods.emplace(methodName, std::bind(&ASTFdType::EmitCppWriteMethods, this, _1, _2, _3, _4));
             break;
         default:
@@ -196,15 +196,15 @@ void ASTFdType::RegisterWriteMethod(Options::Language language, SerMode mode, Ut
     }
 }
 
-void ASTFdType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTFdType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     std::string methodName = StringHelper::Format("Read%s", ToString().c_str());
     switch (language) {
-        case Options::Language::C:
+        case Language::C:
             methods.emplace(methodName, std::bind(&ASTFdType::EmitCReadMethods, this, _1, _2, _3, _4));
             break;
-        case Options::Language::CPP:
+        case Language::CPP:
             methods.emplace(methodName, std::bind(&ASTFdType::EmitCppReadMethods, this, _1, _2, _3, _4));
             break;
         default:

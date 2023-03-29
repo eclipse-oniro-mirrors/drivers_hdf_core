@@ -24,11 +24,24 @@ private:
 
     void EmitCode() override;
 
+    // generate service header file of low mode
+    void EmitLowServiceImplHeaderFile();
+
+    void EmitLowServiceImplInclusions(StringBuilder &sb);
+
+    void EmitLowServiceImplDefinition(StringBuilder &sb);
+
+    // generate service source file of low mode
+    void EmitLowServiceImplSourceFile();
+
+    void EmitLowServiceImplGetMethod(StringBuilder &sb);
+
+    // generate service header file of ipc, passthrough, kernel mode
     void EmitServiceImplHeaderFile();
 
     void EmitServiceImplHeaderInclusions(StringBuilder &sb);
 
-    void EmitServiceImplConstructDecl(StringBuilder &sb) const;
+    void EmitServiceImplExternalMethodsDecl(StringBuilder &sb) const;
 
     void EmitServiceImplSourceFile();
 

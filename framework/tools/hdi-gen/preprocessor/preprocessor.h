@@ -10,6 +10,7 @@
 #define OHOS_HDI_PREPROCESSOR_H
 
 #include <map>
+#include <set>
 #include <unordered_set>
 #include <vector>
 
@@ -44,9 +45,9 @@ public:
     static bool UnitPreprocess(FileDetailMap &fileDetails);
 
 private:
-    static bool CheckAllFilesPath(const std::vector<std::string> &sourceFiles);
+    static bool CheckAllFilesPath(const std::set<std::string> &sourceFiles);
 
-    static bool AnalyseImportInfo(const std::vector<std::string> &sourceFiles, FileDetailMap &allFileDetails);
+    static bool AnalyseImportInfo(std::set<std::string> sourceFiles, FileDetailMap &allFileDetails);
 
     static bool ParseFileDetail(const std::string &sourceFile, FileDetail &info);
 
@@ -54,7 +55,8 @@ private:
 
     static bool ParseImports(Lexer &lexer, FileDetail &info);
 
-    static bool LoadOtherIdlFiles(const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails);
+    static bool LoadOtherIdlFiles(
+        const FileDetail &ownerFileDetail, FileDetailMap &allFileDetails, std::set<std::string> &sourceFiles);
 
     static bool CheckCircularReference(const FileDetailMap &allFileDetails,
         std::vector<FileDetail> &compileSourceFiles);

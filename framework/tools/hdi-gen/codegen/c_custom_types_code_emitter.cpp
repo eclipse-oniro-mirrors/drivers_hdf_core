@@ -30,11 +30,20 @@ bool CCustomTypesCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CCustomTypesCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        EmitPassthroughCustomTypesHeaderFile();
-    } else {
-        EmitCustomTypesHeaderFile();
-        EmitCustomTypesSourceFile();
+    switch (mode_) {
+        case GenMode::LOW:
+        case GenMode::PASSTHROUGH: {
+            EmitPassthroughCustomTypesHeaderFile();
+            break;
+        }
+        case GenMode::IPC:
+        case GenMode::KERNEL: {
+            EmitCustomTypesHeaderFile();
+            EmitCustomTypesSourceFile();
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -500,7 +509,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const Au
         "void %sFree(%s *%s, bool freeSelf)\n", type->GetName().c_str(), type->EmitCType().c_str(), objName.c_str());
     sb.Append("{\n");
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         for (size_t i = 0; i < type->GetMemberNumber(); i++) {
             AutoPtr<ASTType> memberType = type->GetMemberType(i);
             if (EmitNeedLoopVar(memberType, false, true)) {
@@ -547,8 +556,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypeMemoryRecycle(
 void CCustomTypesCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
     for (const auto &typePair : ast_->GetTypes()) {
-        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
-        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
     }
 }
 } // namespace HDI

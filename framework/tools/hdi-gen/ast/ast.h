@@ -43,6 +43,7 @@ namespace OHOS {
 namespace HDI {
 enum class ASTFileType {
     AST_IFACE,        // this idl file contains class of normal interface
+    AST_CALL_IFACE,   // this idl file contains class of interface that as parameter
     AST_ICALLBACK,    // this idl file contains class of callback interface
     AST_TYPES,        // this idl file contains custom types
     AST_SEQUENCEABLE, // this is not an idl file, but a c++/java file
@@ -77,6 +78,11 @@ public:
     inline std::string GetFullName()
     {
         return packageName_ + "." + name_;
+    }
+
+    inline std::string GetPackageName() const
+    {
+        return packageName_;
     }
 
     inline void SetLicense(const std::string &license)

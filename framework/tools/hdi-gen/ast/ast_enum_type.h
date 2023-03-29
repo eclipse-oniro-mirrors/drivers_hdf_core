@@ -57,7 +57,7 @@ private:
 
 class ASTEnumType : public ASTType {
 public:
-    ASTEnumType() : ASTType(TypeKind::TYPE_ENUM, true), attr_(new ASTTypeAttr()), baseType_(), members_() {}
+    ASTEnumType() : ASTType(TypeKind::TYPE_ENUM, true), attr_(new ASTAttr()), baseType_(), members_() {}
 
     inline void SetName(const std::string &name) override
     {
@@ -69,7 +69,7 @@ public:
         return name_;
     }
 
-    inline void SetAttribute(const AutoPtr<ASTTypeAttr> &attr)
+    inline void SetAttribute(const AutoPtr<ASTAttr> &attr)
     {
         if (attr != nullptr) {
             attr_ = attr;
@@ -78,12 +78,12 @@ public:
 
     inline bool IsFull()
     {
-        return attr_ != nullptr ? attr_->isFull_ : false;
+        return attr_ != nullptr ? attr_->HasValue(ASTAttr::FULL) : false;
     }
 
     inline bool IsLite()
     {
-        return attr_ != nullptr ? attr_->isLite_ : false;
+        return attr_ != nullptr ? attr_->HasValue(ASTAttr::LITE) : false;
     }
 
     void SetBaseType(const AutoPtr<ASTType> &baseType);
@@ -156,7 +156,7 @@ public:
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 
 private:
-    AutoPtr<ASTTypeAttr> attr_;
+    AutoPtr<ASTAttr> attr_ = new ASTAttr();
     AutoPtr<ASTType> baseType_;
     std::vector<AutoPtr<ASTEnumValue>> members_;
 };

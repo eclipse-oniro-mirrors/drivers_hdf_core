@@ -81,15 +81,19 @@ private:
     // parse interface type
     void ParseInterface(const AttrSet &attrs = {});
 
-    AutoPtr<ASTInfAttr> ParseInfAttrInfo(const AttrSet &attrs);
+    AutoPtr<ASTAttr> ParseInfAttrInfo(const AttrSet &attrs);
+
+    void CheckInterfaceAttr(const AutoPtr<ASTInterfaceType> &interface, Token token);
 
     void ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface);
 
-    AutoPtr<ASTMethod> ParseMethod();
+    AutoPtr<ASTMethod> ParseMethod(const AutoPtr<ASTInterfaceType> &interface);
 
-    AutoPtr<ASTMethodAttr> ParseMethodAttr();
+    AutoPtr<ASTAttr> ParseMethodAttr();
 
     AutoPtr<ASTMethod> CreateGetVersionMethod();
+
+    void CheckMethodAttr(const AutoPtr<ASTInterfaceType> &interface, const AutoPtr<ASTMethod> &method);
 
     void ParseMethodParamList(const AutoPtr<ASTMethod> &method);
 
@@ -134,7 +138,7 @@ private:
     bool AddUnionMember(
         const AutoPtr<ASTUnionType> &unionType, const AutoPtr<ASTType> &type, const std::string &name) const;
 
-    AutoPtr<ASTTypeAttr> ParseUserDefTypeAttr(const AttrSet &attrs);
+    AutoPtr<ASTAttr> ParseUserDefTypeAttr(const AttrSet &attrs);
 
     // parse expression
     AutoPtr<ASTExpr> ParseExpr();

@@ -199,13 +199,13 @@ void ASTMapType::EmitJavaReadInnerVar(const std::string &parcelName, const std::
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTMapType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     keyType_->RegisterWriteMethod(language, mode, methods);
     valueType_->RegisterWriteMethod(language, mode, methods);
 }
 
-void ASTMapType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTMapType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     keyType_->RegisterReadMethod(language, mode, methods);
     valueType_->RegisterReadMethod(language, mode, methods);

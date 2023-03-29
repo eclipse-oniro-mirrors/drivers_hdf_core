@@ -194,9 +194,9 @@ public:
     virtual void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
         StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    virtual void RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
-    virtual void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    virtual void RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
 protected:
     TypeKind typeKind_;

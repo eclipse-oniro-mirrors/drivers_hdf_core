@@ -40,7 +40,7 @@ void CCodeEmitter::EmitInterfaceMethodParameter(
 void CCodeEmitter::EmitMethodNeedLoopVar(
     const AutoPtr<ASTMethod> &method, bool needRW, bool needFree, StringBuilder &sb, const std::string &prefix) const
 {
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         return;
     }
 

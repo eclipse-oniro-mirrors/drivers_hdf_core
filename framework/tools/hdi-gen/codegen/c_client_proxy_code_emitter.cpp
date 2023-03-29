@@ -30,12 +30,20 @@ bool CClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CClientProxyCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        if (!interface_->IsSerializable()) {
-            EmitPassthroughProxySourceFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH: {
+            if (!interface_->IsSerializable()) {
+                EmitPassthroughProxySourceFile();
+            }
+            break;
         }
-    } else {
-        EmitProxySourceFile();
+        case GenMode::IPC:
+        case GenMode::KERNEL: {
+            EmitProxySourceFile();
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -117,7 +125,7 @@ void CClientProxyCodeEmitter::EmitProxySourceFile()
     sb.Append("\n");
     EmitUtilMethods(sb, "", utilMethods, false);
     sb.Append("\n");
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         EmitProxyCallMethodImpl(sb);
     } else {
         EmitProxyKernelCallMethodImpl(sb);
@@ -155,7 +163,7 @@ void CClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_io_service_if");
     } else {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "servmgr_hdi");
@@ -166,8 +174,7 @@ void CClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFile
         }
     }
 
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
@@ -183,7 +190,7 @@ void CClientProxyCodeEmitter::EmitProxyDefinition(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %sProxy {\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("struct %s impl;\n", interfaceName_.c_str());
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append(TAB).Append("struct HdfIoService *serv;\n");
     } else {
         sb.Append(TAB).Append("struct HdfRemoteService *remote;\n");
@@ -245,15 +252,14 @@ void CClientProxyCodeEmitter::EmitProxyKernelCallMethodImpl(StringBuilder &sb) c
 
 void CClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb)
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitProxyMethodImpl(method, sb);
         sb.Append("\n");
     }
 
     EmitProxyMethodImpl(interface_->GetVersionMethod(), sb);
 
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         sb.Append("\n");
         EmitProxyAsObjectMethodImpl(sb);
     }
@@ -296,7 +302,7 @@ void CClientProxyCodeEmitter::EmitProxyMethodBody(
     sb.Append("\n");
     EmitCheckThisPointer(sb, prefix + TAB);
 
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         sb.Append("\n");
         EmitWriteInterfaceToken(dataParcelName_, sb, prefix + TAB);
     }
@@ -337,7 +343,7 @@ void CClientProxyCodeEmitter::EmitProxyMethodBody(
 void CClientProxyCodeEmitter::EmitCreateBuf(const std::string &dataBufName,
     const std::string &replyBufName, StringBuilder &sb, const std::string &prefix) const
 {
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append(prefix).AppendFormat("struct HdfSBuf *%s = HdfSbufObtainDefaultSize();\n", dataBufName.c_str());
         sb.Append(prefix).AppendFormat("struct HdfSBuf *%s = HdfSbufObtainDefaultSize();\n", replyBufName.c_str());
     } else {
@@ -429,7 +435,7 @@ void CClientProxyCodeEmitter::EmitReadProxyMethodParameter(const AutoPtr<ASTPara
 void CClientProxyCodeEmitter::EmitStubCallMethod(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
 {
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         sb.Append(prefix).AppendFormat("%s = %sCall(self, %s, %s, %s, %s);\n", errorCodeName_.c_str(),
             proxyName_.c_str(), EmitMethodCmdID(method).c_str(), dataParcelName_.c_str(), replyParcelName_.c_str(),
             method->IsOneWay() ? "true" : "false");
@@ -465,8 +471,7 @@ void CClientProxyCodeEmitter::EmitProxyConstruction(StringBuilder &sb) const
         "static void %sProxyConstruct(struct %s *%s)\n", baseName_.c_str(), interfaceName_.c_str(), objName.c_str());
     sb.Append("{\n");
 
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(TAB).AppendFormat("%s->%s = %sProxy%s;\n", objName.c_str(), method->GetName().c_str(),
             baseName_.c_str(), method->GetName().c_str());
     }
@@ -475,7 +480,7 @@ void CClientProxyCodeEmitter::EmitProxyConstruction(StringBuilder &sb) const
     sb.Append(TAB).AppendFormat("%s->%s = %sProxy%s;\n", objName.c_str(), getVerMethod->GetName().c_str(),
         baseName_.c_str(), getVerMethod->GetName().c_str());
 
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         sb.Append(TAB).AppendFormat("%s->AsObject = %sProxyAsObject;\n", objName.c_str(), baseName_.c_str());
     }
 
@@ -490,7 +495,7 @@ void CClientProxyCodeEmitter::EmitProxyExternalMethodImpl(StringBuilder &sb)
     std::string remoteName = "remote";
     std::string serviceName = "serviceName";
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         remoteName = "serv";
         EmitKernelProxyGetMethodImpl(sb);
         sb.Append("\n");
@@ -653,7 +658,7 @@ void CClientProxyCodeEmitter::EmitProxyGetInstanceMethodImpl(const std::string &
 void CClientProxyCodeEmitter::EmitProxyGetRemoteService(const std::string &remoteName,
     const std::string &serviceName, StringBuilder &sb, const std::string &prefix) const
 {
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         sb.Append(prefix).Append("struct HDIServiceManager *serviceMgr = HDIServiceManagerGet();\n");
         sb.Append(prefix).Append("if (serviceMgr == NULL) {\n");
         sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: HDIServiceManager not found!\", __func__);\n");
@@ -716,7 +721,7 @@ void CClientProxyCodeEmitter::EmitProxyCheckVersion(const std::string &clientObj
         clientObjName.c_str(), clientObjName.c_str(), serMajorName.c_str(), serMinorName.c_str());
     sb.Append(prefix).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: get version failed!\", __func__);\n");
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append(prefix + TAB).AppendFormat("%sRelease(%s);\n", interfaceName_.c_str(), clientObjName.c_str());
     } else if (interface_->IsCallback()) {
         sb.Append(prefix + TAB).AppendFormat("%sRelease(%s);\n", interfaceName_.c_str(), clientObjName.c_str());
@@ -731,7 +736,7 @@ void CClientProxyCodeEmitter::EmitProxyCheckVersion(const std::string &clientObj
     sb.Append("version of service:%u.%u, version of client:%u.%u\", __func__,\n");
     sb.Append(prefix + TAB + TAB).AppendFormat("%s, %s, %s, %s);\n", serMajorName.c_str(), serMinorName.c_str(),
         majorVerName_.c_str(), minorVerName_.c_str());
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append(prefix + TAB).AppendFormat("%sRelease(%s);\n", interfaceName_.c_str(), clientObjName.c_str());
     } else if (interface_->IsCallback()) {
         sb.Append(prefix + TAB).AppendFormat("%sRelease(%s);\n", interfaceName_.c_str(), clientObjName.c_str());
@@ -793,16 +798,15 @@ void CClientProxyCodeEmitter::EmitProxyLoadOrUnLoadHdiImpl(const std::string &se
 
 void CClientProxyCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(),
+                paramType->RegisterWriteMethod(Options::GetInstance().GetLanguage(),
                     SerMode::PROXY_SER, methods);
             } else {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::PROXY_SER, methods);
             }
         }
     }

@@ -24,7 +24,32 @@ namespace HDI {
     constexpr const char *MAX_BUFF_SIZE_VALUE = "1024 * 200";    // 200KB
     constexpr const char *CHECK_VALUE_RETURN_MACRO = "HDI_CHECK_VALUE_RETURN";
     constexpr const char *CHECK_VALUE_RET_GOTO_MACRO = "HDI_CHECK_VALUE_RET_GOTO";
-}
-}
 
+    enum class SystemLevel {
+        /** mini system */
+        MINI,
+        /** lite system */
+        LITE,
+        /** std system */
+        FULL,
+    };
+
+    enum class GenMode {
+        /** generate hdi code of low mode, it is only supported by 'MINI' SystemLevel */
+        LOW,
+        /** generate hdi code of pass through mode, it is only supported by 'LITE' or 'std' SystemLevel */
+        PASSTHROUGH,
+        /** generate hdi code of ipc mode, it is only supported by 'std' SystemLevel */
+        IPC,
+        /** generate hdi code of kernel mode, it is only supported by 'LITE' or 'std' SystemLevel */
+        KERNEL,
+    };
+
+    enum class Language {
+        C,
+        CPP,
+        JAVA,
+    };
+} // namespace HDI
+} // namespace OHOS
 #endif // OHOS_HDI_COMMON_H
