@@ -143,7 +143,13 @@ static inline void DListMerge(struct DListHead *list, struct DListHead *head)
     DListHeadInit(list);
 }
 
-
+/**
+ * @brief Get the number of elements in the linked list.
+ *
+ * @param head Indicates the pointer to the linked list {@link DListHead}. The parameter cannot be empty.
+ * @since 1.0
+ * @version 1.0
+ */
 static inline int DListGetCount(const struct DListHead *head)
 {
     struct DListHead *next = head->next;

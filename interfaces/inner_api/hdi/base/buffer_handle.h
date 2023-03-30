@@ -13,6 +13,31 @@
  * limitations under the License.
  */
 
+/**
+ * @addtogroup DriverHdi
+ * @{
+ *
+ * @brief Provides APIs for a system ability to obtain hardware device interface (HDI) services,
+ * load or unload a device, and listen for service status, and capabilities for the hdi-gen tool
+ * to automatically generate code in interface description language (IDL).
+ *
+ * The HDF and IDL code generated allow the system ability to accesses HDI driver services.
+ *
+ * @since 1.0
+ */
+
+/**
+ * @file buffer_handle.h
+ *
+ * @brief Defines the common data struct for graphics processing.
+ * The <b>BufferHandle</b> must comply with the IDL syntax.
+ *
+ * You only need to define the struct in IDL for the service module.
+ * The HDI module implements serialization and deserialization of this struct.
+ *
+ * @since 1.0
+ */
+
 #ifndef INCLUDE_BUFFER_HANDLE_H
 #define INCLUDE_BUFFER_HANDLE_H
 
@@ -22,20 +47,23 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Defines the <b>BufferHandle</b> struct.
+ */
 typedef struct {
-    int32_t fd;           /**< buffer fd, -1 if not supported */
-    int32_t width;        /**< the width of memory */
-    int32_t stride;       /**< the stride of memory */
-    int32_t height;       /**< the height of memory */
-    int32_t size;         /* < size of memory */
-    int32_t format;       /**< the format of memory */
-    uint64_t usage;        /**< the usage of memory */
-    void *virAddr;        /**< Virtual address of memory  */
+    int32_t fd;           /**< Buffer file descriptor (FD). The value <b>-1</b> indicates a invalid FD. */
+    int32_t width;        /**< Width of the image */
+    int32_t stride;       /**< Stride of the image */
+    int32_t height;       /**< Height of the image */
+    int32_t size;         /* < Size of the buffer */
+    int32_t format;       /**< Format of the image */
+    uint64_t usage;       /**< Usage of the buffer */
+    void *virAddr;        /**< Virtual address of the buffer */
     uint64_t phyAddr;     /**< Physical address */
     int32_t key;          /**< Shared memory key */
-    uint32_t reserveFds;  /**< the number of reserved fd value */
-    uint32_t reserveInts; /**< the number of reserved integer value */
-    int32_t reserve[0];   /**< the data */
+    uint32_t reserveFds;  /**< Number of the reserved FDs */
+    uint32_t reserveInts; /**< Number of the reserved integers */
+    int32_t reserve[0];   /**< Data */
 } BufferHandle;
 
 #ifdef __cplusplus
