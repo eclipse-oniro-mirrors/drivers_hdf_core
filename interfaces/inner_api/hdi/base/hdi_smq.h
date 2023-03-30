@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,6 +11,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+
+/**
+ * @addtogroup DriverHdi
+ * @{
+ *
+ * @brief Provides APIs for a system ability to obtain hardware device interface (HDI) services,
+ * load or unload a device, and listen for service status, and capabilities for the hdi-gen tool to
+ * automatically generate code in interface description language (IDL).
+ *
+ * The HDF and IDL code generated allow the system ability to accesses HDI driver services.
+ *
+ * @since 1.0
+ */
+
+/**
+ * @file hdi_smq.h
+ *
+ * @brief Provides APIs for the shared memory queue (SMQ).
+ * The SMQ is a common mechanism for inter-process communication. The SMQ must comply with the IDL syntax.
+ * You only need to define the SMQ struct in IDL for the service module.
+ * The HDI module provides common operations for reading and writing the SMQ.
+ *
+ * @since 1.0
  */
 
 #ifndef HDI_SHARED_MEM_QUEUE_INF_H
@@ -41,33 +65,177 @@
 namespace OHOS {
 namespace HDI {
 namespace Base {
+/**
+ * @brief Defines the <b>SharedMemQueue</b> class.
+ *
+ * The SMQ is a message queue used for simplex communication between processes.
+ * It allows data write from one end and read at the other end, in either blocking or non-blocking mode.
+ */
 template <typename T>
 class SharedMemQueue {
 public:
+    /**
+     * @brief A constructor used to create a <b>SharedMemQueue</b> object.
+     *
+     * @param elementCount Indicates the queue size, that is, the maximum number of elements allowed in the queue.
+     * @param type Indicates whether the SMQ is synchronous (<b>SYNCED_SMQ</b>) or asynchronous (<b>UNSYNC_SMQ</b>).
+     */
     SharedMemQueue(uint32_t elementCount, SmqType type);
+
+    /**
+     * @brief A function used to copy the <b>SharedMemQueue</b> object.
+     */
     explicit SharedMemQueue(const SharedMemQueueMeta<T> &meta);
     ~SharedMemQueue();
 
+    /**
+     * @brief Writes an array of elements to the SMQ in blocking mode.
+     *
+     * When the SMQ is full, this API is blocked until the queue is writeable.
+     *
+     * @param data Indicates the pointer to the array of elements to write.
+     * @param count Indicates the number of elements to write.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int Write(const T *data, size_t count);
+
+    /**
+     * @brief Reads an array of elements from the SMQ in blocking mode.
+     *
+     * When the SMQ is empty, this API is blocked until the queue is readable.
+     *
+     * @param data Indicates the pointer to the buffer for storing the elements read.
+     * @param count Indicates the number of elements to read.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int Read(T *data, size_t count);
 
+    /**
+     * @brief Writes a single element to the SMQ in blocking mode.
+     *
+     * When the SMQ is full, this API is blocked until the queue is writeable.
+     *
+     * @param data Indicates the pointer to the single element to write.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int Write(const T *data);
+
+    /**
+     * @brief Reads a single element from the SMQ in blocking mode.
+     *
+     * When the SMQ is empty, this API is blocked until the queue is readable.
+     *
+     * @param data Indicates the pointer to the buffer for storing the single element read.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int Read(T *data);
 
+    /**
+     * @brief Writes a fixed number of elements to the SMQ in blocking mode.
+     *
+     * When the SMQ is full, this API is blocked until the queue is writeable or the write operation times out.
+     *
+     * @param data Indicates the pointer to the array of elements to write.
+     * @param count Indicates the number of elements to write.
+     * @param waitTimeNanoSec Indicates the write operation timeout period, in nanoseconds.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int Write(const T *data, size_t count, int64_t waitTimeNanoSec);
+
+    /**
+     * @brief Reads a fixed number of elements from the SMQ in blocking mode.
+     *
+     * When the number of elements in the SMQ is less than the number of elements to read,
+     * this API is blocked until the queue is readable or the read operation times out.
+     *
+     * @param data Indicates the pointer to the buffer for storing the elements read.
+     * @param count Indicates the number of elements to read.
+     * @param waitTimeNanoSec Indicates the read operation timeout period, in nanoseconds.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int Read(T *data, size_t count, int64_t waitTimeNanoSec);
 
+    /**
+     * @brief Writes a single element to the SMQ in non-blocking mode.
+     *
+     * When the SMQ queue is full, the SMPQ overflows. The overflowed element will be overwritten.
+     *
+     * @param data Indicates the pointer to the single element to write.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int WriteNonBlocking(const T *data);
+
+    /**
+     * @brief Reads a single element from the SMQ in non-blocking mode.
+     *
+     * @param data Indicates the pointer to the buffer for storing the element read.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int ReadNonBlocking(T *data);
 
+    /**
+     * @brief Writes a fixed number of elements to the SMQ in non-blocking mode.
+     *
+     * When the SMQ is full, the SMQ overflows. The overflowed elements will be overwritten.
+     *
+     * @param data Indicates the pointer to the elements to write.
+     * @param count Indicates the number of elements to write.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int WriteNonBlocking(const T *data, size_t count);
+
+    /**
+     * @brief Reads a fixed number of elements from the SMQ in non-blocking mode.
+     *
+     * If the SMQ queue does not have sufficient elements to read, a failure is returned immediately.
+     *
+     * @param data Indicates the pointer to the buffer for storing the data read.
+     * The number of elements that can be held in the buffer must be greater than the number of elements read.
+     * @param count Indicates the number of elements to read.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
     int ReadNonBlocking(T *data, size_t count);
 
+    /**
+     * @brief Obtains the number of elements that can be written to the SMQ.
+     *
+     * @return Returns the number of elements that can be written to the SMQ.
+     */
     size_t GetAvalidWriteSize();
+
+    /**
+     * @brief Obtains the number of elements that can be read from the SMQ.
+     *
+     * @return Returns the number of elements that can be read from the SMQ.
+     */
     size_t GetAvalidReadSize();
+
+    /**
+     * @brief Obtains the size of the SMQ, in bytes.
+     *
+     * @return Returns the number of bytes occupied by the SMQ.
+     */
     size_t GetSize();
+
+    /**
+     * @brief Obtains the metadata object.
+     *
+     * @return Returns the metadata object obtained.
+     */
     std::shared_ptr<SharedMemQueueMeta<T>> GetMeta();
+
+    /**
+     * @brief Checks whether the SMQ object is valid.
+     *
+     * @return Returns <b>true</b> if the object is valid; returns <b>false</b> otherwise.
+     */
     bool IsGood();
+
+    /**
+     * @brief Obtains the current timestamp, in nanoseconds.
+     *
+     * @return Returns the timestamp obtained.
+     */
     static inline int64_t GetNanoTime()
     {
         struct timespec ts;

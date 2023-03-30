@@ -92,20 +92,58 @@ typedef enum {
 #define HDF_KILO_UNIT 1000
 
 #ifdef __LITEOS__
+/**
+ * @brief Declares the full path of the HDF module library.
+ */
 #define HDF_LIBRARY_FULL_PATH(x) "/usr/lib/" x ".so"
+
+/**
+ * @brief Declares the directory of the HDF module library.
+ */
 #define HDF_LIBRARY_DIR "/usr/lib"
+
+/**
+ * @brief Declares the directory of the HDF module configuration files.
+ */
 #define HDF_ETC_DIR "/etc"
+
+/**
+ * @brief Declares the configuration directory of the HDF module.
+ */
 #define HDF_CONFIG_DIR "/etc"
 #else
+/**
+ * @brief Declares the full path of the HDF module library.
+ */
 #ifdef __aarch64__
 #define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib64/" x ".z.so"
 #else
 #define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib/" x ".z.so"
 #endif
+
+/**
+ * @brief Declares the directory of the HDF module library.
+ */
 #define HDF_LIBRARY_DIR "/vendor/lib"
+
+/**
+ * @brief Declares the directory of the HDF module configuration files.
+ */
 #define HDF_ETC_DIR "/vendor/etc"
+
+/**
+ * @brief Declares the configuration directory of the HDF module.
+ */
 #define HDF_CONFIG_DIR "/vendor/etc/hdfconfig"
+
+/**
+ * @brief Declares the directory of the HCS configuration file of the HDF.
+ */
 #define HDF_CHIP_PROD_CONFIG_DIR "/chip_prod/etc/hdfconfig"
+
+/**
+ * @brief Declares the installation directory of the HDF kernel-mode service module driver.
+ */
 #define HDF_MODULE_DIR "/vendor/modules/"
 #endif
 
