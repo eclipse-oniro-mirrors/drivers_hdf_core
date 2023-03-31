@@ -761,6 +761,31 @@ struct HdfMac80211STAOps {
      * @version 1.0
      */
     int32_t (*SetScanningMacAddress)(NetDevice *netDev, unsigned char *mac, uint32_t len);
+
+    /**
+     * @brief Start pno scan.
+     *
+     * @param netDev Indicates the pointer to the network device structure obtained during initialization.
+     * @param pnoSettings Indicates the pno scan parameters.
+     *
+     * @return Returns <b>0</b> if Starting pno scan is successful; returns a non-zero value otherwise.
+     *
+     * @since 4.0
+     * @version 1.1
+     */
+    int32_t (*StartPnoScan)(NetDevice *netDev, const WifiPnoSettings *pnoSettings);
+
+    /**
+     * @brief Stop pno scan.
+     *
+     * @param netDev Indicates the pointer to the network device structure obtained during initialization.
+     *
+     * @return Returns <b>0</b> if Stopping pno scan is successful; returns a non-zero value otherwise.
+     *
+     * @since 4.0
+     * @version 1.0
+     */
+    int32_t (*StopPnoScan)(NetDevice *netDev);
 };
 
 /**
