@@ -30,13 +30,19 @@ bool CppClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppClientProxyCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        if (!interface_->IsSerializable()) {
-            EmitPassthroughProxySourceFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH: {
+            if (!interface_->IsSerializable()) {
+                EmitPassthroughProxySourceFile();
+            }
+            break;
         }
-    } else {
-        EmitProxyHeaderFile();
-        EmitProxySourceFile();
+        case GenMode::IPC: {
+            EmitProxyHeaderFile();
+            EmitProxySourceFile();
+        }
+        default:
+            break;
     }
 }
 
@@ -106,8 +112,7 @@ void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const st
 
 void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitProxyMethodDecl(method, sb, prefix);
         sb.Append("\n");
     }
@@ -179,8 +184,13 @@ void CppClientProxyCodeEmitter::EmitPassthroughProxySourceInclusions(StringBuild
     HeaderFile::HeaderFileSet headerFiles;
 
     headerFiles.emplace(HeaderFileType::OWN_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
+    if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {
+        headerFiles.emplace(HeaderFileType::CPP_STD_HEADER_FILE, "codecvt");
+        headerFiles.emplace(HeaderFileType::CPP_STD_HEADER_FILE, "locale");
+    } else {
+        headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "string_ex");
+    }
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_support");
-    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "string_ex");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
 
     for (const auto &file : headerFiles) {
@@ -191,8 +201,8 @@ void CppClientProxyCodeEmitter::EmitPassthroughProxySourceInclusions(StringBuild
 void CppClientProxyCodeEmitter::EmitPassthroughGetInstanceMethodImpl(StringBuilder &sb,
     const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string &serviceName, bool isStub)\n",
-        interface_->GetName().c_str(), interface_->GetName().c_str());
+    sb.Append(prefix).AppendFormat("%s %s::Get(const std::string &serviceName, bool isStub)\n",
+        interface_->EmitCppType().c_str(), interface_->GetName().c_str());
     sb.Append(prefix).Append("{\n");
     EmitProxyPassthroughtLoadImpl(sb, prefix + TAB);
     sb.Append(prefix + TAB).Append("return nullptr;\n");
@@ -266,8 +276,7 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
         }
     }
 
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
@@ -287,7 +296,7 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
 void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
-        "sptr<%s> %s::Get(bool isStub)\n", interface_->GetName().c_str(), interface_->GetName().c_str());
+        "%s %s::Get(bool isStub)\n", interface_->EmitCppType().c_str(), interface_->GetName().c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB)
         .AppendFormat("return %s::Get(\"%s\", isStub);\n", interfaceName_.c_str(), FileName(implName_).c_str());
@@ -345,22 +354,34 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
 void CppClientProxyCodeEmitter::EmitProxyPassthroughtLoadImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (isStub) {\n");
-    sb.Append(prefix + TAB)
-        .AppendFormat("std::string desc = Str16ToStr8(%s::GetDescriptor());\n", interfaceName_.c_str());
+
+    if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {
+        sb.Append(prefix + TAB).Append("std::string desc = ");
+        sb.Append("std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(");
+        sb.AppendFormat("%s::GetDescriptor());\n", interfaceName_.c_str());
+    } else {
+        sb.Append(prefix + TAB)
+            .AppendFormat("std::string desc = Str16ToStr8(%s::GetDescriptor());\n", interfaceName_.c_str());
+    }
     sb.Append(prefix + TAB).Append("void *impl = LoadHdiImpl(desc.c_str(), ");
     sb.AppendFormat("serviceName == \"%s\" ? \"service\" : serviceName.c_str());\n", FileName(implName_).c_str());
     sb.Append(prefix + TAB).Append("if (impl == nullptr) {\n");
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"failed to load hdi impl %{public}s\", desc.data());\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB).AppendFormat("return reinterpret_cast<%s *>(impl);\n", interfaceName_.c_str());
+
+    if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {
+        sb.Append(prefix + TAB).AppendFormat("return std::shared_ptr<%s>(reinterpret_cast<%s *>(impl));\n",
+            interfaceName_.c_str(), interfaceName_.c_str());
+    } else {
+        sb.Append(prefix + TAB).AppendFormat("return reinterpret_cast<%s *>(impl);\n", interfaceName_.c_str());
+    }
     sb.Append(prefix).Append("}\n\n");
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix)
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitProxyMethodImpl(method, sb, prefix);
         sb.Append("\n");
     }
@@ -466,15 +487,14 @@ void CppClientProxyCodeEmitter::EmitWriteFlagOfNeedSetMem(const AutoPtr<ASTMetho
 
 void CppClientProxyCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::PROXY_SER, methods);
             } else {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::PROXY_SER, methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::PROXY_SER, methods);
             }
         }
     }

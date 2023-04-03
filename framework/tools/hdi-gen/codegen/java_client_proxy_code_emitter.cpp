@@ -29,7 +29,14 @@ bool JavaClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirec
 
 void JavaClientProxyCodeEmitter::EmitCode()
 {
-    EmitProxyFile();
+    switch (mode_) {
+        case GenMode::IPC: {
+            EmitProxyFile();
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyFile()
@@ -144,12 +151,9 @@ void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const s
 
 void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitProxyMethodImpl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 }
 

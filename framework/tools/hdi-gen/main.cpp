@@ -18,11 +18,11 @@ using namespace OHOS::HDI;
 
 int main(int argc, char **argv)
 {
-    const Options &options = Options::GetInstance().Parse(argc, argv);
-    if (options.HasErrors()) {
-        options.ShowErrors();
+    Options &options = Options::GetInstance();
+    if (!options.Parse(argc, argv)) {
         return -1;
     }
+
     if (options.DoShowUsage()) {
         options.ShowUsage();
         return 0;
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (!CodeGenerator(parser.GetAllAst()).Generate()) {
+    if (!CodeGenerator().Generate(parser.GetAllAst())) {
         Logger::E("hdi-gen", "failed to generate code");
         return -1;
     }

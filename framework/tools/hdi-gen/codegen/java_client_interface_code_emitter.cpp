@@ -30,7 +30,14 @@ bool JavaClientInterfaceCodeEmitter::ResolveDirectory(const std::string &targetD
 
 void JavaClientInterfaceCodeEmitter::EmitCode()
 {
-    EmitInterfaceFile();
+    switch (mode_) {
+        case GenMode::IPC: {
+            EmitInterfaceFile();
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceFile()
@@ -113,12 +120,9 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitInterfaceMethod(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 }
 

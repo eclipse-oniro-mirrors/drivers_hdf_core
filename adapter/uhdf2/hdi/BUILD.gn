@@ -27,8 +27,30 @@ config("libhdi_pub_config") {
   ]
 }
 if (defined(ohos_lite)) {
-  group("libhdi") {
-    deps = []
+  ohos_shared_library("libhdi") {
+    output_extension = "z.so"
+
+    if (target_cpu == "arm64" || target_cpu == "x86_64") {
+      defines = [ "__ARCH64__" ]
+    }
+
+    include_dirs = [
+      "//drivers/hdf_core/interfaces/inner_api/utils",
+      "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
+    ]
+    all_dependent_configs = [ ":libhdi_pub_config" ]
+    sources = [ "src/hdi_support.cpp" ]
+
+    deps = [
+      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+      "//third_party/bounds_checking_function:libsec_shared",
+    ]
+
+    defines = [ "__USER__" ]
+
+    # install_images = [ system_base_dir ]
+    subsystem_name = "hdf"
+    part_name = "hdf_core"
   }
 } else {
   ohos_shared_library("libhdi") {

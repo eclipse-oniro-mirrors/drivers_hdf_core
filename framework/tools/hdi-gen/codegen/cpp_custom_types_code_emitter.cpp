@@ -29,11 +29,17 @@ bool CppCustomTypesCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppCustomTypesCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        EmitPassthroughCustomTypesHeaderFile();
-    } else {
-        EmitCustomTypesHeaderFile();
-        EmitCustomTypesSourceFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH: {
+            EmitPassthroughCustomTypesHeaderFile();
+            break;
+        }
+        case GenMode::IPC: {
+            EmitCustomTypesHeaderFile();
+            EmitCustomTypesSourceFile();
+        }
+        default:
+            break;
     }
 }
 
@@ -371,8 +377,8 @@ void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 void CppCustomTypesCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
     for (const auto &typePair : ast_->GetTypes()) {
-        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
-        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
     }
 }
 } // namespace HDI

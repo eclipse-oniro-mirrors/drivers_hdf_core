@@ -27,13 +27,15 @@ void ASTInterfaceType::AddMethod(const AutoPtr<ASTMethod> &method)
     methods_.push_back(method);
 }
 
-AutoPtr<ASTMethod> ASTInterfaceType::GetMethod(size_t index)
+std::vector<AutoPtr<ASTMethod>> ASTInterfaceType::GetMethodsBySystem(SystemLevel system) const
 {
-    if (index >= methods_.size()) {
-        return nullptr;
+    std::vector<AutoPtr<ASTMethod>> methods;
+    for (const auto &method : methods_) {
+        if (method->GetAttribute()->Match(system)) {
+            methods.push_back(method);
+        }
     }
-
-    return methods_[index];
+    return methods;
 }
 
 bool ASTInterfaceType::IsInterfaceType()
@@ -98,15 +100,19 @@ std::string ASTInterfaceType::EmitCType(TypeMode mode) const
 
 std::string ASTInterfaceType::EmitCppType(TypeMode mode) const
 {
+    std::string pointerName = "sptr";
+    if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {
+        pointerName = "std::shared_ptr";
+    }
     switch (mode) {
         case TypeMode::NO_MODE:
-            return StringHelper::Format("sptr<%s>", name_.c_str());
+            return StringHelper::Format("%s<%s>", pointerName.c_str(), name_.c_str());
         case TypeMode::PARAM_IN:
-            return StringHelper::Format("const sptr<%s>&", name_.c_str());
+            return StringHelper::Format("const %s<%s>&", pointerName.c_str(), name_.c_str());
         case TypeMode::PARAM_OUT:
-            return StringHelper::Format("sptr<%s>&", name_.c_str());
+            return StringHelper::Format("%s<%s>&", pointerName.c_str(), name_.c_str());
         case TypeMode::LOCAL_VAR:
-            return StringHelper::Format("sptr<%s>", name_.c_str());
+            return StringHelper::Format("%s<%s>", pointerName.c_str(), name_.c_str());
         default:
             return "unknow type";
     }
@@ -196,12 +202,12 @@ void ASTInterfaceType::EmitJavaReadInnerVar(const std::string &parcelName, const
         EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(), stubName.c_str(), parcelName.c_str());
 }
 
-void ASTInterfaceType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTInterfaceType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
     std::string methodName = "WriteInterface";
     switch (language) {
-        case Options::Language::C:
+        case Language::C:
             methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
             break;
         default:
@@ -209,17 +215,17 @@ void ASTInterfaceType::RegisterWriteMethod(Options::Language language, SerMode m
     }
 }
 
-void ASTInterfaceType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTInterfaceType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
 
     switch (language) {
-        case Options::Language::C: {
+        case Language::C: {
             std::string methodName = StringHelper::Format("Read%s", name_.c_str());
             methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCReadMethods, this, _1, _2, _3, _4));
             break;
         }
-        case Options::Language::CPP: {
+        case Language::CPP: {
             methods.emplace("ReadInterface", std::bind(&ASTInterfaceType::EmitCppReadMethods, this, _1, _2, _3, _4));
             break;
         }

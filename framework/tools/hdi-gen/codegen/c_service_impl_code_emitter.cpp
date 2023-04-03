@@ -30,11 +30,121 @@ bool CServiceImplCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CServiceImplCodeEmitter::EmitCode()
 {
-    if (isKernelCode_ || interface_->IsSerializable()) {
-        EmitServiceImplHeaderFile();
+    switch (mode_) {
+        case GenMode::LOW: {
+            EmitLowServiceImplHeaderFile();
+            EmitLowServiceImplSourceFile();
+            break;
+        }
+        case GenMode::PASSTHROUGH:
+        case GenMode::IPC: {
+            if (interface_->IsSerializable()) {
+                EmitServiceImplHeaderFile();
+            }
+            EmitServiceImplSourceFile();
+            break;
+        }
+        case GenMode::KERNEL: {
+            EmitServiceImplHeaderFile();
+            EmitServiceImplSourceFile();
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void CServiceImplCodeEmitter::EmitLowServiceImplHeaderFile()
+{
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(implName_).c_str()));
+    File file(filePath, File::WRITE);
+    StringBuilder sb;
+
+    sb.Append("\n");
+    EmitLicense(sb);
+    EmitHeadMacro(sb, implFullName_);
+    EmitLowServiceImplInclusions(sb);
+    sb.Append("\n");
+    EmitHeadExternC(sb);
+    sb.Append("\n");
+    EmitLowServiceImplDefinition(sb);
+    sb.Append("\n");
+    EmitServiceImplExternalMethodsDecl(sb);
+    sb.Append("\n");
+    EmitTailExternC(sb);
+    sb.Append("\n");
+    EmitTailMacro(sb, implFullName_);
+
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
+    file.Flush();
+    file.Close();
+}
+
+void CServiceImplCodeEmitter::EmitLowServiceImplInclusions(StringBuilder &sb)
+{
+    HeaderFile::HeaderFileSet headerFiles;
+    headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
+    for (const auto &file : headerFiles) {
+        sb.AppendFormat("%s\n", file.ToString().c_str());
+    }
+}
+
+void CServiceImplCodeEmitter::EmitLowServiceImplDefinition(StringBuilder &sb)
+{
+    sb.AppendFormat("struct %s {\n", implName_.c_str());
+    sb.Append(TAB).AppendFormat("struct %s super;\n", interfaceName_.c_str());
+    sb.Append(TAB).Append("// please add private data here\n");
+    sb.Append("};\n");
+}
+
+void CServiceImplCodeEmitter::EmitLowServiceImplSourceFile()
+{
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.c", directory_.c_str(), FileName(implName_).c_str()));
+    File file(filePath, File::WRITE);
+    StringBuilder sb;
+
+    EmitLicense(sb);
+    EmitServiceImplSourceInclusions(sb);
+    sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(implName_));
+    sb.Append("\n");
+    EmitServiceImplMethodImpls(sb, "");
+    sb.Append("\n");
+    EmitLowServiceImplGetMethod(sb);
+    sb.Append("\n");
+    EmitServiceImplReleaseMethod(sb);
+
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
+    file.Flush();
+    file.Close();
+}
+
+void CServiceImplCodeEmitter::EmitLowServiceImplGetMethod(StringBuilder &sb)
+{
+    sb.AppendFormat("struct %s *%sServiceGet(void)\n", implName_.c_str(), baseName_.c_str());
+    sb.Append("{\n");
+
+    sb.Append(TAB).AppendFormat("struct %s *service = (struct %s *)OsalMemCalloc(sizeof(struct %s));\n",
+        implName_.c_str(), implName_.c_str(), implName_.c_str());
+    sb.Append(TAB).Append("if (service == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%s: failed to malloc service object\", __func__);\n");
+    sb.Append(TAB).Append("}\n");
+
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+        sb.Append(TAB).AppendFormat("service->super.%s = %s%s;\n", method->GetName().c_str(),
+            baseName_.c_str(), method->GetName().c_str());
     }
 
-    EmitServiceImplSourceFile();
+    AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
+    sb.Append(TAB).AppendFormat("service->super.%s = %s%s;\n", method->GetName().c_str(),
+        baseName_.c_str(), method->GetName().c_str());
+
+    sb.Append(TAB).Append("return service;\n");
+    sb.Append("}\n");
 }
 
 void CServiceImplCodeEmitter::EmitServiceImplHeaderFile()
@@ -50,7 +160,7 @@ void CServiceImplCodeEmitter::EmitServiceImplHeaderFile()
     EmitServiceImplHeaderInclusions(sb);
     sb.Append("\n");
     EmitHeadExternC(sb);
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append("\n");
         EmitKernelServiceImplDef(sb);
     } else if (interface_->IsSerializable()) {
@@ -58,7 +168,7 @@ void CServiceImplCodeEmitter::EmitServiceImplHeaderFile()
         EmitServiceImplDef(sb);
     }
     sb.Append("\n");
-    EmitServiceImplConstructDecl(sb);
+    EmitServiceImplExternalMethodsDecl(sb);
     sb.Append("\n");
     EmitTailExternC(sb);
     sb.Append("\n");
@@ -74,7 +184,7 @@ void CServiceImplCodeEmitter::EmitServiceImplHeaderInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(stubName_));
     } else {
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
@@ -85,9 +195,14 @@ void CServiceImplCodeEmitter::EmitServiceImplHeaderInclusions(StringBuilder &sb)
     }
 }
 
-void CServiceImplCodeEmitter::EmitServiceImplConstructDecl(StringBuilder &sb) const
+void CServiceImplCodeEmitter::EmitServiceImplExternalMethodsDecl(StringBuilder &sb) const
 {
-    std::string instTypeName = interface_->IsSerializable() ? interfaceName_ : implName_;
+    std::string instTypeName;
+    if (mode_ == GenMode::LOW || mode_ == GenMode::KERNEL) {
+        instTypeName = implName_;
+    } else {
+        instTypeName = interface_->IsSerializable() ? interfaceName_ : implName_;
+    }
     sb.AppendFormat("struct %s *%sServiceGet(void);\n\n", instTypeName.c_str(), baseName_.c_str());
     sb.AppendFormat("void %sServiceRelease(struct %s *instance);\n", baseName_.c_str(), instTypeName.c_str());
 }
@@ -103,14 +218,14 @@ void CServiceImplCodeEmitter::EmitServiceImplSourceFile()
     EmitServiceImplSourceInclusions(sb);
     sb.Append("\n");
     EmitLogTagMacro(sb, FileName(implName_));
-    if (!isKernelCode_ && !interface_->IsSerializable()) {
+    if (mode_ != GenMode::KERNEL && !interface_->IsSerializable()) {
         sb.Append("\n");
         EmitServiceImplDef(sb);
     }
 
     sb.Append("\n");
     EmitServiceImplMethodImpls(sb, "");
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append("\n");
         EmitKernelServiceImplGetMethod(sb);
         sb.Append("\n");
@@ -132,7 +247,7 @@ void CServiceImplCodeEmitter::EmitServiceImplSourceInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
 
-    if (isKernelCode_ || interface_->IsSerializable()) {
+    if (mode_ == GenMode::KERNEL || mode_ == GenMode::LOW || interface_->IsSerializable()) {
         headerFiles.emplace(HeaderFileType::OWN_HEADER_FILE, EmitVersionHeaderName(implName_));
     } else {
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
@@ -169,15 +284,11 @@ void CServiceImplCodeEmitter::EmitServiceImplDef(StringBuilder &sb) const
 
 void CServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitServiceImplMethodImpl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 
-    sb.Append("\n");
     EmitServiceImplGetVersionMethod(sb, prefix);
 }
 
@@ -250,8 +361,7 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplGetMethod(StringBuilder &sb) 
     sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
 
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(TAB).AppendFormat("%s->stub.interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
             baseName_.c_str(), method->GetName().c_str());
     }
@@ -277,9 +387,7 @@ void CServiceImplCodeEmitter::EmitServiceImplGetMethod(StringBuilder &sb) const
         "HDF_LOGE(\"%%{public}s: malloc %s obj failed!\", __func__);\n", implName_.c_str());
     sb.Append(TAB).Append(TAB).Append("return NULL;\n");
     sb.Append(TAB).Append("}\n\n");
-
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(TAB).AppendFormat("%s->interface.%s = %s%s;\n", objName.c_str(), method->GetName().c_str(),
             baseName_.c_str(), method->GetName().c_str());
     }
@@ -307,10 +415,14 @@ void CServiceImplCodeEmitter::EmitKernelServiceImplReleaseMethod(StringBuilder &
 
 void CServiceImplCodeEmitter::EmitServiceImplReleaseMethod(StringBuilder &sb) const
 {
-    if (interface_->IsSerializable()) {
-        sb.AppendFormat("void %sServiceRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
+    if (mode_ == GenMode::LOW || mode_ == GenMode::KERNEL) {
+        sb.AppendFormat("void %sRelease(struct %s *instance)\n", implName_.c_str(), implName_.c_str());
     } else {
-        sb.AppendFormat("void %sImplRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
+        if (interface_->IsSerializable()) {
+            sb.AppendFormat("void %sServiceRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
+        } else {
+            sb.AppendFormat("void %sImplRelease(struct %s *instance)\n", baseName_.c_str(), interfaceName_.c_str());
+        }
     }
     sb.Append("{\n");
     sb.Append(TAB).Append("if (instance == NULL) {\n");

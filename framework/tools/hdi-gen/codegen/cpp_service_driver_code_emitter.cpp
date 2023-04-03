@@ -30,9 +30,15 @@ bool CppServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDire
 
 void CppServiceDriverCodeEmitter::EmitCode()
 {
-    // the callback interface have no driver file.
-    if (!Options::GetInstance().DoPassthrough() && !interface_->IsSerializable()) {
-        EmitDriverSourceFile();
+    switch (mode_) {
+        case GenMode::IPC: {
+            if (!interface_->IsSerializable()) {
+                EmitDriverSourceFile();
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -194,7 +200,7 @@ void CppServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb) c
 {
     sb.AppendFormat("struct HdfDriverEntry g_%sDriverEntry = {\n", StringHelper::StrToLower(baseName_).c_str());
     sb.Append(TAB).Append(".moduleVersion = 1,\n");
-    sb.Append(TAB).AppendFormat(".moduleName = \"%s\",\n", Options::GetInstance().GetModuleName().c_str());
+    sb.Append(TAB).AppendFormat(".moduleName = \"%s\",\n", Options::GetInstance().GetPackage().c_str());
     sb.Append(TAB).AppendFormat(".Bind = Hdf%sDriverBind,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Init = Hdf%sDriverInit,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Release = Hdf%sDriverRelease,\n", baseName_.c_str());

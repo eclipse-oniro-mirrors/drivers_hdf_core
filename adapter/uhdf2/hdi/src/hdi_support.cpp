@@ -18,6 +18,7 @@
 #include <map>
 #include <mutex>
 #include <regex>
+#include <sstream>
 #include <securec.h>
 #include <string>
 #include <unistd.h>
@@ -27,13 +28,19 @@
 
 #define HDF_LOG_TAG load_hdi
 
-#ifdef __ARCH64__
-#define HDI_SO_PATH HDF_LIBRARY_DIR "64"
+namespace {
+#ifdef __LITEOS__
+static constexpr const char *HDI_SO_PATH = "/usr/lib";
+static constexpr const char *HDI_SO_EXTENSION = ".so";
 #else
-#define HDI_SO_PATH HDF_LIBRARY_DIR
+#ifdef __aarch64__
+static constexpr const char *HDI_SO_PATH = "/vendor/lib64";
+#else
+static constexpr const char *HDI_SO_PATH = "/vendor/lib";
+#endif
+static constexpr const char *HDI_SO_EXTENSION = ".z.so";
 #endif
 
-namespace {
 constexpr size_t INTERFACE_MATCH_RESIZE = 4;
 constexpr size_t INTERFACE_VERSION_MAJOR_INDEX = 1;
 constexpr size_t INTERFACE_VERSION_MINOR_INDEX = 2;
@@ -64,6 +71,16 @@ static std::string TransFileName(const std::string &interfaceName)
         }
     }
     return result;
+}
+
+static std::string ParseLibPath(const std::string &interfaceName, const std::string &serviceName,
+    uint32_t versionMajor, uint32_t versionMinor)
+{
+    std::ostringstream libPath;
+    libPath << HDI_SO_PATH << "/";
+    libPath << "lib" << interfaceName << "_" << serviceName << "_" << versionMajor << "." << versionMinor;
+    libPath << HDI_SO_EXTENSION;
+    return libPath.str().c_str();
 }
 
 struct HdiImpl {
@@ -104,16 +121,12 @@ static int32_t ParseInterface(
     if (interface.empty()) {
         return HDF_FAILURE;
     }
-    char path[PATH_MAX + 1] = {0};
-    char resolvedPath[PATH_MAX + 1] = {0};
-    if (snprintf_s(path, sizeof(path), sizeof(path) - 1, "%s/lib%s_%s_%u.%u.z.so", HDI_SO_PATH,
-            TransFileName(interface).c_str(), serviceName, versionMajor, versionMinor) < 0) {
-        HDF_LOGE("%{public}s snprintf_s failed", __func__);
-        return HDF_FAILURE;
-    }
 
-    if (realpath(path, resolvedPath) == nullptr || strncmp(resolvedPath, HDI_SO_PATH, strlen(HDI_SO_PATH)) != 0) {
-        HDF_LOGE("%{public}s invalid hdi impl so name %{public}s", __func__, path);
+    std::string libFilePath = ParseLibPath(TransFileName(interface), serviceName, versionMajor, versionMinor);
+    char resolvedPath[PATH_MAX + 1] = {0};
+    if (realpath(libFilePath.c_str(), resolvedPath) == nullptr ||
+        strncmp(resolvedPath, HDI_SO_PATH, strlen(HDI_SO_PATH)) != 0) {
+        HDF_LOGE("%{public}s invalid hdi impl so name %{public}s", __func__, libFilePath.c_str());
         return HDF_FAILURE;
     }
     libpath = resolvedPath;

@@ -22,16 +22,75 @@
 #include "codegen/java_client_interface_code_emitter.h"
 #include "codegen/java_client_proxy_code_emitter.h"
 #include "util/options.h"
+#include "util/logger.h"
 
 namespace OHOS {
 namespace HDI {
+GeneratePolicies CodeGenerator::policies_ = {
+    {
+        SystemLevel::MINI,
+        {
+            {
+                GenMode::LOW,
+                {
+                    {Language::C, CodeGenerator::GenLowCCode}
+                }
+            }
+        }
+    },
+    {
+        SystemLevel::LITE,
+        {
+            {
+                GenMode::KERNEL,
+                {
+                    {Language::C, CodeGenerator::GenKernelCode}
+                }
+            },
+            {
+                GenMode::PASSTHROUGH,
+                {
+                    {Language::C, CodeGenerator::GenPassthroughCCode},
+                    {Language::CPP, CodeGenerator::GenPassthroughCppCode}
+                }
+            }
+        }
+    },
+    {
+        SystemLevel::FULL,
+        {
+            {
+                GenMode::KERNEL,
+                {
+                    {Language::C, CodeGenerator::GenKernelCode}
+                }
+            },
+            {
+                GenMode::PASSTHROUGH,
+                {
+                    {Language::C, CodeGenerator::GenPassthroughCCode},
+                    {Language::CPP, CodeGenerator::GenPassthroughCppCode}
+                }
+            },
+            {
+                GenMode::IPC,
+                {
+                    {Language::C, CodeGenerator::GenIpcCCode},
+                    {Language::CPP, CodeGenerator::GenIpcCppCode},
+                    {Language::JAVA, CodeGenerator::GenIpcJavaCode}
+                }
+            }
+        }
+    }
+};
+
 CodeEmitMap CodeGenerator::cCodeEmitters_ = {
     {"types",     new CCustomTypesCodeEmitter()  },
     {"interface", new CInterfaceCodeEmitter()    },
     {"proxy",     new CClientProxyCodeEmitter()  },
     {"driver",    new CServiceDriverCodeEmitter()},
     {"stub",      new CServiceStubCodeEmitter()  },
-    {"impl",      new CServiceImplCodeEmitter()  },
+    {"service",   new CServiceImplCodeEmitter()  },
 };
 
 CodeEmitMap CodeGenerator::cppCodeEmitters_ = {
@@ -40,133 +99,218 @@ CodeEmitMap CodeGenerator::cppCodeEmitters_ = {
     {"proxy",     new CppClientProxyCodeEmitter()  },
     {"driver",    new CppServiceDriverCodeEmitter()},
     {"stub",      new CppServiceStubCodeEmitter()  },
-    {"impl",      new CppServiceImplCodeEmitter()  },
+    {"service",   new CppServiceImplCodeEmitter()  },
 };
 
 CodeEmitMap CodeGenerator::javaCodeEmitters_ = {
-    {"clientIface", new JavaClientInterfaceCodeEmitter()},
-    {"proxy",       new JavaClientProxyCodeEmitter()    },
+    {"interface", new JavaClientInterfaceCodeEmitter()},
+    {"proxy",     new JavaClientProxyCodeEmitter()    },
 };
 
-bool CodeGenerator::Generate()
+bool CodeGenerator::Generate(const StrAstMap &allAst)
 {
-    const Options &options = Options::GetInstance();
-    std::string dir = options.GetGenerationDirectory();
-    Options::Language language = options.GetTargetLanguage();
-    bool isModeKernel = options.DoGenerateKernelCode();
-    std::string codePart = options.GetCodePart();
-
-    for (const auto &astPair : allAst_) {
-        AutoPtr<AST> ast = astPair.second;
-        switch (language) {
-            case Options::Language::C:
-                GenerateCCode(ast, dir, codePart, isModeKernel);
-                break;
-            case Options::Language::CPP:
-                GenerateCppCode(ast, dir, codePart);
-                break;
-            case Options::Language::JAVA:
-                GenerateJavaCode(ast, dir, codePart);
-                break;
-            default:
-                break;
-        }
+    auto genCodeFunc = GetCodeGenPoilcy();
+    if (!genCodeFunc) {
+        return false;
     }
 
+    std::string outDir = Options::GetInstance().GetGenerationDirectory();
+    std::set<std::string> sourceFile = Options::GetInstance().GetSourceFiles();
+    for (const auto &ast : allAst) {
+        if (sourceFile.find(ast.second->GetIdlFilePath()) != sourceFile.end()) {
+            genCodeFunc(ast.second, outDir);
+        }
+    }
     return true;
 }
 
-void CodeGenerator::GenerateCCode(
-    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel) const
+CodeGenFunc CodeGenerator::GetCodeGenPoilcy()
 {
+    auto systemPolicies = policies_.find(Options::GetInstance().GetSystemLevel());
+    if (systemPolicies == policies_.end()) {
+        Logger::E(TAG, "the system level is not supported, please check option");
+        return CodeGenFunc{};
+    }
+
+    auto genModePolicies = systemPolicies->second;
+    auto genModeIter = genModePolicies.find(Options::GetInstance().GetGenMode());
+    if (genModeIter == genModePolicies.end()) {
+        Logger::E(TAG, "the generate mode is not supported, please check option");
+        return CodeGenFunc{};
+    }
+
+    auto languagePolicies = genModeIter->second;
+    auto languageIter = languagePolicies.find(Options::GetInstance().GetLanguage());
+    if (languageIter == languagePolicies.end()) {
+        Logger::E(TAG, "the language is not supported, please check option");
+        return CodeGenFunc{};
+    }
+    return languageIter->second;
+}
+
+void CodeGenerator::GenIpcCCode(const AutoPtr<AST> &ast, const std::string &outDir)
+{
+    GenMode mode = GenMode::IPC;
     switch (ast->GetASTFileType()) {
         case ASTFileType::AST_TYPES: {
-            cCodeEmitters_["types"]->OutPut(ast, outDir, isKernel);
+            cCodeEmitters_["types"]->OutPut(ast, outDir, mode);
             break;
         }
         case ASTFileType::AST_IFACE: {
-            if (codePart == "client") {
-                cCodeEmitters_["interface"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["proxy"]->OutPut(ast, outDir, isKernel);
-                break;
-            } else if (codePart == "server") {
-                cCodeEmitters_["interface"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["driver"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["stub"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["impl"]->OutPut(ast, outDir, isKernel);
-                break;
-            } else {
-                cCodeEmitters_["interface"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["proxy"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["driver"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["stub"]->OutPut(ast, outDir, isKernel);
-                cCodeEmitters_["impl"]->OutPut(ast, outDir, isKernel);
-            }
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["driver"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["stub"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
             break;
         }
-        case ASTFileType::AST_ICALLBACK:
-            // khdf doesn't support callback
-            cCodeEmitters_["interface"]->OutPut(ast, outDir);
-            cCodeEmitters_["proxy"]->OutPut(ast, outDir);
-            cCodeEmitters_["driver"]->OutPut(ast, outDir);
-            cCodeEmitters_["stub"]->OutPut(ast, outDir);
-            cCodeEmitters_["impl"]->OutPut(ast, outDir);
+        case ASTFileType::AST_ICALLBACK: {
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["stub"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
             break;
+        }
         default:
             break;
     }
 }
 
-void CodeGenerator::GenerateCppCode(
-    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const
+void CodeGenerator::GenIpcCppCode(const AutoPtr<AST> &ast, const std::string &outDir)
 {
+    GenMode mode = GenMode::IPC;
     switch (ast->GetASTFileType()) {
-        case ASTFileType::AST_TYPES:
-            cppCodeEmitters_["types"]->OutPut(ast, outDir);
-            break;
-        case ASTFileType::AST_IFACE: {
-            if (codePart == "client") {
-                cppCodeEmitters_["interface"]->OutPut(ast, outDir);
-                cppCodeEmitters_["proxy"]->OutPut(ast, outDir);
-            } else if (codePart == "server") {
-                cppCodeEmitters_["interface"]->OutPut(ast, outDir);
-                cppCodeEmitters_["driver"]->OutPut(ast, outDir);
-                cppCodeEmitters_["stub"]->OutPut(ast, outDir);
-                cppCodeEmitters_["impl"]->OutPut(ast, outDir);
-            } else {
-                cppCodeEmitters_["interface"]->OutPut(ast, outDir);
-                cppCodeEmitters_["proxy"]->OutPut(ast, outDir);
-                cppCodeEmitters_["driver"]->OutPut(ast, outDir);
-                cppCodeEmitters_["stub"]->OutPut(ast, outDir);
-                cppCodeEmitters_["impl"]->OutPut(ast, outDir);
-            }
+        case ASTFileType::AST_TYPES: {
+            cppCodeEmitters_["types"]->OutPut(ast, outDir, mode);
             break;
         }
-        case ASTFileType::AST_ICALLBACK:
-            cppCodeEmitters_["interface"]->OutPut(ast, outDir);
-            cppCodeEmitters_["proxy"]->OutPut(ast, outDir);
-            cppCodeEmitters_["driver"]->OutPut(ast, outDir);
-            cppCodeEmitters_["stub"]->OutPut(ast, outDir);
-            cppCodeEmitters_["impl"]->OutPut(ast, outDir);
+        case ASTFileType::AST_IFACE: {
+            cppCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["driver"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["stub"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["service"]->OutPut(ast, outDir, mode);
             break;
+        }
+        case ASTFileType::AST_ICALLBACK: {
+            cppCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["stub"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
         default:
             break;
     }
 }
 
-void CodeGenerator::GenerateJavaCode(
-    const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const
+void CodeGenerator::GenIpcJavaCode(const AutoPtr<AST> &ast, const std::string &outDir)
 {
-    (void)codePart;
+    GenMode mode = GenMode::IPC;
     switch (ast->GetASTFileType()) {
+        case ASTFileType::AST_TYPES: {
+            javaCodeEmitters_["types"]->OutPut(ast, outDir, mode);
+            break;
+        }
         case ASTFileType::AST_IFACE:
-            javaCodeEmitters_["clientIface"]->OutPut(ast, outDir);
-            javaCodeEmitters_["proxy"]->OutPut(ast, outDir);
+        case ASTFileType::AST_ICALLBACK: {
+            javaCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            javaCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
             break;
-        case ASTFileType::AST_ICALLBACK:
-            javaCodeEmitters_["clientIface"]->OutPut(ast, outDir);
-            javaCodeEmitters_["proxy"]->OutPut(ast, outDir);
+        }
+        default:
             break;
+    }
+}
+
+void CodeGenerator::GenPassthroughCCode(const AutoPtr<AST> &ast, const std::string &outDir)
+{
+    GenMode mode = GenMode::PASSTHROUGH;
+    switch (ast->GetASTFileType()) {
+        case ASTFileType::AST_TYPES: {
+            cCodeEmitters_["types"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_IFACE: {
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_ICALLBACK: {
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void CodeGenerator::GenPassthroughCppCode(const AutoPtr<AST> &ast, const std::string &outDir)
+{
+    GenMode mode = GenMode::PASSTHROUGH;
+    switch (ast->GetASTFileType()) {
+        case ASTFileType::AST_TYPES: {
+            cppCodeEmitters_["types"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_IFACE: {
+            cppCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_ICALLBACK: {
+            cppCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cppCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void CodeGenerator::GenKernelCode(const AutoPtr<AST> &ast, const std::string &outDir)
+{
+    GenMode mode = GenMode::KERNEL;
+    switch (ast->GetASTFileType()) {
+        case ASTFileType::AST_TYPES: {
+            cCodeEmitters_["types"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_IFACE: {
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["proxy"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["driver"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["stub"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void CodeGenerator::GenLowCCode(const AutoPtr<AST> &ast, const std::string &outDir)
+{
+    GenMode mode = GenMode::LOW;
+    switch (ast->GetASTFileType()) {
+        case ASTFileType::AST_TYPES: {
+            cCodeEmitters_["types"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_IFACE: {
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["driver"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
+        case ASTFileType::AST_ICALLBACK: {
+            cCodeEmitters_["interface"]->OutPut(ast, outDir, mode);
+            cCodeEmitters_["service"]->OutPut(ast, outDir, mode);
+            break;
+        }
         default:
             break;
     }

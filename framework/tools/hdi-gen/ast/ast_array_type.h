@@ -88,17 +88,17 @@ public:
     void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
         StringBuilder &sb, const std::string &prefix) const override;
 
-    void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
+    void RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const override;
 
-    void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const override;
+    void RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const override;
 
-    void RegisterWritePodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    void RegisterWritePodArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
-    void RegisterWriteStringArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    void RegisterWriteStringArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
-    void RegisterReadPodArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    void RegisterReadPodArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
-    void RegisterReadStringArrayMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    void RegisterReadStringArrayMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
     // c methods about reading and writing array with pod element
 

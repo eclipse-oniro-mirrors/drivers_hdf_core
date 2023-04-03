@@ -30,9 +30,14 @@ bool CppServiceStubCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppServiceStubCodeEmitter::EmitCode()
 {
-    if (!Options::GetInstance().DoPassthrough()) {
-        EmitStubHeaderFile();
-        EmitStubSourceFile();
+    switch (mode_) {
+        case GenMode::IPC: {
+            EmitStubHeaderFile();
+            EmitStubSourceFile();
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -122,8 +127,7 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestDecl(StringBuilder &sb, const s
 void CppServiceStubCodeEmitter::EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append("private:\n");
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitStubMethodDecl(method, sb, prefix);
         sb.Append("\n");
     }
@@ -208,8 +212,7 @@ void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
         }
     }
 
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
@@ -292,9 +295,7 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, c
     sb.Append(prefix).Append("{\n");
 
     sb.Append(prefix + TAB).Append("switch (code) {\n");
-
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
         sb.Append(prefix + TAB + TAB + TAB)
             .AppendFormat("return %sStub%s(data, reply, option);\n", baseName_.c_str(), method->GetName().c_str());
@@ -316,8 +317,7 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, c
 
 void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitStubMethodImpl(method, sb, prefix);
         sb.Append("\n");
     }
@@ -443,15 +443,14 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(const AutoPtr<ASTParameter> &p
 
 void CppServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::STUB_SER, methods);
             } else {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::STUB_SER, methods);
             }
         }
     }

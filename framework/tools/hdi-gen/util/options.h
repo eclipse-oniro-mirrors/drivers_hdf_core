@@ -9,9 +9,12 @@
 #ifndef OHOS_HDI_OPTION_H
 #define OHOS_HDI_OPTION_H
 
+#include <map>
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include <set>
+
+#include "util/common.h"
 
 namespace OHOS {
 namespace HDI {
@@ -19,102 +22,79 @@ class Options {
 public:
     using PkgPathMap = std::unordered_map<std::string, std::string>;
 
-    enum class Language {
-        C,
-        CPP,
-        JAVA,
-    };
-
     static Options &GetInstance();
 
     Options(const Options &other) = delete;
     Options operator=(const Options &other) = delete;
 
-    Options &Parse(int argc, char *argv[]);
+    bool Parse(int argc, char *argv[]);
 
     ~Options() = default;
 
     inline bool DoShowUsage() const
     {
-        return doShowUsage_;
+        return doShowUsage;
     }
 
     inline bool DoShowVersion() const
     {
-        return doShowVersion_;
+        return doShowVersion;
     }
 
     inline bool DoCompile() const
     {
-        return doCompile_;
+        return doCompile;
     }
 
     inline bool DoDumpAST() const
     {
-        return doDumpAST_;
+        return doDumpAST;
     }
 
     inline bool DoGetHashKey() const
     {
-        return doGetHashKey_;
+        return doHashKey;
     }
 
     inline bool DoGenerateCode() const
     {
-        return doGenerateCode_;
+        return doGenerateCode;
     }
 
     inline bool DoGenerateKernelCode() const
     {
-        return doModeKernel_;
+        return genMode == GenMode::KERNEL;
     }
 
     inline bool DoPassthrough() const
     {
-        return doPassthrough_;
+        return genMode == GenMode::PASSTHROUGH;
     }
 
-    inline bool HasErrors() const
+    inline std::set<std::string> GetSourceFiles() const
     {
-        return !errors_.empty();
-    }
-
-    inline std::vector<std::string> GetSourceFiles() const
-    {
-        return sourceFiles_;
+        return sourceFiles;
     }
 
     inline PkgPathMap GetPackagePathMap() const
     {
-        return packagePath_;
+        return packagePathMap;
     }
 
-    inline Language GetTargetLanguage() const
+    inline std::string GetPackage() const
     {
-        return targetLanguage_;
-    }
-
-    inline std::string GetCodePart() const
-    {
-        return codePart_;
-    }
-
-    inline std::string GetModuleName() const
-    {
-        return doSetModuleName_ ? moduleName_ : "sample";
+        return idlPackage;
     }
 
     inline std::string GetGenerationDirectory() const
     {
-        return generationDirectory_;
+        return genDir;
     }
 
     inline std::string GetOutPutFile() const
     {
-        return outPutFile_;
+        return outPutFile;
     }
-
-    void ShowErrors() const;
 
     void ShowVersion() const;
 
@@ -130,34 +110,53 @@ public:
 
     std::string GetImportFilePath(const std::string &import) const;
 
+    inline SystemLevel GetSystemLevel() const
+    {
+        return systemLevel;
+    }
+
+    inline GenMode GetGenMode() const
+    {
+        return genMode;
+    }
+
+    inline Language GetLanguage() const
+    {
+        return genLanguage;
+    }
+
 private:
     Options()
-        : program_(),
-        sourceFiles_(0),
-        targetLanguage_(Language::C),
-        codePart_("all"),
-        generationDirectory_(),
-        illegalOptions_(),
-        errors_(),
-        packagePath_(),
-        outPutFile_(),
-        doShowUsage_(false),
-        doShowVersion_(false),
-        doCompile_(false),
-        doDumpAST_(false),
-        doGetHashKey_(false),
-        doGenerateCode_(false),
-        doModeKernel_(false),
-        doGeneratePart_(false),
-        doSetModuleName_(false),
-        doOutDir_(false),
-        doPassthrough_(false)
+        : program(),
+        systemLevel(SystemLevel::FULL),
+        genMode(GenMode::IPC),
+        genLanguage(Language::CPP),
+        idlPackage(),
+        sourceFiles(),
+        genDir(),
+        packagePathMap(),
+        outPutFile(),
+        doShowUsage(false),
+        doShowVersion(false),
+        doCompile(false),
+        doDumpAST(false),
+        doHashKey(false),
+        doGenerateCode(false),
+        doOutDir(false)
     {
     }
 
     void SetLongOption(char op);
 
-    void AddPackagePath(const std::string &packagePath);
+    bool SetSystemLevel(const std::string &system);
+
+    bool SetGenerateMode(const std::string &mode);
+
+    bool SetLanguage(const std::string &language);
+
+    void SetPackage(const std::string &package);
+
+    bool AddPackagePath(const std::string &packagePath);
 
     void AddSources(const std::string &sourceFile);
 
@@ -165,42 +164,32 @@ private:
 
     void SetOutDir(const std::string &dir);
 
-    void SetModuleName(const std::string &moduleName);
-
-    void SetLanguage(Language kind);
-
     void SetCodePart(const std::string &part);
 
-    void CheckOptions();
+    bool CheckOptions();
 
     static const char *optSupportArgs;
     static constexpr int OPT_END = -1;
 
-    static constexpr int VERSION_MAJOR = 0;
-    static constexpr int VERSION_MINOR = 2;
+    static constexpr int VERSION_MAJOR = 1;
+    static constexpr int VERSION_MINOR = 0;
 
-    std::string program_;
-    std::vector<std::string> sourceFiles_;
-    Language targetLanguage_;
-    std::string codePart_;
-    std::string moduleName_;
-    std::string generationDirectory_;
-    std::string illegalOptions_;
-    std::vector<std::string> errors_;
-    PkgPathMap packagePath_;
-    std::string outPutFile_;
-
-    bool doShowUsage_;
-    bool doShowVersion_;
-    bool doCompile_;
-    bool doDumpAST_;
-    bool doGetHashKey_;
-    bool doGenerateCode_;
-    bool doModeKernel_;
-    bool doGeneratePart_;
-    bool doSetModuleName_;
-    bool doOutDir_;
-    bool doPassthrough_;
+    std::string program;
+    SystemLevel systemLevel;
+    GenMode genMode;
+    Language genLanguage;
+    std::string idlPackage;
+    std::set<std::string> sourceFiles;
+    std::string genDir;
+    PkgPathMap packagePathMap;
+    std::string outPutFile;
+    bool doShowUsage;
+    bool doShowVersion;
+    bool doCompile;
+    bool doDumpAST;
+    bool doHashKey;
+    bool doGenerateCode;
+    bool doOutDir;
 };
 } // namespace HDI
 } // namespace OHOS

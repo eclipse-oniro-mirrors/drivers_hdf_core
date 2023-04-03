@@ -24,6 +24,10 @@ private:
 
     void EmitCode() override;
 
+    void EmitLowModeInterfaceHeaderFile();
+
+    void EmitLowModeExternalMethod(StringBuilder &sb) const;
+
     void EmitInterfaceHeaderFile();
 
     void EmitImportInclusions(StringBuilder &sb);

@@ -72,10 +72,10 @@ class CodeEmitter : public LightRefCountBase {
 public:
     ~CodeEmitter() override = default;
 
-    bool OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode = false);
+    bool OutPut(const AutoPtr<AST> &ast, const std::string &targetDirectory, GenMode mode);
 
 protected:
-    bool Reset(const AutoPtr<AST> &ast, const std::string &targetDirectory, bool isKernelCode);
+    bool Reset(const AutoPtr<AST> &ast, const std::string &targetDirectory, GenMode mode);
 
     void CleanData();
 
@@ -99,7 +99,7 @@ protected:
      * name: IFoo
      * result: v1_0/ifoo.h
      */
-    std::string EmitVersionHeaderName(const std::string &name);
+    std::string EmitVersionHeaderName(const std::string &name) const;
 
     // log tag macro of hdf
     void EmitLogTagMacro(StringBuilder &sb, const std::string &name) const;
@@ -121,7 +121,7 @@ protected:
     void EmitInterfaceBuffSizeMacro(StringBuilder &sb) const;
 
 protected:
-    bool isKernelCode_ = false;
+    GenMode mode_ = GenMode::IPC;
     AutoPtr<AST> ast_ = nullptr;
     AutoPtr<ASTInterfaceType> interface_ = nullptr;
     std::string directory_;

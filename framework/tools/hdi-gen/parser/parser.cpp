@@ -367,6 +367,7 @@ bool Parser::AprseAttrUnit(AttrSet &attrs)
     switch (token.kind) {
         case TokenType::FULL:
         case TokenType::LITE:
+        case TokenType::MINI:
         case TokenType::CALLBACK:
         case TokenType::ONEWAY: {
             if (attrs.find(token) != attrs.end()) {
@@ -388,7 +389,7 @@ bool Parser::AprseAttrUnit(AttrSet &attrs)
 void Parser::ParseInterface(const AttrSet &attrs)
 {
     AutoPtr<ASTInterfaceType> interfaceType = new ASTInterfaceType;
-    AutoPtr<ASTInfAttr> astAttr = ParseInfAttrInfo(attrs);
+    AutoPtr<ASTAttr> astAttr = ParseInfAttrInfo(attrs);
     interfaceType->SetAttribute(astAttr);
 
     lexer_.GetToken();
@@ -406,27 +407,35 @@ void Parser::ParseInterface(const AttrSet &attrs)
         lexer_.GetToken();
     }
 
+    CheckInterfaceAttr(interfaceType, token);
+
     ParseInterfaceBody(interfaceType);
     ast_->AddInterfaceDef(interfaceType);
 }
 
-AutoPtr<ASTInfAttr> Parser::ParseInfAttrInfo(const AttrSet &attrs)
+AutoPtr<ASTAttr> Parser::ParseInfAttrInfo(const AttrSet &attrs)
 {
-    AutoPtr<ASTInfAttr> infAttr = new ASTInfAttr;
+    AutoPtr<ASTAttr> infAttr = new ASTAttr();
+    bool isFull = false;
+    bool isLite = false;
+    bool isMini = false;
 
     for (const auto &attr : attrs) {
         switch (attr.kind) {
             case TokenType::FULL:
-                infAttr->isFull_ = true;
+                isFull = true;
                 break;
             case TokenType::LITE:
-                infAttr->isLite_ = true;
+                isLite = true;
+                break;
+            case TokenType::MINI:
+                isMini = true;
                 break;
             case TokenType::CALLBACK:
-                infAttr->isCallback_ = true;
+                infAttr->SetValue(ASTAttr::CALLBACK);
                 break;
             case TokenType::ONEWAY:
-                infAttr->isOneWay_ = true;
+                infAttr->SetValue(ASTAttr::ONEWAY);
                 break;
             default:
                 LogError(attr, StringHelper::Format("illegal attribute of interface"));
@@ -434,7 +443,48 @@ AutoPtr<ASTInfAttr> Parser::ParseInfAttrInfo(const AttrSet &attrs)
         }
     }
 
+    if (!isFull && !isLite && !isMini) {
+        infAttr->SetValue(ASTAttr::FULL | ASTAttr::LITE | ASTAttr::MINI);
+    } else {
+        if (isFull) {
+            infAttr->SetValue(ASTAttr::FULL);
+        }
+        if (isLite) {
+            infAttr->SetValue(ASTAttr::LITE);
+        }
+        if (isMini) {
+            infAttr->SetValue(ASTAttr::MINI);
+        }
+    }
+
     return infAttr;
+}
+
+void Parser::CheckInterfaceAttr(const AutoPtr<ASTInterfaceType> &interface, Token token)
+{
+    bool ret = true;
+    std::string systemName;
+    switch (Options::GetInstance().GetSystemLevel()) {
+        case SystemLevel::FULL:
+            systemName = "full";
+            ret = interface->IsFull();
+            break;
+        case SystemLevel::LITE:
+            systemName = "lite";
+            ret = interface->IsLite();
+            break;
+        case SystemLevel::MINI:
+            systemName = "mini";
+            ret = interface->IsMini();
+            break;
+        default:
+            break;
+    }
+
+    if (!ret) {
+        LogError(token, StringHelper::Format("the system option is '%s', but the '%s' interface has no '%s' attribute",
+            systemName.c_str(), interface->GetName().c_str(), systemName.c_str()));
+    }
 }
 
 void Parser::ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface)
@@ -448,7 +498,8 @@ void Parser::ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface)
 
     token = lexer_.PeekToken();
     while (token.kind != TokenType::BRACES_RIGHT && token.kind != TokenType::END_OF_FILE) {
-        interface->AddMethod(ParseMethod());
+        AutoPtr<ASTMethod> method = ParseMethod(interface);
+        interface->AddMethod(method);
         token = lexer_.PeekToken();
     }
 
@@ -467,7 +518,7 @@ void Parser::ParseInterfaceBody(const AutoPtr<ASTInterfaceType> &interface)
     interface->AddVersionMethod(CreateGetVersionMethod());
 }
 
-AutoPtr<ASTMethod> Parser::ParseMethod()
+AutoPtr<ASTMethod> Parser::ParseMethod(const AutoPtr<ASTInterfaceType> &interface)
 {
     AutoPtr<ASTMethod> method = new ASTMethod();
     method->SetAttribute(ParseMethodAttr());
@@ -480,6 +531,7 @@ AutoPtr<ASTMethod> Parser::ParseMethod()
         lexer_.GetToken();
     }
 
+    CheckMethodAttr(interface, method);
     ParseMethodParamList(method);
 
     token = lexer_.PeekToken();
@@ -492,55 +544,49 @@ AutoPtr<ASTMethod> Parser::ParseMethod()
     return method;
 }
 
-AutoPtr<ASTMethodAttr> Parser::ParseMethodAttr()
+AutoPtr<ASTAttr> Parser::ParseMethodAttr()
 {
-    AutoPtr<ASTMethodAttr> attr = new ASTMethodAttr();
-    Token token = lexer_.PeekToken();
-    if (token.kind == TokenType::ID) {
-        return attr;
+    if (lexer_.PeekToken().kind != TokenType::BRACKETS_LEFT) {
+        return new ASTAttr();
     }
 
-    if (token.kind != TokenType::BRACKETS_LEFT) {
-        LogError(token, StringHelper::Format("expected '[' before '%s' token", token.value.c_str()));
-        lexer_.SkipUntilToken(TokenType::ID);
-        return attr;
-    }
+    AttrSet attrs = ParseAttributeInfo();
+    AutoPtr<ASTAttr> methodAttr = new ASTAttr();
+    bool isFull = false;
+    bool isLite = false;
+    bool isMini = false;
 
-    lexer_.GetToken();
-    token = lexer_.PeekToken();
-    while (token.kind != TokenType::BRACKETS_RIGHT) {
-        switch (token.kind) {
+    for (const auto &attr : attrs) {
+        switch (attr.kind) {
             case TokenType::FULL:
-                attr->isFull_ = true;
+                isFull = true;
                 break;
             case TokenType::LITE:
-                attr->isLite_ = true;
+                isLite = true;
+                break;
+            case TokenType::MINI:
+                isMini = true;
                 break;
             case TokenType::ONEWAY:
-                attr->isOneWay_ = true;
+                methodAttr->SetValue(ASTAttr::ONEWAY);
                 break;
             default:
-                LogError(token, StringHelper::Format("expected attribute before '%s' token", token.value.c_str()));
-                lexer_.SkipUntilToken(TokenType::BRACKETS_RIGHT);
-                return attr;
+                LogError(attr, StringHelper::Format("illegal attribute of interface"));
+                break;
         }
-
-        lexer_.GetToken();
-        token = lexer_.PeekToken();
-        if (token.kind == TokenType::BRACKETS_RIGHT) {
-            lexer_.GetToken();
-            break;
-        }
-
-        if (token.kind != TokenType::COMMA) {
-            LogError(token, StringHelper::Format("expected ',' before '%s' token", token.value.c_str()));
-            lexer_.SkipUntilToken(TokenType::BRACKETS_RIGHT);
-            return attr;
-        }
-        lexer_.GetToken();
-        token = lexer_.PeekToken();
     }
-    return attr;
+
+    if (isFull) {
+        methodAttr->SetValue(ASTAttr::FULL);
+    }
+    if (isLite) {
+        methodAttr->SetValue(ASTAttr::LITE);
+    }
+    if (isMini) {
+        methodAttr->SetValue(ASTAttr::MINI);
+    }
+
+    return methodAttr;
 }
 
 AutoPtr<ASTMethod> Parser::CreateGetVersionMethod()
@@ -560,6 +606,38 @@ AutoPtr<ASTMethod> Parser::CreateGetVersionMethod()
     return method;
 }
 
+void Parser::CheckMethodAttr(const AutoPtr<ASTInterfaceType> &interface, const AutoPtr<ASTMethod> &method)
+{
+    // if the attribute of method is empty, the default value is attribute of interface
+    if (!method->IsMini() && !method->IsLite() && !method->IsFull()) {
+        method->SetAttribute(interface->GetAttribute());
+        return;
+    }
+
+    if (!interface->IsMini() && method->IsMini()) {
+        LogError(StringHelper::Format(
+            "the '%s' mehtod can not have 'mini' attribute, because the '%s' interface has no 'mini' attribute",
+            method->GetName().c_str(), interface->GetName().c_str()));
+    }
+
+    if (!interface->IsLite() && method->IsLite()) {
+        LogError(StringHelper::Format(
+            "the '%s' mehtod can not have 'lite' attribute, because the '%s' interface has no 'lite' attribute",
+            method->GetName().c_str(), interface->GetName().c_str()));
+    }
+
+    if (!interface->IsFull() && method->IsFull()) {
+        LogError(StringHelper::Format(
+            "the '%s' mehtod can not have 'full' attribute, because the '%s' interface has no 'full' attribute",
+            method->GetName().c_str(), interface->GetName().c_str()));
+    }
+
+    // the method has 'oneway' attribute if interface or method has 'oneway' attribute
+    if (interface->IsOneWay() || method->IsOneWay()) {
+        method->GetAttribute()->SetValue(ASTAttr::ONEWAY);
+    }
+}
+
 void Parser::ParseMethodParamList(const AutoPtr<ASTMethod> &method)
 {
     Token token = lexer_.PeekToken();
@@ -576,7 +654,13 @@ void Parser::ParseMethodParamList(const AutoPtr<ASTMethod> &method)
     }
 
     while (token.kind != TokenType::PARENTHESES_RIGHT && token.kind != TokenType::END_OF_FILE) {
-        method->AddParameter(ParseParam());
+        AutoPtr<ASTParameter> param = ParseParam();
+        if (method->IsOneWay() && param->GetAttribute() == ParamAttr::PARAM_OUT) {
+            LogError(token, StringHelper::Format("the '%s' parameter of '%s' method can not be 'out'",
+                param->GetName().c_str(), method->GetName().c_str()));
+        }
+        method->AddParameter(param);
+
         token = lexer_.PeekToken();
         if (token.kind == TokenType::COMMA) {
             lexer_.GetToken();
@@ -1198,16 +1282,23 @@ bool Parser::AddUnionMember(
     return true;
 }
 
-AutoPtr<ASTTypeAttr> Parser::ParseUserDefTypeAttr(const AttrSet &attrs)
+AutoPtr<ASTAttr> Parser::ParseUserDefTypeAttr(const AttrSet &attrs)
 {
-    AutoPtr<ASTTypeAttr> attribute = new ASTTypeAttr();
+    AutoPtr<ASTAttr> attr = new ASTAttr();
+    bool isFull = false;
+    bool isLite = false;
+    bool isMini = false;
+
     for (const auto &token : attrs) {
         switch (token.kind) {
             case TokenType::FULL:
-                attribute->isFull_ = true;
+                isFull = true;
                 break;
             case TokenType::LITE:
-                attribute->isLite_ = true;
+                isLite = true;
+                break;
+            case TokenType::MINI:
+                isMini = true;
                 break;
             default:
                 LogError(token, StringHelper::Format("invalid attribute '%s' for type decl", token.value.c_str()));
@@ -1215,7 +1306,21 @@ AutoPtr<ASTTypeAttr> Parser::ParseUserDefTypeAttr(const AttrSet &attrs)
         }
     }
 
-    return attribute;
+    if (!isFull && !isLite && !isMini) {
+        attr->SetValue(ASTAttr::FULL | ASTAttr::LITE | ASTAttr::MINI);
+    } else {
+        if (isFull) {
+            attr->SetValue(ASTAttr::FULL);
+        }
+        if (isLite) {
+            attr->SetValue(ASTAttr::LITE);
+        }
+        if (isMini) {
+            attr->SetValue(ASTAttr::MINI);
+        }
+    }
+
+    return attr;
 }
 
 AutoPtr<ASTExpr> Parser::ParseExpr()
@@ -1416,7 +1521,7 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
         return false;
     }
 
-    if (Options::GetInstance().GetTargetLanguage() == Options::Language::C) {
+    if (Options::GetInstance().GetLanguage() == Language::C) {
         if (type->IsSequenceableType() || type->IsSmqType() || type->IsAshmemType()) {
             LogError(token, StringHelper::Format("The %s type is not supported by c language.",
                 type->ToString().c_str()));
@@ -1437,7 +1542,7 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
                     break;
             }
         }
-    } else if (Options::GetInstance().GetTargetLanguage() == Options::Language::JAVA) {
+    } else if (Options::GetInstance().GetLanguage() == Language::JAVA) {
         switch (type->GetTypeKind()) {
             case TypeKind::TYPE_UCHAR:
             case TypeKind::TYPE_USHORT:

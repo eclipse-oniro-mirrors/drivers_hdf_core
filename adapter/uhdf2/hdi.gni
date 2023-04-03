@@ -17,16 +17,34 @@ import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 hdf_fwk_path = "//drivers/hdf_core/framework"
 
 template("hdi") {
-  assert(defined(invoker.sources), "sources are must")
-  assert(defined(invoker.language), "language are must")
-  assert(defined(invoker.subsystem_name), "subsystem_name are must")
-  assert(defined(invoker.part_name), "part_name are must")
+  assert(defined(invoker.sources), "sources must be set")
+  assert(defined(invoker.language), "language must be set")
+  assert(defined(invoker.subsystem_name), "subsystem_name must be set")
+  assert(defined(invoker.part_name), "part_name must be set")
 
+  # the module_name is an obsolete option
+  if (defined(invoker.module_name)) {
+    print(invoker.module_name)
+  }
+
+  # system type
+  system = "full"
+
+  # generate mode, the default value is "ipc", the optional values are "ipc" or "passthrough"
   mode = "ipc"
   if (defined(invoker.mode)) {
     assert(invoker.mode == "ipc" || invoker.mode == "passthrough",
-           "hdi mode must be ipc or passthrough")
+           "hdi mode must be 'ipc' or 'passthrough'")
     mode = invoker.mode
+  }
+
+  assert(invoker.language == "c" || invoker.language == "cpp",
+         "the language must be set to 'c' or 'cpp'")
+  language = invoker.language
+
+  imports = []
+  if (defined(invoker.imports)) {
+    imports += invoker.imports
   }
 
   root_package = "ohos.hdi"
@@ -40,6 +58,8 @@ template("hdi") {
 
   sources_gen_dir = get_path_info("${root_path}/", "gen_dir")
   get_build_info_args = [
+    "-s",
+    system,
     "-m",
     mode,
     "-l",
@@ -53,6 +73,14 @@ template("hdi") {
     get_build_info_args += [ "-f" ]
     get_build_info_args += [ rebase_path(idl_file) ]
   }
+
+  foreach(import_info, imports) {
+    get_build_info_args += [
+      "--import",
+      import_info,
+    ]
+  }
+
   hdi_build_info =
       exec_script("$hdf_fwk_path/tools/hdi-gen/build_hdi_files_info.py",
                   get_build_info_args,
@@ -63,6 +91,8 @@ template("hdi") {
   assert(defined(hdi_build_info.sources), "missing sources")
   assert(defined(hdi_build_info.proxy_sources), "missing proxy_sources")
   assert(defined(hdi_build_info.stub_sources), "missing stub_sources")
+  assert(defined(hdi_build_info.proxy_deps), "missing proxy_deps")
+  assert(defined(hdi_build_info.stub_deps), "missing stub_deps")
 
   idl_headers_config = "$target_name" + "_idl_headers_config"
   config("$idl_headers_config") {
@@ -87,23 +117,20 @@ template("hdi") {
 
     idl_sources = invoker.sources
     inputs = invoker.sources
-    language = "--gen-" + invoker.language
     outputs = hdi_build_info.sources
 
     args = [
       rebase_path(get_path_info("$hdf_fwk_path/tools/hdi-gen/", "out_dir") +
                   "/hdi-gen"),
-      "$language",
+      "--system",
+      system,
+      "--mode",
+      mode,
+      "--language",
+      language,
       "-d",
       rebase_path(hdi_build_info.out_dir),
     ]
-
-    if (defined(invoker.module_name)) {
-      args += [
-        "--module-name",
-        invoker.module_name,
-      ]
-    }
 
     foreach(idl_file, idl_sources) {
       args += [ "-c" ]
@@ -113,23 +140,21 @@ template("hdi") {
       "-r",
       root_package_path,
     ]
-
-    if (mode == "passthrough") {
-      args += [ "--passthrough" ]
-    }
   }
 
   lib_client = "lib" + target_name + "_proxy" + "_" + hdi_build_info.version
   ohos_shared_library(lib_client) {
     if (defined(invoker.sources)) {
       sources = hdi_build_info.proxy_sources
-
       public_configs = [ ":$idl_headers_config" ]
       deps = [ ":hdi_gen" ]
       if (is_standard_system) {
+        public_deps = []
         if (defined(invoker.sequenceable)) {
-          public_deps = invoker.sequenceable
+          public_deps += invoker.sequenceable
         }
+
+        public_deps += hdi_build_info.proxy_deps
 
         external_deps = [
           "c_utils:utils",
@@ -168,9 +193,12 @@ template("hdi") {
 
         deps = [ ":hdi_gen" ]
         if (is_standard_system) {
+          public_deps = []
           if (defined(invoker.sequenceable)) {
-            public_deps = invoker.sequenceable
+            public_deps += invoker.sequenceable
           }
+
+          public_deps += hdi_build_info.stub_deps
 
           external_deps = [
             "c_utils:utils",

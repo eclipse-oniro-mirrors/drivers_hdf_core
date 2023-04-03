@@ -48,6 +48,7 @@ enum class TokenType {
     CALLBACK,             // "callback"
     FULL,                 // "full"
     LITE,                 // "lite"
+    MINI,                 // "mini"
     IN,                   // "in"
     OUT,                  // "out"
     DOT,                  // "."

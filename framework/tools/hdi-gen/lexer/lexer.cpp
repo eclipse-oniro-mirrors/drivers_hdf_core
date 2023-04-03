@@ -42,6 +42,7 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"callback",       TokenType::CALLBACK     },
     {"full",           TokenType::FULL         },
     {"lite",           TokenType::LITE         },
+    {"mini",           TokenType::MINI         },
     {"in",             TokenType::IN           },
     {"out",            TokenType::OUT          },
 };

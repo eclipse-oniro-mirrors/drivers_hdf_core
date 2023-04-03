@@ -30,7 +30,15 @@ bool CppInterfaceCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CppInterfaceCodeEmitter::EmitCode()
 {
-    EmitInterfaceHeaderFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH:
+        case GenMode::IPC: {
+            EmitInterfaceHeaderFile();
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
@@ -129,9 +137,9 @@ void CppInterfaceCodeEmitter::EmitInterfaceDescriptor(StringBuilder &sb, const s
 
 void CppInterfaceCodeEmitter::EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("static sptr<%s> Get(bool isStub = false);\n", interface_->GetName().c_str());
+    sb.Append(prefix).AppendFormat("static %s Get(bool isStub = false);\n", interface_->EmitCppType().c_str());
     sb.Append(prefix).AppendFormat(
-        "static sptr<%s> Get(const std::string &serviceName, bool isStub = false);\n", interface_->GetName().c_str());
+        "static %s Get(const std::string &serviceName, bool isStub = false);\n", interface_->EmitCppType().c_str());
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceDestruction(StringBuilder &sb, const std::string &prefix) const
@@ -141,8 +149,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceDestruction(StringBuilder &sb, const 
 
 void CppInterfaceCodeEmitter::EmitInterfaceMethodsDecl(StringBuilder &sb, const std::string &prefix)
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitInterfaceMethodDecl(method, sb, prefix);
         sb.Append("\n");
     }

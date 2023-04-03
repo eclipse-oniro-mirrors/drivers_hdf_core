@@ -9,27 +9,42 @@
 #ifndef OHOS_HDI_CODEGENERATOR_H
 #define OHOS_HDI_CODEGENERATOR_H
 
+#include <functional>
+#include <map>
+#include <string>
+
 #include "codegen/code_emitter.h"
 
 namespace OHOS {
 namespace HDI {
 using CodeEmitMap = std::unordered_map<std::string, AutoPtr<CodeEmitter>>;
+using CodeGenFunc = std::function<void(const AutoPtr<AST>&, const std::string&)>;
+using GeneratePolicies = std::map<SystemLevel, std::map<GenMode, std::map<Language, CodeGenFunc>>>;
+
 class CodeGenerator : public LightRefCountBase {
 public:
     using StrAstMap = std::unordered_map<std::string, AutoPtr<AST>>;
-    explicit CodeGenerator(const StrAstMap &allAst) : LightRefCountBase(), allAst_(allAst), targetDirectory_() {}
 
-    bool Generate();
+    bool Generate(const StrAstMap &allAst);
 
 private:
-    void GenerateCCode(
-        const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart, bool isKernel) const;
-    void GenerateCppCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const;
-    void GenerateJavaCode(const AutoPtr<AST> &ast, const std::string &outDir, const std::string &codePart) const;
+    static CodeGenFunc GetCodeGenPoilcy();
 
-    const StrAstMap &allAst_;
-    std::string targetDirectory_;
+    static void GenIpcCCode(const AutoPtr<AST> &ast, const std::string &outDir);
 
+    static void GenIpcCppCode(const AutoPtr<AST> &ast, const std::string &outDir);
+
+    static void GenIpcJavaCode(const AutoPtr<AST> &ast, const std::string &outDir);
+
+    static void GenPassthroughCCode(const AutoPtr<AST> &ast, const std::string &outDir);
+
+    static void GenPassthroughCppCode(const AutoPtr<AST> &ast, const std::string &outDir);
+
+    static void GenKernelCode(const AutoPtr<AST> &ast, const std::string &outDir);
+
+    static void GenLowCCode(const AutoPtr<AST> &ast, const std::string &outDir);
+
+    static GeneratePolicies policies_;
     static CodeEmitMap cCodeEmitters_;
     static CodeEmitMap cppCodeEmitters_;
     static CodeEmitMap javaCodeEmitters_;

@@ -18,6 +18,7 @@ if (defined(ohos_lite)) {
       "//drivers/hdf_core/adapter/uhdf/platform:hdf_platform",
       "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
       "//drivers/hdf_core/adapter/uhdf/posix/old:hdf_posix",
+      "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
     ]
   }
   group("uhdf_test_entry") {
