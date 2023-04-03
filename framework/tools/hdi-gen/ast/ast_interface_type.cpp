@@ -27,6 +27,30 @@ void ASTInterfaceType::AddMethod(const AutoPtr<ASTMethod> &method)
     methods_.push_back(method);
 }
 
+AutoPtr<ASTMethod> ASTInterfaceType::GetMethod(size_t index)
+{
+    if (index >= methods_.size()) {
+        return nullptr;
+    }
+
+    return methods_[index];
+}
+
+bool ASTInterfaceType::AddExtendsInterface(AutoPtr<ASTInterfaceType> interface)
+{
+    if (extendsInterface_ != nullptr) {
+        return false;
+    }
+    extendsInterface_ = interface;
+    return true;
+}
+
+void ASTInterfaceType::SetVersion(size_t &majorVer, size_t &minorVer)
+{
+    majorVersion_ = majorVer;
+    minorVersion_ = minorVer;
+}
+
 std::vector<AutoPtr<ASTMethod>> ASTInterfaceType::GetMethodsBySystem(SystemLevel system) const
 {
     std::vector<AutoPtr<ASTMethod>> methods;
@@ -106,13 +130,15 @@ std::string ASTInterfaceType::EmitCppType(TypeMode mode) const
     }
     switch (mode) {
         case TypeMode::NO_MODE:
-            return StringHelper::Format("%s<%s>", pointerName.c_str(), name_.c_str());
+            return StringHelper::Format("%s<%s>", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::PARAM_IN:
-            return StringHelper::Format("const %s<%s>&", pointerName.c_str(), name_.c_str());
+            return StringHelper::Format(
+                "const %s<%s>&", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::PARAM_OUT:
-            return StringHelper::Format("%s<%s>&", pointerName.c_str(), name_.c_str());
+            return StringHelper::Format(
+                "%s<%s>&", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::LOCAL_VAR:
-            return StringHelper::Format("%s<%s>", pointerName.c_str(), name_.c_str());
+            return StringHelper::Format("%s<%s>", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         default:
             return "unknow type";
     }
@@ -159,9 +185,15 @@ void ASTInterfaceType::EmitCStubReadVar(const std::string &parcelName, const std
 void ASTInterfaceType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, unsigned int innerLevel) const
 {
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB)
+        .AppendFormat("HDF_LOGE(\"%%{public}s: parameter %s is nullptr!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
+    sb.Append("\n");
     sb.Append(prefix).AppendFormat("if (!%s.WriteRemoteObject(", parcelName.c_str());
     sb.AppendFormat("OHOS::HDI::ObjectCollector::GetInstance().GetOrNewObject(%s, %s::GetDescriptor()))) {\n",
-        name.c_str(), name_.c_str());
+        name.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
@@ -171,10 +203,10 @@ void ASTInterfaceType::EmitCppReadVar(const std::string &parcelName, const std::
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", name_.c_str(), name.c_str());
+        sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", GetNameWithNamespace(namespace_, name_).c_str(), name.c_str());
     }
-    sb.Append(prefix).AppendFormat(
-        "if (!ReadInterface<%s>(%s, %s)) {\n", name_.c_str(), parcelName.c_str(), name.c_str());
+    sb.Append(prefix).AppendFormat("if (!ReadInterface<%s>(%s, %s)) {\n",
+        GetNameWithNamespace(namespace_, name_).c_str(), parcelName.c_str(), name.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read interface object\", __func__);\n");
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");

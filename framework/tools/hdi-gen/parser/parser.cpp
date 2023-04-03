@@ -52,6 +52,10 @@ bool Parser::Parse(const std::vector<FileDetail> &fileDetails)
         }
     }
 
+    if (!PostProcess()) {
+        return false;
+    }
+
     return true;
 }
 
@@ -234,11 +238,6 @@ void Parser::ParseImportInfo()
         return;
     }
 
-    AutoPtr<ASTInterfaceType> interfaceType = importAst->GetInterfaceDef();
-    if (interfaceType != nullptr) {
-        interfaceType->SetSerializable(true);
-    }
-
     if (!ast_->AddImport(importAst)) {
         LogError(token, StringHelper::Format("multiple import of '%s'", importName.c_str()));
         return;
@@ -408,8 +407,9 @@ void Parser::ParseInterface(const AttrSet &attrs)
     }
 
     CheckInterfaceAttr(interfaceType, token);
-
+    ParseInterfaceExtends(interfaceType);
     ParseInterfaceBody(interfaceType);
+    SetInterfaceVersion(interfaceType);
     ast_->AddInterfaceDef(interfaceType);
 }
 
@@ -704,6 +704,9 @@ AutoPtr<ASTParameter> Parser::ParseParam()
         } else if (!ifaceType->IsCallback() && paramAttr->value_ != ParamAttr::PARAM_OUT) {
             LogError(token, StringHelper::Format("'%s' parameter of interface type must be 'out' attribute",
                 paramName.c_str()));
+        }
+        if (!ifaceType->IsCallback()) {
+            ifaceType->SetSerializable(true);
         }
     }
 
@@ -1711,6 +1714,277 @@ void Parser::ShowError()
 {
     for (const auto &errMsg : errors_) {
         Logger::E(TAG, "%s", errMsg.c_str());
+    }
+}
+
+void Parser::ParseInterfaceExtends(AutoPtr<ASTInterfaceType> &interface)
+{
+    Token token = lexer_.PeekToken();
+    if (token.kind != TokenType::EXTENDS) {
+        return;
+    }
+    lexer_.GetToken();
+    token = lexer_.PeekToken();
+    if (token.kind != TokenType::ID) {
+        LogError(
+            token, StringHelper::Format("expected  extends interface name before '%s' token", token.value.c_str()));
+        lexer_.SkipToken(TokenType::BRACES_LEFT);
+        return;
+    }
+    ParseExtendsInfo(interface);
+    lexer_.GetToken();
+}
+
+void Parser::ParseExtendsInfo(AutoPtr<ASTInterfaceType> &interfaceType)
+{
+    Token token = lexer_.PeekToken();
+    std::string extendsInterfaceName = token.value;
+    if (extendsInterfaceName.empty()) {
+        LogError(token, StringHelper::Format("extends interface name is empty"));
+        return;
+    }
+    if (!CheckImport(extendsInterfaceName)) {
+        LogError(token, StringHelper::Format("extends interface name is illegal"));
+        return;
+    }
+    auto iter = allAsts_.find(extendsInterfaceName);
+    AutoPtr<AST> extendsAst = (iter != allAsts_.end()) ? iter->second : nullptr;
+    if (extendsAst == nullptr) {
+        LogError(token,
+            StringHelper::Format("can not find idl file by extends interface name '%s', please check import info",
+                extendsInterfaceName.c_str()));
+        return;
+    }
+    if (!CheckExtendsName(interfaceType, extendsInterfaceName)) {
+        LogError(token,
+            StringHelper::Format(
+                "extends interface name must same as current interface name '%s'", interfaceType->GetName().c_str()));
+        return;
+    }
+    if (!CheckExtendsVersion(interfaceType, extendsInterfaceName, extendsAst)) {
+        LogError(token, StringHelper::Format("extends interface version must less than current interface version"));
+        return;
+    }
+    if (!interfaceType->AddExtendsInterface(extendsAst->GetInterfaceDef())) {
+        LogError(token, StringHelper::Format("multiple extends of '%s'", interfaceType->GetName().c_str()));
+        return;
+    }
+}
+
+bool Parser::CheckExtendsName(AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsInterfaceName)
+{
+    size_t index = extendsInterfaceName.rfind(".");
+    std::string interfaceName = interfaceType->GetName();
+    if (extendsInterfaceName.substr(index + 1).compare(interfaceName) != 0) {
+        return false;
+    }
+    return true;
+}
+
+bool Parser::CheckExtendsVersion(
+    AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsName, AutoPtr<AST> extendsAst)
+{
+    if (extendsAst->GetMajorVer() != ast_->GetMajorVer() || extendsAst->GetMinorVer() >= ast_->GetMinorVer()) {
+        return false;
+    }
+    return true;
+}
+
+void Parser::SetInterfaceVersion(AutoPtr<ASTInterfaceType> &interfaceType)
+{
+    size_t majorVer = ast_->GetMajorVer();
+    size_t minorVer = ast_->GetMinorVer();
+    interfaceType->SetVersion(majorVer, minorVer);
+}
+
+bool Parser::PostProcess()
+{
+    Language language = Options::GetInstance().GetLanguage();
+    if (language != Language::C) {
+        return true;
+    }
+    if (!CheckExistExtends()) {
+        return true;
+    }
+    std::vector<size_t> genVersion = {0, 0};
+    std::string genPackageName;
+    AutoPtr<ASTNamespace> ns;
+    if (!GetGenVersion(genVersion, genPackageName)) {
+        return false;
+    }
+    GetGenNamespace(ns);
+    AstMergeMap mergeMap;
+    SortAstByName(mergeMap, allAsts_);
+    allAsts_.clear();
+    MergeAsts(mergeMap);
+    ModifyImport(allAsts_, genPackageName);
+    ModifyPackageNameAndVersion(allAsts_, genPackageName, genVersion);
+    ModifyInterfaceNamespace(ns);
+
+    return true;
+}
+
+bool Parser::CheckExistExtends()
+{
+    for (const auto &astPair : allAsts_) {
+        if (astPair.second->GetInterfaceDef() != nullptr &&
+            astPair.second->GetInterfaceDef()->GetExtendsInterface() != nullptr) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Parser::GetGenVersion(std::vector<size_t> &version, std::string &genPackageName)
+{
+    std::set<std::string> sourceFile = Options::GetInstance().GetSourceFiles();
+    for (const auto &ast : allAsts_) {
+        if (sourceFile.find(ast.second->GetIdlFilePath()) != sourceFile.end()) {
+            if (genPackageName == "") {
+                genPackageName = ast.second->GetPackageName();
+                version[0] = ast.second->GetMajorVer();
+                version[1] = ast.second->GetMinorVer();
+                continue;
+            }
+            if (genPackageName != ast.second->GetPackageName() || version[0] != ast.second->GetMajorVer() ||
+                version[1] != ast.second->GetMinorVer()) {
+                LogError(StringHelper::Format("merge ast failed, source files must have same package and version"));
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void Parser::GetGenNamespace(AutoPtr<ASTNamespace> &ns)
+{
+    std::set<std::string> sourceFile = Options::GetInstance().GetSourceFiles();
+    for (const auto &ast : allAsts_) {
+        if (sourceFile.find(ast.second->GetIdlFilePath()) != sourceFile.end()) {
+            if (ast.second->GetInterfaceDef() != nullptr) {
+                ns = ast.second->GetInterfaceDef()->GetNamespace();
+                return;
+            }
+        }
+    }
+}
+
+void Parser::SortAstByName(AstMergeMap &mergeMap, StrAstMap &allAsts)
+{
+    for (const auto &astPair : allAsts) {
+        AutoPtr<AST> ast = astPair.second;
+        mergeMap[ast->GetName()].emplace(ast);
+    }
+}
+
+void Parser::MergeAsts(AstMergeMap &mergeMap)
+{
+    for (const auto &setPair : mergeMap) {
+        std::string name = setPair.first;
+        auto astSet = setPair.second;
+        AutoPtr<AST> targetAst = nullptr;
+        for (const auto &ast : astSet) {
+            MergeAst(targetAst, ast);
+        }
+        AddAst(targetAst);
+    }
+}
+
+void Parser::MergeAst(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst)
+{
+    if (targetAst == nullptr) {
+        targetAst = sourceAst;
+        return;
+    }
+    MergeImport(targetAst, sourceAst);
+    MergeInterfaceDef(targetAst, sourceAst);
+    MergeTypeDefinitions(targetAst, sourceAst);
+    MergeTypes(targetAst, sourceAst);
+    MergeSequenceableDef(targetAst, sourceAst);
+}
+
+void Parser::MergeImport(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst)
+{
+    for (const auto &importPair : sourceAst->GetImports()) {
+        AutoPtr<AST> importAst = importPair.second;
+        targetAst->AddImport(importAst);
+    }
+}
+
+void Parser::MergeInterfaceDef(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst)
+{
+    AutoPtr<ASTInterfaceType> sourceInterface = sourceAst->GetInterfaceDef();
+    if (sourceInterface == nullptr) {
+        return;
+    }
+    AutoPtr<ASTInterfaceType> targetInterface = targetAst->GetInterfaceDef();
+    if (targetInterface == nullptr) {
+        targetInterface = sourceInterface;
+        return;
+    }
+
+    for (size_t i = 0; i < sourceInterface->GetMethodNumber(); i++) {
+        targetInterface->AddMethod(sourceInterface->GetMethod(i));
+    }
+    targetInterface->SetSerializable(sourceInterface->IsSerializable());
+}
+
+void Parser::MergeTypeDefinitions(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst)
+{
+    for (size_t i = 0; i < sourceAst->GetTypeDefinitionNumber(); i++) {
+        targetAst->AddTypeDefinition(sourceAst->GetTypeDefintion(i));
+    }
+}
+
+void Parser::MergeSequenceableDef(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst)
+{
+    if (sourceAst->GetSequenceableDef() != nullptr) {
+        targetAst->AddSequenceableDef(sourceAst->GetSequenceableDef());
+    }
+}
+
+void Parser::MergeTypes(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst)
+{
+    for (const auto &typePair : sourceAst->GetTypes()) {
+        targetAst->AddType(typePair.second);
+    }
+}
+
+void Parser::ModifyImport(StrAstMap &allAsts, std::string &genPackageName)
+{
+    for (const auto &astPair : allAsts) {
+        StrAstMap modifiedImport;
+        StrAstMap import = astPair.second->GetImports();
+        for (const auto &importPair : import) {
+            if (importPair.second->GetName() == astPair.second->GetName()) {
+                continue;
+            }
+            modifiedImport[importPair.second->GetName()] = importPair.second;
+        }
+        astPair.second->ClearImport();
+        for (const auto &importPair : modifiedImport) {
+            importPair.second->SetPackageName(genPackageName);
+            astPair.second->AddImport(importPair.second);
+        }
+    }
+}
+
+void Parser::ModifyPackageNameAndVersion(
+    StrAstMap &allAsts, std::string &genPackageName, std::vector<size_t> genVersion)
+{
+    for (const auto &astPair : allAsts) {
+        astPair.second->SetPackageName(genPackageName);
+        astPair.second->SetVersion(genVersion[0], genVersion[1]);
+    }
+}
+
+void Parser::ModifyInterfaceNamespace(AutoPtr<ASTNamespace> &ns)
+{
+    for (const auto &astPair : allAsts_) {
+        AutoPtr<ASTInterfaceType> interface = astPair.second->GetInterfaceDef();
+        if (interface != nullptr) {
+            interface->SetNamespace(ns);
+        }
     }
 }
 } // namespace HDI

@@ -52,8 +52,6 @@ void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitHeadMacro(sb, interfaceFullName_);
     sb.Append("\n");
     EmitInterfaceInclusions(sb);
-    sb.Append("\n");
-    EmitInterfaceVersionMacro(sb);
     if (!Options::GetInstance().DoPassthrough()) {
         sb.Append("\n");
         EmitInterfaceBuffSizeMacro(sb);
@@ -63,7 +61,11 @@ void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitUsingNamespace(sb);
     if (!Options::GetInstance().DoPassthrough()) {
         sb.Append("\n");
-        EmitInterfaceMethodCommands(sb, "");
+        if (interface_->GetExtendsInterface() == nullptr) {
+            EmitInterfaceMethodCommands(sb, "");
+        } else {
+            EmitInterfaceMethodCommandsWithExtends(sb, "");
+        }
     }
     sb.Append("\n");
     EmitInterfaceDefinition(sb);
@@ -106,27 +108,40 @@ void CppInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb) const
 
 void CppInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
 {
-    if (!interface_->IsSerializable()) {
-        sb.AppendFormat("class %s : public HdiBase {\n", interfaceName_.c_str());
-        sb.Append("public:\n");
-        EmitInterfaceDescriptor(sb, TAB);
-        sb.Append("\n");
-        EmitInterfaceDestruction(sb, TAB);
-        sb.Append("\n");
-        EmitGetMethodDecl(sb, TAB);
-        sb.Append("\n");
-        EmitInterfaceMethodsDecl(sb, TAB);
-        sb.Append("};\n");
+    AutoPtr<ASTInterfaceType> interface = interface_->GetExtendsInterface();
+    if (interface != nullptr) {
+        sb.AppendFormat("class %s : public %s {\n", interfaceName_.c_str(),
+            EmitDefinitionByInterface(interface, interfaceName_).c_str());
     } else {
         sb.AppendFormat("class %s : public HdiBase {\n", interfaceName_.c_str());
-        sb.Append("public:\n");
-        EmitInterfaceDescriptor(sb, TAB);
-        sb.Append("\n");
-        EmitInterfaceDestruction(sb, TAB);
-        sb.Append("\n");
-        EmitInterfaceMethodsDecl(sb, TAB);
-        sb.Append("};\n");
     }
+    sb.Append("public:\n");
+    EmitInterfaceDescriptor(sb, TAB);
+    sb.Append("\n");
+    EmitInterfaceDestruction(sb, TAB);
+    sb.Append("\n");
+    if (!interface_->IsSerializable()) {
+        EmitGetMethodDecl(sb, TAB);
+        sb.Append("\n");
+    }
+    EmitInterfaceMethodsDecl(sb, TAB);
+    sb.Append("\n");
+    EmitGetDescMethod(sb, TAB);
+    sb.Append("};\n");
+}
+
+void CppInterfaceCodeEmitter::EmitGetDescMethod(StringBuilder &sb, const std::string &prefix) const
+{
+    AutoPtr<ASTInterfaceType> interface = interface_->GetExtendsInterface();
+    if (interface == nullptr) {
+        sb.Append(prefix).Append("virtual const std::u16string GetDesc()");
+    } else {
+        sb.Append(prefix).Append("const std::u16string GetDesc() override");
+    }
+    sb.Append("\n");
+    sb.Append(prefix).Append("{").Append("\n");
+    sb.Append(prefix + TAB).Append("return metaDescriptor_;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceDescriptor(StringBuilder &sb, const std::string &prefix) const
@@ -182,7 +197,11 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
 void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix) const
 {
     AutoPtr<ASTMethod> method = interface_->GetVersionMethod();
-    sb.Append(prefix).AppendFormat("virtual int32_t %s(", method->GetName().c_str());
+    if (interface_->GetExtendsInterface() == nullptr) {
+        sb.Append(prefix).AppendFormat("virtual int32_t %s(", method->GetName().c_str());
+    } else {
+        sb.Append(prefix).AppendFormat("int32_t %s(", method->GetName().c_str());
+    }
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
         EmitInterfaceMethodParameter(param, sb, "");
@@ -190,14 +209,17 @@ void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, c
             sb.Append(", ");
         }
     }
-
-    sb.AppendFormat(")\n");
+    sb.Append(")");
+    if (interface_->GetExtendsInterface() != nullptr) {
+        sb.Append(" override");
+    }
+    sb.Append("\n");
     sb.Append(prefix).Append("{\n");
 
     AutoPtr<ASTParameter> majorParam = method->GetParameter(0);
-    sb.Append(prefix + TAB).AppendFormat("%s = %s;\n", majorParam->GetName().c_str(), majorVerName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = %d;\n", majorParam->GetName().c_str(), ast_->GetMajorVer());
     AutoPtr<ASTParameter> minorParam = method->GetParameter(1);
-    sb.Append(prefix + TAB).AppendFormat("%s = %s;\n", minorParam->GetName().c_str(), minorVerName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s = %d;\n", minorParam->GetName().c_str(), ast_->GetMinorVer());
 
     sb.Append(prefix + TAB).Append("return HDF_SUCCESS;\n");
     sb.Append(prefix).Append("}\n");
@@ -207,6 +229,26 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodParameter(
     const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append(param->EmitCppParameter());
+}
+
+void CppInterfaceCodeEmitter::EmitInterfaceMethodCommandsWithExtends(StringBuilder &sb, const std::string &prefix)
+{
+    size_t extendMethods = 0;
+    AutoPtr<ASTInterfaceType> interface = interface_->GetExtendsInterface();
+    while (interface != nullptr) {
+        extendMethods += interface->GetMethodNumber();
+        interface = interface->GetExtendsInterface();
+    }
+
+    sb.Append(prefix).AppendFormat("enum {\n");
+    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
+        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+        sb.Append(prefix + TAB)
+            .Append(EmitMethodCmdID(method))
+            .AppendFormat(" = %d", extendMethods + i + 1)
+            .Append(",\n");
+    }
+    sb.Append(prefix).Append("};\n");
 }
 } // namespace HDI
 } // namespace OHOS

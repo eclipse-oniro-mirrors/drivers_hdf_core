@@ -77,7 +77,8 @@ void CppServiceImplCodeEmitter::EmitServiceImplInclusions(StringBuilder &sb)
 void CppServiceImplCodeEmitter::EmitServiceImplDecl(StringBuilder &sb)
 {
     EmitBeginNamespace(sb);
-    sb.AppendFormat("class %sService : public %s {\n", baseName_.c_str(), interfaceName_.c_str());
+    sb.AppendFormat("class %sService : public %s {\n", baseName_.c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append("public:\n");
     EmitServiceImplBody(sb, TAB);
     sb.Append("};\n");
@@ -100,9 +101,13 @@ void CppServiceImplCodeEmitter::EmitServiceImplConstructor(StringBuilder &sb, co
 
 void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
-        EmitServiceImplMethodDecl(method, sb, prefix);
-        sb.Append("\n");
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            EmitServiceImplMethodDecl(method, sb, prefix);
+            sb.Append("\n");
+        }
+        interface = interface->GetExtendsInterface();
     }
 }
 
@@ -170,9 +175,13 @@ void CppServiceImplCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
 
 void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
-        EmitServiceImplMethodImpl(method, sb, prefix);
-        sb.Append("\n");
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            EmitServiceImplMethodImpl(method, sb, prefix);
+            sb.Append("\n");
+        }
+        interface = interface->GetExtendsInterface();
     }
 }
 

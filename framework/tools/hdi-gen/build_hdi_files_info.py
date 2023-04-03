@@ -309,6 +309,11 @@ class IdlDetail(object):
 class IdlParser(object):
     def parse(self, ):
         all_idl_details = {}
+        if Option.language == "c":
+            self.parse_c_idl_files(all_idl_details)
+            self.parse_module_info(all_idl_details)
+            return
+
         for idl_file in Option.idl_sources:
             idl_detail = self.parse_one(idl_file)
             all_idl_details[idl_detail.full_name()] = idl_detail
@@ -332,6 +337,48 @@ class IdlParser(object):
             else:
                 lex.get_token()
         return cur_idl_detail
+
+    def parse_c_idl_files(self, all_idl_details):
+        idl_sources_set = set()
+        idl_queue = []
+        for idl_file in Option.idl_sources:
+            idl_queue.append(idl_file)
+        while len(idl_queue) > 0:
+            cur_idl_file = idl_queue.pop(0)
+            if cur_idl_file in idl_sources_set:
+                continue
+            idl_sources_set.add(cur_idl_file)
+            self.parse_c_idl_files_import(cur_idl_file, idl_queue)
+        for idl_file in idl_sources_set:
+            idl_detail = self.parse_one(idl_file)
+            all_idl_details[idl_detail.full_name()] = idl_detail
+        self.merged_idl_details(all_idl_details)
+
+    def parse_c_idl_files_import(self, file_path, idl_queue):
+        lex = Lexer(file_path)
+        while lex.peek_token().token_type != TokenType.END_OF_FILE:
+            cur_token_type = lex.peek_token().token_type
+            if cur_token_type == TokenType.IMPORT:
+                lex.get_token()
+                token = lex.peek_token()
+                if lex.peek_token().token_type != TokenType.ID:
+                    raise Exception("{}: expected package name before '{}'".format(
+                        token.info(), token.value))
+                idl_queue.append(
+                    CodeGen.get_package_path(token.value) + ".idl")
+            lex.get_token()
+
+    def merged_idl_details(self, all_idl_details):
+        merged_details = {}
+        source_idl_detail = self.parse_one(Option.idl_sources[0])
+        for key, value in all_idl_details.items():
+            if value.file_name not in merged_details:
+                value.package = source_idl_detail.package
+                value.version = source_idl_detail.version
+                merged_details[value.file_name] = value
+        all_idl_details.clear()
+        for key, value in merged_details.items():
+            all_idl_details[key] = value
 
     def parse_package(self, lex, cur_idl_detail):
         lex.get_token()  # package token

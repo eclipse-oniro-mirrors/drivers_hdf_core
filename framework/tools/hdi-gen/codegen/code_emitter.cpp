@@ -146,11 +146,12 @@ std::string CodeEmitter::EmitMethodCmdID(const AutoPtr<ASTMethod> &method)
 void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix)
 {
     sb.Append(prefix).AppendFormat("enum {\n");
+    sb.Append(prefix + TAB).Append(EmitMethodCmdID(interface_->GetVersionMethod())).Append(" = 0,\n");
+    int i = 0;
     for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
-        sb.Append(prefix + TAB).Append(EmitMethodCmdID(method)).Append(",\n");
+        sb.Append(prefix + TAB).Append(EmitMethodCmdID(method)).AppendFormat(" = %d", i + 1).Append(",\n");
+        i++;
     }
-
-    sb.Append(prefix + TAB).Append(EmitMethodCmdID(interface_->GetVersionMethod())).Append(",\n");
     sb.Append(prefix).Append("};\n");
 }
 

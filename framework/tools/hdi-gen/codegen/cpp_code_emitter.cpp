@@ -269,5 +269,24 @@ std::string CppCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std
     }
     return paramStr;
 }
+
+std::string CppCodeEmitter::EmitHeaderNameByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name)
+{
+    return StringHelper::Format(
+        "v%u_%u/%s", interface->GetMajorVersion(), interface->GetMinorVersion(), FileName(name).c_str());
+}
+
+std::string CppCodeEmitter::EmitDefinitionByInterface(
+    AutoPtr<ASTInterfaceType> interface, const std::string &name) const
+{
+    StringBuilder sb;
+    std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(interface->GetNamespace()->ToString());
+    for (const auto &nspace : cppNamespaceVec) {
+        sb.AppendFormat("%s", nspace.c_str());
+        sb.Append("::");
+    }
+    sb.Append(name.c_str());
+    return sb.ToString();
+}
 } // namespace HDI
 } // namespace OHOS

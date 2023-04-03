@@ -64,16 +64,25 @@ private:
 
     void EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitProxyMethodImpl(const AutoPtr<ASTInterfaceType> interface, const AutoPtr<ASTMethod> &method,
+        StringBuilder &sb, const std::string &prefix);
 
-    void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+    void EmitProxyMethodBody(const AutoPtr<ASTInterfaceType> interface, const AutoPtr<ASTMethod> &method,
+        StringBuilder &sb, const std::string &prefix);
 
     void EmitWriteInterfaceToken(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitWriteFlagOfNeedSetMem(const AutoPtr<ASTMethod> &method,
-        const std::string &dataBufName, StringBuilder &sb, const std::string &prefix) const;
+    void EmitWriteFlagOfNeedSetMem(const AutoPtr<ASTMethod> &method, const std::string &dataBufName, StringBuilder &sb,
+        const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
+
+    void EmitProxyStaticMethodDecl(
+        const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyStaticMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+
+    void EmitProxyStaticMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 };
 } // namespace HDI
 } // namespace OHOS

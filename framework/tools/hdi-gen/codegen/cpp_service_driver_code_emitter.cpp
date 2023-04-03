@@ -158,7 +158,8 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb) const
     sb.Append(TAB).AppendFormat("%s->ioService.Open = NULL;\n", objName.c_str());
     sb.Append(TAB).AppendFormat("%s->ioService.Release = NULL;\n\n", objName.c_str());
 
-    sb.Append(TAB).AppendFormat("auto serviceImpl = %s::Get(true);\n", interfaceName_.c_str());
+    sb.Append(TAB).AppendFormat(
+        "auto serviceImpl = %s::Get(true);\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(TAB).Append("if (serviceImpl == nullptr) {\n");
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: failed to get of implement service\", __func__);\n");
     sb.Append(TAB).Append(TAB).AppendFormat("delete %s;\n", objName.c_str());
@@ -167,7 +168,8 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb) const
 
     sb.Append(TAB).AppendFormat("%s->stub = OHOS::HDI::ObjectCollector::GetInstance().", objName.c_str());
     sb.Append("GetOrNewObject(serviceImpl,\n");
-    sb.Append(TAB).Append(TAB).AppendFormat("%s::GetDescriptor());\n", interfaceName_.c_str());
+    sb.Append(TAB).Append(TAB).AppendFormat(
+        "%s::GetDescriptor());\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(TAB).AppendFormat("if (%s->stub == nullptr) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: failed to get stub object\", __func__);\n");
     sb.Append(TAB).Append(TAB).AppendFormat("delete %s;\n", objName.c_str());

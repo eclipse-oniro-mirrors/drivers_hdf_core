@@ -27,7 +27,13 @@
 namespace OHOS {
 namespace HDI {
 using AttrSet = std::set<Token, TokenTypeCompare>;
-
+struct AstCompare {
+    bool operator()(const AutoPtr<AST> &lhs, const AutoPtr<AST> &rhs) const
+    {
+        return lhs->GetMinorVer() > rhs->GetMinorVer();
+    }
+};
+using AstMergeMap = std::map<std::string, std::set<AutoPtr<AST>, AstCompare>>;
 class Parser {
 public:
     Parser() = default;
@@ -177,6 +183,17 @@ private:
 
     bool CheckImport(const std::string &importName);
 
+    void ParseInterfaceExtends(AutoPtr<ASTInterfaceType> &interface);
+
+    void ParseExtendsInfo(AutoPtr<ASTInterfaceType> &interfaceType);
+
+    bool CheckExtendsName(AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsName);
+
+    bool CheckExtendsVersion(
+        AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsName, AutoPtr<AST> extendsAst);
+
+    void SetInterfaceVersion(AutoPtr<ASTInterfaceType> &interfaceType);
+
     inline static bool IsPrimitiveType(Token token)
     {
         return token.kind >= TokenType::BOOLEAN && token.kind <= TokenType::ASHMEM;
@@ -189,6 +206,36 @@ private:
     void LogError(const Token &token, const std::string &message);
 
     void ShowError();
+
+    bool PostProcess();
+
+    bool CheckExistExtends();
+
+    bool GetGenVersion(std::vector<size_t> &version, std::string &genPackageName);
+
+    void GetGenNamespace(AutoPtr<ASTNamespace> &ns);
+
+    void SortAstByName(AstMergeMap &mergeMap, StrAstMap &allAsts);
+
+    void MergeAsts(AstMergeMap &mergeMap);
+
+    void MergeAst(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst);
+
+    void MergeImport(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst);
+
+    void MergeInterfaceDef(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst);
+
+    void MergeTypes(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst);
+
+    void MergeSequenceableDef(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst);
+
+    void MergeTypeDefinitions(AutoPtr<AST> &targetAst, AutoPtr<AST> sourceAst);
+
+    void ModifyImport(StrAstMap &allAsts, std::string &genPackageName);
+
+    void ModifyPackageNameAndVersion(StrAstMap &allAsts, std::string &genPackageName, std::vector<size_t> genVersion);
+
+    void ModifyInterfaceNamespace(AutoPtr<ASTNamespace> &ns);
 
     Lexer lexer_;
     std::vector<std::string> errors_;
