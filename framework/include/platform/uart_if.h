@@ -366,6 +366,13 @@ int32_t UartSetAttribute(DevHandle handle, struct UartAttribute *attribute);
  */
 int32_t UartSetTransMode(DevHandle handle, enum UartTransMode mode);
 
+/**
+ * @brief The following uart interface is only available for the mini platform
+ *
+ * @since 1.0
+ */
+int32_t UartBlockWrite(DevHandle handle, uint8_t *data, uint32_t size);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

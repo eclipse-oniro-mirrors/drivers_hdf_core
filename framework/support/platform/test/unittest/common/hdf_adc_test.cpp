@@ -19,7 +19,7 @@
 
 using namespace testing::ext;
 
-class HdfLiteAdcTest : public testing::Test {
+class HdfAdcTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -27,21 +27,21 @@ public:
     void TearDown();
 };
 
-void HdfLiteAdcTest::SetUpTestCase()
+void HdfAdcTest::SetUpTestCase()
 {
     HdfTestOpenService();
 }
 
-void HdfLiteAdcTest::TearDownTestCase()
+void HdfAdcTest::TearDownTestCase()
 {
     HdfTestCloseService();
 }
 
-void HdfLiteAdcTest::SetUp()
+void HdfAdcTest::SetUp()
 {
 }
 
-void HdfLiteAdcTest::TearDown()
+void HdfAdcTest::TearDown()
 {
 }
 
@@ -51,7 +51,7 @@ void HdfLiteAdcTest::TearDown()
   * @tc.type: FUNC
   * @tc.require: NA
   */
-HWTEST_F(HdfLiteAdcTest, AdcTestRead001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcTestRead001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_ADC_TYPE, ADC_TEST_CMD_READ, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -64,7 +64,7 @@ HWTEST_F(HdfLiteAdcTest, AdcTestRead001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: NA
   */
-HWTEST_F(HdfLiteAdcTest, AdcTestMultiThread001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcTestMultiThread001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_ADC_TYPE, ADC_TEST_CMD_MULTI_THREAD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -77,7 +77,7 @@ HWTEST_F(HdfLiteAdcTest, AdcTestMultiThread001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: NA
   */
-HWTEST_F(HdfLiteAdcTest, AdcTestReliability001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcTestReliability001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_ADC_TYPE, ADC_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -90,7 +90,7 @@ HWTEST_F(HdfLiteAdcTest, AdcTestReliability001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfLiteAdcTest, AdcIfPerformanceTest001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcIfPerformanceTest001, TestSize.Level1)
 {
     EXPECT_EQ(0, AdcTestExecute(ADC_IF_PERFORMANCE_TEST));
 }

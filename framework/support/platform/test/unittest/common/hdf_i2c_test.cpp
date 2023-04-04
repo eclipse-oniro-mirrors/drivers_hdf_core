@@ -19,7 +19,7 @@
 
 using namespace testing::ext;
 
-class HdfLiteI2cTest : public testing::Test {
+class HdfI2cTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -27,7 +27,7 @@ public:
     void TearDown();
 };
 
-void HdfLiteI2cTest::SetUpTestCase()
+void HdfI2cTest::SetUpTestCase()
 {
     int32_t ret;
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_SETUP_ALL, -1};
@@ -41,7 +41,7 @@ void HdfLiteI2cTest::SetUpTestCase()
     printf("SetUpTestCase: exit!\n");
 }
 
-void HdfLiteI2cTest::TearDownTestCase()
+void HdfI2cTest::TearDownTestCase()
 {
     int32_t ret;
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_TEARDOWN_ALL, -1};
@@ -55,21 +55,21 @@ void HdfLiteI2cTest::TearDownTestCase()
     printf("TearDownTestCase: exit!\n");
 }
 
-void HdfLiteI2cTest::SetUp()
+void HdfI2cTest::SetUp()
 {
 }
 
-void HdfLiteI2cTest::TearDown()
+void HdfI2cTest::TearDown()
 {
 }
 
 /**
-  * @tc.name: HdfLiteI2cTestTransfer001
+  * @tc.name: HdfI2cTestTransfer001
   * @tc.desc: i2c transfer test
   * @tc.type: FUNC
   * @tc.require: AR000F8688
   */
-HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestTransfer001, TestSize.Level1)
+HWTEST_F(HdfI2cTest, HdfI2cTestTransfer001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_TRANSFER, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -77,25 +77,12 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestTransfer001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: HdfLiteI2cTestWriteRead001
-  * @tc.desc: i2c write and read test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8688
-  */
-HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestWriteRead001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_WRITE_READ, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_WRITE_READ));
-}
-
-/**
-  * @tc.name: HdfLiteI2cTestMultiThread001
+  * @tc.name: HdfI2cTestMultiThread001
   * @tc.desc: i2c multithread test
   * @tc.type: FUNC
   * @tc.require: AR000F8688
   */
-HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestMultiThread001, TestSize.Level1)
+HWTEST_F(HdfI2cTest, HdfI2cTestMultiThread001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_MULTI_THREAD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -103,12 +90,12 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestMultiThread001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: HdfLiteI2cTestReliability001
+  * @tc.name: HdfI2cTestReliability001
   * @tc.desc: i2c reliability test
   * @tc.type: FUNC
   * @tc.require: AR000F8688
   */
-HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestReliability001, TestSize.Level1)
+HWTEST_F(HdfI2cTest, HdfI2cTestReliability001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -116,12 +103,24 @@ HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestReliability001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: HdfLiteI2cTestPeformance001
+  * @tc.name: HdfI2cTestPeformance001
   * @tc.desc: i2c reliability test
   * @tc.type: FUNC
   * @tc.require: AR000F8688
   */
-HWTEST_F(HdfLiteI2cTest, HdfLiteI2cTestPeformance001, TestSize.Level1)
+HWTEST_F(HdfI2cTest, HdfI2cTestPeformance001, TestSize.Level1)
 {
     EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_PERFORMANCE));
+}
+
+/**
+  * @tc.name: HdfI2cMiniWriteReadTest001
+  * @tc.desc: i2c write and read test only for the mini platform
+  * @tc.type: FUNC
+  * @tc.require:
+  */
+HWTEST_F(HdfI2cTest, HdfI2cMiniWriteReadTest001, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_MINI_WRITE_READ_TEST, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }

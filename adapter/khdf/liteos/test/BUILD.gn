@@ -120,6 +120,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/i2c_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/i2c_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_i2c_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/i2c_mini_virtual.c",
       ]
     }
 
@@ -155,6 +156,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/watchdog_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/watchdog_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_watchdog_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/watchdog_mini_virtual.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/watchdog_virtual.c",
       ]
     }
@@ -173,6 +175,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/uart_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/uart_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_uart_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/uart_mini_virtual.c",
       ]
     }
 
@@ -195,6 +198,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/rtc_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/rtc_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_rtc_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/rtc_mini_virtual.c",
       ]
     }
 

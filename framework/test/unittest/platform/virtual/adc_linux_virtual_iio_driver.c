@@ -25,7 +25,7 @@
 #define STORAGE_BITS 16
 #define SHIFT_BITS 0
 #define SCAN_MASKS 0xF
-#define BUS_NUM 2
+#define BUS_NUM 16
 
 enum AdcScanIndex {
     ADC_SCAN_VOLTAGE_1,

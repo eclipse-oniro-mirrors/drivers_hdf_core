@@ -16,8 +16,8 @@
  *
  */
 
-#include <asm/uaccess.h>
 #include <asm/ioctls.h>
+#include <linux/uaccess.h>
 #include <linux/watchdog.h>
 #include <linux/fs.h>
 #include <linux/version.h>

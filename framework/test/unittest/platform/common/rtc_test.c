@@ -18,6 +18,8 @@
 
 #define HDF_LOG_TAG rtc_test_c
 
+#define RTC_TEST_TIME_ZONE 8
+
 static int32_t RtcTestGetConfig(struct RtcTestConfig *config)
 {
     int32_t ret;
@@ -608,6 +610,33 @@ static int32_t RtcReadWriteReliability(struct RtcTester *tester)
     return HDF_SUCCESS;
 }
 
+static int32_t RtcMiniSetGetTimeZoneTest(struct RtcTester *tester)
+{
+#ifdef __KERNEL__
+    int32_t timeZone = RTC_TEST_TIME_ZONE;
+    int32_t ret;
+
+    (void)tester;
+    ret = RtcSetTimeZone(timeZone);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("RtcMiniSetGetTimeZoneTest: rtc set time zone fail, ret: %d!", ret);
+        return ret;
+    }
+
+    HDF_LOGI("RtcMiniSetGetTimeZoneTest: rtc set time zone test done, then test rtc get time zone!");
+
+    ret = RtcGetTimeZone(&timeZone);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("RtcMiniSetGetTimeZoneTest: rtc get time zone fail, ret: %d!", ret);
+        return ret;
+    }
+#else
+    (void)tester;
+#endif
+    HDF_LOGI("RtcMiniSetGetTimeZoneTest: all test done!");
+    return HDF_SUCCESS;
+}
+
 struct RtcTestEntry {
     int cmd;
     int32_t (*func)(struct RtcTester *tester);
@@ -633,6 +662,7 @@ static struct RtcTestEntry g_entry[] = {
     {RTC_TEST_CMD_RTC_WR_USER_REG_MAX_INDEX,  RtcReadWriteMaxUserIndexTest, "RtcReadWriteMaxUserIndexTest"},
     {RTC_TEST_CMD_RTC_FUNCTION_TEST,          RtcTestSample,                "RtcTestSample"               },
     {RTC_TEST_CMD_RTC_WR_RELIABILITY,         RtcReadWriteReliability,      "RtcReadWriteReliability"     },
+    {RTC_MINI_SET_GET_TIME_ZONE_TEST,         RtcMiniSetGetTimeZoneTest,    "RtcMiniSetGetTimeZoneTest"   },
 };
 
 int32_t RtcTestExecute(int cmd)

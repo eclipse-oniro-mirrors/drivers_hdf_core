@@ -217,11 +217,6 @@ static int32_t I2cTestTransfer(void)
     return HDF_SUCCESS;
 }
 
-static int32_t I2cTestWriteRead(void)
-{
-    return HDF_SUCCESS;
-}
-
 static int I2cTestThreadFunc(void *param)
 {
     int32_t i;
@@ -372,6 +367,36 @@ static int32_t I2cTestPeformance(void)
     return HDF_FAILURE;
 }
 
+static int32_t I2cMiniWriteReadTest(void)
+{
+#ifdef __KERNEL__
+    struct I2cTester *tester = NULL;
+    uint8_t buf;
+    int32_t ret;
+
+    tester = I2cTesterGet();
+    if (tester == NULL || tester->handle == NULL) {
+        HDF_LOGE("I2cMiniWriteReadTest: get tester fail!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    ret = I2cWrite(tester->handle, &buf, sizeof(buf));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("I2cMiniWriteReadTest: i2c write fail, ret: %d!", ret);
+        return ret;
+    }
+
+    HDF_LOGI("I2cMiniWriteReadTest: i2c write test done, then test i2c read!");
+    ret = I2cRead(tester->handle, &buf, sizeof(buf));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("I2cMiniWriteReadTest: i2c read fail, ret: %d!", ret);
+        return ret;
+    }
+#endif
+    HDF_LOGI("I2cMiniWriteReadTest: all test done!");
+    return HDF_SUCCESS;
+}
+
 struct I2cTestEntry {
     int cmd;
     int32_t (*func)(void);
@@ -380,7 +405,6 @@ struct I2cTestEntry {
 
 static struct I2cTestEntry g_entry[] = {
     { I2C_TEST_CMD_TRANSFER, I2cTestTransfer, "I2cTestTransfer" },
-    { I2C_TEST_CMD_WRITE_READ, I2cTestWriteRead, "I2cTestWriteRead" },
     { I2C_TEST_CMD_MULTI_THREAD, I2cTestMultiThread, "I2cTestMultiThread" },
     { I2C_TEST_CMD_RELIABILITY, I2cTestReliability, "I2cTestReliability" },
     { I2C_TEST_CMD_PERFORMANCE, I2cTestPeformance, "I2cTestPeformance" },
@@ -388,6 +412,7 @@ static struct I2cTestEntry g_entry[] = {
     { I2C_TEST_CMD_TEARDOWN_ALL, I2cTestTearDownAll, "I2cTestTearDownAll" },
     { I2C_TEST_CMD_SETUP_SINGLE, I2cTestSetUpSingle, "I2cTestSetUpSingle" },
     { I2C_TEST_CMD_TEARDOWN_SINGLE, I2cTestTearDownSingle, "I2cTestTearDownSingle" },
+    { I2C_MINI_WRITE_READ_TEST, I2cMiniWriteReadTest, "I2cMiniWriteReadTest" },
 };
 
 int32_t I2cTestExecute(int cmd)
