@@ -183,6 +183,8 @@ void FreeCameraMetadataBuffer(common_metadata_header_t *dst);
 
 std::string MetadataItemDump(const common_metadata_header_t *metadataHeader, uint32_t item);
 
+std::string FormatCameraMetadataToString(const common_metadata_header_t *metadataHeader);
+
 // Internal use
 camera_metadata_item_entry_t *GetMetadataItems(const common_metadata_header_t *metadataHeader);
 uint8_t *GetMetadataData(const common_metadata_header_t *metadataHeader);
