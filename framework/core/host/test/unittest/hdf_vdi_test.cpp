@@ -8,9 +8,10 @@
 
 #include <gtest/gtest.h>
 #include "hdf_io_service.h"
+#include "hdf_load_vdi.h"
+#include "securec.h"
 #include "vdi_sample1_driver.h"
 #include "vdi_sample2_driver.h"
-#include "hdf_load_vdi.h"
 
 namespace OHOS {
 using namespace testing::ext;
@@ -42,13 +43,16 @@ void HdfVdiTest::TearDown()
 HWTEST_F(HdfVdiTest, HdfVdiTestSampleABase, TestSize.Level3)
 {
     struct HdfVdiObject *vdi = nullptr;
-    vdi = HdfLoadVdi("libvdi_sample1_driver.z.so", 1);
+    vdi = HdfLoadVdi("libvdi_sample1_driver.z.so");
     ASSERT_TRUE(vdi != nullptr);
     ASSERT_TRUE(vdi->vdiBase != nullptr);
 
-    struct VdiSampleA *sampleA = reinterpret_cast<struct VdiSampleA *>(vdi->vdiBase);
-    ASSERT_TRUE(sampleA->module != nullptr);
-    struct ModuleA *modA = reinterpret_cast<struct ModuleA *>(sampleA->module);
+    uint32_t version = HdfGetVdiVersion(vdi);
+    ASSERT_TRUE(version == 1);
+
+    struct VdiWrapperA *vdiWrapper = reinterpret_cast<struct VdiWrapperA *>(vdi->vdiBase);
+    ASSERT_TRUE(vdiWrapper->module != nullptr);
+    struct ModuleA *modA = reinterpret_cast<struct ModuleA *>(vdiWrapper->module);
     int ret = modA->ServiceA();
     ASSERT_TRUE(ret == HDF_SUCCESS);
     ret = modA->ServiceB(modA);
@@ -60,27 +64,24 @@ HWTEST_F(HdfVdiTest, HdfVdiTestSampleABase, TestSize.Level3)
 HWTEST_F(HdfVdiTest, HdfVdiTestSampleAErrorSo, TestSize.Level3)
 {
     struct HdfVdiObject *vdi = nullptr;
-    vdi = HdfLoadVdi("libvdi_sample1_driver_error.z.so", 1);
+    vdi = HdfLoadVdi("libvdi_sample1_driver_error.z.so");
     ASSERT_TRUE(vdi == nullptr);
-}
-
-HWTEST_F(HdfVdiTest, HdfVdiTestSampleAErrorVersion, TestSize.Level3)
-{
-    struct HdfVdiObject *vdi = nullptr;
-    vdi = HdfLoadVdi("libvdi_sample1_driver.z.so", 0);
-    ASSERT_TRUE(vdi == nullptr);
+    HdfCloseVdi(vdi);
 }
 
 HWTEST_F(HdfVdiTest, HdfVdiTestSampleBBase, TestSize.Level3)
 {
     struct HdfVdiObject *vdi = nullptr;
-    vdi = HdfLoadVdi("libvdi_sample2_driver.z.so", 1);
+    vdi = HdfLoadVdi("libvdi_sample2_driver.z.so");
     ASSERT_TRUE(vdi != nullptr);
     ASSERT_TRUE(vdi->vdiBase != nullptr);
 
-    struct VdiSampleB *sampleB = reinterpret_cast<struct VdiSampleB *>(vdi->vdiBase);
-    ASSERT_TRUE(sampleB->module != nullptr);
-    VdiSample *vdiSample = reinterpret_cast<VdiSample *>(sampleB->module);
+    uint32_t version = HdfGetVdiVersion(vdi);
+    ASSERT_TRUE(version == 1);
+
+    struct VdiWrapperB *vdiWrapper = reinterpret_cast<struct VdiWrapperB *>(vdi->vdiBase);
+    ASSERT_TRUE(vdiWrapper->module != nullptr);
+    VdiSample *vdiSample = reinterpret_cast<VdiSample *>(vdiWrapper->module);
     int ret = vdiSample->ServiceA();
     ASSERT_TRUE(ret == HDF_SUCCESS);
     ret = vdiSample->ServiceB(vdiSample);
@@ -92,14 +93,50 @@ HWTEST_F(HdfVdiTest, HdfVdiTestSampleBBase, TestSize.Level3)
 HWTEST_F(HdfVdiTest, HdfVdiTestSampleBErrorSo, TestSize.Level3)
 {
     struct HdfVdiObject *vdi = nullptr;
-    vdi = HdfLoadVdi("libvdi_sample2_driver_error.z.so", 1);
+    vdi = HdfLoadVdi("libvdi_sample2_driver_error.z.so");
     ASSERT_TRUE(vdi == nullptr);
+    HdfCloseVdi(vdi);
 }
 
-HWTEST_F(HdfVdiTest, HdfVdiTestSampleBErrorVersion, TestSize.Level3)
+HWTEST_F(HdfVdiTest, HdfVdiTestLoadInvalidLibName, TestSize.Level3)
 {
     struct HdfVdiObject *vdi = nullptr;
-    vdi = HdfLoadVdi("libvdi_sample2_driver.z.so", 0);
+    vdi = HdfLoadVdi(nullptr);
     ASSERT_TRUE(vdi == nullptr);
+    HdfCloseVdi(vdi);
+
+    char libName[PATH_MAX + 1];
+    (void)memset_s(libName, PATH_MAX, 'a', PATH_MAX);
+    libName[PATH_MAX] = 0;
+    vdi = HdfLoadVdi(libName);
+    ASSERT_TRUE(vdi == nullptr);
+
+    HdfCloseVdi(vdi);
+}
+
+HWTEST_F(HdfVdiTest, HdfVdiTestNulVdiGetVersion, TestSize.Level3)
+{
+    struct HdfVdiObject *vdi = nullptr;
+    uint32_t version = HdfGetVdiVersion(vdi);
+    HdfCloseVdi(vdi);
+    ASSERT_TRUE(version == HDF_INVALID_VERSION);
+}
+
+HWTEST_F(HdfVdiTest, HdfVdiTestAbnormal, TestSize.Level3)
+{
+    struct HdfVdiObject obj;
+    struct HdfVdiBase base;
+    struct HdfVdiObject *vdi = &obj;
+
+    obj.vdiBase = &base;
+    obj.dlHandler = 0;
+    HdfCloseVdi(vdi);
+
+    obj.vdiBase = nullptr;
+    obj.dlHandler = 1;
+    HdfCloseVdi(vdi);
+
+    uint32_t version = HdfGetVdiVersion(vdi);
+    ASSERT_TRUE(version == HDF_INVALID_VERSION);
 }
 } // namespace OHOS

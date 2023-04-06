@@ -17,21 +17,21 @@ extern "C" {
 
 class IVdiSample {
 public:
-    virtual int ServiceA() = 0;
+    virtual int ServiceA(void) = 0;
     virtual int ServiceB(IVdiSample *) = 0;
 };
 
 class VdiSample : public IVdiSample {
 public:
-    int ServiceA() override;
+    int ServiceA(void) override;
     int ServiceB(IVdiSample *vdi) override;
-    VdiSample(int para);
+    explicit VdiSample(int para);
     virtual ~VdiSample() = default;
 private:
     int priData;
 };
 
-struct VdiSampleB {
+struct VdiWrapperB {
     struct HdfVdiBase base;
     IVdiSample *module;
 };

@@ -16,12 +16,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 struct ModuleA {
-    int (*ServiceA)();
+    int (*ServiceA)(void);
     int (*ServiceB)(struct ModuleA *modA);
     int priData;
 };
 
-struct VdiSampleA {
+struct VdiWrapperA {
     struct HdfVdiBase base;
     struct ModuleA *module;
 };

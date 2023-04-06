@@ -19,17 +19,21 @@ ohos_unittest("hdf_load_vdi_test") {
 
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
 
-  sources = [ "../../../../../framework/core/host/test/unittest/hdf_vdi_test.cpp" ]
+  sources =
+      [ "../../../../../framework/core/host/test/unittest/hdf_vdi_test.cpp" ]
   if (target_cpu == "arm64" || target_cpu == "x86_64") {
-    resource_config_file =
-      "../../resource/load_vdi/arch64/ohos_test.xml"
+    resource_config_file = "../../resource/load_vdi/arch64/ohos_test.xml"
   } else {
-    resource_config_file =
-      "../../resource/load_vdi/arch32/ohos_test.xml"
+    resource_config_file = "../../resource/load_vdi/arch32/ohos_test.xml"
   }
+  deps = [
+    ":libvdi_sample1_driver",
+    ":libvdi_sample2_driver",
+  ]
   external_deps = [
-    "hdf_core:libhdf_utils",
+    "c_utils:utils",
     "hdf_core:libhdf_host",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
@@ -37,13 +41,14 @@ ohos_unittest("hdf_load_vdi_test") {
 ohos_shared_library("libvdi_sample1_driver") {
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
 
-  sources = [ "../../../../../framework/core/host/test/sample/vdi_sample1_driver.c" ]
+  sources =
+      [ "../../../../../framework/core/host/test/sample/vdi_sample1_driver.c" ]
   install_images = [ chipset_base_dir ]
   subsystem_name = "hdf"
   part_name = "hdf_core"
   external_deps = [
-    "hdf_core:libhdf_utils",
     "hdf_core:libhdf_host",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
@@ -51,13 +56,15 @@ ohos_shared_library("libvdi_sample1_driver") {
 ohos_shared_library("libvdi_sample2_driver") {
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
 
-  sources = [ "../../../../../framework/core/host/test/sample/vdi_sample2_driver.cpp" ]
+  sources = [
+    "../../../../../framework/core/host/test/sample/vdi_sample2_driver.cpp",
+  ]
   install_images = [ chipset_base_dir ]
   subsystem_name = "hdf"
   part_name = "hdf_core"
   external_deps = [
-    "hdf_core:libhdf_utils",
     "hdf_core:libhdf_host",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }

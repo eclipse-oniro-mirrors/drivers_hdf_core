@@ -25,8 +25,8 @@ extern "C" {
 struct HdfVdiBase {
     uint32_t moduleVersion;
     const char *moduleName;
-    int (*OpenVdi)(struct HdfVdiBase *vdiBase);
-    int (*CloseVdi)(struct HdfVdiBase *vdiBase);
+    int (*CreateVdiInstance)(struct HdfVdiBase *vdiBase);
+    int (*DestoryVdiInstance)(struct HdfVdiBase *vdiBase);
 };
 
 struct HdfVdiObject {
@@ -34,8 +34,19 @@ struct HdfVdiObject {
     struct HdfVdiBase *vdiBase;
 };
 
-struct HdfVdiObject *HdfLoadVdi(const char *soName, uint32_t version);
-void HdfCloseVdi(struct HdfVdiObject *vdi);
+#define HDF_INVALID_VERSION 0xFFFFFFFF
+
+/* The parameter is the library name with a suffix */
+struct HdfVdiObject *HdfLoadVdi(const char *libName);
+
+/*
+ * The caller needs to confirm whether the version number is expected,
+ * and ensure that the structure inside the vdi is the same as the structure to be converted,
+ * Otherwise, it may cause crash issues.
+ */
+uint32_t HdfGetVdiVersion(const struct HdfVdiObject *vdiObj);
+
+void HdfCloseVdi(struct HdfVdiObject *vdiObj);
 
 #define HDF_VDI_INIT(module) struct HdfVdiBase *hdfVdiDesc = (struct HdfVdiBase *)&(module)
 

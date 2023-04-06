@@ -1,24 +1,17 @@
 /*
  * Copyright (c) 2023 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * HDF is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
  */
 
 #include <dlfcn.h>
 #include <unistd.h>
-#include "hdf_load_vdi.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
 #include "securec.h"
+#include "hdf_load_vdi.h"
 
 #define HDF_LOG_TAG dev_load_vdi
 
@@ -28,28 +21,29 @@
 #define VDI_PATH HDF_LIBRARY_DIR"/"
 #endif
 
-struct HdfVdiObject *HdfLoadVdi(const char *soName, uint32_t version)
+struct HdfVdiObject *HdfLoadVdi(const char *libName)
 {
     char path[PATH_MAX + 1] = {0};
     char resolvedPath[PATH_MAX + 1] = {0};
 
-    if (soName == NULL) {
-        HDF_LOGE("name is NULL");
+    if (libName == NULL) {
+        HDF_LOGE("%{public}s libName is NULL", __func__);
         return NULL;
     }
 
-    if (snprintf_s(path, sizeof(path), sizeof(path) - 1, "%s/%s", VDI_PATH, soName) < 0) {
-        HDF_LOGE("%{public}s %{public}s snprintf_s failed", __func__, soName);
+    if (snprintf_s(path, sizeof(path), sizeof(path) - 1, "%s/%s", VDI_PATH, libName) < 0) {
+        HDF_LOGE("%{public}s %{public}s snprintf_s failed", __func__, libName);
         return NULL;
     }
 
     if (realpath(path, resolvedPath) == NULL || strncmp(resolvedPath, VDI_PATH, strlen(VDI_PATH)) != 0) {
-        HDF_LOGE("%{public}s %{public}s %{public}s realpath file name failed", __func__, path, resolvedPath);
+        HDF_LOGE("%{public}s %{public}s %{public}s realpath file name failed %{public}d",
+            __func__, path, resolvedPath, errno);
         return NULL;
     }
 
-    struct HdfVdiObject *vdi = (struct HdfVdiObject *)OsalMemCalloc(sizeof(*vdi));
-    if (vdi == NULL) {
+    struct HdfVdiObject *vdiObj = (struct HdfVdiObject *)OsalMemCalloc(sizeof(*vdiObj));
+    if (vdiObj == NULL) {
         HDF_LOGE("%{public}s malloc failed", __func__);
         return NULL;
     }
@@ -57,7 +51,7 @@ struct HdfVdiObject *HdfLoadVdi(const char *soName, uint32_t version)
     void *handler = dlopen(resolvedPath, RTLD_LAZY);
     if (handler == NULL) {
         HDF_LOGE("%{public}s dlopen failed %{public}s", __func__, dlerror());
-        OsalMemFree(vdi);
+        OsalMemFree(vdiObj);
         return NULL;
     }
 
@@ -65,42 +59,45 @@ struct HdfVdiObject *HdfLoadVdi(const char *soName, uint32_t version)
     if (vdiBase == NULL) {
         HDF_LOGE("%{public}s dlsym hdfVdiDesc failed %{public}s", __func__, dlerror());
         dlclose(handler);
-        OsalMemFree(vdi);
+        OsalMemFree(vdiObj);
         return NULL;
     }
 
-    if (version != vdiBase->moduleVersion) {
-        HDF_LOGE("%{public}s check version failed %{public}d %{public}d", __func__, version, vdiBase->moduleVersion);
-        dlclose(handler);
-        OsalMemFree(vdi);
-        return NULL;    
+    if (vdiBase->CreateVdiInstance) {
+        vdiBase->CreateVdiInstance(vdiBase);
     }
 
-    if (vdiBase->OpenVdi) {
-        vdiBase->OpenVdi(vdiBase);
-    }
+    vdiObj->dlHandler = (uintptr_t)handler;
+    vdiObj->vdiBase = vdiBase;
 
-    vdi->dlHandler = (uintptr_t)handler;
-    vdi->vdiBase = vdiBase;
-
-    return vdi;
+    return vdiObj;
 }
 
-void HdfCloseVdi(struct HdfVdiObject *vdi)
+uint32_t HdfGetVdiVersion(const struct HdfVdiObject *vdiObj)
 {
-    if (vdi == NULL || vdi->dlHandler == 0 || vdi->vdiBase == NULL) {
+    if (vdiObj == NULL || vdiObj->vdiBase == NULL) {
+        HDF_LOGE("%{public}s para is invalid", __func__);
+        return HDF_INVALID_VERSION;
+    }
+
+    return vdiObj->vdiBase->moduleVersion;
+}
+
+void HdfCloseVdi(struct HdfVdiObject *vdiObj)
+{
+    if (vdiObj == NULL || vdiObj->dlHandler == 0 || vdiObj->vdiBase == NULL) {
         HDF_LOGE("%{public}s para invalid", __func__);
         return;
     }
 
-    struct HdfVdiBase *vdiBase = vdi->vdiBase;
-    if (vdiBase->CloseVdi) {
-        vdiBase->CloseVdi(vdiBase);
+    struct HdfVdiBase *vdiBase = vdiObj->vdiBase;
+    if (vdiBase->DestoryVdiInstance) {
+        vdiBase->DestoryVdiInstance(vdiBase);
     }
 
-    dlclose((void *)vdi->dlHandler);
-    vdi->dlHandler = 0;
-    vdi->vdiBase = NULL;
-    OsalMemFree(vdi);
+    dlclose((void *)vdiObj->dlHandler);
+    vdiObj->dlHandler = 0;
+    vdiObj->vdiBase = NULL;
+    OsalMemFree(vdiObj);
 }
 
