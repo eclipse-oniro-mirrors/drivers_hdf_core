@@ -10,6 +10,7 @@
 #define OHOS_HDI_ASTTYPE_H
 
 #include <functional>
+#include <regex>
 #include <unordered_map>
 
 #include "ast/ast_namespace.h"
@@ -197,6 +198,10 @@ public:
     virtual void RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
     virtual void RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
+
+    virtual std::string GetNameWithNamespace(AutoPtr<ASTNamespace> space, std::string name) const;
+
+    virtual std::string PascalName(const std::string &name) const;
 
 protected:
     TypeKind typeKind_;

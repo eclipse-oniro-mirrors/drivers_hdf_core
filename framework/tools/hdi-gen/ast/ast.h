@@ -107,6 +107,11 @@ public:
 
     AutoPtr<ASTNamespace> GetNamespace(size_t index);
 
+    inline std::vector<AutoPtr<ASTNamespace>> GetNamespace()
+    {
+        return namespaces_;
+    }
+
     inline size_t GetNamespaceNumber()
     {
         return namespaces_.size();
@@ -152,6 +157,11 @@ public:
     std::string Dump(const std::string &prefix) override;
 
     bool AddImport(const AutoPtr<AST> &importAst);
+
+    void ClearImport()
+    {
+        return imports_.clear();
+    }
 
     inline const StrASTMap &GetImports() const
     {

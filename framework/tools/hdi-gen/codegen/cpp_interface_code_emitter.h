@@ -48,6 +48,10 @@ private:
 
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitInterfaceMethodCommandsWithExtends(StringBuilder &sb, const std::string &prefix);
+
+    void EmitGetDescMethod(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

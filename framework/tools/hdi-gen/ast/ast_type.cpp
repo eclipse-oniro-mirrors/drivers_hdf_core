@@ -311,5 +311,69 @@ void ASTType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap 
     (void)language;
     (void)methods;
 }
+
+std::string ASTType::GetNameWithNamespace(AutoPtr<ASTNamespace> space, std::string name) const
+{
+    std::vector<std::string> namespaceVec = StringHelper::Split(space->ToString(), ".");
+    std::regex rVer("[V|v][0-9]+_[0-9]+");
+    std::vector<std::string> result;
+    bool findVersion = false;
+
+    std::string rootPackage = Options::GetInstance().GetRootPackage(space->ToString());
+    size_t rootPackageNum = StringHelper::Split(rootPackage, ".").size();
+
+    for (size_t i = 0; i < namespaceVec.size(); i++) {
+        std::string ns;
+        if (i < rootPackageNum) {
+            ns = StringHelper::StrToUpper(namespaceVec[i]);
+        } else if (!findVersion && std::regex_match(namespaceVec[i].c_str(), rVer)) {
+            ns = StringHelper::Replace(namespaceVec[i], 'v', 'V');
+            findVersion = true;
+        } else {
+            if (findVersion) {
+                ns = namespaceVec[i];
+            } else {
+                ns = PascalName(namespaceVec[i]);
+            }
+        }
+
+        result.emplace_back(ns);
+    }
+    StringBuilder sb;
+    for (const auto &ns : result) {
+        sb.AppendFormat("%s::", ns.c_str());
+    }
+    sb.Append(name);
+    return sb.ToString();
+}
+
+std::string ASTType::PascalName(const std::string &name) const
+{
+    if (name.empty()) {
+        return name;
+    }
+
+    StringBuilder sb;
+    for (size_t i = 0; i < name.size(); i++) {
+        char c = name[i];
+        if (i == 0) {
+            if (islower(c)) {
+                c = toupper(c);
+            }
+            sb.Append(c);
+        } else {
+            if (c == '_') {
+                continue;
+            }
+
+            if (islower(c) && name[i - 1] == '_') {
+                c = toupper(c);
+            }
+            sb.Append(c);
+        }
+    }
+
+    return sb.ToString();
+}
 } // namespace HDI
 } // namespace OHOS

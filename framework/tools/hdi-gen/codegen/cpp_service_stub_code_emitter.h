@@ -66,19 +66,24 @@ private:
 
     void EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
+    void EmitStubMethodImpl(AutoPtr<ASTInterfaceType> interface, const AutoPtr<ASTMethod> &method, StringBuilder &sb,
+        const std::string &prefix) const;
+
+    void EmitStubStaticMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubCallMethod(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitStubReadInterfaceToken(const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitStubReadMemFlag(const AutoPtr<ASTMethod> &method,
-        const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const;
+    void EmitStubReadMemFlag(const AutoPtr<ASTMethod> &method, const std::string &parcelName, StringBuilder &sb,
+        const std::string &prefix) const;
 
     void EmitLocalVariable(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
         const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
+
+    void EmitStubStaticMethodDecl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

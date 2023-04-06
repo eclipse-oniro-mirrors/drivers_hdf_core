@@ -116,11 +116,19 @@ bool CodeGenerator::Generate(const StrAstMap &allAst)
 
     std::string outDir = Options::GetInstance().GetGenerationDirectory();
     std::set<std::string> sourceFile = Options::GetInstance().GetSourceFiles();
-    for (const auto &ast : allAst) {
-        if (sourceFile.find(ast.second->GetIdlFilePath()) != sourceFile.end()) {
+    Language language = Options::GetInstance().GetLanguage();
+    if (language == Language::CPP) {
+        for (const auto &ast : allAst) {
+            if (sourceFile.find(ast.second->GetIdlFilePath()) != sourceFile.end()) {
+                genCodeFunc(ast.second, outDir);
+            }
+        }
+    } else if (language == Language::C) {
+        for (const auto &ast : allAst) {
             genCodeFunc(ast.second, outDir);
         }
     }
+
     return true;
 }
 

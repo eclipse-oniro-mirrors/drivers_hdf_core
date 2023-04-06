@@ -95,6 +95,8 @@ public:
 
     void AddMethod(const AutoPtr<ASTMethod> &method);
 
+    AutoPtr<ASTMethod> GetMethod(size_t index);
+
     std::vector<AutoPtr<ASTMethod>> GetMethodsBySystem(SystemLevel system) const;
 
     inline size_t GetMethodNumber() const
@@ -111,6 +113,25 @@ public:
     {
         return getVerMethod_;
     }
+
+    bool AddExtendsInterface(AutoPtr<ASTInterfaceType> interface);
+
+    AutoPtr<ASTInterfaceType> GetExtendsInterface()
+    {
+        return extendsInterface_;
+    }
+
+    inline size_t GetMajorVersion()
+    {
+        return majorVersion_;
+    }
+
+    inline size_t GetMinorVersion()
+    {
+        return minorVersion_;
+    }
+
+    void SetVersion(size_t &majorVer, size_t &minorVer);
 
     bool IsInterfaceType() override;
 
@@ -174,6 +195,9 @@ private:
     bool isSerializable_;
     std::vector<AutoPtr<ASTMethod>> methods_;
     AutoPtr<ASTMethod> getVerMethod_;
+    AutoPtr<ASTInterfaceType> extendsInterface_;
+    size_t majorVersion_;
+    size_t minorVersion_;
 };
 } // namespace HDI
 } // namespace OHOS

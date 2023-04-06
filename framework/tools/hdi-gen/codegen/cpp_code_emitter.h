@@ -65,6 +65,10 @@ protected:
     std::string MacroName(const std::string &name) const;
 
     std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
+
+    std::string EmitHeaderNameByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name);
+
+    std::string EmitDefinitionByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name) const;
 };
 } // namespace HDI
 } // namespace OHOS
