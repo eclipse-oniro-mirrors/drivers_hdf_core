@@ -56,6 +56,7 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/core/host/src/hdf_device_node.c",
       "$hdf_framework_path/core/host/src/hdf_device_object.c",
       "$hdf_framework_path/core/host/src/hdf_device_token.c",
+      "$hdf_framework_path/core/host/src/hdf_load_vdi.c",
       "$hdf_framework_path/core/host/src/hdf_observer_record.c",
       "$hdf_framework_path/core/host/src/hdf_power_manager.c",
       "$hdf_framework_path/core/host/src/hdf_service_observer.c",
