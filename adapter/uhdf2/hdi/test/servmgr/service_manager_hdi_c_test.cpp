@@ -749,7 +749,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, DevMgrTest, TestSize.Level1)
 
 HWTEST_F(HdfServiceMangerHdiCTest, HdiSupportTest, TestSize.Level1)
 {
-    LoadHdiImpl(NULL, NULL);
+    ASSERT_EQ(LoadHdiImpl(NULL, NULL), nullptr);
     UnloadHdiImpl(NULL, NULL, NULL);
 }
 } // namespace OHOS
