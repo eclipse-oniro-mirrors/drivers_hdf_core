@@ -917,6 +917,11 @@ static int32_t AudioPcmPending(struct AudioCard *card, enum AudioStreamType stre
         return HDF_FAILURE;
     }
 
+    if (AudioSampPowerUp(card) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("PowerUp fail.");
+        return HDF_FAILURE;
+    }
+
     if (AudioSampSetPowerMonitor(card, false) != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
