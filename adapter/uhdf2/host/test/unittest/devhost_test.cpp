@@ -172,10 +172,7 @@ HWTEST_F(DevHostTest, DevHostServiceTest, TestSize.Level1)
     ASSERT_TRUE(hostService != nullptr);
     DevHostServiceFreeInstance(hostService);
     DevHostServiceFreeInstance(nullptr);
-}
 
-HWTEST_F(DevHostTest, DevHostServiceClntTest, TestSize.Level1)
-{
     struct DevmgrServiceClnt clnt;
     clnt.devMgrSvcIf = nullptr;
     DevmgrServiceClntFreeInstance(&clnt);
@@ -410,10 +407,7 @@ HWTEST_F(DevHostTest, DevHostDeviceServiceStubTest, TestSize.Level1)
 
     DeviceServiceStubRelease(object);
     DeviceServiceStubRelease(nullptr);
-}
 
-HWTEST_F(DevHostTest, DevHostServiceStubTest, TestSize.Level1)
-{
     DevHostServiceStubRelease(nullptr);
 }
 } // namespace OHOS

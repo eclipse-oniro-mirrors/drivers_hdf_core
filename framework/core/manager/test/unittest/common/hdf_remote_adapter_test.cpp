@@ -44,20 +44,16 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest001, TestSize.Level1)
     ASSERT_EQ(ret, false);
     ret = HdfRemoteAdapterSetInterfaceDesc(nullptr, nullptr);
     ASSERT_EQ(ret, false);
+
+    HdfRemoteAdapterAddDeathRecipient(NULL, NULL);
+    HdfRemoteAdapterAddDeathRecipient(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
+    HdfRemoteAdapterRemoveDeathRecipient(NULL, NULL);
+    HdfRemoteAdapterRemoveDeathRecipient(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
+
     delete holder;
 }
 
 HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
-{
-    HdfRemoteAdapterAddDeathRecipient(NULL, NULL);
-    HdfRemoteServiceHolder *holder = new HdfRemoteServiceHolder();
-    HdfRemoteAdapterAddDeathRecipient(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
-    HdfRemoteAdapterRemoveDeathRecipient(NULL, NULL);
-    HdfRemoteAdapterRemoveDeathRecipient(reinterpret_cast<struct HdfRemoteService *>(holder), NULL);
-    delete holder;
-}
-
-HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest003, TestSize.Level1)
 {
     int ret = HdfRemoteAdapterAddService(NULL, NULL);
     ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
@@ -77,7 +73,7 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest003, TestSize.Level1)
     ASSERT_EQ(remote, nullptr);
 }
 
-HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
+HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest003, TestSize.Level1)
 {
     bool ret = HdfRemoteAdapterSetInterfaceDesc(NULL, NULL);
     ASSERT_EQ(ret, false);
@@ -102,7 +98,7 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
     delete holder;
 }
 
-HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest005, TestSize.Level1)
+HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
 {
     int ret = HdfRemoteGetCallingPid();
     ASSERT_TRUE(ret > 0);
