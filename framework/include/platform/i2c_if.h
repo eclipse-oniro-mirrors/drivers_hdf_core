@@ -81,6 +81,8 @@ enum I2cFlag {
     I2C_FLAG_READ           = (0x1 << 0),
     /** 10-bit addressing flag. The value <b>1</b> indicates that a 10-bit address is used. */
     I2C_FLAG_ADDR_10BIT     = (0x1 << 4),
+    /** Dma flag. The value <b>1</b> indicates that the buffer of this message is DMA safe. */
+    I2C_FLAG_DMA            = (0x1 << 9),
     /** Non-ACK read flag. The value <b>1</b> indicates that no ACK signal is sent during the read process. */
     I2C_FLAG_READ_NO_ACK    = (0x1 << 11),
     /** Ignoring no-ACK flag. The value <b>1</b> indicates that the non-ACK signal is ignored. */
@@ -146,6 +148,16 @@ enum I2cIoCmd {
     I2C_IO_OPEN = 1,          /**< Open the I2C device. */
     I2C_IO_CLOSE = 2,         /**< Close the I2C device. */
 };
+
+/**
+ * @brief The following i2c interfaces are only available for the mini platform
+ *
+ * @since 1.0
+ */
+
+int32_t I2cRead(DevHandle handle, uint8_t *buf, uint16_t len);
+
+int32_t I2cWrite(DevHandle handle, uint8_t *buf, uint16_t len);
 
 #ifdef __cplusplus
 #if __cplusplus

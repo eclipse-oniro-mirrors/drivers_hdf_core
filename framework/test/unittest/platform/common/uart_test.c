@@ -301,6 +301,24 @@ static int32_t UartIfPerformanceTest(struct UartTester *tester)
     return HDF_SUCCESS;
 }
 
+static int32_t UartMiniBlockWriteTest(struct UartTester *tester)
+{
+#ifdef __KERNEL__
+    uint8_t data;
+    int32_t ret;
+
+    ret = UartBlockWrite(tester->handle, &data, sizeof(data));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("UartMiniBlockWriteTest: uart block write fail, ret: %d!", ret);
+        return ret;
+    }
+#else
+    (void)tester;
+#endif
+    HDF_LOGI("UartMiniBlockWriteTest: all test done!");
+    return HDF_SUCCESS;
+}
+
 struct UartTestEntry {
     int cmd;
     int32_t (*func)(struct UartTester *tester);
@@ -317,6 +335,7 @@ static struct UartTestEntry g_entry[] = {
     { UART_TEST_CMD_SET_TRANSMODE, UartSetTransModeTest, "UartSetTransModeTest" },
     { UART_TEST_CMD_RELIABILITY, UartReliabilityTest, "UartReliabilityTest" },
     { UART_TEST_CMD_PERFORMANCE, UartIfPerformanceTest, "UartIfPerformanceTest" },
+    { UART_MINI_BLOCK_WRITE_TEST, UartMiniBlockWriteTest, "UartMiniBlockWriteTest" },
 };
 
 int32_t UartTestExecute(int cmd)

@@ -272,6 +272,18 @@ HWTEST_F(HdfRtcTest, testRtcReliability001, TestSize.Level1)
     EXPECT_EQ(0, RtcTestExecute(RTC_TEST_CMD_RTC_WR_RELIABILITY));
 }
 
+/**
+  * @tc.name: testRtcMiniSetGetTimeZone001
+  * @tc.desc: rtc set time zone and get time zone test only for the mini platform
+  * @tc.type: FUNC
+  * @tc.require:
+  */
+HWTEST_F(HdfRtcTest, testRtcMiniSetGetTimeZone001, TestSize.Level1)
+{
+    struct HdfTestMsg msg = { TEST_PAL_RTC_TYPE, RTC_MINI_SET_GET_TIME_ZONE_TEST, -1 };
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
 #if defined(HDF_LITEOS_TEST)
 /**
   * @tc.name: testRtcModule001

@@ -41,31 +41,40 @@ obj-$(CONFIG_DRIVERS_HDF_PLATFORM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/
 endif
 
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_GPIO) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/gpio_test.o \
-	                                   $(HDF_FRAMWORK_TEST_ROOT)/platform/common/gpio_driver_test.o \
+                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/gpio_driver_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_gpio_entry_test.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_I2C) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/i2c_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/i2c_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_i2c_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_i2c_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/i2c_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_PWM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/pwm_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/pwm_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_pwm_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_pwm_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/pwm_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_RTC) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/rtc_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/rtc_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_rtc_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_rtc_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/rtc_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_SPI) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/spi_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/spi_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_spi_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_spi_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/spi_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_SDIO) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/sdio_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_sdio_entry_test.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_EMMC) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/emmc_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_emmc_entry_test.o
 
+obj-y                                   += $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/emmc_mini_virtual.o
+
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_UART) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/uart_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/common/uart_driver_test.o \
-                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_uart_entry_test.o
+                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_uart_entry_test.o \
+                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/uart_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_WATCHDOG) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/watchdog_test.o \
                                                $(HDF_FRAMWORK_TEST_ROOT)/platform/common/watchdog_driver_test.o \
-                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_watchdog_entry_test.o
+                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_watchdog_entry_test.o \
+                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/watchdog_virtual.o \
+                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/watchdog_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_MIPI_DSI) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/mipi_dsi_test.o \
                                                $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_mipi_dsi_entry_test.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_MIPI_CSI) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/mipi_csi_test.o \

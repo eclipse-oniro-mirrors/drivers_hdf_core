@@ -23,7 +23,7 @@ enum EmmcTestCmd {
     EMMC_GET_CID_01 = 0,
 };
 
-class HdfLiteEmmcTest : public testing::Test {
+class HdfEmmcTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -31,21 +31,21 @@ public:
     void TearDown();
 };
 
-void HdfLiteEmmcTest::SetUpTestCase()
+void HdfEmmcTest::SetUpTestCase()
 {
     HdfTestOpenService();
 }
 
-void HdfLiteEmmcTest::TearDownTestCase()
+void HdfEmmcTest::TearDownTestCase()
 {
     HdfTestCloseService();
 }
 
-void HdfLiteEmmcTest::SetUp()
+void HdfEmmcTest::SetUp()
 {
 }
 
-void HdfLiteEmmcTest::TearDown()
+void HdfEmmcTest::TearDown()
 {
 }
 
@@ -66,7 +66,7 @@ static void TestUserEmmcGetCid(void)
   * @tc.type: FUNC
   * @tc.require: AR000F5LSD AR000F5LV3
   */
-HWTEST_F(HdfLiteEmmcTest, EmmcGetCid001, TestSize.Level1)
+HWTEST_F(HdfEmmcTest, EmmcGetCid001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_EMMC_TYPE, EMMC_GET_CID_01, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));

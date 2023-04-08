@@ -52,11 +52,17 @@ if (board_name == "hi3516dv300" || board_name == "hispark_taurus") {
       "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_regulator_test.cpp",
       "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_rtc_test.cpp",
       "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_spi_test.cpp",
+      "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_uart_test.cpp",
+      "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_watchdog_mini_test.cpp",
+      "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_watchdog_test.cpp",
       "//drivers/hdf_core/framework/test/unittest/platform/common/adc_test.c",
       "//drivers/hdf_core/framework/test/unittest/platform/common/gpio_test.c",
       "//drivers/hdf_core/framework/test/unittest/platform/common/pwm_test.c",
       "//drivers/hdf_core/framework/test/unittest/platform/common/rtc_test.c",
       "//drivers/hdf_core/framework/test/unittest/platform/common/spi_test.c",
+      "//drivers/hdf_core/framework/test/unittest/platform/common/uart_test.c",
+      "//drivers/hdf_core/framework/test/unittest/platform/common/watchdog_test.c",
+      "//drivers/hdf_core/framework/test/unittest/platform/virtual/mini/watchdog_mini_virtual.c",
     ]
     if (ohos_kernel_type == "liteos_a") {
       sources += [
@@ -67,21 +73,19 @@ if (board_name == "hi3516dv300" || board_name == "hispark_taurus") {
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_pcie_test.cpp",
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_pin_test.cpp",
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_timer_test.cpp",
-        "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_uart_test.cpp",
-        "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_watchdog_test.cpp",
         "//drivers/hdf_core/framework/test/unittest/platform/common/dac_test.c",
         "//drivers/hdf_core/framework/test/unittest/platform/common/pcie_test.c",
         "//drivers/hdf_core/framework/test/unittest/platform/common/pin_test.c",
         "//drivers/hdf_core/framework/test/unittest/platform/common/timer_test.c",
-        "//drivers/hdf_core/framework/test/unittest/platform/common/uart_test.c",
-        "//drivers/hdf_core/framework/test/unittest/platform/common/watchdog_test.c",
       ]
     }
     if (storage_type == "emmc") {
       sources += [
+        "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_emmc_mini_test.cpp",
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_emmc_test.cpp",
         "//drivers/hdf_core/framework/support/platform/test/unittest/common/hdf_i2c_test.cpp",
         "//drivers/hdf_core/framework/test/unittest/platform/common/i2c_test.c",
+        "//drivers/hdf_core/framework/test/unittest/platform/virtual/mini/emmc_mini_virtual.c",
       ]
     }
     deps = [

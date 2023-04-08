@@ -84,7 +84,6 @@ static struct GpioTester *GpioTesterGet(void)
     static struct GpioTester *pTester = NULL;
 
     if (pTester != NULL) {
-        HDF_LOGE("GpioTesterGet: pTester is null!");
         return pTester;
     }
 

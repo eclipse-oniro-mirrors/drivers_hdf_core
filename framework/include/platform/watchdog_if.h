@@ -170,6 +170,18 @@ int32_t WatchdogGetTimeout(DevHandle handle, uint32_t *seconds);
  */
 int32_t WatchdogFeed(DevHandle handle);
 
+/**
+ * @brief The following watchdog interfaces are only available for the mini platform
+ *
+ * @since 1.0
+ */
+
+int32_t WatchdogBark(DevHandle handle);
+
+int32_t WatchdogEnable(DevHandle handle, bool enable);
+
+int32_t WatchdogGetEnable(DevHandle handle, bool *enable);
+
 #ifdef __cplusplus
 #if __cplusplus
 }
