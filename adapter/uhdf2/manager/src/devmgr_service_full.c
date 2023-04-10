@@ -19,18 +19,11 @@
 #include "device_token_clnt.h"
 #include "hdf_driver_installer.h"
 #include "hdf_log.h"
-#include "hdf_map.h"
 #include "hdf_message_looper.h"
 #include "osal_message.h"
-#include "osal_time.h"
 
 #define HDF_LOG_TAG devmgr_service_full
 #define INVALID_PID (-1)
-
-static Map g_hostMap = {0};
-#define HOST_INIT_DIE_NUM 1
-#define HOST_MAX_DIE_NUM  3
-#define WAIT_HOST_DIED_TIME 20
 
 static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt, struct HdfRemoteService *service)
 {
@@ -61,45 +54,10 @@ static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt, struct
 static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *hostClnt,
     struct HdfRemoteService *service)
 {
-    bool isHostEmpty = HdfSListIsEmpty(&hostClnt->devices);
-
+    // the host will be restart by init module if there are default loaded devices in it.
+    // the on-demand loaded device needs to be loaded by calling 'LoadDevice' interface.
     CleanupDiedHostResources(hostClnt, service);
-    if (isHostEmpty || hostClnt->stopFlag) {
-        return 0;
-    }
-
-    if (g_hostMap.nodeSize == 0) {
-        MapInit(&g_hostMap);
-    }
-    // host is started at init phase by init module, and it respawn by init module
-    if (!HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
-        return 0;
-    }
-    int *hostDieValue = (int *)MapGet(&g_hostMap, hostClnt->hostName);
-    if (hostDieValue == NULL) {
-        int hostDieNum = HOST_INIT_DIE_NUM;
-        MapSet(&g_hostMap, hostClnt->hostName, &hostDieNum, sizeof(int));
-    } else {
-        if (*hostDieValue > HOST_MAX_DIE_NUM) {
-            HDF_LOGE("host %{public}s die 4 times, remove it", hostClnt->hostName);
-            *hostDieValue = 0;
-            hostClnt->stopFlag = false;
-            return INVALID_PID;
-        }
-        (*hostDieValue)++;
-    }
-    HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
-    struct IDriverInstaller *installer = DriverInstallerGetInstance();
-    if (installer != NULL && installer->StartDeviceHost != NULL) {
-        OsalMSleep(WAIT_HOST_DIED_TIME);
-        HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
-        int pid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName, true);
-        OsalMutexLock(&hostClnt->hostLock);
-        hostClnt->hostPid = pid;
-        OsalMutexUnlock(&hostClnt->hostLock);
-        return hostClnt->hostPid;
-    }
-    return INVALID_PID;
+    return 0;
 }
 
 static void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t hostId,
