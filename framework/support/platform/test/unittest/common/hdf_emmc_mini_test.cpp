@@ -8,7 +8,6 @@
 
 #include <gtest/gtest.h>
 #include "emmc_if.h"
-#include "hdf_log.h"
 #include "hdf_uhdf_test.h"
 
 using namespace testing::ext;
@@ -46,18 +45,18 @@ static int32_t EmmcMiniGetCardStateTest(void)
 
     handle = EmmcOpen(busNum);
     if (handle == nullptr) {
-        HDF_LOGE("EmmcMiniGetCardStateTest: emmc open fail, handle is nullptr!\n");
+        printf("EmmcMiniGetCardStateTest: emmc open fail, handle is nullptr!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = EmmcGetCardState(handle, &state, sizeof(state));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("EmmcMiniGetCardStateTest: emmc get card state fail, ret: %{public}d!\n", ret);
+        printf("EmmcMiniGetCardStateTest: emmc get card state fail, ret: %d!\n", ret);
         EmmcClose(handle);
         return ret;
     }
     EmmcClose(handle);
-    HDF_LOGI("EmmcMiniGetCardStateTest: all test done!\n");
+    printf("EmmcMiniGetCardStateTest: all test done!\n");
     return HDF_SUCCESS;
 }
 
@@ -70,17 +69,17 @@ static int32_t EmmcMiniGetCardCsdTest(void)
 
     handle = EmmcOpen(busNum);
     if (handle == nullptr) {
-        HDF_LOGE("EmmcMiniGetCardCsdTest: emmc open fail, handle is nullptr!\n");
+        printf("EmmcMiniGetCardCsdTest: emmc open fail, handle is nullptr!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = EmmcGetCardCsd(handle, &csd, sizeof(csd));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("EmmcMiniGetCardCsdTest: emmc get card state fail, ret: %{public}d!\n", ret);
+        printf("EmmcMiniGetCardCsdTest: emmc get card state fail, ret: %d!\n", ret);
         EmmcClose(handle);
         return ret;
     }
     EmmcClose(handle);
-    HDF_LOGI("EmmcMiniGetCardCsdTest: all test done!\n");
+    printf("EmmcMiniGetCardCsdTest: all test done!\n");
     return HDF_SUCCESS;
 }
 
@@ -93,17 +92,17 @@ static int32_t EmmcMiniGetCardInfoTest(void)
 
     handle = EmmcOpen(busNum);
     if (handle == nullptr) {
-        HDF_LOGE("EmmcMiniGetCardInfoTest: emmc open fail, handle is nullptr!\n");
+        printf("EmmcMiniGetCardInfoTest: emmc open fail, handle is nullptr!\n");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = EmmcGetCardInfo(handle, &cardInfo, sizeof(cardInfo));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("EmmcMiniGetCardInfoTest: emmc get card info fail, ret: %{public}d!\n", ret);
+        printf("EmmcMiniGetCardInfoTest: emmc get card info fail, ret: %d!\n", ret);
         EmmcClose(handle);
         return ret;
     }
     EmmcClose(handle);
-    HDF_LOGI("EmmcMiniGetCardInfoTest: all test done!\n");
+    printf("EmmcMiniGetCardInfoTest: all test done!\n");
     return HDF_SUCCESS;
 }
 

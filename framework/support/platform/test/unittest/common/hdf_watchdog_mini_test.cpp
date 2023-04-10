@@ -7,7 +7,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "hdf_log.h"
 #include "hdf_uhdf_test.h"
 #include "watchdog_if.h"
 
@@ -46,27 +45,27 @@ static int32_t WatchdogMiniEnableGetEnableTest(void)
   
     ret = WatchdogOpen(wdtId, &handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("WatchdogMiniEnableGetEnableTest: open watchdog_%{public}hd fail, ret:%{public}d\n", wdtId, ret);
+        printf("WatchdogMiniEnableGetEnableTest: open watchdog_%hd fail, ret: %d!\n", wdtId, ret);
         return ret;
     }
 
     ret = WatchdogEnable(handle, enable);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("WatchdogMiniEnableGetEnableTest: watchdog enable fail, ret: %{public}d\n", ret);
+        printf("WatchdogMiniEnableGetEnableTest: watchdog enable fail, ret: %d!\n", ret);
         WatchdogClose(handle);
         return ret;
     }
 
-    HDF_LOGI("WatchdogMiniEnableGetEnableTest: watchdog enable test done, then test watchdog get enable!\n");
+    printf("WatchdogMiniEnableGetEnableTest: watchdog enable test done, then test watchdog get enable!\n");
 
     ret = WatchdogGetEnable(handle, &enable);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("WatchdogMiniEnableGetEnableTest: watchdog get enable fail, ret: %{public}d!\n", ret);
+        printf("WatchdogMiniEnableGetEnableTest: watchdog get enable fail, ret: %d!\n", ret);
         WatchdogClose(handle);
         return ret;
     }
     WatchdogClose(handle);
-    HDF_LOGI("WatchdogMiniEnableGetEnableTest: all test done!\n");
+    printf("WatchdogMiniEnableGetEnableTest: all test done!\n");
     return HDF_SUCCESS;
 }
 
@@ -78,18 +77,18 @@ static int32_t WatchdogMiniBarkTest(void)
   
     ret = WatchdogOpen(wdtId, &handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("WatchdogMiniBarkTest: open watchdog_%{public}hd fail, ret:%{public}d\n", wdtId, ret);
+        printf("WatchdogMiniBarkTest: open watchdog_%hd fail, ret: %d!\n", wdtId, ret);
         return ret;
     }
 
     ret = WatchdogBark(handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("WatchdogMiniBarkTest: watchdog bark fail, ret: %{public}d!\n", ret);
+        printf("WatchdogMiniBarkTest: watchdog bark fail, ret: %d!\n", ret);
         WatchdogClose(handle);
         return ret;
     }
     WatchdogClose(handle);
-    HDF_LOGI("WatchdogMiniBarkTest: all test done!\n");
+    printf("WatchdogMiniBarkTest: all test done!\n");
     return HDF_SUCCESS;
 }
 
