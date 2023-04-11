@@ -111,6 +111,11 @@ typedef enum {
  * @brief Declares the configuration directory of the HDF module.
  */
 #define HDF_CONFIG_DIR "/etc"
+
+/**
+ * @brief Declares the directory of the HCS configuration file of the HDF.
+ */
+#define HDF_CHIP_PROD_CONFIG_DIR "/etc"
 #else
 /**
  * @brief Declares the full path of the HDF module library.
