@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -36,13 +36,11 @@ static void HcsIfaceConstruct(struct DeviceResourceIface *instance)
 
 static bool DeviceResourceIfaceConstruct(struct DeviceResourceIface *instance, DeviceResourceType type)
 {
-    switch (type) {
-        case HDF_CONFIG_SOURCE:
-            HcsIfaceConstruct(instance);
-            break;
-        default:
-            HDF_LOGE("%s: Currently, this configuration type is not supported, the type is %d", __func__, type);
-            return false;
+    if (type == HDF_CONFIG_SOURCE) {
+        HcsIfaceConstruct(instance);
+    } else {
+        HDF_LOGE("%s: Currently, this configuration type is not supported, the type is %d", __func__, type);
+        return false;
     }
     return true;
 }

@@ -30,14 +30,9 @@ bool CppServiceStubCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppServiceStubCodeEmitter::EmitCode()
 {
-    switch (mode_) {
-        case GenMode::IPC: {
-            EmitStubHeaderFile();
-            EmitStubSourceFile();
-            break;
-        }
-        default:
-            break;
+    if (mode_ == GenMode::IPC) {
+        EmitStubHeaderFile();
+        EmitStubSourceFile();
     }
 }
 

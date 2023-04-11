@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,15 +30,10 @@ bool CppServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDire
 
 void CppServiceDriverCodeEmitter::EmitCode()
 {
-    switch (mode_) {
-        case GenMode::IPC: {
-            if (!interface_->IsSerializable()) {
-                EmitDriverSourceFile();
-            }
-            break;
+    if (mode_ == GenMode::IPC) {
+        if (!interface_->IsSerializable()) {
+            EmitDriverSourceFile();
         }
-        default:
-            break;
     }
 }
 

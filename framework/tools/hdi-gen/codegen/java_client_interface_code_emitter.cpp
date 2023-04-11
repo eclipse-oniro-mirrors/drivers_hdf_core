@@ -30,13 +30,8 @@ bool JavaClientInterfaceCodeEmitter::ResolveDirectory(const std::string &targetD
 
 void JavaClientInterfaceCodeEmitter::EmitCode()
 {
-    switch (mode_) {
-        case GenMode::IPC: {
-            EmitInterfaceFile();
-            break;
-        }
-        default:
-            break;
+    if (mode_ == GenMode::IPC) {
+        EmitInterfaceFile();
     }
 }
 

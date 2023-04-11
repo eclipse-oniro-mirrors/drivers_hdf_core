@@ -4,7 +4,7 @@
  *
  * HDF kevent implement for linux
  *
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -264,16 +264,13 @@ static int32_t KeventFbNotifierFn(struct notifier_block *nb, unsigned long event
     blank = fbEvent->data;
 
     HDF_LOGI("%s:blank=%d", __func__, *blank);
-    switch (*blank) {
-        case FB_BLANK_UNBLANK:
-            HDF_LOGI("%s:receive display on event", __func__);
-            powerEvent = KEVENT_POWER_DISPLAY_ON;
-            break;
-        default:
-            HDF_LOGI("%s:receive display off event", __func__);
-            powerEvent = KEVENT_POWER_DISPLAY_OFF;
-            sync = true;
-            break;
+    if (*blank == FB_BLANK_UNBLANK) {
+        HDF_LOGI("%s:receive display on event", __func__);
+        powerEvent = KEVENT_POWER_DISPLAY_ON;
+    } else {
+        HDF_LOGI("%s:receive display off event", __func__);
+        powerEvent = KEVENT_POWER_DISPLAY_OFF;
+        sync = true;
     }
 
     ret = SendKevent(keventModule, HDF_SYSEVENT_CLASS_POWER, powerEvent, NULL, sync);
@@ -316,13 +313,8 @@ static int32_t HdfKeventIoServiceDispatch(
         return HDF_ERR_INVALID_PARAM;
     }
 
-    switch (id) {
-        case KEVENT_COMPLETE_EVENT: {
-            CompleteKevent(keventModule, data);
-            break;
-        }
-        default:
-            break;
+    if (id == KEVENT_COMPLETE_EVENT) {
+        CompleteKevent(keventModule, data);
     }
 
     return 0;
