@@ -29,13 +29,8 @@ bool JavaClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirec
 
 void JavaClientProxyCodeEmitter::EmitCode()
 {
-    switch (mode_) {
-        case GenMode::IPC: {
-            EmitProxyFile();
-            break;
-        }
-        default:
-            break;
+    if (mode_ == GenMode::IPC) {
+        EmitProxyFile();
     }
 }
 

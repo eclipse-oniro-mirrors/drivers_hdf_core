@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -238,12 +238,8 @@ void ASTInterfaceType::RegisterWriteMethod(Language language, SerMode mode, Util
 {
     using namespace std::placeholders;
     std::string methodName = "WriteInterface";
-    switch (language) {
-        case Language::C:
-            methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
-            break;
-        default:
-            break;
+    if (language == Language::C) {
+        methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
     }
 }
 

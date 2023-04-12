@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -89,16 +89,13 @@ int32_t DevmgrServiceFullDispatchMessage(struct HdfMessageTask *task, struct Hdf
         HDF_LOGE("Input msg is null");
         return HDF_ERR_INVALID_PARAM;
     }
-    switch (msg->messageId) {
-        case DEVMGR_MESSAGE_DEVHOST_DIED: {
-            int hostId = (int)(uintptr_t)msg->data[0];
-            struct HdfRemoteService *service = (struct HdfRemoteService *)msg->data[1];
-            DevmgrServiceFullOnDeviceHostDied(fullService, hostId, service);
-            break;
-        }
-        default: {
-            HDF_LOGE("wrong message(%{public}u)", msg->messageId);
-        }
+
+    if (msg->messageId == DEVMGR_MESSAGE_DEVHOST_DIED) {
+        int hostId = (int)(uintptr_t)msg->data[0];
+        struct HdfRemoteService *service = (struct HdfRemoteService *)msg->data[1];
+        DevmgrServiceFullOnDeviceHostDied(fullService, hostId, service);
+    } else {
+        HDF_LOGE("wrong message(%{public}u)", msg->messageId);
     }
 
     return HDF_SUCCESS;

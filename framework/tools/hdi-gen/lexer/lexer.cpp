@@ -254,29 +254,25 @@ void Lexer::ReadId(Token &token)
 void Lexer::ReadNum(Token &token)
 {
     char c = file_->PeekChar();
-    switch (c) {
-        case '0': {
-            file_->GetChar();
-            c = file_->PeekChar();
-            if (c == 'b' || c == 'B') {
-                // binary number
-                ReadBinaryNum(token);
-            } else if (isdigit(c)) {
-                // octal number
-                return ReadOctNum(token);
-            } else if (c == 'X' || c == 'x') {
-                // hexadecimal number
-                return ReadHexNum(token);
-            } else {
-                // decimal number 0
-                token.kind = TokenType::NUM;
-                token.value = "0";
-            }
-            break;
+    if (c == '0') {
+        file_->GetChar();
+        c = file_->PeekChar();
+        if (c == 'b' || c == 'B') {
+            // binary number
+            ReadBinaryNum(token);
+        } else if (isdigit(c)) {
+            // octal number
+            return ReadOctNum(token);
+        } else if (c == 'X' || c == 'x') {
+            // hexadecimal number
+            return ReadHexNum(token);
+        } else {
+            // decimal number 0
+            token.kind = TokenType::NUM;
+            token.value = "0";
         }
-        default:
-            ReadDecNum(token);
-            break;
+    } else {
+        ReadDecNum(token);
     }
     ReadNumSuffix(token);
 }
