@@ -42,7 +42,7 @@ static int32_t WatchdogMiniEnableGetEnableTest(void)
     int32_t ret;
     static int16_t wdtId = 7;
     bool enable = true;
-  
+
     ret = WatchdogOpen(wdtId, &handle);
     if (ret != HDF_SUCCESS) {
         printf("WatchdogMiniEnableGetEnableTest: open watchdog_%hd fail, ret: %d!\n", wdtId, ret);
@@ -74,7 +74,7 @@ static int32_t WatchdogMiniBarkTest(void)
     DevHandle handle = nullptr;
     int32_t ret;
     static int16_t wdtId = 7;
-  
+
     ret = WatchdogOpen(wdtId, &handle);
     if (ret != HDF_SUCCESS) {
         printf("WatchdogMiniBarkTest: open watchdog_%hd fail, ret: %d!\n", wdtId, ret);

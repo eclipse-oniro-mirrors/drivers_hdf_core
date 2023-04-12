@@ -27,18 +27,12 @@ static int32_t MmcCmdDevPresent(struct MmcCntlr *cntlr, struct HdfSBuf *data, st
 
 static int32_t MmcDispatch(struct MmcCntlr *cntlr, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
-
-    switch (cmd) {
-        case MMC_CMD_DEV_PRESENT:
-            ret = MmcCmdDevPresent(cntlr, data, reply);
-            break;
-        default:
-            ret = HDF_ERR_NOT_SUPPORT;
-            HDF_LOGE("MmcDispatch: cmd: %d is not support!", cmd);
-            break;
+    if (cmd == MMC_CMD_DEV_PRESENT) {
+        return MmcCmdDevPresent(cntlr, data, reply);
+    } else {
+        HDF_LOGE("MmcDispatch: cmd: %d is not support!", cmd);
+        return HDF_ERR_NOT_SUPPORT;
     }
-    return ret;
 }
 
 static int32_t EmmcCmdGetCid(struct MmcCntlr *cntlr, struct HdfSBuf *reply)
@@ -67,19 +61,14 @@ static int32_t EmmcCmdGetCid(struct MmcCntlr *cntlr, struct HdfSBuf *reply)
 
 static int32_t EmmcDispatch(struct MmcCntlr *cntlr, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     (void)data;
 
-    switch (cmd) {
-        case EMMC_CMD_GET_CID:
-            ret = EmmcCmdGetCid(cntlr, reply);
-            break;
-        default:
-            ret = HDF_ERR_NOT_SUPPORT;
-            HDF_LOGE("EmmcDispatch: cmd: %d is not support!", cmd);
-            break;
+    if (cmd == EMMC_CMD_GET_CID) {
+        return EmmcCmdGetCid(cntlr, reply);
+    } else {
+        HDF_LOGE("EmmcDispatch: cmd: %d is not support!", cmd);
+        return HDF_ERR_NOT_SUPPORT;
     }
-    return ret;
 }
 
 static int32_t SdioDispatch(struct MmcCntlr *cntlr, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
