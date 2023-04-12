@@ -91,6 +91,13 @@ enum SENSORConfigValueIndex {
     SENSOR_VALUE_BUTT,
 };
 
+enum SENSORConfigShortValueIndex {
+    SENSOR_SHORT_VALUE_INDEX0,
+    SENSOR_SHORT_VALUE_INDEX1,
+    SENSOR_SHORT_VALUE_INDEX2,
+    SENSOR_SHORT_VALUE_BUTT,
+};
+
 int32_t ReadSensor(struct SensorBusCfg *busCfg, uint16_t regAddr, uint8_t *data, uint16_t dataLen);
 int32_t WriteSensor(struct SensorBusCfg *busCfg, uint8_t *writeData, uint16_t len);
 int32_t SetSensorPinMux(uint32_t regAddr, int32_t regSize, uint32_t regValue);
