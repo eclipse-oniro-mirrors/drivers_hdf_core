@@ -394,12 +394,186 @@ static int32_t WifiCmdSetScanningMacAddress(const RequestContext *context, struc
     return HDF_SUCCESS;
 }
 
+static int32_t HdfCmdfillPnoSettings(struct HdfSBuf *reqData,  WifiPnoSettings *pnoSettings)
+{
+    uint32_t dataSize = 0;
+
+    if (!HdfSbufReadInt32(reqData, &(pnoSettings->min2gRssi))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "min2gRssi");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadInt32(reqData, &(pnoSettings->min5gRssi))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "min5gRssi");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadInt32(reqData, &(pnoSettings->scanIntervalMs))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "scanIntervalMs");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadInt32(reqData, &(pnoSettings->scanIterations))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "scanIterations");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(pnoSettings->pnoNetworksLen))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "pnoNetworksLen");
+        return HDF_FAILURE;
+    }
+	
+    pnoSettings->pnoNetworks = (WifiPnoNetwork *)OsalMemAlloc(sizeof(WifiPnoNetwork) * pnoSettings->pnoNetworksLen);
+    if (pnoSettings->pnoNetworks == NULL) {
+        HDF_LOGE("%s: alloc memory failed.", __func__);
+        return HDF_FAILURE;
+    }
+    for (uint32_t i = 0; i < pnoSettings->pnoNetworksLen; i++) {
+        if (!HdfSbufReadUint8(reqData, &(pnoSettings->pnoNetworks[i].isHidden))) {
+            HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "isHidden");
+            return HDF_FAILURE;
+        }
+        if (!HdfSbufReadBuffer(reqData, (const void **)&pnoSettings->pnoNetworks[i].freqs, &dataSize)) {
+            HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freqs");
+            return HDF_FAILURE;
+        }
+        pnoSettings->pnoNetworks[i].freqsLen = dataSize / sizeof(pnoSettings->pnoNetworks[i].freqs[0]);
+        if (!HdfSbufReadBuffer(reqData, (const void **)&pnoSettings->pnoNetworks[i].ssid.ssid,
+            &(pnoSettings->pnoNetworks[i].ssid.ssidLen))) {
+            HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ssid");
+            return HDF_FAILURE;
+        }
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t HdfWlanStartPnoScan(const char *ifName, const WifiPnoSettings *pnoSettings)
+{
+    struct NetDevice *netdev = NULL;
+    struct HdfChipDriver *chipDriver = NULL;
+    
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->staOps == NULL) {
+        HDF_LOGE("%s: chipDriver->staOps is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (chipDriver->staOps->StartPnoScan == NULL) {
+        HDF_LOGE("%s: chipDriver->staOps->StartPnoScan is null", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    return chipDriver->staOps->StartPnoScan(netdev, pnoSettings);
+}
+
+static void HdfPnosettingsFree(WifiPnoSettings *pnoSettings)
+{
+    if (pnoSettings == NULL) {
+        HDF_LOGE("%{public}s input parameter is NULL!", __func__);
+        return;
+    }
+    if (pnoSettings->pnoNetworks != NULL) {
+        OsalMemFree(pnoSettings->pnoNetworks);
+        pnoSettings->pnoNetworks = NULL;
+    }
+    OsalMemFree(pnoSettings);
+}
+
+static int32_t WifiCmdStartPnoScan(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    int32_t ret = HDF_FAILURE;
+    const char *ifName = NULL;
+    (void)rspData;
+    (void)context;
+
+    if (reqData == NULL || rspData == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: read ifName failed!", __func__);
+        return ret;
+    }
+    WifiPnoSettings *pnoSettings = (WifiPnoSettings *)OsalMemCalloc(sizeof(WifiPnoSettings));
+    if (pnoSettings == NULL) {
+        HDF_LOGE("%s: calloc memory failed!", __func__);
+        return ret;
+    }
+    ret = HdfCmdfillPnoSettings(reqData, pnoSettings);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: HdfCmdfillPnoSettings failed!", __func__);
+        HdfPnosettingsFree(pnoSettings);
+        return ret;
+    }
+    ret = HdfWlanStartPnoScan(ifName, pnoSettings);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: fail to start pno scan, %d", __func__, ret);
+    }
+    HdfPnosettingsFree(pnoSettings);
+    return ret;
+}
+
+static int32_t HdfWlanStopPnoScan(const char *ifName)
+{
+    struct NetDevice *netdev = NULL;
+    struct HdfChipDriver *chipDriver = NULL;
+    
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->staOps == NULL) {
+        HDF_LOGE("%s: chipDriver->staOps is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (chipDriver->staOps->StopPnoScan == NULL) {
+        HDF_LOGE("%s: chipDriver->staOps->StopPnoScan is null", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    return chipDriver->staOps->StopPnoScan(netdev);
+}
+
+static int32_t WifiCmdStopPnoScan(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    int32_t ret = HDF_FAILURE;
+    const char *ifName = NULL;
+    (void)rspData;
+    (void)context;
+
+    if (reqData == NULL || rspData == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: read ifName failed!", __func__);
+        return ret;
+    }
+    ret = HdfWlanStopPnoScan(ifName);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: fail to stop pno scan, %d", __func__, ret);
+    }
+    return ret;
+}
+
 static struct MessageDef g_wifiStaFeatureCmds[] = {
     DUEMessage(CMD_STA_CONNECT, WifiCmdAssoc, 0),
     DUEMessage(CMD_STA_DISCONNECT, WifiCmdDisconnect, 0),
     DUEMessage(CMD_STA_SCAN, WifiCmdScan, 0),
     DUEMessage(CMD_STA_ABORT_SCAN, WifiCmdAbortScan, 0),
-    DUEMessage(CMD_STA_SET_SCAN_MAC_ADDR, WifiCmdSetScanningMacAddress, 0)
+    DUEMessage(CMD_STA_SET_SCAN_MAC_ADDR, WifiCmdSetScanningMacAddress, 0),
+    DUEMessage(CMD_STA_START_PNO_SCAN, WifiCmdStartPnoScan, 0),
+    DUEMessage(CMD_STA_STOP_PNO_SCAN, WifiCmdStopPnoScan, 0)
 };
 ServiceDefine(STAService, STA_SERVICE_ID, g_wifiStaFeatureCmds);
 
