@@ -574,6 +574,11 @@ static struct AudioUsbFormat *AudioUsbFormatInit(struct AudioUsbDriver *audioUsb
         return NULL;
     }
     epDesc = AudioEndpointDescriptor(alts, 0);
+    if (epDesc == NULL) {
+        AUDIO_DRIVER_LOG_ERR("epDesc is NULL.");
+        AudioUsbFreeFormat(fp);
+        return NULL;
+    }
     fp->iface = uacFmt->ifaceNo;
     fp->altsetting = uacFmt->altno;
     fp->altsetIdx = altsetIdx;
@@ -771,6 +776,10 @@ static int32_t AudioUsbV1SetSampleRate(struct AudioUsbDriver *audioUsbDriver, in
         return HDF_ERR_INVALID_PARAM;
     }
     epDesc = AudioEndpointDescriptor(alts, 0);
+    if (epDesc == NULL) {
+        AUDIO_DRIVER_LOG_ERR("epDesc is NULL.");
+        return HDF_FAILURE;
+    }
     ep = epDesc->bEndpointAddress;
 
     /* if endpoint doesn't have sampling rate control, bail out */
@@ -834,6 +843,10 @@ static int32_t AudioUsbGetAltsd(struct usb_host_interface **alts, struct usb_int
     }
     uacFmt->protocol = uacFmt->altsd->bInterfaceProtocol;
     epDesc = AudioEndpointDescriptor(*alts, 0);
+    if (epDesc == NULL) {
+        AUDIO_DRIVER_LOG_ERR("epDesc is NULL.");
+        return HDF_FAILURE;
+    }
 
     if (uacFmt->altsd->bInterfaceClass != USB_CLASS_AUDIO) {
         audioInterface = true;
@@ -881,6 +894,10 @@ static void AudioUsbGetFormatSub(struct AudioUsbDriver *audioUsbDriver, struct u
     bool maxPackSizebm = false;
 
     epDesc = AudioEndpointDescriptor(alts, 0);
+    if (epDesc == NULL) {
+        AUDIO_DRIVER_LOG_ERR("epDesc is NULL.");
+        return;
+    }
     /* check direction */
     if (epDesc->bEndpointAddress & USB_DIR_IN) {
         uacFmt->stream = AUDIO_USB_PCM_STREAM_CAPTURE;
@@ -942,6 +959,10 @@ static int32_t AudioUsbSetFormat(struct AudioUsbDriver *audioUsbDriver, struct A
             continue;
         }
         epDesc = AudioEndpointDescriptor(alts, 0);
+        if (epDesc == NULL) {
+            AUDIO_DRIVER_LOG_ERR("epDesc is NULL.");
+            return HDF_FAILURE;
+        }
         /* must be isochronous */
         if ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC) {
             continue;
