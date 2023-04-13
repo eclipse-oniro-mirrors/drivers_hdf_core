@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <mutex>
+
 #include <hdf_base.h>
 #include <hdf_log.h>
 #include <iproxy_broker.h>
@@ -28,6 +30,8 @@ namespace OHOS {
 namespace HDI {
 namespace DeviceManager {
 namespace V1_0 {
+std::mutex g_remoteMutex;
+
 enum DevmgrCmdId : uint32_t {
     DEVMGR_SERVICE_ATTACH_DEVICE_HOST = 1,
     DEVMGR_SERVICE_ATTACH_DEVICE,
@@ -63,7 +67,9 @@ int32_t DeviceManagerProxy::LoadDevice(const std::string &serviceName)
         return HDF_FAILURE;
     }
 
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LOAD_DEVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("load device failed, %{public}d", status);
     }
@@ -83,7 +89,9 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
         return HDF_FAILURE;
     }
 
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVMGR_SERVICE_UNLOAD_DEVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("unload device failed, %{public}d", status);
     }
@@ -126,7 +134,9 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
     }
 
     MessageOption option;
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LIST_ALL_DEVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("list all device info failed, %{public}d", status);
     } else {
@@ -142,6 +152,8 @@ sptr<IDeviceManager> IDeviceManager::Get()
         HDF_LOGE("failed to get hdi service manager");
         return nullptr;
     }
+
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = servmgr->GetService("hdf_device_manager");
     if (remote != nullptr) {
         return hdi_facecast<IDeviceManager>(remote);
