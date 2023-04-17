@@ -924,14 +924,21 @@ static void AudioUsbGetFormatSub(struct AudioUsbDriver *audioUsbDriver, struct u
     if (uacFmt->altno == UAC_FORMAT_TYPE_II && uacFmt->num == AUDIO_USB_FORMAT_NUM_3) {
         uacFmtbm = true;
     }
-    if (*audioUsbFormat != NULL && (*audioUsbFormat)->altsetting == FORMAT_ALTSETTING_1 &&
+
+    if (*audioUsbFormat == NULL) {
+        AUDIO_DRIVER_LOG_ERR("element in audioUsbFormat is NULL.");
+        return;
+    }
+
+    if ((*audioUsbFormat)->altsetting == FORMAT_ALTSETTING_1 &&
         (*audioUsbFormat)->channels == 1 && (*audioUsbFormat)->formats == AUDIO_USB_PCM_FMTBIT_S16_LE) {
         usbFmtbm = true;
     }
-    if (*audioUsbFormat != NULL &&
-        le16_to_cpu(epDesc->wMaxPacketSize) == (*audioUsbFormat)->maxPackSize * FRAME_SIZE_2) {
+
+    if (le16_to_cpu(epDesc->wMaxPacketSize) == (*audioUsbFormat)->maxPackSize * FRAME_SIZE_2) {
         maxPackSizebm = true;
     }
+
     if (uacFmtbm && usbFmtbm && uacFmt->protocol == UAC_VERSION_1 && maxPackSizebm) {
         uacFmt->bmQuirk = FORMAT_QUIRK_ENABLE;
     }
