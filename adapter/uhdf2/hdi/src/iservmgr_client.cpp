@@ -190,16 +190,24 @@ int32_t ServiceManagerProxy::ListServiceByInterfaceDesc(
     if (status != HDF_SUCCESS) {
         HDF_LOGE("get hdi service collection by %{public}s failed, %{public}d", interfaceDesc, status);
         return status;
-    } else {
-        const uint32_t serviceNum = reply.ReadUint32();
-        for (uint32_t i = 0; i < serviceNum; i++) {
-            const char *serviceName = reply.ReadCString();
-            if (serviceName == NULL) {
-                break;
-            }
-            serviceNames.push_back(serviceName);
-        }
     }
+
+    const uint32_t serviceNum = reply.ReadUint32();
+    size_t readableSize = reply.GetReadableBytes() / sizeof(std::string);
+    size_t readSize = static_cast<size_t>(serviceNum);
+    if ((readSize > readableSize) || (readSize > serviceNames.max_size())) {
+        HDF_LOGE("invalid len of serviceNames");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    for (uint32_t i = 0; i < serviceNum; i++) {
+        const char *serviceName = reply.ReadCString();
+        if (serviceName == NULL) {
+            break;
+        }
+        serviceNames.push_back(serviceName);
+    }
+
     HDF_LOGD("get hdi service collection by %{public}s successfully", interfaceDesc);
     return status;
 }
