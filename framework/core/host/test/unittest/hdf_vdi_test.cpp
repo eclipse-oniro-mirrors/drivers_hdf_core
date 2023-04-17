@@ -15,6 +15,8 @@
 
 namespace OHOS {
 using namespace testing::ext;
+using OHOS::VDI::Sample::V1_0::VdiWrapperB;
+using OHOS::VDI::Sample::V1_0::VdiSample;
 
 class HdfVdiTest : public testing::Test {
 public:
