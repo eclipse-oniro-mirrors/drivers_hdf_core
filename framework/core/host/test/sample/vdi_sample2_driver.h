@@ -11,10 +11,10 @@
 
 #include "hdf_load_vdi.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
+namespace OHOS {
+namespace VDI {
+namespace Sample {
+namespace V1_0 {
 class IVdiSample {
 public:
     virtual int ServiceA(void) = 0;
@@ -35,9 +35,9 @@ struct VdiWrapperB {
     struct HdfVdiBase base;
     IVdiSample *module;
 };
-
-#ifdef __cplusplus
-}
-#endif  /* __cplusplus */
+} // namespace V1_0
+} // namespace Sample
+} // namespace VDI
+} // namespace OHOS
 
 #endif /* VDI_SAMPLE1_DRIVER_H */

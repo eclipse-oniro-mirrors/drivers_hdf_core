@@ -13,6 +13,10 @@
 
 #define HDF_LOG_TAG vdi_sample2
 
+namespace OHOS {
+namespace VDI {
+namespace Sample {
+namespace V1_0 {
 VdiSample::VdiSample(int para)
 {
     priData = para;
@@ -58,5 +62,9 @@ static struct VdiWrapperB g_vdiB = {
     },
     .module = nullptr,
 };
+} // namespace V1_0
+} // namespace Sample
+} // namespace VDI
+} // namespace OHOS
 
-HDF_VDI_INIT(g_vdiB);
+HDF_VDI_INIT(OHOS::VDI::Sample::V1_0::g_vdiB);

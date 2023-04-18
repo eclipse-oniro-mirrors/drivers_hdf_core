@@ -55,20 +55,20 @@ struct HdfVdiObject *HdfLoadVdi(const char *libName)
         return NULL;
     }
 
-    struct HdfVdiBase *vdiBase = *(struct HdfVdiBase **)dlsym(handler, "hdfVdiDesc");
-    if (vdiBase == NULL) {
+    struct HdfVdiBase **vdiBase = (struct HdfVdiBase **)dlsym(handler, "hdfVdiDesc");
+    if (vdiBase == NULL || *vdiBase == NULL) {
         HDF_LOGE("%{public}s dlsym hdfVdiDesc failed %{public}s", __func__, dlerror());
         dlclose(handler);
         OsalMemFree(vdiObj);
         return NULL;
     }
 
-    if (vdiBase->CreateVdiInstance) {
-        vdiBase->CreateVdiInstance(vdiBase);
+    if ((*vdiBase)->CreateVdiInstance) {
+        (*vdiBase)->CreateVdiInstance(*vdiBase);
     }
 
     vdiObj->dlHandler = (uintptr_t)handler;
-    vdiObj->vdiBase = vdiBase;
+    vdiObj->vdiBase = *vdiBase;
 
     return vdiObj;
 }
