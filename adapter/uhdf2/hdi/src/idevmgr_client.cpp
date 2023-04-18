@@ -98,7 +98,7 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
     return status;
 }
 
-static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
+static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
 {
     while (true) {
         struct DevInfo devInfo;
@@ -111,6 +111,14 @@ static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, M
         hostInfo.hostName = name;
         hostInfo.hostId = reply.ReadUint32();
         devCnt = reply.ReadUint32();
+
+        size_t readableSize = reply.GetReadableBytes() / sizeof(struct DevInfo);
+        size_t readSize = static_cast<size_t>(devCnt);
+        if ((readSize > readableSize) || (readSize > hostInfo.devInfo.max_size())) {
+            HDF_LOGE("invalid len of device info");
+            return false;
+        }
+
         for (uint32_t i = 0; i < devCnt; i++) {
             name = reply.ReadCString();
             devInfo.deviceName = (name == nullptr) ? "" : name;
@@ -121,7 +129,7 @@ static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, M
         }
         hostInfos.push_back(hostInfo);
     }
-    return;
+    return true;
 }
 
 int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInfos)
@@ -139,8 +147,12 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
     lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("list all device info failed, %{public}d", status);
-    } else {
-        HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply);
+        return status;
+    }
+
+    if (!HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
+        HDF_LOGE("failed to read all device info");
+        return HDF_ERR_INVALID_PARAM;
     }
     return status;
 }
