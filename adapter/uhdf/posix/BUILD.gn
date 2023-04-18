@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,28 +13,31 @@
 
 import("//build/ohos.gni")
 
+inner_api_relative_path = "./../../../interfaces/inner_api"
+
 config("hdf_osal_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "$inner_api_relative_path/osal/shared",
+    "$inner_api_relative_path/osal/uhdf",
+    "$inner_api_relative_path/utils",
   ]
 }
 if (defined(ohos_lite)) {
   ohos_shared_library("hdf_posix_osal") {
+    framework_core_relative_path = "./../../../framework/support/posix/src"
     output_extension = "z.so"
 
     public_configs = [ ":hdf_osal_pub_config" ]
 
     sources = [
-      "//drivers/hdf_core/framework/support/posix/src/osal_mem.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_mutex.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_sem.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_spinlock.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_thread.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_time.c",
+      "$framework_core_relative_path/osal_mem.c",
+      "$framework_core_relative_path/osal_mutex.c",
+      "$framework_core_relative_path/osal_sem.c",
+      "$framework_core_relative_path/osal_spinlock.c",
+      "$framework_core_relative_path/osal_thread.c",
+      "$framework_core_relative_path/osal_time.c",
     ]
 
     deps = [

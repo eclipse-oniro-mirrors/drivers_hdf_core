@@ -12,7 +12,11 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../uhdf.gni")
+
+hdf_framework_path = "./../../../framework"
+hdf_interfaces_path = "./../../../interfaces"
+hdf_uhdf_path = "./.."
 
 ohos_executable("hdf_devmgr") {
   defines = [ "__USER__" ]
@@ -29,9 +33,9 @@ ohos_executable("hdf_devmgr") {
     "$hdf_uhdf_path/security/include",
     "$hdf_uhdf_path/utils/include",
     "include",
-    "//drivers/hdf_core/interfaces/inner_api/core",
-    "//drivers/hdf_core/interfaces/inner_api/host/shared",
-    "//drivers/hdf_core/interfaces/inner_api/host/uhdf",
+    "$hdf_interfaces_path/inner_api/core",
+    "$hdf_interfaces_path/inner_api/host/shared",
+    "$hdf_interfaces_path/inner_api/host/uhdf",
   ]
 
   sources = [
