@@ -98,15 +98,15 @@ static int32_t AudioUsbDriverInit(
 {
     struct usb_device *usbDev = interface_to_usbdev(usbIf);
     struct usb_host_interface *alts = NULL;
-    uint32_t i, ifnum, protocol;
+    uint32_t i, ifNum, protocol;
     struct usb_host_interface *hostIface = NULL;
     struct usb_interface_descriptor *altsd = NULL, *inteDesc = NULL;
     struct uac1_ac_header_descriptor *h1 = NULL;
 
     alts = &usbIf->altsetting[USB_DEFAULT_SET];
     inteDesc = AudioUsbGetIfaceDesc(alts);
-    ifnum = inteDesc->bInterfaceNumber;
-    hostIface = &usb_ifnum_to_if(usbDev, ifnum)->altsetting[USB_DEFAULT_SET];
+    ifNum = inteDesc->bInterfaceNumber;
+    hostIface = &usb_ifnum_to_if(usbDev, ifNum)->altsetting[USB_DEFAULT_SET];
     altsd = AudioUsbGetIfaceDesc(hostIface);
     protocol = altsd->bInterfaceProtocol;
 
@@ -119,7 +119,7 @@ static int32_t AudioUsbDriverInit(
     audioUsbDriver->ctrlIntf = alts;
     audioUsbDriver->setup = USB_DEFAULT_VAL;
     audioUsbDriver->dev = usbDev;
-    audioUsbDriver->ifNum = ifnum;
+    audioUsbDriver->ifNum = ifNum;
     init_waitqueue_head(&audioUsbDriver->shutdownWait);
 
     spin_lock_init(&audioUsbDriver->lock);
@@ -133,6 +133,10 @@ static int32_t AudioUsbDriverInit(
 
     if (protocol != UAC_VERSION_1) {
         ADM_LOG_ERR("usb version is not support");
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    if (ifNum > 0) {
+        ADM_LOG_ERR("usb device is not support");
         return HDF_ERR_NOT_SUPPORT;
     }
 
