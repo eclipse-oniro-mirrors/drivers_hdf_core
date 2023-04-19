@@ -12,9 +12,11 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../uhdf.gni")
 
 module_output_path = "hdf_core/osal"
+hdf_framework_path = "./../../../../framework"
+hdf_uhdf_path = "./../.."
 
 ###########################palTest###########################
 ohos_unittest("OsalTest") {
@@ -23,9 +25,9 @@ ohos_unittest("OsalTest") {
 
   include_dirs = [
     "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
     "unittest/common/",
   ]
 
