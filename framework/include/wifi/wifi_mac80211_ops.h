@@ -786,6 +786,19 @@ struct HdfMac80211STAOps {
      * @version 1.0
      */
     int32_t (*StopPnoScan)(NetDevice *netDev);
+
+    /**
+     * @brief Get signal information.
+     *
+     * @param netDev Indicates the pointer to the network device structure obtained during initialization.
+     * @param signalInfo Indicates the obtained signal information.
+     *
+     * @return Returns <b>0</b> if getting signal information is successful; returns a non-zero value otherwise.
+     *
+     * @since 4.0
+     * @version 1.1
+     */
+    int32_t (*GetSignalPollInfo)(NetDevice *netDev, struct SignalResult *signalInfo);
 };
 
 /**

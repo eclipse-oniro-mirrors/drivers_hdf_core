@@ -566,6 +566,59 @@ static int32_t WifiCmdStopPnoScan(const RequestContext *context, struct HdfSBuf 
     return ret;
 }
 
+static int32_t HdfWlanGetSignalPollInfo(const char *ifName, struct SignalResult *signalInfo)
+{
+    struct NetDevice *netdev = NULL;
+    struct HdfChipDriver *chipDriver = NULL;
+    
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found! ifName=%s.", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->staOps == NULL) {
+        HDF_LOGE("%s: chipDriver->staOps is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (chipDriver->staOps->GetSignalPollInfo == NULL) {
+        HDF_LOGE("%s: chipDriver->staOps->GetSignalPollInfo is null", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    return chipDriver->staOps->GetSignalPollInfo(netdev, signalInfo);
+}
+
+static int32_t WifiCmdGetSignalPollInfo(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    (void)context;
+    int32_t ret = HDF_FAILURE;
+    const char *ifName = NULL;
+    struct SignalResult signalInfo = {0};
+
+    if (reqData == NULL || rspData == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: read ifName failed!", __func__);
+        return ret;
+    }
+    ret = HdfWlanGetSignalPollInfo(ifName, &signalInfo);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: fail to get signal information, %d", __func__, ret);
+        return ret;
+    }
+    if (!HdfSbufWriteBuffer(rspData, &signalInfo, sizeof(struct SignalResult))) {
+        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        ret = HDF_FAILURE;
+    }
+    return ret;
+}
+
 static struct MessageDef g_wifiStaFeatureCmds[] = {
     DUEMessage(CMD_STA_CONNECT, WifiCmdAssoc, 0),
     DUEMessage(CMD_STA_DISCONNECT, WifiCmdDisconnect, 0),
@@ -573,7 +626,8 @@ static struct MessageDef g_wifiStaFeatureCmds[] = {
     DUEMessage(CMD_STA_ABORT_SCAN, WifiCmdAbortScan, 0),
     DUEMessage(CMD_STA_SET_SCAN_MAC_ADDR, WifiCmdSetScanningMacAddress, 0),
     DUEMessage(CMD_STA_START_PNO_SCAN, WifiCmdStartPnoScan, 0),
-    DUEMessage(CMD_STA_STOP_PNO_SCAN, WifiCmdStopPnoScan, 0)
+    DUEMessage(CMD_STA_STOP_PNO_SCAN, WifiCmdStopPnoScan, 0),
+    DUEMessage(CMD_STA_GET_SIGNAL_INFO, WifiCmdGetSignalPollInfo, 0)
 };
 ServiceDefine(STAService, STA_SERVICE_ID, g_wifiStaFeatureCmds);
 
