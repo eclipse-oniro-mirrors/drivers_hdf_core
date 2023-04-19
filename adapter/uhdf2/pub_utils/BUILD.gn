@@ -12,16 +12,19 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../uhdf.gni")
+
+hdf_framework_path = "./../../../framework"
+hdf_interfaces_path = "./../../../interfaces"
 
 config("lib_utils_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "../../../interfaces/inner_api/osal/shared",
-    "../../../interfaces/inner_api/osal/uhdf",
-    "../../../interfaces/inner_api/utils",
-    "../../../interfaces/inner_api/core",
+    "$hdf_interfaces_path/inner_api/osal/shared",
+    "$hdf_interfaces_path/inner_api/osal/uhdf",
+    "$hdf_interfaces_path/inner_api/utils",
+    "$hdf_interfaces_path/inner_api/core",
   ]
 }
 if (defined(ohos_lite)) {

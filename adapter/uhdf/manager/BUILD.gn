@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,41 +13,43 @@
 
 import("//build/ohos.gni")
 
+inner_api_relative_path = "./../../../interfaces/inner_api"
+
 config("hdf_core_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
-    "//drivers/hdf_core/interfaces/inner_api/core",
+    "$inner_api_relative_path/osal/shared",
+    "$inner_api_relative_path/osal/uhdf",
+    "$inner_api_relative_path/utils",
+    "$inner_api_relative_path/core",
   ]
 }
 
 ohos_shared_library("hdf_core") {
-  HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
+  hdf_frameworks_path = "./../../../framework"
   include_dirs = [
-    "$HDF_FRAMEWORKS/core/adapter/vnode/include",
-    "$HDF_FRAMEWORKS/core/adapter/syscall/include",
-    "$HDF_FRAMEWORKS/core/shared/include",
-    "$HDF_FRAMEWORKS/core/host/include",
-    "$HDF_FRAMEWORKS/core/manager/include",
-    "$HDF_FRAMEWORKS/include/core",
-    "$HDF_FRAMEWORKS/include/utils",
-    "$HDF_FRAMEWORKS/utils/include",
+    "$hdf_frameworks_path/core/adapter/vnode/include",
+    "$hdf_frameworks_path/core/adapter/syscall/include",
+    "$hdf_frameworks_path/core/shared/include",
+    "$hdf_frameworks_path/core/host/include",
+    "$hdf_frameworks_path/core/manager/include",
+    "$hdf_frameworks_path/include/core",
+    "$hdf_frameworks_path/include/utils",
+    "$hdf_frameworks_path/utils/include",
   ]
 
   public_configs = [ ":hdf_core_pub_config" ]
 
   sources = [
-    "$HDF_FRAMEWORKS/core/adapter/syscall/src/hdf_devmgr_adapter.c",
-    "$HDF_FRAMEWORKS/core/adapter/syscall/src/hdf_syscall_adapter.c",
-    "$HDF_FRAMEWORKS/core/shared/src/hdf_io_service.c",
-    "$HDF_FRAMEWORKS/core/shared/src/ioserstat_listener.c",
-    "$HDF_FRAMEWORKS/core/shared/src/service_status.c",
-    "$HDF_FRAMEWORKS/core/shared/src/svcmgr_ioservice.c",
-    "$HDF_FRAMEWORKS/utils/src/hdf_sbuf.c",
-    "$HDF_FRAMEWORKS/utils/src/hdf_sbuf_impl_raw.c",
+    "$hdf_frameworks_path/core/adapter/syscall/src/hdf_devmgr_adapter.c",
+    "$hdf_frameworks_path/core/adapter/syscall/src/hdf_syscall_adapter.c",
+    "$hdf_frameworks_path/core/shared/src/hdf_io_service.c",
+    "$hdf_frameworks_path/core/shared/src/ioserstat_listener.c",
+    "$hdf_frameworks_path/core/shared/src/service_status.c",
+    "$hdf_frameworks_path/core/shared/src/svcmgr_ioservice.c",
+    "$hdf_frameworks_path/utils/src/hdf_sbuf.c",
+    "$hdf_frameworks_path/utils/src/hdf_sbuf_impl_raw.c",
   ]
 
   deps = [
