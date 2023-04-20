@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <string_ex.h>
 #include <hdf_io_service.h>
 #include <idevmgr_hdi.h>
@@ -73,6 +74,15 @@ using std::endl;
 static void PrintHelp()
 {
     cout << HELP_COMMENT;
+}
+
+static int StrToInt(std::string tempstr)
+{
+    int32_t num = 0;
+    if (std::all_of(tempstr.begin(), tempstr.end(), ::isdigit)) {
+        num = std::stoi(tempstr);
+    }
+    return num;
 }
 
 static void SetPadAlign(std::string &name, char padChar, int32_t size)
@@ -238,7 +248,8 @@ static void PrintAllDeviceInfoKernel(struct HdfSBuf *data, bool flag)
 
 static int32_t ParseHdiParameter(int argc, char **argv, MessageParcel &data)
 {
-    int32_t paraCnt = atoi(argv[PARA_CNT_IDX]);
+    std::string TempStr = argv[PARA_CNT_IDX];
+    int32_t paraCnt = StrToInt(TempStr);
     if ((paraCnt * PARA_MULTIPLE) != (argc - PARA_CNT_IDX - 1)) {
         cout << "parameter count error, input: " << paraCnt << " real: " << (argc - PARA_CNT_IDX - 1) << endl;
         return HDF_FAILURE;
@@ -250,7 +261,8 @@ static int32_t ParseHdiParameter(int argc, char **argv, MessageParcel &data)
         if (strcmp(argv[paraTypeIdx], "string") == 0) {
             data.WriteCString(argv[paraValueIdx]);
         } else if (strcmp(argv[paraTypeIdx], "int") == 0) {
-            data.WriteInt32(atoi(argv[paraValueIdx]));
+            std::string TempStr = argv[paraValueIdx];
+            data.WriteInt32(StrToInt(TempStr));
         } else {
             cout << "parameterType error:" << argv[paraTypeIdx] << endl;
             return HDF_FAILURE;
@@ -269,7 +281,8 @@ static int32_t InjectDebugHdi(int argc, char **argv)
 
     auto servmgr = IServiceManager::Get();
     auto devmgr = IDeviceManager::Get();
-    int32_t loadFlag = atoi(argv[DBG_HDI_SERVICE_LOAD_IDX]);
+    std::string TempStr = argv[DBG_HDI_SERVICE_LOAD_IDX];
+    int32_t loadFlag = StrToInt(TempStr);
 
     MessageParcel data;
     data.WriteInterfaceToken(OHOS::Str8ToStr16(argv[INTERFACE_DESC_IDX]));
@@ -287,15 +300,15 @@ static int32_t InjectDebugHdi(int argc, char **argv)
 
     MessageParcel reply;
     MessageOption option;
+    std::string SendArgv = argv[CMD_ID_IDX];
+    int32_t SendNum = StrToInt(SendArgv);
     auto service = servmgr->GetService(argv[SERVER_NAME_IDX]);
     if (service == nullptr) {
         cout << "getService " << argv[SERVER_NAME_IDX] << " failed" << endl;
         goto END;
     }
-
-    ret = service->SendRequest(atoi(argv[CMD_ID_IDX]), data, reply, option);
-    cout << "call service " << argv[SERVER_NAME_IDX] << " hdi cmd:" << atoi(argv[CMD_ID_IDX]) << " return:" << ret
-         << endl;
+    ret = service->SendRequest(SendNum, data, reply, option);
+    cout << "call service " << argv[SERVER_NAME_IDX] << " hdi cmd:" << SendNum << " return:" << ret << endl;
 END:
     if (loadFlag == 1) {
         devmgr->UnloadDevice(argv[SERVER_NAME_IDX]);
@@ -394,8 +407,8 @@ int main(int argc, char **argv)
             g_getInfoFuncs[GET_INFO_FUNC_NUMS - 1]();
             return HDF_SUCCESS;
         }
-
-        uint32_t queryIdx = static_cast<uint32_t>(atoi(argv[QUERY_INFO_PARA_CNT - 1]));
+        std::string ArgvStr = argv[QUERY_INFO_PARA_CNT - 1];
+        uint32_t queryIdx = static_cast<uint32_t>(StrToInt(ArgvStr));
         if (queryIdx < GET_INFO_FUNC_NUMS - 1) {
             g_getInfoFuncs[queryIdx]();
         } else {
