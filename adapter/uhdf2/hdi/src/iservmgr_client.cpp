@@ -192,15 +192,23 @@ int32_t ServiceManagerProxy::ListServiceByInterfaceDesc(
         return status;
     }
 
-    const uint32_t serviceNum = reply.ReadUint32();
-    size_t readableSize = reply.GetReadableBytes() / sizeof(std::string);
-    size_t readSize = static_cast<size_t>(serviceNum);
-    if ((readSize > readableSize) || (readSize > serviceNames.max_size())) {
+    uint32_t serviceNum = 0;
+    if (!reply.ReadUint32(serviceNum)) {
+        HDF_LOGE("failed to read number of service");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (serviceNum > serviceNames.max_size()) {
         HDF_LOGE("invalid len of serviceNames");
         return HDF_ERR_INVALID_PARAM;
     }
 
     for (uint32_t i = 0; i < serviceNum; i++) {
+        if (reply.GetReadableBytes() == 0) {
+            HDF_LOGE("no enough data to read");
+            return HDF_ERR_INVALID_PARAM;
+        }
+
         const char *serviceName = reply.ReadCString();
         if (serviceName == NULL) {
             break;

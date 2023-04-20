@@ -109,20 +109,34 @@ static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, M
             break;
         }
         hostInfo.hostName = name;
-        hostInfo.hostId = reply.ReadUint32();
-        devCnt = reply.ReadUint32();
+        if (!reply.ReadUint32(hostInfo.hostId)) {
+            HDF_LOGE("failed to read hostId of DevInfo");
+            return false;
+        }
 
-        size_t readableSize = reply.GetReadableBytes() / sizeof(struct DevInfo);
-        size_t readSize = static_cast<size_t>(devCnt);
-        if ((readSize > readableSize) || (readSize > hostInfo.devInfo.max_size())) {
+        if (!reply.ReadUint32(devCnt)) {
+            HDF_LOGE("failed to read size of DevInfo");
+            return false;
+        }
+
+        if (devCnt > hostInfo.devInfo.max_size()) {
             HDF_LOGE("invalid len of device info");
             return false;
         }
 
         for (uint32_t i = 0; i < devCnt; i++) {
+            if (reply.GetReadableBytes() == 0) {
+                HDF_LOGE("no enough data to read");
+                return HDF_ERR_INVALID_PARAM;
+            }
+
             name = reply.ReadCString();
             devInfo.deviceName = (name == nullptr) ? "" : name;
-            devInfo.devId = reply.ReadUint32();
+            if (!reply.ReadUint32(devInfo.devId)) {
+                HDF_LOGE("failed to read devId of DevInfo");
+                return false;
+            }
+
             name = reply.ReadCString();
             devInfo.servName = (name == nullptr) ? "" : name;
             hostInfo.devInfo.push_back(devInfo);
