@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <mutex>
+
 #include <hdf_base.h>
 #include <hdf_log.h>
 #include <iproxy_broker.h>
@@ -33,6 +35,7 @@ constexpr int DEVSVC_MANAGER_GET_SERVICE = 3;
 constexpr int DEVSVC_MANAGER_REGISTER_SVCLISTENER = 4;
 constexpr int DEVSVC_MANAGER_UNREGISTER_SVCLISTENER = 5;
 constexpr int DEVSVC_MANAGER_LIST_ALL_SERVICE = 6;
+std::mutex g_remoteMutex;
 
 class ServiceManagerProxy : public IProxyBroker<IServiceManager> {
 public:
@@ -55,6 +58,8 @@ sptr<IServiceManager> IServiceManager::Get()
         HDF_LOGE("failed to get sa manager");
         return nullptr;
     }
+
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = saManager->GetSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID);
     if (remote != nullptr) {
         return new ServiceManagerProxy(remote);
@@ -76,7 +81,9 @@ int32_t ServiceManagerProxy::RegisterServiceStatusListener(
         return HDF_FAILURE;
     }
 
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVSVC_MANAGER_REGISTER_SVCLISTENER, data, reply, option);
+    lock.unlock();
     if (status) {
         HDF_LOGE("failed to register servstat listener, %{public}d", status);
     }
@@ -93,7 +100,9 @@ int32_t ServiceManagerProxy::UnregisterServiceStatusListener(::OHOS::sptr<IServS
         return HDF_FAILURE;
     }
 
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVSVC_MANAGER_UNREGISTER_SVCLISTENER, data, reply, option);
+    lock.unlock();
     if (status) {
         HDF_LOGE("failed to unregister servstat listener, %{public}d", status);
     }
@@ -109,7 +118,9 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
     }
 
     MessageOption option;
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVSVC_MANAGER_GET_SERVICE, data, reply, option);
+    lock.unlock();
     if (status) {
         HDF_LOGE("get hdi service %{public}s failed, %{public}d", serviceName, status);
         return nullptr;
@@ -143,7 +154,9 @@ int32_t ServiceManagerProxy::ListAllService(std::vector<HdiServiceInfo> &service
     }
 
     MessageOption option;
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVSVC_MANAGER_LIST_ALL_SERVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("list all service info failed, %{public}d", status);
         return status;
