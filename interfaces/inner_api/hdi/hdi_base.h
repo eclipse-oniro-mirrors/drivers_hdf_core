@@ -38,14 +38,22 @@
 #define HDI_BASE_INTERFACE_H
 
 #include <string>
+#ifdef __LITEOS__
+#include <memory>
+#else
 #include <refbase.h>
+#endif
 
 namespace OHOS {
 namespace HDI {
 /**
  * @brief Defines the HDI base class for managing HDI objects.
  */
+#ifdef __LITEOS__
+class HdiBase : public std::enable_shared_from_this<HdiBase> {
+#else
 class HdiBase : virtual public OHOS::RefBase {
+#endif
 public:
     HdiBase() = default;
     virtual ~HdiBase() = default;
