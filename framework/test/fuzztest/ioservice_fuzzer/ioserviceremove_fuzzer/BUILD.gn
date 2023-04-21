@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -8,13 +8,15 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 module_output_path = "hdf_core/ioservice"
 
+hdf_framework_path = "./../../../../../framework"
+
 ohos_fuzztest("IoserviceRemoveFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "//drivers/hdf_core/framework/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer"
+  fuzz_config_file = "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer"
 
   include_dirs = [
-    "//drivers/hdf_core/framework/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer.h",
+    "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer.h",
     "//commonlibrary/c_utils/base/include",
   ]
   if (is_standard_system) {

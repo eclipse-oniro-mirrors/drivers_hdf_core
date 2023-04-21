@@ -27,7 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//drivers/hdf_core/adapter/khdf/liteos_m/hdf.gni")
+import("hdf.gni")
+
+HDF_FRAMEWORKS_PATH = "../../../framework"
+HDF_INTERFACES_PATH = "../../../interfaces"
 
 hdf_driver("hdf_lite") {
   deps = [
@@ -78,9 +81,9 @@ config("hdf_config") {
     "$HDF_FRAMEWORKS_PATH/core/common/include/host",
     "$HDF_FRAMEWORKS_PATH/core/adapter/vnode/include",
     "$HDF_FRAMEWORKS_PATH/core/adapter/syscall/include",
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/host/shared",
-    "//drivers/hdf_core/interfaces/inner_api/core",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "$HDF_INTERFACES_PATH/inner_api/osal/shared",
+    "$HDF_INTERFACES_PATH/inner_api/host/shared",
+    "$HDF_INTERFACES_PATH/inner_api/core",
+    "$HDF_INTERFACES_PATH/inner_api/utils",
   ]
 }
