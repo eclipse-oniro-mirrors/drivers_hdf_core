@@ -51,8 +51,6 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/pub_utils:libpub_utils",
       "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
       "$hdf_framework_path/tools/hdf_dbg:hdf_dbg",
-      "$hdf_peripheral_path/base:audio_hifi_watchdog.para",
-      "$hdf_peripheral_path/base:audio_hifi_watchdog.para.dac",
       "$hdf_peripheral_path/base:hdf_peripheral.cfg",
     ]
 
