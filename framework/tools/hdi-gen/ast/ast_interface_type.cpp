@@ -237,9 +237,8 @@ void ASTInterfaceType::EmitJavaReadInnerVar(const std::string &parcelName, const
 void ASTInterfaceType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
-    std::string methodName = "WriteInterface";
     if (language == Language::C) {
-        methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
+        methods.emplace("WriteInterface", std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
     }
 }
 

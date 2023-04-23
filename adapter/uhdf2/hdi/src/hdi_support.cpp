@@ -80,7 +80,7 @@ static std::string ParseLibPath(const std::string &interfaceName, const std::str
     libPath << HDI_SO_PATH << "/";
     libPath << "lib" << interfaceName << "_" << serviceName << "_" << versionMajor << "." << versionMinor;
     libPath << HDI_SO_EXTENSION;
-    return libPath.str().c_str();
+    return libPath.str();
 }
 
 struct HdiImpl {

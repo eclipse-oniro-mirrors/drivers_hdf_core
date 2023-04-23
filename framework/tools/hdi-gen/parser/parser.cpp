@@ -1826,13 +1826,10 @@ bool Parser::PostProcess()
 
 bool Parser::CheckExistExtends()
 {
-    for (const auto &astPair : allAsts_) {
-        if (astPair.second->GetInterfaceDef() != nullptr &&
-            astPair.second->GetInterfaceDef()->GetExtendsInterface() != nullptr) {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(allAsts_.begin(), allAsts_.end(), [](const std::pair<std::string, AutoPtr<AST>> &astPair) {
+        return astPair.second->GetInterfaceDef() != nullptr &&
+            astPair.second->GetInterfaceDef()->GetExtendsInterface() != nullptr;
+    });
 }
 
 bool Parser::GetGenVersion(std::vector<size_t> &version, std::string &genPackageName)
@@ -1880,7 +1877,6 @@ void Parser::SortAstByName(AstMergeMap &mergeMap, StrAstMap &allAsts)
 void Parser::MergeAsts(AstMergeMap &mergeMap)
 {
     for (const auto &setPair : mergeMap) {
-        std::string name = setPair.first;
         auto astSet = setPair.second;
         AutoPtr<AST> targetAst = nullptr;
         for (const auto &ast : astSet) {
