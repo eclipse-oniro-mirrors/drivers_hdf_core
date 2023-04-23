@@ -12,10 +12,10 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("../uhdf.gni")
 
 if (is_standard_system) {
-  HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
+  HDF_FRAMEWORKS = "../../../framework"
 
   config("libhdf_platform_pub_config") {
     visibility = [ ":*" ]

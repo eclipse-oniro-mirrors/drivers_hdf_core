@@ -1,32 +1,33 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
-HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
+hdf_framework_path = "../../../../../framework"
+hdf_adapter_path = "../../../../../adapter"
 
 executable("hello_uart") {
   sources = [ "hello_uart_dev.c" ]
 
   include_dirs = [
-    "$HDF_FRAMEWORKS/ability/sbuf/include",
-    "$HDF_FRAMEWORKS/core/shared/include",
-    "$HDF_FRAMEWORKS/core/host/include",
-    "$HDF_FRAMEWORKS/core/master/include",
-    "$HDF_FRAMEWORKS/include/core",
-    "$HDF_FRAMEWORKS/include/utils",
-    "$HDF_FRAMEWORKS/utils/include",
-    "$HDF_FRAMEWORKS/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
+    "$hdf_framework_path/ability/sbuf/include",
+    "$hdf_framework_path/core/shared/include",
+    "$hdf_framework_path/core/host/include",
+    "$hdf_framework_path/core/master/include",
+    "$hdf_framework_path/include/core",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_adapter_path/uhdf/posix/include",
     "//third_party/bounds_checking_function/include",
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
   deps = [
+    "$hdf_adapter_path/uhdf/manager:hdf_core",
+    "$hdf_adapter_path/uhdf/posix:hdf_posix_osal",
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
   ]
 
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
