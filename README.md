@@ -121,7 +121,7 @@ void SampleDriverRelease(struct HdfDeviceObject *deviceObject)
 }
 ```
 
-For details, see  [HDF Overview](https://gitee.com/openharmony/docs/blob/master/en/device-dev/driver/driver-hdf.md).
+For details, see  [HDF Overview](https://gitee.com/openharmony/docs/blob/master/en/device-dev/driver/driver-hdf-development.md).
 
 ### Sensor<a name="section188637474417"></a>
 
@@ -161,7 +161,7 @@ For details, see  [WLAN Overview](https://gitee.com/openharmony/docs/blob/master
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-[Driver subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver-subsystem.md)
+[Driver subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver.md)
 
 [drivers\_framework](https://gitee.com/openharmony/drivers_framework/blob/master/README.md)
 

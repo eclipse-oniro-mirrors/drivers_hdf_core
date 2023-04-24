@@ -20,7 +20,7 @@ This repository stores the code and compilation scripts for the OpenHarmony driv
 
 ## Repositories Involved
 
-[Driver subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver-subsystem.md)
+[Driver subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver.md)
 
 [drivers\_framework](https://gitee.com/openharmony/drivers_framework/blob/master/README.md)
 
