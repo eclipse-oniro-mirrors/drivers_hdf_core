@@ -121,7 +121,7 @@ void SampleDriverRelease(struct HdfDeviceObject *deviceObject)
 }
 ```
 
-HDF驱动框架详细开发请参考[驱动开发指南](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/driver/driver-hdf.md)。
+HDF驱动框架详细开发请参考[驱动开发指南](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/driver/driver-hdf-development.md)。
 
 ### Sensor框架模型说明<a name="section188637474417"></a>
 
