@@ -31,8 +31,9 @@ import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
 module_switch = defined(LOSCFG_DRIVERS_HDF_VIBRATOR)
 module_name = "hdf_vibrator_driver"
 hdf_driver(module_name) {
-  FRAMEWORKS_VIBRATOR_ROOT = "$HDF_FRAMEWORKS_PATH/model/misc/vibrator/driver"
-  PERIPHERAL_VIBRATOR_ROOT = "$HDF_PERIPHERAL_PATH/vibrator"
+  FRAMEWORKS_VIBRATOR_ROOT =
+      "../../../../../../framework/model/misc/vibrator/driver"
+  PERIPHERAL_VIBRATOR_ROOT = "../../../../../../../peripheral/vibrator"
 
   sources = [
     "$FRAMEWORKS_VIBRATOR_ROOT/src/vibrator_driver.c",
@@ -47,6 +48,6 @@ hdf_driver(module_name) {
 
   include_dirs = [
     "$FRAMEWORKS_VIBRATOR_ROOT/include",
-    "$PERIPHERAL_VIBRATOR_ROOT/chipset",
+    "$PERIPHERAL_VIBRATOR_ROOT/chipset/linear",
   ]
 }
