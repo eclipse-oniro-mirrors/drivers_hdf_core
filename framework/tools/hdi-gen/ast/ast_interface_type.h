@@ -27,7 +27,10 @@ public:
         attr_(new ASTAttr()),
         isSerializable_(false),
         methods_(),
-        getVerMethod_()
+        getVerMethod_(),
+        extendsInterface_(nullptr),
+        majorVersion_(1),
+        minorVersion_(0)
     {
     }
 
