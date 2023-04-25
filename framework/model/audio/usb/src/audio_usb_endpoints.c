@@ -125,6 +125,9 @@ static void AudioUsbPrepareInboundUrb(struct AudioUsbEndpoint *endpoint, struct 
             urb->iso_frame_desc[0].length = min((uint32_t)SYNC_URBS, endpoint->syncMaxSize);
             urb->iso_frame_desc[0].offset = 0;
             break;
+        default:
+            AUDIO_DEVICE_LOG_ERR("endpoint->type is invalid.");
+            return;
     }
 }
 
@@ -233,6 +236,9 @@ static void AudioUsbPrepareOutboundUrb(struct AudioUsbEndpoint *endpoint, struct
                 cp[ARRAY_INDEX_2] = endpoint->freqn >> RIGHT_SHIFT_18;
             }
             break;
+        default:
+            AUDIO_DEVICE_LOG_ERR("endpoint->type is invalid.");
+            return;
     }
 }
 

@@ -1546,6 +1546,9 @@ static int32_t AudioUsbParseFeatureDescriptorParam(
         case 0x1130f211: /* TP6911 */
             featureParam->channels = 0;
             break;
+        default:
+            AUDIO_DEVICE_LOG_ERR("usbID err!");
+            return HDF_FAILURE;
     }
     return HDF_SUCCESS;
 }
