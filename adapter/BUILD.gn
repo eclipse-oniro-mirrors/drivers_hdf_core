@@ -30,10 +30,6 @@ if (defined(ohos_lite)) {
     ]
   }
 } else {
-  declare_args() {
-    hdf_core_feature_config = true
-  }
-
   group("uhdf_entry") {
     hdf_framework_path = "./../framework"
     hdf_peripheral_path = "./../../peripheral"
@@ -53,10 +49,6 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/tools/hdf_dbg:hdf_dbg",
       "$hdf_peripheral_path/base:hdf_peripheral.cfg",
     ]
-
-    if (hdf_core_feature_config) {
-      deps += [ "$hdf_adapter_path/uhdf2/hcs:hcs_entry" ]
-    }
   }
   group("uhdf_test_entry") {
     testonly = true
