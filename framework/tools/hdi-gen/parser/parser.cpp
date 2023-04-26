@@ -1880,6 +1880,7 @@ void Parser::SortAstByName(AstMergeMap &mergeMap, StrAstMap &allAsts)
 void Parser::MergeAsts(AstMergeMap &mergeMap)
 {
     for (const auto &setPair : mergeMap) {
+        std::string name = setPair.first;
         auto astSet = setPair.second;
         AutoPtr<AST> targetAst = nullptr;
         for (const auto &ast : astSet) {
