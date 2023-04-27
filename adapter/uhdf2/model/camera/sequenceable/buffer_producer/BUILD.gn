@@ -15,10 +15,7 @@ import("//build/ohos.gni")
 import("../../../../uhdf.gni")
 
 config("camera_sequenceable_config") {
-  include_dirs = [
-    "./",
-    "//drivers/peripheral/base",
-  ]
+  include_dirs = [ "./" ]
 }
 
 ohos_shared_library("libbuffer_producer_sequenceable_1.0") {
@@ -26,7 +23,7 @@ ohos_shared_library("libbuffer_producer_sequenceable_1.0") {
 
   all_dependent_configs = [ ":camera_sequenceable_config" ]
 
-  public_deps = [ "//foundation/graphic/graphic_2d/frameworks/surface:surface" ]
+  public_deps = [ "../../../../../../../../foundation/graphic/graphic_2d/frameworks/surface:surface" ]
 
   external_deps = [
     "c_utils:utils",
