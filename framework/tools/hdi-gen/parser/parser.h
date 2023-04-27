@@ -30,7 +30,7 @@ using AttrSet = std::set<Token, TokenTypeCompare>;
 struct AstCompare {
     bool operator()(const AutoPtr<AST> &lhs, const AutoPtr<AST> &rhs) const
     {
-        return lhs->GetMinorVer() > rhs->GetMinorVer();
+        return lhs->GetMinorVer() < rhs->GetMinorVer();
     }
 };
 using AstMergeMap = std::map<std::string, std::set<AutoPtr<AST>, AstCompare>>;
