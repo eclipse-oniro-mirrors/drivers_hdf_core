@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -104,5 +104,62 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
     ASSERT_TRUE(ret > 0);
     ret = HdfRemoteGetCallingUid();
     ASSERT_TRUE(ret >= 0);
+}
+
+/*
+ * Test method CheckInterfaceTokenIngoreVersion, which can ignore version when checking interface description
+ */
+HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest005, TestSize.Level1)
+{
+    struct HdfRemoteService *service = HdfRemoteAdapterObtain();
+    ASSERT_NE(service, nullptr);
+    bool status = HdfRemoteServiceSetInterfaceDesc(service, "ohos.hdi.foo.v1_1.ifoo");
+    ASSERT_TRUE(status);
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    OHOS::MessageParcel *parcel = nullptr;
+    int ret = SbufToParcel(sBuf, &parcel);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    status = parcel->WriteInterfaceToken(u"ohos.hdi.foo.v1_0.ifoo");
+    ASSERT_TRUE(status);
+    status = HdfRemoteServiceCheckInterfaceToken(service, sBuf);
+    ASSERT_TRUE(status);
+    HdfRemoteServiceRecycle(service);
+}
+
+HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest006, TestSize.Level1)
+{
+    struct HdfRemoteService *service = HdfRemoteAdapterObtain();
+    ASSERT_NE(service, nullptr);
+    int status = HdfRemoteServiceSetInterfaceDesc(service, "ohos.hdi.foo.v1_1.ifoo");
+    ASSERT_TRUE(status);
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    OHOS::MessageParcel *parcel = nullptr;
+    int ret = SbufToParcel(sBuf, &parcel);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    status = parcel->WriteInterfaceToken(u"ohos.hdi.foo.v1_0");
+    ASSERT_TRUE(status);
+    status = HdfRemoteServiceCheckInterfaceToken(service, sBuf);
+    ASSERT_FALSE(status);
+    HdfRemoteServiceRecycle(service);
+}
+
+HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest007, TestSize.Level1)
+{
+    struct HdfRemoteService *service = HdfRemoteAdapterObtain();
+    ASSERT_NE(service, nullptr);
+    int status = HdfRemoteServiceSetInterfaceDesc(service, "ohos.hdi.foo.v1_1.ifoo");
+    ASSERT_TRUE(status);
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    OHOS::MessageParcel *parcel = nullptr;
+    int ret = SbufToParcel(sBuf, &parcel);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    status = parcel->WriteInterfaceToken(u"ohos.hdi.foo.v1_0.ifoo_");
+    ASSERT_TRUE(status);
+    status = HdfRemoteServiceCheckInterfaceToken(service, sBuf);
+    ASSERT_FALSE(status);
+    HdfRemoteServiceRecycle(service);
 }
 } // namespace OHOS
