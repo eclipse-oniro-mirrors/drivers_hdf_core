@@ -31,8 +31,8 @@ import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
 module_switch = defined(LOSCFG_DRIVERS_HDF_SENSOR)
 module_name = "hdf_sensor_driver"
 hdf_driver(module_name) {
-  FRAMEWORKS_SENSOR_ROOT = "$HDF_FRAMEWORKS_PATH/model/sensor/driver"
-  PERIPHERAL_SENSOR_ROOT = "$HDF_PERIPHERAL_PATH/sensor"
+  FRAMEWORKS_SENSOR_ROOT = "../../../../../framework/model/sensor/driver"
+  PERIPHERAL_SENSOR_ROOT = "../../../../../../peripheral/sensor"
   sources = [
     "$FRAMEWORKS_SENSOR_ROOT/common/src/sensor_config_controller.c",
     "$FRAMEWORKS_SENSOR_ROOT/common/src/sensor_config_parser.c",
