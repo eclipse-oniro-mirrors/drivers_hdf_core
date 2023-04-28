@@ -26,7 +26,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
+import("./../../../hdf.gni")
 
 module_switch = defined(LOSCFG_DRIVERS_HDF_USB_DDK_HOST)
 module_name = "hdf_usb_ddk_host"
@@ -44,6 +44,7 @@ hdf_driver(module_name) {
   if (defined(LOSCFG_DRIVERS_HDF_USB_PNP_NOTIFY)) {
     USB_PNP_NOTIFY_SHARED_ROOT = "$HDF_FRAMEWORKS_PATH/core/shared"
     FRAMEWORKS_USB_DDK_HOST = "$HDF_FRAMEWORKS_PATH/model/usb"
+    HDF_INTERFACE_PATH = "./../../../../../../interfaces"
     sources += [
       "$FRAMEWORKS_USB_DDK_HOST/src/usb_ddk_pnp_loader.c",
       "src/usb_pnp_manager.c",
@@ -52,10 +53,10 @@ hdf_driver(module_name) {
     ]
     include_dirs += [
       "$USB_PNP_NOTIFY_SHARED_ROOT/include",
-      "//drivers/hdf_core/interfaces/inner_api/core",
-      "//drivers/hdf_core/interfaces/inner_api/utils",
-      "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-      "//drivers/hdf_core/interfaces/inner_api/host/shared",
+      "$HDF_INTERFACE_PATH/inner_api/core",
+      "$HDF_INTERFACE_PATH/inner_api/utils",
+      "$HDF_INTERFACE_PATH/inner_api/osal/shared",
+      "$HDF_INTERFACE_PATH/inner_api/host/shared",
       "$FRAMEWORKS_USB_DDK_HOST/include",
     ]
     public_configs = [ ":public" ]
