@@ -29,11 +29,6 @@ bool ASTEnumType::IsEnumType()
     return true;
 }
 
-std::string ASTEnumType::ToString() const
-{
-    return "enum " + name_;
-}
-
 std::string ASTEnumType::Dump(const std::string &prefix)
 {
     StringBuilder sb;

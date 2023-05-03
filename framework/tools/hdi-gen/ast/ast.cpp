@@ -65,11 +65,7 @@ void AST::SetFullName(const std::string &fullName)
 void AST::SetPackageName(const std::string &packageName)
 {
     packageName_ = packageName;
-}
-
-std::string AST::GetPackageName()
-{
-    return packageName_;
+    ParseNamespace(packageName_);
 }
 
 AutoPtr<ASTNamespace> AST::ParseNamespace(const std::string &nspaceStr)
@@ -155,15 +151,16 @@ void AST::AddType(const AutoPtr<ASTType> &type)
     types_[type->ToString()] = type;
 }
 
-AutoPtr<ASTType> AST::FindType(const std::string &typeName)
+AutoPtr<ASTType> AST::FindType(const std::string &typeName, bool lookImports)
 {
     if (typeName.empty()) {
         return nullptr;
     }
 
-    auto it = types_.find(typeName);
-    if (it != types_.end()) {
-        return it->second;
+    for (const auto &type : types_) {
+        if (type.second->GetName() == typeName) {
+            return type.second;
+        }
     }
 
     auto basicTypePair = basicTypes_.find(typeName);
@@ -171,9 +168,13 @@ AutoPtr<ASTType> AST::FindType(const std::string &typeName)
         return basicTypePair->second;
     }
 
+    if (!lookImports) {
+        return nullptr;
+    }
+
     AutoPtr<ASTType> type = nullptr;
     for (const auto &importPair : imports_) {
-        type = importPair.second->FindType(typeName);
+        type = importPair.second->FindType(typeName, false);
         if (type != nullptr) {
             break;
         }

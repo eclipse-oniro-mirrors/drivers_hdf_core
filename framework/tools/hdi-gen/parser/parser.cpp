@@ -24,7 +24,7 @@
 #define RE_BIN_DIGIT "0[b][0|1]+"      // binary digit
 #define RE_OCT_DIGIT "0[0-7]+"         // octal digit
 #define RE_DEC_DIGIT "[0-9]+"          // decimal digit
-#define RE_HEX_DIFIT "0[xX][0-9a-f]+"  // hexadecimal digit
+#define RE_HEX_DIFIT "0[xX][0-9a-fA-F]+"  // hexadecimal digit
 #define RE_DIGIT_SUFFIX "(u|l|ll|ul|ull|)$"
 #define RE_IDENTIFIER "[a-zA-Z_][a-zA-Z0-9_]*"
 
@@ -851,11 +851,7 @@ AutoPtr<ASTType> Parser::ParseArrayType(const AutoPtr<ASTType> &elementType)
 
     AutoPtr<ASTArrayType> arrayType = new ASTArrayType();
     arrayType->SetElementType(elementType);
-    AutoPtr<ASTType> retType = ast_->FindType(arrayType->ToString());
-    if (retType == nullptr) {
-        retType = arrayType.Get();
-    }
-
+    AutoPtr<ASTType> retType = arrayType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -886,11 +882,7 @@ AutoPtr<ASTType> Parser::ParseListType()
 
     AutoPtr<ASTListType> listType = new ASTListType();
     listType->SetElementType(type);
-    AutoPtr<ASTType> retType = ast_->FindType(listType->ToString());
-    if (retType == nullptr) {
-        retType = listType.Get();
-    }
-
+    AutoPtr<ASTType> retType = listType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -937,11 +929,7 @@ AutoPtr<ASTType> Parser::ParseMapType()
     AutoPtr<ASTMapType> mapType = new ASTMapType();
     mapType->SetKeyType(keyType);
     mapType->SetValueType(valueType);
-    AutoPtr<ASTType> retType = ast_->FindType(mapType->ToString());
-    if (retType == nullptr) {
-        retType = mapType.Get();
-    }
-
+    AutoPtr<ASTType> retType = mapType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -972,11 +960,7 @@ AutoPtr<ASTType> Parser::ParseSmqType()
 
     AutoPtr<ASTSmqType> smqType = new ASTSmqType();
     smqType->SetInnerType(innerType);
-    AutoPtr<ASTType> retType = ast_->FindType(smqType->ToString());
-    if (retType == nullptr) {
-        retType = smqType.Get();
-    }
-
+    AutoPtr<ASTType> retType = smqType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -988,8 +972,6 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
         return ast_->FindType(token.value);
     }
 
-    std::string typePrefix = token.value;
-
     token = lexer_.PeekToken();
     if (token.kind != TokenType::ID) {
         LogError(token, StringHelper::Format("expected identifier before '%s' token", token.value.c_str()));
@@ -998,7 +980,7 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
         lexer_.GetToken();
     }
 
-    std::string typeName = typePrefix + " " + token.value;
+    std::string typeName = token.value;
     AutoPtr<ASTType> type = ast_->FindType(typeName);
     ast_->AddType(type);
     return type;
@@ -1041,6 +1023,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
         lexer_.GetToken();
     }
 
+    enumType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(enumType.Get());
 }
 
@@ -1147,6 +1130,7 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
         lexer_.GetToken();
     }
 
+    structType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(structType.Get());
 }
 
@@ -1223,6 +1207,7 @@ void Parser::ParseUnionDeclaration(const AttrSet &attrs)
         lexer_.GetToken();
     }
 
+    unionType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(unionType.Get());
 }
 
