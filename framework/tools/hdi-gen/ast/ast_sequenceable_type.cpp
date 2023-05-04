@@ -24,11 +24,6 @@ bool ASTSequenceableType::IsSequenceableType()
     return true;
 }
 
-std::string ASTSequenceableType::ToString() const
-{
-    return name_;
-}
-
 TypeKind ASTSequenceableType::GetTypeKind()
 {
     return TypeKind::TYPE_SEQUENCEABLE;

@@ -30,11 +30,6 @@ bool ASTStructType::IsStructType()
     return true;
 }
 
-std::string ASTStructType::ToString() const
-{
-    return "struct " + name_;
-}
-
 std::string ASTStructType::Dump(const std::string &prefix)
 {
     StringBuilder sb;

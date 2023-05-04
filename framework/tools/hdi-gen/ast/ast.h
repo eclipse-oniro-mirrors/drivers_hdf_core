@@ -97,8 +97,6 @@ public:
 
     void SetPackageName(const std::string &packageName);
 
-    std::string GetPackageName();
-
     AutoPtr<ASTNamespace> ParseNamespace(const std::string &nspaceStr);
 
     void AddNamespace(const AutoPtr<ASTNamespace> &nspace);
@@ -133,7 +131,7 @@ public:
 
     void AddType(const AutoPtr<ASTType> &type);
 
-    AutoPtr<ASTType> FindType(const std::string &typeName);
+    AutoPtr<ASTType> FindType(const std::string &typeName, bool lookImports = true);
 
     inline const TypeStringMap &GetTypes() const
     {

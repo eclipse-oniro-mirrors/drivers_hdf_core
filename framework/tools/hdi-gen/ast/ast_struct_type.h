@@ -74,8 +74,6 @@ public:
 
     bool IsStructType() override;
 
-    std::string ToString() const override;
-
     std::string Dump(const std::string &prefix) override;
 
     TypeKind GetTypeKind() override;

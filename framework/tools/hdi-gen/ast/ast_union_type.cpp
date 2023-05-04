@@ -27,11 +27,6 @@ bool ASTUnionType::IsUnionType()
     return true;
 }
 
-std::string ASTUnionType::ToString() const
-{
-    return "union " + name_;
-}
-
 std::string ASTUnionType::Dump(const std::string &prefix)
 {
     StringBuilder sb;
