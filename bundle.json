@@ -12,7 +12,12 @@
   "component": {
     "name": "hdf_core",
     "subsystem": "hdf",
-    "features": [ "hdf_core_khdf_test_support", "hdf_core_platform_test_support" ],
+    "features": [
+      "hdf_core_khdf_test_support",
+      "hdf_core_platform_test_support",
+      "hdf_core_platform_rtc_test_support",
+      "hdf_core_feature_config"
+    ],
     "adapted_system_type": ["standard", "small"],
     "rom": "735KB",
     "ram": "8000KB",
