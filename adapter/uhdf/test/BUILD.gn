@@ -13,6 +13,7 @@
 
 import("//build/lite/config/component/lite_component.gni")
 import("//build/lite/config/test.gni")
+import("platform_test.gni")
 
 lite_component("hdf_test_uhdf") {
   # add hdf subsystem unittest
@@ -28,8 +29,7 @@ lite_component("hdf_test_uhdf") {
       "$unittest_path/osal:hdf_adapter_uhdf_test_osal",
       "$unittest_path/osal:hdf_adapter_uhdf_test_osal_posix",
     ]
-    if (board_name == "hi3516dv300" || board_name == "hispark_taurus" ||
-        board_name == "hi3518ev300" || board_name == "hispark_aries") {
+    if (hdf_core_platform_test_support || hdf_core_platform_rtc_test_support) {
       deps += [ "$unittest_path/platform:hdf_adapter_uhdf_test_platform" ]
     }
   }

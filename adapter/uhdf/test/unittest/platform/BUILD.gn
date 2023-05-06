@@ -12,11 +12,12 @@
 # limitations under the License.
 
 import("//build/lite/config/test.gni")
+import("../../platform_test.gni")
 
 hdf_framework_path = "../../../../../framework"
 hdf_adapter_path = "../../../../../adapter"
 
-if (board_name == "hi3516dv300" || board_name == "hispark_taurus") {
+if (hdf_core_platform_test_support) {
   unittest("hdf_adapter_uhdf_test_platform") {
     output_extension = "bin"
     output_dir = "$root_out_dir/test/unittest/hdf"
@@ -108,7 +109,7 @@ if (board_name == "hi3516dv300" || board_name == "hispark_taurus") {
       "-fno-strict-aliasing",
     ]
   }
-} else if (board_name == "hi3518ev300" || board_name == "hispark_aries") {
+} else if (hdf_core_platform_rtc_test_support) {
   unittest("hdf_adapter_uhdf_test_platform") {
     output_extension = "bin"
     output_dir = "$root_out_dir/test/unittest/hdf"

@@ -44,7 +44,6 @@ config("hdf_platform_pub_config") {
     "$hdf_framework_path/support/platform/include/timer",
     "$hdf_framework_path/support/platform/include/watchdog",
     "$hdf_framework_path/../adapter/uhdf/posix/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 }
 
@@ -76,7 +75,10 @@ ohos_shared_library("hdf_platform") {
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   public_deps = [ "$hdf_adapter_path/uhdf/manager:hdf_core" ]
 
-  external_deps = [ "hdf_core:hdf_posix_osal" ]
+  external_deps = [
+    "hdf_core:hdf_posix_osal",
+    "hilog_featured_lite:hilog_shared",
+  ]
 
   defines = [ "__USER__" ]
 
