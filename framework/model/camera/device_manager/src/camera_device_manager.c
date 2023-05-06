@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 - 2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -20,7 +20,6 @@ static struct CameraDevice *g_cameraDeviceTable[CAMERA_MAX_NUM];
 static void ReleaseCameraDevice(struct CameraDevice *camDev)
 {
     OsalMemFree(camDev);
-    camDev = NULL;
     HDF_LOGI("%s: success!", __func__);
     return;
 }
