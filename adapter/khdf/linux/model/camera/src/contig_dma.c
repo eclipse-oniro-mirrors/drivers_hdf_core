@@ -349,8 +349,10 @@ static void *ContigAttachDmaBuf(struct BufferQueue *queue, uint32_t planeNum, vo
     if (buf == NULL) {
         return ERR_PTR(-ENOMEM);
     }
-
-    memset_s(buf, sizeof(*buf), 0, sizeof(*buf));
+    if (memset_s(buf, sizeof(struct ContigBuffer), 0, sizeof(struct ContigBuffer)) != EOK) {
+        HDF_LOGE("ContigAttachDmaBuf: [memcpy_s] fail!");
+        return;
+    }
     buf->dev = dev;
     /* create attachment for the dmabuf with the user device */
     dba = dma_buf_attach(dbuf, buf->dev);
