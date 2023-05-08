@@ -18,12 +18,20 @@ template("hc_gen") {
   } else {
     target_type = "action_foreach"
   }
+
+  # get all hcs file by sources
+  hcs_inputs =
+      exec_script("//drivers/hdf_core/framework/tools/hc-gen/hcs_build_info.py",
+                  rebase_path(invoker.sources),
+                  "list lines")
+
   target(target_type, target_name) {
     deps = [ "//drivers/hdf_core/framework/tools/hc-gen:build_hc_gen" ]
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
       script = "//build/lite/run_shell_cmd.py"
     }
+    inputs = hcs_inputs
     sources = invoker.sources
     if (defined(invoker.hc_gen_hex) && invoker.hc_gen_hex) {
       hc_flags = [
