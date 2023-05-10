@@ -214,6 +214,10 @@ static struct MutiPowers *CreateMutiPower(const struct HdfPowersConfig *powersCo
     int ret = HDF_SUCCESS;
     struct MutiPowers *mutiPower =
         OsalMemCalloc(sizeof(struct MutiPowers) + sizeof(struct HdfPower *) * powersConfig->powerCount);
+    if (mutiPower == NULL) {
+        HDF_LOGE("%s:mutiPower OsalMemCalloc fail!", __func__);
+        return NULL;
+    }
     static const struct HdfPowerOps mutiPowerOps = {.On = ActiveMutiPower,
                                                     .Off = DeactiveMutiPower,
                                                     .Release = ReleaseMutiPower};
