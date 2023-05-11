@@ -87,16 +87,18 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
     deviceDriver = factory->build(deviceName);
     if (deviceDriver == NULL) {
         HDF_LOGE("%s: device driver %{public}s build fail!", __func__, factory->deviceName);
-        ret = HDF_FAILURE;
-    } else if (deviceDriver->init == NULL) {
+        return HDF_FAILURE;
+    }
+    
+    if (deviceDriver->init == NULL) {
         HDF_LOGI("%s: device driver %{public}s not 'init' api", __func__, factory->deviceName);
-        ret = HDF_DEV_ERR_OP;
+        return HDF_DEV_ERR_OP;
     }
 
     camDev = CameraDeviceCreate(deviceName, strlen(deviceName));
     if (camDev == NULL) {
         HDF_LOGE("%s: allocate camera device failed!", __func__);
-        ret = HDF_FAILURE;
+        return HDF_FAILURE;
     }
 
     camDev->deviceDriver = deviceDriver;
