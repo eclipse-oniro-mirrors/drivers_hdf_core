@@ -12,7 +12,7 @@ module_output_path = "hdf_core/devmgr_c"
 hdf_framework_path = "./../../../../../framework"
 hdf_adapter_path = "./../../../../../adapter"
 
-ohos_fuzztest("QueryUnusableDeviceInfoFuzzTest") {
+ohos_fuzztest("QueryUsableDeviceInfoFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file = "$hdf_framework_path/test/fuzztest/devmgr_c_fuzzer/queryusabledeviceInfo_fuzzer"
@@ -35,5 +35,5 @@ ohos_fuzztest("QueryUnusableDeviceInfoFuzzTest") {
 
 group("fuzztest") {
   testonly = true
-  deps = [ ":QueryUnusableDeviceInfoFuzzTest" ]
+  deps = [ ":QueryUsableDeviceInfoFuzzTest" ]
 }
