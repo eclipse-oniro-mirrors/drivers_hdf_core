@@ -89,7 +89,7 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
         HDF_LOGE("%s: device driver %{public}s build fail!", __func__, factory->deviceName);
         return HDF_FAILURE;
     }
-    
+
     if (deviceDriver->init == NULL) {
         HDF_LOGI("%s: device driver %{public}s not 'init' api", __func__, factory->deviceName);
         return HDF_DEV_ERR_OP;
@@ -106,16 +106,12 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
     ret = deviceDriver->init(deviceDriver, camDev);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: init device %{public}s failed! ret=%{public}d", __func__, factory->deviceName, ret);
-    }
-    deviceDriver = NULL;
-
-    if (ret != HDF_SUCCESS) {
-        if (deviceDriver != NULL && factory->release != NULL) {
+        if (factory->release != NULL) {
             factory->release(deviceDriver);
         }
-        if (camDev != NULL) {
-            CameraDeviceRelease(camDev);
-        }
+        deviceDriver = NULL;
+        CameraDeviceRelease(camDev);
+        camDev = NULL;
     }
     return ret;
 }
