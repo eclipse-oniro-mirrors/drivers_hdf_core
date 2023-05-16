@@ -23,6 +23,7 @@
 #include <media/v4l2-fwnode.h>
 #include <linux/acpi.h>
 #include <linux/i2c.h>
+#include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/version.h>
 #include "hdf_log.h"
@@ -260,11 +261,18 @@ static int LinuxInitControls(struct AdapterDrvData *drvData)
     ImgRect *rect = &(drvData->attr->imgRect);
 
     if (ctrl_hdlr == NULL) {
+        ctrl_hdlr = kzalloc(sizeof(*ctrl_hdlr), GFP_KERNEL);
+        if (!ctrl_hdlr) {
+            HDF_LOGE("LinuxInitControls: [kzalloc] fail!");
+            return -ENOMEM;
+        }
         ret = v4l2_ctrl_handler_init(ctrl_hdlr, CTRLS_COUNT);
         if (ret != 0) {
+            kfree(ctrl_hdlr);
             HDF_LOGE("LinuxInitControls: [v4l2_ctrl_handler_init] fail!");
             return ret;
         }
+        camera->ctrl_handler = ctrl_hdlr;
     }
     ctrl_hdlr->lock = &drvData->mutex;
     if (camera->link_freq == NULL) {
@@ -304,6 +312,7 @@ static int LinuxInitControls(struct AdapterDrvData *drvData)
         ret = ctrl_hdlr->error;
         HDF_LOGE("LinuxInitControls: control init fail, ret: %d!", ret);
         v4l2_ctrl_handler_free(ctrl_hdlr);
+        kfree(ctrl_hdlr);
         return ret;
     }
     camera->sd->ctrl_handler = ctrl_hdlr;
@@ -410,7 +419,6 @@ static int32_t MipiCsiAdapterProbeV4l2(struct MipiCsiCntlr *cntlr)
     ret = LinuxInitControls(drvData);
     if (ret) {
         HDF_LOGE("MipiCsiAdapterProbeV4l2: fail to init controls, ret: %d!", ret);
-        v4l2_ctrl_handler_free(camera->sd->ctrl_handler);
         return HDF_FAILURE;
     }
 
@@ -462,6 +470,7 @@ static void MipiCsiAdapterRemoveV4l2(const struct MipiCsiCntlr *cntlr)
     camera = drvData->camera;
     if ((camera->sd != NULL) && (camera->sd->ctrl_handler != NULL)) {
         v4l2_ctrl_handler_free(camera->sd->ctrl_handler);
+        kfree(camera->sd->ctrl_handler);
         camera->sd->ctrl_handler = NULL;
     }
     mutex_destroy(&drvData->mutex);
