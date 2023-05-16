@@ -30,6 +30,10 @@ visual studio code 版本需1.62.0及以上。
 	
 		npm i
 
+安装 webpack，命令如下：
+	
+		npx webpack
+
 #### 执行脚本
 
 首次使用工具或本地代码有更新时，需运行hcsWebView目录下build.py文件更新本地代码，运行成功后命令行中显示“replaced”，表示代码更新成功，如下图所示：
