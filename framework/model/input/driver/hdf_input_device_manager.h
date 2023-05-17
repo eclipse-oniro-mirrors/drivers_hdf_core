@@ -11,8 +11,10 @@
 
 #include "input-event-codes.h"
 #include "osal_mutex.h"
+#include "osal_spinlock.h"
 #include "hdf_types.h"
 #include "hdf_device_desc.h"
+#include "hdf_workqueue.h"
 
 #ifdef HDF_LOG_TAG
 #undef HDF_LOG_TAG
@@ -103,6 +105,8 @@ typedef struct {
 
 typedef struct InputDeviceInfo {
     struct HdfDeviceObject *hdfDevObj;
+    HdfWorkQueue eventWorkQueue;
+    HdfWork *eventWork;
     uint32_t devId;
     uint32_t devType;
     const char *devName;
@@ -121,6 +125,7 @@ typedef struct {
     struct HdfDeviceObject *hdfDevObj;
     uint32_t devCount;
     struct OsalMutex mutex;
+    OsalSpinlock lock;
     bool initialized;
     InputDevice *inputDevList;
 } InputManager;
