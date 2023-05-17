@@ -710,7 +710,7 @@ static int32_t LinuxCopyToKernel(void *dest, uint32_t max, const void *src, uint
     int32_t ret;
 
     if (access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
         VERIFY_READ,
 #endif
         src, count)) { /* user space */
@@ -919,7 +919,7 @@ static int MipiTxDrvGetCmdInfo(GetCmdInfoTag *getCmdInfo)
         goto fail0;
     }
     if (access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
         VERIFY_WRITE,
 #endif
         getCmdInfo->getData, getCmdInfo->getDataSize)) { /* user space */

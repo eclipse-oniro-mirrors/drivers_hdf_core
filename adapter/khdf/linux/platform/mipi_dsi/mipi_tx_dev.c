@@ -326,7 +326,7 @@ static int32_t MipiDsiDevSetCfg(struct MipiDsiCntlr *cntlr, struct MipiCfg *arg)
     }
 
     if (access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
         VERIFY_READ,
 #endif
         arg, size)) { /* user space */
@@ -375,7 +375,7 @@ static int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *a
     }
 
     if (access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
         VERIFY_READ,
 #endif
         arg, size)) { /* user space */
@@ -402,7 +402,7 @@ static int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *a
 static int32_t MipiDsiDevCmdCopyFromUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, uint32_t *size)
 {
     if (access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
         VERIFY_READ,
 #endif
         arg, *size)) { /* user space */
@@ -420,7 +420,7 @@ static int32_t MipiDsiDevCmdCopyFromUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag
 static int32_t MipiDsiDevCmdCopyToUser(GetDsiCmdDescTag *arg, GetDsiCmdDescTag *temp, uint32_t *size)
 {
     if (access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
         VERIFY_WRITE,
 #endif
         arg, *size)) { /* user space */
