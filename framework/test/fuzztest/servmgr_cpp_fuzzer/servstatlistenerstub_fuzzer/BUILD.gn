@@ -12,7 +12,7 @@ module_output_path = "hdf_core/servmgr_cpp"
 hdf_framework_path = "./../../../../../framework"
 hdf_adapter_path = "./../../../../../adapter"
 
-ohos_fuzztest("ServStatListenerStubCCFuzzTest") {
+ohos_fuzztest("ServStatListenerStubFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file = "$hdf_framework_path/test/fuzztest/servmgr_cpp_fuzzer/servstatlistenerstub_fuzzer"
@@ -35,5 +35,5 @@ ohos_fuzztest("ServStatListenerStubCCFuzzTest") {
 
 group("fuzztest") {
   testonly = true
-  deps = [ ":ServStatListenerStubCCFuzzTest" ]
+  deps = [ ":ServStatListenerStubFuzzTest" ]
 }

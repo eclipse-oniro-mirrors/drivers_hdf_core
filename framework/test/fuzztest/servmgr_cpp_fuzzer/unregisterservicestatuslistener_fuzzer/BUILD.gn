@@ -11,7 +11,7 @@ module_output_path = "hdf_core/servmgr_cpp"
 hdf_framework_path = "./../../../../../framework"
 hdf_adapter_path = "./../../../../../adapter"
 
-ohos_fuzztest("UnregisterServiceStatusListenerCCFuzzTest") {
+ohos_fuzztest("UnregisterServiceStatusListenerFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file = "$hdf_framework_path/test/fuzztest/servmgr_cpp_fuzzer/unregisterservicestatuslistener_fuzzer"
@@ -48,5 +48,5 @@ ohos_fuzztest("UnregisterServiceStatusListenerCCFuzzTest") {
 
 group("fuzztest") {
   testonly = true
-  deps = [ ":UnregisterServiceStatusListenerCCFuzzTest" ]
+  deps = [ ":UnregisterServiceStatusListenerFuzzTest" ]
 }
