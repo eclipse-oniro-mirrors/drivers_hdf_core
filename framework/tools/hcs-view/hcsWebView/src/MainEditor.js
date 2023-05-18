@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-const { XMessage } = require("./message/XMessage");
-const { Lexer } = require("./hcs/lexer");
-const { Generator } = require("./hcs/Generator");
-const { Scr } = require("./engine/XDefine");
-const { XButton } = require("./engine/control/XButton");
-const { AttrEditor } = require("./AttrEditor");
-const { NapiLog } = require("./hcs/NapiLog");
-const { XSelect } = require("./engine/control/XSelect");
-const { NodeTools, DataType, NodeType } = require("./hcs/NodeTools");
-const { ModifyNode } = require("./hcs/ModifyNode");
-const { CanvasInput } = require("./hcs/CanvasInput");
-const { RightMenu } = require("./engine/RightMenu");
-const { XTexture } = require("./engine/graphics/XTexture");
-const { XTools } = require("./engine/XTools");
+const { XMessage } = require('./message/XMessage');
+const { Lexer } = require('./hcs/lexer');
+const { Generator } = require('./hcs/Generator');
+const { Scr } = require('./engine/XDefine');
+const { XButton } = require('./engine/control/XButton');
+const { AttrEditor } = require('./AttrEditor');
+const { NapiLog } = require('./hcs/NapiLog');
+const { XSelect } = require('./engine/control/XSelect');
+const { NodeTools, DataType, NodeType } = require('./hcs/NodeTools');
+const { ModifyNode } = require('./hcs/ModifyNode');
+const { CanvasInput } = require('./hcs/CanvasInput');
+const { RightMenu } = require('./engine/RightMenu');
+const { XTexture } = require('./engine/graphics/XTexture');
+const { XTools } = require('./engine/XTools');
 
-const { ObjectType } = require("./hcs/ast");
+const { ObjectType } = require('./hcs/ast');
 var DISPLAY_TEXT_MAX = 30;
 var ELLIPSIS_LEN = 3;
 var EQUAL_SIGN_LEN = 3;
@@ -56,9 +56,9 @@ function getVsCodeTheme() {
   MainEditor.CANVAS_BG = 0xff272727;
   MainEditor.CANVAS_LINE = 0xff000000;
   MainEditor.NODE_TEXT_COLOR = 0xffffffff;
-  let canvasBg = document.getElementById("canvas_bg");
+  let canvasBg = document.getElementById('canvas_bg');
   var bgStyle = document.defaultView.getComputedStyle(canvasBg, null);
-  var bgColor = bgStyle.getPropertyValue("background-color").match(/\d{1,3}/g);
+  var bgColor = bgStyle.getPropertyValue('background-color').match(/\d{1,3}/g);
   if (bgColor) {
     MainEditor.CANVAS_BG = rgba(bgColor);
     MainEditor.CANVAS_LINE = getDarker(bgColor);
@@ -66,7 +66,7 @@ function getVsCodeTheme() {
     RightMenu.isDarkBackground_ = MainEditor.IS_DARK_BG;
   }
 
-  var txtColor = bgStyle.getPropertyValue("color").match(/\d{1,3}/g);
+  var txtColor = bgStyle.getPropertyValue('color').match(/\d{1,3}/g);
   if (txtColor) {
     MainEditor.NODE_TEXT_COLOR = rgba(txtColor);
   }
@@ -95,10 +95,10 @@ class MainEditor {
     this.nodeBtnPoint_ = 0;
     this.nodeMoreBtnPoint_ = 0;
     XMessage.gi().registRecvCallback(this.onReceive);
-    XMessage.gi().send("inited", "");
+    XMessage.gi().send('inited', '');
     AttrEditor.gi().freshEditor();
 
-    this.sltInclude = new XSelect(["a", "b", "c"], "b");
+    this.sltInclude = new XSelect(['a', 'b', 'c'], 'b');
     this.sltInclude.registCallback(this.onSelectInclude);
     NapiLog.registError(this.onError);
     this.errorMsg_ = [];
@@ -165,7 +165,7 @@ class MainEditor {
     };
 
     this.whiteImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle.png"
+      '../images/rectangle.png'
     );
     this.whiteCut_ = XTexture.gi().makeCut(
       this.whiteImg_,
@@ -176,9 +176,9 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_["whiteCut"] = "rectangle.png";
+    this.cutImgDict_['whiteCut'] = 'rectangle.png';
 
-    this.cicleImg_ = XTexture.gi().loadTextureFromImage("../images/circle.png");
+    this.cicleImg_ = XTexture.gi().loadTextureFromImage('../images/circle.png');
     this.circleCut_ = XTexture.gi().makeCut(
       this.cicleImg_,
       0,
@@ -188,10 +188,10 @@ class MainEditor {
       20,
       20
     );
-    this.cutImgDict_["circleCut"] = "circle.png";
+    this.cutImgDict_['circleCut'] = 'circle.png';
 
     this.cicleOpenImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/circle_open.png"
+      '../images/circle_open.png'
     );
     this.circleOpenCut_ = XTexture.gi().makeCut(
       this.cicleOpenImg_,
@@ -202,10 +202,10 @@ class MainEditor {
       20,
       20
     );
-    this.cutImgDict_["circleOpenCut"] = "circle_open.png";
+    this.cutImgDict_['circleOpenCut'] = 'circle_open.png';
 
     this.rectangleFocusImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle_focus.png"
+      '../images/rectangle_focus.png'
     );
     this.rectangleFocusCut_ = XTexture.gi().makeCut(
       this.rectangleFocusImg_,
@@ -216,10 +216,10 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_["rectangleFocusCut"] = "rectangle_focus.png";
+    this.cutImgDict_['rectangleFocusCut'] = 'rectangle_focus.png';
 
     this.nodeIconImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/node_icon.png"
+      '../images/node_icon.png'
     );
     this.nodeIconCut_ = XTexture.gi().makeCut(
       this.nodeIconImg_,
@@ -230,10 +230,10 @@ class MainEditor {
       8,
       8
     );
-    this.cutImgDict_["nodeIconCut"] = "node_icon.png";
+    this.cutImgDict_['nodeIconCut'] = 'node_icon.png';
 
     this.attrIconImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/attribute_icon.png"
+      '../images/attribute_icon.png'
     );
     this.attrIconCut_ = XTexture.gi().makeCut(
       this.attrIconImg_,
@@ -244,10 +244,10 @@ class MainEditor {
       8,
       8
     );
-    this.cutImgDict_["attrIconCut"] = "attribute_icon.png";
+    this.cutImgDict_['attrIconCut'] = 'attribute_icon.png';
 
     this.rootIconImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/root_btn.png"
+      '../images/root_btn.png'
     );
     this.rootIconCut_ = XTexture.gi().makeCut(
       this.rootIconImg_,
@@ -258,10 +258,10 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_["rootIconCut"] = "root_btn.png";
+    this.cutImgDict_['rootIconCut'] = 'root_btn.png';
 
     this.rootIconFocusImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/root_btn_focus.png"
+      '../images/root_btn_focus.png'
     );
     this.rootIconFocusCut_ = XTexture.gi().makeCut(
       this.rootIconFocusImg_,
@@ -272,10 +272,10 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_["rootIconFocusCut"] = "root_btn_focus.png";
+    this.cutImgDict_['rootIconFocusCut'] = 'root_btn_focus.png';
 
     this.leftRectCicleImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle.png"
+      '../images/rectangle.png'
     );
     this.leftRectCicleCut_ = XTexture.gi().makeCut(
       this.leftRectCicleImg_,
@@ -287,7 +287,7 @@ class MainEditor {
       32
     );
     this.centerRectImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle.png"
+      '../images/rectangle.png'
     );
     this.centerRectCut_ = XTexture.gi().makeCut(
       this.centerRectImg_,
@@ -299,7 +299,7 @@ class MainEditor {
       32
     );
     this.rightRectCicleImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle.png"
+      '../images/rectangle.png'
     );
     this.rightRectCicleCut_ = XTexture.gi().makeCut(
       this.rightRectCicleImg_,
@@ -312,7 +312,7 @@ class MainEditor {
     );
 
     this.leftRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle_focus.png"
+      '../images/rectangle_focus.png'
     );
     this.leftRectFocusCicleCut_ = XTexture.gi().makeCut(
       this.leftRectFocusCicleImg_,
@@ -324,7 +324,7 @@ class MainEditor {
       32
     );
     this.centerFocusImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle_focus.png"
+      '../images/rectangle_focus.png'
     );
     this.centerFocusCut_ = XTexture.gi().makeCut(
       this.centerFocusImg_,
@@ -336,7 +336,7 @@ class MainEditor {
       32
     );
     this.rightRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/rectangle_focus.png"
+      '../images/rectangle_focus.png'
     );
     this.rightRectFocusCicleCut_ = XTexture.gi().makeCut(
       this.rightRectFocusCicleImg_,
@@ -349,9 +349,9 @@ class MainEditor {
     );
 
     let bgPic = RightMenu.isDarkBackground_
-      ? "pop_background.png"
-      : "pop_background_light.png";
-    let bgPicPath = "../images/" + bgPic;
+      ? 'pop_background.png'
+      : 'pop_background_light.png';
+    let bgPicPath = '../images/' + bgPic;
     RightMenu.backgroundImg_ = XTexture.gi().loadTextureFromImage(bgPicPath);
     RightMenu.backgroundCut_ = XTexture.gi().makeCut(
       RightMenu.backgroundImg_,
@@ -362,10 +362,10 @@ class MainEditor {
       156,
       112
     );
-    this.cutImgDict_["backgroundCut"] = bgPic;
+    this.cutImgDict_['backgroundCut'] = bgPic;
 
     RightMenu.popItemFocusImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/pop_item_focus.png"
+      '../images/pop_item_focus.png'
     );
     RightMenu.popItemFocusCut_ = XTexture.gi().makeCut(
       RightMenu.popItemFocusImg_,
@@ -376,10 +376,10 @@ class MainEditor {
       148,
       32
     );
-    this.cutImgDict_["popItemFocusCut"] = "pop_item_focus.png";
+    this.cutImgDict_['popItemFocusCut'] = 'pop_item_focus.png';
 
     this.searchBgImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/search_bg.png"
+      '../images/search_bg.png'
     );
     this.searchBgCut_ = XTexture.gi().makeCut(
       this.searchBgImg_,
@@ -390,21 +390,21 @@ class MainEditor {
       494,
       56
     );
-    this.cutImgDict_["searchBgCut"] = "search_bg.png";
+    this.cutImgDict_['searchBgCut'] = 'search_bg.png';
 
     this.upImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/chevron-up.png"
+      '../images/chevron-up.png'
     );
     this.upCut_ = XTexture.gi().makeCut(this.upImg_, 0, 0, 16, 16, 16, 16);
-    this.cutImgDict_["upCut"] = "chevron-up.png";
+    this.cutImgDict_['upCut'] = 'chevron-up.png';
 
     this.downImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/chevron-down.png"
+      '../images/chevron-down.png'
     );
     this.downCut_ = XTexture.gi().makeCut(this.downImg_, 0, 0, 16, 16, 16, 16);
-    this.cutImgDict_["downCut"] = "chevron-down.png";
+    this.cutImgDict_['downCut'] = 'chevron-down.png';
 
-    this.closeImg_ = XTexture.gi().loadTextureFromImage("../images/close.png");
+    this.closeImg_ = XTexture.gi().loadTextureFromImage('../images/close.png');
     this.closeCut_ = XTexture.gi().makeCut(
       this.closeImg_,
       0,
@@ -414,10 +414,10 @@ class MainEditor {
       16,
       16
     );
-    this.cutImgDict_["closeCut"] = "close.png";
+    this.cutImgDict_['closeCut'] = 'close.png';
 
     this.searchImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/search.png"
+      '../images/search.png'
     );
     this.searchCut_ = XTexture.gi().makeCut(
       this.searchImg_,
@@ -428,10 +428,10 @@ class MainEditor {
       16,
       16
     );
-    this.cutImgDict_["searchCut"] = "search.png";
+    this.cutImgDict_['searchCut'] = 'search.png';
 
     this.searchRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/search_nood_rect.png"
+      '../images/search_nood_rect.png'
     );
     this.leftSearchFocusCicleCut_ = XTexture.gi().makeCut(
       this.searchRectFocusCicleImg_,
@@ -460,10 +460,10 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_["searchNoodRectImg"] = "search_nood_rect.png";
+    this.cutImgDict_['searchNoodRectImg'] = 'search_nood_rect.png';
 
     this.searchAttrCicleImg_ = XTexture.gi().loadTextureFromImage(
-      "../images/search_attr_rect.png"
+      '../images/search_attr_rect.png'
     );
     this.leftSearchAttrCicleCut_ = XTexture.gi().makeCut(
       this.searchAttrCicleImg_,
@@ -492,9 +492,9 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_["searchAttrRectImg"] = "search_attr_rect.png";
+    this.cutImgDict_['searchAttrRectImg'] = 'search_attr_rect.png';
 
-    XMessage.gi().send("cutImgDict", {
+    XMessage.gi().send('cutImgDict', {
       data: this.cutImgDict_,
     });
     this.modifyPos_ = null;
@@ -509,9 +509,9 @@ class MainEditor {
 
   reloadMenuBgPic() {
     let bgPic = RightMenu.isDarkBackground_
-      ? "pop_background.png"
-      : "pop_background_light.png";
-    let bgPicPath = "../images/" + bgPic;
+      ? 'pop_background.png'
+      : 'pop_background_light.png';
+    let bgPicPath = '../images/' + bgPic;
     RightMenu.backgroundImg_ = XTexture.gi().loadTextureFromImage(bgPicPath);
     RightMenu.backgroundCut_ = XTexture.gi().makeCut(
       RightMenu.backgroundImg_,
@@ -522,8 +522,8 @@ class MainEditor {
       156,
       112
     );
-    this.cutImgDict_["backgroundCut"] = bgPic;
-    XMessage.gi().send("reloadMenuBg", {
+    this.cutImgDict_['backgroundCut'] = bgPic;
+    XMessage.gi().send('reloadMenuBg', {
       data: bgPic,
     });
   }
@@ -566,7 +566,7 @@ class MainEditor {
         y += MainEditor.LINE_HEIGHT;
         break;
       default:
-        NapiLog.logError("unknow" + data.type_);
+        NapiLog.logError('unknow' + data.type_);
         break;
     }
     if (y > ty) {
@@ -580,31 +580,31 @@ class MainEditor {
       case 0:
         return data.name_;
       case 3:
-        return data.name_ + " : delete";
+        return data.name_ + ' : delete';
       case 4:
-        return "templete " + data.name_;
+        return 'templete ' + data.name_;
       case 5:
-        if (data.ref_ == "unknow") {
+        if (data.ref_ == 'unknow') {
           return data.name_;
         }
-        return data.name_ + " :: " + data.ref_;
+        return data.name_ + ' :: ' + data.ref_;
       case 1:
-        if (data.ref_ == "unknow") {
+        if (data.ref_ == 'unknow') {
           return data.name_;
         }
-        return data.name_ + " : " + data.ref_;
+        return data.name_ + ' : ' + data.ref_;
       case 2:
-        if (data.ref_ == "unknow") {
+        if (data.ref_ == 'unknow') {
           return data.name_;
         }
-        return data.name_ + " : &" + data.ref_;
+        return data.name_ + ' : &' + data.ref_;
       default:
-        return "unknow node type";
+        return 'unknow node type';
     }
   }
 
   drawNode(pm2f, s, size, x, y, type, data) {
-    let w = pm2f.getTextWidth(type == DataType.ATTR ? s + " = " : s, size);
+    let w = pm2f.getTextWidth(type == DataType.ATTR ? s + ' = ' : s, size);
     if (data.parent_ == undefined) {
       return w;
     }
@@ -614,25 +614,25 @@ class MainEditor {
       if (s.length < 25) {
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        pm2f.drawText(" = ", size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
+        pm2f.drawText(' = ', size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
       } else if (s.length == 25) {
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        pm2f.drawText(" =", size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
+        pm2f.drawText(' =', size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
       } else if (s.length == 26) {
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        pm2f.drawText("=", size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
+        pm2f.drawText('=', size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
       } else if (s.length > 26) {
-        s = s.substring(0, lenDisplay) + "...";
+        s = s.substring(0, lenDisplay) + '...';
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
           y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
       }
     } else {
-      pm2f.drawText(s.length > DISPLAY_TEXT_MAX ? s.substring(0, 27) + "..." : s, size, x - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
+      pm2f.drawText( s.length > DISPLAY_TEXT_MAX ? s.substring(0, 27) + '...' : s, size, x - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
         y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     }
     return w;
@@ -679,20 +679,20 @@ class MainEditor {
   }
 
   arrayNodeProc(w, pm2f, data, offx, offy) {
-    let ss = "[" + data.value_.length + "]" + NodeTools.arrayToString(data);
-    let keyAndValue = data.parent_.name_ + " = ";
+    let ss = '[' + data.value_.length + ']' + NodeTools.arrayToString(data);
+    let keyAndValue = data.parent_.name_ + ' = ';
     if (keyAndValue.length >= 30) {
       return;
     } else if (keyAndValue.length == 29) {
-      w = pm2f.drawText(".", 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      w = pm2f.drawText('.', 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     } else if (keyAndValue.length == 28) {
-      w = pm2f.drawText("..", 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      w = pm2f.drawText('..', 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     } else if (keyAndValue.length == 27) {
-      w = pm2f.drawText( "...", 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      w = pm2f.drawText('...', 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     } else if (keyAndValue.length < 27) {
       let displayValueLen = DISPLAY_TEXT_MAX - keyAndValue.length;
       if (ss.length > displayValueLen) {
-        ss = ss.substring(0, displayValueLen - 3) + "...";
+        ss = ss.substring(0, displayValueLen - 3) + '...';
       }
       w = pm2f.drawText(ss, 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     }
@@ -711,21 +711,21 @@ class MainEditor {
           data.value_[i].parent_.type_ == 6 &&
           data.value_[i].parent_.isOpen_
         ) {
-          this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + ".");
+          this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
           this.drawBrokenLine(pm2f, data, offy, i);
         } else if (data.value_[i].parent_.type_ == DataType.ATTR) {
-          this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + ".");
+          this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
           pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-            data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
+          data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
         } else {
-          NapiLog.logInfo("Node collapse does not need to draw child node");
+          NapiLog.logInfo('Node collapse does not need to draw child node');
         }
       }
     } else {
       for (let i in data.value_) {
-        this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + ".");
+        this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
         pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-          data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
+        data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
       }
     }
   }
@@ -737,7 +737,7 @@ class MainEditor {
     if (this.maxX < offx) {
       this.maxX = offx;
     }
-    let parentTextWidth = pm2f.getTextWidth(" = ", MainEditor.NODE_TEXT_SIZE);
+    let parentTextWidth = pm2f.getTextWidth(' = ', MainEditor.NODE_TEXT_SIZE);
     let drawTextX_ = offx + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE + parentTextWidth;
     let drawTextY_ = offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2;
     switch (data.type_) {
@@ -750,9 +750,9 @@ class MainEditor {
         break;
       case 5:
         let value = data.value_;
-        let keyAndValue = data.parent_.name_ + " = " + data.value_;
+        let keyAndValue = data.parent_.name_ + ' = ' + data.value_;
         if (keyAndValue.length > DISPLAY_TEXT_MAX) {
-          value = keyAndValue.substring((data.parent_.name_ + " = ").length, 27) + "...";
+          value = keyAndValue.substring((data.parent_.name_ + ' = ').length, 27) + '...';
         }
         w = pm2f.drawText('"' + value + '"', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
           1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
@@ -776,32 +776,32 @@ class MainEditor {
         this.arrayNodeProc(w, pm2f, data, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), offy);
         break;
       case 9:
-        let content = data.parent_.name_ + " = ";
+        let content = data.parent_.name_ + ' = ';
         if (content.length > DISPLAY_TEXT_MAX) {
-          content = "";
+          content = '';
         } else if ((content + data.value_).length > DISPLAY_TEXT_MAX) {
-          content = data.value_.substring((data.parent_.name_ + " = ").length, 27) + "...";
+          content = data.value_.substring((data.parent_.name_ + ' = ').length, 27) + '...';
         } else {
           content = data.value_;
         }
-        w = pm2f.drawText("&" + content, MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+        w = pm2f.drawText('&' + content, MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
           1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
       case 10:
-        w = pm2f.drawText("delete", MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+        w = pm2f.drawText('delete', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
           1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
       case 11:
         if (data.value_) {
-          w = pm2f.drawText("true", MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+          w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
             1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         } else {
-          w = pm2f.drawText( "false", MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+          w = pm2f.drawText('false', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
             1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         }
         break;
       default:
-        NapiLog.logError("unknow" + data.type_);
+        NapiLog.logError('unknow' + data.type_);
         break;
     }
     if (data.errMsg_ != null) {
@@ -840,7 +840,7 @@ class MainEditor {
         let displayValue;
         if (node.value_.type_ == ObjectType.PARSEROP_ARRAY) {
           let arrayValue = NodeTools.arrayToString(node.value_);
-          displayValue = "[" + node.value_.value_.length + "]" + arrayValue;
+          displayValue = '[' + node.value_.value_.length + ']' + arrayValue;
         } else if (
           node.value_.type_ == ObjectType.PARSEROP_UINT8 ||
           node.value_.type_ == ObjectType.PARSEROP_UINT16 ||
@@ -852,12 +852,12 @@ class MainEditor {
             node.value_.jinzhi_
           );
         } else if (node.value_.type_ == ObjectType.PARSEROP_DELETE) {
-          displayValue = "delete";
+          displayValue = 'delete';
         } else if (node.value_.type_ == ObjectType.PARSEROP_BOOL) {
           if (node.value_) {
-            displayValue = "true";
+            displayValue = 'true';
           } else {
-            displayValue = "false";
+            displayValue = 'false';
           }
         } else {
           displayValue = node.value_.value_;
@@ -866,23 +866,23 @@ class MainEditor {
         let keyAndValue;
         let lenDisplay = 27;
         if (node.name_.length <= lenDisplay) {
-          keyAndValue = node.name_ + " = " + displayValue;
+          keyAndValue = node.name_ + ' = ' + displayValue;
         } else if (node.name_.length == lenDisplay + 1) {
-          keyAndValue = node.name_ + " =";
+          keyAndValue = node.name_ + ' =';
         } else if (node.name_.length == lenDisplay + 2) {
-          keyAndValue = node.name_ + "=";
+          keyAndValue = node.name_ + '=';
         } else if (node.name_.length >= DISPLAY_TEXT_MAX) {
           keyAndValue = node.name_;
         }
 
         if (keyAndValue.length >= DISPLAY_TEXT_MAX) {
-          keyAndValue = keyAndValue.substring(0, 27) + "...";
+          keyAndValue = keyAndValue.substring(0, 27) + '...';
         }
         rectWidth = pm2f.getTextWidth(keyAndValue, MainEditor.NODE_TEXT_SIZE);
       } else {
         rectWidth = pm2f.getTextWidth(
           this.getNodeText(node).length > DISPLAY_TEXT_MAX
-            ? this.getNodeText(node).substring(0, 27) + "..."
+            ? this.getNodeText(node).substring(0, 27) + '...'
             : this.getNodeText(node),
           MainEditor.NODE_TEXT_SIZE
         );
@@ -937,13 +937,13 @@ class MainEditor {
       }
     } else {
       if (this.searchKey != null && node.name_.indexOf(this.searchKey) > -1 && this.isSearchResult_) {
-        pm2f.drawCut(this.leftSearchFocusCicleCut_, x - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
+        pm2f.drawCut( this.leftSearchFocusCicleCut_, x - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
         pm2f.drawCut(this.centerSearchCut_, x + 8 - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y, width / 116);
-        pm2f.drawCut(this.rightSearchFocusCicleCut_, x + 8 + width - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
+        pm2f.drawCut( this.rightSearchFocusCicleCut_, x + 8 + width - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
       } else {
         pm2f.drawCut( this.leftRectCicleCut_, x - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
         pm2f.drawCut( this.centerRectCut_, x + 8 - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y, width / 116);
-        pm2f.drawCut( this.rightRectCicleCut_, x + 8 + width - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
+        pm2f.drawCut(this.rightRectCicleCut_, x + 8 + width - (MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_), y);
       }
     }
     node.nodeWidth_ = 8 * 2 + width;
@@ -1006,14 +1006,14 @@ class MainEditor {
         this.offX_ = 0;
         this.offY_ = -data.posY + Scr.logich / 2;
         this.maxX = 0;
-        this.drawObj(pm2f, data, this.offX_, this.offY_, "");
+        this.drawObj(pm2f, data, this.offX_, this.offY_, '');
         pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
         this.offX_ = (Scr.logicw - this.maxX) / 2;
         this.isFirstDraw = false;
       }
       this.nodeBtnPoint_ = 0;
       this.nodeMoreBtnPoint_ = 0;
-      this.drawObj(pm2f, data, this.offX_, this.offY_, "");
+      this.drawObj(pm2f, data, this.offX_, this.offY_, '');
     }
     pm2f.fillRect(0, 0, window.innerWidth, 4, MainEditor.CANVAS_LINE);
     pm2f.fillRect(
@@ -1035,9 +1035,9 @@ class MainEditor {
     this.sltInclude.move(16, 20, window.innerWidth - 420 - 4 - 16, 20).draw();
 
     if (this.selectNode_.type != null) {
-      if (this.selectNode_.type == "change_target") {
+      if (this.selectNode_.type == 'change_target') {
         pm2f.drawText(
-          "点击选择目标",
+          '点击选择目标',
           14,
           this.mousePos_.x,
           this.mousePos_.y,
@@ -1048,10 +1048,10 @@ class MainEditor {
           -3,
           MainEditor.NODE_TEXT_COLOR
         );
-        this.btnCancelSelect_.name_ = "取消选择";
-      } else if (this.selectNode_.type == "copy_node") {
+        this.btnCancelSelect_.name_ = '取消选择';
+      } else if (this.selectNode_.type == 'copy_node') {
         pm2f.drawText(
-          "已复制" + this.selectNode_.pnode.name_,
+          '已复制' + this.selectNode_.pnode.name_,
           14,
           this.mousePos_.x,
           this.mousePos_.y,
@@ -1062,10 +1062,10 @@ class MainEditor {
           -3,
           MainEditor.NODE_TEXT_COLOR
         );
-        this.btnCancelSelect_.name_ = "取消复制";
-      } else if (this.selectNode_.type == "cut_node") {
+        this.btnCancelSelect_.name_ = '取消复制';
+      } else if (this.selectNode_.type == 'cut_node') {
         pm2f.drawText(
-          "已剪切" + this.selectNode_.pnode.name_,
+          '已剪切' + this.selectNode_.pnode.name_,
           18,
           this.mousePos_.x,
           this.mousePos_.y,
@@ -1076,7 +1076,7 @@ class MainEditor {
           -3,
           MainEditor.NODE_TEXT_COLOR
         );
-        this.btnCancelSelect_.name_ = "取消剪切";
+        this.btnCancelSelect_.name_ = '取消剪切';
       }
       this.btnCancelSelect_.move(Scr.logicw - 250, Scr.logich - 30, 100, 20);
     }
@@ -1120,8 +1120,8 @@ class MainEditor {
 
       let searchResultTxt =
         this.searchInput.result.length == 0
-          ? "No result"
-          : this.searchInput.point + 1 + "/" + this.searchInput.result.length;
+          ? 'No result'
+          : this.searchInput.point + 1 + '/' + this.searchInput.result.length;
       x += pm2f.drawText(
         searchResultTxt,
         MainEditor.NODE_TEXT_SIZE,
@@ -1150,14 +1150,14 @@ class MainEditor {
   buttonClickedProc(nodeBtns) {
     if (
       this.selectNode_.type == null ||
-      this.selectNode_.type == "copy_node" ||
-      this.selectNode_.type == "cut_node"
+      this.selectNode_.type == 'copy_node' ||
+      this.selectNode_.type == 'cut_node'
     ) {
       this.nodePoint_ = nodeBtns.node_;
       AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
       return true;
     }
-    if (this.selectNode_.type == "change_target") {
+    if (this.selectNode_.type == 'change_target') {
       let pn = nodeBtns.node_;
       if (pn.type_ == DataType.NODE) {
         if (this.selectNode_.pnode.type_ == DataType.NODE) {
@@ -1182,9 +1182,9 @@ class MainEditor {
 
         this.selectNode_.type = null;
         AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
-        this.onAttributeChange("writefile");
+        this.onAttributeChange('writefile');
       } else {
-        XMessage.gi().send("WrongNode", "");
+        XMessage.gi().send('WrongNode', '');
       }
     }
     return true;
@@ -1262,22 +1262,22 @@ class MainEditor {
         if (nodeBtns.isClicked()) {
           this.buttonClickedProc(nodeBtns);
         } else if (nodeBtns.isRightClicked()) {
-          this.onAttributeChange("change_current_select", nodeBtns.node_);
+          this.onAttributeChange('change_current_select', nodeBtns.node_);
           switch (nodeBtns.node_.type_) {
             case 6:
               RightMenu.Reset(
                 [
-                  RightMenu.Button(null, "Add Child Node", null, () => {
+                  RightMenu.Button(null, 'Add Child Node', null, () => {
                     this.procAddNodeAction();
-                    this.onAttributeChange("writefile");
+                    this.onAttributeChange('writefile');
                   }),
-                  RightMenu.Button(null, "Add Sub Property", null, () => {
+                  RightMenu.Button(null, 'Add Sub Property', null, () => {
                     this.procAddAttAction();
-                    this.onAttributeChange("writefile");
+                    this.onAttributeChange('writefile');
                   }),
-                  RightMenu.Button(null, "Delete", null, () => {
+                  RightMenu.Button(null, 'Delete', null, () => {
                     this.procDeleteAction();
-                    this.onAttributeChange("writefile");
+                    this.onAttributeChange('writefile');
                   }),
                 ],
                 nodeBtns.posX_,
@@ -1287,9 +1287,9 @@ class MainEditor {
             case 7:
               RightMenu.Reset(
                 [
-                  RightMenu.Button(null, "Delete", null, () => {
+                  RightMenu.Button(null, 'Delete', null, () => {
                     this.procDeleteAction();
-                    this.onAttributeChange("writefile");
+                    this.onAttributeChange('writefile');
                   }),
                 ],
                 nodeBtns.posX_,
@@ -1330,17 +1330,17 @@ class MainEditor {
 
   procAddNodeAction() {
     let pattr = AttrEditor.gi();
-    pattr.changeDataNodeNotInherit("add_child_node", "button", "");
+    pattr.changeDataNodeNotInherit('add_child_node', 'button', '');
   }
 
   procAddAttAction() {
     let pattr = AttrEditor.gi();
-    pattr.changeDataNodeNotInherit("add_child_attr", "button", "");
+    pattr.changeDataNodeNotInherit('add_child_attr', 'button', '');
   }
 
   procDeleteAction() {
     let pattr = AttrEditor.gi();
-    pattr.changeDataNodeNotInherit("delete", "button", "");
+    pattr.changeDataNodeNotInherit('delete', 'button', '');
   }
   searchNodeByName(data, name, out) {
     this.searchKey = name;
@@ -1376,12 +1376,12 @@ class MainEditor {
     AttrEditor.gi().freshEditor();
   }
   procKey(k) {
-    if (k == "ctrl+z") {
+    if (k == 'ctrl+z') {
       if (this.selectNode_.type != null) {
         this.selectNode_.type = null;
       }
 
-      console.log("!!! popHistory ", this.historyZ.length);
+      console.log('!!! popHistory ', this.historyZ.length);
       let h;
       if (this.historyZ.length <= 0) {
         h = this.historyBase[this.filePoint_];
@@ -1406,20 +1406,20 @@ class MainEditor {
         this.nodePoint_ = null;
       }
       AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
-    } else if (k == "ctrl+f") {
+    } else if (k == 'ctrl+f') {
       this.searchInput = {
         pos: [(Scr.logicw - 300) / 2, Scr.logich / 4, 450, 40],
         result: [],
         point: 0,
-        btnUp: new XButton(0, 0, 0, 0, "上一个"),
-        btnDown: new XButton(0, 0, 0, 0, "下一个"),
-        btnClose: new XButton(0, 0, 0, 0, "关闭"),
+        btnUp: new XButton(0, 0, 0, 0, '上一个'),
+        btnDown: new XButton(0, 0, 0, 0, '下一个'),
+        btnClose: new XButton(0, 0, 0, 0, '关闭'),
       };
       let x = this.searchInput.pos[0];
       let y = this.searchInput.pos[1];
       let w = this.searchInput.pos[2];
       let h = this.searchInput.pos[3];
-      CanvasInput.Reset(x, y + (h - 20) / 2, 258, 32, "", null, (v) => {
+      CanvasInput.Reset(x, y + (h - 20) / 2, 258, 32, '', null, (v) => {
         this.searchInput.result = [];
         if (v.length > 0) {
           this.searchNodeByName(
@@ -1434,33 +1434,33 @@ class MainEditor {
         }
       });
       CanvasInput.SetSafeArea(...this.searchInput.pos);
-    } else if (k == "ctrl+c") {
+    } else if (k == 'ctrl+c') {
       if (this.nodePoint_ != null) {
         this.selectNode_ = {
-          type: "copy_node",
+          type: 'copy_node',
           pnode: this.nodePoint_,
         };
       }
-    } else if (k == "ctrl+x") {
+    } else if (k == 'ctrl+x') {
       if (this.nodePoint_ != null) {
         this.selectNode_ = {
-          type: "cut_node",
+          type: 'cut_node',
           pnode: this.nodePoint_,
         };
       }
-    } else if (k == "ctrl+v") {
+    } else if (k == 'ctrl+v') {
       if (this.selectNode_.type != null && this.nodePoint_ != null) {
         let parent = this.nodePoint_;
         if (this.nodePoint_.type_ != DataType.NODE)
           parent = this.nodePoint_.parent_;
         parent.value_.push(NodeTools.copyNode(this.selectNode_.pnode, parent));
-        if (this.selectNode_.type == "cut_node") {
+        if (this.selectNode_.type == 'cut_node') {
           ModifyNode.deleteNode(this.selectNode_.pnode);
           this.selectNode_.type = null;
         }
         this.checkAllError();
       }
-    } else if (k == "Delete") {
+    } else if (k == 'Delete') {
       if (this.nodePoint_ != null) {
         ModifyNode.deleteNode(this.nodePoint_);
         AttrEditor.gi().freshEditor();
@@ -1508,7 +1508,7 @@ class MainEditor {
       case 11:
         break;
       default:
-        NapiLog.logError("unknow" + data.type_);
+        NapiLog.logError('unknow' + data.type_);
         break;
     }
     return ret;
@@ -1525,7 +1525,7 @@ class MainEditor {
     return false;
   }
   saveHistory(fn, data2, pth, pos = null) {
-    console.log("!!! save History ", this.historyZ.length, pos);
+    console.log('!!! save History ', this.historyZ.length, pos);
     if (fn in this.historyBase) {
       this.historyZ.push({
         fn: fn,
@@ -1543,7 +1543,7 @@ class MainEditor {
   }
   onAttributeChange(type, value) {
     let pme = MainEditor.gi();
-    if (type == "writefile") {
+    if (type == 'writefile') {
       let data1 = Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_]);
       let data2 = [];
       for (let j in data1) {
@@ -1569,17 +1569,17 @@ class MainEditor {
         AttrEditor.gi().freshEditor(pme.filePoint_, pme.nodePoint_);
       }
       pme.checkAllError();
-      XMessage.gi().send("writefile", {
+      XMessage.gi().send('writefile', {
         fn: pme.filePoint_,
         data: data1,
       });
       pme.saveHistory(pme.filePoint_, data2, NodeTools.getPathByNode(pme.nodePoint_), 1);
-    } else if (type.substring(0, 13) == "change_target") {
+    } else if (type.substring(0, 13) == 'change_target') {
       pme.selectNode_.type = type;
       pme.selectNode_.pnode = value;
-    } else if (type.startsWith("cancel_change_target")) {
+    } else if (type.startsWith('cancel_change_target')) {
       pme.selectNode_.type = null;
-    } else if (type == "change_current_select") {
+    } else if (type == 'change_current_select') {
       pme.nodePoint_ = value;
       AttrEditor.gi().freshEditor(pme.filePoint_, pme.nodePoint_);
     }
@@ -1592,107 +1592,107 @@ class MainEditor {
     this.keyQueue_.push(k);
   }
   onReceive(type, data) {
-    console.log("onReceive type=" + type);
+    console.log('onReceive type=' + type);
     NapiLog.logError(type);
     let me = MainEditor.gi();
-    if (type == "parse") {
+    if (type == 'parse') {
       me.parse(data);
-    } else if (type == "filedata") {
+    } else if (type == 'filedata') {
       me.saveHistory(data.fn, data.data, null, 2);
       Lexer.FILE_AND_DATA[data.fn] = data.data;
       me.parse(data.fn);
-    } else if (type == "freshfiledata") {
+    } else if (type == 'freshfiledata') {
       me.saveHistory(data.fn, data.data, null, 3);
       Lexer.FILE_AND_DATA[data.fn] = data.data;
-    } else if (type == "whiteCutImg") {
+    } else if (type == 'whiteCutImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initCutData(wurl);
-    } else if (type == "circleImg") {
+    } else if (type == 'circleImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initCicleImgData(wurl);
-    } else if (type == "cicleOpenImg") {
+    } else if (type == 'cicleOpenImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initcicleOpenImgData(wurl);
-    } else if (type == "rectangleFocusImg") {
+    } else if (type == 'rectangleFocusImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initRectangleFocusImgData(wurl);
-    } else if (type == "nodeIconImg") {
+    } else if (type == 'nodeIconImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initNodeIconImgData(wurl);
-    } else if (type == "attrIconImg") {
+    } else if (type == 'attrIconImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initAttrIconImgData(wurl);
-    } else if (type == "rootIconImg") {
+    } else if (type == 'rootIconImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initRootIconImgData(wurl);
-    } else if (type == "rootIconFocusImg") {
+    } else if (type == 'rootIconFocusImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initRootIconFocusImgData(wurl);
-    } else if (type == "backgroundImg") {
+    } else if (type == 'backgroundImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initBackgroundImgData(wurl);
-    } else if (type == "popItemFocusImg") {
+    } else if (type == 'popItemFocusImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initPopItemFocusImgData(wurl);
-    } else if (type == "colorThemeChanged") {
+    } else if (type == 'colorThemeChanged') {
       me.reloadMenuBgPic();
-    } else if (type == "searchBgImg") {
+    } else if (type == 'searchBgImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initSearchBgImgData(wurl);
-    } else if (type == "upCutImg") {
+    } else if (type == 'upCutImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initUpImgData(wurl);
-    } else if (type == "downCut") {
+    } else if (type == 'downCut') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initDownImgData(wurl);
-    } else if (type == "closeCutImg") {
+    } else if (type == 'closeCutImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initCloseImgData(wurl);
-    } else if (type == "searchCutImg") {
+    } else if (type == 'searchCutImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initSearchImgData(wurl);
-    } else if (type == "searchNoodRectImg") {
+    } else if (type == 'searchNoodRectImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initSearchNoodRectImgData(wurl);
-    } else if (type == "searchAttrRectImg") {
+    } else if (type == 'searchAttrRectImg') {
       let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: "image/png" });
+      let imgobj = new Blob([u8arr], { type: 'image/png' });
       let wurl = window.URL.createObjectURL(imgobj);
       me.initSearchAttrRectImgData(wurl);
     } else {
-      NapiLog.logError("onReceive is not need");
+      NapiLog.logError('onReceive is not need');
     }
   }
 

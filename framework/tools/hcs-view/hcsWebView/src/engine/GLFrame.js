@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { CanvasInput } from "../hcs/CanvasInput.js";
-import { X2DFast } from "./graphics/X2DFast.js";
-import { Scr } from "./XDefine.js";
-import { XTools } from "./XTools.js";
+import { CanvasInput } from '../hcs/CanvasInput.js';
+import { X2DFast } from './graphics/X2DFast.js';
+import { Scr } from './XDefine.js';
+import { XTools } from './XTools.js';
 
 export var gl;
 var Mouse = {
@@ -35,7 +35,7 @@ var MouseEvent = {
 };
 
 function touchStart(e) {
-  document.addEventListener("contextmenu", function (e) {
+  document.addEventListener('contextmenu', function (e) {
     e.preventDefault();
   });
   e.preventDefault();
@@ -110,25 +110,25 @@ function mouseUp(e) {
 }
 
 function keyDown(e) {
-  let ret = "";
+  let ret = '';
   if (e.ctrlKey) {
-    if (ret.length > 0) ret += "+";
-    ret += "ctrl";
+    if (ret.length > 0) ret += '+';
+    ret += 'ctrl';
   }
   if (e.shiftKey) {
-    if (ret.length > 0) ret += "+";
-    ret += "shift";
+    if (ret.length > 0) ret += '+';
+    ret += 'shift';
   }
   if (e.altKey) {
-    if (ret.length > 0) ret += "+";
-    ret += "alt";
+    if (ret.length > 0) ret += '+';
+    ret += 'alt';
   }
-  if (ret.length > 0) ret += "+";
+  if (ret.length > 0) ret += '+';
   ret += e.key;
   GLFrame.pinstance_.callbackKey(1, ret);
   if (!CanvasInput.FOCUS) {
   }
-  if (ret == "ctrl+z") {
+  if (ret == 'ctrl+z') {
     e.preventDefault();
   }
 }
@@ -145,26 +145,26 @@ export class GLFrame {
   constructor() {}
 
   go(cvs, _draw = null, _touch = null, _key = null, _logic = null) {
-    gl = cvs.getContext("webgl", { premultipliedAlpha: false });
+    gl = cvs.getContext('webgl', { premultipliedAlpha: false });
 
     this.pCallbackDraw = _draw;
     this.pCallbackTouch = _touch;
     this.pCallbackKey = _key;
     this.pCallbackLogic = _logic;
 
-    cvs.addEventListener("touchstart", touchStart);
-    cvs.addEventListener("touchmove", touchMove);
-    cvs.addEventListener("touchend", touchEnd);
+    cvs.addEventListener('touchstart', touchStart);
+    cvs.addEventListener('touchmove', touchMove);
+    cvs.addEventListener('touchend', touchEnd);
 
-    cvs.addEventListener("mousedown", mouseDown);
-    cvs.addEventListener("mousemove", mouseMove);
-    cvs.addEventListener("mouseup", mouseUp);
+    cvs.addEventListener('mousedown', mouseDown);
+    cvs.addEventListener('mousemove', mouseMove);
+    cvs.addEventListener('mouseup', mouseUp);
 
-    document.addEventListener("contextmenu", function (e) {
+    document.addEventListener('contextmenu', function (e) {
       e.preventDefault();
     });
 
-    window.addEventListener("keydown", keyDown);
+    window.addEventListener('keydown', keyDown);
     window.requestAnimationFrame(mainLoop);
   }
   callbackKey(type, code) {

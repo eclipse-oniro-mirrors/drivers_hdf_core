@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-const { NapiLog } = require("./../hcs/NapiLog");
+const { NapiLog } = require('./../hcs/NapiLog');
 export class Scr {
   constructor() {}
   static ReSize(w, h) {
     Scr.width = w;
     Scr.height = h;
-    if (Scr.keeplogicworh == "width") Scr.logich = (Scr.logicw * h) / w;
+    if (Scr.keeplogicworh == 'width') Scr.logich = (Scr.logicw * h) / w;
     else Scr.logicw = (Scr.logich * w) / h;
   }
   static setLogicScreenSize(w, h) {
@@ -29,8 +29,8 @@ export class Scr {
     Scr.logich = h;
     Scr.width = w;
     Scr.height = h;
-    NapiLog.logError("setLogicScreenSize");
-    if ("undefined" != typeof wx) {
+    NapiLog.logError('setLogicScreenSize');
+    if ('undefined' != typeof wx) {
       var info = wx.getSystemInfoSync();
       Scr.width = info.windowWidth;
       Scr.height = info.windowHeight;
@@ -40,7 +40,7 @@ export class Scr {
 
 Scr.width = 320;
 Scr.height = 240;
-Scr.keeplogicworh = "height";
+Scr.keeplogicworh = 'height';
 Scr.logicw = 320;
 Scr.logich = 240;
 Scr.fps = 60;

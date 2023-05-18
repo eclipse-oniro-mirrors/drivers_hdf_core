@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-const { XMessage } = require("../message/XMessage");
-const { NapiLog } = require("./NapiLog");
+const { XMessage } = require('../message/XMessage');
+const { NapiLog } = require('./NapiLog');
 
 function code(s) {
   return s.charCodeAt(0);
 }
 
 function isSpace(c) {
-  return c == code(" ") || c == code("\t") || c == code("\r");
+  return c == code(' ') || c == code('\t') || c == code('\r');
 }
 
 function isalpha(c) {
-  if (code("a") <= c[0] && c[0] <= code("z")) return true;
-  if (code("A") <= c[0] && c[0] <= code("Z")) return true;
+  if (code('a') <= c[0] && c[0] <= code('z')) return true;
+  if (code('A') <= c[0] && c[0] <= code('Z')) return true;
   return false;
 }
 
@@ -35,7 +35,7 @@ function isalnum(c) {
 }
 
 function isNum(c) {
-  return code("0") <= c[0] && c[0] <= code("9");
+  return code('0') <= c[0] && c[0] <= code('9');
 }
 
 function toStr(c) {
@@ -58,7 +58,7 @@ TokenType.EOF = -1;
 class Lexer {
   constructor() {
     this.keyWords_ = {
-      "#include": TokenType.INCLUDE,
+      '#include': TokenType.INCLUDE,
       root: TokenType.ROOT,
       delete: TokenType.DELETE,
       template: TokenType.TEMPLATE,
@@ -68,14 +68,14 @@ class Lexer {
   initialize(sourceName) {
     this.srcName_ = sourceName;
     if (!(sourceName in Lexer.FILE_AND_DATA)) {
-      XMessage.gi().send("getfiledata", sourceName);
+      XMessage.gi().send('getfiledata', sourceName);
       return false;
     }
     this.data_ = Lexer.FILE_AND_DATA[sourceName];
-    NapiLog.logError("------------data start----------------");
+    NapiLog.logError('------------data start----------------');
     NapiLog.logError(sourceName);
     NapiLog.logError(Lexer.FILE_AND_DATA[sourceName]);
-    NapiLog.logError("------------data end------------------");
+    NapiLog.logError('------------data end------------------');
 
     this.bufferStart_ = 0;
     this.bufferEnd_ = this.data_.length - 1;
@@ -88,7 +88,7 @@ class Lexer {
   lexInclude(token) {
     this.consumeChar();
     this.lexFromLiteral(token);
-    if (token.strval != "include") {
+    if (token.strval != 'include') {
       return false;
     }
 
@@ -98,15 +98,15 @@ class Lexer {
 
   isConsumeCharCode(c) {
     if (
-      c[0] == code(";") ||
-      c[0] == code(",") ||
-      c[0] == code("[") ||
-      c[0] == code("]") ||
-      c[0] == code("{") ||
-      c[0] == code("}") ||
-      c[0] == code("=") ||
-      c[0] == code("&") ||
-      c[0] == code(":")
+      c[0] == code(';') ||
+      c[0] == code(',') ||
+      c[0] == code('[') ||
+      c[0] == code(']') ||
+      c[0] == code('{') ||
+      c[0] == code('}') ||
+      c[0] == code('=') ||
+      c[0] == code('&') ||
+      c[0] == code(':')
     ) {
       return true;
     }
@@ -121,7 +121,7 @@ class Lexer {
         token.type = TokenType.EOF;
         return true;
       }
-      if (c[0] == code("#")) {
+      if (c[0] == code('#')) {
         return this.lexInclude(token);
       }
       if (isalpha(c)) {
@@ -133,7 +133,7 @@ class Lexer {
         return this.lexFromNumber(token);
       }
 
-      if (c[0] == code("/")) {
+      if (c[0] == code('/')) {
         if (!this.processComment()) {
           return false;
         }
@@ -144,7 +144,7 @@ class Lexer {
         break;
       } else if (c[0] == code('"')) {
         return this.lexFromString(token);
-      } else if (c[0] == code("+") || c[0] == code("-")) {
+      } else if (c[0] == code('+') || c[0] == code('-')) {
         return lexFromNumber(token);
       } else if (c[0] == -1) {
         token.type = -1;
@@ -164,10 +164,10 @@ class Lexer {
       while (
         this.bufferStart_ <= this.bufferEnd_ &&
         (isSpace(this.data_[this.bufferStart_]) ||
-          this.data_[this.bufferStart_] == code("\n"))
+          this.data_[this.bufferStart_] == code('\n'))
       ) {
         this.lineLoc_++;
-        if (this.data_[this.bufferStart_] == code("\n")) {
+        if (this.data_[this.bufferStart_] == code('\n')) {
           this.lineLoc_ = 0;
           this.lineno_++;
         }
@@ -185,17 +185,17 @@ class Lexer {
   initToken(token) {
     token.type = 0;
     token.numval = 0;
-    token.strval = "";
+    token.strval = '';
     token.src = this.srcName_;
     token.lineNo = this.lineno_;
   }
 
   lexFromLiteral(token) {
-    let value = "";
+    let value = '';
     let c = [];
 
     while (this.peekChar(c, false) && !isSpace(c[0])) {
-      if (!isalnum(c) && c != code("_") && c != code(".") && c != code("\\")) {
+      if (!isalnum(c) && c != code('_') && c != code('.') && c != code('\\')) {
         break;
       }
       value += toStr(c);
@@ -203,11 +203,11 @@ class Lexer {
     }
 
     do {
-      if (value == "true") {
+      if (value == 'true') {
         token.type = TokenType.BOOL;
         token.numval = 1;
         break;
-      } else if (value == "false") {
+      } else if (value == 'false') {
         token.type = TokenType.BOOL;
         token.numval = 0;
         break;
@@ -218,7 +218,7 @@ class Lexer {
         break;
       }
 
-      if (value.indexOf(".") >= 0) {
+      if (value.indexOf('.') >= 0) {
         token.type = TokenType.REF_PATH;
       } else {
         token.type = TokenType.LITERAL;
@@ -242,7 +242,7 @@ class Lexer {
       }
     }
 
-    if (chr == code("\n")) {
+    if (chr == code('\n')) {
       this.lineno_++;
       this.lineLoc_ = 0;
     }
@@ -268,8 +268,8 @@ class Lexer {
     while (
       this.peekChar(c, false) &&
       (isNum(c) ||
-        (c[0] >= code("a") && c[0] <= code("f")) ||
-        (c[0] >= code("A") && c[0] <= code("F")))
+        (c[0] >= code('a') && c[0] <= code('f')) ||
+        (c[0] >= code('A') && c[0] <= code('F')))
     ) {
       param.value += toStr(c);
       this.consumeChar();
@@ -282,7 +282,7 @@ class Lexer {
     this.consumeChar();
     while (
       this.peekChar(c, false) &&
-      (c[0] == code("0") || c[0] == code("1"))
+      (c[0] == code('0') || c[0] == code('1'))
     ) {
       param.value += toStr(c);
       this.consumeChar();
@@ -296,14 +296,14 @@ class Lexer {
 
     let errno = 0;
     let param = {
-      value: "",
+      value: '',
       v: 0,
       baseSystem: 10,
     };
 
     this.getChar(c, false);
     switch (c[0]) {
-      case code("0"):
+      case code('0'):
         if (!this.peekChar(c, true)) {
           break;
         }
@@ -311,16 +311,16 @@ class Lexer {
           this.lexFromOctalNumber(c, param);
           break;
         }
-        if (c[0] == code("x") || code("x") == code("X")) {
+        if (c[0] == code('x') || code('x') == code('X')) {
           this.lexFromHexNumber(c, param);
           break;
-        } else if (c[0] == code("b")) {
+        } else if (c[0] == code('b')) {
           this.lexFromBinaryNumber(c, param);
           break;
         }
         break;
-      case code("+"):
-      case code("-"):
+      case code('+'):
+      case code('-'):
       default:
         param.value += toStr(c);
         while (this.peekChar(c, true) && isNum(c)) {
@@ -333,7 +333,7 @@ class Lexer {
     }
 
     if (errno != 0) {
-      dealWithError("illegal number: " + param.value);
+      dealWithError('illegal number: ' + param.value);
       return false;
     }
     token.type = TokenType.NUMBER;
@@ -346,13 +346,13 @@ class Lexer {
   lexFromString(token) {
     let c = [];
     this.getChar(c, false);
-    let value = "";
+    let value = '';
     while (this.getChar(c, false) && c[0] != code('"')) {
       value += toStr(c);
     }
 
     if (c != code('"')) {
-      dealWithError("unterminated string");
+      dealWithError('unterminated string');
       return false;
     }
     token.type = TokenType.STRING;
@@ -364,30 +364,30 @@ class Lexer {
     let c = [];
     this.consumeChar();
     if (!this.getChar(c, true)) {
-      dealWithError("unterminated comment");
+      dealWithError('unterminated comment');
       return false;
     }
 
-    if (c[0] == code("/")) {
-      while (c[0] != code("\n")) {
+    if (c[0] == code('/')) {
+      while (c[0] != code('\n')) {
         if (!this.getChar(c, true)) break;
       }
-      if (c[0] != code("\n") && c[0] != TokenType.EOF) {
-        dealWithError("unterminated signal line comment");
+      if (c[0] != code('\n') && c[0] != TokenType.EOF) {
+        dealWithError('unterminated signal line comment');
         return false;
       }
-    } else if (c[0] == code("*")) {
+    } else if (c[0] == code('*')) {
       while (this.getChar(c, true)) {
-        if (c[0] == code("*") && this.getChar(c, true) && c[0] == code("/")) {
+        if (c[0] == code('*') && this.getChar(c, true) && c[0] == code('/')) {
           return true;
         }
       }
-      if (c[0] != code("/")) {
-        dealWithError("unterminated multi-line comment");
+      if (c[0] != code('/')) {
+        dealWithError('unterminated multi-line comment');
         return false;
       }
     } else {
-      dealWithError("invalid character");
+      dealWithError('invalid character');
       return false;
     }
 
@@ -395,7 +395,7 @@ class Lexer {
   }
 
   dealWithError(message) {
-    XMessage.gi().send("error", message);
+    XMessage.gi().send('error', message);
     NapiLog.logError(message + "'");
   }
 }

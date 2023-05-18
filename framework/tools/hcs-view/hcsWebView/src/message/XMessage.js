@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-const { MockMessage } = require("./mock");
-const { NapiLog } = require("./../hcs/NapiLog");
+const { MockMessage } = require('./mock');
+const { NapiLog } = require('./../hcs/NapiLog');
 
 class XMessage {
   constructor() {
     this.messageType = XMessage.TYPE_NONE;
     try {
       this.vscode = acquireVsCodeApi();
-      window.addEventListener("message", this.onRecv);
+      window.addEventListener('message', this.onRecv);
       this.messageType = XMessage.TYPE_VSCODE;
     } catch (err) {
-      NapiLog.logError("Error:" + err);
+      NapiLog.logError('Error:' + err);
     }
     this.callbackFunc = null;
-    NapiLog.logInfo("Init XMessage : " + this.messageType);
+    NapiLog.logInfo('Init XMessage : ' + this.messageType);
   }
   registRecvCallback(func) {
     this.callbackFunc = func;

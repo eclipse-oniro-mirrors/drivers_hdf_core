@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import { XMat4 } from "./XMat4.js";
-import { XShader } from "./XShader.js";
-import { Scr } from "../XDefine.js";
-import { XTexture } from "./XTexture.js";
-import { gl } from "../GLFrame.js";
-import { fAngle, iDistance } from "../XTools.js";
+import { XMat4 } from './XMat4.js';
+import { XShader } from './XShader.js';
+import { Scr } from '../XDefine.js';
+import { XTexture } from './XTexture.js';
+import { gl } from '../GLFrame.js';
+import { fAngle, iDistance } from '../XTools.js';
 
 export class X2DFast {
   static gi() {
@@ -33,7 +33,7 @@ export class X2DFast {
     this.vertexArray = new ArrayBuffer(1024 * 1024 * 4 * 2);
     this.vertexFloat32 = new Float32Array(this.vertexArray);
     this.vertexUint32 = new Uint32Array(this.vertexArray);
-    this.whiteImg = XTexture.gi().loadTextureFromImage("CUSTOM_TEXTURE_1");
+    this.whiteImg = XTexture.gi().loadTextureFromImage('CUSTOM_TEXTURE_1');
     this.whiteCut = XTexture.gi().makeCut(this.whiteImg, 0, 0, 1, 1);
     XShader.gi();
 

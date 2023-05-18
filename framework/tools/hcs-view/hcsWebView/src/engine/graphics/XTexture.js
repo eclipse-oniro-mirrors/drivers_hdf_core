@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { gl } from "../GLFrame.js";
+import { gl } from '../GLFrame.js';
 
 export class XTexture {
   static gi() {
@@ -32,12 +32,12 @@ export class XTexture {
     this.textTmpRid = this.loadTexture(1024, 256);
     this.bfirst = true;
 
-    this.textCvs = document.createElement("canvas");
+    this.textCvs = document.createElement('canvas');
     this.textCvs.width = 1024;
     this.textCvs.height = 256;
-    this.textCtx = this.textCvs.getContext("2d");
-    this.textCtx.textBaseline = "top";
-    this.textCtx.textAlign = "left";
+    this.textCtx = this.textCvs.getContext('2d');
+    this.textCtx.textBaseline = 'top';
+    this.textCtx.textAlign = 'left';
   }
   static initTextureStatus(tex) {
     gl.activeTexture(gl.TEXTURE0);
@@ -49,7 +49,7 @@ export class XTexture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
   loadTextureFromImage(path, keepdata = false) {
-    if (path == "CUSTOM_TEXTURE_1") {
+    if (path == 'CUSTOM_TEXTURE_1') {
       var rid = this.ximages.length;
 
       var texture = gl.createTexture();
@@ -72,7 +72,7 @@ export class XTexture {
       return rid;
     } else {
       for (let i = 0; i < this.ximages.length; i++) {
-        if (this.ximages[i]["path"] == path) {
+        if (this.ximages[i]['path'] == path) {
           return i;
         }
       }
@@ -155,7 +155,7 @@ export class XTexture {
 
   PutTexture(tex, w, h) {
     var rid = this.ximages.length;
-    this.ximages[rid] = { stat: 1, path: "put" + rid, tex: tex, w: w, h: h };
+    this.ximages[rid] = { stat: 1, path: 'put' + rid, tex: tex, w: w, h: h };
     return rid;
   }
 
@@ -178,7 +178,7 @@ export class XTexture {
 
     this.ximages[rid] = {
       stat: 1,
-      path: "default" + rid,
+      path: 'default' + rid,
       tex: texture,
       w: width,
       h: height,
@@ -188,7 +188,7 @@ export class XTexture {
   initTextImageData(s, size) {
     this.textCtx.clearRect(0, 0, 1024, 256);
     this.textCtx.font = size + "px 'Microsoft YaHei'";
-    this.textCtx.fillStyle = "rgba(255,255,255,1)";
+    this.textCtx.fillStyle = 'rgba(255,255,255,1)';
     this.textCtx.fillText(s, 1, 1);
     let imgd = this.textCtx.getImageData(0, 0, 1024, 256).data;
     let w = 1024;
@@ -244,7 +244,7 @@ export class XTexture {
       off = 0;
     }
     let cid = this.makeCut(rid, 0, off * 32, w, h);
-    this.textImgs[rid]["mask"] |= mask << off;
+    this.textImgs[rid]['mask'] |= mask << off;
     this.textIdxs[textIdx] = {cid: cid, rid: rid, mask: mask << off, time: this.timenow(),};
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.ximages[rid].tex);

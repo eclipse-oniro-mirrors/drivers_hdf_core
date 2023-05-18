@@ -16,13 +16,13 @@
 class AttributeArea {
   constructor() {
     document.attrCallback = this;
-    this.area = document.getElementById("attribute_area");
-    this.htmlStr = "";
+    this.area = document.getElementById('attribute_area');
+    this.htmlStr = '';
     this.callbackFunc = null;
     this.freshInputValue_ = [];
   }
   clear() {
-    this.htmlStr = "";
+    this.htmlStr = '';
   }
   flush() {
     this.area.innerHTML = this.htmlStr;
@@ -36,15 +36,15 @@ class AttributeArea {
     this.htmlStr +=
       '<div class="div_title"><span class="att_title" style="font-size:16px;">' +
       name +
-      "</span></div>";
+      '</span></div>';
   }
   addImage(path) {
-    this.htmlStr += '<img src="' + path + '">' + "</img>";
+    this.htmlStr += '<img src="' + path + '">' + '</img>';
   }
   addDotLine() {}
   addTopInput(searchId, label, default_, disable) {
     let ret =
-      '<label class="input_text_readonly_top">' + label + "</label></br>";
+      '<label class="input_text_readonly_top">' + label + '</label></br>';
     ret += '<input id="' + searchId + '"';
     ret += ' class="input_text"';
     if (default_.indexOf('"') >= 0) {
@@ -63,7 +63,7 @@ class AttributeArea {
   }
 
   addInput(searchId, label, default_, disable) {
-    let ret = '<label class="input_text_readonly">' + label + "</label></br>";
+    let ret = '<label class="input_text_readonly">' + label + '</label></br>';
     ret += '<input id="' + searchId + '"';
     ret += ' class="input_text"';
     if (default_.indexOf('"') >= 0) {
@@ -86,10 +86,10 @@ class AttributeArea {
     label,
     default_,
     disable = false,
-    defaultTxt = ""
+    defaultTxt = ''
   ) {
-    let validatorId = "valid_" + searchId;
-    let ret = '<label class="input_text_readonly">' + label + "</label></br>";
+    let validatorId = 'valid_' + searchId;
+    let ret = '<label class="input_text_readonly">' + label + '</label></br>';
     ret += '<input id="' + searchId + '"';
     ret +=
       ' class="input_text" maxlength="40" placeholder="' + defaultTxt + '"';
@@ -120,7 +120,7 @@ class AttributeArea {
   }
 
   addTextArea(searchId, label, default_) {
-    let ret = '<label class="input_text_readonly">' + label + "</label><br>";
+    let ret = '<label class="input_text_readonly">' + label + '</label><br>';
     ret += '<textarea id="' + searchId + '"';
     ret += ' class="text_area"';
     ret +=
@@ -131,11 +131,11 @@ class AttributeArea {
       "'" +
       ')">';
     ret += default_;
-    ret += "</textarea><br>";
+    ret += '</textarea><br>';
     this.htmlStr += ret;
   }
   addButton(searchId, label) {
-    if (label.length > 40) label = label.substring(0, 40) + "...";
+    if (label.length > 40) label = label.substring(0, 40) + '...';
     let text =
       '" class="button_click" type="button" onclick="document.attrCallback.Event(';
     this.htmlStr +=
@@ -148,10 +148,10 @@ class AttributeArea {
       "'" +
       ')">' +
       label +
-      "</button><br>";
+      '</button><br>';
   }
   addLabelButton(searchId, label, title) {
-    if (label.length > 40) label = label.substring(0, 40) + "...";
+    if (label.length > 40) label = label.substring(0, 40) + '...';
     let text =
       '" class="label_button_click" type="button" onclick="document.attrCallback.Event(';
     this.htmlStr +=
@@ -166,11 +166,11 @@ class AttributeArea {
       "'" +
       ')">' +
       label +
-      "</button><br>";
+      '</button><br>';
   }
 
   addButtonDelete(searchId, label) {
-    if (label.length > 40) label = label.substring(0, 40) + "...";
+    if (label.length > 40) label = label.substring(0, 40) + '...';
     let text =
       '" class="button_click_delete" type="button" onclick="document.attrCallback.Event(';
     this.htmlStr +=
@@ -183,10 +183,10 @@ class AttributeArea {
       "'" +
       ')">' +
       label +
-      "</button><br>";
+      '</button><br>';
   }
   addSelect(searchId, label, selectList, default_, disable) {
-    let ret = '<label class="input_text_readonly">' + label + "</label></br>";
+    let ret = '<label class="input_text_readonly">' + label + '</label></br>';
     ret += '<div class="ul-select"><span></span>';
     ret +=
       '<input type="text" id="' +
@@ -199,26 +199,26 @@ class AttributeArea {
     } else {
       ret += 'onfocus="selectFocus(this);"';
       ret += 'onblur="selectBlur(this);" />';
-      ret += "<ul>";
+      ret += '<ul>';
       for (let i in selectList) {
-        ret += "<li onclick=\"liClick(this, '" + searchId + "');\">";
-        ret += '<a href="javascript:;">' + selectList[i] + "</a>";
-        ret += "</li>";
+        ret += '<li onclick="liClick(this, \'' + searchId + '\');">';
+        ret += '<a href="javascript:;">' + selectList[i] + '</a>';
+        ret += '</li>';
       }
-      ret += "</ul>";
+      ret += '</ul>';
     }
 
-    ret += "</div>";
+    ret += '</div>';
     this.htmlStr += ret;
   }
   addGap(type) {
-    if (type == 0) this.htmlStr += "<br>";
+    if (type == 0) this.htmlStr += '<br>';
   }
   Event(type, value) {
-    let cbv = "";
-    if (type == "input") {
+    let cbv = '';
+    if (type == 'input') {
       cbv = document.getElementById(value).value;
-    } else if (type == "select") {
+    } else if (type == 'select') {
       cbv = document.getElementById(value).value;
     }
     if (this.callbackFunc != null) {

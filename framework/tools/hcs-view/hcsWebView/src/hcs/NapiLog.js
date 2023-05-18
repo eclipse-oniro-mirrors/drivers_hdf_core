@@ -21,10 +21,10 @@ NapiLog.LEV_ERROR = 1;
 NapiLog.LEV_DEBUG = 2;
 NapiLog.LEV_INFO = 3;
 
-const LEV_STR = ["[NON]", "[ERR]", "[DBG]", "[INF]"];
+const LEV_STR = ['[NON]', '[ERR]', '[DBG]', '[INF]'];
 var logLevel = NapiLog.LEV_ERROR;
 var logFileName = null;
-var logResultMessage = [true, ""];
+var logResultMessage = [true, ''];
 var errorCallBack = null;
 
 function getDateString() {
@@ -34,7 +34,7 @@ function getDateString() {
 
 function saveLog(dateStr, levStr, detail) {
   if (logFileName) {
-    let logStr = dateStr + " " + levStr + " " + detail + "\n";
+    let logStr = dateStr + ' ' + levStr + ' ' + detail + '\n';
   }
 }
 
@@ -44,12 +44,12 @@ NapiLog.init = function (level, fileName) {
     [NapiLog.LEV_NONE, NapiLog.LEV_ERROR, NapiLog.LEV_DEBUG, NapiLog.LEV_INFO]
       ? level
       : NapiLog.LEV_ERROR;
-  logFileName = fileName ? fileName : "napi_generator.log";
+  logFileName = fileName ? fileName : 'napi_generator.log';
 };
 
 function recordLog(lev, ...args) {
   let dataStr = getDateString();
-  let detail = args.join(" ");
+  let detail = args.join(' ');
   saveLog(dataStr, LEV_STR[lev], detail);
   if (lev == NapiLog.LEV_ERROR) {
     logResultMessage = [false, detail];
@@ -76,7 +76,7 @@ NapiLog.getResult = function () {
 };
 
 NapiLog.clearError = function () {
-  logResultMessage = [true, ""];
+  logResultMessage = [true, ''];
 };
 
 NapiLog.registError = function (func) {

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-const { NapiLog } = require("./NapiLog");
-const { NodeTools } = require("./NodeTools");
-const { Parser } = require("./parser");
-const { DataType } = require("./NodeTools");
+const { NapiLog } = require('./NapiLog');
+const { NodeTools } = require('./NodeTools');
+const { Parser } = require('./parser');
+const { DataType } = require('./NodeTools');
 
 class Generator {
   constructor() {
@@ -46,7 +46,7 @@ class Generator {
       nodeType != this.CLASS_NODES_DELETION &&
       nodeType != this.CLASS_NODES_TEMPLETE
     ) {
-      NapiLog.logError("unknow node type");
+      NapiLog.logError('unknow node type');
     }
   }
 
@@ -109,7 +109,7 @@ class Generator {
         else ret.value_ = true;
         break;
       default:
-        NapiLog.logError("unknow type");
+        NapiLog.logError('unknow type');
         break;
     }
     return ret;
@@ -130,7 +130,7 @@ class Generator {
     objList.push(objList.shift());
     let ret = {
       type_: DataType.NODE,
-      name_: "root",
+      name_: 'root',
       value_: [],
     };
     for (let i in objList) {
@@ -147,16 +147,16 @@ class Generator {
   }
 
   makeSpace(deep) {
-    let ret = "";
-    for (let i = 0; i < deep; i++) ret += "    ";
+    let ret = '';
+    for (let i = 0; i < deep; i++) ret += '    ';
     return ret;
   }
 
   makeHcs(fn, node) {
     let body = this.objToHcs(node, 0);
-    let head = "";
+    let head = '';
 
-    let fpath = fn.substring(0, fn.lastIndexOf("\\") + 1);
+    let fpath = fn.substring(0, fn.lastIndexOf('\\') + 1);
     for (let i in this.parser.astList[fn].include) {
       head +=
         '#include "./' +
@@ -167,32 +167,32 @@ class Generator {
   }
 
   objToHcsConfigNode(node, deep) {
-    let ret = "";
+    let ret = '';
     if (node.nodeType_ == this.DATA_NODES_NOT_INHERIT) {
-      ret = this.makeSpace(deep) + node.name_ + " {\n";
+      ret = this.makeSpace(deep) + node.name_ + ' {\n';
     } else if (node.nodeType_ == this.CLASS_NODES_COPY) {
-      ret = this.makeSpace(deep) + node.name_ + " : " + node.ref_ + " {\n";
+      ret = this.makeSpace(deep) + node.name_ + ' : ' + node.ref_ + ' {\n';
     } else if (node.nodeType_ == this.CLASS_NODES_REFERENCE) {
-      ret = this.makeSpace(deep) + node.name_ + " : &" + node.ref_ + " {\n";
+      ret = this.makeSpace(deep) + node.name_ + ' : &' + node.ref_ + ' {\n';
     } else if (node.nodeType_ == this.CLASS_NODES_DELETION) {
-      ret = this.makeSpace(deep) + node.name_ + " : delete {\n";
+      ret = this.makeSpace(deep) + node.name_ + ' : delete {\n';
     } else if (node.nodeType_ == this.CLASS_NODES_TEMPLETE) {
-      ret = this.makeSpace(deep) + "template " + node.name_ + " {\n";
+      ret = this.makeSpace(deep) + 'template ' + node.name_ + ' {\n';
     } else if (node.nodeType_ == this.DATA_NODES_INHERIT) {
-      ret = this.makeSpace(deep) + node.name_ + " :: " + node.ref_ + " {\n";
+      ret = this.makeSpace(deep) + node.name_ + ' :: ' + node.ref_ + ' {\n';
     } else {
-      NapiLog.logError("unknow node type");
+      NapiLog.logError('unknow node type');
     }
 
     for (let i in node.value_) {
       ret += this.objToHcs(node.value_[i], deep + 1);
     }
-    ret += this.makeSpace(deep) + "}\n";
+    ret += this.makeSpace(deep) + '}\n';
     return ret;
   }
 
   objToHcs(node, deep) {
-    let ret = "";
+    let ret = '';
     switch (node.type_) {
       case DataType.INT8:
       case DataType.INT16:
@@ -207,31 +207,31 @@ class Generator {
         ret += this.objToHcsConfigNode(node, deep);
         break;
       case DataType.ATTR:
-        ret = this.makeSpace(deep) + node.name_ + " = ";
+        ret = this.makeSpace(deep) + node.name_ + ' = ';
         ret += this.objToHcs(node.value_, 0);
-        ret += ";\n";
+        ret += ';\n';
         break;
       case DataType.ARRAY:
-        ret = "[";
+        ret = '[';
         for (let i in node.value_) {
           let ss = this.objToHcs(node.value_[i], 0);
-          if (i > 0) ret += ", ";
+          if (i > 0) ret += ', ';
           ret += ss;
         }
-        ret += "]";
+        ret += ']';
         break;
       case DataType.REFERENCE:
-        ret = "&" + node.value_;
+        ret = '&' + node.value_;
         break;
       case DataType.DELETE:
-        ret = "delete";
+        ret = 'delete';
         break;
       case DataType.BOOL:
-        if (node.value_) ret = "true";
-        else ret = "false";
+        if (node.value_) ret = 'true';
+        else ret = 'false';
         break;
       default:
-        NapiLog.logError("unknow" + node.type_);
+        NapiLog.logError('unknow' + node.type_);
         break;
     }
     return ret;

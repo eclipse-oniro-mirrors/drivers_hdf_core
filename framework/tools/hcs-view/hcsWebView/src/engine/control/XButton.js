@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-const { X2DFast } = require("../graphics/X2DFast");
+const { X2DFast } = require('../graphics/X2DFast');
 
 class XButton {
   constructor(x, y, w, h, name) {
