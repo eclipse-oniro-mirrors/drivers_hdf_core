@@ -52,9 +52,6 @@ bool Options::Parse(int argc, char *argv[])
     int optIndex = 0;
     while ((op = getopt_long(argc, argv, optSupportArgs, g_longOpts, &optIndex)) != OPT_END) {
         switch (op) {
-            case 'h':
-                doShowUsage = true;
-                break;
             case 'v':
                 doShowVersion = true;
                 break;
@@ -91,7 +88,6 @@ bool Options::Parse(int argc, char *argv[])
             case 'o':
                 outPutFile = optarg;
                 break;
-            case '?':
             default:
                 doShowUsage = true;
                 break;
