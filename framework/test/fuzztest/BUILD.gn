@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -11,11 +11,14 @@ group("hdf_framework_fuzztest") {
     "devmgr_c_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTest",
     "devmgr_cpp_fuzzer/loaddevice_fuzzer:LoadDeviceFuzzTest",
     "devmgr_cpp_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTest",
+    "ioservice_fuzzer/ioserviceadapterobtain_fuzzer:IoserviceAdapterObtainFuzzTest",
     "ioservice_fuzzer/ioservicebind_fuzzer:IoserviceBindFuzzTest",
     "ioservice_fuzzer/ioservicegrouplisten_fuzzer:IoserviceGroupListenFuzzTest",
     "ioservice_fuzzer/ioservicelisten_fuzzer:IoserviceListenFuzzTest",
     "ioservice_fuzzer/ioservicenamegetbydeviceclass_fuzzer:IoserviceNameGetByDeviceClassFuzzTest",
+    "ioservice_fuzzer/ioservicepublish_fuzzer:IoservicePublishFuzzTest",
     "ioservice_fuzzer/ioserviceremove_fuzzer:IoserviceRemoveFuzzTest",
+    "ioservice_fuzzer/loaddriverbyservicename_fuzzer:LoadDriverByServiceNameFuzzTest",
     "servmgr_c_fuzzer/listservicebyinterfacedesc_fuzzer:ListServiceByInterfaceDescFuzzTest",
     "servmgr_cpp_fuzzer/servstatlistenerstub_fuzzer:ServStatListenerStubFuzzTest",
     "servmgr_cpp_fuzzer/unregisterservicestatuslistener_fuzzer:UnregisterServiceStatusListenerFuzzTest",
