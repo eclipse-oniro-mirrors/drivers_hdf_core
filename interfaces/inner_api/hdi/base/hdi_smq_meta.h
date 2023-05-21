@@ -106,7 +106,7 @@ public:
      * @param other Indicates the <b>SharedMemQueueMeta</b> object to copy.
      */
     SharedMemQueueMeta(const SharedMemQueueMeta<T> &other);
-    ~SharedMemQueueMeta() = default;
+    ~SharedMemQueueMeta();
 
     /**
      * @brief A constructor used to assign values to the <b>SharedMemQueueMeta</b> object.
@@ -127,7 +127,7 @@ public:
      *
      * @return Returns the FD obtained.
      */
-    int GetFd();
+    int GetFd() const;
 
     /**
      * @brief Obtains the shared memory size.
@@ -283,10 +283,6 @@ SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType t
 template <typename T>
 SharedMemQueueMeta<T>::SharedMemQueueMeta(const SharedMemQueueMeta<T> &other)
 {
-    if (ashmemFd_ >= 0) {
-        close(ashmemFd_);
-    }
-
     ashmemFd_ = dup(other.ashmemFd_);
     if (ashmemFd_ < 0) {
         HDF_LOGW("failed to dup ashmem fd for smq");
@@ -298,6 +294,15 @@ SharedMemQueueMeta<T>::SharedMemQueueMeta(const SharedMemQueueMeta<T> &other)
     if (memcpy_s(memzone_, sizeof(memzone_), other.memzone_, sizeof(other.memzone_)) != EOK) {
         HDF_LOGW("failed to memcpy_s memzone_");
     }
+}
+
+template <typename T>
+SharedMemQueueMeta<T>::~SharedMemQueueMeta()
+{
+    if (ashmemFd_ >= 0) {
+        close(ashmemFd_);
+    }
+    ashmemFd_ = -1;
 }
 
 /**
@@ -320,7 +325,7 @@ void SharedMemQueueMeta<T>::SetFd(int fd)
  * @return Returns the FD obtained.
  */
 template <typename T>
-int SharedMemQueueMeta<T>::GetFd()
+int SharedMemQueueMeta<T>::GetFd() const
 {
     return ashmemFd_;
 }
@@ -394,11 +399,22 @@ MemZone *SharedMemQueueMeta<T>::GetMemZone(uint32_t type)
 template <typename T>
 bool SharedMemQueueMeta<T>::Marshalling(MessageParcel &parcel)
 {
-    if (!parcel.WriteBuffer(this, sizeof(SharedMemQueueMeta<T>))) {
+    if (!parcel.WriteFileDescriptor(ashmemFd_)) {
+        HDF_LOGE("%{public}s: failed to write ashmemFd_", __func__);
         return false;
     }
 
-    return parcel.WriteFileDescriptor(ashmemFd_);
+    if (!parcel.WriteUint64(static_cast<uint64_t>(elementCount_))) {
+        HDF_LOGE("%{public}s: failed to write elementCount_", __func__);
+        return false;
+    }
+
+    if (!parcel.WriteUint32(static_cast<uint32_t>(type_))) {
+        HDF_LOGE("%{public}s: failed to write type_", __func__);
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -410,22 +426,28 @@ bool SharedMemQueueMeta<T>::Marshalling(MessageParcel &parcel)
 template <typename T>
 std::shared_ptr<SharedMemQueueMeta<T>> SharedMemQueueMeta<T>::UnMarshalling(MessageParcel &parcel)
 {
-    auto readMeta = reinterpret_cast<const SharedMemQueueMeta<T> *>(parcel.ReadBuffer(sizeof(SharedMemQueueMeta<T>)));
-    if (readMeta == nullptr) {
-        HDF_LOGE("read invalid smq meta");
-        return nullptr;
-    }
-
-    auto fd = parcel.ReadFileDescriptor();
+    int fd = parcel.ReadFileDescriptor();
     if (fd < 0) {
-        HDF_LOGE("read invalid smq fd");
+        HDF_LOGE("read invalid fd of smq");
         return nullptr;
     }
 
-    auto meta = std::make_shared<SharedMemQueueMeta<T>>(*readMeta);
-    meta->SetFd(fd);
+    uint64_t readElementCount = 0;
+    if (!parcel.ReadUint64(readElementCount)) {
+        HDF_LOGE("read invalid elementCount of smq");
+        close(fd);
+        return nullptr;
+    }
+    size_t elementCount = static_cast<size_t>(readElementCount);
 
-    return meta;
+    uint32_t typecode = 0;
+    if (!parcel.ReadUint32(typecode)) {
+        HDF_LOGE("read invalid typecode of smq");
+        close(fd);
+        return nullptr;
+    }
+    SmqType type = static_cast<SmqType>(typecode);
+    return std::make_shared<SharedMemQueueMeta<T>>(fd, elementCount, type);
 }
 } // namespace Base
 } // namespace HDI
