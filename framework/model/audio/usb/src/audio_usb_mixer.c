@@ -1073,15 +1073,12 @@ static void AudioUsbCtlGetMaxVal(struct UsbMixerElemInfo *mixElemInfo, int32_t m
         }
 
         if (temp < mixElemInfo->min || temp > mixElemInfo->max) {
-            mixElemInfo->res = mixElemInfo->res;
             break;
         }
         if (AudioUsbSetCurMixValue(mixElemInfo, minChannel, 0, temp) != HDF_SUCCESS) {
-            mixElemInfo->res = mixElemInfo->res;
             break;
         }
         if (AudioUsbGetCurMixRaw(mixElemInfo, minChannel, &check) != HDF_SUCCESS) {
-            mixElemInfo->res = mixElemInfo->res;
             break;
         }
         if (temp == check) {
@@ -1096,7 +1093,7 @@ static int32_t AudioUsbCtlGetMinMaxValSub(struct UsbMixerElemInfo *mixElemInfo)
 {
     int32_t minChannel = 0;
     int32_t i;
-    int32_t request = (mixElemInfo->control << USB_SHIFT_SIZE_8) | minChannel;
+    int32_t request = mixElemInfo->control << USB_SHIFT_SIZE_8;
     if (mixElemInfo->cmask) {
         for (i = 0; i < MAX_CHANNELS; i++) {
             if (mixElemInfo->cmask & (1 << i)) {
