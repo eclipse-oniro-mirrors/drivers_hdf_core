@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -98,7 +98,7 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
     return status;
 }
 
-static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
+static bool g_hdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
 {
     while (true) {
         struct DevInfo devInfo;
@@ -164,7 +164,7 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
         return status;
     }
 
-    if (!HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
+    if (!g_hdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
         HDF_LOGE("failed to read all device info");
         return HDF_ERR_INVALID_PARAM;
     }
