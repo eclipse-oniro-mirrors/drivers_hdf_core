@@ -24,6 +24,10 @@
 #define DEVICE_SERVICE_MANAGER "hdf_device_service_manager"
 #define DEVICE_SERVICE_MANAGER_SA_ID 5100
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevSvcManagerStub {
     struct DevSvcManager super;
     struct HdfRemoteService *remote;
@@ -42,5 +46,9 @@ struct HdfDeviceObjectHolder {
 
 struct HdfObject *DevSvcManagerStubCreate(void);
 void DevSvcManagerStubRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVSVC_MANAGER_STUB_H */

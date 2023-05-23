@@ -22,6 +22,10 @@
 
 #define DEVICE_MANAGER_SERVICE "hdf_device_manager"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevmgrServiceStub {
     struct DevmgrServiceFull super;
     struct HdfRemoteService *remote;
@@ -40,5 +44,9 @@ enum {
 
 struct HdfObject *DevmgrServiceStubCreate(void);
 void DevmgrServiceStubRelease(struct HdfObject *object);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVMGR_SERVICE_STUB_H */
