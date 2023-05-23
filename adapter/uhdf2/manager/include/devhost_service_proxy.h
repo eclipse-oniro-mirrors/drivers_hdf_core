@@ -19,6 +19,10 @@
 #include "devhost_service_if.h"
 #include "hdf_remote_service.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct DevHostServiceProxy {
     struct IDevHostService super;
     struct HdfRemoteService *remote;
@@ -34,5 +38,9 @@ enum {
 
 struct IDevHostService *DevHostServiceProxyObtain(uint32_t hostId, struct HdfRemoteService *remote);
 void DevHostServiceProxyRecycle(struct DevHostServiceProxy *inst);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* DEVHOST_SERVICE_PROXY_H */
