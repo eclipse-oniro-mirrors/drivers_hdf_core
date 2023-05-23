@@ -181,6 +181,7 @@ typedef enum camera_device_metadata_tag {
     OHOS_ABILITY_STREAM_AVAILABLE_BASIC_CONFIGURATIONS = OHOS_STREAM_ABILITY_START,
     OHOS_STREAM_AVAILABLE_FORMATS,
     OHOS_ABILITY_STREAM_AVAILABLE_EXTEND_CONFIGURATIONS,
+    OHOS_ABILITY_STREAM_THUMBNAIL_AVAILABLE,
     OHOS_STREAM_ABILITY_END,
 
     OHOS_JPEG_GPS_COORDINATES = OHOS_STREAM_JPEG_START,
@@ -351,6 +352,12 @@ typedef enum camera_format {
     OHOS_CAMERA_FORMAT_YCRCB_420_SP,
     OHOS_CAMERA_FORMAT_JPEG,
 } camera_format_t;
+
+// OHOS_ABILITY_STREAM_THUMBNAIL_AVAILABLE enumeration values
+typedef enum camera_thumbnail_available {
+    OHOS_CAMERA_THUMBNAIL_FALSE = 0,
+    OHOS_CAMERA_THUMBNAIL_TRUE,
+} camera_thumbnail_available_t;
 
 // OHOS_CONTROL_FOCUS_STATE enumeration values
 typedef enum camera_focus_state {

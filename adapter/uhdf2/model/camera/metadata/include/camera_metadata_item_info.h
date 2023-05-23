@@ -170,6 +170,8 @@ static item_info_t g_ohosStreamAbility[OHOS_STREAM_ABILITY_END - OHOS_STREAM_ABI
         OHOS_STREAM_ABILITY_START] = {"streamAvailableFormats",        META_TYPE_INT32, -1},
     [OHOS_ABILITY_STREAM_AVAILABLE_EXTEND_CONFIGURATIONS -
         OHOS_STREAM_ABILITY_START] = {"streamExtendConfigurations",    META_TYPE_INT32, -1},
+    [OHOS_ABILITY_STREAM_THUMBNAIL_AVAILABLE -
+        OHOS_STREAM_ABILITY_START] = {"streamThumbnailAvailable",      META_TYPE_BYTE, 1},
 };
 
 static item_info_t g_ohosStreamJpeg[OHOS_STREAM_JPEG_END - OHOS_STREAM_JPEG_START] = {
