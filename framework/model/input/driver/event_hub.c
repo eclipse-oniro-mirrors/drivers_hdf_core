@@ -12,27 +12,29 @@
 
 #define SEC_TO_USEC    1000000
 
-static void SendFramePackages(InputDevice *inputDev)
+static void EventQueueWorkEntry(void *arg)
 {
-    struct HdfDeviceObject *hdfDev = inputDev->hdfDevObj;
-    if (hdfDev == NULL || inputDev->pkgBuf == NULL) {
-        HDF_LOGE("%s: hdf dev is null", __func__);
+    InputDevice *inputDev = (InputDevice *)arg;
+    if (inputDev == NULL) {
+        HDF_LOGE("%s: inputDev is NULL", __func__);
         return;
     }
-    HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
+    HdfDeviceSendEvent(inputDev->hdfDevObj, 0, inputDev->pkgBuf);
+    HdfSbufFlush(inputDev->pkgBuf);
 }
 
 void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t value)
 {
     OsalTimespec time;
     EventPackage package = {0};
+    uint32_t flag;
     InputManager *inputManager = GetInputManager();
 
     if (inputDev == NULL) {
         HDF_LOGE("%s: parm is null", __func__);
         return;
     }
-    OsalMutexLock(&inputManager->mutex);
+    OsalSpinLockIrqSave(&inputManager->lock, &flag);
     package.type = type;
     package.code = code;
     package.value = value;
@@ -59,12 +61,20 @@ void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t
         }
 
         if (!inputDev->errFrameFlag) {
-            SendFramePackages(inputDev);
+            if (HdfWorkInit(inputDev->eventWork, EventQueueWorkEntry, inputDev) != HDF_SUCCESS) {
+                HDF_LOGE("%s: create event thread failed", __func__);
+                OsalSpinUnlockIrqRestore(&inputManager->lock, &flag);
+                return;
+            }
+            if (!HdfAddWork(&inputDev->eventWorkQueue, inputDev->eventWork)) {
+                HDF_LOGE("%s: Add event work queue failed", __func__);
+                OsalSpinUnlockIrqRestore(&inputManager->lock, &flag);
+                return;
+            }
         }
 
         inputDev->pkgCount = 0;
-        HdfSbufFlush(inputDev->pkgBuf);
         inputDev->errFrameFlag = false;
     }
-    OsalMutexUnlock(&inputManager->mutex);
+    OsalSpinUnlockIrqRestore(&inputManager->lock, &flag);
 }
