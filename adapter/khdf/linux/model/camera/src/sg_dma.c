@@ -361,12 +361,11 @@ static void *SgAttachDmaBuf(struct BufferQueue *queue, uint32_t planeNum, void *
         return ERR_PTR(-EFAULT);
     }
 
-    buf = OsalMemAlloc(sizeof(*buf));
+    buf = (struct SgDmaBuffer *)OsalMemCalloc(sizeof(*buf));
     if (buf == NULL) {
         return ERR_PTR(-ENOMEM);
     }
 
-    memset_s(buf, sizeof(buf), 0, sizeof(*buf));
     buf->dev = dev;
     /* create attachment for the dmabuf with the user device */
     dba = dma_buf_attach(dbuf, buf->dev);
