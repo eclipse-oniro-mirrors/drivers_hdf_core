@@ -33,15 +33,6 @@ HidInfo *g_cachedInfo[MAX_INPUT_DEV_NUM];
 uint32_t g_kbdcode = 0;
 OsalTimer g_timer;
 
-static bool InputDriverLoaded(void)
-{
-    InputManager* g_inputManager = GetInputManager();
-    if ((g_inputManager != NULL) && (g_inputManager->initialized != false)) {
-        return true;
-    }
-    return false;
-}
-
 static bool HaveHidCache(void)
 {
     if (cachedHid[0] == NULL) {
@@ -233,6 +224,15 @@ static void CacheHid(InputDevice* inputDev)
     }
 }
 
+static bool InputDriverLoaded(void)
+{
+    InputManager* g_inputManager = GetInputManager();
+    if ((g_inputManager != NULL) && (g_inputManager->initialized != false)) {
+        return true;
+    }
+    return false;
+}
+
 void* HidRegisterHdfInputDev(HidInfo *info)
 {
     InputDevice* inputDev = HidConstructInputDev(info);
@@ -288,11 +288,6 @@ static void RepateEvent(const InputDevice *device)
 
 void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t value)
 {
-    bool loaded = InputDriverLoaded();
-    if (!loaded) {
-        HDF_LOGD("%s: device not loaded", __func__);
-        return;
-    }
 #ifdef CONFIG_DFX_ZEROHUNG
     if (type == EV_KEY && code == KEY_POWER)
         hung_wp_screen_powerkey_ncb(value);
