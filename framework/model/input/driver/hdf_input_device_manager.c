@@ -16,7 +16,6 @@
 
 #define NODE_MODE            0660
 #define SERVICE_NAME_LEN     24
-#define QUEUE_NAME_LEN       18
 #define INPUT_DEV_EXIST      1
 #define INPUT_DEV_NOT_EXIST  0
 #define INPUTDEV_FIRST_ID    2
@@ -287,32 +286,10 @@ static int32_t AllocDeviceID(InputDevice *inputDev)
     return HDF_FAILURE;
 }
 
-static int32_t InitEventWorkQueue(InputDevice *inputDev)
-{
-    char queueName[QUEUE_NAME_LEN] = {0};
-
-    int32_t len = (inputDev->devId < PLACEHOLDER_LIMIT) ? 1 : PLACEHOLDER_LENGTH;
-    int32_t ret = snprintf_s(queueName, QUEUE_NAME_LEN, strlen("hdf_event") + len + strlen("_queue"), "%s%u%s",
-        "hdf_event", inputDev->devId, "_queue");
-    if (ret < 0) {
-        HDF_LOGE("%s: snprintf_s failed", __func__);
-        return HDF_FAILURE;
-    }
-    if (HdfWorkQueueInit(&inputDev->eventWorkQueue, queueName) != HDF_SUCCESS) {
-        HDF_LOGE("%s: device %s init work queue failed", __func__, inputDev->devName);
-        return HDF_FAILURE;
-    }
-    inputDev->eventWork = (HdfWork *)OsalMemCalloc(sizeof(HdfWork));
-    if (inputDev->eventWork == NULL) {
-        HDF_LOGE("%s: calloc event work failed", __func__);
-        return HDF_FAILURE;
-    }
-    return HDF_SUCCESS;
-}
-
 int32_t RegisterInputDevice(InputDevice *inputDev)
 {
     int32_t ret;
+
     HDF_LOGI("%s: enter", __func__);
     if (inputDev == NULL) {
         HDF_LOGE("%s: inputdev is null", __func__);
@@ -335,10 +312,6 @@ int32_t RegisterInputDevice(InputDevice *inputDev)
     }
 
     ret = AllocPackageBuffer(inputDev);
-    if (ret != HDF_SUCCESS) {
-        goto EXIT1;
-    }
-    ret = InitEventWorkQueue(inputDev);
     if (ret != HDF_SUCCESS) {
         goto EXIT1;
     }
@@ -384,15 +357,7 @@ void UnregisterInputDevice(InputDevice *inputDev)
     }
     HdfSbufRecycle(inputDev->eventBuf);
     inputDev->eventBuf = NULL;
-    HdfWorkQueueDestroy(&inputDev->eventWorkQueue);
-
-    if (inputDev->eventWork->realWork != NULL) {
-        HdfWorkDestroy(inputDev->eventWork);
-    }
-    OsalMemFree(inputDev->eventWork);
-    inputDev->eventWork = NULL;
     OsalMemFree(inputDev);
-    inputDev = NULL;
     OsalMutexUnlock(&g_inputManager->mutex);
     HDF_LOGI("%s: exit succ, devCount is %d", __func__, g_inputManager->devCount);
     return;
@@ -488,13 +453,6 @@ static int32_t HdfInputManagerInit(struct HdfDeviceObject *device)
         g_inputManager = NULL;
         return HDF_FAILURE;
     }
-
-    if (OsalSpinInit(&g_inputManager->lock) != HDF_SUCCESS) {
-        HDF_LOGE("%s: spin lock init failed", __func__);
-        OsalMemFree(g_inputManager);
-        g_inputManager = NULL;
-        return HDF_FAILURE;
-    }
     g_inputManager->initialized = true;
     g_inputManager->hdfDevObj = device;
     HDF_LOGI("%s: exit succ", __func__);
@@ -509,7 +467,6 @@ static void HdfInputManagerRelease(struct HdfDeviceObject *device)
     }
     if (g_inputManager != NULL) {
         OsalMutexDestroy(&g_inputManager->mutex);
-        OsalSpinDestroy(&g_inputManager->lock);
         OsalMemFree(g_inputManager);
         g_inputManager = NULL;
     }
