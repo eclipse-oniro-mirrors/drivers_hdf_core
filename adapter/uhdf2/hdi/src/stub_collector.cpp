@@ -61,11 +61,11 @@ struct HdfRemoteService **StubCollectorGetOrNewObject(const char *ifDesc, void *
     }
 
     HDF_LOGI("g_constructorMap size %{public}zu", g_constructorMap.size());
+    const std::lock_guard<std::mutex> lock(g_consMapLock);
     for (auto &consruct : g_constructorMap) {
         HDF_LOGI("g_constructorMap it: %{public}s", consruct.first.c_str());
     }
 
-    const std::lock_guard<std::mutex> lock(g_consMapLock);
     auto constructor = g_constructorMap.find(ifDesc);
     if (constructor == g_constructorMap.end()) {
         HDF_LOGE("no stub constructor for %{public}s", ifDesc);
