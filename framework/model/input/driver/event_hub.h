@@ -27,6 +27,7 @@ typedef struct {
 } EventPackage;
 
 void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t value);
+void EventQueueWorkEntry(void *arg);
 
 static inline void ReportAbs(InputDevice *inputDev, uint32_t code, int32_t value)
 {
