@@ -995,9 +995,7 @@ std::string FormatCameraMetadataToString(const common_metadata_header_t *metadat
     }
 
     for (auto it = METADATATAGS.begin(); it != METADATATAGS.end(); it++) {
-        std::string st = {};
-        st = MetadataItemDump(metadataHeader, *it);
-        metaStr += st;
+        metaStr += MetadataItemDump(metadataHeader, *it);
     }
 
     return metaStr;

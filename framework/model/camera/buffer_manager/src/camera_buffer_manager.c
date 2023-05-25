@@ -196,6 +196,9 @@ int32_t BufferQueueQueryBuffer(struct BufferQueue *queue, struct UserCameraBuffe
 /* return buffer */
 int32_t BufferQueueReturnBuffer(struct BufferQueue *queue, struct UserCameraBuffer *userBuffer)
 {
+    if (userBuffer == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct CameraBuffer *buffer = NULL;
     int32_t ret;
     ret = BufferQueuePrepare(queue, userBuffer);
@@ -219,9 +222,8 @@ int32_t BufferQueueReturnBuffer(struct BufferQueue *queue, struct UserCameraBuff
         }
     }
     CameraBufferQueueBuffer(buffer);
-    if (userBuffer != NULL) {
-        CameraBufferToUserBuffer(buffer, userBuffer);
-    }
+    CameraBufferToUserBuffer(buffer, userBuffer);
+
     if ((queue->flags & QUEUE_STATE_STREAMING) != 0 && (queue->flags & QUEUE_STATE_STREAMING_CALLED) == 0 &&
         (queue->queuedCount >= queue->minBuffersNeeded)) {
         ret = BufferQueueStart(queue);
