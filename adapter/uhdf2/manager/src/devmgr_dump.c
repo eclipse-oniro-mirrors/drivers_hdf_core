@@ -29,8 +29,8 @@
 #include "devmgr_dump.h"
 
 #define HDF_LOG_TAG devmgr_dump
-
-static const char *g_helpComment =
+ 
+static const char *HELP_COMMENT =
     " usage:\n"
     " -help  :display help information\n"
     " -query :query all services and devices information\n"
@@ -478,7 +478,7 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
     HdfSbufReadUint32(data, &argv);
 
     if (argv == 0) {
-        (void)HdfSbufWriteString(reply, g_helpComment);
+        (void)HdfSbufWriteString(reply, HELP_COMMENT);
         return HDF_SUCCESS;
     }
 
@@ -491,13 +491,13 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
     HDF_LOGI("%{public}s argv:%{public}d", value, argv);
     if (argv == 1) {
         if (strcmp(value, "-help") == 0) {
-            (void)HdfSbufWriteString(reply, g_helpComment);
+            (void)HdfSbufWriteString(reply, HELP_COMMENT);
             return HDF_SUCCESS;
         } else if (strcmp(value, "-query") == 0) {
             DevMgrQueryInfo(reply);
             return HDF_SUCCESS;
         } else {
-            (void)HdfSbufWriteString(reply, g_helpComment);
+            (void)HdfSbufWriteString(reply, HELP_COMMENT);
             return HDF_SUCCESS;
         }
     } else {
@@ -506,7 +506,7 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
         } else if (strcmp(value, "-service") == 0) {
             return DevMgrDumpService(argv - 1, data, reply);
         } else {
-            (void)HdfSbufWriteString(reply, g_helpComment);
+            (void)HdfSbufWriteString(reply, HELP_COMMENT);
             return HDF_SUCCESS;
         }
     }
