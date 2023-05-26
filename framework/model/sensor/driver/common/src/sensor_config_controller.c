@@ -65,13 +65,21 @@ static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *
 
     if ((cfgItem->regAddr >> SHIFT_BITS) == 0) {
         value[SENSOR_SHORT_VALUE_INDEX0] = cfgItem->regAddr;
-        value[SENSOR_SHORT_VALUE_INDEX1] = originValue & mask;
-        dataLen = SENSOR_SHORT_VALUE_INDEX1 + 1;
+        if (cfgItem->len != 0) {
+            value[SENSOR_SHORT_VALUE_INDEX1] = originValue & mask;
+            dataLen = SENSOR_SHORT_VALUE_INDEX1 + 1;
+        } else {
+            dataLen = SENSOR_SHORT_VALUE_INDEX1;
+        }
     } else {
         value[SENSOR_SHORT_VALUE_INDEX0] = (cfgItem->regAddr >> SHIFT_BITS) & 0x00ff;
         value[SENSOR_SHORT_VALUE_INDEX1] = cfgItem->regAddr & 0x00ff;
-        value[SENSOR_SHORT_VALUE_INDEX2] = originValue & mask;
-        dataLen = SENSOR_SHORT_VALUE_INDEX2 + 1;
+        if (cfgItem->len != 0) {
+            value[SENSOR_SHORT_VALUE_INDEX2] = originValue & mask;
+            dataLen = SENSOR_SHORT_VALUE_INDEX2 + 1;
+        } else {
+            dataLen = SENSOR_SHORT_VALUE_INDEX2;
+        }
     }
     valueTemp = value;
 
