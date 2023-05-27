@@ -28,7 +28,7 @@ ohos_fuzztest("IoserviceGroupListenFuzzTest") {
     external_deps = [ "hilog:libhilog" ]
   }
   sources = [ "ioservicegrouplisten_fuzzer.cpp" ]
-  external_deps += [ "hdf_core:libhdf_utils" ]
+  deps = [ "../../../../../adapter/uhdf2/utils:libhdf_utils" ]
 }
 
 group("fuzztest") {

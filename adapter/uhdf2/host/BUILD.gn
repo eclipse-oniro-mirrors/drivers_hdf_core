@@ -89,10 +89,12 @@ if (defined(ohos_lite)) {
     ]
 
     if (is_standard_system) {
+      deps = [
+        "../ipc:libhdf_ipc_adapter",
+        "../utils:libhdf_utils",
+      ]
       external_deps = [
         "c_utils:utils",
-        "hdf_core:libhdf_ipc_adapter",
-        "hdf_core:libhdf_utils",
         "hiviewdfx_hilog_native:libhilog",
       ]
     } else {
@@ -121,11 +123,13 @@ if (defined(ohos_lite)) {
     sources = [ "devhost.c" ]
 
     if (is_standard_system) {
+      deps = [
+        "../host:libhdf_host",
+        "../ipc:libhdf_ipc_adapter",
+        "../utils:libhdf_utils",
+      ]
       external_deps = [
         "c_utils:utils",
-        "hdf_core:libhdf_host",
-        "hdf_core:libhdf_ipc_adapter",
-        "hdf_core:libhdf_utils",
         "hiviewdfx_hilog_native:libhilog",
         "init:libbegetutil",
       ]

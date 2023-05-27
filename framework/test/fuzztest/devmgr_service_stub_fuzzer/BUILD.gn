@@ -64,12 +64,14 @@ ohos_fuzztest("DevmgrServiceStubFuzzTest") {
     "$hdf_framework_path/core/shared/src/hdf_service_record.c",
     "devmgrservicestub_fuzzer.cpp",
   ]
+  deps = [
+    "../../../../adapter/uhdf2/hdi:libhdi",
+    "../../../../adapter/uhdf2/ipc:libhdf_ipc_adapter",
+    "../../../../adapter/uhdf2/utils:libhdf_utils",
+  ]
 
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_ipc_adapter",
-    "hdf_core:libhdf_utils",
-    "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
   ]

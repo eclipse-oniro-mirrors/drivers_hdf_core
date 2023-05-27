@@ -17,9 +17,9 @@ ohos_fuzztest("IoservicePublishFuzzTest") {
 
   include_dirs = [ "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/ioservicepublish_fuzzer.h" ]
   sources = [ "ioservicepublish_fuzzer.cpp" ]
+  deps = [ "../../../../../adapter/uhdf2/utils:libhdf_utils" ]
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }

@@ -64,9 +64,9 @@ if (defined(ohos_lite)) {
     subsystem_name = "hdf"
     part_name = "hdf_core"
     if (is_standard_system) {
+      deps = [ "../../uhdf2/utils:libhdf_utils" ]
       external_deps = [
         "c_utils:utils",
-        "hdf_core:libhdf_utils",
         "hiviewdfx_hilog_native:libhilog",
       ]
     } else {

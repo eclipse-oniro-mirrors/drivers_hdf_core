@@ -21,13 +21,14 @@ ohos_fuzztest("QueryUsableDeviceInfoFuzzTest") {
 
   sources = [ "queryusabledeviceInfo_fuzzer.cpp" ]
 
-  deps = []
+  deps = [
+    "../../../../../adapter/uhdf2/hdi:libhdi",
+    "../../../../../adapter/uhdf2/ipc:libhdf_ipc_adapter",
+    "../../../../../adapter/uhdf2/utils:libhdf_utils",
+  ]
 
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_ipc_adapter",
-    "hdf_core:libhdf_utils",
-    "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
   ]
