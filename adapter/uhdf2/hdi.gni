@@ -150,8 +150,8 @@ template("hdi") {
       deps = [ ":hdi_gen" ]
       if (is_standard_system) {
         public_deps = []
-        if (defined(invoker.sequenceable)) {
-          public_deps += invoker.sequenceable
+        if (defined(invoker.sequenceable_pub_deps)) {
+          public_deps += invoker.sequenceable_pub_deps
         }
 
         public_deps += hdi_build_info.proxy_deps
@@ -162,7 +162,9 @@ template("hdi") {
           "hdf_core:libpub_utils",
           "hiviewdfx_hilog_native:libhilog",
         ]
-
+        if (defined(invoker.sequenceable_ext_deps)) {
+          external_deps += invoker.sequenceable_ext_deps
+        }
         if (invoker.language == "c") {
           external_deps += [ "hdf_core:libhdf_ipc_adapter" ]
         } else if (invoker.language == "cpp") {
@@ -194,8 +196,8 @@ template("hdi") {
         deps = [ ":hdi_gen" ]
         if (is_standard_system) {
           public_deps = []
-          if (defined(invoker.sequenceable)) {
-            public_deps += invoker.sequenceable
+          if (defined(invoker.sequenceable_pub_deps)) {
+            public_deps += invoker.sequenceable_pub_deps
           }
 
           public_deps += hdi_build_info.stub_deps
@@ -205,7 +207,9 @@ template("hdi") {
             "hdf_core:libhdi",
             "hiviewdfx_hilog_native:libhilog",
           ]
-
+          if (defined(invoker.sequenceable_ext_deps)) {
+            external_deps += invoker.sequenceable_ext_deps
+          }
           if (invoker.language == "c") {
             external_deps += [
               "hdf_core:libhdf_ipc_adapter",
