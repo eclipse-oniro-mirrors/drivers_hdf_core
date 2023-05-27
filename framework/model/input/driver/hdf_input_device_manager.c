@@ -304,7 +304,7 @@ static int32_t InitEventWorkQueue(InputDevice *inputDev)
         return HDF_FAILURE;
     }
     if (HdfWorkInit(&inputDev->eventWork, EventQueueWorkEntry, inputDev) != HDF_SUCCESS) {
-        HDF_LOGE("%s: gwgw create event thread failed", __func__);
+        HDF_LOGE("%s: create event thread failed", __func__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
