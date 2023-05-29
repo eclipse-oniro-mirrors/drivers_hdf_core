@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -29,13 +29,14 @@ ohos_shared_library("libsample_driver") {
     "$hdf_framework_path/core/host/include",
     "$hdf_framework_path/utils/include",
   ]
-
+  deps = [
+    "./../../../../hdi:libhdi",
+    "./../../../../host:libhdf_host",
+    "./../../../../ipc:libhdf_ipc_adapter",
+    "./../../../../utils:libhdf_utils",
+  ]
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_host",
-    "hdf_core:libhdf_ipc_adapter",
-    "hdf_core:libhdf_utils",
-    "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
   ]

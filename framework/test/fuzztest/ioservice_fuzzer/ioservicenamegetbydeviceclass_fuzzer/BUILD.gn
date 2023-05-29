@@ -25,7 +25,7 @@ ohos_fuzztest("IoserviceNameGetByDeviceClassFuzzTest") {
     external_deps = [ "hilog:libhilog" ]
   }
   sources = [ "ioservicenamegetbydeviceclass_fuzzer.cpp" ]
-  external_deps += [ "hdf_core:libhdf_utils" ]
+  deps = [ "../../../../../adapter/uhdf2/utils:libhdf_utils" ]
 }
 
 group("fuzztest") {

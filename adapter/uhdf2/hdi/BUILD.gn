@@ -101,10 +101,12 @@ if (defined(ohos_lite)) {
     ]
 
     if (is_standard_system) {
+      deps = [
+        "../ipc:libhdf_ipc_adapter",
+        "../pub_utils:libpub_utils",
+      ]
       external_deps = [
         "c_utils:utils",
-        "hdf_core:libhdf_ipc_adapter",
-        "hdf_core:libpub_utils",
         "hiviewdfx_hilog_native:libhilog",
         "ipc:ipc_single",
         "samgr:samgr_proxy",

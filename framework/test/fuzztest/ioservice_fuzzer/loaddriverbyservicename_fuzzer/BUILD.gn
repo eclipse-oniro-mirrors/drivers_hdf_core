@@ -17,9 +17,9 @@ ohos_fuzztest("LoadDriverByServiceNameFuzzTest") {
 
   include_dirs = [ "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/loaddriverbyservicename_fuzzer.h" ]
   sources = [ "loaddriverbyservicename_fuzzer.cpp" ]
+  deps = [ "../../../../../adapter/uhdf2/utils:libhdf_utils" ]
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }

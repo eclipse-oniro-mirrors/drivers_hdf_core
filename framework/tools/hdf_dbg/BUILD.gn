@@ -11,10 +11,12 @@ ohos_executable("hdf_dbg") {
   sources = [ "hdf_dbg.cpp" ]
 
   if (is_standard_system) {
+    deps = [
+      "../../../adapter/uhdf2/hdi:libhdi",
+      "../../../adapter/uhdf2/utils/:libhdf_utils",
+    ]
     external_deps = [
       "c_utils:utils",
-      "hdf_core:libhdf_utils",
-      "hdf_core:libhdi",
       "ipc:ipc_single",
     ]
   }

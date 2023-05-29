@@ -29,11 +29,11 @@ ohos_unittest("hdf_load_vdi_test") {
   deps = [
     ":libvdi_sample1_driver",
     ":libvdi_sample2_driver",
+    "../../../host:libhdf_host",
+    "../../../utils:libhdf_utils",
   ]
   external_deps = [
     "c_utils:utils",
-    "hdf_core:libhdf_host",
-    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
@@ -46,11 +46,11 @@ ohos_shared_library("libvdi_sample1_driver") {
   install_images = [ chipset_base_dir ]
   subsystem_name = "hdf"
   part_name = "hdf_core"
-  external_deps = [
-    "hdf_core:libhdf_host",
-    "hdf_core:libhdf_utils",
-    "hiviewdfx_hilog_native:libhilog",
+  deps = [
+    "../../../host:libhdf_host",
+    "../../../utils:libhdf_utils",
   ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
 ohos_shared_library("libvdi_sample2_driver") {
@@ -62,9 +62,9 @@ ohos_shared_library("libvdi_sample2_driver") {
   install_images = [ chipset_base_dir ]
   subsystem_name = "hdf"
   part_name = "hdf_core"
-  external_deps = [
-    "hdf_core:libhdf_host",
-    "hdf_core:libhdf_utils",
-    "hiviewdfx_hilog_native:libhilog",
+  deps = [
+    "../../../host:libhdf_host",
+    "../../../utils:libhdf_utils",
   ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }

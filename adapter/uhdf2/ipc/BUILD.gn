@@ -47,9 +47,9 @@ if (defined(ohos_lite)) {
     ]
 
     if (is_standard_system) {
+      deps = [ "../pub_utils:libpub_utils" ]
       external_deps = [
         "c_utils:utils",
-        "hdf_core:libpub_utils",
         "hiviewdfx_hilog_native:libhilog",
         "ipc:ipc_single",
         "samgr:samgr_proxy",
