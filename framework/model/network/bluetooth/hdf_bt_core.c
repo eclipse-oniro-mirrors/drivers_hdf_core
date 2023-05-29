@@ -261,31 +261,31 @@ static int32_t BtMessageDispatcher(struct HdfDeviceIoClient *client, int id, str
         break;
     }
     case HDF_BT_CMD_INIT_DEVICE: {
-        uint8_t bt_id = 0;
+        uint8_t btCmdId = 0;
         char buff[MAX_NODE_NAME_SIZE];
-        if (!HdfSbufReadUint8(reqData, &bt_id)) {
+        if (!HdfSbufReadUint8(reqData, &btCmdId)) {
             HDF_LOGE("%s:read deviceID failed!", __func__);
             break;
         }
-        HDF_LOGI("%s:power on. devID=%d", __func__, bt_id);
-        ret = PowerOnDevice(bt_id);
+        HDF_LOGI("%s:power on. devID=%d", __func__, btCmdId);
+        ret = PowerOnDevice(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:power on failed.devideID=%d", __func__, bt_id);
+            HDF_LOGE("%s:power on failed.devideID=%d", __func__, btCmdId);
             break;
         }
-        ret = InitTransport(bt_id);
+        ret = InitTransport(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:init transport failed.devideID=%d,ret=%d", __func__, bt_id, ret);
+            HDF_LOGE("%s:init transport failed.devideID=%d,ret=%d", __func__, btCmdId, ret);
             break;
         }
-        ret = GetDevNodeName(bt_id, buff, MAX_NODE_NAME_SIZE);
+        ret = GetDevNodeName(btCmdId, buff, MAX_NODE_NAME_SIZE);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:get dev node failed!id=%d", __func__, bt_id);
+            HDF_LOGE("%s:get dev node failed!id=%d", __func__, btCmdId);
             break;
         }
         if (rspData != NULL) {
             if (!HdfSbufWriteString(rspData, buff)) {
-                HDF_LOGE("%s:respose dev node failed!id=%d", __func__, bt_id);
+                HDF_LOGE("%s:respose dev node failed!id=%d", __func__, btCmdId);
                 break;
             }
         }
@@ -293,19 +293,19 @@ static int32_t BtMessageDispatcher(struct HdfDeviceIoClient *client, int id, str
         break;
     }
     case HDF_BT_CMD_DEINIT_DEVICE: {
-        uint8_t bt_id = 0;
-        if (!HdfSbufReadUint8(reqData, &bt_id)) {
+        uint8_t btCmdId = 0;
+        if (!HdfSbufReadUint8(reqData, &btCmdId)) {
             HDF_LOGE("%s:read deviceID failed!", __func__);
             break;
         }
-        ret = DeinitTransport(bt_id);
+        ret = DeinitTransport(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:Deinit transport failed.devideID=%d", __func__, bt_id);
+            HDF_LOGE("%s:Deinit transport failed.devideID=%d", __func__, btCmdId);
         }
-        HDF_LOGI("%s:power on %d", __func__, bt_id);
-        ret = PowerOffDevice(bt_id);
+        HDF_LOGI("%s:power on %d", __func__, btCmdId);
+        ret = PowerOffDevice(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:power off failed.devideID=%d", __func__, bt_id);
+            HDF_LOGE("%s:power off failed.devideID=%d", __func__, btCmdId);
             break;
         }
 
