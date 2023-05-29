@@ -19,10 +19,18 @@ export class XTools {
     y: 0,
   };
   static InRect(xx, yy, x, y, w, h) {
-    if (xx < x) return false;
-    if (yy < y) return false;
-    if (xx > x + w) return false;
-    if (yy > y + h) return false;
+    if (xx < x) {
+      return false;
+    }
+    if (yy < y) {
+      return false;
+    }
+    if (xx > x + w) {
+      return false;
+    }
+    if (yy > y + h) {
+      return false;
+    }
     return true;
   }
 }
@@ -50,5 +58,7 @@ export function RandInt(min = 0, max = 100) {
 export function GetURL() {
   if ('undefined' != typeof wx) {
     return 'https://7465-testegg-19e3c9-1301193145.tcb.qcloud.la/';
-  } else return '';
+  } else {
+    return '';
+  }
 }

@@ -582,7 +582,9 @@ class ConfigTerm extends AstObject {
       super(name, ObjectType.PARSEROP_CONFTERM, 0);
       this.signNum_ = 0;
       this.child_ = value;
-      if (value != null) value.this.setParent(this);
+      if (value != null) {
+        value.this.setParent(this);
+      }
     } else if (
       Object.prototype.toString.call(value) == '[object Object]' ||
       Object.prototype.toString.call(value) == '[object Null]'
@@ -590,12 +592,16 @@ class ConfigTerm extends AstObject {
       super(name.strval, ObjectType.PARSEROP_CONFTERM, 0, name);
       this.signNum_ = 0;
       this.child_ = value;
-      if (value != null) value.this.setParent(this);
+      if (value != null) {
+        value.this.setParent(this);
+      }
     } else {
       super(name.name_, ObjectType.PARSEROP_CONFTERM, 0);
       this.signNum_ = 0;
       this.child_ = value;
-      if (value != null) value.this.setParent(this);
+      if (value != null) {
+        value.this.setParent(this);
+      }
       super.addChild(AstObjectFactory.build(name.child_));
     }
   }
@@ -838,7 +844,9 @@ class Ast {
   getchild(node, name) {
     let p = node.child_;
     while (p != null) {
-      if (p.name_ == name) return p;
+      if (p.name_ == name) {
+        return p;
+      }
       p = p.next_;
     }
     return null;

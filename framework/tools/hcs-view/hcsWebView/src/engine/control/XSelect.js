@@ -66,13 +66,7 @@ class XSelect {
     }
     this.pm2f_.drawText(name, 16, x, y, 1, 1, 0, -1, -1, this.nameColor_);
     if (this.open_) {
-      this.pm2f_.fillRect(
-        x,
-        y + h,
-        w,
-        20 * this.list_.length,
-        this.backgroundColor_
-      );
+      this.pm2f_.fillRect(x, y + h, w, 20 * this.list_.length, this.backgroundColor_);
       for (let i in this.list_) {
         if (i == this.tmpSelect_) {
           this.pm2f_.fillRect(x, y + h + i * 20, w, 20, this.backgroundColor_);
@@ -112,18 +106,27 @@ class XSelect {
     }
   }
   isTouchIn(x, y) {
-    if (x < this.posX_) return false;
-    if (y < this.posY_) return false;
-    if (x > this.posX_ + this.posW_) return false;
-    if (y > this.posY_ + this.posH_ + (this.open_ ? 20 * this.list_.length : 0))
+    if (x < this.posX_) {
       return false;
+    }
+    if (y < this.posY_) {
+      return false;
+    }
+    if (x > this.posX_ + this.posW_) {
+      return false;
+    }
+    if (y > this.posY_ + this.posH_ + (this.open_ ? 20 * this.list_.length : 0)) {
+      return false;
+    } 
     return true;
   }
   procTouch(msg, x, y) {
     let isIn = this.isTouchIn(x, y);
     switch (msg) {
       case 1:
-        if (!isIn) break;
+        if (!isIn) {
+          break;
+        }
         if (!this.open_) {
           this.open_ = true;
           break;

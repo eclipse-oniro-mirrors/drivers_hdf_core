@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+const NO_INITIAL_VAL = -1;
+
 export class XMat4 {
   constructor() {
     this.unit();
@@ -124,9 +126,13 @@ export class XMat4 {
     return this;
   }
 
-  PerspectiveMatrix(n, f, w = -1, h = -1) {
-    if (w == -1) w = Scr.logicw;
-    if (h == -1) h = Scr.logich;
+  PerspectiveMatrix(n, f, w = NO_INITIAL_VAL, h = NO_INITIAL_VAL) {
+    if (w == NO_INITIAL_VAL) {
+      w = Scr.logicw;
+    }
+    if (h == NO_INITIAL_VAL) {
+      h = Scr.logich;
+    }
     let ret = w / (tan((30 * pi) / 180) * 2);
     this.unit();
     this.mat[0][0] = 2 / w;
@@ -144,35 +150,56 @@ export class XMat4 {
     this.scale(2 / w, -2 / h, 0);
   }
 
-  Make2DTransformMat(
-    mx = 0,
-    my = 0,
-    sw = 1,
-    sh = 1,
-    ra = 0,
-    ox = 0,
-    oy = 0,
-    realw = 0,
-    realh = 0
-  ) {
+  Make2DTransformMat(mx = 0, my = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, realw = 0, realh = 0) {
+    const LEFT = -1;
+    const MIDDLE = -2;
+    const RIGHT = -3;
+    const UP = -1;
+    const DOWN = -3;
     this.unit();
-    if (ox == -1) ox = 0;
-    if (ox == -2) ox = realw / 2;
-    if (ox == -3) ox = realw;
-    if (oy == -1) oy = 0;
-    if (oy == -2) oy = realh / 2;
-    if (oy == -3) oy = realh;
-    if (ox != 0 || oy != 0) this.move(-ox, -oy, 0);
-    if (sw != 1 || sh != 1) this.scale(sw, sh, 1);
-    if (ra != 0) this.rotate(0, 0, ra);
-    if (mx != 0 || my != 0) this.move(mx, my, 0);
+    if (ox == LEFT) {
+      ox = 0;
+    }
+    if (ox == MIDDLE) {
+      ox = realw / 2;
+    }
+    if (ox == RIGHT) {
+      ox = realw;
+    }
+    if (oy == UP) {
+      oy = 0;
+    }
+    if (oy == MIDDLE) {
+      oy = realh / 2;
+    }
+    if (oy == DOWN) {
+      oy = realh;
+    }
+    if (ox != 0 || oy != 0) {
+      this.move(-ox, -oy, 0);
+    }
+    if (sw != 1 || sh != 1) {
+      this.scale(sw, sh, 1);
+    }
+    if (ra != 0) {
+      this.rotate(0, 0, ra);
+    }
+    if (mx != 0 || my != 0) {
+      this.move(mx, my, 0);
+    }
   }
 
   Make2DTransformMat_(mx, my, sw, sh, ra, ox = 0, oy = 0) {
     this.unit();
-    if (mx != 0 || my != 0) this.move(-mx, -my, 0);
-    if (ra != 0) this.rotate(0, 0, -ra);
-    if (sw != 1 || sh != 1) this.scale(1 / sw, 1 / sh, 1);
+    if (mx != 0 || my != 0) {
+      this.move(-mx, -my, 0);
+    }
+    if (ra != 0) {
+      this.rotate(0, 0, -ra);
+    }
+    if (sw != 1 || sh != 1) {
+      this.scale(1 / sw, 1 / sh, 1);
+    }
     return this;
   }
 }

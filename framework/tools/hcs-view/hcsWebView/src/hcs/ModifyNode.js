@@ -25,7 +25,9 @@ function getParent(node, dest, parent) {
 
 function isNameRepeat(node, name) {
   for (let i in node.value_) {
-    if (node.value_[i].name_ == name) return true;
+    if (node.value_[i].name_ == name) {
+      return true;
+    }
   }
   return false;
 }
@@ -122,7 +124,9 @@ ModifyNode.getInheritList = function (root, node) {
   let ps = [parent];
   while (true) {
     let pp = getParent(root, parent, null);
-    if (pp == null) break;
+    if (pp == null) {
+      break;
+    }
     ps.splice(0, 0, pp);
   }
   let ptemp = null;
@@ -134,7 +138,9 @@ ModifyNode.getInheritList = function (root, node) {
     } else {
       ptemp = NodeTools.findChildByName(ptemp, ps[i].name_);
     }
-    if (ptemp == null) break;
+    if (ptemp == null) {
+      break;
+    }
   }
   if (ptemp != null && ptemp != parent) {
     for (let i in ptemp.value_) {
@@ -157,11 +163,15 @@ ModifyNode.getInheritNameList = function (root, node) {
 };
 ModifyNode.getInheritTemplete = function (root, node) {
   let parent = getParent(root, node, null);
-  if (parent == null) return null;
+  if (parent == null) {
+    return null;
+  }
   let ilist = ModifyNode.getInheritList(root, node);
   for (let i in ilist) {
     if (parent.nodeType_ == NodeType.TEMPLETE) {
-      if (parent.ref_ == ilist[i].name_) return ilist[i];
+      if (parent.ref_ == ilist[i].name_) {
+        return ilist[i];
+      }
     } else if (parent.name_ == ilist[i].name_) {
       return ilist[i];
     }

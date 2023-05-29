@@ -105,8 +105,12 @@ class Generator {
         ret.value_ = null;
         break;
       case DataType.BOOL:
-        if (node.integerValue_ == 0) ret.value_ = false;
-        else ret.value_ = true;
+        if (node.integerValue_ == 0) {
+          ret.value_ = false;
+        }
+        else {
+          ret.value_ = true;
+        }
         break;
       default:
         NapiLog.logError('unknow type');
@@ -215,7 +219,9 @@ class Generator {
         ret = '[';
         for (let i in node.value_) {
           let ss = this.objToHcs(node.value_[i], 0);
-          if (i > 0) ret += ', ';
+          if (i > 0) {
+            ret += ', ';
+          }
           ret += ss;
         }
         ret += ']';
@@ -227,8 +233,12 @@ class Generator {
         ret = 'delete';
         break;
       case DataType.BOOL:
-        if (node.value_) ret = 'true';
-        else ret = 'false';
+        if (node.value_) {
+          ret = 'true';
+        }
+        else {
+          ret = 'false';
+        }
         break;
       default:
         NapiLog.logError('unknow' + node.type_);
@@ -240,7 +250,9 @@ class Generator {
 
 Generator.pInstance_ = null;
 Generator.gi = function () {
-  if (Generator.pInstance_ == null) Generator.pInstance_ = new Generator();
+  if (Generator.pInstance_ == null) {
+    Generator.pInstance_ = new Generator();
+  }
   return Generator.pInstance_;
 };
 

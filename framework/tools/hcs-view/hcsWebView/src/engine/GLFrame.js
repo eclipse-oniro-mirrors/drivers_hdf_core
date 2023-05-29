@@ -112,18 +112,26 @@ function mouseUp(e) {
 function keyDown(e) {
   let ret = '';
   if (e.ctrlKey) {
-    if (ret.length > 0) ret += '+';
+    if (ret.length > 0) {
+      ret += '+';
+    }
     ret += 'ctrl';
   }
   if (e.shiftKey) {
-    if (ret.length > 0) ret += '+';
+    if (ret.length > 0) {
+      ret += '+';
+    }
     ret += 'shift';
   }
   if (e.altKey) {
-    if (ret.length > 0) ret += '+';
+    if (ret.length > 0) {
+      ret += '+';
+    }
     ret += 'alt';
   }
-  if (ret.length > 0) ret += '+';
+  if (ret.length > 0) {
+    ret += '+';
+  }
   ret += e.key;
   GLFrame.pinstance_.callbackKey(1, ret);
   if (!CanvasInput.FOCUS) {

@@ -64,7 +64,9 @@ class AttrEditor {
           this.freshDefineAttributeEditor(this.node_);
           break;
       }
-    } else AttributeArea.gi().addTitle('Property editing area');
+    } else {
+      AttributeArea.gi().addTitle('Property editing area');
+    }
 
     AttributeArea.gi().flush();
   }
@@ -394,7 +396,9 @@ AttrEditor.ATTR_TYPE_STR = ['整数', '字符串', '数组', '布尔', '引用',
 
 AttrEditor.pInstance_ = null;
 AttrEditor.gi = function () {
-  if (AttrEditor.pInstance_ == null) AttrEditor.pInstance_ = new AttrEditor();
+  if (AttrEditor.pInstance_ == null) {
+    AttrEditor.pInstance_ = new AttrEditor();
+  }
   return AttrEditor.pInstance_;
 };
 
