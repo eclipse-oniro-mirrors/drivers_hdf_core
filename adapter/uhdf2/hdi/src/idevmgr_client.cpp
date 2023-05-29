@@ -98,7 +98,7 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
     return status;
 }
 
-static bool g_hdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
+static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
 {
     while (true) {
         struct DevInfo devInfo;
@@ -164,7 +164,7 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
         return status;
     }
 
-    if (!g_hdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
+    if (!HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
         HDF_LOGE("failed to read all device info");
         return HDF_ERR_INVALID_PARAM;
     }
