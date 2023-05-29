@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-const { X2DFast } = require("../graphics/X2DFast");
+const { X2DFast } = require('../graphics/X2DFast');
 
 class XSelect {
   constructor(list, default_) {
@@ -48,14 +48,14 @@ class XSelect {
     let model = 3;
 
     this.pm2f_.fillRect(x, y, w, h, this.backgroundColor_);
-    let name = "...";
-    if (this.default_.indexOf("\\") != -1) {
-      let list = this.default_.split("\\");
+    let name = '...';
+    if (this.default_.indexOf('\\') != -1) {
+      let list = this.default_.split('\\');
       if (list.length > model) {
         for (let i = list.length - model; i < list.length; i++) {
           name += list[i];
           if (i != list.length - 1) {
-            name += "\\";
+            name += '\\';
           }
         }
       } else {
@@ -80,14 +80,14 @@ class XSelect {
         if (this.list_[i] == this.default_) {
           this.pm2f_.fillRect(x, y + h + i * 20, w, 20, this.backgroundColor_);
         }
-        let name1 = "...";
-        if (this.list_[i].indexOf("\\") != -1) {
-          let list = this.list_[i].split("\\");
+        let name1 = '...';
+        if (this.list_[i].indexOf('\\') != -1) {
+          let list = this.list_[i].split('\\');
           if (list.length > model) {
             for (let k = list.length - model; k < list.length; k++) {
               name1 += list[k];
               if (k != list.length - 1) {
-                name1 += "\\";
+                name1 += '\\';
               }
             }
           } else {

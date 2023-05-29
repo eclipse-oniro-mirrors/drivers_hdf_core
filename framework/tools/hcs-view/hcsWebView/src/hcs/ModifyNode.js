@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-const { NapiLog } = require("./NapiLog");
-const { NodeTools, DataType, NodeType } = require("./NodeTools");
-const re = require("./re");
+const { NapiLog } = require('./NapiLog');
+const { NodeTools, DataType, NodeType } = require('./NodeTools');
+const re = require('./re');
 
 class ModifyNode {}
 
@@ -50,7 +50,7 @@ ModifyNode.modifyNodeType = function (files, root, node, type) {
     case NodeType.COPY:
     case NodeType.INHERIT:
     case NodeType.REFERENCE:
-      node.ref_ = "unknow";
+      node.ref_ = 'unknow';
       break;
     case NodeType.DELETE:
       break;
@@ -63,12 +63,12 @@ ModifyNode.modifyNodeType = function (files, root, node, type) {
 
 ModifyNode.addChildAttr = function (root, node) {
   for (let i = 1; i < 256; i++) {
-    let name = "attr_" + i;
+    let name = 'attr_' + i;
     if (!isNameRepeat(node, name)) {
       let newAttr = NodeTools.createNewNode(
         DataType.ATTR,
         name,
-        NodeTools.createNewNode(DataType.INT8, "", 0)
+        NodeTools.createNewNode(DataType.INT8, '', 0)
       );
       node.value_.push(newAttr);
       newAttr.parent_ = node;
@@ -80,7 +80,7 @@ ModifyNode.addChildAttr = function (root, node) {
 
 ModifyNode.addChildNode = function (root, node) {
   for (let i = 1; i < 256; i++) {
-    let name = "node_" + i;
+    let name = 'node_' + i;
     if (!isNameRepeat(node, name)) {
       let newNode = NodeTools.createNewNode(
         DataType.NODE,
@@ -98,7 +98,7 @@ ModifyNode.addChildNode = function (root, node) {
 ModifyNode.deleteNode = function (node) {
   let parent = node.parent_;
   if (parent == null) {
-    NapiLog.logError("不能删除root节点");
+    NapiLog.logError('不能删除root节点');
     return false;
   }
   for (let i in parent.value_) {

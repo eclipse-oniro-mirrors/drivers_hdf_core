@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-const { shaderFastVs, shaderFastFs } = require("./shaders/shader_fast");
-const { NapiLog } = require("./../../hcs/NapiLog");
-import { gl } from "../GLFrame.js";
+const { shaderFastVs, shaderFastFs } = require('./shaders/shader_fast');
+const { NapiLog } = require('./../../hcs/NapiLog');
+import { gl } from '../GLFrame.js';
 
 export class XShader {
   static gi() {
@@ -31,36 +31,36 @@ export class XShader {
     this.shaderFast = { program: this.initShader(shaderFastVs, shaderFastFs) };
 
     this.shaderFast.position = gl.getAttribLocation(
-      this.shaderFast["program"],
-      "position"
+      this.shaderFast['program'],
+      'position'
     );
     this.shaderFast.aTexCoord = gl.getAttribLocation(
-      this.shaderFast["program"],
-      "aTexCoord"
+      this.shaderFast['program'],
+      'aTexCoord'
     );
     this.shaderFast.ext1 = gl.getAttribLocation(
-      this.shaderFast["program"],
-      "ext1"
+      this.shaderFast['program'],
+      'ext1'
     );
     this.shaderFast.ext2 = gl.getAttribLocation(
-      this.shaderFast["program"],
-      "ext2"
+      this.shaderFast['program'],
+      'ext2'
     );
     this.shaderFast.inColor = gl.getAttribLocation(
-      this.shaderFast["program"],
-      "inColor"
+      this.shaderFast['program'],
+      'inColor'
     );
 
     this.shaderFast.uMat = gl.getUniformLocation(
-      this.shaderFast["program"],
-      "uMat"
+      this.shaderFast['program'],
+      'uMat'
     );
 
     this.shaderFast.tex = {};
     for (let i = 0; i < 16; i++) {
       this.shaderFast.tex[i] = gl.getUniformLocation(
-        this.shaderFast["program"],
-        "tex" + i
+        this.shaderFast['program'],
+        'tex' + i
       );
     }
 
@@ -68,7 +68,7 @@ export class XShader {
     this.use(XShader.ID_SHADER_FAST);
   }
   use(sid) {
-    gl.useProgram(this.shaders[sid]["program"]);
+    gl.useProgram(this.shaders[sid]['program']);
     this.pUseingShader = this.shaders[sid];
     return this.pUseingShader;
   }
@@ -78,7 +78,7 @@ export class XShader {
     gl.compileShader(vs);
     if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
       NapiLog.logError(
-        "error occured compiling the shaders:" + gl.getShaderInfoLog(vs)
+        'error occured compiling the shaders:' + gl.getShaderInfoLog(vs)
       );
       return null;
     }
@@ -88,7 +88,7 @@ export class XShader {
     gl.compileShader(fs);
     if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
       NapiLog.logError(
-        "error occured compiling the shaders:" + gl.getShaderInfoLog(fs)
+        'error occured compiling the shaders:' + gl.getShaderInfoLog(fs)
       );
       return null;
     }
@@ -100,7 +100,7 @@ export class XShader {
     gl.linkProgram(ret);
 
     if (!gl.getProgramParameter(ret, gl.LINK_STATUS)) {
-      NapiLog.logError("unable to initialize!");
+      NapiLog.logError('unable to initialize!');
       return;
     }
 

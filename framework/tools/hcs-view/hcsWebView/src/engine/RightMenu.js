@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const { X2DFast } = require("./graphics/X2DFast");
-const { Scr } = require("./XDefine");
-const { XTools } = require("./XTools");
+const { X2DFast } = require('./graphics/X2DFast');
+const { Scr } = require('./XDefine');
+const { XTools } = require('./XTools');
 
 class RightMenu {
   static backgroundImg_ = -1;
@@ -146,7 +146,7 @@ class RightMenu {
       } else if (e.type == 1) {
         if (e.open) {
           X2DFast.px2f.drawText(
-            "<",
+            '<',
             RightMenu.TEXT_SIZE,
             x + w,
             OFFY_,
@@ -160,7 +160,7 @@ class RightMenu {
           RightMenu.DrawGroup(e.group, x + w, y);
         } else {
           X2DFast.px2f.drawText(
-            ">",
+            '>',
             RightMenu.TEXT_SIZE,
             x + w,
             OFFY_,

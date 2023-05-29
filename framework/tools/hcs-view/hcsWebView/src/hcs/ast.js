@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-const { NapiLog } = require("./NapiLog");
-const { TokenType } = require("./lexer");
+const { NapiLog } = require('./NapiLog');
+const { TokenType } = require('./lexer');
 
 var ObjectType = {
   PARSEROP_UINT8: 0x01,
@@ -60,27 +60,27 @@ var UINT64_MAX = 0xffffffffffffffff;
 class AstObject {
   constructor(name, type, value, bindToken, jinzhi) {
     let callType = Object.prototype.toString.call(name);
-    if (callType == "[object Object]") {
+    if (callType == '[object Object]') {
       this.constructorSis(name.name_, name.type_, name.stringValue_);
       this.integerValue_ = name.integerValue_;
-    } else if (callType == "[object String]") {
-      if (Object.prototype.toString.call(value) == "[object Number]") {
-        if (Object.prototype.toString.call(bindToken) == "[object Object]") {
+    } else if (callType == '[object String]') {
+      if (Object.prototype.toString.call(value) == '[object Number]') {
+        if (Object.prototype.toString.call(bindToken) == '[object Object]') {
           this.constructorSiit(name, type, value, bindToken, jinzhi);
         } else {
           this.constructorSii(name, type, value, jinzhi);
         }
-      } else if (Object.prototype.toString.call(value) == "[object String]") {
-        if (Object.prototype.toString.call(bindToken) == "[object Object]") {
+      } else if (Object.prototype.toString.call(value) == '[object String]') {
+        if (Object.prototype.toString.call(bindToken) == '[object Object]') {
           this.constructorSist(name, type, value, bindToken);
         } else {
           this.constructorSis(name, type, value);
         }
       } else {
-        NapiLog.logError("err1");
+        NapiLog.logError('err1');
       }
     } else {
-      NapiLog.logError("err2");
+      NapiLog.logError('err2');
     }
   }
 
@@ -159,7 +159,7 @@ class AstObject {
     }
 
     if (this == peerObject) {
-      NapiLog.logError("add self as peer");
+      NapiLog.logError('add self as peer');
       return false;
     }
 
@@ -185,14 +185,14 @@ class AstObject {
   merge(srcObj) {
     if (srcObj.name_ != this.name_) {
       NapiLog.logError(
-        this.sourceInfo() + "merge different node to" + srcObj.sourceInfo()
+        this.sourceInfo() + 'merge different node to' + srcObj.sourceInfo()
       );
       return false;
     }
 
     if (srcObj.type_ != this.type_) {
       NapiLog.logError(
-        this.sourceInfo() + "conflict type with " + srcObj.sourceInfo()
+        this.sourceInfo() + 'conflict type with ' + srcObj.sourceInfo()
       );
       return false;
     }
@@ -228,7 +228,7 @@ class AstObject {
   }
 
   sourceInfo() {
-    return this.src_ + ":" + this.lineno_ + " ";
+    return this.src_ + ':' + this.lineno_ + ' ';
   }
 
   remove() {
@@ -354,14 +354,14 @@ class AstObject {
 
 class ConfigNode extends AstObject {
   constructor(name, nodeType, refName) {
-    if (Object.prototype.toString.call(name) == "[object String]") {
-      super(name, ObjectType.PARSEROP_CONFNODE, "");
+    if (Object.prototype.toString.call(name) == '[object String]') {
+      super(name, ObjectType.PARSEROP_CONFNODE, '');
       this.refNodePath_ = refName;
       this.nodeType_ = nodeType;
       this.inheritIndex_ = 0;
       this.inheritCount_ = 0;
       this.templateSignNum_ = 0;
-    } else if (Object.prototype.toString.call(nodeType) == "[object Number]") {
+    } else if (Object.prototype.toString.call(nodeType) == '[object Number]') {
       super(name.strval, ObjectType.PARSEROP_CONFNODE, 0, name);
       this.refNodePath_ = refName;
       this.nodeType_ = nodeType;
@@ -369,7 +369,7 @@ class ConfigNode extends AstObject {
       this.inheritCount_ = 0;
       this.templateSignNum_ = 0;
     } else {
-      super(name, ObjectType.PARSEROP_CONFNODE, "");
+      super(name, ObjectType.PARSEROP_CONFNODE, '');
       this.refNodePath_ = refName;
       this.nodeType_ = nodeType;
       this.inheritIndex_ = 0;
@@ -386,12 +386,12 @@ class ConfigNode extends AstObject {
   }
   NodeTypeToStr(type) {
     let type2StringMap = {
-      0: "",
-      1: "NodeCopy",
-      2: "NodeReference",
-      3: "NodeDelete",
-      4: "NodeInherit",
-      5: "NodeTemplate",
+      0: '',
+      1: 'NodeCopy',
+      2: 'NodeReference',
+      3: 'NodeDelete',
+      4: 'NodeInherit',
+      5: 'NodeTemplate',
     };
     return type2StringMap[type];
   }
@@ -411,7 +411,7 @@ class ConfigNode extends AstObject {
     }
     if (!srcObj.isNode() || srcObj.name() != this.name_) {
       NapiLog.logError(
-        sourceInfo() + "merge conflict type with " + srcObj.sourceInfo()
+        sourceInfo() + 'merge conflict type with ' + srcObj.sourceInfo()
       );
       return false;
     }
@@ -454,7 +454,7 @@ class ConfigNode extends AstObject {
       if (sym != undefined) {
         NapiLog.logError(
           child.sourceInfo() +
-            "redefined, first definition at " +
+            'redefined, first definition at ' +
             sym.second.sourceInfo()
         );
         return true;
@@ -467,7 +467,7 @@ class ConfigNode extends AstObject {
   }
   inheritExpand(refObj) {
     if (refObj == null) {
-      NapiLog.logError(sourceInfo() + "inherit invalid node: " + refNodePath_);
+      NapiLog.logError(sourceInfo() + 'inherit invalid node: ' + refNodePath_);
       return false;
     }
 
@@ -491,7 +491,7 @@ class ConfigNode extends AstObject {
 
     if (refObj.isElders(this)) {
       NapiLog.logError(
-        sourceInfo() + "circular reference " + refObj.sourceInfo()
+        sourceInfo() + 'circular reference ' + refObj.sourceInfo()
       );
       return false;
     }
@@ -547,7 +547,7 @@ class ConfigNode extends AstObject {
       let baseObj = this.lookup(objChild.name(), objChild.type());
       if (baseObj == null) {
         NapiLog.logError(
-          objChild.sourceInfo() + "not in template node: " + other.sourceInfo()
+          objChild.sourceInfo() + 'not in template node: ' + other.sourceInfo()
         );
         return false;
       }
@@ -578,14 +578,14 @@ class ConfigNode extends AstObject {
 
 class ConfigTerm extends AstObject {
   constructor(name, value) {
-    if (Object.prototype.toString.call(name) == "[object String]") {
+    if (Object.prototype.toString.call(name) == '[object String]') {
       super(name, ObjectType.PARSEROP_CONFTERM, 0);
       this.signNum_ = 0;
       this.child_ = value;
       if (value != null) value.this.setParent(this);
     } else if (
-      Object.prototype.toString.call(value) == "[object Object]" ||
-      Object.prototype.toString.call(value) == "[object Null]"
+      Object.prototype.toString.call(value) == '[object Object]' ||
+      Object.prototype.toString.call(value) == '[object Null]'
     ) {
       super(name.strval, ObjectType.PARSEROP_CONFTERM, 0, name);
       this.signNum_ = 0;
@@ -606,7 +606,7 @@ class ConfigTerm extends AstObject {
   merge(srcObj) {
     if (!srcObj.isTerm()) {
       NapiLog.logError(
-        sourceInfo() + "merge conflict type with " + srcObj.sourceInfo()
+        sourceInfo() + 'merge conflict type with ' + srcObj.sourceInfo()
       );
       return false;
     }
@@ -654,7 +654,7 @@ class ConfigTerm extends AstObject {
     ) {
       NapiLog.logError(
         src.sourceInfo() +
-          "overwrite different type with:" +
+          'overwrite different type with:' +
           child_.sourceInfo()
       );
       return false;
@@ -676,8 +676,8 @@ class ConfigTerm extends AstObject {
 }
 class ConfigArray extends AstObject {
   constructor(array) {
-    if (Object.prototype.toString.call(array) == "[object Object]") {
-      super("", ObjectType.PARSEROP_ARRAY, 0, array); // bindToken
+    if (Object.prototype.toString.call(array) == '[object Object]') {
+      super('', ObjectType.PARSEROP_ARRAY, 0, array); // bindToken
       this.arrayType_ = 0;
       this.arraySize_ = 0;
       if (array.type == undefined) {
@@ -690,7 +690,7 @@ class ConfigArray extends AstObject {
         this.arrayType_ = array.arrayType_;
       }
     } else {
-      super("", ObjectType.PARSEROP_ARRAY, 0);
+      super('', ObjectType.PARSEROP_ARRAY, 0);
       this.arrayType_ = 0;
       this.arraySize_ = 0;
     }
@@ -710,7 +710,7 @@ class ConfigArray extends AstObject {
   merge(srcObj) {
     if (!srcObj.isArray()) {
       NapiLog.logError(
-        sourceInfo() + "merge conflict type with " + srcObj.sourceInfo()
+        sourceInfo() + 'merge conflict type with ' + srcObj.sourceInfo()
       );
       return false;
     }
@@ -767,13 +767,13 @@ class Ast {
     this.redefineChecked_ = false;
   }
   setw(l) {
-    let ret = "";
-    for (let i = 0; i < l; i++) ret += " ";
+    let ret = '';
+    for (let i = 0; i < l; i++) ret += ' ';
     return ret;
   }
 
   dump(prefix) {
-    NapiLog.logError("dump ", prefix, " AST:");
+    NapiLog.logError('dump ', prefix, ' AST:');
     this.walkForward(this.astRoot_, (current, walkDepth) => {
       switch (current.type_) {
         case ObjectType.PARSEROP_UINT8:
@@ -781,23 +781,23 @@ class Ast {
         case ObjectType.PARSEROP_UINT32:
         case ObjectType.PARSEROP_UINT64:
           NapiLog.logInfo(
-            this.setw(walkDepth * 4) + "[" + current.integerValue_ + "]"
+            this.setw(walkDepth * 4) + '[' + current.integerValue_ + ']'
           );
           break;
         case ObjectType.PARSEROP_STRING: // 5
           NapiLog.logInfo(this.setw(walkDepth * 4) + current.stringValue_);
           break;
         case ObjectType.PARSEROP_CONFNODE: // 6 content
-          if (current.name_ == "blockSize") {
-            current.name_ = "blockSize";
+          if (current.name_ == 'blockSize') {
+            current.name_ = 'blockSize';
           }
-          NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_ + " :");
+          NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_ + ' :');
           break;
         case ObjectType.PARSEROP_CONFTERM: // 7 Attribute name
-          if (current.name_ == "funcNum") {
-            current.name_ = "funcNum";
+          if (current.name_ == 'funcNum') {
+            current.name_ = 'funcNum';
           }
-          NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_ + " = ");
+          NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_ + ' = ');
           break;
         case ObjectType.PARSEROP_ARRAY:
           NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_);
@@ -845,13 +845,13 @@ class Ast {
   }
 
   getpath(node) {
-    NapiLog.logError("----path start----");
+    NapiLog.logError('----path start----');
     let p = node;
     while (p != null) {
       NapiLog.logError(p.name_);
       p = p.parent_;
     }
-    NapiLog.logError("----path end----");
+    NapiLog.logError('----path end----');
   }
 
   expand() {
@@ -861,7 +861,7 @@ class Ast {
       return false;
     }
 
-    if (this.astRoot_.lookup("module", ObjectType.PARSEROP_CONFTERM) == null) {
+    if (this.astRoot_.lookup('module', ObjectType.PARSEROP_CONFTERM) == null) {
       NapiLog.logError(
         astRoot_.sourceInfo() + "miss 'module' attribute under root node"
       );
@@ -875,7 +875,7 @@ class Ast {
     if (!this.inheritExpand()) {
       return false;
     }
-    this.dump("expanded");
+    this.dump('expanded');
     return true;
   }
 
@@ -1030,11 +1030,11 @@ class Ast {
   }
 
   lookup(startObj, path) {
-    if (path.indexOf(".") < 0) {
+    if (path.indexOf('.') < 0) {
       return startObj.parent_.lookup(path, 0);
     }
 
-    let splitPath = this.splitNodePath(path, ".");
+    let splitPath = this.splitNodePath(path, '.');
   }
   splitNodePath(path, separator) {
     let splitList = path.split(separator);

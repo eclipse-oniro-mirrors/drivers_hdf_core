@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-const { NapiLog } = require("./../hcs/NapiLog");
+const { NapiLog } = require('./../hcs/NapiLog');
 let mockTest = [
   {
-    fn: "D:\\ceshi\\d.hcs",
+    fn: 'D:\\ceshi\\d.hcs',
     data: `
 	#include "D:\\ceshi\\b.hcs"
 root {
@@ -32,7 +32,7 @@ root {
  }`,
   },
   {
-    fn: "D:\\ceshi\\b.hcs",
+    fn: 'D:\\ceshi\\b.hcs',
     data: `
 root {
 	 nodeaa {
@@ -60,7 +60,7 @@ class MockMessage {
   constructor() {}
   send(type, data) {
     setTimeout(() => {
-      const { XMessage } = require("./XMessage");
+      const { XMessage } = require('./XMessage');
       XMessage.gi().onRecv({
         data: {
           type: type,
@@ -70,18 +70,18 @@ class MockMessage {
     }, 100);
   }
   processMessage(msg) {
-    NapiLog.logInfo("---MockMessage start---");
+    NapiLog.logInfo('---MockMessage start---');
     NapiLog.logInfo(msg.type);
     NapiLog.logInfo(msg.data);
-    if (msg.type == "inited") {
-      this.send("parse", mockTest[0].fn);
-    } else if (msg.type == "getfiledata") {
-      this.send("filedata", {
+    if (msg.type == 'inited') {
+      this.send('parse', mockTest[0].fn);
+    } else if (msg.type == 'getfiledata') {
+      this.send('filedata', {
         fn: msg.data,
         data: getArray(msg.data),
       });
     }
-    NapiLog.logInfo("---MockMessage end---");
+    NapiLog.logInfo('---MockMessage end---');
   }
 }
 

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-const { AttributeArea } = require("./attr/AttributeArea");
-const { ModifyNode } = require("./hcs/ModifyNode");
-const { DataType, NodeType } = require("./hcs/NodeTools");
-const { NodeTools } = require("./hcs/NodeTools");
+const { AttributeArea } = require('./attr/AttributeArea');
+const { ModifyNode } = require('./hcs/ModifyNode');
+const { DataType, NodeType } = require('./hcs/NodeTools');
+const { NodeTools } = require('./hcs/NodeTools');
 const INT64_MAX = 9223372036854775807n;
 const INT64_MIN = -9223372036854775808n;
 
@@ -64,7 +64,7 @@ class AttrEditor {
           this.freshDefineAttributeEditor(this.node_);
           break;
       }
-    } else AttributeArea.gi().addTitle("Property editing area");
+    } else AttributeArea.gi().addTitle('Property editing area');
 
     AttributeArea.gi().flush();
   }
@@ -72,96 +72,96 @@ class AttrEditor {
   freshDataNodeNotInheritEditor(node) {
     AttributeArea.gi().addDotLine();
     AttributeArea.gi().addTopInput(
-      "name",
-      "Node Name",
+      'name',
+      'Node Name',
       node.name_,
       this.root_ == this.node_
     );
     AttributeArea.gi().addSelect(
-      "node_type",
-      "Node Type",
+      'node_type',
+      'Node Type',
       AttrEditor.NODE_TYPE_STR,
       AttrEditor.NODE_TYPE_STR[node.nodeType_],
       this.root_ == this.node_
     );
   }
   changeDataNodeNotInherit(searchId, type, value) {
-    if (searchId == "node_type") {
+    if (searchId == 'node_type') {
       AttrEditor.gi().changeNodeType(value);
-    } else if (searchId == "name" && this.node_.name_ != value) {
+    } else if (searchId == 'name' && this.node_.name_ != value) {
       ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
-    } else if (searchId == "add_child_node") {
+    } else if (searchId == 'add_child_node') {
       this.node_.isOpen_ = true;
       let newNode = ModifyNode.addChildNode(this.root_, this.node_);
-      this.callCallback("change_current_select", newNode);
-    } else if (searchId == "add_child_attr") {
+      this.callCallback('change_current_select', newNode);
+    } else if (searchId == 'add_child_attr') {
       this.node_.isOpen_ = true;
       let newNode = ModifyNode.addChildAttr(this.root_, this.node_);
-      this.callCallback("change_current_select", newNode);
-    } else if (searchId == "delete") {
+      this.callCallback('change_current_select', newNode);
+    } else if (searchId == 'delete') {
       ModifyNode.deleteNode(this.node_);
       this.freshEditor();
     }
   }
   freshcopyNodeEditor(node) {
     AttributeArea.gi().addDotLine();
-    AttributeArea.gi().addTopInput("name", "Node Name", node.name_);
+    AttributeArea.gi().addTopInput('name', 'Node Name', node.name_);
     AttributeArea.gi().addSelect(
-      "node_type",
-      "Node Type",
+      'node_type',
+      'Node Type',
       AttrEditor.NODE_TYPE_STR,
       AttrEditor.NODE_TYPE_STR[node.nodeType_],
       this.root_ == this.node_
     );
     let btnName = node.ref_;
-    if (btnName == "unknow") {
+    if (btnName == 'unknow') {
       switch (node.nodeType_) {
         case NodeType.COPY:
-          btnName = "取消复制";
+          btnName = '取消复制';
           break;
         case NodeType.INHERIT:
-          btnName = "取消继承";
+          btnName = '取消继承';
           break;
         case NodeType.REFERENCE:
-          btnName = "取消引用";
+          btnName = '取消引用';
           break;
       }
     }
     AttributeArea.gi().addLabelButton(
-      "change_target",
+      'change_target',
       btnName,
-      "Original Node"
+      'Original Node'
     );
   }
 
   changecopyNode(searchId, type, value) {
-    if (searchId == "name" && this.node_.name_ != value) {
+    if (searchId == 'name' && this.node_.name_ != value) {
       ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
-    } else if (searchId == "change_target") {
-      if (this.node_.ref_ == "unknow") {
+    } else if (searchId == 'change_target') {
+      if (this.node_.ref_ == 'unknow') {
         ModifyNode.modifyNodeType(this.files_, this.root_, this.node_, 0);
         this.freshEditor(this.filePoint_, this.node_);
-        this.callCallback("cancel_change_target", this.node_);
+        this.callCallback('cancel_change_target', this.node_);
       } else {
-        this.callCallback("change_target", this.node_);
+        this.callCallback('change_target', this.node_);
       }
-    } else if (searchId == "node_type") {
+    } else if (searchId == 'node_type') {
       AttrEditor.gi().changeNodeType(value);
-    } else if (searchId == "add_child_node") {
+    } else if (searchId == 'add_child_node') {
       ModifyNode.addChildNode(this.root_, this.node_);
-    } else if (searchId == "add_child_attr") {
+    } else if (searchId == 'add_child_attr') {
       ModifyNode.addChildAttr(this.root_, this.node_);
-    } else if (searchId == "delete") {
+    } else if (searchId == 'delete') {
       ModifyNode.deleteNode(this.node_);
       this.freshEditor();
     }
   }
 
   freshdeleteNodeEditor(node) {
-    AttributeArea.gi().addTopInput("name", "Node Name", node.name_);
+    AttributeArea.gi().addTopInput('name', 'Node Name', node.name_);
     AttributeArea.gi().addSelect(
-      "node_type",
-      "Node Type",
+      'node_type',
+      'Node Type',
       AttrEditor.NODE_TYPE_STR,
       AttrEditor.NODE_TYPE_STR[node.nodeType_],
       this.root_ == this.node_
@@ -181,71 +181,71 @@ class AttrEditor {
       this.node_.nodeType_ == NodeType.INHERIT ||
       this.node_.nodeType_ == NodeType.REFERENCE
     ) {
-      this.callCallback("change_target", this.node_);
+      this.callCallback('change_target', this.node_);
     }
   }
   changedeleteNode(searchId, type, value) {
-    if (searchId == "name" && this.node_.name_ != value) {
+    if (searchId == 'name' && this.node_.name_ != value) {
       ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
-    } else if (searchId == "delete") {
+    } else if (searchId == 'delete') {
       ModifyNode.deleteNode(this.node_);
       this.freshEditor();
-    } else if (searchId == "node_type") {
+    } else if (searchId == 'node_type') {
       AttrEditor.gi().changeNodeType(value);
     }
   }
   freshTempletNodeEditor(node) {
     AttributeArea.gi().addDotLine();
-    AttributeArea.gi().addTopInput("name", "Node Name", node.name_);
+    AttributeArea.gi().addTopInput('name', 'Node Name', node.name_);
     AttributeArea.gi().addSelect(
-      "node_type",
-      "Node Type",
+      'node_type',
+      'Node Type',
       AttrEditor.NODE_TYPE_STR,
       AttrEditor.NODE_TYPE_STR[node.nodeType_],
       this.root_ == this.node_
     );
   }
   changeTempletNode(searchId, type, value) {
-    if (searchId == "name") {
+    if (searchId == 'name') {
       ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
-    } else if (searchId == "add_child_node") {
+    } else if (searchId == 'add_child_node') {
       ModifyNode.addChildNode(this.root_, this.node_);
-    } else if (searchId == "add_child_attr") {
+    } else if (searchId == 'add_child_attr') {
       ModifyNode.addChildAttr(this.root_, this.node_);
-    } else if (searchId == "delete") {
+    } else if (searchId == 'delete') {
       ModifyNode.deleteNode(this.node_);
       this.freshEditor();
-    } else if (searchId == "node_type") {
+    } else if (searchId == 'node_type') {
       AttrEditor.gi().changeNodeType(value);
     }
   }
 
   freshDefineAttributeEditor(node) {
     let v = node.value_;
-    AttributeArea.gi().addTopInput("name", "Name", node.name_);
+    AttributeArea.gi().addTopInput('name', 'Name', node.name_);
 
     if (
       v.type_ == DataType.INT8 ||
       v.type_ == DataType.INT16 ||
       v.type_ == DataType.INT32 ||
       v.type_ == DataType.INT64) {
-      AttributeArea.gi().addSelect("value_type", "Type", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[0]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[0]);
       AttributeArea.gi().addValidatorInput(
-        "value", "Attribute Value", NodeTools.jinZhi10ToX(v.value_, v.jinzhi_), false, "请输入整数");
+        'value', 'Attribute Value', NodeTools.jinZhi10ToX(v.value_, v.jinzhi_), false, '请输入整数');
     } else if (v.type_ == DataType.STRING) {
-      AttributeArea.gi().addSelect("value_type", "Type", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[1]);
-      AttributeArea.gi().addInput("value", "Attribute Value", v.value_);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[1]);
+      AttributeArea.gi().addInput('value', 'Attribute Value', v.value_);
     } else if (v.type_ == DataType.ARRAY) {
-      AttributeArea.gi().addSelect("value_type", "Type", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[2]);
-      AttributeArea.gi().addTextArea("value", "Attribute Value", NodeTools.arrayToString(v, 20));
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[2]);
+      AttributeArea.gi().addTextArea('value', 'Attribute Value', NodeTools.arrayToString(v, 20));
     } else if (v.type_ == DataType.BOOL) {
-      AttributeArea.gi().addSelect("value_type", "Type", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[3]);
-      AttributeArea.gi().addSelect("value", "Attribute Value", [true, false], v.value_ == 1);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[3]);
+      AttributeArea.gi().addSelect('value', 'Attribute Value', [true, false], v.value_ == 1);
     } else if (v.type_ == DataType.REFERENCE) {
-      AttributeArea.gi().addSelect("value_type", "Type", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[4]);
-      AttributeArea.gi().addLabelButton("change_target", v.value_, "Original Node");
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[4]);
+      AttributeArea.gi().addLabelButton('change_target', v.value_, 'Original Node');
     } else if (v.type_ == DataType.DELETE) {
-      AttributeArea.gi().addSelect("value_type", "Type", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[5]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[5]);
     }
   }
 
@@ -258,7 +258,7 @@ class AttrEditor {
         break;
       case 1:
         v.type_ = DataType.STRING;
-        v.value_ = "";
+        v.value_ = '';
         break;
       case 2:
         v.type_ = DataType.ARRAY;
@@ -270,7 +270,7 @@ class AttrEditor {
         break;
       case 4:
         v.type_ = DataType.REFERENCE;
-        v.value_ = "unknow";
+        v.value_ = 'unknow';
         break;
       case 5:
         v.type_ = DataType.DELETE;
@@ -281,14 +281,14 @@ class AttrEditor {
 
   validateNumber(value) {
     let validRes = {};
-    validRes.errMsg = "";
+    validRes.errMsg = '';
     let ret = NodeTools.jinZhiXTo10(value);
     if (ret[0] == undefined) {
-      validRes.errMsg = "请输入整数";
+      validRes.errMsg = '请输入整数';
     }
 
     if (ret[0] > INT64_MAX || ret[0] < INT64_MIN) {
-      validRes.errMsg = "数字大小不能超出Int64范围";
+      validRes.errMsg = '数字大小不能超出Int64范围';
     }
     validRes.value = ret[0];
     validRes.base = ret[1];
@@ -297,16 +297,16 @@ class AttrEditor {
 
   changeDefineAttribute(searchId, type, value) {
     let v = this.node_.value_;
-    if (searchId == "name" && value != this.node_.name_) {
+    if (searchId == 'name' && value != this.node_.name_) {
       ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
     }
-    if (searchId == "value_type") {
+    if (searchId == 'value_type') {
       this.getNodeValue(v, value);
     }
-    if (searchId == "change_target") {
-      this.callCallback("change_target", v);
+    if (searchId == 'change_target') {
+      this.callCallback('change_target', v);
     }
-    if (searchId == "value") {
+    if (searchId == 'value') {
       if (
         v.type_ == DataType.INT8 ||
         v.type_ == DataType.INT16 ||
@@ -314,24 +314,24 @@ class AttrEditor {
         v.type_ == DataType.INT64
       ) {
         let validRes = this.validateNumber(value);
-        let validatorLabel = document.getElementById("valid_" + searchId);
-        if (validRes.errMsg == "") {
-          validatorLabel.style.display = "none";
+        let validatorLabel = document.getElementById('valid_' + searchId);
+        if (validRes.errMsg == '') {
+          validatorLabel.style.display = 'none';
           v.value_ = validRes.value;
           v.jinzhi_ = validRes.base;
         } else {
           validatorLabel.innerText = validRes.errMsg;
-          validatorLabel.style.display = "";
+          validatorLabel.style.display = '';
         }
       } else if (v.type_ == DataType.STRING) {
         v.value_ = value;
       } else if (v.type_ == DataType.ARRAY) {
         v.value_ = NodeTools.stringToArray(value);
       } else if (v.type_ == DataType.BOOL) {
-        v.value_ = value == "true" ? 1 : 0;
+        v.value_ = value == 'true' ? 1 : 0;
       }
     }
-    if (searchId == "delete") {
+    if (searchId == 'delete') {
       ModifyNode.deleteNode(this.node_);
       this.freshEditor();
     }
@@ -366,7 +366,7 @@ class AttrEditor {
           pattr.changeDefineAttribute(searchId, type, value);
           break;
       }
-      pattr.callCallback("writefile");
+      pattr.callCallback('writefile');
     }
   }
 
@@ -381,16 +381,16 @@ class AttrEditor {
 }
 
 AttrEditor.NODE_TYPE_STR = [
-  "数据类不继承",
-  "复制类",
-  "引用修改类",
-  "删除类",
-  "模板类",
-  "数据类继承",
+  '数据类不继承',
+  '复制类',
+  '引用修改类',
+  '删除类',
+  '模板类',
+  '数据类继承',
 ];
-AttrEditor.ATTR_CLASS = ["定义类属性", "删除类属性", "引用类属性"];
+AttrEditor.ATTR_CLASS = ['定义类属性', '删除类属性', '引用类属性'];
 
-AttrEditor.ATTR_TYPE_STR = ["整数", "字符串", "数组", "布尔", "引用", "删除"];
+AttrEditor.ATTR_TYPE_STR = ['整数', '字符串', '数组', '布尔', '引用', '删除'];
 
 AttrEditor.pInstance_ = null;
 AttrEditor.gi = function () {

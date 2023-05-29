@@ -1,4 +1,4 @@
-const { XTools } = require("../engine/XTools");
+const { XTools } = require('../engine/XTools');
 
 /*
  * Copyright (c) 2022-2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
@@ -22,12 +22,12 @@ class CanvasInput {
   }
   static Reset(x, y, w, h, value, cb, cb2) {
     CanvasInput.SAFE_AREA = [x, y, w, h];
-    let ci = document.getElementById("canvas_textarea");
-    ci.style.left = x + "px";
-    ci.style.top = y + "px";
-    ci.style.width = w + "px";
-    ci.style.height = h + "px";
-    ci.style.display = "block";
+    let ci = document.getElementById('canvas_textarea');
+    ci.style.left = x + 'px';
+    ci.style.top = y + 'px';
+    ci.style.width = w + 'px';
+    ci.style.height = h + 'px';
+    ci.style.display = 'block';
     ci.value = value;
     ci.onchange = (e) => {
       if (cb) {
@@ -41,8 +41,8 @@ class CanvasInput {
     };
     ci.focus();
 
-    ci.addEventListener("keydown", (k) => {
-      if (k.key == "Enter") {
+    ci.addEventListener('keydown', (k) => {
+      if (k.key == 'Enter') {
         if (k.shiftKey) {
         } else {
           CanvasInput.Hide();
@@ -57,8 +57,8 @@ class CanvasInput {
         return;
       }
     }
-    let ci = document.getElementById("canvas_textarea");
-    ci.style.display = "none";
+    let ci = document.getElementById('canvas_textarea');
+    ci.style.display = 'none';
     CanvasInput.FOCUS = false;
   }
 }

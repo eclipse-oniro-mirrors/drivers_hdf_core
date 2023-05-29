@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import { Scr } from "./engine/XDefine.js";
-import { GLFrame } from "./engine/GLFrame.js";
-import { X2DFast } from "./engine/graphics/X2DFast.js";
-import { RandInt } from "./engine/XTools.js";
-import { XTexture } from "./engine/graphics/XTexture.js";
-const { NapiLog } = require("./hcs/NapiLog");
-const { MainEditor } = require("./MainEditor");
+import { Scr } from './engine/XDefine.js';
+import { GLFrame } from './engine/GLFrame.js';
+import { X2DFast } from './engine/graphics/X2DFast.js';
+import { RandInt } from './engine/XTools.js';
+import { XTexture } from './engine/graphics/XTexture.js';
+const { NapiLog } = require('./hcs/NapiLog');
+const { MainEditor } = require('./MainEditor');
 
-let canvas = document.getElementById("visual_area");
+let canvas = document.getElementById('visual_area');
 canvas.width = window.innerWidth - 420;
 canvas.height = window.innerHeight;
 
