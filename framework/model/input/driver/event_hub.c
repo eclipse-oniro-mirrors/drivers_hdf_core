@@ -77,11 +77,7 @@ void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t
 #ifdef __LITEOS_M__
             SendFramePackages(inputDev);
 #else
-            if (!HdfAddWork(&inputDev->eventWorkQueue, &inputDev->eventWork)) {
-                HDF_LOGE("%s: Add event work queue failed", __func__);
-                OsalSpinUnlockIrqRestore(&inputManager->lock, &flag);
-                return;
-            }
+            (void)HdfAddWork(&inputDev->eventWorkQueue, &inputDev->eventWork);
 #endif // __LITEOS_M__
         }
 
