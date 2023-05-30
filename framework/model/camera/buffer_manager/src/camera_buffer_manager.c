@@ -92,11 +92,11 @@ int32_t BufferQueueInit(struct BufferQueue *queue)
         HDF_LOGE("%s: queue ptr is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-	
+
     if (queue->queueIsInit == true) {
         return HDF_SUCCESS;
     }
-    
+
     if (queue->queueOps == NULL || queue->memOps == NULL || queue->ioModes == 0) {
         HDF_LOGE("%s: queueOps/memOps is null or ioModes is 0", __func__);
         return HDF_FAILURE;
