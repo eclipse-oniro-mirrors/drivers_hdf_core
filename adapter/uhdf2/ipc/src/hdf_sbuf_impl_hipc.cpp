@@ -25,7 +25,8 @@ using namespace OHOS;
 static void MParcelImplInterfaceAssign(struct HdfSBufImpl *inf);
 
 struct SBufMParcelImpl {
-    SBufMParcelImpl(OHOS::MessageParcel *parcel = nullptr, bool owned = true): realParcel_(parcel), owned_(owned)
+    explicit SBufMParcelImpl(
+        OHOS::MessageParcel *parcel = nullptr, bool owned = true): realParcel_(parcel), owned_(owned)
     {
         MParcelImplInterfaceAssign(&infImpl);
     }
