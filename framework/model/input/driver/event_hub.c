@@ -12,6 +12,7 @@
 
 #define SEC_TO_USEC    1000000
 
+#ifdef __LITEOS_M__
 static void SendFramePackages(InputDevice *inputDev)
 {
     struct HdfDeviceObject *hdfDev = inputDev->hdfDevObj;
@@ -21,18 +22,32 @@ static void SendFramePackages(InputDevice *inputDev)
     }
     HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
 }
+#else
+void EventQueueWorkEntry(void *arg)
+{
+    InputDevice *inputDev = (InputDevice *)arg;
+    if (inputDev == NULL) {
+        HDF_LOGE("%s: inputDev is NULL", __func__);
+        return;
+    }
+
+    HdfDeviceSendEvent(inputDev->hdfDevObj, 0, inputDev->pkgBuf);
+    HdfSbufFlush(inputDev->pkgBuf);
+}
+#endif // __LITEOS_M__
 
 void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t value)
 {
     OsalTimespec time;
     EventPackage package = {0};
+    uint32_t flag;
     InputManager *inputManager = GetInputManager();
 
     if (inputDev == NULL) {
         HDF_LOGE("%s: parm is null", __func__);
         return;
     }
-    OsalMutexLock(&inputManager->mutex);
+    OsalSpinLockIrqSave(&inputManager->lock, &flag);
     package.type = type;
     package.code = code;
     package.value = value;
@@ -59,12 +74,18 @@ void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t
         }
 
         if (!inputDev->errFrameFlag) {
+#ifdef __LITEOS_M__
             SendFramePackages(inputDev);
+#else
+            (void)HdfAddWork(&inputDev->eventWorkQueue, &inputDev->eventWork);
+#endif // __LITEOS_M__
         }
 
         inputDev->pkgCount = 0;
-        HdfSbufFlush(inputDev->pkgBuf);
         inputDev->errFrameFlag = false;
+#ifdef __LITEOS_M__
+        HdfSbufFlush(inputDev->pkgBuf);
+#endif // __LITEOS_M__
     }
-    OsalMutexUnlock(&inputManager->mutex);
+    OsalSpinUnlockIrqRestore(&inputManager->lock, &flag);
 }

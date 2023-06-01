@@ -288,6 +288,11 @@ static void RepateEvent(const InputDevice *device)
 
 void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t value)
 {
+    bool loaded = InputDriverLoaded();
+    if (!loaded) {
+        HDF_LOGD("%s: device not loaded", __func__);
+        return;
+    }
 #ifdef CONFIG_DFX_ZEROHUNG
     if (type == EV_KEY && code == KEY_POWER)
         hung_wp_screen_powerkey_ncb(value);
