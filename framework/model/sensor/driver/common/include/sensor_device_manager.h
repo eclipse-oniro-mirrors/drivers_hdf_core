@@ -29,6 +29,7 @@ enum SensorOpsCmd {
     SENSOR_OPS_CMD_SET_BATCH     = 2,
     SENSOR_OPS_CMD_SET_MODE      = 3,
     SENSOR_OPS_CMD_SET_OPTION    = 4,
+    SENSOR_OPS_CMD_READ_DATA     = 5,
     SENSOR_OPS_CMD_BUTT,
 };
 
@@ -38,6 +39,7 @@ struct SensorDevInfoNode {
 };
 
 typedef int32_t (*SensorCmdHandle)(struct SensorDeviceInfo *info, struct HdfSBuf *data, struct HdfSBuf *reply);
+int32_t ReportSensorEvent(const struct SensorReportEvent *events);
 
 struct SensorCmdHandleList {
     enum SensorOpsCmd cmd;

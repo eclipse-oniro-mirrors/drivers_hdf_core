@@ -230,12 +230,40 @@ static int32_t SetOption(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *da
     return deviceInfo->ops.SetOption(option);
 }
 
+static int32_t ReadData(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    struct SensorReportEvent events;
+
+    CHECK_NULL_PTR_RETURN_VALUE(deviceInfo, HDF_ERR_INVALID_PARAM);
+    CHECK_NULL_PTR_RETURN_VALUE(data, HDF_ERR_INVALID_PARAM);
+    CHECK_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
+    CHECK_NULL_PTR_RETURN_VALUE(deviceInfo->ops.ReadSensorData, HDF_ERR_INVALID_PARAM);
+    int32_t ret = deviceInfo->ops.ReadSensorData(&events);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: ReadSensorData failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteBuffer(reply, &events, sizeof(events))) {
+        HDF_LOGE("%s: sbuf write event failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteBuffer(reply, events.data, events.dataLen)) {
+        HDF_LOGE("%s: sbuf write event data failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static struct SensorCmdHandleList g_sensorCmdHandle[] = {
     {SENSOR_OPS_CMD_ENABLE, Enable},        // SENSOR_CMD_ENABLE
     {SENSOR_OPS_CMD_DISABLE, Disable},      // SENSOR_CMD_DISABLE
     {SENSOR_OPS_CMD_SET_BATCH, SetBatch},   // SENSOR_CMD_SET_BATCH
     {SENSOR_OPS_CMD_SET_MODE, SetMode},     // SENSOR_CMD_SET_MODE
     {SENSOR_OPS_CMD_SET_OPTION, SetOption}, // SENSOR_CMD_SET_OPTION
+    {SENSOR_OPS_CMD_READ_DATA, ReadData}    // SENSOR_CMD_READ_DATA
 };
 
 static int32_t DispatchCmdHandle(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
