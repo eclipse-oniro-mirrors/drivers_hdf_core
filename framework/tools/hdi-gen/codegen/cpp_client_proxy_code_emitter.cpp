@@ -384,8 +384,7 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
 
-    sb.Append(prefix + TAB).AppendFormat("if (%s != %d || %s < %d) {\n",
-        serMajorName.c_str(), ast_->GetMajorVer(), serMinorName.c_str(), ast_->GetMinorVer());
+    sb.Append(prefix + TAB).AppendFormat("if (%s != %d) {\n", serMajorName.c_str(), ast_->GetMajorVer());
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:check version failed! ");
     sb.Append("version of service:%u.%u");
     sb.AppendFormat(", version of client:%d.%d\", __func__, ", ast_->GetMajorVer(), ast_->GetMinorVer());
