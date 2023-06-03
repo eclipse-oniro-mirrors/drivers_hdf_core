@@ -17,6 +17,7 @@ struct SensorOps {
     int32_t (*SetBatch)(int64_t samplingInterval, int64_t reportInterval);
     int32_t (*SetMode)(int32_t mode);
     int32_t (*SetOption)(uint32_t option);
+    int32_t (*ReadSensorData)(struct SensorReportEvent *events);
 };
 
 struct SensorDeviceInfo {

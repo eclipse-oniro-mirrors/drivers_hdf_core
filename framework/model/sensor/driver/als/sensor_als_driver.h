@@ -69,7 +69,7 @@ struct AlsData {
 
 struct AlsOpsCall {
     int32_t (*Init)(struct SensorCfgData *data);
-    int32_t (*ReadData)(struct SensorCfgData *data);
+    int32_t (*ReadData)(struct SensorCfgData *data, struct SensorReportEvent *event);
 };
 
 struct AlsDrvData {

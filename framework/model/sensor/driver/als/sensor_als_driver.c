@@ -165,20 +165,27 @@ int32_t AlsRegisterChipOps(const struct AlsOpsCall *ops)
     drvData->ops.ReadData = ops->ReadData;
     return HDF_SUCCESS;
 }
-
+#ifndef __LITEOS__
 static void AlsDataWorkEntry(void *arg)
 {
     struct AlsDrvData *drvData = NULL;
+    struct SensorReportEvent event;
 
     drvData = (struct AlsDrvData *)arg;
     CHECK_NULL_PTR_RETURN(drvData);
 
     if (drvData->ops.ReadData == NULL) {
-        HDF_LOGI("%s: Als ReadData function NULl", __func__);
+        HDF_LOGE("%s: Als ReadData function NULl", __func__);
         return;
     }
-    if (drvData->ops.ReadData(drvData->alsCfg) != HDF_SUCCESS) {
+    if (drvData->ops.ReadData(drvData->alsCfg, &event) != HDF_SUCCESS) {
         HDF_LOGE("%s: Als read data failed", __func__);
+        return;
+    }
+
+    if (ReportSensorEvent(&event) != HDF_SUCCESS) {
+        HDF_LOGE("%s: report Als data failed", __func__);
+        return;
     }
 }
 
@@ -191,6 +198,7 @@ static void AlsTimerEntry(uintptr_t arg)
 
     if (!HdfAddWork(&drvData->alsWorkQueue, &drvData->alsWork)) {
         HDF_LOGE("%s: Als add work queue failed", __func__);
+        return;
     }
 
     interval = OsalDivS64(drvData->interval, (SENSOR_CONVERT_UNIT * SENSOR_CONVERT_UNIT));
@@ -198,11 +206,13 @@ static void AlsTimerEntry(uintptr_t arg)
     ret = OsalTimerSetTimeout(&drvData->alsTimer, interval);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Als modify time failed", __func__);
+        return;
     }
 }
-
+#endif
 static int32_t InitAlsData(struct AlsDrvData *drvData)
 {
+#ifndef __LITEOS__
     if (HdfWorkQueueInit(&drvData->alsWorkQueue, HDF_ALS_WORK_QUEUE_NAME) != HDF_SUCCESS) {
         HDF_LOGE("%s: Als init work queue failed", __func__);
         return HDF_FAILURE;
@@ -212,7 +222,7 @@ static int32_t InitAlsData(struct AlsDrvData *drvData)
         HDF_LOGE("%s: Als create thread failed", __func__);
         return HDF_FAILURE;
     }
-
+#endif
     drvData->interval = SENSOR_TIMER_MIN_TIME;
     drvData->enable = false;
     drvData->detectFlag = false;
@@ -238,7 +248,7 @@ static int32_t SetAlsEnable(void)
         HDF_LOGE("%s: Als sensor enable config failed", __func__);
         return ret;
     }
-
+#ifndef __LITEOS__
     ret = OsalTimerCreate(&drvData->alsTimer, SENSOR_TIMER_MIN_TIME, AlsTimerEntry, (uintptr_t)drvData);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Als create timer failed[%d]", __func__, ret);
@@ -250,6 +260,7 @@ static int32_t SetAlsEnable(void)
         HDF_LOGE("%s: Als start timer failed[%d]", __func__, ret);
         return ret;
     }
+#endif
     drvData->enable = true;
 
     return HDF_SUCCESS;
@@ -273,12 +284,13 @@ static int32_t SetAlsDisable(void)
         HDF_LOGE("%s: Als sensor disable config failed", __func__);
         return ret;
     }
-
+#ifndef __LITEOS__
     ret = OsalTimerDelete(&drvData->alsTimer);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Als delete timer failed", __func__);
         return ret;
     }
+#endif
     drvData->enable = false;
 
     return HDF_SUCCESS;
@@ -314,6 +326,21 @@ static int32_t SetAlsOption(uint32_t option)
     return HDF_SUCCESS;
 }
 
+static int32_t ReadAlsData(struct SensorReportEvent *events)
+{
+    struct AlsDrvData *drvData = AlsGetDrvData();
+
+    if (drvData->ops.ReadData == NULL) {
+        HDF_LOGE("%s: Als ReadSensorData function NULl", __func__);
+        return HDF_FAILURE;
+    }
+    if (drvData->ops.ReadData(drvData->alsCfg, events) != HDF_SUCCESS) {
+        HDF_LOGE("%s: Als read data failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
 static int32_t DispatchAls(struct HdfDeviceIoClient *client,
     int32_t cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -351,6 +378,7 @@ static int32_t InitAlsOps(struct SensorCfgData *config, struct SensorDeviceInfo 
     deviceInfo->ops.SetBatch = SetAlsBatch;
     deviceInfo->ops.SetMode = SetAlsMode;
     deviceInfo->ops.SetOption = SetAlsOption;
+    deviceInfo->ops.ReadSensorData = ReadAlsData;
 
     if (memcpy_s(&deviceInfo->sensorInfo, sizeof(deviceInfo->sensorInfo),
         &config->sensorInfo, sizeof(config->sensorInfo)) != EOK) {
@@ -495,9 +523,10 @@ void AlsReleaseDriver(struct HdfDeviceObject *device)
 
     OsalMemFree(drvData->alsCfg);
     drvData->alsCfg = NULL;
-
+#ifndef __LITEOS__
     HdfWorkDestroy(&drvData->alsWork);
     HdfWorkQueueDestroy(&drvData->alsWorkQueue);
+#endif
     OsalMemFree(drvData);
 }
 
