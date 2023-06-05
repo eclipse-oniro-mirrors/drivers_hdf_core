@@ -11,12 +11,12 @@ import("//build/test.gni")
 hdf_framework_path = "../../../"
 hdf_adapter_path = "../../../../adapter"
 hdf_interfaces_path = "../../../../interfaces"
-module_output_path = "hdf_core/devmgr_service_stub"
+module_output_path = "hdf_core/devsvcmanagerstub"
 
-ohos_fuzztest("DevmgrServiceStubFuzzTest") {
+ohos_fuzztest("DevSvcManagerStubFuzzTest") {
   module_out_path = module_output_path
   fuzz_config_file =
-      "$hdf_framework_path/test/fuzztest/devmgr_service_stub_fuzzer"
+      "$hdf_framework_path/test/fuzztest/devsvcmanagerstub_fuzzer"
 
   include_dirs = [
     "$hdf_adapter_path/uhdf2/hdi/include/hdi",
@@ -62,8 +62,9 @@ ohos_fuzztest("DevmgrServiceStubFuzzTest") {
     "$hdf_framework_path/core/shared/src/hdf_device_info.c",
     "$hdf_framework_path/core/shared/src/hdf_object_manager.c",
     "$hdf_framework_path/core/shared/src/hdf_service_record.c",
-    "devmgrservicestub_fuzzer.cpp",
+    "devsvcmanagerstub_fuzzer.cpp",
   ]
+
   deps = [
     "../../../../adapter/uhdf2/hdi:libhdi",
     "../../../../adapter/uhdf2/ipc:libhdf_ipc_adapter",
@@ -81,5 +82,5 @@ ohos_fuzztest("DevmgrServiceStubFuzzTest") {
 
 group("fuzztest") {
   testonly = true
-  deps = [ ":DevmgrServiceStubFuzzTest" ]
+  deps = [ ":DevSvcManagerStubFuzzTest" ]
 }
