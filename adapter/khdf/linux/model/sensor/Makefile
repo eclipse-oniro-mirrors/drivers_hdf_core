@@ -36,6 +36,8 @@ obj-$(CONFIG_DRIVERS_HDF_SENSOR_ALS) += $(SENSOR_ROOT_DIR)/als/sensor_als_driver
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_ALS_BH1745) += $(SENSOR_ROOT_CHIPSET)/chipset/als/als_bh1745.o
 
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_ALS_BH1750) += $(SENSOR_ROOT_CHIPSET)/chipset/als/als_bh1750.o
+
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PROXIMITY) += $(SENSOR_ROOT_DIR)/proximity/sensor_proximity_driver.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PROXIMITY_APDS9960) += $(SENSOR_ROOT_CHIPSET)/chipset/proximity/proximity_apds9960.o
