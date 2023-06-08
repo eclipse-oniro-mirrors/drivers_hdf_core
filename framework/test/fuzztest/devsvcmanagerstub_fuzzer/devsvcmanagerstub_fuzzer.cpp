@@ -44,7 +44,8 @@ static struct DevSvcManagerStub *GetDevSvcManagerStubInstance()
         return nullptr;
     }
 
-    struct HdfRemoteService *remoteService = HdfRemoteServiceObtain((struct HdfObject *)instance, &g_servmgrDispatcher);
+    struct HdfRemoteService *remoteService = HdfRemoteServiceObtain(
+        reinterpret_cast<struct HdfObject *>(instance), &g_servmgrDispatcher);
     if (remoteService == nullptr) {
         HDF_LOGI("%{public}s:%{public}d: failed to bind dispatcher", __func__, __LINE__);
         return nullptr;
