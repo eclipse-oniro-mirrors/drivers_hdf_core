@@ -72,7 +72,7 @@ static int32_t ListServicePermCheck(void)
 
 static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfDeviceObject *service)
 {
-    if (service == NULL || service->priv == NULL) {
+    if (service == NULL) {
         HDF_LOGW("%{public}s service object is null", __func__);
         return false;
     }
@@ -85,13 +85,13 @@ static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, 
             HDF_SLIST_CONTAINER_OF(struct HdfSListNode, node, struct HdfDeviceObjectHolder, entry);
 
         if (((uintptr_t)(&holder->devObj) == (uintptr_t)service) && (holder->serviceName != NULL) &&
-            (strcmp(holder->serviceName, (char *)service->priv) == 0)) {
+            (service->priv != NULL) && (strcmp(holder->serviceName, (char *)service->priv) == 0)) {
             HDF_LOGD("%{public}s %{public}s service object is valid", __func__, holder->serviceName);
             return true;
         }
     }
 
-    HDF_LOGW("%{public}s %{public}s service object is invalid", __func__, (char *)service->priv);
+    HDF_LOGW("%{public}s service object is invalid", __func__);
     return false;
 }
 
@@ -174,12 +174,6 @@ static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDevic
     OsalMutexLock(&stub->devSvcStubMutex);
     if (serviceObject == NULL) {
         OsalMutexUnlock(&stub->devSvcStubMutex);
-        return;
-    }
-
-    if (serviceObject->priv == NULL) {
-        OsalMutexUnlock(&stub->devSvcStubMutex);
-        HDF_LOGW("release service object has empty name, may broken object");
         return;
     }
 
