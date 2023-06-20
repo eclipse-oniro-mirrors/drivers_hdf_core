@@ -166,6 +166,7 @@ if (defined(ohos_lite)) {
       external_deps = [ "hilog:libhilog" ]
     }
 
+    innerapi_tags = [ "chipsetsdk" ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
     install_images = [
