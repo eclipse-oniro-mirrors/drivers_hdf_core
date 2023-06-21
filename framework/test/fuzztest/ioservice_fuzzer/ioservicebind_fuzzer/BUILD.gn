@@ -24,7 +24,7 @@ ohos_fuzztest("IoserviceBindFuzzTest") {
   deps = [ "../../../../../adapter/uhdf2/utils:libhdf_utils" ]
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 

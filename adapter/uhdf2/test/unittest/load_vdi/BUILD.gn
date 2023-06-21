@@ -34,7 +34,7 @@ ohos_unittest("hdf_load_vdi_test") {
   ]
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -50,7 +50,7 @@ ohos_shared_library("libvdi_sample1_driver") {
     "../../../host:libhdf_host",
     "../../../utils:libhdf_utils",
   ]
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_shared_library("libvdi_sample2_driver") {
@@ -66,5 +66,5 @@ ohos_shared_library("libvdi_sample2_driver") {
     "../../../host:libhdf_host",
     "../../../utils:libhdf_utils",
   ]
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
