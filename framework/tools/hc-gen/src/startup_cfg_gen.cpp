@@ -38,7 +38,7 @@ static constexpr const char *CAPS_INFO     = "            \"caps\" : [";
 static constexpr const char *DYNAMIC_INFO  = "            \"ondemand\" : true,\n";
 static constexpr const char *SECON_INFO    = "            \"secon\" : \"u:r:";
 static constexpr const char *CRITICAL_INFO = "            \"critical\" : [";
-
+static constexpr uint32_t INVALID_PRIORITY = 0xffffffff;
 StartupCfgGen::StartupCfgGen(const std::shared_ptr<Ast> &ast) : Generator(ast)
 {
 }
@@ -102,16 +102,27 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
         ofs_ << DYNAMIC_INFO;
     }
 
-    ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name <<"\"],\n";
-    ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID <<"\",\n";
-    ofs_ << GID_INFO << hostInfoMap_[name].hostGID <<"],\n";
+    bool flag = false;
+    if ((hostInfoMap_[name].processPriority != INVALID_PRIORITY) &&
+        (hostInfoMap_[name].threadPriority != INVALID_PRIORITY)) {
+        flag = true;
+    }
+    if (flag) {
+        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
+            hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
+    } else {
+        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
+    }
+
+    ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
+    ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
 
     if (!hostInfoMap_[name].hostCaps.empty()) {
-        ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps <<"],\n";
+        ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps << "],\n";
     }
 
     if (!hostInfoMap_[name].hostCritical.empty()) {
-        ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical <<"],\n";
+        ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
 
     ofs_ << SECON_INFO << name << ":s0\"\n";
@@ -133,6 +144,8 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostPriority = 0;
     hostData.hostId = 0;
     hostData.hostCritical = "";
+    hostData.processPriority = INVALID_PRIORITY;
+    hostData.threadPriority = INVALID_PRIORITY;
 }
 
 bool StartupCfgGen::TemplateNodeSeparate()
@@ -218,6 +231,22 @@ void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, st
 
         object = object->Next();
         arraySize--;
+    }
+}
+
+void StartupCfgGen::GetProcessPriority(const std::shared_ptr<AstObject> &term, HostInfo &hostData)
+{
+    if (term == nullptr) {
+        return;
+    }
+
+    std::shared_ptr<AstObject> object = term->Lookup("processPriority", PARSEROP_CONFTERM);
+    if (object != nullptr) {
+        hostData.processPriority = static_cast<int32_t>(object->Child()->IntegerValue());
+    }
+    object = term->Lookup("threadPriority", PARSEROP_CONFTERM);
+    if (object != nullptr) {
+        hostData.threadPriority = static_cast<int32_t>(object->Child()->IntegerValue());
     }
 }
 
@@ -317,6 +346,7 @@ bool StartupCfgGen::GetHostInfo()
 
         object = hostInfo->Lookup("critical", PARSEROP_CONFTERM);
         GetConfigIntArray(object, hostData.hostCritical);
+        GetProcessPriority(hostInfo, hostData);
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));
