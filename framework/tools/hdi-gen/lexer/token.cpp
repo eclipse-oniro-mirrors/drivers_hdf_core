@@ -30,7 +30,7 @@ std::string LocInfo(const Token &token)
     size_t index = token.location.filePath.rfind(SEPARATOR);
     std::string fileName =
         (index == std::string::npos) ? token.location.filePath : token.location.filePath.substr(index + 1);
-    return StringHelper::Format("%s:%u:%u", fileName.c_str(), token.location.row, token.location.col);
+    return StringHelper::Format("%s:%zu:%zu", fileName.c_str(), token.location.row, token.location.col);
 }
 } // namespace HDI
 } // namespace OHOS
