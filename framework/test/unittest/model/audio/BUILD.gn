@@ -51,7 +51,7 @@ ohos_unittest("khdf_audio_adm_test") {
     external_deps = [
       "c_utils:utils",
       "hdf_core:libhdf_utils",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]

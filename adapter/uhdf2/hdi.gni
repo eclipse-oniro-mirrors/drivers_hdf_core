@@ -160,7 +160,7 @@ template("hdi") {
           "c_utils:utils",
           "hdf_core:libhdi",
           "hdf_core:libpub_utils",
-          "hiviewdfx_hilog_native:libhilog",
+          "hilog:libhilog",
         ]
         if (defined(invoker.sequenceable_ext_deps)) {
           external_deps += invoker.sequenceable_ext_deps
@@ -205,7 +205,7 @@ template("hdi") {
           external_deps = [
             "c_utils:utils",
             "hdf_core:libhdi",
-            "hiviewdfx_hilog_native:libhilog",
+            "hilog:libhilog",
           ]
           if (defined(invoker.sequenceable_ext_deps)) {
             external_deps += invoker.sequenceable_ext_deps

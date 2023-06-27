@@ -35,7 +35,7 @@ ohos_fuzztest("UnloadDeviceFuzzTest") {
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
       "ipc:ipc_single",
       "samgr:samgr_proxy",
     ]

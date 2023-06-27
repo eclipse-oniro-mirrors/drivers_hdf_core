@@ -22,6 +22,6 @@ ohos_unittest("ui2c_test") {
     "c_utils:utils",
     "hdf_core:libhdf_platform",
     "hdf_core:libhdf_utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
