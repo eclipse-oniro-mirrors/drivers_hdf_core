@@ -77,7 +77,7 @@ ohos_executable("hdf_devmgr") {
   ]
 
   if (build_selinux) {
-    external_deps += [ "selinux:libservice_checker" ]
+    external_deps += [ "selinux_adapter:libservice_checker" ]
     cflags = [ "-DWITH_SELINUX" ]
   }
 
