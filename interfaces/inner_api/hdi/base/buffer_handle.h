@@ -60,7 +60,6 @@ typedef struct {
     uint64_t usage;       /**< Usage of the buffer */
     void *virAddr;        /**< Virtual address of the buffer */
     uint64_t phyAddr;     /**< Physical address */
-    int32_t key;          /**< Shared memory key */
     uint32_t reserveFds;  /**< Number of the reserved FDs */
     uint32_t reserveInts; /**< Number of the reserved integers */
     int32_t reserve[0];   /**< Data */
