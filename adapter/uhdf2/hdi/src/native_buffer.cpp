@@ -177,7 +177,6 @@ std::string NativeBuffer::Dump() const
     os << "height:" << handle_->height << ", ";
     os << "size:" << handle_->size << ", ";
     os << "format:" << handle_->format << ", ";
-    os << "key:" << handle_->key << ", ";
     os << "reserveFds:" << handle_->reserveFds << ", ";
     os << "reserveInts:" << handle_->reserveInts << ", ";
     os << "reserve: [";
