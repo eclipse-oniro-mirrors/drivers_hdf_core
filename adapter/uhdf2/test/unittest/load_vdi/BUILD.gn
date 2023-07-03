@@ -28,6 +28,7 @@ ohos_unittest("hdf_load_vdi_test") {
   }
   deps = [
     ":libvdi_sample1_driver",
+    ":libvdi_sample1_symbol",
     ":libvdi_sample2_driver",
     "../../../host:libhdf_host",
     "../../../utils:libhdf_utils",
@@ -43,6 +44,21 @@ ohos_shared_library("libvdi_sample1_driver") {
 
   sources =
       [ "../../../../../framework/core/host/test/sample/vdi_sample1_driver.c" ]
+  install_images = [ chipset_base_dir ]
+  subsystem_name = "hdf"
+  part_name = "hdf_core"
+  deps = [
+    "../../../host:libhdf_host",
+    "../../../utils:libhdf_utils",
+  ]
+  external_deps = [ "hilog:libhilog" ]
+}
+
+ohos_shared_library("libvdi_sample1_symbol") {
+  include_dirs = [ "../../../../../framework/core/host/test/sample" ]
+
+  sources =
+      [ "../../../../../framework/core/host/test/sample/vdi_sample1_symbol.c" ]
   install_images = [ chipset_base_dir ]
   subsystem_name = "hdf"
   part_name = "hdf_core"

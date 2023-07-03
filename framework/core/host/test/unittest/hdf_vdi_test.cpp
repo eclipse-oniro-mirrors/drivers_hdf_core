@@ -11,6 +11,7 @@
 #include "hdf_load_vdi.h"
 #include "securec.h"
 #include "vdi_sample1_driver.h"
+#include "vdi_sample1_symbol.h"
 #include "vdi_sample2_driver.h"
 
 namespace OHOS {
@@ -114,6 +115,13 @@ HWTEST_F(HdfVdiTest, HdfVdiTestLoadInvalidLibName, TestSize.Level3)
     ASSERT_TRUE(vdi == nullptr);
 
     HdfCloseVdi(vdi);
+}
+
+HWTEST_F(HdfVdiTest, HdfVdiTestLoadInvalidSymbol, TestSize.Level3)
+{
+    struct HdfVdiObject *vdi = nullptr;
+    vdi = HdfLoadVdi("libvdi_sample1_symbol.z.so");
+    ASSERT_TRUE(vdi == nullptr);
 }
 
 HWTEST_F(HdfVdiTest, HdfVdiTestNulVdiGetVersion, TestSize.Level3)
