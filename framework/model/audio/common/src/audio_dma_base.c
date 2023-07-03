@@ -129,17 +129,28 @@ bool AudioDmaTransferStatusIsNormal(struct PlatformData *data, enum AudioStreamT
     }
 
     if (streamType == AUDIO_RENDER_STREAM) {
-        if (data->renderBufInfo.rbufOffSet >=
-            data->renderBufInfo.wbufOffSet + data->renderBufInfo.trafBufSize * DMA_TRANSFER_MAX_COUNT) {
-            return false;
+        if (data->renderBufInfo.rbufOffSet == data->renderBufInfo.wbufOffSet) {
+            data->renderBufInfo.trafCompCount++;
+            if (data->renderBufInfo.trafCompCount > DMA_TRANSFER_MAX_COUNT) {
+                AUDIO_DRIVER_LOG_ERR("audio render send data to DMA too slow DMA will stop!");
+                return false;
+            }
+        } else {
+            data->renderBufInfo.rbufOffSet = data->renderBufInfo.wbufOffSet;
+            data->renderBufInfo.trafCompCount = 0;
         }
-        data->renderBufInfo.rbufOffSet += data->renderBufInfo.periodSize;
     } else {
-        if (data->captureBufInfo.wbufOffSet >=
-           (data->captureBufInfo.rbufOffSet + data->captureBufInfo.trafBufSize * DMA_TRANSFER_MAX_COUNT)) {
-            return false;
+        if (data->captureBufInfo.wbufOffSet == data->captureBufInfo.rbufOffSet) {
+            data->captureBufInfo.trafCompCount++;
+            if (data->captureBufInfo.trafCompCount > DMA_TRANSFER_MAX_COUNT) {
+                AUDIO_DRIVER_LOG_ERR("audio capture retrieve data from DMA too slow DMA will stop!");
+                return false;
+            }
+        } else {
+            data->captureBufInfo.wbufOffSet = data->captureBufInfo.rbufOffSet;
+            data->captureBufInfo.trafCompCount = 0;
         }
-        data->captureBufInfo.wbufOffSet += data->captureBufInfo.periodSize;
     }
+
     return true;
 }
