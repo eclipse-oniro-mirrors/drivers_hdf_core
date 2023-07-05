@@ -170,7 +170,7 @@ if (defined(ohos_lite)) {
     subsystem_name = "hdf"
     part_name = "hdf_core"
     install_images = [
-      chipset_base_dir,
+      "system",
       "updater",
     ]
   }
