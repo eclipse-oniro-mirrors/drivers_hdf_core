@@ -50,8 +50,12 @@ class AttributeArea {
     if (default_.indexOf('"') >= 0) {
       ret += ' value=""';
       this.freshInputValue_.push([searchId, default_]);
-    } else ret += ' value="' + default_ + '"';
-    if (disable) ret += ' disabled="disabled"';
+    } else { 
+      ret += ' value="' + default_ + '"';
+    }
+    if (disable) {
+      ret += ' disabled="disabled"';
+    }
     ret +=
       ' oninput="document.attrCallback.Event(' +
       "'input', " +
@@ -69,8 +73,12 @@ class AttributeArea {
     if (default_.indexOf('"') >= 0) {
       ret += ' value=""';
       this.freshInputValue_.push([searchId, default_]);
-    } else ret += ' value="' + default_ + '"';
-    if (disable) ret += ' disabled="disabled"';
+    } else { 
+      ret += ' value="' + default_ + '"';
+    }
+    if (disable) {
+      ret += ' disabled="disabled"';
+    }
     ret +=
       ' oninput="document.attrCallback.Event(' +
       "'input', " +
@@ -96,8 +104,12 @@ class AttributeArea {
     if (default_.indexOf('"') >= 0) {
       ret += ' value=""';
       this.freshInputValue_.push([searchId, default_]);
-    } else ret += ' value="' + default_ + '"';
-    if (disable) ret += ' disabled="disabled"';
+    } else { 
+      ret += ' value="' + default_ + '"';
+    }
+    if (disable) {
+      ret += ' disabled="disabled"';
+    }
     ret +=
       ' autofocus="autofocus" onFocus="document.attrCallback.Event(' +
       "'input', " +
@@ -135,7 +147,9 @@ class AttributeArea {
     this.htmlStr += ret;
   }
   addButton(searchId, label) {
-    if (label.length > 40) label = label.substring(0, 40) + '...';
+    if (label.length > 40) {
+      label = label.substring(0, 40) + '...';
+    }
     let text =
       '" class="button_click" type="button" onclick="document.attrCallback.Event(';
     this.htmlStr +=
@@ -151,7 +165,9 @@ class AttributeArea {
       '</button><br>';
   }
   addLabelButton(searchId, label, title) {
-    if (label.length > 40) label = label.substring(0, 40) + '...';
+    if (label.length > 40) {
+      label = label.substring(0, 40) + '...';
+    }
     let text =
       '" class="label_button_click" type="button" onclick="document.attrCallback.Event(';
     this.htmlStr +=
@@ -170,7 +186,9 @@ class AttributeArea {
   }
 
   addButtonDelete(searchId, label) {
-    if (label.length > 40) label = label.substring(0, 40) + '...';
+    if (label.length > 40) {
+      label = label.substring(0, 40) + '...';
+    }
     let text =
       '" class="button_click_delete" type="button" onclick="document.attrCallback.Event(';
     this.htmlStr +=
@@ -231,8 +249,9 @@ class AttributeArea {
 }
 AttributeArea.pInstance_ = null;
 AttributeArea.gi = function () {
-  if (AttributeArea.pInstance_ == null)
+  if (AttributeArea.pInstance_ == null) {
     AttributeArea.pInstance_ = new AttributeArea();
+  }
   return AttributeArea.pInstance_;
 };
 

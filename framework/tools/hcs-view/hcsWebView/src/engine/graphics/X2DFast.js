@@ -19,10 +19,14 @@ import { Scr } from '../XDefine.js';
 import { XTexture } from './XTexture.js';
 import { gl } from '../GLFrame.js';
 import { fAngle, iDistance } from '../XTools.js';
+const { NapiLog } = require('./../../hcs/NapiLog');
+const COLOR = 0xffffffff;
 
 export class X2DFast {
   static gi() {
-    if (X2DFast.px2f == null) X2DFast.px2f = new X2DFast();
+    if (X2DFast.px2f == null) {
+      X2DFast.px2f = new X2DFast();
+    }
     return X2DFast.px2f;
   }
 
@@ -113,17 +117,42 @@ export class X2DFast {
   }
 
   static testTransform(x, y, sw, sh, ra, ox, oy, realw, realh) {
+    const LEFT = -1;
+    const MIDDLE = -2;
+    const RIGHT = -3;
+    const UP = -1;
+    const DOWN = -3;
     X2DFast.tmpMat.unit();
-    if (ox == -1) ox = 0;
-    if (ox == -2) ox = Math.floor(realw / 2);
-    if (ox == -3) ox = realw;
-    if (oy == -1) oy = 0;
-    if (oy == -2) oy = Math.floor(realh / 2);
-    if (oy == -3) oy = realh;
-    if (ox != 0 || oy != 0) X2DFast.tmpMat.move(-ox, -oy, 0);
-    if (sw != 1 || sh != 1) X2DFast.tmpMat.scale(sw, sh, 1);
-    if (ra != 0) X2DFast.tmpMat.rotate(0, 0, ra);
-    if (x != 0 || y != 0) X2DFast.tmpMat.move(x, y, 0);
+    if (ox == LEFT) {
+      ox = 0;
+    }
+    if (ox == MIDDLE) {
+      ox = Math.floor(realw / 2);
+    }
+    if (ox == RIGHT) {
+      ox = realw;
+    }
+    if (oy == UP) {
+      oy = 0;
+    }
+    if (oy == MIDDLE) {
+      oy = Math.floor(realh / 2);
+    }
+    if (oy == DOWN) {
+      oy = realh;
+    }
+    if (ox != 0 || oy != 0) {
+      X2DFast.tmpMat.move(-ox, -oy, 0);
+    }
+    if (sw != 1 || sh != 1) {
+      X2DFast.tmpMat.scale(sw, sh, 1);
+    }
+    if (ra != 0) {
+      X2DFast.tmpMat.rotate(0, 0, ra);
+    }
+    if (x != 0 || y != 0) {
+      X2DFast.tmpMat.move(x, y, 0);
+    }
   }
   clearBuffer() {
     this.ridDict = {};
@@ -137,8 +166,10 @@ export class X2DFast {
     let a = Math.floor((((c >> 24) & 0xff) * 63) / 255);
     return ((a * 64 + r) * 64 + g) * 64 + b;
   }
-  drawCut_(pcut, m00, m01, m10, m11, m22, m30, m31, c = 0xffffffff) {
-    if (c == -1) c = 0xffffffff;
+  drawCut_(pcut, m00, m01, m10, m11, m22, m30, m31, c = COLOR) {
+    if (c == -1) {
+      c = COLOR;
+    }
     c = this.swapC(c);
     this.vertexFloat32.set([0.0, 0.0, 0.0, pcut.u0, pcut.v0, m00, m01, m10, m11, m22, m30, m31,
       this.ridDict[pcut.rid], c,
@@ -146,11 +177,11 @@ export class X2DFast {
         pcut.w, pcut.h, 0.0, pcut.u2, pcut.v2, m00, m01, m10, m11, m22, m30, m31, this.ridDict[pcut.rid], c,
         0.0, 0.0, 0.0, pcut.u0, pcut.v0, m00, m01, m10, m11, m22, m30, m31, this.ridDict[pcut.rid], c,
         pcut.w, pcut.h, 0.0, pcut.u2, pcut.v2, m00, m01, m10, m11, m22, m30, m31, this.ridDict[pcut.rid], c,
-        0.0, pcut.h, 0.0, pcut.u3, pcut.v3, m00, m01, m10, m11, m22, m30, m31, this.ridDict[pcut.rid], c,],
-      this.drawCount * 14 * 6);
+      0.0, pcut.h, 0.0, pcut.u3, pcut.v3, m00, m01, m10, m11, m22, m30, m31, this.ridDict[pcut.rid], c,],
+    this.drawCount * 14 * 6);
     this.drawCount += 1;
   }
-  drawCutEx(cid, tmat, c = 0xffffffff) {
+  drawCutEx(cid, tmat, c = COLOR) {
     let pcut = XTexture.pinstance_.allCuts[cid];
     if (!(pcut.rid in this.ridDict)) {
       this.ridDict[pcut.rid] = this.ridPoint;
@@ -159,11 +190,14 @@ export class X2DFast {
     tmat = tmat.mat;
     this.drawCut(pcut, tmat[0][0], tmat[0][1], tmat[1][0], tmat[1][1], tmat[2][2], tmat[3][0], tmat[3][1], c);
   }
-  drawCut(cid, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
+  drawCut(cid, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = COLOR) {
     let intX = parseInt(x);
     let intY = parseInt(y);
     let pcut = XTexture.gi().allCuts[cid];
-    if (pcut == null) return;
+    if (pcut == null) {
+      NapiLog.logError('error occured getting object');
+      return;
+    }
     if (!(pcut.rid in this.ridDict)) {
       if (this.ridPoint >= 16) {
         this.freshBuffer();
@@ -176,20 +210,29 @@ export class X2DFast {
     let tmat = X2DFast.tmpMat.mat;
     this.drawCut_(pcut, tmat[0][0], tmat[0][1], tmat[1][0], tmat[1][1], tmat[2][2], tmat[3][0], tmat[3][1], c);
   }
-  drawText(s, size = 14, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = 0xffffffff) {
-    if (s.length <= 0) return 0;
+  drawText(s, size = 14, x = 0, y = 0, sw = 1, sh = 1, ra = 0, ox = 0, oy = 0, c = COLOR) {
+    if (s.length <= 0) {
+      NapiLog.logError('error occured s is null');
+      return 0;
+    }
     let cid = XTexture.gi().getText(s, size);
-    if (cid >= 0) this.drawCut(cid, x, y, sw, sh, ra, ox, oy, c);
+    if (cid >= 0) {
+      this.drawCut(cid, x, y, sw, sh, ra, ox, oy, c);
+    }
     return XTexture.gi().allCuts[cid].w;
   }
   getTextWidth(s, size) {
-    if (s.length <= 0) return 0;
+    if (s.length <= 0) {
+      return 0;
+    }
     let cid = XTexture.gi().getText(s, size);
     return XTexture.gi().allCuts[cid].w;
   }
   freshBuffer() {
     XTexture.gi()._FreshText();
-    if (this.drawCount == 0) return;
+    if (this.drawCount == 0) {
+      return;
+    }
     let ps = XShader.gi().use(XShader.ID_SHADER_FAST);
     for (let rid in this.ridDict) {
       gl.activeTexture(gl.TEXTURE0 + this.ridDict[rid]);

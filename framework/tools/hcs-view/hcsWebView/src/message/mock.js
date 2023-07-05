@@ -87,8 +87,9 @@ class MockMessage {
 
 MockMessage.pInstance_ = null;
 MockMessage.gi = function () {
-  if (MockMessage.pInstance_ == null)
+  if (MockMessage.pInstance_ == null) {
     MockMessage.pInstance_ = new MockMessage();
+  }
   return MockMessage.pInstance_;
 };
 

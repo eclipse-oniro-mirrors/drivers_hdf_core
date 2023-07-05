@@ -25,8 +25,12 @@ function isSpace(c) {
 }
 
 function isalpha(c) {
-  if (code('a') <= c[0] && c[0] <= code('z')) return true;
-  if (code('A') <= c[0] && c[0] <= code('Z')) return true;
+  if (code('a') <= c[0] && c[0] <= code('z')) {
+    return true;
+  }
+  if (code('A') <= c[0] && c[0] <= code('Z')) {
+    return true;
+  }
   return false;
 }
 
@@ -370,7 +374,9 @@ class Lexer {
 
     if (c[0] == code('/')) {
       while (c[0] != code('\n')) {
-        if (!this.getChar(c, true)) break;
+        if (!this.getChar(c, true)) {
+          break;
+        }
       }
       if (c[0] != code('\n') && c[0] != TokenType.EOF) {
         dealWithError('unterminated signal line comment');

@@ -41,9 +41,7 @@ function saveLog(dateStr, levStr, detail) {
 NapiLog.init = function (level, fileName) {
   logLevel =
     level in
-    [NapiLog.LEV_NONE, NapiLog.LEV_ERROR, NapiLog.LEV_DEBUG, NapiLog.LEV_INFO]
-      ? level
-      : NapiLog.LEV_ERROR;
+    [NapiLog.LEV_NONE, NapiLog.LEV_ERROR, NapiLog.LEV_DEBUG, NapiLog.LEV_INFO] ? level : NapiLog.LEV_ERROR;
   logFileName = fileName ? fileName : 'napi_generator.log';
 };
 
@@ -53,9 +51,13 @@ function recordLog(lev, ...args) {
   saveLog(dataStr, LEV_STR[lev], detail);
   if (lev == NapiLog.LEV_ERROR) {
     logResultMessage = [false, detail];
-    if (errorCallBack != null) errorCallBack(detail);
+    if (errorCallBack != null) {
+      errorCallBack(detail);
+    }
   }
-  if (logLevel < lev) return;
+  if (logLevel < lev) {
+    return;
+  }
   console.log(dataStr, LEV_STR[lev], detail);
 }
 

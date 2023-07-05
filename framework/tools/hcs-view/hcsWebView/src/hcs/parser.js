@@ -37,7 +37,9 @@ class Parser {
     this.astList = {};
   }
   parse(fn) {
-    if (this.srcQueue_.indexOf(fn) == -1) this.srcQueue_.push(fn);
+    if (this.srcQueue_.indexOf(fn) == -1) {
+      this.srcQueue_.push(fn);
+    }
 
     while (this.srcQueue_.length > 0) {
       let includeList = [];
@@ -245,7 +247,7 @@ class Parser {
           this.dealWithError(this.lexer_ + "syntax error, except ',' or ']'");
           return null;
         }
-      } else return null;
+      } else { return null; }
     }
     if (this.current_.type != code(']')) {
       this.dealWithError(this.lexer_ + "syntax error, miss ']' at end of array");
