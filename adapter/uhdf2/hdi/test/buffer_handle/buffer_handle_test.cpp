@@ -79,7 +79,6 @@ std::string BufferHandleTest::BufferHandleDump(const BufferHandle *handle)
     os << "height:" << handle->height << ", ";
     os << "size:" << handle->size << ", ";
     os << "format:" << handle->format << ", ";
-    os << "key:" << handle->key << ", ";
     os << "reserveFds:" << handle->reserveFds << ", ";
     os << "reserveInts:" << handle->reserveInts << ", ";
     os << "reserve: [";
