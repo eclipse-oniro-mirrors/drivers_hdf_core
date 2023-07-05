@@ -61,7 +61,6 @@ static void HdfSdioReleaseDev(struct BusDev *dev)
         dev->priData.data = NULL;
     }
     OsalMemFree(dev);
-    dev = NULL;
 }
 
 static int32_t HdfSdioEnableFunc(struct BusDev *dev)
