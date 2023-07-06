@@ -116,6 +116,11 @@ typedef enum {
  * @brief Declares the directory of the HCS configuration file of the HDF.
  */
 #define HDF_CHIP_PROD_CONFIG_DIR "/etc"
+
+/**
+ * @brief Declares the name of the HDF module library.
+ */
+#define HDF_LIBRARY_NAME(x) x ".so"
 #else
 /**
  * @brief Declares the full path of the HDF module library.
@@ -150,6 +155,11 @@ typedef enum {
  * @brief Declares the installation directory of the HDF kernel-mode service module driver.
  */
 #define HDF_MODULE_DIR "/vendor/modules/"
+
+/**
+ * @brief Declares the name of the HDF module library.
+ */
+#define HDF_LIBRARY_NAME(x) x ".z.so"
 #endif
 
 #ifdef __cplusplus
