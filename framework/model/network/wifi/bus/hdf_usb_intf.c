@@ -40,7 +40,6 @@ static void HdfUsbReleaseDev(struct BusDev *dev)
         dev->priData.data = NULL;
     }
     OsalMemFree(dev);
-    dev = NULL;
 }
 
 static int32_t HdfUsbEnableFunc(struct BusDev *dev)
