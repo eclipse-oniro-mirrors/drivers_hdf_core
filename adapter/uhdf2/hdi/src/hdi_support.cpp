@@ -30,14 +30,8 @@
 
 namespace {
 #ifdef __LITEOS__
-static constexpr const char *HDI_SO_PATH = "/usr/lib";
 static constexpr const char *HDI_SO_EXTENSION = ".so";
 #else
-#ifdef __aarch64__
-static constexpr const char *HDI_SO_PATH = "/vendor/lib64";
-#else
-static constexpr const char *HDI_SO_PATH = "/vendor/lib";
-#endif
 static constexpr const char *HDI_SO_EXTENSION = ".z.so";
 #endif
 
@@ -73,14 +67,13 @@ static std::string TransFileName(const std::string &interfaceName)
     return result;
 }
 
-static std::string ParseLibPath(const std::string &interfaceName, const std::string &serviceName,
+static std::string ParseLibName(const std::string &interfaceName, const std::string &serviceName,
     uint32_t versionMajor, uint32_t versionMinor)
 {
-    std::ostringstream libPath;
-    libPath << HDI_SO_PATH << "/";
-    libPath << "lib" << interfaceName << "_" << serviceName << "_" << versionMajor << "." << versionMinor;
-    libPath << HDI_SO_EXTENSION;
-    return libPath.str();
+    std::ostringstream libName;
+    libName << "lib" << interfaceName << "_" << serviceName << "_" << versionMajor << "." << versionMinor;
+    libName << HDI_SO_EXTENSION;
+    return libName.str();
 }
 
 struct HdiImpl {
@@ -102,7 +95,7 @@ static std::map<std::string, HdiImpl> g_hdiConstructorMap;
 static std::mutex g_loaderMutex;
 
 static int32_t ParseInterface(
-    const std::string &desc, std::string &interface, std::string &libpath, const char *serviceName)
+    const std::string &desc, std::string &interface, std::string &libName, const char *serviceName)
 {
     std::smatch result;
     if (!std::regex_match(desc, result, reInfDesc)) {
@@ -122,14 +115,7 @@ static int32_t ParseInterface(
         return HDF_FAILURE;
     }
 
-    std::string libFilePath = ParseLibPath(TransFileName(interface), serviceName, versionMajor, versionMinor);
-    char resolvedPath[PATH_MAX + 1] = {0};
-    if (realpath(libFilePath.c_str(), resolvedPath) == nullptr ||
-        strncmp(resolvedPath, HDI_SO_PATH, strlen(HDI_SO_PATH)) != 0) {
-        HDF_LOGE("%{public}s invalid hdi impl so name %{public}s", __func__, libFilePath.c_str());
-        return HDF_FAILURE;
-    }
-    libpath = resolvedPath;
+    libName = ParseLibName(TransFileName(interface), serviceName, versionMajor, versionMinor);
     return HDF_SUCCESS;
 }
 
@@ -150,20 +136,20 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
     }
 
     std::string interfaceName;
-    std::string libpath;
-    if (ParseInterface(desc, interfaceName, libpath, serviceName) != HDF_SUCCESS) {
+    std::string libName;
+    if (ParseInterface(desc, interfaceName, libName, serviceName) != HDF_SUCCESS) {
         HDF_LOGE("failed to parse hdi interface info from '%{public}s'", desc);
         return nullptr;
     }
 
     std::lock_guard<std::mutex> lock(g_loaderMutex);
-    auto constructor = g_hdiConstructorMap.find(libpath);
+    auto constructor = g_hdiConstructorMap.find(libName);
     if (constructor != g_hdiConstructorMap.end()) {
         return constructor->second.constructor();
     }
 
     HdiImpl hdiImpl;
-    hdiImpl.handler = dlopen(libpath.c_str(), RTLD_LAZY);
+    hdiImpl.handler = dlopen(libName.c_str(), RTLD_LAZY);
     if (hdiImpl.handler == nullptr) {
         HDF_LOGE("%{public}s failed to dlopen, %{public}s", __func__, dlerror());
         return nullptr;
@@ -183,10 +169,10 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
 
     void *implInstance = hdiImpl.constructor();
     if (implInstance == nullptr) {
-        HDF_LOGE("%{public}s no full hdi implementation in %{public}s", __func__, libpath.c_str());
+        HDF_LOGE("%{public}s no full hdi implementation in %{public}s", __func__, libName.c_str());
         hdiImpl.Unload();
     } else {
-        g_hdiConstructorMap.emplace(std::make_pair(libpath, std::move(hdiImpl)));
+        g_hdiConstructorMap.emplace(std::make_pair(libName, std::move(hdiImpl)));
     }
     return implInstance;
 }
@@ -198,13 +184,13 @@ void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
     }
 
     std::string interfaceName;
-    std::string libpath;
-    if (ParseInterface(desc, interfaceName, libpath, serviceName) != HDF_SUCCESS) {
+    std::string libName;
+    if (ParseInterface(desc, interfaceName, libName, serviceName) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: failed to parse hdi interface info from '%{public}s'", __func__, desc);
         return;
     }
     std::lock_guard<std::mutex> lock(g_loaderMutex);
-    auto constructor = g_hdiConstructorMap.find(libpath);
+    auto constructor = g_hdiConstructorMap.find(libName);
     if (constructor != g_hdiConstructorMap.end() && constructor->second.destructor != nullptr) {
         constructor->second.destructor(impl);
     }
