@@ -35,21 +35,6 @@ const uint16_t SMALL_LOAD_WAIT_TIME = 500;
 uint8_t g_cmdList[CMD_LIST_MAX_SIZE];
 uint8_t g_cmdListCount = 0;
 
-void ClearRecvQueue(void)
-{
-    g_cmdListCount = 0;
-}
-
-uint8_t GetCMDByIndex(uint8_t index)
-{
-    return g_cmdList[index];
-}
-
-size_t GetRecvQueueSize(void)
-{
-    return g_cmdListCount;
-}
-
 static ErrorCode FuncNoLoad(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     (void)reqData;
