@@ -25,6 +25,7 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"FileDescriptor", TokenType::FD           },
     {"Ashmem",         TokenType::ASHMEM       },
     {"NativeBuffer",   TokenType::NATIVE_BUFFER},
+    {"Pointer",        TokenType::POINTER      },
     {"List",           TokenType::LIST         },
     {"Map",            TokenType::MAP          },
     {"SharedMemQueue", TokenType::SMQ          },

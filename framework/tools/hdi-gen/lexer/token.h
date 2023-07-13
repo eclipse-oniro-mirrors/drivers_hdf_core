@@ -28,6 +28,7 @@ enum class TokenType {
     FD,      // "FileDescriptor"
     ASHMEM,  // "Ashmem"
     NATIVE_BUFFER, // "NativeBuffer"
+    POINTER, // "Pointer"
     LIST,    // "List"
     MAP,     // "Map"
     SMQ,     // "SharedMemQueue"

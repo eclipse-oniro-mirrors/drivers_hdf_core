@@ -171,6 +171,8 @@ private:
 
     bool CheckType(const Token &token, const AutoPtr<ASTType> &type);
 
+    bool CheckTypeByMode(const Token &token, const AutoPtr<ASTType> &type);
+
     void SetAstFileType();
 
     bool CheckIntegrity();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -27,10 +27,10 @@ AST::TypeStringMap AST::basicTypes_ = {
     {"unsigned short", new ASTUshortType()      },
     {"unsigned int",   new ASTUintType()        },
     {"unsigned long",  new ASTUlongType()       },
-    {"void",           new ASTVoidType()        },
     {"FileDescriptor", new ASTFdType()          },
     {"Ashmem",         new ASTAshmemType()      },
     {"NativeBuffer",   new ASTNativeBufferType()},
+    {"Pointer",        new ASTPointerType()     },
 };
 
 void AST::SetIdlFile(const std::string &idlFile)

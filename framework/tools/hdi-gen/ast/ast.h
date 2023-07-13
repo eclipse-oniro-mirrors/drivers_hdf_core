@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,6 +26,7 @@
 #include "ast/ast_map_type.h"
 #include "ast/ast_namespace.h"
 #include "ast/ast_node.h"
+#include "ast/ast_pointer_type.h"
 #include "ast/ast_sequenceable_type.h"
 #include "ast/ast_short_type.h"
 #include "ast/ast_smq_type.h"
@@ -36,7 +37,6 @@
 #include "ast/ast_ulong_type.h"
 #include "ast/ast_union_type.h"
 #include "ast/ast_ushort_type.h"
-#include "ast/ast_void_type.h"
 #include "util/autoptr.h"
 
 namespace OHOS {
