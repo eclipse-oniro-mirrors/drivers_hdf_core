@@ -101,6 +101,7 @@ private:
     ObjectDelegator(ObjectDelegator &&) = delete;
     ObjectDelegator &operator=(const ObjectDelegator &) = delete;
     ObjectDelegator &operator=(ObjectDelegator &&) = delete;
+    std::u16string descriptor_;
 };
 
 /**
@@ -113,10 +114,12 @@ private:
 template <typename OBJECT, typename INTERFACE>
 ObjectDelegator<OBJECT, INTERFACE>::ObjectDelegator()
 {
-    ObjectCollector::GetInstance().ConstructorRegister(
-        INTERFACE::GetDescriptor(), [](const sptr<HdiBase> &interface) -> sptr<IRemoteObject> {
-            return new OBJECT(static_cast<INTERFACE *>(interface.GetRefPtr()));
-        });
+    auto creator = [](const sptr<HdiBase> &interface) -> sptr<IRemoteObject> {
+        return new OBJECT(static_cast<INTERFACE *>(interface.GetRefPtr()));
+    };
+    if (ObjectCollector::GetInstance().ConstructorRegister(INTERFACE::GetDescriptor(), creator)) {
+        descriptor_ = INTERFACE::GetDescriptor();
+    }
 }
 
 /**
@@ -129,7 +132,7 @@ ObjectDelegator<OBJECT, INTERFACE>::ObjectDelegator()
 template <typename OBJECT, typename INTERFACE>
 ObjectDelegator<OBJECT, INTERFACE>::~ObjectDelegator()
 {
-    ObjectCollector::GetInstance().ConstructorUnRegister(INTERFACE::GetDescriptor());
+    ObjectCollector::GetInstance().ConstructorUnRegister(descriptor_);
 }
 } // namespace HDI
 } // namespace OHOS
