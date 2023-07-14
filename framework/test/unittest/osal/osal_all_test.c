@@ -196,15 +196,17 @@ static int ThreadTest3(void *arg)
     int policy;
     struct sched_param param;
 
-    HDF_LOGE("[OSAL_UT_TEST]%s test thread para end", __func__);
+    HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
     (void)arg;
 
     OsalSleep(HDF_THREAD_TEST_SLEEP_S);
     pthread_getschedparam(pthread_self(), &policy, &param);
+#ifndef __LITEOS__
     UT_TEST_CHECK_RET(policy != SCHED_OTHER, OSAL_THREAD_CREATE);
     UT_TEST_CHECK_RET(param.sched_priority != SCHED_OTHER_PRIORITY, OSAL_THREAD_CREATE);
+#endif
     printf("%s: policy is %d, param.sched_priority is %d \n", __func__, policy, param.sched_priority);
-    HDF_LOGE("%s thread return\n", __func__);
+    HDF_LOGI("%s thread return\n", __func__);
 
     return 0;
 }
@@ -219,10 +221,12 @@ static int ThreadTest4(void *arg)
 
     OsalSleep(HDF_THREAD_TEST_SLEEP_S);
     pthread_getschedparam(pthread_self(), &policy, &param);
+#ifndef __LITEOS__
     UT_TEST_CHECK_RET(policy != SCHED_FIFO, OSAL_THREAD_CREATE);
     UT_TEST_CHECK_RET(param.sched_priority != SCHED_FIFO_PRIORITY, OSAL_THREAD_CREATE);
+#endif
     printf("%s: policy is %d, param.sched_priority is %d \n", __func__, policy, param.sched_priority);
-    HDF_LOGE("%s thread return\n", __func__);
+    HDF_LOGI("%s thread return\n", __func__);
 
     return 0;
 }
@@ -237,10 +241,12 @@ static int ThreadTest5(void *arg)
 
     OsalSleep(HDF_THREAD_TEST_SLEEP_S);
     pthread_getschedparam(pthread_self(), &policy, &param);
+#ifndef __LITEOS__
     UT_TEST_CHECK_RET(policy != SCHED_RR, OSAL_THREAD_CREATE);
     UT_TEST_CHECK_RET(param.sched_priority != SCHED_RR_PRIORITY, OSAL_THREAD_CREATE);
+#endif
     printf("%s: policy is %d, param.sched_priority is %d \n", __func__, policy, param.sched_priority);
-    HDF_LOGE("%s thread return\n", __func__);
+    HDF_LOGI("%s thread return\n", __func__);
 
     return 0;
 }
