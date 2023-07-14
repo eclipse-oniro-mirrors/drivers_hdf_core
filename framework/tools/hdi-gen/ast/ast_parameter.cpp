@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -54,7 +54,7 @@ std::string ASTParameter::EmitCParameter()
         case TypeKind::TYPE_STRUCT:
         case TypeKind::TYPE_UNION:
         case TypeKind::TYPE_NATIVE_BUFFER:
-        case TypeKind::TYPE_VOID: {
+        case TypeKind::TYPE_POINTER: {
             StringBuilder paramStr;
             if (attr_->value_ == ParamAttr::PARAM_IN) {
                 paramStr.AppendFormat("%s %s", type_->EmitCType(TypeMode::PARAM_IN).c_str(), name_.c_str());
@@ -115,7 +115,7 @@ std::string ASTParameter::EmitJavaParameter()
         case TypeKind::TYPE_INTERFACE:
         case TypeKind::TYPE_STRUCT:
         case TypeKind::TYPE_UNION:
-        case TypeKind::TYPE_VOID:
+        case TypeKind::TYPE_POINTER:
         case TypeKind::TYPE_ARRAY:
         case TypeKind::TYPE_LIST:
         case TypeKind::TYPE_MAP: {

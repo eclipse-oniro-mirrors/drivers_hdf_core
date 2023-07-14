@@ -760,6 +760,7 @@ AutoPtr<ASTType> Parser::ParseType()
         case TokenType::FD:
         case TokenType::ASHMEM:
         case TokenType::NATIVE_BUFFER:
+        case TokenType::POINTER:
         case TokenType::UNSIGNED:
             type = ParseBasicType();
             break;
@@ -1508,26 +1509,15 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
         return false;
     }
 
+    if (!CheckTypeByMode(token, type)) {
+        return false;
+    }
+
     if (Options::GetInstance().GetLanguage() == Language::C) {
         if (type->IsSequenceableType() || type->IsSmqType() || type->IsAshmemType()) {
             LogError(token, StringHelper::Format("The %s type is not supported by c language.",
                 type->ToString().c_str()));
             return false;
-        }
-
-        if (Options::GetInstance().DoGenerateKernelCode()) {
-            switch (type->GetTypeKind()) {
-                case TypeKind::TYPE_FLOAT:
-                case TypeKind::TYPE_DOUBLE:
-                case TypeKind::TYPE_FILEDESCRIPTOR:
-                case TypeKind::TYPE_INTERFACE:
-                    LogError(token,
-                        StringHelper::Format(
-                            "The '%s' type is not supported by c language.", type->ToString().c_str()));
-                    break;
-                default:
-                    break;
-            }
         }
     } else if (Options::GetInstance().GetLanguage() == Language::JAVA) {
         switch (type->GetTypeKind()) {
@@ -1548,6 +1538,35 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
         }
     }
 
+    return true;
+}
+
+bool Parser::CheckTypeByMode(const Token &token, const AutoPtr<ASTType> &type)
+{
+    if (!Options::GetInstance().DoPassthrough() && type->IsPointerType()) {
+        LogError(token, StringHelper::Format("The %s type is only supported by passthrough mode.",
+            type->ToString().c_str()));
+        return false;
+    }
+
+    if (Options::GetInstance().DoGenerateKernelCode()) {
+        switch (type->GetTypeKind()) {
+            case TypeKind::TYPE_FLOAT:
+            case TypeKind::TYPE_DOUBLE:
+            case TypeKind::TYPE_FILEDESCRIPTOR:
+            case TypeKind::TYPE_INTERFACE:
+            case TypeKind::TYPE_SMQ:
+            case TypeKind::TYPE_ASHMEM:
+            case TypeKind::TYPE_NATIVE_BUFFER:
+            case TypeKind::TYPE_POINTER:
+                LogError(token,
+                    StringHelper::Format(
+                        "The '%s' type is not supported by kernel mode.", type->ToString().c_str()));
+                return false;
+            default:
+                break;
+        }
+    }
     return true;
 }
 

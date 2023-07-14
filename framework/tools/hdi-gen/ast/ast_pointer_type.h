@@ -1,23 +1,23 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef OHOS_HDI_ASTVOIDTYPE_H
-#define OHOS_HDI_ASTVOIDTYPE_H
+#ifndef OHOS_HDI_ASTPOINTERTYPE_H
+#define OHOS_HDI_ASTPOINTERTYPE_H
 
 #include "ast/ast_type.h"
 
 namespace OHOS {
 namespace HDI {
-class ASTVoidType : public ASTType {
+class ASTPointerType : public ASTType {
 public:
-    ASTVoidType() : ASTType(TypeKind::TYPE_VOID, false) {}
+    ASTPointerType() : ASTType(TypeKind::TYPE_POINTER, true) {}
 
-    bool IsVoidType() override;
+    bool IsPointerType() override;
 
     std::string ToString() const override;
 
@@ -27,9 +27,9 @@ public:
 
     std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
+    // the 'Pointer' type only support use in 'passthrough' mode
 };
 } // namespace HDI
 } // namespace OHOS
 
-#endif // OHOS_HDI_ASTBOOLEANTYPE_H
+#endif // OHOS_HDI_ASTPOINTERTYPE_H
