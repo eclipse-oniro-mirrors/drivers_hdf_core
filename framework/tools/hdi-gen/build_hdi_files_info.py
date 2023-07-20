@@ -311,6 +311,7 @@ class IdlParser(object):
         all_idl_details = {}
         if Option.language == "c":
             self.parse_c_idl_files(all_idl_details)
+            self.parse_deps(all_idl_details)
             self.parse_module_info(all_idl_details)
             return
 
@@ -371,11 +372,28 @@ class IdlParser(object):
     def merged_idl_details(self, all_idl_details):
         merged_details = {}
         source_idl_detail = self.parse_one(Option.idl_sources[0])
-        for key, value in all_idl_details.items():
-            if value.file_name not in merged_details:
-                value.package = source_idl_detail.package
-                value.version = source_idl_detail.version
-                merged_details[value.file_name] = value
+        for _, idl_detail in all_idl_details.items():
+            idl_detail.package = source_idl_detail.package
+            idl_detail.version = source_idl_detail.version
+        for _, idl_detail in all_idl_details.items():
+            if idl_detail.full_name() not in merged_details:
+                imports = []
+                for import_name in idl_detail.imports:
+                    import_idl = all_idl_details[import_name]
+                    if import_idl.full_name() in imports:
+                        continue
+                    if import_idl.full_name() != idl_detail.full_name():
+                        imports.append(import_idl.full_name())
+                idl_detail.imports = imports
+                merged_details[idl_detail.full_name()] = idl_detail
+            else:
+                for import_name in idl_detail.imports:
+                    import_idl = all_idl_details[import_name]
+                    merged_detail = merged_details[idl_detail.full_name()]
+                    if import_idl.full_name() in merged_detail.imports:
+                        continue
+                    if import_idl.full_name() != idl_detail.full_name():
+                        merged_detail.imports.append(import_idl.full_name())
         all_idl_details.clear()
         for key, value in merged_details.items():
             all_idl_details[key] = value
@@ -491,6 +509,10 @@ class CodeGen(object):
             sub_package = package[root_package_len:]
             sub_package_path = sub_package.replace(".", os.sep)
             package_path = "{}{}".format(Option.root_path, sub_package_path)
+        else:
+            raise Exception("find root package '{}' failed in '{}'".format(
+                Option.root_package, package))
+
         return package_path
 
     @staticmethod
