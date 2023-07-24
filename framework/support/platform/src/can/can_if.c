@@ -17,7 +17,6 @@ int32_t CanBusOpen(int32_t number, DevHandle *handle)
 
     ret = CanClientCreateByNumber(number, &client);
     if (ret == HDF_SUCCESS) {
-        HDF_LOGE("CanBusOpen: create can client fail!");
         *handle = (DevHandle)client;
     }
     return ret;
