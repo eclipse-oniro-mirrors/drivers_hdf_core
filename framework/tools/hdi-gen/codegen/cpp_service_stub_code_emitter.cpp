@@ -435,6 +435,11 @@ void CppServiceStubCodeEmitter::EmitStubStaticMethodImpl(
 void CppServiceStubCodeEmitter::EmitStubCallMethod(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
+    sb.Append(prefix).Append("if (impl == nullptr) {\n");
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: impl is nullptr!\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n\n");
+
     sb.Append(prefix).AppendFormat("int32_t %s = impl->%s(", errorCodeName_.c_str(), method->GetName().c_str());
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
