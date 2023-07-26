@@ -17,5 +17,20 @@
 interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
 
 # Code reviewers for camera
-framework/include/camera/* liudimin1@huawei.com yanghaizhou1@huawei.com
-framework/model/camera/* liudimin1@huawei.com yanghaizhou1@huawei.com
+adapter/ @time_zhang
+framework/ @time_zhang
+framework/model/input/ @time_zhang
+framework/model/audio/ @whoselettlelion
+framework/include/audio/ @whoselettlelion
+framework/model/sensor/ @whoselettlelion
+framework/model/misc/ @whoselettlelion
+framework/model/display/ @whoselettlelion
+framework/model/camera/ @Danny_liuXu @haizhouyang
+framework/include/camera/ @Danny_liuXu @haizhouyang
+framework/model/wifi/ @Danny_liuXu
+framework/model/network/ @Danny_liuXu
+framework/model/usb/ @danny_liuxu
+framework/include/wifi/ @danny_liuxu
+framework/include/bluetooth/ @danny_liuxu
+framework/include/ethernet/ @danny_liuxu
+framework/include/net/ @danny_liuxu
