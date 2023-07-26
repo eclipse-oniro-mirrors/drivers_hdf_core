@@ -15,3 +15,7 @@
 
 # any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan5
 interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
+
+# Code reviewers for camera
+framework/include/camera/* liudimin1@huawei.com yanghaizhou1@huawei.com
+framework/model/camera/* liudimin1@huawei.com yanghaizhou1@huawei.com
