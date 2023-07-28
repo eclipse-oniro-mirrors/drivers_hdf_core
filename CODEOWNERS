@@ -16,8 +16,10 @@
 # any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan5
 interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
 
-# Code reviewers for camera
+# Code reviewers for adapter
 adapter/ @time_zhang
+
+# Code reviewers for framework 
 framework/ @time_zhang
 framework/model/input/ @time_zhang
 framework/model/audio/ @whoselettlelion
@@ -25,8 +27,8 @@ framework/include/audio/ @whoselettlelion
 framework/model/sensor/ @whoselettlelion
 framework/model/misc/ @whoselettlelion
 framework/model/display/ @whoselettlelion
-framework/model/camera/ @Danny_liuXu @haizhouyang
-framework/include/camera/ @Danny_liuXu @haizhouyang
+framework/model/camera/ @Danny_liuXu
+framework/include/camera/ @Danny_liuXu
 framework/model/wifi/ @Danny_liuXu
 framework/model/network/ @Danny_liuXu
 framework/model/usb/ @danny_liuxu
