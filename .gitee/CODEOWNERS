@@ -13,13 +13,7 @@
  * limitations under the License.
  */
 
-# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan5
-interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
-
-# Code reviewers for adapter
 adapter/ @time_zhang
-
-# Code reviewers for framework 
 framework/ @time_zhang
 framework/model/input/ @time_zhang
 framework/model/audio/ @whoselettlelion
@@ -36,3 +30,6 @@ framework/include/wifi/ @danny_liuxu
 framework/include/bluetooth/ @danny_liuxu
 framework/include/ethernet/ @danny_liuxu
 framework/include/net/ @danny_liuxu
+
+# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan5
+interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
