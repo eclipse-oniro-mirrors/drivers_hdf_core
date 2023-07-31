@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -93,6 +93,7 @@ template("hdi") {
   assert(defined(hdi_build_info.stub_sources), "missing stub_sources")
   assert(defined(hdi_build_info.proxy_deps), "missing proxy_deps")
   assert(defined(hdi_build_info.stub_deps), "missing stub_deps")
+  assert(defined(hdi_build_info.header_deps), "missing header_deps")
 
   idl_headers_config = "$target_name" + "_idl_headers_config"
   config("$idl_headers_config") {
@@ -242,8 +243,19 @@ template("hdi") {
   }
 
   # only generate code and provide header file path
+  # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers" ]
+  # this target has been replaced by 'idl_headers_target', please use 'idl_headers_target'
   group("$target_name" + "_idl_headers") {
     public_configs = [ ":$idl_headers_config" ]
     deps = [ ":hdi_gen" ]
+  }
+
+  # only generate code and provide header file path
+  # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers_1.0" ]
+  idl_headers_target = target_name + "_idl_headers_" + hdi_build_info.version
+  group(idl_headers_target) {
+    public_configs = [ ":$idl_headers_config" ]
+    deps = [ ":hdi_gen" ]
+    public_deps = hdi_build_info.header_deps
   }
 }
