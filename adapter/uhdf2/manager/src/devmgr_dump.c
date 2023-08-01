@@ -123,7 +123,6 @@ static int32_t DevMgrDumpServiceFindHost(const char *servName, struct HdfSBuf *d
     int32_t ret = HDF_FAILURE;
     const char *name = NULL;
     struct HdfSListNode *node = NULL;
-    bool findFlag = false;
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&iterator, &hostClnt->devices);
         while (HdfSListIteratorHasNext(&iterator)) {
@@ -140,15 +139,12 @@ static int32_t DevMgrDumpServiceFindHost(const char *servName, struct HdfSBuf *d
             if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
                 return ret;
             }
-            findFlag = true;
             ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
             return ret;
         }
     }
-    if (!findFlag) {
-        (void)HdfSbufWriteString(reply, "The service does not exist\n");
-    }
 
+    (void)HdfSbufWriteString(reply, "The service does not exist\n");
     return ret;
 }
 
