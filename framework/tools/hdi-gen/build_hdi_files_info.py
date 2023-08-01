@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -197,6 +197,7 @@ class ModuleInfo(object):
     stub_sources = []
     proxy_deps = []
     stub_deps = []
+    header_deps = []
 
     @staticmethod
     def json_info():
@@ -215,6 +216,7 @@ class ModuleInfo(object):
             "stub_sources": ModuleInfo.stub_sources,
             "proxy_deps": ModuleInfo.proxy_deps,
             "stub_deps": ModuleInfo.stub_deps,
+            "header_deps": ModuleInfo.header_deps,
         }
         return json.dumps(result)
 
@@ -467,7 +469,7 @@ class IdlParser(object):
             return
         ModuleInfo.out_dir = Option.gen_dir
         self.parse_sources(all_idl_details, generator)
-        ModuleInfo.proxy_deps, ModuleInfo.stub_deps = CodeGen.get_lib_deps(Option.imports)
+        ModuleInfo.proxy_deps, ModuleInfo.stub_deps, ModuleInfo.header_deps = CodeGen.get_lib_deps(Option.imports)
 
     def parse_sources(self, all_idl_details, generator):
         ModuleInfo.include_dirs.add(Option.gen_dir)
@@ -637,17 +639,21 @@ class CodeGen(object):
     def get_lib_deps(imports):
         proxy_deps = []
         stub_deps = []
+        header_deps = []
         for imps in imports:
             package, module_name = CodeGen.get_import(imps)
             package_path = CodeGen.get_package_path(package)
             major_version, minor_version = CodeGen.get_version(package)
             proxy_lib_name = "lib{}_proxy_{}.{}".format(module_name, major_version, minor_version)
             stub_lib_name = "lib{}_stub_{}.{}".format(module_name, major_version, minor_version)
+            header_config = "{}_idl_headers_{}.{}".format(module_name, major_version, minor_version)
             proxy_lib_dep = "{}:{}".format(package_path, proxy_lib_name)
             stub_lib_dep = "{}:{}".format(package_path, stub_lib_name)
+            header_dep = "{}:{}".format(package_path, header_config)
             proxy_deps.append(proxy_lib_dep)
             stub_deps.append(stub_lib_dep)
-        return proxy_deps, stub_deps
+            header_deps.append(header_dep)
+        return proxy_deps, stub_deps, header_deps
 
 
 class LowCCodeGen(CodeGen):
