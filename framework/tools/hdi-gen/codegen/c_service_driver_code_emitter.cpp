@@ -13,9 +13,8 @@
 
 namespace OHOS {
 namespace HDI {
-CServiceDriverCodeEmitter::CServiceDriverCodeEmitter() : CCodeEmitter()
+CServiceDriverCodeEmitter::CServiceDriverCodeEmitter() : CCodeEmitter(), hostName_("host")
 {
-    hostName_ = StringHelper::StrToLower(baseName_) + "Host";
 }
 
 bool CServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
@@ -35,14 +34,96 @@ bool CServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CServiceDriverCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        return;
+    switch (mode_) {
+        case GenMode::LOW: {
+            EmitLowDriverSourceFile();
+            break;
+        }
+        case GenMode::IPC: {
+            if (!interface_->IsSerializable()) {
+                EmitDriverSourceFile();
+            }
+            break;
+        }
+        case GenMode::KERNEL: {
+            EmitDriverSourceFile();
+            break;
+        }
+        default:
+            break;
     }
+}
 
-    // the callback interface or interface as method parameter have no driver file.
-    if (isKernelCode_ || !interface_->IsSerializable()) {
-        EmitDriverSourceFile();
+void CServiceDriverCodeEmitter::EmitLowDriverSourceFile()
+{
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.c", directory_.c_str(), FileName(baseName_ + "Driver").c_str()));
+    File file(filePath, File::WRITE);
+    StringBuilder sb;
+
+    EmitLicense(sb);
+    sb.Append("\n");
+    EmitLowDriverInclusions(sb);
+    sb.Append("\n");
+    EmitLogTagMacro(sb, FileName(baseName_ + "Driver"));
+    sb.Append("\n");
+    EmitLowDriverBind(sb);
+    sb.Append("\n");
+    EmitDriverInit(sb);
+    sb.Append("\n");
+    EmitLowDriverRelease(sb);
+    sb.Append("\n");
+    EmitDriverEntryDefinition(sb);
+
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
+    file.Flush();
+    file.Close();
+}
+
+void CServiceDriverCodeEmitter::EmitLowDriverInclusions(StringBuilder &sb) const
+{
+    HeaderFile::HeaderFileSet headerFiles;
+    headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(implName_));
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_device_desc");
+    
+    for (const auto &file : headerFiles) {
+        sb.AppendFormat("%s\n", file.ToString().c_str());
     }
+}
+
+void CServiceDriverCodeEmitter::EmitLowDriverBind(StringBuilder &sb) const
+{
+    sb.AppendFormat("static int Hdf%sDriverBind(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).Append("HDF_LOGI(\"%s: driver bind start\", __func__);\n");
+    sb.Append(TAB).AppendFormat("struct %s *serviceImpl = %sGet();\n", implName_.c_str(), implName_.c_str());
+    sb.Append(TAB).Append("if (serviceImpl == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%s: failed to get service impl\", __func__);\n");
+    sb.Append(TAB).Append(TAB).Append("return HDF_FAILURE;\n");
+    sb.Append(TAB).Append("}\n");
+    sb.Append(TAB).Append("deviceObject->service = &serviceImpl->super.service;\n");
+    sb.Append(TAB).Append("return HDF_SUCCESS;\n");
+    sb.Append("}\n");
+}
+
+void CServiceDriverCodeEmitter::EmitLowDriverRelease(StringBuilder &sb) const
+{
+    sb.AppendFormat("static void Hdf%sDriverRelease(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).Append("HDF_LOGI(\"%s: driver release start\", __func__);\n");
+
+    sb.Append(TAB).Append("if (deviceObject == NULL || deviceObject->service == NULL) {\n");
+    sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%s: invalid device object\", __func__);\n");
+    sb.Append(TAB).Append(TAB).Append("return;\n");
+    sb.Append(TAB).Append("}\n\n");
+    sb.Append(TAB).AppendFormat(
+        "struct %s *serviceImpl = (struct %s *)deviceObject->service;\n", implName_.c_str(), implName_.c_str());
+    sb.Append(TAB).Append("if (serviceImpl != NULL) {\n");
+    sb.Append(TAB).Append(TAB).AppendFormat("%sRelease(serviceImpl);\n", implName_.c_str());
+    sb.Append(TAB).Append("}\n");
+    sb.Append("}\n");
 }
 
 void CServiceDriverCodeEmitter::EmitDriverSourceFile()
@@ -59,7 +140,7 @@ void CServiceDriverCodeEmitter::EmitDriverSourceFile()
     sb.Append("\n");
     EmitDriverServiceDecl(sb);
     sb.Append("\n");
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         EmitKernelDriverDispatch(sb);
         sb.Append("\n");
         EmitDriverInit(sb);
@@ -89,7 +170,7 @@ void CServiceDriverCodeEmitter::EmitDriverInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(implName_));
     } else {
         headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
@@ -108,7 +189,7 @@ void CServiceDriverCodeEmitter::GetDriverSourceOtherLibInclusions(HeaderFile::He
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_device_desc");
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_device_object");
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_remote_service");
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "stub_collector");
@@ -119,7 +200,7 @@ void CServiceDriverCodeEmitter::EmitDriverServiceDecl(StringBuilder &sb) const
 {
     sb.AppendFormat("struct Hdf%sHost {\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat("struct IDeviceIoService ioService;\n");
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append(TAB).AppendFormat("struct %s *service;\n", implName_.c_str());
     } else {
         sb.Append(TAB).AppendFormat("struct %s *service;\n", interfaceName_.c_str());
@@ -174,7 +255,11 @@ void CServiceDriverCodeEmitter::EmitDriverInit(StringBuilder &sb) const
 {
     sb.AppendFormat("static int Hdf%sDriverInit(struct HdfDeviceObject *deviceObject)\n", baseName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).Append("HDF_LOGI(\"%{public}s: driver init start\", __func__);\n");
+    if (mode_ == GenMode::LOW) {
+        sb.Append(TAB).Append("HDF_LOGI(\"%s: driver init start\", __func__);\n");
+    } else {
+        sb.Append(TAB).Append("HDF_LOGI(\"%{public}s: driver init start\", __func__);\n");
+    }
     sb.Append(TAB).Append("return HDF_SUCCESS;\n");
     sb.Append("}\n");
 }
@@ -300,7 +385,7 @@ void CServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb) con
 {
     sb.AppendFormat("struct HdfDriverEntry g_%sDriverEntry = {\n", StringHelper::StrToLower(baseName_).c_str());
     sb.Append(TAB).Append(".moduleVersion = 1,\n");
-    sb.Append(TAB).AppendFormat(".moduleName = \"%s\",\n", Options::GetInstance().GetModuleName().c_str());
+    sb.Append(TAB).AppendFormat(".moduleName = \"%s\",\n", Options::GetInstance().GetPackage().c_str());
     sb.Append(TAB).AppendFormat(".Bind = Hdf%sDriverBind,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Init = Hdf%sDriverInit,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Release = Hdf%sDriverRelease,\n", baseName_.c_str());

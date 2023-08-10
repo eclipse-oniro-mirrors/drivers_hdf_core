@@ -73,7 +73,6 @@ BufferHandle *CloneNativeBufferHandle(const BufferHandle *other)
     handle->format = other->format;
     handle->usage = other->usage;
     handle->phyAddr = other->phyAddr;
-    handle->key = other->key;
 
     for (uint32_t i = 0; i < handle->reserveFds; i++) {
         handle->reserve[i] = dup(other->reserve[i]);

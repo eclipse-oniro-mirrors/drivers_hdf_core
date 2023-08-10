@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,7 +30,7 @@ bool CppServiceStubCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppServiceStubCodeEmitter::EmitCode()
 {
-    if (!Options::GetInstance().DoPassthrough()) {
+    if (mode_ == GenMode::IPC) {
         EmitStubHeaderFile();
         EmitStubSourceFile();
     }
@@ -63,6 +63,10 @@ void CppServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
     HeaderFile::HeaderFileSet headerFiles;
 
     headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
+    if (interface_->GetExtendsInterface() != nullptr) {
+        headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE,
+            EmitHeaderNameByInterface(interface_->GetExtendsInterface(), stubName_));
+    }
     GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
@@ -95,7 +99,7 @@ void CppServiceStubCodeEmitter::EmitStubUsingNamespace(StringBuilder &sb) const
     sb.Append("using namespace OHOS;\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubBody(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubBody(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append("public:\n");
     EmitStubConstructorDecl(sb, prefix);
@@ -121,13 +125,26 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestDecl(StringBuilder &sb, const s
 
 void CppServiceStubCodeEmitter::EmitStubMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append("private:\n");
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
-        EmitStubMethodDecl(method, sb, prefix);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+        EmitStubStaticMethodDecl(method, sb, prefix);
         sb.Append("\n");
     }
+    if (interface_->GetExtendsInterface() == nullptr) {
+        EmitStubStaticMethodDecl(interface_->GetVersionMethod(), sb, prefix);
+        sb.Append("\n");
+    }
+
+    sb.Append("private:\n");
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            EmitStubMethodDecl(method, sb, prefix);
+            sb.Append("\n");
+        }
+        interface = interface->GetExtendsInterface();
+    }
     EmitStubMethodDecl(interface_->GetVersionMethod(), sb, prefix);
+    sb.Append("\n");
 }
 
 void CppServiceStubCodeEmitter::EmitStubMethodDecl(
@@ -138,12 +155,21 @@ void CppServiceStubCodeEmitter::EmitStubMethodDecl(
         optionName_.c_str());
 }
 
+void CppServiceStubCodeEmitter::EmitStubStaticMethodDecl(
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
+{
+    sb.Append(prefix).AppendFormat(
+        "static int32_t %s%s_(MessageParcel& %s, MessageParcel& %s, MessageOption& %s, sptr<%s> impl);\n",
+        stubName_.c_str(), method->GetName().c_str(), dataParcelName_.c_str(), replyParcelName_.c_str(),
+        optionName_.c_str(), EmitDefinitionByInterface(interface_, interfaceName_).c_str());
+}
+
 void CppServiceStubCodeEmitter::EmitStubPrivateData(StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append("private:\n");
-    sb.Append(prefix).AppendFormat(
-        "static inline ObjectDelegator<%s, %s> objDelegator_;\n", stubName_.c_str(), interfaceName_.c_str());
-    sb.Append(prefix).AppendFormat("sptr<%s> impl_;\n", interfaceName_.c_str());
+    sb.Append(prefix).AppendFormat("static inline ObjectDelegator<%s, %s> objDelegator_;\n",
+        EmitDefinitionByInterface(interface_, stubName_).c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
+    sb.Append(prefix).AppendFormat("sptr<%s> impl_;\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
 }
 
 void CppServiceStubCodeEmitter::EmitStubSourceFile()
@@ -208,8 +234,7 @@ void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
         }
     }
 
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
@@ -229,7 +254,7 @@ void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
 }
 
-void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     if (!interface_->IsSerializable()) {
         EmitGetMethodImpl(sb, prefix);
@@ -241,45 +266,51 @@ void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, co
 
 void CppServiceStubCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat(
-        "sptr<%s> %s::Get(bool isStub)\n", interface_->GetName().c_str(), interface_->GetName().c_str());
+    sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(bool isStub)\n",
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB)
-        .AppendFormat("return %s::Get(\"%s\", isStub);\n", interfaceName_.c_str(), FileName(implName_).c_str());
+    sb.Append(prefix + TAB).AppendFormat("return %s::Get(\"%s\", isStub);\n",
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str(), FileName(implName_).c_str());
     sb.Append(prefix).Append("}\n");
 }
 
 void CppServiceStubCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string& serviceName, bool isStub)\n",
-        interface_->GetName().c_str(), interface_->GetName().c_str());
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("{\n");
 
     sb.Append(prefix + TAB).Append("if (!isStub) {\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n");
 
-    sb.Append(prefix + TAB)
-        .AppendFormat("std::string desc = Str16ToStr8(%s::GetDescriptor());\n", interfaceName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("std::string desc = Str16ToStr8(%s::GetDescriptor());\n",
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix + TAB).Append("void *impl = LoadHdiImpl(desc.c_str(), ");
     sb.AppendFormat("serviceName == \"%s\" ? \"service\" : serviceName.c_str());\n", FileName(implName_).c_str());
     sb.Append(prefix + TAB).Append("if (impl == nullptr) {\n");
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"failed to load hdi impl %{public}s\", desc.c_str());\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB).AppendFormat("return reinterpret_cast<%s *>(impl);\n", interfaceName_.c_str());
+    sb.Append(prefix + TAB).AppendFormat("return reinterpret_cast<%s *>(impl);\n",
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("}\n");
 }
 
 void CppServiceStubCodeEmitter::EmitStubConstructorImpl(StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat(
-        "%s::%s(const sptr<%s> &impl)\n", stubName_.c_str(), stubName_.c_str(), interfaceName_.c_str());
-    sb.Append(prefix + TAB).AppendFormat(": IPCObjectStub(%s::GetDescriptor()), impl_(impl)\n", interfaceName_.c_str());
+    sb.Append(prefix).AppendFormat("%s::%s(const sptr<%s> &impl)\n",
+        EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
+    sb.Append(prefix + TAB).AppendFormat(": IPCObjectStub(%s::GetDescriptor()), impl_(impl)\n",
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix).Append("}\n\n");
 
-    sb.Append(prefix).AppendFormat("%s::~%s()\n", stubName_.c_str(), stubName_.c_str());
+    sb.Append(prefix).AppendFormat(
+        "%s::~%s()\n", EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB).Append("ObjectCollector::GetInstance().RemoveObject(impl_);\n");
     sb.Append(prefix).Append("}\n");
@@ -287,23 +318,25 @@ void CppServiceStubCodeEmitter::EmitStubConstructorImpl(StringBuilder &sb, const
 
 void CppServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
-    sb.Append(prefix).AppendFormat("int32_t %s::OnRemoteRequest(uint32_t code, ", stubName_.c_str());
+    sb.Append(prefix).AppendFormat(
+        "int32_t %s::OnRemoteRequest(uint32_t code, ", EmitDefinitionByInterface(interface_, stubName_).c_str());
     sb.Append("MessageParcel& data, MessageParcel& reply, MessageOption& option)\n");
     sb.Append(prefix).Append("{\n");
 
     sb.Append(prefix + TAB).Append("switch (code) {\n");
-
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
-        sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
-        sb.Append(prefix + TAB + TAB + TAB)
-            .AppendFormat("return %sStub%s(data, reply, option);\n", baseName_.c_str(), method->GetName().c_str());
-    }
-
     AutoPtr<ASTMethod> getVerMethod = interface_->GetVersionMethod();
     sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).c_str());
     sb.Append(prefix + TAB + TAB + TAB)
         .AppendFormat("return %sStub%s(data, reply, option);\n", baseName_.c_str(), getVerMethod->GetName().c_str());
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
+            sb.Append(prefix + TAB + TAB + TAB)
+                .AppendFormat("return %sStub%s(data, reply, option);\n", baseName_.c_str(), method->GetName().c_str());
+        }
+        interface = interface->GetExtendsInterface();
+    }
 
     sb.Append(prefix + TAB + TAB).Append("default: {\n");
     sb.Append(prefix + TAB + TAB + TAB)
@@ -314,23 +347,55 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, c
     sb.Append("}\n");
 }
 
-void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
-        EmitStubMethodImpl(method, sb, prefix);
-        sb.Append("\n");
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    AutoPtr<ASTInterfaceType> mataInterface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            EmitStubMethodImpl(interface, method, sb, prefix);
+            sb.Append("\n");
+        }
+        interface = interface->GetExtendsInterface();
+        if (interface != nullptr) {
+            mataInterface = interface;
+        }
     }
-
-    EmitStubMethodImpl(interface_->GetVersionMethod(), sb, prefix);
+    AutoPtr<ASTMethod> verMethod = interface_->GetVersionMethod();
+    EmitStubMethodImpl(mataInterface, verMethod, sb, prefix);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+        sb.Append("\n");
+        EmitStubStaticMethodImpl(method, sb, prefix);
+    }
+    if (interface_->GetExtendsInterface() == nullptr) {
+        sb.Append("\n");
+        EmitStubStaticMethodImpl(verMethod, sb, prefix);
+    }
 }
 
-void CppServiceStubCodeEmitter::EmitStubMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+void CppServiceStubCodeEmitter::EmitStubMethodImpl(AutoPtr<ASTInterfaceType> interface,
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("int32_t %s::%s%s(MessageParcel& %s, MessageParcel& %s, MessageOption& %s)\n",
-        stubName_.c_str(), stubName_.c_str(), method->GetName().c_str(), dataParcelName_.c_str(),
-        replyParcelName_.c_str(), optionName_.c_str());
+        EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str(), method->GetName().c_str(),
+        dataParcelName_.c_str(), replyParcelName_.c_str(), optionName_.c_str());
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).AppendFormat("return %s::%s%s_(%s, %s, %s, impl_);\n",
+        EmitDefinitionByInterface(interface, stubName_).c_str(),
+        stubName_.c_str(), method->GetName().c_str(),
+        dataParcelName_.c_str(), replyParcelName_.c_str(),
+        optionName_.c_str());
+    sb.Append("}\n");
+}
+
+void CppServiceStubCodeEmitter::EmitStubStaticMethodImpl(
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
+{
+    sb.Append(prefix).AppendFormat(
+        "int32_t %s::%s%s_(MessageParcel& %s, MessageParcel& %s, MessageOption& %s, sptr<%s> impl)\n",
+        EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str(), method->GetName().c_str(),
+        dataParcelName_.c_str(), replyParcelName_.c_str(), optionName_.c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("{\n");
 
     // read interface token and check it
@@ -370,7 +435,12 @@ void CppServiceStubCodeEmitter::EmitStubMethodImpl(
 void CppServiceStubCodeEmitter::EmitStubCallMethod(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("int32_t %s = impl_->%s(", errorCodeName_.c_str(), method->GetName().c_str());
+    sb.Append(prefix).Append("if (impl == nullptr) {\n");
+    sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: impl is nullptr!\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n\n");
+
+    sb.Append(prefix).AppendFormat("int32_t %s = impl->%s(", errorCodeName_.c_str(), method->GetName().c_str());
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
         sb.Append(param->GetName());
@@ -382,7 +452,8 @@ void CppServiceStubCodeEmitter::EmitStubCallMethod(
 
     sb.Append(prefix).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
     sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s failed, error code is %%d\", __func__, %s);\n", errorCodeName_.c_str());
+        .AppendFormat("HDF_LOGE(\"%%{public}s failed, error code is %%{public}d\", __func__, %s);\n",
+        errorCodeName_.c_str());
     sb.Append(prefix + TAB).AppendFormat("return %s;\n", errorCodeName_.c_str());
     sb.Append(prefix).Append("}\n");
 }
@@ -390,8 +461,8 @@ void CppServiceStubCodeEmitter::EmitStubCallMethod(
 void CppServiceStubCodeEmitter::EmitStubReadInterfaceToken(
     const std::string &parcelName, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat(
-        "if (%s.ReadInterfaceToken() != %s::GetDescriptor()) {\n", parcelName.c_str(), interfaceName_.c_str());
+    sb.Append(prefix).AppendFormat("if (%s.ReadInterfaceToken() != %s::GetDescriptor()) {\n", parcelName.c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: interface token check failed!\", __func__);\n");
     sb.Append(prefix + TAB).AppendFormat("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
@@ -443,15 +514,14 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(const AutoPtr<ASTParameter> &p
 
 void CppServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::STUB_SER, methods);
             } else {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::STUB_SER, methods);
             }
         }
     }

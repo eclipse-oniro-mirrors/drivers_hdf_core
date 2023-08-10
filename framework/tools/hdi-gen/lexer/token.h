@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -28,6 +28,7 @@ enum class TokenType {
     FD,      // "FileDescriptor"
     ASHMEM,  // "Ashmem"
     NATIVE_BUFFER, // "NativeBuffer"
+    POINTER, // "Pointer"
     LIST,    // "List"
     MAP,     // "Map"
     SMQ,     // "SharedMemQueue"
@@ -48,6 +49,7 @@ enum class TokenType {
     CALLBACK,             // "callback"
     FULL,                 // "full"
     LITE,                 // "lite"
+    MINI,                 // "mini"
     IN,                   // "in"
     OUT,                  // "out"
     DOT,                  // "."
@@ -86,15 +88,15 @@ enum class TokenType {
 };
 
 struct Location {
-    std::string filePath_;
-    size_t row_;
-    size_t col_;
+    std::string filePath;
+    size_t row;
+    size_t col;
 };
 
 struct Token {
-    TokenType kind_;
-    Location location_;
-    std::string value_;
+    TokenType kind;
+    Location location;
+    std::string value;
 
     std::string Dump();
 };
@@ -102,7 +104,7 @@ struct Token {
 struct TokenTypeCompare {
     bool operator()(const Token &lhs, const Token &rhs) const
     {
-        return lhs.kind_ > rhs.kind_;
+        return lhs.kind > rhs.kind;
     }
 };
 

@@ -20,7 +20,7 @@ namespace OHOS {
 namespace HDI {
 class ASTStructType : public ASTType {
 public:
-    ASTStructType() : ASTType(TypeKind::TYPE_STRUCT, true), attr_(new ASTTypeAttr()), members_() {}
+    ASTStructType() : ASTType(TypeKind::TYPE_STRUCT, true), attr_(new ASTAttr()), members_() {}
 
     inline void SetName(const std::string &name) override
     {
@@ -32,7 +32,7 @@ public:
         return name_;
     }
 
-    inline void SetAttribute(const AutoPtr<ASTTypeAttr> &attr)
+    inline void SetAttribute(const AutoPtr<ASTAttr> &attr)
     {
         if (attr != nullptr) {
             attr_ = attr;
@@ -41,12 +41,12 @@ public:
 
     inline bool IsFull()
     {
-        return attr_ != nullptr ? attr_->isFull_ : false;
+        return attr_ != nullptr ? attr_->HasValue(ASTAttr::FULL) : false;
     }
 
     inline bool IsLite()
     {
-        return attr_ != nullptr ? attr_->isLite_ : false;
+        return attr_ != nullptr ? attr_->HasValue(ASTAttr::LITE) : false;
     }
 
     void AddMember(const AutoPtr<ASTType> &typeName, std::string name);
@@ -73,8 +73,6 @@ public:
     }
 
     bool IsStructType() override;
-
-    std::string ToString() const override;
 
     std::string Dump(const std::string &prefix) override;
 
@@ -123,7 +121,7 @@ public:
         const std::string &prefix) const override;
 
 private:
-    AutoPtr<ASTTypeAttr> attr_;
+    AutoPtr<ASTAttr> attr_;
     std::vector<std::tuple<std::string, AutoPtr<ASTType>>> members_;
 };
 } // namespace HDI

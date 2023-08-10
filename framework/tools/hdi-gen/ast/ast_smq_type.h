@@ -38,6 +38,12 @@ public:
     void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
 
+    void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
+
+    void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
+
 private:
     AutoPtr<ASTType> innerType_;
 };
@@ -59,6 +65,12 @@ public:
 
     void EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool initVariable, unsigned int innerLevel = 0) const override;
+
+    void EmitCppMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, unsigned int innerLevel = 0) const override;
+
+    void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
+        const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 };
 } // namespace HDI
 } // namespace OHOS

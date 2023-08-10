@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -23,7 +23,7 @@ struct HdmiTestFunc {
 static DevHandle HdmiTestGetHandle(const struct HdmiTester *tester)
 {
     if (tester == NULL) {
-        HDF_LOGE("%s: tester is null", __func__);
+        HDF_LOGE("HdmiTestGetHandle: tester is null!");
         return NULL;
     }
     return HdmiOpen(tester->busNum);
@@ -32,7 +32,7 @@ static DevHandle HdmiTestGetHandle(const struct HdmiTester *tester)
 static void HdmiTestReleaseHandle(DevHandle handle)
 {
     if (handle == NULL) {
-        HDF_LOGE("%s: sdio handle is null", __func__);
+        HDF_LOGE("HdmiTestReleaseHandle: sdio handle is null!");
         return;
     }
     HdmiClose(handle);
@@ -44,12 +44,12 @@ static int32_t TestHdmiStartAndStop(const struct HdmiTester *tester)
 
     ret = HdmiStart(tester->handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiStart failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiStartAndStop: HdmiStart fail, ret = %d!", ret);
         return ret;
     }
     ret = HdmiStop(tester->handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiStop failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiStartAndStop: HdmiStop fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -66,7 +66,7 @@ static int32_t TestHdmiSetAudioAttr(const struct HdmiTester *tester)
     attr.channels = HDMI_AUDIO_FORMAT_CHANNEL_5;
     ret = HdmiSetAudioAttribute(tester->handle, &attr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiSetAudioAttribute failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiSetAudioAttr: HdmiSetAudioAttribute fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -83,7 +83,7 @@ static int32_t TestHdmiSetVideoAttr(const struct HdmiTester *tester)
     attr.quantization = HDMI_QUANTIZATION_RANGE_FULL;
     ret = HdmiSetVideoAttribute(tester->handle, &attr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiSetAudioAttribute failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiSetVideoAttr: HdmiSetAudioAttribute fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -100,7 +100,7 @@ static int32_t TestHdmiSetHdrAttr(const struct HdmiTester *tester)
     attr.metadataType = HDMI_DRM_STATIC_METADATA_TYPE_1;
     ret = HdmiSetHdrAttribute(tester->handle, &attr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiSetHdrAttribute failed ret=%d.", __func__, ret);
+        HDF_LOGE("TestHdmiSetHdrAttr: HdmiSetHdrAttribute fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -111,13 +111,13 @@ static int32_t TestHdmiSetAvmute(const struct HdmiTester *tester)
 
     ret = HdmiAvmuteSet(tester->handle, true);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiAvmuteSet failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiSetAvmute: HdmiAvmuteSet fail, ret = %d!", ret);
         return ret;
     }
 
     ret = HdmiAvmuteSet(tester->handle, false);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiAvmuteSet failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiSetAvmute: HdmiAvmuteSet fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -129,10 +129,10 @@ static int32_t TestHdmiEdidRawDataGet(const struct HdmiTester *tester)
 
     len = HdmiReadSinkEdid(tester->handle, edid, HDMI_EDID_MAX_LEN);
     if (len < 0) {
-        HDF_LOGE("%s: HdmiReadSinkEdid failed len = %d.", __func__, len);
+        HDF_LOGE("TestHdmiEdidRawDataGet: HdmiReadSinkEdid fail, len = %d!", len);
         return HDF_FAILURE;
     }
-    HDF_LOGD("%s: HdmiReadSinkEdid success, len = %d, edid[1] = 0x%x.", __func__, len, edid[1]);
+    HDF_LOGD("TestHdmiEdidRawDataGet: HdmiReadSinkEdid success, len = %d, edid[1] = 0x%x!", len, edid[1]);
     return HDF_SUCCESS;
 }
 
@@ -143,13 +143,13 @@ static int32_t TestHdmiDeepColorSetAndGet(const struct HdmiTester *tester)
 
     ret = HdmiDeepColorSet(tester->handle, HDMI_DEEP_COLOR_48BITS);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiDeepColorSet failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiDeepColorSetAndGet: HdmiDeepColorSet fail, ret = %d!", ret);
     }
     ret = HdmiDeepColorGet(tester->handle, &color);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiDeepColorGet failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiDeepColorSetAndGet: HdmiDeepColorGet fail, ret = %d!", ret);
     } else {
-        HDF_LOGD("%s: HdmiDeepColorGet success, color = %d.", __func__, color);
+        HDF_LOGD("TestHdmiDeepColorSetAndGet: HdmiDeepColorGet success, color = %d!", color);
     }
     return ret;
 }
@@ -157,7 +157,7 @@ static int32_t TestHdmiDeepColorSetAndGet(const struct HdmiTester *tester)
 static void TestHdmiHdpHandle(void *data, bool hdp)
 {
     if (data == NULL) {
-        HDF_LOGE("data is NULL.");
+        HDF_LOGE("TestHdmiHdpHandle: data is null!");
         return;
     }
 
@@ -177,11 +177,11 @@ static int32_t TestHdmiHpdRegisterAndUnregister(const struct HdmiTester *tester)
     info.callbackFunc = TestHdmiHdpHandle;
     ret = HdmiRegisterHpdCallbackFunc(tester->handle, &info);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TestHdmiHpdRegisterAndUnregister failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiHpdRegisterAndUnregister: TestHdmiHpdRegisterAndUnregister fail, ret = %d!", ret);
     }
     ret = HdmiUnregisterHpdCallbackFunc(tester->handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdmiUnregisterHpdCallbackFunc failed ret = %d.", __func__, ret);
+        HDF_LOGE("TestHdmiHpdRegisterAndUnregister: HdmiUnregisterHpdCallbackFunc fail, ret = %d!", ret);
     }
     return ret;
 }
@@ -204,12 +204,12 @@ static int32_t HdmiTestEntry(struct HdmiTester *tester, int32_t cmd)
     bool isFind = false;
 
     if (tester == NULL) {
-        HDF_LOGE("%s: tester is NULL", __func__);
+        HDF_LOGE("HdmiTestEntry: tester is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     tester->handle = HdmiTestGetHandle(tester);
     if (tester->handle == NULL) {
-        HDF_LOGE("%s: hdmi test get handle failed", __func__);
+        HDF_LOGE("HdmiTestEntry: hdmi test get handle fail!");
         return HDF_FAILURE;
     }
     for (i = 0; i < sizeof(g_hdmiTestFunc) / sizeof(g_hdmiTestFunc[0]); i++) {
@@ -221,7 +221,7 @@ static int32_t HdmiTestEntry(struct HdmiTester *tester, int32_t cmd)
     }
     if (!isFind) {
         ret = HDF_ERR_NOT_SUPPORT;
-        HDF_LOGE("%s: cmd %d not supported", __func__, cmd);
+        HDF_LOGE("HdmiTestEntry: cmd %d is not support!", cmd);
     }
     HdmiTestReleaseHandle(tester->handle);
     return ret;
@@ -234,17 +234,17 @@ static int32_t HdmiTestFillConfig(struct HdmiTester *tester, const struct Device
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("HdmiTestFillConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint32(node, "busNum", &(tester->busNum), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fill bus num failed", __func__);
+        HDF_LOGE("HdmiTestFillConfig: fill bus num fail!");
         return ret;
     }
 
-    HDF_LOGD("%s: busNum:%d.", __func__, tester->busNum);
+    HDF_LOGD("HdmiTestFillConfig: busNum:%d!", tester->busNum);
     return HDF_SUCCESS;
 }
 
@@ -253,12 +253,12 @@ static int32_t HdmiTestBind(struct HdfDeviceObject *device)
     static struct HdmiTester tester;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("HdmiTestBind: device is null!");
         return HDF_ERR_IO;
     }
 
     device->service = &tester.service;
-    HDF_LOGD("%s: HDMI_TEST service init success!", __func__);
+    HDF_LOGD("HdmiTestBind: HDMI_TEST service bind success!");
     return HDF_SUCCESS;
 }
 
@@ -268,18 +268,18 @@ static int32_t HdmiTestInit(struct HdfDeviceObject *device)
     int32_t ret;
 
     if (device == NULL || device->service == NULL || device->property == NULL) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("HdmiTestInit: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     tester = (struct HdmiTester *)device->service;
     ret = HdmiTestFillConfig(tester, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("HdmiTestInit: read config fail!");
         return ret;
     }
     tester->TestEntry = HdmiTestEntry;
-    HDF_LOGD("%s: success", __func__);
+    HDF_LOGD("HdmiTestInit: success!");
     return HDF_SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -40,17 +40,17 @@ static int32_t ParseVibratorInfo(struct DeviceResourceIface *parser, const struc
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(infoNode, HDF_ERR_INVALID_PARAM);
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(config, HDF_ERR_INVALID_PARAM);
 
-    ret = parser->GetUint32(infoNode, "isSupportIntensity", (uint32_t *)&config->vibratorInfo.isSupportIntensity, 0);
+    ret = parser->GetBool(infoNode, "isSupportIntensity");
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "isSupportIntensity");
-    ret = parser->GetUint32(infoNode, "isSupportFrequency", (uint32_t *)&config->vibratorInfo.isSupportFrequency, 0);
+    ret = parser->GetBool(infoNode, "isSupportFrequency");
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "isSupportFrequency");
-    ret = parser->GetUint32(infoNode, "intensityMaxValue", (uint32_t *)&config->vibratorInfo.intensityMaxValue, 0);
+    ret = parser->GetUint16(infoNode, "intensityMaxValue", (uint16_t *)&config->vibratorInfo.intensityMaxValue, 0);
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "intensityMaxValue");
-    ret = parser->GetUint32(infoNode, "intensityMinValue", (uint32_t *)&config->vibratorInfo.intensityMinValue, 0);
+    ret = parser->GetUint16(infoNode, "intensityMinValue", (uint16_t *)&config->vibratorInfo.intensityMinValue, 0);
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "intensityMinValue");
-    ret = parser->GetUint32(infoNode, "frequencyMaxValue", (uint32_t *)&config->vibratorInfo.frequencyMaxValue, 0);
+    ret = parser->GetUint16(infoNode, "frequencyMaxValue", (uint16_t *)&config->vibratorInfo.frequencyMaxValue, 0);
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "frequencyMaxValue");
-    ret = parser->GetUint32(infoNode, "frequencyMinValue", (uint32_t *)&config->vibratorInfo.frequencyMinValue, 0);
+    ret = parser->GetUint16(infoNode, "frequencyMinValue", (uint16_t *)&config->vibratorInfo.frequencyMinValue, 0);
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "frequencyMinValue");
 
     return ret;

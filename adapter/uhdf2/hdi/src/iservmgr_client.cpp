@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <mutex>
+
 #include <hdf_base.h>
 #include <hdf_log.h>
 #include <iproxy_broker.h>
@@ -21,20 +23,19 @@
 #include <object_collector.h>
 #include <string_ex.h>
 
+#include "hdf_device_manager_interface_code.h"
 #include "iservmgr_hdi.h"
 
 #define HDF_LOG_TAG hdi_servmgr_client
+
+using OHOS::HDI::HdfDeviceManager::HdfDeviceManagerInterfaceCode;
 
 namespace OHOS {
 namespace HDI {
 namespace ServiceManager {
 namespace V1_0 {
 constexpr int DEVICE_SERVICE_MANAGER_SA_ID = 5100;
-constexpr int DEVSVC_MANAGER_GET_SERVICE = 3;
-constexpr int DEVSVC_MANAGER_REGISTER_SVCLISTENER = 4;
-constexpr int DEVSVC_MANAGER_UNREGISTER_SVCLISTENER = 5;
-constexpr int DEVSVC_MANAGER_LIST_ALL_SERVICE = 6;
-constexpr int DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC = 9;
+std::mutex g_remoteMutex;
 
 class ServiceManagerProxy : public IProxyBroker<IServiceManager> {
 public:
@@ -58,6 +59,8 @@ sptr<IServiceManager> IServiceManager::Get()
         HDF_LOGE("failed to get sa manager");
         return nullptr;
     }
+
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = saManager->GetSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID);
     if (remote != nullptr) {
         return new ServiceManagerProxy(remote);
@@ -79,7 +82,10 @@ int32_t ServiceManagerProxy::RegisterServiceStatusListener(
         return HDF_FAILURE;
     }
 
-    int status = Remote()->SendRequest(DEVSVC_MANAGER_REGISTER_SVCLISTENER, data, reply, option);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
+    int status = Remote()->SendRequest(
+        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_REGISTER_SVCLISTENER), data, reply, option);
+    lock.unlock();
     if (status) {
         HDF_LOGE("failed to register servstat listener, %{public}d", status);
     }
@@ -96,7 +102,11 @@ int32_t ServiceManagerProxy::UnregisterServiceStatusListener(::OHOS::sptr<IServS
         return HDF_FAILURE;
     }
 
-    int status = Remote()->SendRequest(DEVSVC_MANAGER_UNREGISTER_SVCLISTENER, data, reply, option);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
+    int status = Remote()->SendRequest(
+        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_UNREGISTER_SVCLISTENER), data, reply,
+        option);
+    lock.unlock();
     if (status) {
         HDF_LOGE("failed to unregister servstat listener, %{public}d", status);
     }
@@ -112,7 +122,10 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
     }
 
     MessageOption option;
-    int status = Remote()->SendRequest(DEVSVC_MANAGER_GET_SERVICE, data, reply, option);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
+    int status = Remote()->SendRequest(
+        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_GET_SERVICE), data, reply, option);
+    lock.unlock();
     if (status) {
         HDF_LOGE("get hdi service %{public}s failed, %{public}d", serviceName, status);
         return nullptr;
@@ -146,7 +159,10 @@ int32_t ServiceManagerProxy::ListAllService(std::vector<HdiServiceInfo> &service
     }
 
     MessageOption option;
-    int status = Remote()->SendRequest(DEVSVC_MANAGER_LIST_ALL_SERVICE, data, reply, option);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
+    int status = Remote()->SendRequest(
+        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_LIST_ALL_SERVICE), data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("list all service info failed, %{public}d", status);
         return status;
@@ -171,20 +187,40 @@ int32_t ServiceManagerProxy::ListServiceByInterfaceDesc(
     }
 
     MessageOption option;
-    int status = Remote()->SendRequest(DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC, data, reply, option);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
+    int status = Remote()->SendRequest(
+        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC), data, reply,
+        option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("get hdi service collection by %{public}s failed, %{public}d", interfaceDesc, status);
         return status;
-    } else {
-        const uint32_t serviceNum = reply.ReadUint32();
-        for (uint32_t i = 0; i < serviceNum; i++) {
-            const char *serviceName = reply.ReadCString();
-            if (serviceName == NULL) {
-                break;
-            }
-            serviceNames.push_back(serviceName);
-        }
     }
+
+    uint32_t serviceNum = 0;
+    if (!reply.ReadUint32(serviceNum)) {
+        HDF_LOGE("failed to read number of service");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (serviceNum > serviceNames.max_size()) {
+        HDF_LOGE("invalid len of serviceNames");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    for (uint32_t i = 0; i < serviceNum; i++) {
+        if (reply.GetReadableBytes() == 0) {
+            HDF_LOGE("no enough data to read");
+            return HDF_ERR_INVALID_PARAM;
+        }
+
+        const char *serviceName = reply.ReadCString();
+        if (serviceName == NULL) {
+            break;
+        }
+        serviceNames.push_back(serviceName);
+    }
+
     HDF_LOGD("get hdi service collection by %{public}s successfully", interfaceDesc);
     return status;
 }

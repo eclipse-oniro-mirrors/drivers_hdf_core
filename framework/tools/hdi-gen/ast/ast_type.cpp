@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -125,11 +125,6 @@ bool ASTType::IsSequenceableType()
     return false;
 }
 
-bool ASTType::IsVoidType()
-{
-    return false;
-}
-
 bool ASTType::IsArrayType()
 {
     return false;
@@ -151,6 +146,11 @@ bool ASTType::IsAshmemType()
 }
 
 bool ASTType::IsNativeBufferType()
+{
+    return false;
+}
+
+bool ASTType::IsPointerType()
 {
     return false;
 }
@@ -298,18 +298,82 @@ void ASTType::EmitJavaReadInnerVar(const std::string &parcelName, const std::str
     sb.Append(prefix).AppendFormat("//Reading \"%s\" type of data is not supported\n", name_.c_str());
 }
 
-void ASTType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     // register methods that generate write util methods
     (void)language;
     (void)methods;
 }
 
-void ASTType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     // register methods that generate read util methods
     (void)language;
     (void)methods;
+}
+
+std::string ASTType::GetNameWithNamespace(AutoPtr<ASTNamespace> space, std::string name) const
+{
+    std::vector<std::string> namespaceVec = StringHelper::Split(space->ToString(), ".");
+    std::regex rVer("[V|v][0-9]+_[0-9]+");
+    std::vector<std::string> result;
+    bool findVersion = false;
+
+    std::string rootPackage = Options::GetInstance().GetRootPackage(space->ToString());
+    size_t rootPackageNum = StringHelper::Split(rootPackage, ".").size();
+
+    for (size_t i = 0; i < namespaceVec.size(); i++) {
+        std::string ns;
+        if (i < rootPackageNum) {
+            ns = StringHelper::StrToUpper(namespaceVec[i]);
+        } else if (!findVersion && std::regex_match(namespaceVec[i].c_str(), rVer)) {
+            ns = StringHelper::Replace(namespaceVec[i], 'v', 'V');
+            findVersion = true;
+        } else {
+            if (findVersion) {
+                ns = namespaceVec[i];
+            } else {
+                ns = PascalName(namespaceVec[i]);
+            }
+        }
+
+        result.emplace_back(ns);
+    }
+    StringBuilder sb;
+    for (const auto &ns : result) {
+        sb.AppendFormat("%s::", ns.c_str());
+    }
+    sb.Append(name);
+    return sb.ToString();
+}
+
+std::string ASTType::PascalName(const std::string &name) const
+{
+    if (name.empty()) {
+        return name;
+    }
+
+    StringBuilder sb;
+    for (size_t i = 0; i < name.size(); i++) {
+        char c = name[i];
+        if (i == 0) {
+            if (islower(c)) {
+                c = toupper(c);
+            }
+            sb.Append(c);
+        } else {
+            if (c == '_') {
+                continue;
+            }
+
+            if (islower(c) && name[i - 1] == '_') {
+                c = toupper(c);
+            }
+            sb.Append(c);
+        }
+    }
+
+    return sb.ToString();
 }
 } // namespace HDI
 } // namespace OHOS

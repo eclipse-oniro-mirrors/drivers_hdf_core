@@ -32,6 +32,7 @@ static int32_t PlatformQueueNextMsg(struct PlatformQueue *queue, struct Platform
 
     (void)OsalSpinLock(&queue->spin);
     if (DListIsEmpty(&queue->msgs)) {
+        PLAT_LOGE("PlatformQueueNextMsg: queue msgs is empty!");
         ret = HDF_PLT_ERR_NO_DATA;
     } else {
         *msg = DLIST_FIRST_ENTRY(&queue->msgs, struct PlatformMsg, node);
@@ -101,6 +102,7 @@ int32_t PlatformQueueStart(struct PlatformQueue *queue)
     struct OsalThreadParam cfg;
 
     if (queue == NULL) {
+        PLAT_LOGE("PlatformQueueStart: queue is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -118,7 +120,7 @@ int32_t PlatformQueueStart(struct PlatformQueue *queue)
     (void)cfg;
     if (ret != HDF_SUCCESS) {
         OsalThreadDestroy(&queue->thread);
-        PLAT_LOGE("PlatformQueueStart: start thread fail:%d", ret);
+        PLAT_LOGE("PlatformQueueStart: start thread fail, ret: %d!", ret);
         return ret;
     }
     queue->start = true;
@@ -129,6 +131,7 @@ int32_t PlatformQueueStart(struct PlatformQueue *queue)
 void PlatformQueueDestroy(struct PlatformQueue *queue)
 {
     if (queue == NULL) {
+        PLAT_LOGE("PlatformQueueDestroy: queue is null!");
         return;
     }
 
@@ -147,6 +150,7 @@ void PlatformQueueDestroy(struct PlatformQueue *queue)
 int32_t PlatformQueueAddMsg(struct PlatformQueue *queue, struct PlatformMsg *msg)
 {
     if (queue == NULL || msg == NULL) {
+        PLAT_LOGE("PlatformQueueAddMsg: queue or msg is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -171,9 +175,11 @@ int32_t PlatformQueueGetMsg(struct PlatformQueue *queue, struct PlatformMsg **ms
     int32_t ret;
 
     if (queue == NULL) {
+        PLAT_LOGE("PlatformQueueGetMsg: queue is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (msg == NULL) {
+        PLAT_LOGE("PlatformQueueGetMsg: msg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -184,11 +190,13 @@ int32_t PlatformQueueGetMsg(struct PlatformQueue *queue, struct PlatformMsg **ms
     }
 
     if (tms == 0) {
+        PLAT_LOGE("PlatformQueueGetMsg: no data get!");
         return HDF_PLT_ERR_NO_DATA;
     }
 
     ret = OsalSemWait(&queue->sem, tms);
     if (ret != HDF_SUCCESS) {
+        PLAT_LOGE("PlatformQueueGetMsg: sem wait fail!");
         return ret;
     }
     return PlatformQueueNextMsg(queue, msg);

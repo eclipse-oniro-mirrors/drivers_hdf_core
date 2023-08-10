@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -24,14 +24,15 @@ static int32_t PinTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("PinTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write config failed", __func__);
+            HDF_LOGE("PinTestDispatch: write config fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("PinTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -45,39 +46,39 @@ static int32_t PinTestReadConfig(struct PinTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL || drsOps->GetString == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("PinTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
     ret = drsOps->GetString(node, "pinName", &config->pinName, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read pinName failed", __func__);
+        HDF_LOGE("PinTestReadConfig: read pinName fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "strengthNum", &config->strengthNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read StrengthNum failed", __func__);
+        HDF_LOGE("PinTestReadConfig: read StrengthNum fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "PullTypeNum", &config->PullTypeNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read PullTypeNum failed", __func__);
+        HDF_LOGE("PinTestReadConfig: read PullTypeNum fail!");
         return ret;
     }
 
     ret = drsOps->GetString(node, "funcName", &funcName, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read funcName failed", __func__);
+        HDF_LOGE("PinTestReadConfig: read funcName fail!");
         return ret;
     }
     if (strcpy_s(config->funcNameBuf, NAME_SIZE_MAX, funcName) != EOK) {
-        HDF_LOGE("%s:copy funcNameBuf fail", __func__);
+        HDF_LOGE("PinTestReadConfig: copy funcNameBuf fail!");
         return HDF_FAILURE;
     }
 
     if (strcpy_s(config->pinNameBuf, NAME_SIZE_MAX, config->pinName) != EOK) {
-        HDF_LOGE("%s:copy pinNameBuf fail", __func__);
+        HDF_LOGE("PinTestReadConfig: copy pinNameBuf fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -89,12 +90,12 @@ static int32_t PinTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("PinTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
     ret = PinTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("PinTestBind: read config fail!");
         return ret;
     }
     service.Dispatch = PinTestDispatch;
@@ -113,7 +114,7 @@ static void PinTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("PinTestRelease: done!");
     return;
 }
 

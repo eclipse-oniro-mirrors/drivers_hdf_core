@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -52,6 +52,7 @@ static struct CanMsgHolder *CanMsgPoolAcquireHolder(struct CanMsgPool *pool)
 static void CanMsgPoolRecycleHolder(struct CanMsgHolder *holder)
 {
     if (holder == NULL) {
+        HDF_LOGE("CanMsgPoolRecycleHolder: holder is null!");
         return;
     }
     OsalAtomicInc(&holder->available);
@@ -62,6 +63,7 @@ void CanMsgGet(const struct CanMsg *msg)
     struct CanMsgHolder *holder = NULL;
 
     if (msg == NULL) {
+        HDF_LOGE("CanMsgGet: msg is null!");
         return;
     }
     holder = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
@@ -73,6 +75,7 @@ void CanMsgPut(const struct CanMsg *msg)
     struct CanMsgHolder *holder = NULL;
 
     if (msg == NULL) {
+        HDF_LOGE("CanMsgPut: msg is null!");
         return;
     }
     holder = CONTAINER_OF(msg, struct CanMsgHolder, cmsg);
@@ -89,6 +92,7 @@ static void CanMsgHolderOnLastPut(struct HdfSRef *sref)
     struct CanMsgHolder *holder = NULL;
 
     if (sref == NULL) {
+        HDF_LOGE("CanMsgHolderOnLastPut: sref is null!");
         return;
     }
     holder = CONTAINER_OF(sref, struct CanMsgHolder, ref);
@@ -105,11 +109,13 @@ struct CanMsg *CanMsgPoolObtainMsg(struct CanMsgPool *pool)
     struct CanMsgHolder *holder = NULL;
 
     if (pool == NULL) {
+        HDF_LOGE("CanMsgPoolObtainMsg: pool is null!");
         return NULL;
     }
 
     holder = CanMsgPoolAcquireHolder(pool);
     if (holder == NULL) {
+        HDF_LOGE("CanMsgPoolObtainMsg: holder is null!");
         return NULL;
     }
 
@@ -129,7 +135,7 @@ struct CanMsgPool *CanMsgPoolCreate(size_t size)
     }
     pool = OsalMemCalloc(sizeof(*pool) + sizeof(struct CanMsgHolder) * size);
     if (pool == NULL) {
-        HDF_LOGE("CanMsgPoolCreate: alloc pool mem failed");
+        HDF_LOGE("CanMsgPoolCreate: alloc pool mem fail!");
         return NULL;
     }
 
@@ -139,7 +145,7 @@ struct CanMsgPool *CanMsgPoolCreate(size_t size)
         OsalAtomicSet(&pool->holders[i].available, 1);
     }
 
-    HDF_LOGI("CanMsgPoolCreate: pool = %p", pool);
+    HDF_LOGI("CanMsgPoolCreate: end!");
     return pool;
 }
 
@@ -149,6 +155,7 @@ void CanMsgPoolDestroy(struct CanMsgPool *pool)
     struct CanMsgHolder *holder = NULL;
 
     if (pool == NULL) {
+        HDF_LOGE("CanMsgPoolDestroy: pool is null!");
         return;
     }
     drain = pool->size;
@@ -161,6 +168,6 @@ void CanMsgPoolDestroy(struct CanMsgPool *pool)
         }
         drain--;
     };
-    HDF_LOGI("CanMsgPoolDestroy: pool = %p", pool);
+    HDF_LOGI("CanMsgPoolDestroy: end!");
     OsalMemFree(pool);
 }

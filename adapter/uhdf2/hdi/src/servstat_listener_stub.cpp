@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "hdf_base.h"
 #include "hdf_log.h"
-#include "hdf_service_status.h"
+#include "hdf_service_status_inner.h"
 #include "iservstat_listener_hdi.h"
 
 #define HDF_LOG_TAG servstat_listener
@@ -26,11 +26,8 @@ namespace V1_0 {
 int ServStatListenerStub::OnRemoteRequest(
     uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
-    switch (code) {
-        case SERVIE_STATUS_LISTENER_NOTIFY:
-            return ServStatListenerStubOnReceive(data, reply, option);
-        default:
-            break;
+    if (code == SERVIE_STATUS_LISTENER_NOTIFY) {
+        return ServStatListenerStubOnReceive(data, reply, option);
     }
 
     return HDF_ERR_NOT_SUPPORT;

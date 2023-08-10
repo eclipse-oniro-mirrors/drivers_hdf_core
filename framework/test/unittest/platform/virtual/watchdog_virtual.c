@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -28,13 +28,13 @@ static int32_t VirtualWatchdogGetStatus(struct WatchdogCntlr *wdt, int32_t *stat
     struct VirtualWatchdogCntlr *virtual = NULL;
 
     if (wdt == NULL) {
-        HDF_LOGE("%s: wdt is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogGetStatus: wdt is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     virtual = (struct VirtualWatchdogCntlr *)wdt;
 
     if (status == NULL) {
-        HDF_LOGE("%s: status is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogGetStatus: status is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     *status = virtual->status;
@@ -47,7 +47,7 @@ static int32_t VirtualWatchdogStart(struct WatchdogCntlr *wdt)
     struct VirtualWatchdogCntlr *virtual = NULL;
 
     if (wdt == NULL) {
-        HDF_LOGE("%s: wdt is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogStart: wdt is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     virtual = (struct VirtualWatchdogCntlr *)wdt;
@@ -61,7 +61,7 @@ static int32_t VirtualWatchdogStop(struct WatchdogCntlr *wdt)
     struct VirtualWatchdogCntlr *virtual = NULL;
 
     if (wdt == NULL) {
-        HDF_LOGE("%s: wdt is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogStop: wdt is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     virtual = (struct VirtualWatchdogCntlr *)wdt;
@@ -75,7 +75,7 @@ static int32_t VirtualWatchdogSetTimeout(struct WatchdogCntlr *wdt, uint32_t sec
     struct VirtualWatchdogCntlr *virtual = NULL;
 
     if (wdt == NULL) {
-        HDF_LOGE("%s: wdt is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogSetTimeout: wdt is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     virtual = (struct VirtualWatchdogCntlr *)wdt;
@@ -89,7 +89,7 @@ static int32_t VirtualWatchdogGetTimeout(struct WatchdogCntlr *wdt, uint32_t *se
     struct VirtualWatchdogCntlr *virtual = NULL;
 
     if (wdt == NULL || seconds == NULL) {
-        HDF_LOGE("%s: wdt or seconds is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogGetTimeout: wdt or seconds is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     virtual = (struct VirtualWatchdogCntlr *)wdt;
@@ -118,15 +118,15 @@ static int32_t VirtualWatchdogBind(struct HdfDeviceObject *device)
     int32_t ret;
     struct WatchdogCntlr *wdt = NULL;
 
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("VirtualWatchdogBind: enter!");
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is null!", __func__);
+        HDF_LOGE("VirtualWatchdogBind: device or property is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     wdt = (struct WatchdogCntlr *)OsalMemCalloc(sizeof(*wdt));
     if (wdt == NULL) {
-        HDF_LOGE("%s: malloc wdt fail!", __func__);
+        HDF_LOGE("VirtualWatchdogBind: malloc wdt fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -135,17 +135,17 @@ static int32_t VirtualWatchdogBind(struct HdfDeviceObject *device)
     wdt->device = device;
     ret = WatchdogCntlrAdd(wdt);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: err add watchdog:%d", __func__, ret);
+        HDF_LOGE("VirtualWatchdogBind: err add watchdog, ret: %d!", ret);
         OsalMemFree(wdt);
         return ret;
     }
-    HDF_LOGI("%s: dev service %s bind success!", __func__, HdfDeviceGetServiceName(device));
+    HDF_LOGI("VirtualWatchdogBind: dev service %s bind success!", HdfDeviceGetServiceName(device));
     return HDF_SUCCESS;
 }
 
 static int32_t VirtualWatchdogInit(struct HdfDeviceObject *device)
 {
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("VirtualWatchdogInit: enter");
     (void)device;
     return HDF_SUCCESS;
 }
@@ -154,15 +154,15 @@ static void VirtualWatchdogRelease(struct HdfDeviceObject *device)
 {
     struct WatchdogCntlr *wdt = NULL;
 
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("VirtualWatchdogRelease: enter!");
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogRelease: device is null!");
         return;
     }
 
     wdt = WatchdogCntlrFromDevice(device);
     if (wdt == NULL) {
-        HDF_LOGE("%s: wdt is NULL!", __func__);
+        HDF_LOGE("VirtualWatchdogRelease: wdt is null!");
         return;
     }
     WatchdogCntlrRemove(wdt);

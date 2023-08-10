@@ -89,7 +89,7 @@ int32_t AudioFillConfigData(const struct HdfDeviceObject *device, struct AudioCo
 
     ADM_LOG_DEBUG("Entry.");
     if (device == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
+        ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
     }
 
@@ -385,8 +385,7 @@ static int32_t ParseAudioRegGroup(const struct DeviceResourceIface *parser,
     struct AudioRegCfgGroupNode *group = NULL;
 
     if (parser == NULL || regCfgNode == NULL || groupNode == NULL) {
-        ADM_LOG_ERR("Input para check error: parser=%p, regCfgNode=%p, groupNode=%p.",
-            parser, regCfgNode, groupNode);
+        ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
     }
 
@@ -555,7 +554,7 @@ int32_t AudioGetPortConfig(const struct HdfDeviceObject *device, struct AudioPor
     struct DeviceResourceIface *drsOps = NULL;
 
     if (device == NULL || device->property == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
+        ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
     }
 
@@ -582,7 +581,7 @@ int32_t AudioGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
     struct DeviceResourceIface *drsOps = NULL;
 
     if (device == NULL || device->property == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
+        ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
     }
 

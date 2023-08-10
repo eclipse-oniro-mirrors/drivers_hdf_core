@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,9 +30,10 @@ bool CppServiceDriverCodeEmitter::ResolveDirectory(const std::string &targetDire
 
 void CppServiceDriverCodeEmitter::EmitCode()
 {
-    // the callback interface have no driver file.
-    if (!Options::GetInstance().DoPassthrough() && !interface_->IsSerializable()) {
-        EmitDriverSourceFile();
+    if (mode_ == GenMode::IPC) {
+        if (!interface_->IsSerializable()) {
+            EmitDriverSourceFile();
+        }
     }
 }
 
@@ -152,7 +153,8 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb) const
     sb.Append(TAB).AppendFormat("%s->ioService.Open = NULL;\n", objName.c_str());
     sb.Append(TAB).AppendFormat("%s->ioService.Release = NULL;\n\n", objName.c_str());
 
-    sb.Append(TAB).AppendFormat("auto serviceImpl = %s::Get(true);\n", interfaceName_.c_str());
+    sb.Append(TAB).AppendFormat(
+        "auto serviceImpl = %s::Get(true);\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(TAB).Append("if (serviceImpl == nullptr) {\n");
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: failed to get of implement service\", __func__);\n");
     sb.Append(TAB).Append(TAB).AppendFormat("delete %s;\n", objName.c_str());
@@ -161,7 +163,8 @@ void CppServiceDriverCodeEmitter::EmitDriverBind(StringBuilder &sb) const
 
     sb.Append(TAB).AppendFormat("%s->stub = OHOS::HDI::ObjectCollector::GetInstance().", objName.c_str());
     sb.Append("GetOrNewObject(serviceImpl,\n");
-    sb.Append(TAB).Append(TAB).AppendFormat("%s::GetDescriptor());\n", interfaceName_.c_str());
+    sb.Append(TAB).Append(TAB).AppendFormat(
+        "%s::GetDescriptor());\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(TAB).AppendFormat("if (%s->stub == nullptr) {\n", objName.c_str());
     sb.Append(TAB).Append(TAB).Append("HDF_LOGE(\"%{public}s: failed to get stub object\", __func__);\n");
     sb.Append(TAB).Append(TAB).AppendFormat("delete %s;\n", objName.c_str());
@@ -194,7 +197,7 @@ void CppServiceDriverCodeEmitter::EmitDriverEntryDefinition(StringBuilder &sb) c
 {
     sb.AppendFormat("struct HdfDriverEntry g_%sDriverEntry = {\n", StringHelper::StrToLower(baseName_).c_str());
     sb.Append(TAB).Append(".moduleVersion = 1,\n");
-    sb.Append(TAB).AppendFormat(".moduleName = \"%s\",\n", Options::GetInstance().GetModuleName().c_str());
+    sb.Append(TAB).AppendFormat(".moduleName = \"%s\",\n", Options::GetInstance().GetPackage().c_str());
     sb.Append(TAB).AppendFormat(".Bind = Hdf%sDriverBind,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Init = Hdf%sDriverInit,\n", baseName_.c_str());
     sb.Append(TAB).AppendFormat(".Release = Hdf%sDriverRelease,\n", baseName_.c_str());

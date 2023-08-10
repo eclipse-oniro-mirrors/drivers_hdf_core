@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,26 +14,26 @@
 import("//build/lite/config/component/lite_component.gni")
 
 shared_library("hdf_posix_osal") {
+  hdf_framework_path = "./../../../../framework"
+  hdf_core_path = "./../../../../../hdf_core"
   output_name = "hdf_osal"
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
   sources = [
-    "//drivers/hdf_core/framework/support/posix/src/osal_mem.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_mutex.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_sem.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_spinlock.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_thread.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_time.c",
+    "$hdf_framework_path/support/posix/src/osal_mem.c",
+    "$hdf_framework_path/support/posix/src/osal_mutex.c",
+    "$hdf_framework_path/support/posix/src/osal_sem.c",
+    "$hdf_framework_path/support/posix/src/osal_spinlock.c",
+    "$hdf_framework_path/support/posix/src/osal_thread.c",
+    "$hdf_framework_path/support/posix/src/osal_time.c",
   ]
   include_dirs = [
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
-    "//third_party/bounds_checking_function/include",
+    "$hdf_core_path/framework/include/osal",
+    "$hdf_core_path/interfaces/inner_api/osal/shared",
+    "$hdf_core_path/interfaces/inner_api/utils",
+    "$hdf_core_path/adapter/uhdf/posix/include",
   ]
   defines = [ "__USER__" ]
   ldflags = [ "-lpthread" ]

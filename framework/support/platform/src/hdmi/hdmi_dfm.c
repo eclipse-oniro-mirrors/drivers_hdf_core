@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -179,7 +179,8 @@ static void HdmiDfmCaculateVideoBorrowInfo(struct HdmiDfmInfo *info)
 
 static void HdmiDfmCaculateVideoInfo(struct HdmiDfmInfo *info, const struct HdmiDfmParam *param)
 {
-    uint32_t kcd, k420;
+    uint32_t kcd;
+    uint32_t k420;
 
     /*
      * 1. if 4:2:2 pixels, kcd is 1. Otherwise, kcd is CD / 8.

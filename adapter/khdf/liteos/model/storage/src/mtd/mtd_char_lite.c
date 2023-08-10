@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -57,13 +57,13 @@ static int MtdCharOpen(FAR struct file *filep)
     struct drv_data *drv = NULL;
 
     if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
-        HDF_LOGE("%s: filep is NULL or f_vnode of filep is NULL or data of f_vnode is NULL", __func__);
+        HDF_LOGE("MtdCharOpen: filep is NULL or f_vnode of filep is null or data of f_vnode is null!");
         return -EINVAL;
     }
     drv = (struct drv_data *)filep->f_vnode->data;
     mtd_partition *partition = (mtd_partition *)drv->priv;
     if (partition == NULL) {
-        HDF_LOGE("%s: partition is NULL", __func__);
+        HDF_LOGE("MtdCharOpen: partition is null!");
         return -EINVAL;
     }
     struct MtdFileInfo *mfi = NULL;
@@ -74,7 +74,7 @@ static int MtdCharOpen(FAR struct file *filep)
 
     mfi = (struct MtdFileInfo *)malloc(sizeof(*mfi));
     if (mfi == NULL) {
-        PRINTK("%s: malloc mtd file info failed", __func__);
+        PRINTK("MtdCharOpen: malloc mtd file info fail!");
         return -ENOMEM;
     }
 
@@ -128,20 +128,20 @@ static ssize_t MtdCharRead(FAR struct file *filep, FAR char *buffer, size_t bufl
     size_t partOobSize = (partSize >> mtdDevice->writeSizeShift) * mtdDevice->oobSize;
 
     if (buffer == NULL) {
-        HDF_LOGE("%s: buffer is NULL", __func__);
+        HDF_LOGE("MtdCharRead: buffer is null!");
         return -EINVAL;
     }
 
     (void)LOS_MuxLock(&partition->lock, LOS_WAIT_FOREVER);
     if (ppos < 0 || ppos > partSize) {
-        PRINTK("%s: current file offset:0x%x invalid\n", __func__, ppos);
+        PRINTK("MtdCharRead: current file offset:0x%x invalid!\n", ppos);
         ret = -EINVAL;
         goto out1;
     }
 
     if ((mfi->mode == MTD_FILE_MODE_OOB && (ppos + buflen) > (partSize + partOobSize)) ||
         (mfi->mode != MTD_FILE_MODE_OOB && (ppos + buflen) > partSize)) {
-        PRINTK("%s: buffer to large, buflen:0x%x\n", __func__, buflen);
+        PRINTK("MtdCharRead: buffer to large, buflen:0x%x!\n", buflen);
         ret = -EINVAL;
         goto out1;
     }
@@ -158,7 +158,7 @@ static ssize_t MtdCharRead(FAR struct file *filep, FAR char *buffer, size_t bufl
     }
 
     if (ret != HDF_SUCCESS) {
-        PRINTK("%s: read err in mode %d\n", __func__, mfi->mode);
+        PRINTK("MtdCharRead: read err in mode %d!\n", mfi->mode);
         goto out1;
     }
 
@@ -188,20 +188,20 @@ static ssize_t MtdCharWrite(FAR struct file *filep, FAR const char *buffer, size
     size_t partOobSize = (partSize >> mtdDevice->writeSizeShift) * mtdDevice->oobSize;
 
     if (buffer == NULL) {
-        HDF_LOGE("%s: buffer is NULL", __func__);
+        HDF_LOGE("MtdCharWrite: buffer is null!");
         return -EINVAL;
     }
 
     (void)LOS_MuxLock(&partition->lock, LOS_WAIT_FOREVER);
     if (ppos < 0 || ppos > partSize) {
-        PRINTK("%s: current file offset:0x%x invalid\n", __func__, ppos);
+        PRINTK("MtdCharWrite: current file offset:0x%x invalid!\n", ppos);
         ret = -EINVAL;
         goto out1;
     }
 
     if ((mfi->mode == MTD_FILE_MODE_OOB && (ppos + buflen) > (partSize + partOobSize)) ||
         (mfi->mode != MTD_FILE_MODE_OOB && (ppos + buflen) > partSize)) {
-        PRINTK("%s: buffer to large, buflen:0x%x\n", __func__, buflen);
+        PRINTK("MtdCharWrite: buffer to large, buflen:0x%x!\n", buflen);
         ret = -EINVAL;
         goto out1;
     }
@@ -218,7 +218,7 @@ static ssize_t MtdCharWrite(FAR struct file *filep, FAR const char *buffer, size
     }
 
     if (ret != HDF_SUCCESS) {
-        PRINTK("%s: write err in mode %d\n", __func__, mfi->mode);
+        PRINTK("MtdCharWrite: write err in mode %d!\n", mfi->mode);
         goto out1;
     }
 
@@ -375,7 +375,7 @@ static int MtdCharIoctl(FAR struct file *filep, int cmd, unsigned long arg)
     struct MtdDevice *mtdDevice = (struct MtdDevice *)mtdDev->priv;
 
     if (mtdDevice == NULL || arg == 0) {
-        HDF_LOGE("%s: mtdDevice is NULL or arg is 0", __func__);
+        HDF_LOGE("MtdCharIoctl: mtdDevice is NULL or arg is 0!");
         return -EINVAL;
     }
 
@@ -402,7 +402,7 @@ static int MtdCharIoctl(FAR struct file *filep, int cmd, unsigned long arg)
         case MTD_IOC_SETFILEMODE:
             mfi->mode = 0;
             if (arg >= MTD_FILE_MODE_MAX) {
-                PRINTK("%s: invalid mtd file mode:%d\n", __func__, arg);
+                PRINTK("MtdCharIoctl: invalid mtd file mode:%d!\n", arg);
                 ret = -EINVAL;
                 break;
             }
@@ -422,7 +422,7 @@ static ssize_t MtdCharMap(FAR struct file* filep, FAR LosVmMapRegion *region)
     (void)filep;
     (void)region;
 
-    PRINTK("%s %d, mmap is not support\n", __FUNCTION__, __LINE__);
+    PRINTK("MtdCharMap: %d, mmap is not support!\n", __LINE__);
     return 0;
 }
 
@@ -466,10 +466,11 @@ static int HdfMtdDevErase(struct MtdDev *mtdDev, UINT64 start, UINT64 len, UINT6
     off_t failPos;
 
     if (mtdDev == NULL) {
+        HDF_LOGE("HdfMtdDevErase: mtdDev is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (failAddr == NULL) {
-        HDF_LOGE("%s: failAddr is NULL", __func__);
+        HDF_LOGE("HdfMtdDevErase: failAddr is null!");
         return -EINVAL;
     }
     ret = MtdDeviceErase((struct MtdDevice *)mtdDev->priv, start, len, &failPos);
@@ -482,6 +483,7 @@ static int HdfMtdDevErase(struct MtdDev *mtdDev, UINT64 start, UINT64 len, UINT6
 static int HdfMtdDevRead(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *buf)
 {
     if (mtdDev == NULL) {
+        HDF_LOGE("HdfMtdDevRead: mtdDev is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return MtdDeviceRead((struct MtdDevice *)mtdDev->priv, start, len, (uint8_t *)buf);
@@ -490,6 +492,7 @@ static int HdfMtdDevRead(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const 
 static int HdfMtdDevWrite(struct MtdDev *mtdDev, UINT64 start, UINT64 len, const char *buf)
 {
     if (mtdDev == NULL) {
+        HDF_LOGE("HdfMtdDevWrite: mtdDev is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return MtdDeviceWrite((struct MtdDevice *)mtdDev->priv, start, len, (const uint8_t *)buf);
@@ -503,7 +506,7 @@ static const char *MtdCharGetName(struct MtdDevice *mtdDevice)
         case MTD_TYPE_SPI_NAND:
             return "nand";
         default:
-            HDF_LOGE("%s: mtd type:%d not support", __func__, mtdDevice->type);
+            HDF_LOGE("MtdCharGetName: mtd type:%d not support!", mtdDevice->type);
             return NULL;
     }
 }
@@ -514,21 +517,24 @@ int32_t MtdCharOsInit(struct MtdDevice *mtdDevice)
     const char *devName = NULL;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdCharOsInit: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     devName = MtdCharGetName(mtdDevice);
     if (devName == NULL) {
+        HDF_LOGE("MtdCharOsInit: devName is null!");
         return HDF_FAILURE;
     }
 
     if (GetMtdInfo(devName) == 0) {
-        HDF_LOGE("%s: MtdDev(%s) already been added", __func__, devName);
+        HDF_LOGE("MtdCharOsInit: MtdDev(%s) already been added!", devName);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     mtdDev = (struct MtdDev *)OsalMemCalloc(sizeof(*mtdDev));
     if (mtdDev == NULL) {
+        HDF_LOGE("MtdCharOsInit: mtdDev is null!");
         return HDF_ERR_IO;
     }
     mtdDev->priv = mtdDevice;
@@ -539,7 +545,7 @@ int32_t MtdCharOsInit(struct MtdDevice *mtdDevice)
     mtdDev->read = HdfMtdDevRead;
     mtdDev->write = HdfMtdDevWrite;
     AddMtdList((char *)devName, mtdDev);
-    HDF_LOGI("%s: add MtdDev(%s) done", __func__, devName);
+    HDF_LOGI("MtdCharOsInit: add MtdDev(%s) done!", devName);
     mtdDevice->osData = mtdDev;
 
     MtdDeviceLegacyFillMtdInfo(mtdDevice);
@@ -552,17 +558,19 @@ void MtdCharOsUninit(struct MtdDevice *mtdDevice)
     const char *devName = NULL;
 
     if (mtdDevice == NULL) {
+        HDF_LOGE("MtdCharOsUninit: mtdDevice is null!");
         return;
     }
 
     devName = MtdCharGetName(mtdDevice);
     if (devName == NULL) {
+        HDF_LOGE("MtdCharOsUninit: devName is null!");
         return;
     }
 
     mtdDev = (struct MtdDev *)mtdDevice->osData;
     (void)DelMtdList(mtdDev);
-    HDF_LOGI("%s: remove MtdDev(%s) done", __func__, devName);
+    HDF_LOGI("MtdCharOsUninit: remove MtdDev(%s) done!", devName);
 }
 
 const struct file_operations_vfs *GetMtdCharFops(VOID)

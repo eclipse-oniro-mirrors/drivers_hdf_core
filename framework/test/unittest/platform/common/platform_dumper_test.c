@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -27,7 +27,7 @@ static int32_t PlatformDumperTestAdd(const char *name, enum PlatformDumperDataTy
     int32_t ret;
     struct PlatformDumperData data;
     if (memset_s(&data, sizeof(struct PlatformDumperData), 0, sizeof(struct PlatformDumperData)) != EOK) {
-        HDF_LOGE("PlatformDumperTestAddUint8 memset_s fail");
+        HDF_LOGE("PlatformDumperTestAdd: memset_s fail!");
         return HDF_FAILURE;
     }
 
@@ -36,14 +36,14 @@ static int32_t PlatformDumperTestAdd(const char *name, enum PlatformDumperDataTy
     data.paddr = paddr;
     ret = PlatformDumperAddData(g_dumperTest, &data);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddUint8 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAdd: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = PlatformDumperDump(g_dumperTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddUint8 get info fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAdd: get info fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -81,16 +81,16 @@ static int32_t PlatformDumperTestAddatas(void)
     int32_t ret;
     ret = PlatformDumperAddDatas(g_dumperTest, g_datas, sizeof(g_datas) / sizeof(g_datas[0]));
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddatas add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddatas: add data fail, ret: %d!", ret);
+        return ret;
     }
 
-    HDF_LOGD("PlatformDumperTestAddatas: add data ok, then print");
+    HDF_LOGD("PlatformDumperTestAddatas: add data ok, then print!");
 
     ret = PlatformDumperDump(g_dumperTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddatas dumper info fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddatas: dumper info fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -101,8 +101,8 @@ static int32_t PlatformDumperTestAddUint8(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestUint8", PLATFORM_DUMPER_UINT8, &g_uint8_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddUint8 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddUint8: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -113,8 +113,8 @@ static int32_t PlatformDumperTestAddUint16(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestUint16", PLATFORM_DUMPER_UINT16, &g_uint16_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddUint16 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddUint16: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -125,8 +125,8 @@ static int32_t PlatformDumperTestAddUint32(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestUint32", PLATFORM_DUMPER_UINT32, &g_uint32_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddUint32 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddUint32: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -137,8 +137,8 @@ static int32_t PlatformDumperTestAddUint64(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestUint64", PLATFORM_DUMPER_UINT64, &g_uint64_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddUint64 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddUint64: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -149,8 +149,8 @@ static int32_t PlatformDumperTestAddInt8(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestInt8", PLATFORM_DUMPER_INT8, &g_int8_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddInt8 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddInt8: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -161,8 +161,8 @@ static int32_t PlatformDumperTestAddInt16(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestInt16", PLATFORM_DUMPER_INT16, &g_int16_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddInt16 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddInt16: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -173,8 +173,8 @@ static int32_t PlatformDumperTestAddInt32(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestInt32", PLATFORM_DUMPER_INT32, &g_int32_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddInt32 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddInt32: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -185,8 +185,8 @@ static int32_t PlatformDumperTestAddInt64(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestInt64", PLATFORM_DUMPER_INT64, &g_int64_test);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddInt64 add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddInt64: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -197,8 +197,8 @@ static int32_t PlatformDumperTestAddFloat(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestFloat", PLATFORM_DUMPER_FLOAT, &g_floatTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddFloat add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddFloat: add data fail!");
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -209,8 +209,8 @@ static int32_t PlatformDumperTestAddDouble(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestDouble", PLATFORM_DUMPER_DOUBLE, &g_doubleTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddDouble add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddDouble: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -221,8 +221,8 @@ static int32_t PlatformDumperTestAddChar(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestChar", PLATFORM_DUMPER_CHAR, &g_charTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddChar add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddChar: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -233,8 +233,8 @@ static int32_t PlatformDumperTestAddString(void)
     int32_t ret;
     ret = PlatformDumperTestAdd("dumperTestString", PLATFORM_DUMPER_STRING, g_stringTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddString add data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddString: add data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -257,18 +257,18 @@ static int32_t PlatformDumperTestAddRegister(void)
     }
     ret = PlatformDumperTestAdd("dumperTestRegisterL", PLATFORM_DUMPER_REGISTERL, (void *)g_registerLTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddRegister add registerL data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddRegister: add registerL data fail, ret: %d!", ret);
+        return ret;
     }
     ret = PlatformDumperTestAdd("dumperTestRegisterW", PLATFORM_DUMPER_REGISTERW, (void *)g_registerWTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddRegister add registerW data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddRegister: add registerW data fail, ret: %d!", ret);
+        return ret;
     }
     ret = PlatformDumperTestAdd("dumperTestRegisterB", PLATFORM_DUMPER_REGISTERB, (void *)g_registerBTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddRegister add registerB data fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestAddRegister: add registerB data fail, ret: %d!", ret);
+        return ret;
     }
 
     return HDF_SUCCESS;
@@ -320,7 +320,7 @@ static int32_t PlatformDumperTestSetOps(void)
     g_ops.dumperRegisterInfo = TestDumperRegisterInfo;
     ret = PlatformDumperSetMethod(g_dumperTest, &g_ops);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestAddRegister add data fail");
+        HDF_LOGE("PlatformDumperTestSetOps: set method fail!");
         return HDF_FAILURE;
     }
 
@@ -334,60 +334,72 @@ static int PlatformDumperTestThreadFunc(void *param)
     return HDF_SUCCESS;
 }
 
+static int32_t PlatformDumperTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2,
+    const int32_t *count1, const int32_t *count2)
+{
+    int32_t ret;
+    uint32_t time = 0;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
+
+    if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
+        memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
+        HDF_LOGE("PlatformDumperTestStartThread: memset_s fail!");
+        return HDF_ERR_IO;
+    }
+    cfg1.name = "DumperTestThread-1";
+    cfg2.name = "DumperTestThread-2";
+    cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
+    cfg1.stackSize = cfg2.stackSize = PLAT_DUMPER_TEST_STACK_SIZE;
+
+    ret = OsalThreadStart(thread1, &cfg1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("PlatformDumperTestStartThread: start test thread1 fail, ret: %d!", ret);
+        return ret;
+    }
+
+    ret = OsalThreadStart(thread2, &cfg2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("PlatformDumperTestStartThread: start test thread2 fail, ret: %d!", ret);
+    }
+
+    while (*count1 == 0 || *count2 == 0) {
+        HDF_LOGV("PlatformDumperTestStartThread: waitting testing dumper thread finish...");
+        OsalMSleep(PLAT_DUMPER_TEST_WAIT_TIMES);
+        time++;
+        if (time > PLAT_DUMPER_TEST_WAIT_TIMEOUT) {
+            break;
+        }
+    }
+    return ret;
+}
+
 static int32_t PlatformDumperTestMultiThread(void)
 {
-    uint32_t time = 0;
-    struct OsalThread thread1, thread2;
-    struct OsalThreadParam cfg1, cfg2;
-    int32_t count1, count2;
+    int32_t ret;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
-    count1 = count2 = 0;
-    int32_t ret = OsalThreadCreate(&thread1, (OsalThreadEntry)PlatformDumperTestThreadFunc, (void *)&count1);
+    ret = OsalThreadCreate(&thread1, (OsalThreadEntry)PlatformDumperTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("PlatformDumperTestMultiThread: create test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)PlatformDumperTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("PlatformDumperTestMultiThread: create test thread2 fail, ret: %d!", ret);
         return ret;
     }
 
-    do {
-        if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
-            memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
-            HDF_LOGE("%s:memset_s fail.", __func__);
-            ret = HDF_ERR_IO;
-            break;
-        }
-        cfg1.name = "DumperTestThread-1";
-        cfg2.name = "DumperTestThread-2";
-        cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
-        cfg1.stackSize = cfg2.stackSize = PLAT_DUMPER_TEST_STACK_SIZE;
-
-        ret = OsalThreadStart(&thread1, &cfg1);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("start test thread1 fail:%d", ret);
-            break;
-        }
-
-        ret = OsalThreadStart(&thread2, &cfg2);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("start test thread2 fail:%d", ret);
-        }
-
-        while (count1 == 0 || count2 == 0) {
-            HDF_LOGE("waitting testing Platform dumper thread finish...");
-            OsalMSleep(PLAT_DUMPER_TEST_WAIT_TIMES);
-            time++;
-            if (time > PLAT_DUMPER_TEST_WAIT_TIMEOUT) {
-                break;
-            }
-        }
-    } while (0);
-
+    ret = PlatformDumperTestStartThread(&thread1, &thread2, &count1, &count2);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("PlatformDumperTestMultiThread: test start thread fail, ret: %d!", ret);
+    }
+  
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
     return ret;
@@ -396,23 +408,24 @@ static int32_t PlatformDumperTestMultiThread(void)
 static int32_t PlatformDumperTestDelData(void)
 {
     int32_t ret;
+
     ret = PlatformDumperDelData(g_dumperTest, "dumperTestUint8", PLATFORM_DUMPER_UINT8);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestDelData PlatformDumperDelData fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestDelData: PlatformDumperDelData fail, ret: %d!", ret);
+        return ret;
     }
 
     ret = PlatformDumperDelData(g_dumperTest, "dumperTestUint8", PLATFORM_DUMPER_UINT8);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestDelData PlatformDumperDelData fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestDelData: PlatformDumperDelData fail, ret: %d!", ret);
+        return ret;
     }
     PlatformDumperDump(g_dumperTest);
 
     ret = PlatformDumperClearDatas(g_dumperTest);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformDumperTestDelData PlatformDumperClearDatas fail");
-        return HDF_FAILURE;
+        HDF_LOGE("PlatformDumperTestDelData: PlatformDumperClearDatas fail, ret: %d!", ret);
+        return ret;
     }
     PlatformDumperDump(g_dumperTest);
 
@@ -474,7 +487,7 @@ int PlatformDumperTestExecute(int cmd)
     struct PlatformDumperTestEntry *entry = NULL;
 
     if (cmd > PLAT_DUMPER_TEST_CMD_MAX) {
-        HDF_LOGE("PlatformDumperTestExecute: invalid cmd:%d", cmd);
+        HDF_LOGE("PlatformDumperTestExecute: invalid cmd:%d!", cmd);
         ret = HDF_ERR_NOT_SUPPORT;
         HDF_LOGE("[PlatformDumperTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
         return ret;
@@ -483,7 +496,7 @@ int PlatformDumperTestExecute(int cmd)
     if (g_dumperTest == NULL) {
         g_dumperTest = PlatformDumperCreate(g_dumperTestName);
         if (g_dumperTest == NULL) {
-            HDF_LOGE("PlatformDumperTestExecute: PlatformDumperCreate failed");
+            HDF_LOGE("PlatformDumperTestExecute: PlatformDumperCreate fail!");
             return HDF_FAILURE;
         }
     }
@@ -497,7 +510,7 @@ int PlatformDumperTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        HDF_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        HDF_LOGE("PlatformDumperTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 

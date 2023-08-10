@@ -33,3 +33,12 @@ void HdfIoServiceRemove(struct HdfIoService *service)
         HdfIoServiceAdapterRemove(service);
     }
 }
+
+int32_t HdfIoServiceDispatch(struct HdfIoService *ioService, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    if (ioService == NULL || ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    return ioService->dispatcher->Dispatch(&ioService->object, cmdId, data, reply);
+}

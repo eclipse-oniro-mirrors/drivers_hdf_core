@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -10,6 +10,7 @@
 #define OHOS_HDI_ASTTYPE_H
 
 #include <functional>
+#include <regex>
 #include <unordered_map>
 
 #include "ast/ast_namespace.h"
@@ -35,7 +36,6 @@ enum class TypeKind {
     TYPE_ULONG,
     TYPE_STRING,
     TYPE_FILEDESCRIPTOR,
-    TYPE_VOID,
     TYPE_SEQUENCEABLE,
     TYPE_INTERFACE,
     TYPE_LIST,
@@ -47,6 +47,7 @@ enum class TypeKind {
     TYPE_SMQ,
     TYPE_ASHMEM,
     TYPE_NATIVE_BUFFER,
+    TYPE_POINTER,
 };
 
 enum class TypeMode {
@@ -118,8 +119,6 @@ public:
 
     virtual bool IsSequenceableType();
 
-    virtual bool IsVoidType();
-
     virtual bool IsArrayType();
 
     virtual bool IsFdType();
@@ -129,6 +128,8 @@ public:
     virtual bool IsAshmemType();
 
     virtual bool IsNativeBufferType();
+
+    virtual bool IsPointerType();
 
     bool IsPod() const;
 
@@ -194,9 +195,13 @@ public:
     virtual void EmitJavaReadInnerVar(const std::string &parcelName, const std::string &name, bool isInner,
         StringBuilder &sb, const std::string &prefix) const;
 
-    virtual void RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    virtual void RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
 
-    virtual void RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const;
+    virtual void RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const;
+
+    virtual std::string GetNameWithNamespace(AutoPtr<ASTNamespace> space, std::string name) const;
+
+    virtual std::string PascalName(const std::string &name) const;
 
 protected:
     TypeKind typeKind_;

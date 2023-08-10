@@ -35,6 +35,10 @@
 
 #define HDF_LOG_TAG osal_mem
 
+#define MEM_IS_POW_TWO(value)    ((((uintptr_t)(value)) & ((uintptr_t)(value) - 1)) == 0)
+
+#define MEM_IS_ALIGNED(a, b)     (!(((uintptr_t)(a)) & (((uintptr_t)(b)) - 1)))
+
 void *OsalMemAlloc(size_t size)
 {
     if (size == 0) {
@@ -62,6 +66,22 @@ void *OsalMemCalloc(size_t size)
     return buf;
 }
 
+static int OsalMemLog2(int alignment)
+{
+    int x = 0;
+    int temp = alignment;
+
+    if ((alignment == 0) || !MEM_IS_POW_TWO(alignment) || !MEM_IS_ALIGNED(alignment, sizeof(void *))) {
+        return -1;
+    }
+
+    while (temp > 1) {
+        temp >>= 1;
+        x++;
+    }
+    return x;
+}
+
 void *OsalMemAllocAlign(size_t alignment, size_t size)
 {
     if (size == 0) {
@@ -69,11 +89,7 @@ void *OsalMemAllocAlign(size_t alignment, size_t size)
         return NULL;
     }
 
-    if ((alignment % sizeof(uintptr_t)) != 0) {
-        return NULL;
-    }
-
-    return PRT_MemAllocAlign(OS_MEM_DEFAULT_PT0, OS_MEM_DEFAULT_FSC_PT, size, alignment);
+    return PRT_MemAllocAlign(OS_MEM_DEFAULT_PT0, OS_MEM_DEFAULT_FSC_PT, size, OsalMemLog2(alignment));
 }
 
 void OsalMemFree(void *mem)

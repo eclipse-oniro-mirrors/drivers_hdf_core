@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -31,9 +31,15 @@ bool CServiceStubCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CServiceStubCodeEmitter::EmitCode()
 {
-    if (!Options::GetInstance().DoPassthrough()) {
-        EmitServiceStubHeaderFile();
-        EmitServiceStubSourceFile();
+    switch (mode_) {
+        case GenMode::IPC:
+        case GenMode::KERNEL: {
+            EmitServiceStubHeaderFile();
+            EmitServiceStubSourceFile();
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -52,7 +58,7 @@ void CServiceStubCodeEmitter::EmitServiceStubHeaderFile()
     EmitHeadExternC(sb);
     sb.Append("\n");
     EmitCbServiceStubDef(sb);
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append("\n");
         EmitCbServiceStubMethodsDcl(sb);
     }
@@ -74,7 +80,7 @@ void CServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
     headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, EmitVersionHeaderName(interfaceName_));
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
 
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_remote_service");
     }
 
@@ -86,7 +92,7 @@ void CServiceStubCodeEmitter::EmitStubHeaderInclusions(StringBuilder &sb)
 void CServiceStubCodeEmitter::EmitCbServiceStubDef(StringBuilder &sb) const
 {
     sb.AppendFormat("struct %sStub {\n", baseName_.c_str());
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append(TAB).AppendFormat("struct %s interface;\n", interfaceName_.c_str());
         sb.Append(TAB).AppendFormat("int32_t (*OnRemoteRequest)(struct %s *serviceImpl, ", interfaceName_.c_str());
         sb.Append("int code, struct HdfSBuf *data, struct HdfSBuf *reply);\n");
@@ -114,7 +120,7 @@ void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
     EmitStubSourceInclusions(sb);
     sb.Append("\n");
     EmitLogTagMacro(sb, FileName(stubName_));
-    if (!isKernelCode_ && !interface_->IsSerializable()) {
+    if (mode_ != GenMode::KERNEL && !interface_->IsSerializable()) {
         sb.Append("\n");
         EmitExternalMethodImpl(sb);
     }
@@ -126,7 +132,7 @@ void CServiceStubCodeEmitter::EmitServiceStubSourceFile()
     EmitUtilMethods(sb, "", utilMethods, false);
     EmitServiceStubMethodImpls(sb, "");
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append("\n");
         EmitKernelStubOnRequestMethodImpl(sb, "");
         sb.Append("\n");
@@ -169,7 +175,7 @@ void CServiceStubCodeEmitter::EmitStubSourceInclusions(StringBuilder &sb)
 
 void CServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_dlist");
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "stub_collector");
@@ -240,7 +246,7 @@ void CServiceStubCodeEmitter::EmitReleaseMethodImpl(StringBuilder &sb) const
     sb.Append("}\n");
 }
 
-void CServiceStubCodeEmitter::EmitReleaseInstanceMethodImpl(StringBuilder &sb)
+void CServiceStubCodeEmitter::EmitReleaseInstanceMethodImpl(StringBuilder &sb) const
 {
     sb.AppendFormat("void %sReleaseInstance(const char *serviceName, struct %s *instance, bool isStub)\n",
         interfaceName_.c_str(), interfaceName_.c_str());
@@ -258,21 +264,20 @@ void CServiceStubCodeEmitter::EmitReleaseInstanceMethodImpl(StringBuilder &sb)
 
 void CServiceStubCodeEmitter::EmitServiceStubMethodImpls(StringBuilder &sb, const std::string &prefix)
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitServiceStubMethodImpl(method, sb, prefix);
         sb.Append("\n");
     }
 
     EmitStubGetVerMethodImpl(interface_->GetVersionMethod(), sb, prefix);
-    if (!isKernelCode_) {
+    if (mode_ != GenMode::KERNEL) {
         sb.Append("\n");
         EmitStubAsObjectMethodImpl(sb, prefix);
     }
 }
 
 void CServiceStubCodeEmitter::EmitServiceStubMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
         "static int32_t SerStub%s(struct %s *serviceImpl, struct HdfSBuf *%s, struct HdfSBuf *%s)\n",
@@ -399,7 +404,7 @@ void CServiceStubCodeEmitter::EmitReadCStringStubMethodParameter(const AutoPtr<A
 {
     std::string cloneName = StringHelper::Format("%sCp", param->GetName().c_str());
     type->EmitCStubReadVar(parcelName, cloneName, errorCodeName_, gotoLabel, sb, prefix);
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.Append("\n");
         sb.Append(prefix).AppendFormat(
             "%s = (char*)OsalMemCalloc(strlen(%s) + 1);\n", param->GetName().c_str(), cloneName.c_str());
@@ -475,7 +480,8 @@ void CServiceStubCodeEmitter::EmitStubCallMethod(
 
     sb.Append(prefix).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
     sb.Append(prefix + TAB)
-        .AppendFormat("HDF_LOGE(\"%%{public}s: call %s function failed!\", __func__);\n", method->GetName().c_str());
+        .AppendFormat("HDF_LOGE(\"%%{public}s failed, error code is %%{public}d\", __func__, %s);\n",
+        errorCodeName_.c_str());
     sb.Append(prefix + TAB).AppendFormat("goto %s;\n", gotoLabel.c_str());
     sb.Append(prefix).Append("}\n");
 }
@@ -557,12 +563,12 @@ void CServiceStubCodeEmitter::EmitKernelStubOnRequestMethodImpl(StringBuilder &s
     sb.AppendFormat("int %s, struct HdfSBuf *data, struct HdfSBuf *reply)\n", codeName.c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.c_str());
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
         sb.Append(prefix + TAB + TAB + TAB)
             .AppendFormat("return SerStub%s(%s, data, reply);\n", method->GetName().c_str(), implName.c_str());
     }
+
     AutoPtr<ASTMethod> getVerMethod = interface_->GetVersionMethod();
     sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).c_str());
     sb.Append(prefix + TAB + TAB + TAB)
@@ -619,8 +625,7 @@ void CServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB).Append("}\n\n");
 
     sb.Append(prefix + TAB).AppendFormat("switch (%s) {\n", codeName.c_str());
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
         sb.Append(prefix + TAB + TAB + TAB)
             .AppendFormat("return SerStub%s(stub->interface, data, reply);\n", method->GetName().c_str());
@@ -726,15 +731,14 @@ void CServiceStubCodeEmitter::EmitStubRegAndUnreg(StringBuilder &sb) const
 
 void CServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
-    for (size_t methodIndex = 0; methodIndex < interface_->GetMethodNumber(); methodIndex++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(methodIndex);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
             AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
             AutoPtr<ASTType> paramType = param->GetType();
             if (param->GetAttribute() == ParamAttr::PARAM_IN) {
-                paramType->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
+                paramType->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::STUB_SER, methods);
             } else {
-                paramType->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::STUB_SER, methods);
+                paramType->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::STUB_SER, methods);
             }
         }
     }

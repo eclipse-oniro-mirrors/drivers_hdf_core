@@ -242,13 +242,12 @@ static int32_t PlatformManagerTestReliability(struct PlatformManager *manager)
 struct PlatformManagerTestEntry {
     int cmd;
     int32_t (*func)(struct PlatformManager *manager);
-    const char *name;
 };
 
 static struct PlatformManagerTestEntry g_entry[] = {
-    { PLAT_MANAGER_TEST_ADD_DEVICE, PlatformManagerTestAddAndDel, "PlatformManagerTestAddAndDel" },
-    { PLAT_MANAGER_TEST_GET_DEVICE, PlatformManagerTestGetDevice, "PlatformManagerTestGetDevice" },
-    { PLAT_MANAGER_TEST_RELIABILITY, PlatformManagerTestReliability, "PlatformManagerTestReliability" },
+    { PLAT_MANAGER_TEST_ADD_DEVICE, PlatformManagerTestAddAndDel },
+    { PLAT_MANAGER_TEST_GET_DEVICE, PlatformManagerTestGetDevice },
+    { PLAT_MANAGER_TEST_RELIABILITY, PlatformManagerTestReliability },
 };
 
 int PlatformManagerTestExecute(int cmd)
@@ -302,11 +301,10 @@ int PlatformManagerTestExecute(int cmd)
 void PlatformManagerTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     for (i = 0; i < PLAT_MANAGER_TEST_CMD_MAX; i++) {
-        ret = PlatformManagerTestExecute(i);
+        int32_t ret = PlatformManagerTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,8 +20,13 @@ if (hdf_core_khdf_test_support) {
   group("hdf_test_uhdf") {
     testonly = true
     deps = [
+      "./../../../framework/test/fuzztest:hdf_framework_fuzztest",
       "fuzztest:hdf_platform_test",
       "unittest/config:hdf_adapter_uhdf_test_config",
+      "unittest/load_vdi:hdf_load_vdi_test",
+      "unittest/load_vdi:libvdi_sample1_driver",
+      "unittest/load_vdi:libvdi_sample1_symbol",
+      "unittest/load_vdi:libvdi_sample2_driver",
       "unittest/manager:hdf_adapter_uhdf_test_core_shared",
       "unittest/manager:hdf_adapter_uhdf_test_ioservice",
       "unittest/manager:hdf_adapter_uhdf_test_manager",
@@ -31,7 +36,7 @@ if (hdf_core_khdf_test_support) {
       "unittest/manager:hdf_adapter_uhdf_test_uevent",
       "unittest/osal:hdf_adapter_uhdf_test_osal",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-      "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
+      "unittest/platform/i2c:ui2c_test",
     ]
     if (hdf_core_platform_test_support) {
       deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
@@ -41,12 +46,16 @@ if (hdf_core_khdf_test_support) {
   group("hdf_test_uhdf") {
     testonly = true
     deps = [
+      "./../../../framework/test/fuzztest:hdf_framework_fuzztest",
       "fuzztest:hdf_platform_test",
+      "unittest/load_vdi:hdf_load_vdi_test",
+      "unittest/load_vdi:libvdi_sample1_driver",
+      "unittest/load_vdi:libvdi_sample1_symbol",
+      "unittest/load_vdi:libvdi_sample2_driver",
       "unittest/manager:hdf_adapter_uhdf_test_core_shared",
       "unittest/manager:hdf_adapter_uhdf_test_remote_adapter",
       "unittest/manager:hdf_adapter_uhdf_test_sbuf",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-      "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
     ]
   }
 }

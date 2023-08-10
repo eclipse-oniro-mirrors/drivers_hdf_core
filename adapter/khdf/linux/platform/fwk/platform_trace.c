@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -31,14 +31,14 @@ void PlatformTraceAddMsg(const char *module, const char *moduleFun, const char *
     va_list argList;
     char messages[PLATFORM_TRACE_MSG_MAX_LEN + 1] = {'\0'};
     if ((module == NULL) || (moduleFun == NULL)) {
-        HDF_LOGE("PlatformTraceAddMsg params illegal", module, moduleFun);
+        HDF_LOGE("PlatformTraceAddMsg: params illegal!", module, moduleFun);
         return;
     }
 
     length = snprintf_s(messages, PLATFORM_TRACE_MSG_MAX_LEN + 1, PLATFORM_TRACE_MSG_MAX_LEN,
         "module:%s function:%s params: ", module, moduleFun);
     if (length < 0) {
-        HDF_LOGE("PlatformTraceAddMsg[%s][%s] generate messages fail[%d]!", module, moduleFun, length);
+        HDF_LOGE("PlatformTraceAddMsg[%s][%s]: generate messages fail[%d]!", module, moduleFun, length);
         return;
     }
 
@@ -46,7 +46,7 @@ void PlatformTraceAddMsg(const char *module, const char *moduleFun, const char *
     length = vsprintf_s(messages + length - 1, PLATFORM_TRACE_MSG_MAX_LEN, fmt, argList);
     va_end(argList);
     if (length < 0) {
-        HDF_LOGE("PlatformTraceAddMsg[%s][%s] generate messages fail[%d]!", module, moduleFun, length);
+        HDF_LOGE("PlatformTraceAddMsg[%s][%s]: generate messages fail[%d]!", module, moduleFun, length);
         return;
     }
 
@@ -61,27 +61,27 @@ void PlatformTraceAddUintMsg(int module, int moduleFun, const unsigned int infos
     const char *moduleMean = PlatformTraceModuleExplainGet(module);
     const char *moduleFunMean = PlatformTraceFunExplainGet(moduleFun);
     if ((moduleMean == NULL) || (moduleFunMean == NULL)) {
-        HDF_LOGE("PlatformTraceAddUintMsg module[%d, %d] info illegal", module, moduleFun);
+        HDF_LOGE("PlatformTraceAddUintMsg: module[%d, %d] info illegal", module, moduleFun);
         return;
     }
 
     if ((size == 0) || (size > PLATFORM_TRACE_UINT_PARAM_SIZE_MAX)) {
-        HDF_LOGE("PlatformTraceAddUintMsg %hhu size illegal", size);
+        HDF_LOGE("PlatformTraceAddUintMsg: %hhu size illegal", size);
         return;
     }
     if ((module < PLATFORM_TRACE_MODULE_I2S) || (module >= PLATFORM_TRACE_MODULE_MAX)) {
-        HDF_LOGE("PlatformTraceAddUintMsg %d module illegal", module);
+        HDF_LOGE("PlatformTraceAddUintMsg: %d module illegal", module);
         return;
     }
     if ((moduleFun < PLATFORM_TRACE_MODULE_I2S_FUN) || (moduleFun >= PLATFORM_TRACE_MODULE_MAX_FUN)) {
-        HDF_LOGE("PlatformTraceAddUintMsg %d moduleFun illegal", moduleFun);
+        HDF_LOGE("PlatformTraceAddUintMsg: %d moduleFun illegal", moduleFun);
         return;
     }
 
     ret = snprintf_s(messages, PLATFORM_TRACE_MSG_MAX_LEN + 1, PLATFORM_TRACE_MSG_MAX_LEN,
         "module:%s function:%s params:", moduleMean, moduleFunMean);
     if (ret < 0) {
-        HDF_LOGE("PlatformTraceAddUintMsg[%s][%s] generate messages fail[%d]!", moduleMean, moduleFunMean, ret);
+        HDF_LOGE("PlatformTraceAddUintMsg[%s][%s]: generate messages fail[%d]!", moduleMean, moduleFunMean, ret);
         return;
     }
     for (i = 0; i < size; i++) {
@@ -89,7 +89,7 @@ void PlatformTraceAddUintMsg(int module, int moduleFun, const unsigned int infos
             PLATFORM_TRACE_MSG_MAX_LEN - strlen(messages),
             "%d, ", infos[i]);
         if ((ret < 0) || (strlen(messages) >= PLATFORM_TRACE_MSG_MAX_LEN)) {
-            HDF_LOGE("PlatformTraceAddUintMsg[%s][%s] generate messages fail[%d][%d]!",
+            HDF_LOGE("PlatformTraceAddUintMsg[%s][%s]: generate messages fail[%d][%d]!",
                 moduleMean, moduleFunMean, ret, strlen(messages));
             return;
         }
@@ -116,7 +116,7 @@ static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t lengt
     struct file *fp = NULL;
 
     if (file == NULL || IS_ERR_OR_NULL(file->realFile) || string == NULL) {
-        HDF_LOGE("%s invalid param", __func__);
+        HDF_LOGE("TraceFileWrite: invalid param!");
         return HDF_ERR_INVALID_PARAM;
     }
     fp = (struct file *)file->realFile;
@@ -127,7 +127,7 @@ static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t lengt
     ret = vfs_write(fp, string, length, &pos);
     set_fs(org_fs);
     if (ret < 0) {
-        HDF_LOGE("%s write file length %d fail %d", __func__, length, ret);
+        HDF_LOGE("TraceFileWrite: write file length %d fail, ret: %d!", length, ret);
         return HDF_FAILURE;
     }
 
@@ -142,7 +142,7 @@ static ssize_t TraceFileRead(OsalFile *file, char *buf, uint32_t length)
     struct file *fp = NULL;
 
     if (file == NULL || IS_ERR_OR_NULL(file->realFile) || buf == NULL) {
-        HDF_LOGE("%s invalid param", __func__);
+        HDF_LOGE("TraceFileRead: invalid param!");
         return HDF_ERR_INVALID_PARAM;
     }
     fp = (struct file *)file->realFile;
@@ -153,7 +153,7 @@ static ssize_t TraceFileRead(OsalFile *file, char *buf, uint32_t length)
     ret = vfs_read(fp, buf, length, &pos);
     set_fs(org_fs);
     if (ret < 0) {
-        HDF_LOGE("%s read file length %d fail %d", __func__, length, ret);
+        HDF_LOGE("TraceFileRead: read file length %d fail, ret: %d!", length, ret);
         return HDF_FAILURE;
     }
 
@@ -167,13 +167,13 @@ static int32_t TraceEventFileWrite(const char *enable)
     OsalFile file;
     ret = OsalFileOpen(&file, TRACE_EVENT_ENABLE_PATH, OSAL_O_RDWR, OSAL_S_IWRITE);
     if (ret < 0) {
-        HDF_LOGE("%s %d open err:%d %s", __func__, __LINE__, ret, TRACE_EVENT_ENABLE_PATH);
+        HDF_LOGE("TraceEventFileWrite: %d open err:%d %s", __LINE__, ret, TRACE_EVENT_ENABLE_PATH);
         return ret;
     }
 
     ret = TraceFileWrite(&file, enable, 1);
     if (ret < 0) {
-        HDF_LOGE("%s %d write err:%d %s", __func__, __LINE__, ret, TRACE_EVENT_ENABLE_PATH);
+        HDF_LOGE("TraceEventFileWrite: %d write err:%d %s", __LINE__, ret, TRACE_EVENT_ENABLE_PATH);
         OsalFileClose(&file);
         return ret;
     }
@@ -216,7 +216,7 @@ void PlatformTraceInfoDump(void)
     }
     ret = OsalFileOpen(&file, TRACE_EVENT_READ_PATH, OSAL_O_RDWR, OSAL_S_IREAD);
     if (ret < 0) {
-        HDF_LOGE("PlatformTraceInfoDump open %s err:%d", TRACE_EVENT_READ_PATH, ret);
+        HDF_LOGE("PlatformTraceInfoDump: open %s err:%d!", TRACE_EVENT_READ_PATH, ret);
         return;
     }
 
@@ -231,7 +231,7 @@ void PlatformTraceInfoDump(void)
             printk("%s", buf);
         }
         if ((len >= TRACE_INFO_DUMPER_FILE_MAX_LEN) || (off < 0)) {
-            HDF_LOGE("PlatformTraceInfoDump trace info too big[%d] or lseek error[%ld]", len, off);
+            HDF_LOGE("PlatformTraceInfoDump: trace info too big[%d] or lseek error[%ld]!", len, off);
             break;
         }
     } while (ret > 0);

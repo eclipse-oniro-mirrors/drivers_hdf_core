@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -264,7 +264,8 @@ static void UsbPnpNotifyAddInterfaceInitInfo(struct UsbPnpDeviceInfo *deviceInfo
         infoTable->interfaceInfo[0].interfaceProtocol = infoData.infoData->interfaceProtocol;
         infoTable->interfaceInfo[0].interfaceNumber = infoData.infoData->interfaceNumber;
     } else {
-        uint8_t i, j;
+        uint8_t i;
+        uint8_t j;
         for (i = 0, j = 0; i < deviceInfo->info.numInfos; i++) {
             if (deviceInfo->interfaceRemoveStatus[i] == true) {
                 HDF_LOGI("%s:%d j = %hhu deviceInfo->interfaceRemoveStatus[%hhu] is true!", __func__, __LINE__, j, i);
@@ -456,11 +457,11 @@ static void TestReadPnpInfo(struct HdfSBuf *data)
 
     flag = HdfSbufReadBuffer(data, (const void **)(&g_testUsbPnpInfo), &infoSize);
     if ((!flag) || (g_testUsbPnpInfo == NULL)) {
-        HDF_LOGE("%s: fail to read g_testUsbPnpInfo, flag=%d, g_testUsbPnpInfo=%px", __func__, flag, g_testUsbPnpInfo);
+        HDF_LOGE("%s: fail to read g_testUsbPnpInfo, flag=%d", __func__, flag);
         return;
     }
 
-    HDF_LOGI("%s:%d infoSize=%d g_testUsbPnpInfo=%px read success!", __func__, __LINE__, infoSize, g_testUsbPnpInfo);
+    HDF_LOGI("%s:%d infoSize=%d g_testUsbPnpInfo read success!", __func__, __LINE__, infoSize);
 }
 
 static void TestPnpNotifyFillInfoTable(struct UsbPnpNotifyMatchInfoTable *infoTable)
@@ -501,7 +502,7 @@ static int32_t TestPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObj
     struct HdfSBuf *data = NULL;
 
     if ((deviceObject == NULL) || (g_testUsbPnpInfo == NULL)) {
-        HDF_LOGE("%s deviceObject=%px or g_testUsbPnpInfo=%px is NULL", __func__, deviceObject, g_testUsbPnpInfo);
+        HDF_LOGE("%s deviceObject or g_testUsbPnpInfo is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 

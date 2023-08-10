@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -15,17 +15,9 @@
 #include <unistd.h>
 #include "hdf_io_service_if.h"
 #include "hdf_uhdf_test.h"
-#include "pcie_if.h"
+#include "pcie_test.h"
 
 using namespace testing::ext;
-
-const uint32_t PCIE_DISABLE_ADDR = 0xB7;
-const uint32_t PCIE_UPPER_ADDR = 0x28;
-const uint32_t PCIE_CMD_ADDR = 0x04;
-
-enum PcieTestCmd {
-    PCIE_READ_AND_WRITE_01 = 0,
-};
 
 class HdfPcieTest : public testing::Test {
 public:
@@ -53,60 +45,9 @@ void HdfPcieTest::TearDown()
 {
 }
 
-static void PcieUserTest(void)
-{
-    DevHandle handle = NULL;
-    int32_t ret;
-    uint8_t disable;
-    uint32_t upper;
-    uint16_t cmd;
-
-    handle = PcieOpen(0);
-    if (handle == NULL) {
-        printf("PcieOpen fail.");
-    }
-
-    ret = PcieRead(handle, PCIE_DISABLE_ADDR, &disable, sizeof(disable));
-    if (ret != HDF_SUCCESS) {
-        printf("PcieRead failed ret = %d.", ret);
-        return;
-    }
-    printf("disable is %d", disable);
-    ret = PcieWrite(handle, PCIE_DISABLE_ADDR, &disable, sizeof(disable));
-    if (ret != HDF_SUCCESS) {
-        printf("PcieWrite failed ret = %d.", ret);
-        return;
-    }
-
-    ret = PcieRead(handle, PCIE_UPPER_ADDR, (uint8_t *)&upper, sizeof(upper));
-    if (ret != HDF_SUCCESS) {
-        printf("PcieRead failed ret = %d.", ret);
-        return;
-    }
-    printf("upper is 0x%x", upper);
-    ret = PcieWrite(handle, PCIE_UPPER_ADDR, (uint8_t *)&upper, sizeof(upper));
-    if (ret != HDF_SUCCESS) {
-        printf("PcieWrite failed ret = %d.", ret);
-        return;
-    }
-
-    ret = PcieRead(handle, PCIE_CMD_ADDR, (uint8_t *)&cmd, sizeof(cmd));
-    if (ret != HDF_SUCCESS) {
-        printf("PcieRead failed ret = %d.", ret);
-        return;
-    }
-    printf("cmd is 0x%x", cmd);
-    ret = PcieWrite(handle, PCIE_CMD_ADDR, (uint8_t *)&cmd, sizeof(cmd));
-    if (ret != HDF_SUCCESS) {
-        printf("PcieWrite failed ret = %d.", ret);
-        return;
-    }
-    PcieClose(handle);
-}
-
 /**
   * @tc.name: PcieReadAndWrite001
-  * @tc.desc: test PcieRead/PcieWrite interface in kernel status.
+  * @tc.desc: test PcieRead/PcieWrite interface.
   * @tc.type: FUNC
   * @tc.require:
   */
@@ -114,15 +55,31 @@ HWTEST_F(HdfPcieTest, PcieReadAndWrite001, TestSize.Level1)
 {
     struct HdfTestMsg msg = { TEST_PAL_PCIE_TYPE, PCIE_READ_AND_WRITE_01, -1 };
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    EXPECT_EQ(0, PcieTestExecute(PCIE_READ_AND_WRITE_01));
 }
 
 /**
-  * @tc.name: PcieUserTest001
-  * @tc.desc: test pcie all interface in user status.
+  * @tc.name: TestPcieDmaMapAndUnmap001
+  * @tc.desc: test PcieDmaMap/PcieDmaUnmap interface.
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfPcieTest, PcieUserTest001, TestSize.Level1)
+HWTEST_F(HdfPcieTest, TestPcieDmaMapAndUnmap001, TestSize.Level1)
 {
-    PcieUserTest();
+    struct HdfTestMsg msg = { TEST_PAL_PCIE_TYPE, PCIE_DMA_MAP_AND_UNMAP_01, -1 };
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    EXPECT_EQ(0, PcieTestExecute(PCIE_DMA_MAP_AND_UNMAP_01));
+}
+
+/**
+  * @tc.name: TestPcieRegAndUnregIrq001
+  * @tc.desc: test PcieRegisterIrq/PcieUnregisterIrq interface in kernel status.
+  * @tc.type: FUNC
+  * @tc.require:
+  */
+HWTEST_F(HdfPcieTest, TestPcieRegAndUnregIrq001, TestSize.Level1)
+{
+    struct HdfTestMsg msg = { TEST_PAL_PCIE_TYPE, PCIE_REG_AND_UNREG_IRQ_01, -1 };
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    EXPECT_EQ(0, PcieTestExecute(PCIE_REG_AND_UNREG_IRQ_01));
 }

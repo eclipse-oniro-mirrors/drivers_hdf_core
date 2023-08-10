@@ -3,7 +3,7 @@
  *
  * rtc driver adapter of linux
  *
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -54,7 +54,7 @@ static inline struct rtc_device *HdfGetRtcDevice(void)
     struct rtc_device *dev = rtc_class_open(CONFIG_RTC_SYSTOHC_DEVICE);
 
     if (dev == NULL) {
-        HDF_LOGE("%s: failed to get rtc device", __func__);
+        HDF_LOGE("HdfGetRtcDevice: fail to get rtc device!");
     }
     return dev;
 }
@@ -76,7 +76,7 @@ static int32_t HiRtcReadTime(struct RtcHost *host, struct RtcTime *hdfTime)
     }
     ret = rtc_read_time(dev, &linuxTime);
     if (ret < 0) {
-        HDF_LOGE("%s: rtc_read_time error, ret is %d", __func__, ret);
+        HDF_LOGE("HiRtcReadTime: rtc_read_time error, ret is %d!", ret);
         return ret;
     }
     HdfPutRtcDevice(dev);
@@ -97,7 +97,7 @@ static int32_t HiRtcWriteTime(struct RtcHost *host, const struct RtcTime *hdfTim
     HdfTimeToLinuxTime(hdfTime, &linuxTime);
     ret = rtc_set_time(dev, &linuxTime);
     if (ret < 0) {
-        HDF_LOGE("%s: rtc_set_time error, ret is %d", __func__, ret);
+        HDF_LOGE("HiRtcWriteTime: rtc_set_time error, ret is %d!", ret);
         return ret;
     }
 
@@ -118,7 +118,7 @@ static int32_t HiReadAlarm(struct RtcHost *host, enum RtcAlarmIndex alarmIndex, 
     }
     ret = rtc_read_alarm(dev, &alarm);
     if (ret < 0) {
-        HDF_LOGE("%s: rtc_read_alarm error, ret is %d", __func__, ret);
+        HDF_LOGE("HiReadAlarm: rtc_read_alarm error, ret is %d!", ret);
         return ret;
     }
 
@@ -136,6 +136,7 @@ static int32_t HiWriteAlarm(struct RtcHost *host, enum RtcAlarmIndex alarmIndex,
     (void)host;
     (void)alarmIndex;
     if (dev == NULL) {
+        HDF_LOGE("HiWriteAlarm: dev is null!");
         return HDF_FAILURE;
     }
 
@@ -143,7 +144,7 @@ static int32_t HiWriteAlarm(struct RtcHost *host, enum RtcAlarmIndex alarmIndex,
     alarm.enabled = 0;
     ret = rtc_set_alarm(dev, &alarm);
     if (ret < 0) {
-        HDF_LOGE("%s: rtc_read_alarm error, ret is %d", __func__, ret);
+        HDF_LOGE("HiWriteAlarm: rtc_read_alarm error, ret is %d!", ret);
         return ret;
     }
 
@@ -159,11 +160,12 @@ static int32_t HiAlarmInterruptEnable(struct RtcHost *host, enum RtcAlarmIndex a
     (void)host;
     (void)alarmIndex;
     if (dev == NULL) {
+        HDF_LOGE("HiAlarmInterruptEnable: dev is null!");
         return HDF_FAILURE;
     }
     ret = rtc_alarm_irq_enable(dev, enable);
     if (ret < 0) {
-        HDF_LOGE("%s: rtc_read_alarm error, ret is %d", __func__, ret);
+        HDF_LOGE("HiAlarmInterruptEnable: rtc_read_alarm error, ret is %d!", ret);
         return ret;
     }
 
@@ -191,7 +193,7 @@ static int32_t HiRtcBind(struct HdfDeviceObject *device)
 
     host = RtcHostCreate(device);
     if (host == NULL) {
-        HDF_LOGE("%s: create host fail", __func__);
+        HDF_LOGE("HiRtcBind: create host fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -205,12 +207,12 @@ static int32_t HiRtcInit(struct HdfDeviceObject *device)
     struct RtcHost *host = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: err, device is null", __func__);
+        HDF_LOGE("HiRtcInit: err, device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     host = RtcHostFromDevice(device);
     host->method = &g_method;
-    HDF_LOGI("%s: Hdf dev service:%s init success", __func__, HdfDeviceGetServiceName(device));
+    HDF_LOGI("HiRtcInit: Hdf dev service:%s init success!", HdfDeviceGetServiceName(device));
     return HDF_SUCCESS;
 }
 
@@ -219,6 +221,7 @@ static void HiRtcRelease(struct HdfDeviceObject *device)
     struct RtcHost *host = NULL;
 
     if (device == NULL) {
+        HDF_LOGE("HiRtcRelease: device is null!");
         return;
     }
 

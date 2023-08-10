@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -27,14 +27,14 @@ static struct HdfIoService *GpioManagerServiceGet(void)
     }
     service = HdfIoServiceBind("HDF_PLATFORM_GPIO_MANAGER");
     if (service == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioManagerServiceGet: fail to get gpio manager service!");
         return NULL;
     }
 
     if (service->priv == NULL) {
         struct PlatformUserListenerManager *manager = PlatformUserListenerManagerGet(PLATFORM_MODULE_GPIO);
         if (manager == NULL) {
-            HDF_LOGE("%s: failed to get PlatformUserListenerManager!", __func__);
+            HDF_LOGE("GpioManagerServiceGet: fail to get PlatformUserListenerManager!");
             return service;
         }
         service->priv = manager;
@@ -52,25 +52,25 @@ int32_t GpioRead(uint16_t gpio, uint16_t *val)
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioRead: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioRead: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply!", __func__);
+        HDF_LOGE("GpioRead: fail to obtain reply!");
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioRead: fail to write gpio number!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
@@ -78,14 +78,14 @@ int32_t GpioRead(uint16_t gpio, uint16_t *val)
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_READ, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_READ failed:%d!", __func__, ret);
+        HDF_LOGE("GpioRead: service call GPIO_IO_READ fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return ret;
     }
 
     if (!HdfSbufReadUint16(reply, val)) {
-        HDF_LOGE("%s: failed to read sbuf!", __func__);
+        HDF_LOGE("GpioRead: fail to read gpio val!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
@@ -104,31 +104,31 @@ int32_t GpioWrite(uint16_t gpio, uint16_t val)
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioWrite: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioWrite: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioWrite: fail to write gpio number!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)val)) {
-        HDF_LOGE("%s: failed to write gpio value!", __func__);
+        HDF_LOGE("GpioWrite: fail to write gpio value!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_WRITE, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_WRITE failed:%d!", __func__, ret);
+        HDF_LOGE("GpioWrite: service call GPIO_IO_WRITE fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return ret;
     }
@@ -145,31 +145,31 @@ int32_t GpioGetDir(uint16_t gpio, uint16_t *dir)
     struct HdfSBuf *reply = NULL;
 
     if (dir == NULL) {
-        HDF_LOGE("%s: dir is NULL!", __func__);
+        HDF_LOGE("GpioGetDir: dir is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioGetDir: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioGetDir: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply!", __func__);
+        HDF_LOGE("GpioGetDir: fail to obtain reply!");
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioGetDir: fail to write gpio number!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
@@ -177,14 +177,14 @@ int32_t GpioGetDir(uint16_t gpio, uint16_t *dir)
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_GETDIR, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_GETDIR failed:%d!", __func__, ret);
+        HDF_LOGE("GpioGetDir: service call GPIO_IO_GETDIR fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return ret;
     }
 
     if (!HdfSbufReadUint16(reply, dir)) {
-        HDF_LOGE("%s: failed to read sbuf!", __func__);
+        HDF_LOGE("GpioGetDir: fail to read sbuf!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
@@ -203,31 +203,31 @@ int32_t GpioSetDir(uint16_t gpio, uint16_t dir)
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioSetDir: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioSetDir: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioSetDir: fail to write gpio number!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)dir)) {
-        HDF_LOGE("%s: failed to write gpio value!", __func__);
+        HDF_LOGE("GpioSetDir: fail to write gpio value!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_SETDIR, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_SETDIR failed:%d!", __func__, ret);
+        HDF_LOGE("GpioSetDir: service call GPIO_IO_SETDIR fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return ret;
     }
@@ -242,7 +242,7 @@ static int32_t GpioRegListener(struct HdfIoService *service, uint16_t gpio, Gpio
 
     param = OsalMemCalloc(sizeof(struct PlatformUserListenerGpioParam));
     if (param == NULL) {
-        HDF_LOGE("%s: failed to calloc for param!", __func__);
+        HDF_LOGE("GpioRegListener: memcalloc param fail!");
         return HDF_ERR_IO;
     }
     param->gpio = gpio;
@@ -251,7 +251,7 @@ static int32_t GpioRegListener(struct HdfIoService *service, uint16_t gpio, Gpio
 
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, gpio, (void *)param,
         GpioOnDevEventReceive) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PlatformUserListenerReg failed!", __func__);
+        HDF_LOGE("GpioRegListener: PlatformUserListenerReg fail!");
         OsalMemFree(param);
         return HDF_ERR_IO;
     }
@@ -265,37 +265,37 @@ int32_t GpioSetIrq(uint16_t gpio, uint16_t mode, GpioIrqFunc func, void *arg)
     struct HdfSBuf *data = NULL;
 
     if (func == NULL) {
-        HDF_LOGE("%s: func is NULL!", __func__);
+        HDF_LOGE("GpioSetIrq: func is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioSetIrq: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     if (GpioRegListener(service, gpio, func, arg) != HDF_SUCCESS) {
-        HDF_LOGE("%s: GpioGetListener failed!", __func__);
+        HDF_LOGE("GpioSetIrq: GpioGetListener fail!");
         return HDF_FAILURE;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioSetIrq: fail to obtain data!");
         PlatformUserListenerDestory((struct PlatformUserListenerManager *)service->priv, gpio);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioSetIrq: fail to write gpio number!");
         PlatformUserListenerDestory((struct PlatformUserListenerManager *)service->priv, gpio);
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     if (!HdfSbufWriteUint16(data, mode)) {
-        HDF_LOGE("%s: failed to write gpio mode!", __func__);
+        HDF_LOGE("GpioSetIrq: fail to write gpio mode!");
         PlatformUserListenerDestory((struct PlatformUserListenerManager *)service->priv, gpio);
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
@@ -303,7 +303,7 @@ int32_t GpioSetIrq(uint16_t gpio, uint16_t mode, GpioIrqFunc func, void *arg)
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_SETIRQ, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_SETIRQ failed:%d %d!", __func__, ret, gpio);
+        HDF_LOGE("GpioSetIrq: service call GPIO_IO_SETIRQ fail, ret: %d gpio: %d!", ret, gpio);
         PlatformUserListenerDestory((struct PlatformUserListenerManager *)service->priv, gpio);
         HdfSbufRecycle(data);
         return ret;
@@ -323,25 +323,25 @@ int32_t GpioUnsetIrq(uint16_t gpio, void *arg)
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioUnsetIrq: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioUnsetIrq: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioUnsetIrq: fail to write gpio number!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_UNSETIRQ, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_UNSETIRQ failed:%d!", __func__, ret);
+        HDF_LOGE("GpioUnsetIrq: service call GPIO_IO_UNSETIRQ fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return ret;
     }
@@ -359,25 +359,25 @@ int32_t GpioEnableIrq(uint16_t gpio)
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioEnableIrq: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioEnableIrq: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioEnableIrq: fail to write gpio number!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_ENABLEIRQ, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_ENABLEIRQ failed:%d!", __func__, ret);
+        HDF_LOGE("GpioEnableIrq: service call GPIO_IO_ENABLEIRQ fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return ret;
     }
@@ -394,25 +394,25 @@ int32_t GpioDisableIrq(uint16_t gpio)
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioDisableIrq: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioDisableIrq: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)gpio)) {
-        HDF_LOGE("%s: failed to write gpio number!", __func__);
+        HDF_LOGE("GpioDisableIrq: fail to write gpio number!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_DISABLEIRQ, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_DISABLEIRQ failed:%d!", __func__, ret);
+        HDF_LOGE("GpioDisableIrq: service call GPIO_IO_DISABLEIRQ fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return ret;
     }
@@ -429,31 +429,31 @@ int32_t GpioGetByName(const char *gpioName)
     struct HdfSBuf *reply = NULL;
 
     if (gpioName == NULL || strlen(gpioName) > GPIO_NAME_LEN) {
-        HDF_LOGE("%s: gpioName is NULL or gpioName len out of range!", __func__);
+        HDF_LOGE("GpioGetByName: gpioName is null or gpioName len out of range!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = GpioManagerServiceGet();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: failed to get gpio manager service!", __func__);
+        HDF_LOGE("GpioGetByName: fail to get gpio manager service!");
         return HDF_PLT_ERR_DEV_GET;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data!", __func__);
+        HDF_LOGE("GpioGetByName: fail to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply!", __func__);
+        HDF_LOGE("GpioGetByName: fail to obtain reply!");
         HdfSbufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteString(data, gpioName)) {
-        HDF_LOGE("%s: failed to write gpioName!", __func__);
+        HDF_LOGE("GpioGetByName: fail to write gpioName!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
@@ -461,14 +461,14 @@ int32_t GpioGetByName(const char *gpioName)
 
     ret = service->dispatcher->Dispatch(&service->object, GPIO_IO_GET_NUM_BY_NAME, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: service call GPIO_IO_GET_NUM_BY_NAME failed:%d!", __func__, ret);
+        HDF_LOGE("GpioGetByName: service call GPIO_IO_GET_NUM_BY_NAME fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return ret;
     }
 
     if (!HdfSbufReadInt32(reply, &ret)) {
-        HDF_LOGE("%s: failed to read gpio global number!", __func__);
+        HDF_LOGE("GpioGetByName: fail to read gpio global number!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;

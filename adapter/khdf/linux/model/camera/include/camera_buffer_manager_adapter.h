@@ -9,10 +9,10 @@
 #ifndef CAMERA_BUFFER_MANAGER_ADAPTER_H
 #define CAMERA_BUFFER_MANAGER_ADAPTER_H
 
-#include <utils/hdf_dlist.h>
-#include <osal/osal_atomic.h>
-#include <osal/osal_spinlock.h>
-#include <osal/osal_mutex.h>
+#include <hdf_dlist.h>
+#include <osal_atomic.h>
+#include <osal_mutex.h>
+#include <osal_spinlock.h>
 #include <linux/wait.h>
 #include <linux/dma-buf.h>
 #include "buffer_queue.h"

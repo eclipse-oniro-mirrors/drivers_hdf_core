@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,13 +26,13 @@ struct CanRxBox *CanRxBoxCreate()
 
     rbox = (struct CanRxBox *)OsalMemCalloc(sizeof(*rbox));
     if (rbox == NULL) {
-        HDF_LOGE("CanRxBoxCreate: malloc failed");
+        HDF_LOGE("CanRxBoxCreate: malloc fail!");
         return NULL;
     }
 
     rbox->queue = PlatformQueueCreate(NULL, "can_rbox", rbox);
     if (rbox->queue == NULL) {
-        HDF_LOGE("CanRxBoxCreate: create rbox queue failed");
+        HDF_LOGE("CanRxBoxCreate: create rbox queue fail!");
         OsalMemFree(rbox);
         return NULL;
     }
@@ -61,10 +61,12 @@ int32_t CanRxBoxAddMsg(struct CanRxBox *rbox, struct CanMsg *cmsg)
     struct PlatformMsg *pmsg = NULL;
 
     if (rbox == NULL) {
+        HDF_LOGE("CanRxBoxAddMsg: rbox is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (!CanRxBoxMsgMatch(rbox, cmsg)) {
+        HDF_LOGE("CanRxBoxAddMsg: rbox is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -93,7 +95,7 @@ int32_t CanRxBoxGetMsg(struct CanRxBox *rbox, struct CanMsg **cmsg, uint32_t tms
 
     ret = PlatformQueueGetMsg(rbox->queue, &pmsg, tms);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("CanRxBoxGetMsg: get platform msg failed:%d", ret);
+        HDF_LOGE("CanRxBoxGetMsg: get platform msg fail, ret: %d!", ret);
         return ret;
     }
 
@@ -127,6 +129,7 @@ static bool CanRxBoxMsgMatch(struct CanRxBox *rbox, const struct CanMsg *cmsg)
     struct CanFilterNode *cfNode = NULL;
 
     if (rbox == NULL || cmsg == NULL) {
+        HDF_LOGE("CanRxBoxMsgMatch: rbox or cmsg is null!");
         return false;
     }
 
@@ -147,13 +150,16 @@ int32_t CanRxBoxAddFilter(struct CanRxBox *rbox, const struct CanFilter *filter)
     struct CanFilterNode *cfNode = NULL;
 
     if (rbox == NULL) {
+        HDF_LOGE("CanRxBoxAddFilter: rbox is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (filter == NULL) {
+        HDF_LOGE("CanRxBoxAddFilter: filter is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     cfNode = (struct CanFilterNode *)OsalMemCalloc(sizeof(*cfNode));
     if (cfNode == NULL) {
+        HDF_LOGE("CanRxBoxAddFilter: memcalloc cfNode fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     cfNode->filter = filter;
@@ -170,9 +176,11 @@ int32_t CanRxBoxDelFilter(struct CanRxBox *rbox, const struct CanFilter *filter)
     struct CanFilterNode *tmp = NULL;
 
     if (rbox == NULL) {
+        HDF_LOGE("CanRxBoxDelFilter: rbox is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (filter == NULL) {
+        HDF_LOGE("CanRxBoxDelFilter: filter is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     CanRxBoxLock(rbox);
@@ -185,5 +193,6 @@ int32_t CanRxBoxDelFilter(struct CanRxBox *rbox, const struct CanFilter *filter)
         }
     }
     CanRxBoxUnlock(rbox);
+    HDF_LOGE("CanRxBoxDelFilter: not support!");
     return HDF_ERR_NOT_SUPPORT;
 }

@@ -10,7 +10,7 @@
 #define HDF_WLAN_PRIORITY_QUEUE_H
 
 #include "hdf_base.h"
-#include "osal/osal_sem.h"
+#include "osal_sem.h"
 
 #define HIGHEST_PRIORITY 0
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,17 +18,17 @@ int32_t HdfMipiCsiEntry(HdfTestMsg *msg)
     struct MipiCsiTest *test = NULL;
 
     if (msg == NULL) {
-        HDF_LOGE("%s: msg is NULL!", __func__);
+        HDF_LOGE("HdfMipiCsiEntry: msg is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     test = MipiCsiTestServiceGet();
     if (test == NULL) {
-        HDF_LOGE("%s: test is NULL!", __func__);
+        HDF_LOGE("HdfMipiCsiEntry: test is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    HDF_LOGI("%s: call [doTest]", __func__);
+    HDF_LOGI("HdfMipiCsiEntry: call [doTest]!");
     ret = test->doTest(test, msg->subCmd);
     msg->result = (int8_t)ret;
 

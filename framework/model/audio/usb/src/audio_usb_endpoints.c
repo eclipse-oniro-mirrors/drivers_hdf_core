@@ -125,6 +125,9 @@ static void AudioUsbPrepareInboundUrb(struct AudioUsbEndpoint *endpoint, struct 
             urb->iso_frame_desc[0].length = min((uint32_t)SYNC_URBS, endpoint->syncMaxSize);
             urb->iso_frame_desc[0].offset = 0;
             break;
+        default:
+            AUDIO_DEVICE_LOG_ERR("endpoint->type is invalid.");
+            return;
     }
 }
 
@@ -233,6 +236,9 @@ static void AudioUsbPrepareOutboundUrb(struct AudioUsbEndpoint *endpoint, struct
                 cp[ARRAY_INDEX_2] = endpoint->freqn >> RIGHT_SHIFT_18;
             }
             break;
+        default:
+            AUDIO_DEVICE_LOG_ERR("endpoint->type is invalid.");
+            return;
     }
 }
 
@@ -365,7 +371,7 @@ static void AudioUsbQueuePendingOutputUrbs(struct AudioUsbEndpoint *endpoint)
 
         err = usb_submit_urb(urbCtx->urb, GFP_ATOMIC);
         if (err < HDF_SUCCESS) {
-            AUDIO_DEVICE_LOG_ERR("Unable to submit urb #%d: %d (urb %p)\n", urbCtx->index, err, urbCtx->urb);
+            AUDIO_DEVICE_LOG_ERR("Unable to submit urb #%d: %d\n", urbCtx->index, err);
         } else {
             set_bit(urbCtx->index, &endpoint->activeMask);
         }

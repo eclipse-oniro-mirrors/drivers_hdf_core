@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -49,6 +49,7 @@ int32_t WatchdogCntlrAdd(struct WatchdogCntlr *cntlr)
 void WatchdogCntlrRemove(struct WatchdogCntlr *cntlr)
 {
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrRemove: cntlr is null!");
         return;
     }
 
@@ -64,6 +65,7 @@ void WatchdogCntlrRemove(struct WatchdogCntlr *cntlr)
 int32_t WatchdogGetPrivData(struct WatchdogCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
+        HDF_LOGE("WatchdogGetPrivData: cntlr or ops is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops->getPriv != NULL) {
@@ -75,7 +77,7 @@ int32_t WatchdogGetPrivData(struct WatchdogCntlr *cntlr)
 int32_t WatchdogReleasePriv(struct WatchdogCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
-        HDF_LOGE("cntlr or cntlr->ops is null");
+        HDF_LOGE("WatchdogReleasePriv: cntlr or ops is null!");
         return HDF_SUCCESS;
     }
     if (cntlr->ops->releasePriv != NULL) {
@@ -90,21 +92,25 @@ int32_t WatchdogCntlrGetStatus(struct WatchdogCntlr *cntlr, int32_t *status)
     uint32_t flags;
 
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrGetStatus: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->getStatus == NULL) {
+        HDF_LOGE("WatchdogCntlrGetStatus: ops or getStatus is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
     if (status == NULL) {
+        HDF_LOGE("WatchdogCntlrGetStatus: status is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (OsalSpinLockIrqSave(&cntlr->lock, &flags) != HDF_SUCCESS) {
+        HDF_LOGE("WatchdogCntlrGetStatus: osal spin lock irq save fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->getStatus(cntlr, status);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:getStatus fail", __func__);
+        HDF_LOGE("WatchdogCntlrGetStatus: getStatus fail!");
         return ret;
     }
     (void)OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
@@ -117,13 +123,16 @@ int32_t WatchdogCntlrStart(struct WatchdogCntlr *cntlr)
     uint32_t flags;
 
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrStart: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->start == NULL) {
+        HDF_LOGE("WatchdogCntlrStart: ops or start is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (OsalSpinLockIrqSave(&cntlr->lock, &flags) != HDF_SUCCESS) {
+        HDF_LOGE("WatchdogCntlrStart: osal spin lock irq save fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->start(cntlr);
@@ -144,13 +153,16 @@ int32_t WatchdogCntlrStop(struct WatchdogCntlr *cntlr)
     uint32_t flags;
 
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrStop: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->stop == NULL) {
+        HDF_LOGE("WatchdogCntlrStop: ops or stop is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (OsalSpinLockIrqSave(&cntlr->lock, &flags) != HDF_SUCCESS) {
+        HDF_LOGE("WatchdogCntlrStop: osal spin lock irq save fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->stop(cntlr);
@@ -172,13 +184,16 @@ int32_t WatchdogCntlrSetTimeout(struct WatchdogCntlr *cntlr, uint32_t seconds)
     uint32_t flags;
 
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrSetTimeout: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->setTimeout == NULL) {
+        HDF_LOGE("WatchdogCntlrSetTimeout: ops or setTimeout is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (OsalSpinLockIrqSave(&cntlr->lock, &flags) != HDF_SUCCESS) {
+        HDF_LOGE("WatchdogCntlrSetTimeout: osal spin lock irq save fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->setTimeout(cntlr, seconds);
@@ -192,16 +207,20 @@ int32_t WatchdogCntlrGetTimeout(struct WatchdogCntlr *cntlr, uint32_t *seconds)
     uint32_t flags;
 
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrGetTimeout: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->getTimeout == NULL) {
+        HDF_LOGE("WatchdogCntlrGetTimeout: ops or getTimeout is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
     if (seconds == NULL) {
+        HDF_LOGE("WatchdogCntlrGetTimeout: seconds is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (OsalSpinLockIrqSave(&cntlr->lock, &flags) != HDF_SUCCESS) {
+        HDF_LOGE("WatchdogCntlrGetTimeout: osal spin lock irq save fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->getTimeout(cntlr, seconds);
@@ -215,13 +234,16 @@ int32_t WatchdogCntlrFeed(struct WatchdogCntlr *cntlr)
     uint32_t flags;
 
     if (cntlr == NULL) {
+        HDF_LOGE("WatchdogCntlrFeed: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (cntlr->ops == NULL || cntlr->ops->feed == NULL) {
+        HDF_LOGE("WatchdogCntlrFeed: ops or feed is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (OsalSpinLockIrqSave(&cntlr->lock, &flags) != HDF_SUCCESS) {
+        HDF_LOGE("OsalSpinLockIrqSave: osal spin lock irq save fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->feed(cntlr);
@@ -232,13 +254,14 @@ int32_t WatchdogCntlrFeed(struct WatchdogCntlr *cntlr)
 static int32_t WatchdogUserGetPrivData(struct WatchdogCntlr *cntlr, struct HdfSBuf *reply)
 {
     int32_t ret;
+
     if (reply == NULL) {
-        HDF_LOGE("%s: invalid param", __func__);
+        HDF_LOGE("WatchdogUserGetPrivData: reply is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = WatchdogGetPrivData(cntlr);
     if (!HdfSbufWriteInt32(reply, ret)) {
-        HDF_LOGE("%s: sbuf write buffer failed", __func__);
+        HDF_LOGE("WatchdogUserGetPrivData: sbuf write buffer fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -250,16 +273,16 @@ static int32_t WatchdogUserGetStatus(struct WatchdogCntlr *cntlr, struct HdfSBuf
     int32_t status;
 
     if (reply == NULL) {
-        HDF_LOGE("%s: invalid param", __func__);
+        HDF_LOGE("WatchdogUserGetStatus:reply is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = WatchdogCntlrGetStatus(cntlr, &status);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WatchdogCntlrGetStatus failed, ret: %d", __func__, ret);
+        HDF_LOGE("WatchdogUserGetStatus: watchdog cntlr get status fail, ret: %d!", ret);
         return ret;
     }
     if (!HdfSbufWriteInt32(reply, status)) {
-        HDF_LOGE("%s: sbuf write status failed", __func__);
+        HDF_LOGE("WatchdogUserGetStatus: sbuf write status fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -270,12 +293,12 @@ static int32_t WatchdogUserSetTimeout(struct WatchdogCntlr *cntlr, struct HdfSBu
     uint32_t seconds;
 
     if (data == NULL) {
-        HDF_LOGE("%s: invalid param", __func__);
+        HDF_LOGE("WatchdogUserSetTimeout: data is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (!HdfSbufReadUint32(data, &seconds)) {
-        HDF_LOGE("%s: sbuf read seconds failed", __func__);
+        HDF_LOGE("WatchdogUserSetTimeout: sbuf read seconds fail!");
         return HDF_ERR_IO;
     }
 
@@ -286,18 +309,19 @@ static int32_t WatchdogUserGetTimeout(struct WatchdogCntlr *cntlr, struct HdfSBu
 {
     int32_t ret;
     uint32_t seconds;
+
     if (reply == NULL) {
-        HDF_LOGE("%s: invalid param", __func__);
+        HDF_LOGE("WatchdogUserGetTimeout: reply is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = WatchdogCntlrGetTimeout(cntlr, &seconds);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WatchdogCntlrGetTimeout failed, ret: %d", __func__, ret);
+        HDF_LOGE("WatchdogUserGetTimeout: watchdog cntlr get timeout fail, ret: %d!", ret);
         return ret;
     }
     
     if (!HdfSbufWriteUint32(reply, seconds)) {
-        HDF_LOGE("%s: sbuf write buffer failed", __func__);
+        HDF_LOGE("WatchdogUserGetTimeout: sbuf write buffer fail!");
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -309,15 +333,15 @@ static int32_t WatchdogIoDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct WatchdogCntlr *cntlr = NULL;
 
     if (client == NULL) {
-        HDF_LOGE("%s: client is NULL", __func__);
+        HDF_LOGE("WatchdogIoDispatch: client is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (client->device == NULL) {
-        HDF_LOGE("%s: client->device is NULL", __func__);
+        HDF_LOGE("WatchdogIoDispatch: client->device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (client->device->service == NULL) {
-        HDF_LOGE("%s: client->device->service is NULL", __func__);
+        HDF_LOGE("WatchdogIoDispatch: client->device->service is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -340,7 +364,7 @@ static int32_t WatchdogIoDispatch(struct HdfDeviceIoClient *client, int cmd,
         case WATCHDOG_IO_FEED:
             return WatchdogCntlrFeed(cntlr);
         default:
-            HDF_LOGE("%s: cmd %d not support", __func__, cmd);
+            HDF_LOGE("WatchdogIoDispatch: cmd %d is not support!", cmd);
             return HDF_ERR_NOT_SUPPORT;
     }
 }

@@ -7,6 +7,7 @@
  */
 
 #include "ioservstat_listener.h"
+#include "hdf_service_status_inner.h"
 #include "osal_mem.h"
 
 static int OnIoServiceEventReceive(

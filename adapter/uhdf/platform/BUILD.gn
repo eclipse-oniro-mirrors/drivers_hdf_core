@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,35 +11,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
+hdf_framework_path = "../../../framework"
+hdf_interfaces_path = "../../../interfaces"
+hdf_adapter_path = "../../../adapter"
 
 import("//build/ohos.gni")
 config("hdf_platform_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "$HDF_FRAMEWORKS/include/core",
-    "$HDF_FRAMEWORKS/include/utils",
-    "$HDF_FRAMEWORKS/utils/include",
-    "$HDF_FRAMEWORKS/include/osal",
-    "$HDF_FRAMEWORKS/include/platform",
-    "$HDF_FRAMEWORKS/support/platform/include",
-    "$HDF_FRAMEWORKS/support/platform/include/fwk",
-    "$HDF_FRAMEWORKS/support/platform/include/gpio",
-    "$HDF_FRAMEWORKS/support/platform/include/hdmi",
-    "$HDF_FRAMEWORKS/support/platform/include/i2c",
-    "$HDF_FRAMEWORKS/support/platform/include/pin",
-    "$HDF_FRAMEWORKS/support/platform/include/pwm",
-    "$HDF_FRAMEWORKS/support/platform/include/spi",
-    "$HDF_FRAMEWORKS/support/platform/include/uart",
-    "$HDF_FRAMEWORKS/support/platform/include/adc",
-    "$HDF_FRAMEWORKS/support/platform/include/dac",
-    "$HDF_FRAMEWORKS/support/platform/include/regulator",
-    "$HDF_FRAMEWORKS/support/platform/include/rtc",
-    "$HDF_FRAMEWORKS/support/platform/include/timer",
-    "$HDF_FRAMEWORKS/support/platform/include/watchdog",
-    "$HDF_FRAMEWORKS/../adapter/uhdf/posix/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "$hdf_framework_path/include/core",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/platform",
+    "$hdf_framework_path/support/platform/include",
+    "$hdf_interfaces_path/inner_api/osal/shared",
+    "$hdf_interfaces_path/inner_api/utils",
+    "$hdf_interfaces_path/inner_api/core",
+    "$hdf_framework_path/support/platform/include/fwk",
+    "$hdf_framework_path/support/platform/include/gpio",
+    "$hdf_framework_path/support/platform/include/hdmi",
+    "$hdf_framework_path/support/platform/include/i2c",
+    "$hdf_framework_path/support/platform/include/pin",
+    "$hdf_framework_path/support/platform/include/pwm",
+    "$hdf_framework_path/support/platform/include/spi",
+    "$hdf_framework_path/support/platform/include/uart",
+    "$hdf_framework_path/support/platform/include/adc",
+    "$hdf_framework_path/support/platform/include/dac",
+    "$hdf_framework_path/support/platform/include/regulator",
+    "$hdf_framework_path/support/platform/include/rtc",
+    "$hdf_framework_path/support/platform/include/timer",
+    "$hdf_framework_path/support/platform/include/watchdog",
+    "$hdf_framework_path/../adapter/uhdf/posix/include",
   ]
 }
 
@@ -49,29 +53,31 @@ ohos_shared_library("hdf_platform") {
   public_configs = [ ":hdf_platform_pub_config" ]
 
   sources = [
-    "$HDF_FRAMEWORKS/model/storage/src/mmc/emmc_if.c",
-    "$HDF_FRAMEWORKS/model/storage/src/mmc/mmc_if.c",
-    "$HDF_FRAMEWORKS/support/platform/src/adc/adc_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/dac/dac_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/fwk/platform_listener_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/gpio/gpio_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/hdmi/hdmi_if.c",
-    "$HDF_FRAMEWORKS/support/platform/src/i2c/i2c_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/pcie/pcie_if.c",
-    "$HDF_FRAMEWORKS/support/platform/src/pin/pin_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/pwm/pwm_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/rtc/rtc_base.c",
-    "$HDF_FRAMEWORKS/support/platform/src/rtc/rtc_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/spi/spi_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/timer/timer_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/uart/uart_if_u.c",
-    "$HDF_FRAMEWORKS/support/platform/src/watchdog/watchdog_if_u.c",
+    "$hdf_framework_path/model/storage/src/mmc/emmc_if.c",
+    "$hdf_framework_path/model/storage/src/mmc/mmc_if.c",
+    "$hdf_framework_path/support/platform/src/adc/adc_if_u.c",
+    "$hdf_framework_path/support/platform/src/dac/dac_if_u.c",
+    "$hdf_framework_path/support/platform/src/fwk/platform_listener_u.c",
+    "$hdf_framework_path/support/platform/src/gpio/gpio_if_u.c",
+    "$hdf_framework_path/support/platform/src/hdmi/hdmi_if.c",
+    "$hdf_framework_path/support/platform/src/i2c/i2c_if_u.c",
+    "$hdf_framework_path/support/platform/src/pcie/pcie_if_u.c",
+    "$hdf_framework_path/support/platform/src/pin/pin_if_u.c",
+    "$hdf_framework_path/support/platform/src/pwm/pwm_if_u.c",
+    "$hdf_framework_path/support/platform/src/rtc/rtc_base.c",
+    "$hdf_framework_path/support/platform/src/rtc/rtc_if_u.c",
+    "$hdf_framework_path/support/platform/src/spi/spi_if_u.c",
+    "$hdf_framework_path/support/platform/src/timer/timer_if_u.c",
+    "$hdf_framework_path/support/platform/src/uart/uart_if_u.c",
+    "$hdf_framework_path/support/platform/src/watchdog/watchdog_if_u.c",
   ]
 
-  deps = [
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
-    "//third_party/bounds_checking_function:libsec_shared",
+  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_deps = [ "$hdf_adapter_path/uhdf/manager:hdf_core" ]
+
+  external_deps = [
+    "hdf_core:hdf_posix_osal",
+    "hilog_featured_lite:hilog_shared",
   ]
 
   defines = [ "__USER__" ]

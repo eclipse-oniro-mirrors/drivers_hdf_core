@@ -30,7 +30,7 @@ visual studio code 版本需1.62.0及以上。
 	
 		npm i
 
-4.在命令行中进入到hcsWebView目录下，安装依赖库，命令如下：
+安装 webpack，命令如下：
 	
 		npx webpack
 

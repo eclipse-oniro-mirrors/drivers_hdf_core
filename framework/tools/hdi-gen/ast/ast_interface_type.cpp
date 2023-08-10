@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -36,14 +36,35 @@ AutoPtr<ASTMethod> ASTInterfaceType::GetMethod(size_t index)
     return methods_[index];
 }
 
-bool ASTInterfaceType::IsInterfaceType()
+bool ASTInterfaceType::AddExtendsInterface(AutoPtr<ASTInterfaceType> interface)
 {
+    if (extendsInterface_ != nullptr) {
+        return false;
+    }
+    extendsInterface_ = interface;
     return true;
 }
 
-std::string ASTInterfaceType::ToString() const
+void ASTInterfaceType::SetVersion(size_t &majorVer, size_t &minorVer)
 {
-    return name_;
+    majorVersion_ = majorVer;
+    minorVersion_ = minorVer;
+}
+
+std::vector<AutoPtr<ASTMethod>> ASTInterfaceType::GetMethodsBySystem(SystemLevel system) const
+{
+    std::vector<AutoPtr<ASTMethod>> methods;
+    for (const auto &method : methods_) {
+        if (method->GetAttribute()->Match(system)) {
+            methods.push_back(method);
+        }
+    }
+    return methods;
+}
+
+bool ASTInterfaceType::IsInterfaceType()
+{
+    return true;
 }
 
 std::string ASTInterfaceType::Dump(const std::string &prefix)
@@ -98,15 +119,21 @@ std::string ASTInterfaceType::EmitCType(TypeMode mode) const
 
 std::string ASTInterfaceType::EmitCppType(TypeMode mode) const
 {
+    std::string pointerName = "sptr";
+    if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {
+        pointerName = "std::shared_ptr";
+    }
     switch (mode) {
         case TypeMode::NO_MODE:
-            return StringHelper::Format("sptr<%s>", name_.c_str());
+            return StringHelper::Format("%s<%s>", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::PARAM_IN:
-            return StringHelper::Format("const sptr<%s>&", name_.c_str());
+            return StringHelper::Format(
+                "const %s<%s>&", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::PARAM_OUT:
-            return StringHelper::Format("sptr<%s>&", name_.c_str());
+            return StringHelper::Format(
+                "%s<%s>&", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::LOCAL_VAR:
-            return StringHelper::Format("sptr<%s>", name_.c_str());
+            return StringHelper::Format("%s<%s>", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
         default:
             return "unknow type";
     }
@@ -153,9 +180,15 @@ void ASTInterfaceType::EmitCStubReadVar(const std::string &parcelName, const std
 void ASTInterfaceType::EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, unsigned int innerLevel) const
 {
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB)
+        .AppendFormat("HDF_LOGE(\"%%{public}s: parameter %s is nullptr!\", __func__);\n", name.c_str());
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n");
+    sb.Append("\n");
     sb.Append(prefix).AppendFormat("if (!%s.WriteRemoteObject(", parcelName.c_str());
     sb.AppendFormat("OHOS::HDI::ObjectCollector::GetInstance().GetOrNewObject(%s, %s::GetDescriptor()))) {\n",
-        name.c_str(), name_.c_str());
+        name.c_str(), GetNameWithNamespace(namespace_, name_).c_str());
     sb.Append(prefix + TAB).AppendFormat("HDF_LOGE(\"%%{public}s: write %s failed!\", __func__);\n", name.c_str());
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
@@ -165,10 +198,10 @@ void ASTInterfaceType::EmitCppReadVar(const std::string &parcelName, const std::
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", name_.c_str(), name.c_str());
+        sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", GetNameWithNamespace(namespace_, name_).c_str(), name.c_str());
     }
-    sb.Append(prefix).AppendFormat(
-        "if (!ReadInterface<%s>(%s, %s)) {\n", name_.c_str(), parcelName.c_str(), name.c_str());
+    sb.Append(prefix).AppendFormat("if (!ReadInterface<%s>(%s, %s)) {\n",
+        GetNameWithNamespace(namespace_, name_).c_str(), parcelName.c_str(), name.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read interface object\", __func__);\n");
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
@@ -196,30 +229,25 @@ void ASTInterfaceType::EmitJavaReadInnerVar(const std::string &parcelName, const
         EmitJavaType(TypeMode::NO_MODE).c_str(), name.c_str(), stubName.c_str(), parcelName.c_str());
 }
 
-void ASTInterfaceType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTInterfaceType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
-    std::string methodName = "WriteInterface";
-    switch (language) {
-        case Options::Language::C:
-            methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
-            break;
-        default:
-            break;
+    if (language == Language::C) {
+        methods.emplace("WriteInterface", std::bind(&ASTInterfaceType::EmitCWriteMethods, this, _1, _2, _3, _4));
     }
 }
 
-void ASTInterfaceType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTInterfaceType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     using namespace std::placeholders;
 
     switch (language) {
-        case Options::Language::C: {
+        case Language::C: {
             std::string methodName = StringHelper::Format("Read%s", name_.c_str());
             methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCReadMethods, this, _1, _2, _3, _4));
             break;
         }
-        case Options::Language::CPP: {
+        case Language::CPP: {
             methods.emplace("ReadInterface", std::bind(&ASTInterfaceType::EmitCppReadMethods, this, _1, _2, _3, _4));
             break;
         }

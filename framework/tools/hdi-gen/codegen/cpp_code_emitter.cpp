@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -141,7 +141,7 @@ std::vector<std::string> CppCodeEmitter::EmitCppNameSpaceVec(const std::string &
     return result;
 }
 
-std::string CppCodeEmitter::EmitPackageToNameSpace(const std::string &packageName)
+std::string CppCodeEmitter::EmitPackageToNameSpace(const std::string &packageName) const
 {
     if (packageName.empty()) {
         return packageName;
@@ -268,6 +268,25 @@ std::string CppCodeEmitter::SpecificationParam(StringBuilder &paramSb, const std
         }
     }
     return paramStr;
+}
+
+std::string CppCodeEmitter::EmitHeaderNameByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name)
+{
+    return StringHelper::Format(
+        "v%u_%u/%s", interface->GetMajorVersion(), interface->GetMinorVersion(), FileName(name).c_str());
+}
+
+std::string CppCodeEmitter::EmitDefinitionByInterface(
+    AutoPtr<ASTInterfaceType> interface, const std::string &name) const
+{
+    StringBuilder sb;
+    std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(interface->GetNamespace()->ToString());
+    for (const auto &nspace : cppNamespaceVec) {
+        sb.AppendFormat("%s", nspace.c_str());
+        sb.Append("::");
+    }
+    sb.Append(name.c_str());
+    return sb.ToString();
 }
 } // namespace HDI
 } // namespace OHOS

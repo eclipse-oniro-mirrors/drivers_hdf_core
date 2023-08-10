@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -94,14 +94,14 @@ static void RingBufferFlush(struct VirtualSpi *virtual)
 static int32_t RingBufferConfig(struct VirtualSpi *virtual)
 {
     if (virtual->fifoSize == 0 || virtual->fifoSize > FIFO_SIZE_MAX) {
-        HDF_LOGE("%s, invalid fifoSize", __func__);
+        HDF_LOGE("RingBufferConfig, invalid fifoSize!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if ((virtual->cfg.mode & SPI_MODE_LOOP) != 0 && virtual->ringBuffer == NULL) {
         virtual->ringBuffer = OsalMemAlloc(virtual->fifoSize * BYTES_PER_WORD);
         if (virtual->ringBuffer == NULL) {
-            HDF_LOGE("%s: malloc ringBuffer fail", __func__);
+            HDF_LOGE("RingBufferConfig: malloc ringBuffer fail!");
             return HDF_ERR_MALLOC_FAIL;
         }
     } else if ((virtual->cfg.mode & SPI_MODE_LOOP) == 0) {
@@ -190,20 +190,20 @@ static int32_t VirtualSpiTxRx(struct VirtualSpi *virtual, const struct SpiMsg *m
     for (tmpLen = 0, len = msg->len; len > 0; len -= tmpLen) {
         tmpLen = (len > burstSize) ? burstSize : len;
         if (!VirtualSpiWriteFifo(virtual, tx, tmpLen)) {
-            HDF_LOGE("%s: write fifo fail", __func__);
+            HDF_LOGE("VirtualSpiTxRx: write fifo fail!");
             return HDF_FAILURE;
         }
         tx = (tx == NULL) ? NULL : (tx + tmpLen);
         if (tmpLen == burstSize) {
             ret = OsalSemWait((struct OsalSem *)(&virtual->sem), WAIT_TIMEOUT);
             if (ret != HDF_SUCCESS) {
-                HDF_LOGE("%s: sem wait timeout", __func__);
+                HDF_LOGE("VirtualSpiTxRx: sem wait timeout, ret: %d!", ret);
                 return ret;
             }
         }
 
         if (!VirtualSpiReadFifo(virtual, rx, tmpLen)) {
-            HDF_LOGE("%s: read fifo fail", __func__);
+            HDF_LOGE("VirtualSpiTxRx: read fifo fail!");
             return HDF_FAILURE;
         }
         rx = (rx == NULL) ? NULL : (rx + tmpLen);
@@ -225,12 +225,12 @@ static int32_t VirtualSpiSetCfg(struct SpiCntlr *cntlr, struct SpiCfg *cfg)
     struct VirtualSpi *virtual = NULL;
 
     if (cntlr == NULL || cntlr->priv == NULL || cfg == NULL) {
-        HDF_LOGE("%s: cntlr priv or cfg is NULL", __func__);
+        HDF_LOGE("VirtualSpiSetCfg: cntlr priv or cfg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     virtual = (struct VirtualSpi *)cntlr->priv;
     if (!VirtualSpiFindDeviceByCsNum(virtual, cntlr->curCs)) {
-        HDF_LOGE("%s: invalid cs %u", __func__, cntlr->curCs);
+        HDF_LOGE("VirtualSpiSetCfg: invalid cs %u!", cntlr->curCs);
         return HDF_ERR_INVALID_PARAM;
     }
     virtual->cfg = *cfg;
@@ -242,12 +242,12 @@ static int32_t VirtualSpiGetCfg(struct SpiCntlr *cntlr, struct SpiCfg *cfg)
     struct VirtualSpi *virtual = NULL;
 
     if (cntlr == NULL || cntlr->priv == NULL || cfg == NULL) {
-        HDF_LOGE("%s: cntlr priv or cfg is NULL", __func__);
+        HDF_LOGE("VirtualSpiGetCfg: cntlr priv or cfg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     virtual = (struct VirtualSpi *)cntlr->priv;
     if (!VirtualSpiFindDeviceByCsNum(virtual, cntlr->curCs)) {
-        HDF_LOGE("%s: invalid cs %u", __func__, cntlr->curCs);
+        HDF_LOGE("VirtualSpiGetCfg: invalid cs %u!", cntlr->curCs);
         return HDF_ERR_INVALID_PARAM;
     }
     *cfg = virtual->cfg;
@@ -259,7 +259,7 @@ static int32_t VirtualSpiTransferOneMessage(struct VirtualSpi *virtual, struct S
     int32_t ret;
 
     if (msg == NULL || (msg->rbuf == NULL && msg->wbuf == NULL)) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("VirtualSpiTransferOneMessage: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
     virtual->speed = (msg->speed) == 0 ? DEFAULT_SPEED : msg->speed;
@@ -279,23 +279,23 @@ static int32_t VirtualSpiTransfer(struct SpiCntlr *cntlr, struct SpiMsg *msg, ui
     struct VirtualSpi *virtual = NULL;
 
     if (cntlr == NULL || cntlr->priv == NULL) {
-        HDF_LOGE("%s: invalid controller", __func__);
+        HDF_LOGE("VirtualSpiTransfer: invalid controller!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (msg == NULL || count == 0) {
-        HDF_LOGE("%s: invalid parameter", __func__);
+        HDF_LOGE("VirtualSpiTransfer: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     virtual = (struct VirtualSpi *)cntlr->priv;
     if (!VirtualSpiFindDeviceByCsNum(virtual, cntlr->curCs)) {
-        HDF_LOGE("%s: invalid cs %u", __func__, cntlr->curCs);
+        HDF_LOGE("VirtualSpiTransfer: invalid cs %u!", cntlr->curCs);
         return HDF_FAILURE;
     }
     for (i = 0; i < count; i++) {
         ret = VirtualSpiTransferOneMessage(virtual, &(msg[i]));
         if (ret != 0) {
-            HDF_LOGE("%s: transfer error", __func__);
+            HDF_LOGE("VirtualSpiTransfer: transfer error, ret: %d!", ret);
             return ret;
         }
     }
@@ -327,43 +327,43 @@ static int32_t SpiGetCfgFromHcs(struct VirtualSpi *virtual, const struct DeviceR
     struct DeviceResourceIface *iface = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
 
     if (iface == NULL || iface->GetUint32 == NULL || iface->GetUint16 == NULL || iface->GetUint8 == NULL) {
-        HDF_LOGE("%s: face is invalid", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: face is invalid!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "busNum", &virtual->busNum, DEFAULT_BUS_NUM) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read busNum fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read busNum fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "numCs", &virtual->numCs, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read numCs fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read numCs fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "speed", &virtual->speed, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read speed fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read speed fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "fifoSize", &virtual->fifoSize, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read fifoSize fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read fifoSize fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint16(node, "mode", &virtual->cfg.mode, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read mode fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read mode fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint8(node, "bitsPerWord", &virtual->cfg.bitsPerWord, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read bitsPerWord fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read bitsPerWord fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint8(node, "transferMode", &virtual->cfg.transferMode, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read transferMode fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read transferMode fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "maxSpeedHz", &virtual->cfg.maxSpeedHz, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxSpeedHz fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read maxSpeedHz fail!");
         return HDF_FAILURE;
     }
     if (iface->GetUint16(node, "waterline", &virtual->waterline, 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read waterline fail", __func__);
+        HDF_LOGE("SpiGetCfgFromHcs: read waterline fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -375,20 +375,20 @@ static int32_t VirtualSpiInit(struct SpiCntlr *cntlr, const struct HdfDeviceObje
     struct VirtualSpi *virtual = NULL;
 
     if (device->property == NULL) {
-        HDF_LOGE("%s: property is NULL", __func__);
+        HDF_LOGE("VirtualSpiInit: property is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     virtual = (struct VirtualSpi *)OsalMemCalloc(sizeof(*virtual));
     if (virtual == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc error", __func__);
+        HDF_LOGE("VirtualSpiInit: OsalMemCalloc error!");
         return HDF_FAILURE;
     }
     ret = SpiGetCfgFromHcs(virtual, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: SpiGetCfgFromHcs error", __func__);
+        HDF_LOGE("VirtualSpiInit: SpiGetCfgFromHcs error, ret: %d!", ret);
         OsalMemFree(virtual);
-        return HDF_FAILURE;
+        return ret;
     }
 
     virtual->cntlr = cntlr;
@@ -399,7 +399,7 @@ static int32_t VirtualSpiInit(struct SpiCntlr *cntlr, const struct HdfDeviceObje
         return ret;
     }
     if (OsalSpinInit(&virtual->lock) != HDF_SUCCESS) {
-        HDF_LOGE("%s: init lock fail", __func__);
+        HDF_LOGE("VirtualSpiInit: init lock fail!");
         return HDF_FAILURE;
     }
 
@@ -408,7 +408,7 @@ static int32_t VirtualSpiInit(struct SpiCntlr *cntlr, const struct HdfDeviceObje
 
 static int32_t VirtualSpiDeviceBind(struct HdfDeviceObject *device)
 {
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("VirtualSpiDeviceBind: entry!");
     if (device == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -421,25 +421,27 @@ static int32_t VirtualSpiDeviceInit(struct HdfDeviceObject *device)
     struct SpiCntlr *cntlr = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: ptr is null", __func__);
+        HDF_LOGE("VirtualSpiDeviceInit: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     cntlr = SpiCntlrFromDevice(device);
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("VirtualSpiDeviceInit: cntlr is null!");
         return HDF_FAILURE;
     }
 
     ret = VirtualSpiInit(cntlr, device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: error init", __func__);
-        return HDF_FAILURE;
+        HDF_LOGE("VirtualSpiDeviceInit: error init, ret: %d!", ret);
+        return ret;
     }
     ret = RingBufferConfig((struct VirtualSpi *)cntlr->priv);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: RingBufferConfig error", __func__);
+        HDF_LOGE("VirtualSpiDeviceInit: RingBufferConfig error!");
+    } else {
+        HDF_LOGI("VirtualSpiDeviceInit: spi device init success!");
     }
-    HDF_LOGI("%s: spi device init success.", __func__);
+
     return ret;
 }
 
@@ -448,14 +450,14 @@ static void VirtualSpiDeviceRelease(struct HdfDeviceObject *device)
     struct SpiCntlr *cntlr = NULL;
     struct VirtualSpi *virtual = NULL;
 
-    HDF_LOGI("%s: entry", __func__);
+    HDF_LOGI("VirtualSpiDeviceRelease: entry!");
     if (device == NULL) {
-        HDF_LOGE("%s: device is null", __func__);
+        HDF_LOGE("VirtualSpiDeviceRelease: device is null!");
         return;
     }
     cntlr = SpiCntlrFromDevice(device);
     if (cntlr == NULL || cntlr->priv == NULL) {
-        HDF_LOGE("%s: cntlr is null", __func__);
+        HDF_LOGE("VirtualSpiDeviceRelease: cntlr or priv is null!");
         return;
     }
     SpiCntlrDestroy(cntlr);

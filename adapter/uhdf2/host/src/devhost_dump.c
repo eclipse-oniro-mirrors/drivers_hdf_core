@@ -63,9 +63,29 @@ void DevHostDumpDeInit(void)
     g_dumpHostNode.dumpHost = NULL;
 }
 
+static bool DevHostCheckDumpExist(const char *servName)
+{
+    struct DumpServiceNode *pos = NULL;
+    bool findFlag = false;
+    OsalMutexLock(&g_dumpHostNode.mutex);
+    DLIST_FOR_EACH_ENTRY(pos, &g_dumpHostNode.list, struct DumpServiceNode, node) {
+        if (strcmp(pos->servName, servName) == 0) {
+            findFlag = true;
+            break;
+        }
+    }
+    OsalMutexUnlock(&g_dumpHostNode.mutex);
+    return findFlag;
+}
+
 int32_t DevHostRegisterDumpService(const char *servName, DevHostDumpFunc dump)
 {
     if (dump == NULL || servName == NULL) {
+        return HDF_FAILURE;
+    }
+
+    if (DevHostCheckDumpExist(servName)) {
+        HDF_LOGE("%{public}s service %{public}s dump function exist", __func__, servName);
         return HDF_FAILURE;
     }
 
@@ -114,12 +134,14 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
     if (strcmp(option, "dumpHost") == 0) {
         if (g_dumpHostNode.dumpHost == NULL) {
             HDF_LOGE("%{public}s no dumpHost function", __func__);
+            (void)HdfSbufWriteString(reply, "The host does not register dump function\n");
             return;
         }
         g_dumpHostNode.dumpHost(data, reply);
     } else if (strcmp(option, "dumpService") == 0) {
         const char *servName = HdfSbufReadString(data);
         struct DumpServiceNode *pos = NULL;
+        bool dumpFlag = false;
         OsalMutexLock(&g_dumpHostNode.mutex);
         DLIST_FOR_EACH_ENTRY(pos, &g_dumpHostNode.list, struct DumpServiceNode, node) {
             if (strcmp(pos->servName, servName) != 0) {
@@ -127,9 +149,14 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
             }
             if (pos->dumpService) {
                 pos->dumpService(data, reply);
+                dumpFlag = true;
+                break;
             }
         }
         OsalMutexUnlock(&g_dumpHostNode.mutex);
+        if (!dumpFlag) {
+            (void)HdfSbufWriteString(reply, "The service does not register dump function\n");
+        }
     } else {
         HDF_LOGE("%{public}s invalid parameter %{public}s", __func__, option);
     }

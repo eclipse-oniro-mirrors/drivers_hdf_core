@@ -19,7 +19,7 @@
 
 #include "hdf_device_info.h"
 #include "hdf_object_manager.h"
-#include "hdf_service_status.h"
+#include "hdf_service_status_inner.h"
 #include "osal_mem.h"
 
 namespace OHOS {
@@ -50,20 +50,15 @@ HWTEST_F(HdfCoreSharedTest, HdfObjectManagerFreeObjectTest, TestSize.Level1)
     OsalMemFree(object);
 }
 
-HWTEST_F(HdfCoreSharedTest, HdfDeviceInfoConstructTest, TestSize.Level1)
-{
-    HdfDeviceInfoConstruct(nullptr);
-}
-
 HWTEST_F(HdfCoreSharedTest, HdfDeviceInfoFreeInstanceTest, TestSize.Level1)
 {
+    HdfDeviceInfoConstruct(nullptr);
+
     HdfDeviceInfoFreeInstance(nullptr);
     HdfDeviceInfo *info = HdfDeviceInfoNewInstance();
+    ASSERT_NE(info, nullptr);
     HdfDeviceInfoFreeInstance(info);
-}
 
-HWTEST_F(HdfCoreSharedTest, HdfDeviceInfoDeleteTest, TestSize.Level1)
-{
     HdfDeviceInfoDelete(nullptr);
 }
 

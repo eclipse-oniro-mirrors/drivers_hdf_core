@@ -1,7 +1,7 @@
 /*
  * adc driver adapter of linux
  *
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -58,21 +58,21 @@ static int32_t AdcIioRead(struct AdcDevice *device, uint32_t channel, uint32_t *
     struct AdcIioDevice *adcDevice = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: Illegal object", __func__);
+        HDF_LOGE("AdcIioRead: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (val == NULL) {
-        HDF_LOGE("%s: Illegal parameter", __func__);
+        HDF_LOGE("AdcIioRead: val is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     adcDevice = (struct AdcIioDevice *)device;
     if (channel >= adcDevice->channelNum || adcDevice->fp[channel] == NULL) {
-        HDF_LOGE("%s: invalid channel:%u", __func__, channel);
+        HDF_LOGE("AdcIioRead: invalid channel:%u!", channel);
         return HDF_ERR_INVALID_PARAM;
     }
     ret = kernel_read(adcDevice->fp[channel], strValue, ADC_STRING_VALUE_LEN, &pos);
     if (ret < 0) {
-        HDF_LOGE("%s: kernel_read fail %d", __func__, ret);
+        HDF_LOGE("AdcIioRead: kernel_read fail, ret: %d!", ret);
         return HDF_PLT_ERR_OS_API;
     }
     *val = simple_strtoul(strValue, NULL, 0);
@@ -86,7 +86,7 @@ static int32_t AdcIioStop(struct AdcDevice *device)
     struct AdcIioDevice *adcDevice = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: Illegal object", __func__);
+        HDF_LOGE("AdcIioStop: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     adcDevice = (struct AdcIioDevice *)device;
@@ -94,7 +94,7 @@ static int32_t AdcIioStop(struct AdcDevice *device)
         if (adcDevice->fp[i] != NULL) {
             ret = filp_close(adcDevice->fp[i], NULL);
             if (ret != 0) {
-                HDF_LOGE("%s: filp_close fail", __func__);
+                HDF_LOGE("AdcIioStop: filp_close fail!");
                 adcDevice->fp[i] = NULL;
                 return HDF_FAILURE;
             }
@@ -109,8 +109,9 @@ static int32_t AdcIioStart(struct AdcDevice *device)
     uint32_t i;
     int32_t ret;
     struct AdcIioDevice *adcDevice = NULL;
+
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("AdcIioStart: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     adcDevice = (struct AdcIioDevice *)device;
@@ -125,7 +126,7 @@ static int32_t AdcIioStart(struct AdcDevice *device)
             if (ret != HDF_SUCCESS) {
                 return ret;
             }
-            HDF_LOGE("filp open fail");
+            HDF_LOGE("AdcIioStart: filp open fail!");
             return HDF_PLT_ERR_OS_API;
         }
     }
@@ -148,21 +149,21 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL || drsOps->GetString == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("AdcIioReadDrs: invalid drs ops!");
         return HDF_ERR_NOT_SUPPORT;
     }
     ret = drsOps->GetUint32(node, "deviceNum", &adcDevice->deviceNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read deviceNum failed", __func__);
+        HDF_LOGE("AdcIioReadDrs: read deviceNum fail, ret: %d!", ret);
         return ret;
     }
     ret = drsOps->GetUint32(node, "channelNum", &adcDevice->channelNum, 1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read channelNum failed", __func__);
+        HDF_LOGE("AdcIioReadDrs: read channelNum fail, ret: %d!", ret);
         return ret;
     }
     if (adcDevice->channelNum > ADC_MAX_CHANNEL_NUM) {
-        HDF_LOGE("%s: channelNum is illegal", __func__);
+        HDF_LOGE("AdcIioReadDrs: channelNum is illegal!");
         return HDF_FAILURE;
     }
     for (i = 0; i < adcDevice->channelNum; i++) {
@@ -171,7 +172,7 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
         }
         ret = drsOps->GetString(node, channelName, &drName, NULL);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: read driver_name failed", __func__);
+            HDF_LOGE("AdcIioReadDrs: read driver_name fail, ret: %d!", ret);
             return ret;
         }
         adcDevice->driverPathname[i] = drName;
@@ -181,13 +182,13 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
 
     ret = drsOps->GetUint32(node, "scanMode", &adcDevice->scanMode, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read scanMode failed", __func__);
+        HDF_LOGE("AdcIioReadDrs: read scanMode fail, ret: %d!", ret);
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "rate", &adcDevice->rate, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read rate failed", __func__);
+        HDF_LOGE("AdcIioReadDrs: read rate fail, ret: %d!", ret);
         return ret;
     }
     
@@ -202,12 +203,12 @@ static int32_t AdcIioParseAndDeviceAdd(struct HdfDeviceObject *device, struct De
     (void)device;
     adcDevice = (struct AdcIioDevice *)OsalMemCalloc(sizeof(*adcDevice));
     if (adcDevice == NULL) {
-        HDF_LOGE("%s: alloc adcDevice failed", __func__);
+        HDF_LOGE("AdcIioParseAndDeviceAdd: alloc adcDevice fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     ret = AdcIioReadDrs(adcDevice, node);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read drs failed:%d", __func__, ret);
+        HDF_LOGE("AdcIioParseAndDeviceAdd: read drs fail, ret: %d!", ret);
         OsalMemFree(adcDevice);
         return ret;
     }
@@ -217,7 +218,7 @@ static int32_t AdcIioParseAndDeviceAdd(struct HdfDeviceObject *device, struct De
 
     ret = AdcDeviceAdd(&adcDevice->device);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: add adc device:%u failed", __func__, adcDevice->deviceNum);
+        HDF_LOGE("AdcIioParseAndDeviceAdd: add adc device:%u fail!", adcDevice->deviceNum);
         OsalMemFree(adcDevice);
         return ret;
     }
@@ -228,8 +229,9 @@ static int32_t LinuxAdcInit(struct HdfDeviceObject *device)
 {
     int32_t ret = HDF_SUCCESS;
     struct DeviceResourceNode *childNode = NULL;
+
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is null", __func__);
+        HDF_LOGE("LinuxAdcInit: device or property is null");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -239,7 +241,7 @@ static int32_t LinuxAdcInit(struct HdfDeviceObject *device)
             return ret;
         }
     }
-    HDF_LOGI("%s: adc iio init success.", __func__);
+    HDF_LOGI("LinuxAdcInit: adc iio init success!");
 
     return HDF_SUCCESS;
 }
@@ -253,13 +255,13 @@ static void AdcIioRemoveByNode(const struct DeviceResourceNode *node)
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("AdcIioRemoveByNode: invalid drs ops!");
         return;
     }
 
     ret = drsOps->GetUint32(node, "deviceNum", (uint32_t *)&deviceNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read deviceNum failed", __func__);
+        HDF_LOGE("AdcIioRemoveByNode: read deviceNum fail, ret: %d!", ret);
         return;
     }
 
@@ -267,7 +269,7 @@ static void AdcIioRemoveByNode(const struct DeviceResourceNode *node)
     if (device != NULL && device->priv == node) {
         ret = AdcIioStop(device);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: close failed", __func__);
+            HDF_LOGE("AdcIioRemoveByNode: close fail, ret: %d!", ret);
         }
         AdcDevicePut(device);
         AdcDeviceRemove(device);
@@ -279,7 +281,7 @@ static void LinuxAdcRelease(struct HdfDeviceObject *device)
 {
     const struct DeviceResourceNode *childNode = NULL;
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or property is null", __func__);
+        HDF_LOGE("LinuxAdcRelease: device or property is null!");
         return;
     }
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {

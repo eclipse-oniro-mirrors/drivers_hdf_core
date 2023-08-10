@@ -12,6 +12,7 @@
 #include "sensor_config_parser.h"
 
 #define LENGTH_NUMBER    32
+#define SHIFT_BITS       8
 
 enum SensorCalculateType {
     SENSOR_CFG_CALC_TYPE_NONE   = 0,

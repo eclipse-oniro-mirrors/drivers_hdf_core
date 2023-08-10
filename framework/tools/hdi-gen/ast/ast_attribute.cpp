@@ -11,12 +11,30 @@
 
 namespace OHOS {
 namespace HDI {
-static void AttributesFormat(StringBuilder &sb, const std::vector<std::string> &attrs)
+std::string ASTAttr::ToString() const
 {
-    if (attrs.empty()) {
-        return;
+    std::vector<std::string> attrs;
+    if (value_ & ASTAttr::MINI) {
+        attrs.push_back("mini");
     }
 
+    if (value_ & ASTAttr::LITE) {
+        attrs.push_back("lite");
+    }
+
+    if (value_ & ASTAttr::FULL) {
+        attrs.push_back("full");
+    }
+
+    if (value_ & ASTAttr::ONEWAY) {
+        attrs.push_back("oneway");
+    }
+
+    if (value_ & ASTAttr::CALLBACK) {
+        attrs.push_back("callback");
+    }
+
+    StringBuilder sb;
     sb.Append("[");
     for (size_t i = 0; i < attrs.size(); i++) {
         sb.Append(attrs[i]);
@@ -25,81 +43,26 @@ static void AttributesFormat(StringBuilder &sb, const std::vector<std::string> &
         }
     }
     sb.Append("]");
-}
-
-std::string ASTTypeAttr::ToString() const
-{
-    StringBuilder sb;
-    std::vector<std::string> attrVec;
-    if (isFull_) {
-        attrVec.push_back("full");
-    }
-
-    if (isLite_) {
-        attrVec.push_back("lite");
-    }
-
-    AttributesFormat(sb, attrVec);
     return sb.ToString();
 }
 
-std::string ASTTypeAttr::Dump(const std::string &prefix)
+std::string ASTAttr::Dump(const std::string &prefix)
 {
     return prefix + ToString();
 }
 
-std::string ASTInfAttr::ToString() const
+bool ASTAttr::Match(SystemLevel level) const
 {
-    StringBuilder sb;
-    std::vector<std::string> attrVec;
-    if (isFull_) {
-        attrVec.push_back("full");
+    switch (level) {
+        case SystemLevel::MINI:
+            return HasValue(ASTAttr::MINI);
+        case SystemLevel::LITE:
+            return HasValue(ASTAttr::LITE);
+        case SystemLevel::FULL:
+            return HasValue(ASTAttr::FULL);
+        default:
+            return false;
     }
-
-    if (isLite_) {
-        attrVec.push_back("lite");
-    }
-
-    if (isCallback_) {
-        attrVec.push_back("callback");
-    }
-
-    if (isOneWay_) {
-        attrVec.push_back("oneway");
-    }
-
-    AttributesFormat(sb, attrVec);
-    return sb.ToString();
-}
-
-std::string ASTInfAttr::Dump(const std::string &prefix)
-{
-    return prefix + ToString();
-}
-
-std::string ASTMethodAttr::ToString() const
-{
-    StringBuilder sb;
-    std::vector<std::string> attrVec;
-    if (isFull_) {
-        attrVec.push_back("full");
-    }
-
-    if (isLite_) {
-        attrVec.push_back("lite");
-    }
-
-    if (isOneWay_) {
-        attrVec.push_back("oneway");
-    }
-
-    AttributesFormat(sb, attrVec);
-    return sb.ToString();
-}
-
-std::string ASTMethodAttr::Dump(const std::string &prefix)
-{
-    return prefix + ToString();
 }
 
 std::string ASTParamAttr::ToString() const

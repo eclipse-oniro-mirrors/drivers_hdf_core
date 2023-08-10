@@ -19,7 +19,7 @@
 
 using namespace testing::ext;
 
-class HdfLitePwmTest : public testing::Test {
+class HdfPwmTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -27,21 +27,21 @@ public:
     void TearDown();
 };
 
-void HdfLitePwmTest::SetUpTestCase()
+void HdfPwmTest::SetUpTestCase()
 {
     HdfTestOpenService();
 }
 
-void HdfLitePwmTest::TearDownTestCase()
+void HdfPwmTest::TearDownTestCase()
 {
     HdfTestCloseService();
 }
 
-void HdfLitePwmTest::SetUp()
+void HdfPwmTest::SetUp()
 {
 }
 
-void HdfLitePwmTest::TearDown()
+void HdfPwmTest::TearDown()
 {
 }
 
@@ -51,7 +51,7 @@ void HdfLitePwmTest::TearDown()
   * @tc.type: FUNC
   * @tc.require: AR000F868C
   */
-HWTEST_F(HdfLitePwmTest, PwmSetPeriodTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmSetPeriodTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_PERIOD_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -64,7 +64,7 @@ HWTEST_F(HdfLitePwmTest, PwmSetPeriodTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868C
   */
-HWTEST_F(HdfLitePwmTest, PwmSetDutyTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmSetDutyTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_DUTY_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -77,7 +77,7 @@ HWTEST_F(HdfLitePwmTest, PwmSetDutyTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868C
   */
-HWTEST_F(HdfLitePwmTest, PwmSetPolarityTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmSetPolarityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = { TEST_PAL_PWM_TYPE, PWM_SET_POLARITY_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -90,7 +90,7 @@ HWTEST_F(HdfLitePwmTest, PwmSetPolarityTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868D
   */
-HWTEST_F(HdfLitePwmTest, PwmSetGetConfigTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmSetGetConfigTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_GET_CONFIG_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -103,7 +103,7 @@ HWTEST_F(HdfLitePwmTest, PwmSetGetConfigTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868D
   */
-HWTEST_F(HdfLitePwmTest, PwmEnableTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmEnableTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_ENABLE_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -116,7 +116,7 @@ HWTEST_F(HdfLitePwmTest, PwmEnableTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868D
   */
-HWTEST_F(HdfLitePwmTest, PwmDisableTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmDisableTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_DISABLE_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
@@ -129,7 +129,7 @@ HWTEST_F(HdfLitePwmTest, PwmDisableTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfLitePwmTest, PwmIfPerformanceTest001, TestSize.Level1)
+HWTEST_F(HdfPwmTest, PwmIfPerformanceTest001, TestSize.Level1)
 {
     EXPECT_EQ(0, PwmTestExecute(PWM_IF_PERFORMANCE_TEST));
 }

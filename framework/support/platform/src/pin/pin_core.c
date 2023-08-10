@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -32,13 +32,14 @@ static struct DListHead *PinCntlrListGet(void)
 {
     int32_t ret;
     static struct DListHead *head = NULL;
+
     if (head == NULL) {
         head = &g_pinmanager->cntlrListHead;
         DListHeadInit(head);
     }
     ret = OsalSpinLockIrqSave(&g_pinmanager->listLock, &g_pinmanager->irqSave);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: spin lock save fail", __func__);
+        HDF_LOGE("PinCntlrListGet: spin lock save fail!");
         return NULL;
     }
     return head;
@@ -49,7 +50,7 @@ static void PinCntlrListPut(void)
     int32_t ret;
     ret = OsalSpinUnlockIrqRestore(&g_pinmanager->listLock, &g_pinmanager->irqSave);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: spin lock restore fail", __func__);
+        HDF_LOGE("PinCntlrListPut: spin lock restore fail!");
         return;
     }
 }
@@ -59,18 +60,18 @@ int32_t PinCntlrAdd(struct PinCntlr *cntlr)
     struct DListHead *head = NULL;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrAdd: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     DListHeadInit(&cntlr->node);
 
     if (cntlr->method == NULL) {
-        HDF_LOGE("%s: no method supplied!", __func__);
+        HDF_LOGE("PinCntlrAdd: no method supplied!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->pinCount >= PIN_MAX_CNT_PER_CNTLR) {
-        HDF_LOGE("%s: invalid pinCount:%u", __func__, cntlr->pinCount);
+        HDF_LOGE("PinCntlrAdd: invalid pinCount:%u!", cntlr->pinCount);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -85,7 +86,7 @@ int32_t PinCntlrAdd(struct PinCntlr *cntlr)
 void PinCntlrRemove(struct PinCntlr *cntlr)
 {
     if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrRemove: cntlr is null!");
         return;
     }
 
@@ -103,7 +104,7 @@ struct PinDesc *PinCntlrGetPinDescByName(const char *pinName)
     uint16_t num;
 
     if (pinName == NULL) {
-        HDF_LOGE("%s: pinName is NULL!", __func__);
+        HDF_LOGE("PinCntlrGetPinDescByName: pinName is null!");
         return NULL;
     }
 
@@ -116,13 +117,13 @@ struct PinDesc *PinCntlrGetPinDescByName(const char *pinName)
             }
             if (!strcmp(cntlr->pins[num].pinName, pinName)) {
                 PinCntlrListPut();
-                HDF_LOGI("%s: cntlr->pins[%d].pinName is %s!", __func__, num, cntlr->pins[num].pinName);
+                HDF_LOGI("PinCntlrGetPinDescByName: cntlr->pins[%d].pinName is %s!", num, cntlr->pins[num].pinName);
                 return &cntlr->pins[num];
             }
         }
     }
     PinCntlrListPut();
-    HDF_LOGE("%s: pinName:%s doesn't matching!", __func__, pinName);
+    HDF_LOGE("PinCntlrGetPinDescByName: pinName:%s doesn't matching!", pinName);
     return NULL;
 }
 
@@ -137,12 +138,12 @@ struct PinCntlr *PinCntlrGetByNumber(uint16_t number)
     DLIST_FOR_EACH_ENTRY_SAFE(cntlr, tmp, head, struct PinCntlr, node) {
         if (cntlr->number == number) {
             PinCntlrListPut();
-            HDF_LOGI("%s: get cntlr by number success!", __func__);
+            HDF_LOGI("PinCntlrGetByNumber: get cntlr by number success!");
             return cntlr;
         }
     }
     PinCntlrListPut();
-    HDF_LOGE("%s: get cntlr by number error!", __func__);
+    HDF_LOGE("PinCntlrGetByNumber: get cntlr by number error!");
     return NULL;
 }
 
@@ -153,19 +154,24 @@ struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc)
     struct PinCntlr *tmp = NULL;
     int32_t num;
 
+    if (desc == NULL) {
+        HDF_LOGE("PinCntlrGetByPin: desc is null!");
+        return NULL;
+    }
+
     head = PinCntlrListGet();
 
     DLIST_FOR_EACH_ENTRY_SAFE(cntlr, tmp, head, struct PinCntlr, node) {
         for (num = 0; num < cntlr->pinCount; num++) {
             if (desc == &cntlr->pins[num]) {
                 PinCntlrListPut();
-                HDF_LOGI("%s: get cntlr by desc success!", __func__);
+                HDF_LOGI("PinCntlrGetByPin: get cntlr by desc success!");
                 return cntlr;
             }
         }
     }
     PinCntlrListPut();
-    HDF_LOGE("%s: pinCtrl:%s not in any controllers!", __func__, desc->pinName);
+    HDF_LOGE("PinCntlrGetByPin: pin:%s is not in any controllers!", desc->pinName);
     return NULL;
 }
 
@@ -176,16 +182,16 @@ static int32_t GetPinIndex(struct PinCntlr *cntlr, struct PinDesc *desc)
 
     for (index = 0; index < cntlr->pinCount; index++) {
         if (cntlr->pins[index].pinName == NULL) {
-            HDF_LOGE("%s: cntlr->pin[index].pinName is NULL!", __func__);
+            HDF_LOGE("GetPinIndex: cntlr->pin[index].pinName is null!");
             break;
         }
         ret = strcmp(cntlr->pins[index].pinName, desc->pinName);
         if (ret == 0) {
-            HDF_LOGI("%s: get pin index:%hu success!", __func__, index);
+            HDF_LOGI("GetPinIndex: get pin index:%hu success!", index);
             return (int32_t)index;
         }
     }
-    HDF_LOGE("%s:  get pin index failed!", __func__);
+    HDF_LOGE("GetPinIndex: get pin index fail!");
     return HDF_ERR_INVALID_PARAM;
 }
 
@@ -200,23 +206,23 @@ int32_t PinCntlrSetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
     uint32_t index;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrSetPinPull: cntlr is null!!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->method == NULL || cntlr->method->SetPinPull == NULL) {
-        HDF_LOGE("%s: method or SetPinPull is NULL", __func__);
+        HDF_LOGE("PinCntlrSetPinPull: method or SetPinPull is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (desc == NULL) {
-        HDF_LOGE("%s: desc is NULL", __func__);
+        HDF_LOGE("PinCntlrSetPinPull: desc is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
-        HDF_LOGE("%s: get pin index fail!", __func__);
+        HDF_LOGE("PinCntlrSetPinPull: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -240,28 +246,28 @@ int32_t PinCntlrGetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
     uint32_t index;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrGetPinPull: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->method == NULL || cntlr->method->GetPinPull == NULL) {
-        HDF_LOGE("%s: method or GetPinPull is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinPull: method or GetPinPull is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (desc == NULL) {
-        HDF_LOGE("%s: desc is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinPull: desc is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (pullType == NULL) {
-        HDF_LOGE("%s: pullType is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinPull: pullType is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
-        HDF_LOGE("%s: get pin index failed!", __func__);
+        HDF_LOGE("PinCntlrGetPinPull: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -286,23 +292,23 @@ int32_t PinCntlrSetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uin
     uint32_t index;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrSetPinStrength: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->method == NULL || cntlr->method->SetPinStrength == NULL) {
-        HDF_LOGE("%s: method or SetStrength is NULL", __func__);
+        HDF_LOGE("PinCntlrSetPinStrength: method or SetStrength is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (desc == NULL) {
-        HDF_LOGE("%s: desc is NULL", __func__);
+        HDF_LOGE("PinCntlrSetPinStrength: desc is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
-        HDF_LOGE("%s: get pin index fail!", __func__);
+        HDF_LOGE("PinCntlrSetPinStrength: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -318,28 +324,28 @@ int32_t PinCntlrGetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uin
     uint32_t index;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrGetPinStrength: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->method == NULL || cntlr->method->GetPinStrength == NULL) {
-        HDF_LOGE("%s: method or GetStrength is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinStrength: method or GetStrength is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (desc == NULL) {
-        HDF_LOGE("%s: desc is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinStrength: desc is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (strength == NULL) {
-        HDF_LOGE("%s: strength is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinStrength: strength is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
-        HDF_LOGE("%s: get pin index failed!", __func__);
+        HDF_LOGE("PinCntlrGetPinStrength: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -356,28 +362,28 @@ int32_t PinCntlrSetPinFunc(struct PinCntlr *cntlr, struct PinDesc *desc, const c
     uint32_t index;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrSetPinFunc: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->method == NULL || cntlr->method->SetPinFunc == NULL) {
-        HDF_LOGE("%s: method or SetPinFunc is NULL", __func__);
+        HDF_LOGE("PinCntlrSetPinFunc: method or SetPinFunc is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (desc == NULL) {
-        HDF_LOGE("%s: desc is NULL", __func__);
+        HDF_LOGE("PinCntlrSetPinFunc: desc is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (funcName == NULL) {
+        HDF_LOGE("PinCntlrSetPinFunc: funcName is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
-        HDF_LOGE("%s: get pin index failed!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
-
-    if (funcName == NULL) {
-        HDF_LOGE("%s: invalid funcName pointer", __func__);
+        HDF_LOGE("PinCntlrSetPinFunc: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -393,23 +399,28 @@ int32_t PinCntlrGetPinFunc(struct PinCntlr *cntlr, struct PinDesc *desc, const c
     uint32_t index;
 
     if (cntlr == NULL) {
-        HDF_LOGE("%s: invalid object cntlr is NULL!", __func__);
+        HDF_LOGE("PinCntlrGetPinFunc: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (cntlr->method == NULL || cntlr->method->GetPinFunc == NULL) {
-        HDF_LOGE("%s: method or SetPinFunc is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinFunc: method or SetPinFunc is null!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (desc == NULL) {
-        HDF_LOGE("%s: desc is NULL", __func__);
+        HDF_LOGE("PinCntlrGetPinFunc: desc is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (funcName == NULL) {
+        HDF_LOGE("PinCntlrGetPinFunc: funcName is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
-        HDF_LOGE("%s: get pin index failed!", __func__);
+        HDF_LOGE("PinCntlrGetPinFunc: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -425,7 +436,7 @@ static DevHandle HandleByData(struct HdfSBuf *data)
 
     pinNameData = HdfSbufReadString(data);
     if (pinNameData == NULL) {
-        HDF_LOGE("%s: pinNameData is null", __func__);
+        HDF_LOGE("HandleByData: pinNameData is null!");
         return NULL;
     }
 
@@ -439,19 +450,19 @@ static int32_t PinIoGet(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     (void)reply;
     if (data == NULL) {
-        HDF_LOGE("%s: data is NULL", __func__);
+        HDF_LOGE("PinIoGet: data is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     pinNameData = HdfSbufReadString(data);
     if (pinNameData == NULL) {
-        HDF_LOGE("%s: pinNameData is null", __func__);
+        HDF_LOGE("PinIoGet: pinNameData is null!");
         return HDF_ERR_IO;
     }
 
     handle = PinGet(pinNameData);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoGet: get handle fail!");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -463,13 +474,13 @@ static int32_t PinIoPut(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     (void)reply;
     if (data == NULL) {
-        HDF_LOGE("%s: data is NULL", __func__);
+        HDF_LOGE("PinIoPut: data is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoPut: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     PinPut(handle);
@@ -484,23 +495,23 @@ static int32_t PinIoSetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     (void)reply;
     if (data == NULL) {
-        HDF_LOGE("%s: data is NULL", __func__);
+        HDF_LOGE("PinIoSetPull: data is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoSetPull: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (!HdfSbufReadUint32(data, &pullType)) {
-        HDF_LOGE("%s: read pin pulltype fail", __func__);
+        HDF_LOGE("PinIoSetPull: read pin pulltype fail!");
         return HDF_ERR_IO;
     }
 
     ret = PinSetPull(handle, pullType);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: pin set pull fail:%d", __func__, ret);
+        HDF_LOGE("PinIoSetPull: pin set pull fail, ret: %d!", ret);
         return ret;
     }
     return ret;
@@ -513,23 +524,23 @@ static int32_t PinIoGetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
     DevHandle handle = NULL;
 
     if (data == NULL || reply == NULL) {
-        HDF_LOGE("%s: data or reply is NULL", __func__);
+        HDF_LOGE("PinIoGetPull: data or reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoGetPull: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     ret = PinGetPull(handle, &pullType);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: pin get pull fail:%d", __func__, ret);
+        HDF_LOGE("PinIoGetPull: pin get pull fail, ret: %d!", ret);
         return ret;
     }
 
     if (!HdfSbufWriteUint32(reply, pullType)) {
-        HDF_LOGE("%s: write pin pulltype fail", __func__);
+        HDF_LOGE("PinIoGetPull: write pin pulltype fail!");
         return HDF_ERR_IO;
     }
     return ret;
@@ -543,24 +554,24 @@ static int32_t PinIoSetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     (void)reply;
     if (data == NULL) {
-        HDF_LOGE("%s: data is NULL", __func__);
+        HDF_LOGE("PinIoSetStrength: data is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoSetStrength: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (!HdfSbufReadUint32(data, &strength)) {
-        HDF_LOGE("%s: read pin strength fail", __func__);
+        HDF_LOGE("PinIoSetStrength: read pin strength fail!");
         return HDF_ERR_IO;
     }
 
     ret = PinSetStrength(handle, strength);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: pin set strength fail:%d", __func__, ret);
+        HDF_LOGE("PinIoSetStrength: pin set strength fail, ret: %d!", ret);
         return ret;
     }
     return ret;
@@ -573,23 +584,23 @@ static int32_t PinIoGetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
     DevHandle handle = NULL;
 
     if (data == NULL || reply == NULL) {
-        HDF_LOGE("%s: data or reply is NULL", __func__);
+        HDF_LOGE("PinIoGetStrength: data or reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoGetStrength: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     ret = PinGetStrength(handle, &strength);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: pin get strength fail:%d", __func__, ret);
+        HDF_LOGE("PinIoGetStrength: pin get strength fail, ret: %d!", ret);
         return ret;
     }
 
     if (!HdfSbufWriteUint32(reply, strength)) {
-        HDF_LOGE("%s: write pin strength fail", __func__);
+        HDF_LOGE("PinIoGetStrength: write pin strength fail!");
         return HDF_ERR_IO;
     }
     return ret;
@@ -603,25 +614,25 @@ static int32_t PinIoSetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     (void)reply;
     if (data == NULL) {
-        HDF_LOGE("%s: data is NULL", __func__);
+        HDF_LOGE("PinIoSetFunc: data is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoSetFunc: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     funcNameData = HdfSbufReadString(data);
     if (funcNameData == NULL) {
-        HDF_LOGE("%s: funcnamedata is null", __func__);
+        HDF_LOGE("PinIoSetFunc: funcnamedata is null!");
         return HDF_ERR_IO;
     }
 
     ret = PinSetFunc(handle, funcNameData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: pin set func fail:%d", __func__, ret);
+        HDF_LOGE("PinIoSetFunc: pin set func fail, ret: %d!", ret);
         return ret;
     }
     return ret;
@@ -634,23 +645,23 @@ static int32_t PinIoGetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
     char *funcName = NULL;
 
     if (data == NULL || reply == NULL) {
-        HDF_LOGE("%s: data or reply is NULL", __func__);
+        HDF_LOGE("PinIoGetFunc: data or reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     handle = HandleByData(data);
     if (handle == NULL) {
-        HDF_LOGE("%s: get handle fail", __func__);
+        HDF_LOGE("PinIoGetFunc: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
     ret = PinGetFunc(handle, (const char **)&funcName);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: pin get func fail:%d", __func__, ret);
+        HDF_LOGE("PinIoGetFunc: pin get func fail, ret: %d!", ret);
         return ret;
     }
 
     if (!HdfSbufWriteString(reply, funcName)) {
-        HDF_LOGE("%s: write pin funcName fail", __func__);
+        HDF_LOGE("PinIoGetFunc: write pin funcName fail!");
         return HDF_ERR_IO;
     }
     return ret;
@@ -680,6 +691,7 @@ int32_t PinIoManagerDispatch(struct HdfDeviceIoClient *client, int cmd, struct H
             return PinIoGetFunc(data, reply);
         default:
             ret = HDF_ERR_NOT_SUPPORT;
+            HDF_LOGE("PinIoManagerDispatch: cmd %d is not support!", cmd);
             break;
     }
     return ret;
@@ -690,13 +702,13 @@ static int32_t pinManagerBind(struct HdfDeviceObject *device)
     struct PinManager *manager = NULL;
 
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("pinManagerBind: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     manager = (struct PinManager *)OsalMemCalloc(sizeof(*manager));
     if (manager == NULL) {
-        HDF_LOGE("%s: malloc manager fail!", __func__);
+        HDF_LOGE("pinManagerBind: malloc manager fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -704,7 +716,7 @@ static int32_t pinManagerBind(struct HdfDeviceObject *device)
     device->service = &manager->service;
     device->service->Dispatch = PinIoManagerDispatch;
     g_pinmanager = manager;
-    HDF_LOGI("%s: pin manager bind success", __func__);
+    HDF_LOGI("pinManagerBind: pin manager bind success!");
     return HDF_SUCCESS;
 }
 
@@ -719,14 +731,14 @@ static void pinManagerRelease(struct HdfDeviceObject *device)
 {
     struct PinManager *manager = NULL;
 
-    HDF_LOGI("pinManagerRelease: enter");
+    HDF_LOGI("pinManagerRelease: enter!");
     if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
+        HDF_LOGE("pinManagerRelease: device is null!");
         return;
     }
     manager = (struct PinManager *)device->service;
     if (manager == NULL) {
-        HDF_LOGE("%s: no manager binded", __func__);
+        HDF_LOGE("pinManagerRelease: no manager binded!");
         return;
     }
     OsalMemFree(manager);

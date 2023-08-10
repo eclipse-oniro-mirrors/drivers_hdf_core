@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,7 +30,9 @@ bool JavaClientInterfaceCodeEmitter::ResolveDirectory(const std::string &targetD
 
 void JavaClientInterfaceCodeEmitter::EmitCode()
 {
-    EmitInterfaceFile();
+    if (mode_ == GenMode::IPC) {
+        EmitInterfaceFile();
+    }
 }
 
 void JavaClientInterfaceCodeEmitter::EmitInterfaceFile()
@@ -111,14 +113,11 @@ void JavaClientInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
     sb.Append("}");
 }
 
-void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix)
+void JavaClientInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitInterfaceMethod(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 }
 

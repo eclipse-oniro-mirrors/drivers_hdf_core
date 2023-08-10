@@ -277,6 +277,15 @@ int32_t RtcReadReg(DevHandle handle, uint8_t usrDefIndex, uint8_t *value);
  */
 int32_t RtcWriteReg(DevHandle handle, uint8_t usrDefIndex, uint8_t value);
 
+/**
+ * @brief The following rtc interfaces are only available for the mini platform
+ *
+ * @since 1.0
+ */
+int32_t RtcSetTimeZone(int32_t timeZone);
+
+int32_t RtcGetTimeZone(int32_t *timeZone);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

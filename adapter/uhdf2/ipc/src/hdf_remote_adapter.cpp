@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,8 +15,10 @@
 
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
+#include <regex>
 #include <string_ex.h>
 #include <unistd.h>
+#include <vector>
 
 #include "hdf_dump.h"
 #include "hdf_log.h"
@@ -348,6 +350,29 @@ bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struc
     return parcel->WriteInterfaceToken(holder->descriptor_);
 }
 
+static bool CheckInterfaceTokenIngoreVersion(const std::string &client, const std::string &stub)
+{
+    std::vector<std::string> clientVec;
+    OHOS::SplitStr(client, ".", clientVec);
+    std::vector<std::string> stubVec;
+    OHOS::SplitStr(stub, ".", stubVec);
+    if (clientVec.size() != stubVec.size()) {
+        HDF_LOGE("%{public}s: client desc and stub desc have different size", __func__);
+        return false;
+    }
+    std::regex rVer("[V|v][0-9]+_[0-9]+");
+    for (size_t i = 0; i < stubVec.size(); i++) {
+        if (std::regex_match(stubVec[i], rVer)) {
+            continue;
+        }
+        if (clientVec[i] != stubVec[i]) {
+            HDF_LOGE("%{public}s: mismatch between client desc and stub desc", __func__);
+            return false;
+        }
+    }
+    return true;
+}
+
 bool HdfRemoteAdapterCheckInterfaceToken(struct HdfRemoteService *service, struct HdfSBuf *data)
 {
     if (service == nullptr || data == nullptr) {
@@ -367,11 +392,12 @@ bool HdfRemoteAdapterCheckInterfaceToken(struct HdfRemoteService *service, struc
         HDF_LOGE("failed to check interface, empty token");
         return false;
     }
-    if (holder->descriptor_ != desc) {
-        HDF_LOGE("calling unknown interface: %{public}s", OHOS::Str16ToStr8(desc).c_str());
+    std::string client = OHOS::Str16ToStr8(desc);
+    std::string stub = OHOS::Str16ToStr8(holder->descriptor_);
+    if (!CheckInterfaceTokenIngoreVersion(client, stub)) {
+        HDF_LOGE("calling unknown interface: %{public}s", client.c_str());
         return false;
     }
-
     return true;
 }
 
@@ -383,4 +409,41 @@ pid_t HdfRemoteGetCallingPid(void)
 pid_t HdfRemoteGetCallingUid(void)
 {
     return OHOS::IPCSkeleton::GetCallingUid();
+}
+
+int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
+    int code, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+    if (holder == nullptr) {
+        HDF_LOGE("%{public}s: failed to converts remote to holder", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (holder->remote_ == nullptr) {
+        HDF_LOGE("%{public}s: invaild holder, holder->remote is nullptr", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(holder->remote_.GetRefPtr());
+    if (stub == nullptr) {
+        HDF_LOGE("%{public}s: failed to converts holder->remote to IPCObjectStub object", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    OHOS::MessageParcel *dataParcel = nullptr;
+    OHOS::MessageParcel *replyParcel = nullptr;
+    OHOS::MessageOption option;
+
+    if (SbufToParcel(data, &dataParcel) != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s:invalid data sbuf object to dispatch", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (SbufToParcel(data, &replyParcel) != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s:invalid reply sbuf object to dispatch", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    return stub->IPCObjectStub::OnRemoteRequest(code, *dataParcel, *replyParcel, option);
 }

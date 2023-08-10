@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -136,7 +136,8 @@ static FlowControlQueueID IpProcessFunc(const void *buff, uint32_t len)
 
 static void FlowControlQueueInit(struct FlowControlModule *fcm)
 {
-    int32_t i, j;
+    int32_t i;
+    int32_t j;
     if (fcm == NULL) {
         HDF_LOGE("%s fail: fcm = null!", __func__);
         return;
@@ -151,7 +152,8 @@ static void FlowControlQueueInit(struct FlowControlModule *fcm)
 
 static void FlowControlQueueDeinit(struct FlowControlModule *fcm)
 {
-    int32_t i, j;
+    int32_t i;
+    int32_t j;
     if (fcm == NULL) {
         HDF_LOGE("%s fcm already free!", __func__);
         return;

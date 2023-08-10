@@ -19,7 +19,7 @@
 
 using namespace testing::ext;
 
-class HdfLiteGpioTest : public testing::Test {
+class HdfGpioTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -27,21 +27,21 @@ public:
     void TearDown();
 };
 
-void HdfLiteGpioTest::SetUpTestCase()
+void HdfGpioTest::SetUpTestCase()
 {
     HdfTestOpenService();
 }
 
-void HdfLiteGpioTest::TearDownTestCase()
+void HdfGpioTest::TearDownTestCase()
 {
     HdfTestCloseService();
 }
 
-void HdfLiteGpioTest::SetUp()
+void HdfGpioTest::SetUp()
 {
 }
 
-void HdfLiteGpioTest::TearDown()
+void HdfGpioTest::TearDown()
 {
 }
 
@@ -51,14 +51,11 @@ void HdfLiteGpioTest::TearDown()
   * @tc.type: FUNC
   * @tc.require: AR000F868H
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestSetGetDir001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestSetGetDir001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_SET_GET_DIR, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_SET_GET_DIR));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -67,14 +64,11 @@ HWTEST_F(HdfLiteGpioTest, GpioTestSetGetDir001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868H
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestWriteRead001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestWriteRead001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_WRITE_READ, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_WRITE_READ));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -83,14 +77,11 @@ HWTEST_F(HdfLiteGpioTest, GpioTestWriteRead001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868H
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestIrqLevel001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestIrqLevel001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_IRQ_LEVEL, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_IRQ_LEVEL));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -99,14 +90,11 @@ HWTEST_F(HdfLiteGpioTest, GpioTestIrqLevel001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868H
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestIrqEdge001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestIrqEdge001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_IRQ_EDGE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_IRQ_EDGE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -115,14 +103,11 @@ HWTEST_F(HdfLiteGpioTest, GpioTestIrqEdge001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868H
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestIrqThread001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestIrqThread001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_IRQ_THREAD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_IRQ_THREAD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -131,14 +116,11 @@ HWTEST_F(HdfLiteGpioTest, GpioTestIrqThread001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestGetNumByName001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestGetNumByName001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_GET_NUM_BY_NAME, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_GET_NUM_BY_NAME));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -147,14 +129,11 @@ HWTEST_F(HdfLiteGpioTest, GpioTestGetNumByName001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F868H
   */
-HWTEST_F(HdfLiteGpioTest, GpioTestReliability001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioTestReliability001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_RELIABILITY));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -163,7 +142,7 @@ HWTEST_F(HdfLiteGpioTest, GpioTestReliability001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfLiteGpioTest, GpioIfPerformanceTest001, TestSize.Level1)
+HWTEST_F(HdfGpioTest, GpioIfPerformanceTest001, TestSize.Level1)
 {
     EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_PERFORMANCE));
 }

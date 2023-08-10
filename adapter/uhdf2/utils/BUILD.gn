@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,7 +12,11 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../uhdf.gni")
+
+interfaces_folder_path = "./../../../interfaces"
+hdf_framework_path = "./../../../framework"
+hdf_uhdf_path = "./.."
 
 group("uhdf_utils_pkg") {
   deps = [ ":libhdf_utils" ]
@@ -22,7 +26,17 @@ if (defined(ohos_lite)) {
     visibility = [ ":*" ]
 
     include_dirs = [
-      "//commonlibrary/c_utils/base/include",
+      "$interfaces_folder_path/inner_api/osal/shared",
+      "$interfaces_folder_path/inner_api/osal/uhdf",
+      "$interfaces_folder_path/inner_api/utils",
+      "$interfaces_folder_path/inner_api/core",
+    ]
+  }
+
+  ohos_shared_library("libhdf_utils") {
+    output_extension = "z.so"
+    public_configs = [ ":libhdf_utils_pub_config" ]
+    include_dirs = [
       "$hdf_framework_path/include",
       "$hdf_framework_path/include/core",
       "$hdf_framework_path/include/osal",
@@ -37,11 +51,6 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/utils/include",
       "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
     ]
-  }
-
-  ohos_shared_library("libhdf_utils") {
-    output_extension = "z.so"
-    public_configs = [ ":libhdf_utils_pub_config" ]
     sources = [
       "$hdf_framework_path/core/adapter/syscall/src/hdf_devmgr_adapter.c",
       "$hdf_framework_path/core/adapter/syscall/src/hdf_syscall_adapter.c",
@@ -73,17 +82,33 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/utils/src/hcs_parser/hcs_dm_parser.c",
     ]
 
-    deps = [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
+    public_deps =
+        [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
 
     subsystem_name = "hdf"
     part_name = "hdf_core"
   }
 } else {
-  config("libhdf_utils_all_dependent_config") {
+  config("libhdf_utils_public_config") {
     visibility = [ ":*" ]
 
     include_dirs = [
-      "//commonlibrary/c_utils/base/include",
+      "$interfaces_folder_path/inner_api/osal/shared",
+      "$interfaces_folder_path/inner_api/osal/uhdf",
+      "$interfaces_folder_path/inner_api/utils",
+      "$interfaces_folder_path/inner_api/core",
+      "$interfaces_folder_path/inner_api/ipc",
+      "$interfaces_folder_path/inner_api/hdi",
+    ]
+    defines = [ "__OHOS_USER__" ]
+
+    if (is_standard_system) {
+      defines += [ "__OHOS_STANDARD_SYS__" ]
+    }
+  }
+
+  ohos_shared_library("libhdf_utils") {
+    include_dirs = [
       "$hdf_framework_path/include",
       "$hdf_framework_path/include/core",
       "$hdf_framework_path/include/osal",
@@ -96,15 +121,7 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/osal/include",
       "$hdf_uhdf_path/utils/include",
     ]
-    defines = [ "__OHOS_USER__" ]
-
-    if (is_standard_system) {
-      defines += [ "__OHOS_STANDARD_SYS__" ]
-    }
-  }
-
-  ohos_shared_library("libhdf_utils") {
-    all_dependent_configs = [ ":libhdf_utils_all_dependent_config" ]
+    public_configs = [ ":libhdf_utils_public_config" ]
     sources = [
       "$hdf_framework_path/core/adapter/syscall/src/hdf_devmgr_adapter.c",
       "$hdf_framework_path/core/adapter/syscall/src/hdf_syscall_adapter.c",
@@ -143,18 +160,18 @@ if (defined(ohos_lite)) {
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
       ]
     } else {
       external_deps = [ "hilog:libhilog" ]
     }
 
+    innerapi_tags = [ "chipsetsdk" ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
     install_images = [
-      system_base_dir,
+      "system",
       "updater",
     ]
-    relative_install_dir = "chipset-pub-sdk"
   }
 }

@@ -9,11 +9,11 @@
 #ifndef CAMERA_QUEUE_H
 #define CAMERA_QUEUE_H
 
-#include <osal/osal_atomic.h>
-#include <osal/osal_spinlock.h>
-#include <osal/osal_mutex.h>
+#include <hdf_dlist.h>
+#include <osal_atomic.h>
+#include <osal_mutex.h>
+#include <osal_spinlock.h>
 #include <camera/camera_product.h>
-#include "hdf_dlist.h"
 #include "camera_buffer.h"
 
 #define MAX_FRAME   32  /* max buffer count per queue */

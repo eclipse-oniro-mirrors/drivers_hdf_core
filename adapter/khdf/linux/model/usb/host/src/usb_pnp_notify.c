@@ -3,7 +3,7 @@
  *
  * usb pnp notify adapter of linux
  *
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -236,7 +236,8 @@ static void UsbPnpNotifyAddInterfaceInitInfo(struct UsbPnpDeviceInfo *deviceInfo
         infoTable->interfaceInfo[0].interfaceProtocol = infoData.infoData->interfaceProtocol;
         infoTable->interfaceInfo[0].interfaceNumber = infoData.infoData->interfaceNumber;
     } else {
-        uint8_t i, j;
+        uint8_t i;
+        uint8_t j;
         for (i = 0, j = 0; i < deviceInfo->info.numInfos; i++) {
             if (deviceInfo->interfaceRemoveStatus[i] == true) {
                 HDF_LOGI("%s:%d j=%hhu deviceInfo->interfaceRemoveStatus[%hhu] is true!", __func__, __LINE__, j, i);
@@ -480,7 +481,7 @@ static int32_t TestPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObj
     struct HdfSBuf *data = NULL;
 
     if ((deviceObject == NULL) || (g_testUsbPnpInfo == NULL)) {
-        HDF_LOGE("%s deviceObject=%px or g_testUsbPnpInfo=%px is NULL", __func__, deviceObject, g_testUsbPnpInfo);
+        HDF_LOGE("%s deviceObject or g_testUsbPnpInfo is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -751,9 +752,9 @@ static void UsbPnpNotifyReadPnpInfo(struct HdfSBuf *data)
         OsalMutexUnlock(&deviceInfo->lock);
     }
 
-    HDF_LOGI("%s:%d infoSize=%d g_usbPnpInfo=%px-%d-%d-%d-%d-%d-%d read success!", __func__, __LINE__, infoSize,
-        &g_usbPnpInfo, g_usbPnpInfo.devNum, g_usbPnpInfo.busNum, g_usbPnpInfo.interfaceNumber,
-        g_usbPnpInfo.interfaceClass, g_usbPnpInfo.interfaceSubClass, g_usbPnpInfo.interfaceProtocol);
+    HDF_LOGI("%s:%d infoSize=%d g_usbPnpInfo=%d-%d-%d-%d-%d-%d read success!", __func__, __LINE__, infoSize,
+        g_usbPnpInfo.devNum, g_usbPnpInfo.busNum, g_usbPnpInfo.interfaceNumber, g_usbPnpInfo.interfaceClass,
+        g_usbPnpInfo.interfaceSubClass, g_usbPnpInfo.interfaceProtocol);
 }
 
 static int32_t UsbPnpGetDevices(struct HdfSBuf *reply)

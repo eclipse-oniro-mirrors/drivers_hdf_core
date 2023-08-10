@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -25,6 +25,7 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"FileDescriptor", TokenType::FD           },
     {"Ashmem",         TokenType::ASHMEM       },
     {"NativeBuffer",   TokenType::NATIVE_BUFFER},
+    {"Pointer",        TokenType::POINTER      },
     {"List",           TokenType::LIST         },
     {"Map",            TokenType::MAP          },
     {"SharedMemQueue", TokenType::SMQ          },
@@ -42,6 +43,7 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"callback",       TokenType::CALLBACK     },
     {"full",           TokenType::FULL         },
     {"lite",           TokenType::LITE         },
+    {"mini",           TokenType::MINI         },
     {"in",             TokenType::IN           },
     {"out",            TokenType::OUT          },
 };
@@ -85,6 +87,7 @@ bool Lexer::Reset(const std::string &filePath)
     }
 
     havePeek_ = false;
+    InitCurToken(curToken_);
     return true;
 }
 
@@ -150,7 +153,7 @@ void Lexer::Skip(char untilChar)
 
 void Lexer::SkipToken(TokenType tokenType)
 {
-    while (curToken_.kind_ != tokenType) {
+    while (curToken_.kind != tokenType) {
         GetToken(false);
     }
 }
@@ -158,7 +161,7 @@ void Lexer::SkipToken(TokenType tokenType)
 void Lexer::SkipUntilToken(TokenType tokenType)
 {
     Token token = PeekToken();
-    while (token.kind_ != tokenType) {
+    while (token.kind != tokenType) {
         GetToken(false);
         token = PeekToken();
     }
@@ -181,8 +184,8 @@ void Lexer::ReadToken(Token &token, bool skipComment)
             file_->GetChar();
             continue;
         }
-        token.location_.row_ = file_->GetCharLineNumber();
-        token.location_.col_ = file_->GetCharColumnNumber();
+        token.location.row = file_->GetCharLineNumber();
+        token.location.col = file_->GetCharColumnNumber();
         if (isalpha(c) || c == '_') {
             ReadId(token);
             return;
@@ -203,7 +206,7 @@ void Lexer::ReadToken(Token &token, bool skipComment)
             return;
         } else if (c == '/') {
             ReadComment(token);
-            if ((token.kind_ == TokenType::COMMENT_BLOCK || token.kind_ == TokenType::COMMENT_LINE) && skipComment) {
+            if ((token.kind == TokenType::COMMENT_BLOCK || token.kind == TokenType::COMMENT_LINE) && skipComment) {
                 InitCurToken(token);
                 continue;
             }
@@ -212,17 +215,17 @@ void Lexer::ReadToken(Token &token, bool skipComment)
         ReadSymbolToken(token);
         return;
     }
-    token.kind_ = TokenType::END_OF_FILE;
-    token.value_ = "";
+    token.kind = TokenType::END_OF_FILE;
+    token.value = "";
 }
 
 void Lexer::InitCurToken(Token &token)
 {
-    token.kind_ = TokenType::UNKNOWN;
-    token.location_.filePath_ = file_->GetPath();
-    token.location_.row_ = 0;
-    token.location_.col_ = 0;
-    token.value_ = "";
+    token.kind = TokenType::UNKNOWN;
+    token.location.filePath = file_->GetPath();
+    token.location.row = 1;
+    token.location.col = 1;
+    token.value = "";
 }
 
 void Lexer::ReadId(Token &token)
@@ -245,36 +248,32 @@ void Lexer::ReadId(Token &token)
 
     std::string key = sb.ToString();
     auto it = keyWords_.find(key);
-    token.kind_ = (it == keyWords_.end()) ? TokenType::ID : it->second;
-    token.value_ = sb.ToString();
+    token.kind = (it != keyWords_.end()) ? it->second : TokenType::ID;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadNum(Token &token)
 {
     char c = file_->PeekChar();
-    switch (c) {
-        case '0': {
-            file_->GetChar();
-            c = file_->PeekChar();
-            if (c == 'b' || c == 'B') {
-                // binary number
-                ReadBinaryNum(token);
-            } else if (isdigit(c)) {
-                // octal number
-                return ReadOctNum(token);
-            } else if (c == 'X' || c == 'x') {
-                // hexadecimal number
-                return ReadHexNum(token);
-            } else {
-                // decimal number 0
-                token.kind_ = TokenType::NUM;
-                token.value_ = "0";
-            }
-            break;
+    if (c == '0') {
+        file_->GetChar();
+        c = file_->PeekChar();
+        if (c == 'b' || c == 'B') {
+            // binary number
+            ReadBinaryNum(token);
+        } else if (isdigit(c)) {
+            // octal number
+            return ReadOctNum(token);
+        } else if (c == 'X' || c == 'x') {
+            // hexadecimal number
+            return ReadHexNum(token);
+        } else {
+            // decimal number 0
+            token.kind = TokenType::NUM;
+            token.value = "0";
         }
-        default:
-            ReadDecNum(token);
-            break;
+    } else {
+        ReadDecNum(token);
     }
     ReadNumSuffix(token);
 }
@@ -297,8 +296,8 @@ void Lexer::ReadBinaryNum(Token &token)
         }
     }
 
-    token.kind_ = err ? TokenType::UNKNOWN : TokenType::NUM;
-    token.value_ = sb.ToString();
+    token.kind = err ? TokenType::UNKNOWN : TokenType::NUM;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadOctNum(Token &token)
@@ -320,8 +319,8 @@ void Lexer::ReadOctNum(Token &token)
         file_->GetChar();
     }
 
-    token.kind_ = err ? TokenType::UNKNOWN : TokenType::NUM;
-    token.value_ = sb.ToString();
+    token.kind = err ? TokenType::UNKNOWN : TokenType::NUM;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadHexNum(Token &token)
@@ -342,8 +341,8 @@ void Lexer::ReadHexNum(Token &token)
         }
     }
 
-    token.kind_ = err ? TokenType::UNKNOWN : TokenType::NUM;
-    token.value_ = sb.ToString();
+    token.kind = err ? TokenType::UNKNOWN : TokenType::NUM;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadDecNum(Token &token)
@@ -362,8 +361,8 @@ void Lexer::ReadDecNum(Token &token)
         file_->GetChar();
     }
 
-    token.kind_ = TokenType::NUM;
-    token.value_ = sb.ToString();
+    token.kind = TokenType::NUM;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadNumSuffix(Token &token)
@@ -371,7 +370,7 @@ void Lexer::ReadNumSuffix(Token &token)
     while (!file_->IsEof()) {
         char c = file_->PeekChar();
         if (isalpha(c) || isdigit(c) || c == '_' || c == '.') {
-            token.value_ += c;
+            token.value += c;
             file_->GetChar();
         } else {
             break;
@@ -385,15 +384,15 @@ void Lexer::ReadShiftLeftOp(Token &token)
     char next = file_->PeekChar();
     if (next == '<') {
         file_->GetChar();
-        token.kind_ = TokenType::LEFT_SHIFT;
-        token.value_ = "<<";
+        token.kind = TokenType::LEFT_SHIFT;
+        token.value = "<<";
         return;
     }
 
     std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
-    token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
-    token.value_ = symbol;
+    token.kind = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
+    token.value = symbol;
 }
 
 void Lexer::ReadShiftRightOp(Token &token)
@@ -402,15 +401,15 @@ void Lexer::ReadShiftRightOp(Token &token)
     char next = file_->PeekChar();
     if (next == '>' && mode_ == ParseMode::EXPR_MODE) {
         file_->GetChar();
-        token.kind_ = TokenType::RIGHT_SHIFT;
-        token.value_ = ">>";
+        token.kind = TokenType::RIGHT_SHIFT;
+        token.value = ">>";
         return;
     }
 
     std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
-    token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
-    token.value_ = symbol;
+    token.kind = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
+    token.value = symbol;
 }
 
 void Lexer::ReadPPlusOp(Token &token)
@@ -419,15 +418,15 @@ void Lexer::ReadPPlusOp(Token &token)
     char next = file_->PeekChar();
     if (next == '+') {
         file_->GetChar();
-        token.kind_ = TokenType::PPLUS;
-        token.value_ = "++";
+        token.kind = TokenType::PPLUS;
+        token.value = "++";
         return;
     }
 
     std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
-    token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
-    token.value_ = symbol;
+    token.kind = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
+    token.value = symbol;
 }
 
 void Lexer::ReadMMinusOp(Token &token)
@@ -436,15 +435,15 @@ void Lexer::ReadMMinusOp(Token &token)
     char next = file_->PeekChar();
     if (next == '-') {
         file_->GetChar();
-        token.kind_ = TokenType::MMINUS;
-        token.value_ = "--";
+        token.kind = TokenType::MMINUS;
+        token.value = "--";
         return;
     }
 
     std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
-    token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
-    token.value_ = symbol;
+    token.kind = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
+    token.value = symbol;
 }
 
 void Lexer::ReadComment(Token &token)
@@ -461,8 +460,8 @@ void Lexer::ReadComment(Token &token)
 
     std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
-    token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
-    token.value_ = symbol;
+    token.kind = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
+    token.value = symbol;
 }
 
 void Lexer::ReadLineComment(Token &token)
@@ -479,8 +478,8 @@ void Lexer::ReadLineComment(Token &token)
         sb.Append(c);
     }
 
-    token.kind_ = TokenType::COMMENT_LINE;
-    token.value_ = sb.ToString();
+    token.kind = TokenType::COMMENT_LINE;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadBlockComment(Token &token)
@@ -500,8 +499,8 @@ void Lexer::ReadBlockComment(Token &token)
         }
     }
 
-    token.kind_ = TokenType::COMMENT_BLOCK;
-    token.value_ = sb.ToString();
+    token.kind = TokenType::COMMENT_BLOCK;
+    token.value = sb.ToString();
 }
 
 void Lexer::ReadSymbolToken(Token &token)
@@ -509,8 +508,8 @@ void Lexer::ReadSymbolToken(Token &token)
     char c = file_->GetChar();
     std::string symbol = StringHelper::Format("%c", c);
     auto iter = symbols_.find(symbol);
-    token.kind_ = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
-    token.value_ = symbol;
+    token.kind = (iter != symbols_.end()) ? iter->second : TokenType::UNKNOWN;
+    token.value = symbol;
 }
 } // namespace HDI
 } // namespace OHOS

@@ -917,6 +917,11 @@ static int32_t AudioPcmPending(struct AudioCard *card, enum AudioStreamType stre
         return HDF_FAILURE;
     }
 
+    if (AudioSampPowerUp(card) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("PowerUp fail.");
+        return HDF_FAILURE;
+    }
+
     if (AudioSampSetPowerMonitor(card, false) != HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -1244,6 +1249,7 @@ int32_t AudioRenderPrepare(const struct AudioCard *card)
     platformData->renderBufInfo.pointer = 0;
     platformData->renderPcmInfo.totalStreamSize = 0;
     platformData->renderBufInfo.rbufOffSet = 0;
+    platformData->renderBufInfo.trafCompCount = 0;
 
     ret = AudioDmaPrep(platformData, AUDIO_RENDER_STREAM);
     if (ret) {
@@ -1282,6 +1288,7 @@ int32_t AudioCapturePrepare(const struct AudioCard *card)
     platformData->captureBufInfo.pointer = 0;
     platformData->capturePcmInfo.totalStreamSize = 0;
     platformData->captureBufInfo.wbufOffSet = 0;
+    platformData->captureBufInfo.trafCompCount = 0;
 
     ret = AudioDmaPrep(platformData, AUDIO_CAPTURE_STREAM);
     if (ret) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,12 +18,12 @@ int32_t HdfSdioUnitTestEntry(HdfTestMsg *msg)
     struct SdioTester *tester = NULL;
 
     if (msg == NULL) {
-        HDF_LOGE("HdfSdioUnitTestEntry: msg is NULL");
+        HDF_LOGE("HdfSdioUnitTestEntry: msg is null!");
         return HDF_FAILURE;
     }
     tester = GetSdioTest();
     if (tester == NULL || tester->TestEntry == NULL) {
-        HDF_LOGE("HdfSdioUnitTestEntry: tester/TestEntry is NULL");
+        HDF_LOGE("HdfSdioUnitTestEntry: tester or TestEntry is null!");
         msg->result = HDF_FAILURE;
         return HDF_FAILURE;
     }

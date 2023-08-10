@@ -25,10 +25,10 @@ void JavaCodeEmitter::EmitPackage(StringBuilder &sb)
 
 void JavaCodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix)
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    auto methods = interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel());
+    for (size_t i = 0; i < methods.size(); i++) {
         sb.Append(prefix).AppendFormat("private static final int COMMAND_%s = IRemoteObject.MIN_TRANSACTION_ID + %d;\n",
-            ConstantName(method->GetName()).c_str(), i);
+            ConstantName(methods[i]->GetName()).c_str(), i);
     }
 }
 

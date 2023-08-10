@@ -169,16 +169,37 @@ static int32_t PlatformDeviceTestCreateService(struct PlatformDevice *device)
     return HDF_SUCCESS;
 }
 
+static int32_t PlatformDeviceTestBindDeviceBefore(struct PlatformDevice *device)
+{
+    int32_t ret;
+
+    PLAT_LOGD("%s: enter", __func__);
+    ret = PlatformDeviceCreateService(device, TestDispatch);
+    CHECK_EQ_RETURN(ret, HDF_SUCCESS, ret);
+
+    CHECK_NE_RETURN(device->service, NULL, HDF_FAILURE);
+    CHECK_EQ_RETURN(device->service->Dispatch, TestDispatch, HDF_FAILURE);
+
+    return HDF_SUCCESS;
+}
+
+static int32_t PlatformDeviceTestBindDeviceAfter(struct PlatformDevice *device)
+{
+    PLAT_LOGD("%s: enter", __func__);
+    PlatformDeviceDestroyService(device);
+    CHECK_EQ_RETURN(device->service, NULL, HDF_FAILURE);
+
+    return HDF_SUCCESS;
+}
+
 static int32_t PlatformDeviceTestBindDevice(struct PlatformDevice *device)
 {
     int32_t ret;
     struct HdfDeviceObject hdfDev;
-    struct IDeviceIoService service;
     struct PlatformDevice *devFromHdf = NULL;
 
     PLAT_LOGD("%s: enter", __func__);
     device->name = "platform_device_test_bind";
-    device->service = &service;
     ret = PlatformDeviceBind(device, &hdfDev);
     CHECK_EQ_RETURN(ret, HDF_SUCCESS, ret);
     CHECK_EQ_RETURN(device->hdfDev, &hdfDev, HDF_FAILURE);
@@ -254,16 +275,15 @@ static int32_t PlatformDeviceTestReliability(struct PlatformDevice *device)
 struct PlatformDeviceTestEntry {
     int cmd;
     int32_t (*func)(struct PlatformDevice *device);
-    const char *name;
 };
 
 static struct PlatformDeviceTestEntry g_entry[] = {
-    { PLAT_DEVICE_TEST_SET_NAME, PlatformDeviceTestSetName, "PlatformDeviceTestReliability" },
-    { PLAT_DEVICE_TEST_GET_DEVICE, PlatformDeviceTestGetDevice, "PlatformDeviceTestGetDevice" },
-    { PLAT_DEVICE_TEST_ADD_DEVICE, PlatformDeviceTestAddDevice, "PlatformDeviceTestAddDevice" },
-    { PLAT_DEVICE_TEST_CREATE_SERVICE, PlatformDeviceTestCreateService, "PlatformDeviceTestCreateService" },
-    { PLAT_DEVICE_TEST_BIND_DEVICE, PlatformDeviceTestBindDevice, "PlatformDeviceTestBindDevice" },
-    { PLAT_DEVICE_TEST_RELIABILITY, PlatformDeviceTestReliability, "PlatformDeviceTestReliability" },
+    { PLAT_DEVICE_TEST_SET_NAME, PlatformDeviceTestSetName },
+    { PLAT_DEVICE_TEST_GET_DEVICE, PlatformDeviceTestGetDevice },
+    { PLAT_DEVICE_TEST_ADD_DEVICE, PlatformDeviceTestAddDevice },
+    { PLAT_DEVICE_TEST_CREATE_SERVICE, PlatformDeviceTestCreateService },
+    { PLAT_DEVICE_TEST_BIND_DEVICE, PlatformDeviceTestBindDevice },
+    { PLAT_DEVICE_TEST_RELIABILITY, PlatformDeviceTestReliability },
 };
 
 int PlatformDeviceTestExecute(int cmd)
@@ -298,7 +318,16 @@ int PlatformDeviceTestExecute(int cmd)
         return ret;
     }
 
-    ret = entry->func(&device);
+    if (cmd == PLAT_DEVICE_TEST_BIND_DEVICE) {
+        ret = PlatformDeviceTestBindDeviceBefore(&device);
+    }
+    if (ret == HDF_SUCCESS) {
+        ret = entry->func(&device);
+    }
+    if (cmd == PLAT_DEVICE_TEST_BIND_DEVICE) {
+        PlatformDeviceTestBindDeviceAfter(&device);
+    }
+
     PlatformDeviceUninit(&device);
 
     PLAT_LOGE("[PlatformDeviceTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
@@ -308,11 +337,10 @@ int PlatformDeviceTestExecute(int cmd)
 void PlatformDeviceTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     for (i = 0; i < PLAT_DEVICE_TEST_CMD_MAX; i++) {
-        ret = PlatformDeviceTestExecute(i);
+        int32_t ret = PlatformDeviceTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,7 +19,7 @@
 
 using namespace testing::ext;
 
-class HdfLiteAdcTest : public testing::Test {
+class HdfAdcTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -27,21 +27,21 @@ public:
     void TearDown();
 };
 
-void HdfLiteAdcTest::SetUpTestCase()
+void HdfAdcTest::SetUpTestCase()
 {
     HdfTestOpenService();
 }
 
-void HdfLiteAdcTest::TearDownTestCase()
+void HdfAdcTest::TearDownTestCase()
 {
     HdfTestCloseService();
 }
 
-void HdfLiteAdcTest::SetUp()
+void HdfAdcTest::SetUp()
 {
 }
 
-void HdfLiteAdcTest::TearDown()
+void HdfAdcTest::TearDown()
 {
 }
 
@@ -51,14 +51,11 @@ void HdfLiteAdcTest::TearDown()
   * @tc.type: FUNC
   * @tc.require: NA
   */
-HWTEST_F(HdfLiteAdcTest, AdcTestRead001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcTestRead001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_ADC_TYPE, ADC_TEST_CMD_READ, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, AdcTestExecute(ADC_TEST_CMD_READ));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -67,14 +64,11 @@ HWTEST_F(HdfLiteAdcTest, AdcTestRead001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: NA
   */
-HWTEST_F(HdfLiteAdcTest, AdcTestMultiThread001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcTestMultiThread001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_ADC_TYPE, ADC_TEST_CMD_MULTI_THREAD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, AdcTestExecute(ADC_TEST_CMD_MULTI_THREAD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -83,14 +77,11 @@ HWTEST_F(HdfLiteAdcTest, AdcTestMultiThread001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: NA
   */
-HWTEST_F(HdfLiteAdcTest, AdcTestReliability001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcTestReliability001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_ADC_TYPE, ADC_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-
-    printf("%s: kernel test done, then for user...\n", __func__);
     EXPECT_EQ(0, AdcTestExecute(ADC_TEST_CMD_RELIABILITY));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -99,7 +90,7 @@ HWTEST_F(HdfLiteAdcTest, AdcTestReliability001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfLiteAdcTest, AdcIfPerformanceTest001, TestSize.Level1)
+HWTEST_F(HdfAdcTest, AdcIfPerformanceTest001, TestSize.Level1)
 {
     EXPECT_EQ(0, AdcTestExecute(ADC_IF_PERFORMANCE_TEST));
 }

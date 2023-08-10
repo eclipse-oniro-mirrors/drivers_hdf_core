@@ -457,6 +457,38 @@ typedef struct {
     uint8_t txVhtNss;
 } __attribute__ ((aligned(8))) StationInfo;
 
+struct SignalResult {
+    int32_t currentRssi;
+    int32_t associatedFreq;
+    int32_t txBitrate;
+    int32_t rxBitrate;
+    int32_t currentNoise;
+    int32_t currentSnr;
+    int32_t currentChload;
+    int32_t currentUlDelay;
+    int32_t currentTxBytes;
+    int32_t currentRxBytes;
+    int32_t currentTxFailed;
+    int32_t currentTxPackets;
+    int32_t currentRxPackets;
+};
+
+typedef struct {
+    uint8_t isHidden;
+    int32_t *freqs;
+    uint32_t freqsLen;
+    WifiDriverScanSsid ssid;
+} WifiPnoNetwork;
+
+typedef struct {
+    int32_t min2gRssi;
+    int32_t min5gRssi;
+    int32_t scanIntervalMs;
+    int32_t scanIterations;
+    WifiPnoNetwork *pnoNetworks;
+    uint32_t pnoNetworksLen;
+} WifiPnoSettings;
+
 #ifdef __cplusplus
 #if __cplusplus
 }

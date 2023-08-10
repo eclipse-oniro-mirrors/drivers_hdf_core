@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -29,7 +29,9 @@ bool JavaClientProxyCodeEmitter::ResolveDirectory(const std::string &targetDirec
 
 void JavaClientProxyCodeEmitter::EmitCode()
 {
-    EmitProxyFile();
+    if (mode_ == GenMode::IPC) {
+        EmitProxyFile();
+    }
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyFile()
@@ -142,19 +144,16 @@ void JavaClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const s
     sb.Append(prefix).Append("}\n");
 }
 
-void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix)
+void JavaClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitProxyMethodImpl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
-            sb.Append("\n");
-        }
+        sb.Append("\n");
     }
 }
 
 void JavaClientProxyCodeEmitter::EmitProxyMethodImpl(
-    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix)
+    const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).Append("@Override\n");
     if (method->GetParameterNumber() == 0) {

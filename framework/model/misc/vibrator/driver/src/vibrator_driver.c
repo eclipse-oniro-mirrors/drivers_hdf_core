@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -262,8 +262,8 @@ static int32_t EnableModulationParameter(struct HdfSBuf *data, struct HdfSBuf *r
     struct VibratorEffectCfg config;
     struct VibratorDriverData *drvData;
     uint32_t duration;
-    int32_t intensity;
-    int32_t frequency;
+    uint16_t intensity;
+    int16_t frequency;
     int32_t ret;
 
     drvData = GetVibratorDrvData();
@@ -281,12 +281,12 @@ static int32_t EnableModulationParameter(struct HdfSBuf *data, struct HdfSBuf *r
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadInt32(data, &intensity)) {
+    if (!HdfSbufReadUint16(data, &intensity)) {
         HDF_LOGE("%s: sbuf read intensity failed!", __func__);
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadInt32(data, &frequency)) {
+    if (!HdfSbufReadInt16(data, &frequency)) {
         HDF_LOGE("%s: sbuf read frequency failed!", __func__);
         return HDF_FAILURE;
     }

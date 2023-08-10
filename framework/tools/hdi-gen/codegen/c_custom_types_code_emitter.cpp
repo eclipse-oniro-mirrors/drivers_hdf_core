@@ -30,11 +30,20 @@ bool CCustomTypesCodeEmitter::ResolveDirectory(const std::string &targetDirector
 
 void CCustomTypesCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        EmitPassthroughCustomTypesHeaderFile();
-    } else {
-        EmitCustomTypesHeaderFile();
-        EmitCustomTypesSourceFile();
+    switch (mode_) {
+        case GenMode::LOW:
+        case GenMode::PASSTHROUGH: {
+            EmitPassthroughCustomTypesHeaderFile();
+            break;
+        }
+        case GenMode::IPC:
+        case GenMode::KERNEL: {
+            EmitCustomTypesHeaderFile();
+            EmitCustomTypesSourceFile();
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -91,6 +100,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
     sb.Append("\n");
     EmitHeadExternC(sb);
     sb.Append("\n");
+    EmitForwardDeclaration(sb);
+    sb.Append("\n");
     EmitCustomTypeDecls(sb);
     sb.Append("\n");
     EmitCustomTypeFuncDecl(sb);
@@ -108,23 +119,18 @@ void CCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
 void CCustomTypesCodeEmitter::EmitHeaderInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
+    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
+    headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
     GetStdlibInclusions(headerFiles);
-    GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
-void CCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
+void CCustomTypesCodeEmitter::EmitForwardDeclaration(StringBuilder &sb) const
 {
-    for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
-        AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
-        if (type->GetTypeKind() == TypeKind::TYPE_STRUCT) {
-            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
-            break;
-        }
-    }
+    sb.Append("struct HdfSBuf;\n");
 }
 
 void CCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb) const
@@ -240,16 +246,9 @@ void CCustomTypesCodeEmitter::EmitSoucreInclusions(StringBuilder &sb)
 void CCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
-
-    const AST::TypeStringMap &types = ast_->GetTypes();
-    for (const auto &pair : types) {
-        AutoPtr<ASTType> type = pair.second;
-        if (type->GetTypeKind() == TypeKind::TYPE_STRUCT || type->GetTypeKind() == TypeKind::TYPE_UNION) {
-            headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
-            break;
-        }
-    }
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 }
 
 void CCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
@@ -510,7 +509,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeFreeImpl(StringBuilder &sb, const Au
         "void %sFree(%s *%s, bool freeSelf)\n", type->GetName().c_str(), type->EmitCType().c_str(), objName.c_str());
     sb.Append("{\n");
 
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         for (size_t i = 0; i < type->GetMemberNumber(); i++) {
             AutoPtr<ASTType> memberType = type->GetMemberType(i);
             if (EmitNeedLoopVar(memberType, false, true)) {
@@ -557,8 +556,8 @@ void CCustomTypesCodeEmitter::EmitCustomTypeMemoryRecycle(
 void CCustomTypesCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
     for (const auto &typePair : ast_->GetTypes()) {
-        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
-        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
     }
 }
 } // namespace HDI

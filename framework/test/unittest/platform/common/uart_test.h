@@ -27,7 +27,8 @@ enum UartTestCmd {
     UART_TEST_CMD_SET_TRANSMODE = 6,
     UART_TEST_CMD_RELIABILITY = 7,
     UART_TEST_CMD_PERFORMANCE = 8,
-    UART_TEST_CMD_MAX = 9,
+    UART_MINI_BLOCK_WRITE_TEST = 9,
+    UART_TEST_CMD_MAX = 10,
 };
 
 struct UartTestConfig {

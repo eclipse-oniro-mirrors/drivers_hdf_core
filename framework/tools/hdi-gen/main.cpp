@@ -12,28 +12,17 @@
 #include "util/file.h"
 #include "util/logger.h"
 #include "util/options.h"
+#include "hash/hash.h"
 
 using namespace OHOS::HDI;
 
-static bool GetHashKey()
-{
-    for (const auto &sourceFile : Options::GetInstance().GetSourceFiles()) {
-        std::unique_ptr<File> idlFile = std::make_unique<File>(sourceFile, int(File::READ));
-        if (!idlFile->IsValid()) {
-            Logger::E("hdi-gen", "failed to open idl file");
-            return false;
-        }
-        printf("%s:%lu\n", idlFile->GetPath().c_str(), idlFile->GetHashKey());
-    }
-    return true;
-}
 int main(int argc, char **argv)
 {
-    const Options &options = Options::GetInstance().Parse(argc, argv);
-    if (options.HasErrors()) {
-        options.ShowErrors();
-        return 0;
+    Options &options = Options::GetInstance();
+    if (!options.Parse(argc, argv)) {
+        return -1;
     }
+
     if (options.DoShowUsage()) {
         options.ShowUsage();
         return 0;
@@ -42,22 +31,23 @@ int main(int argc, char **argv)
         options.ShowVersion();
         return 0;
     }
+
+    if (options.DoGetHashKey()) {
+        return Hash::GenHashKey() ? 0 : -1;
+    }
+
     if (!options.DoCompile()) {
         return 0;
     }
-    if (options.DoGetHashKey()) {
-        return GetHashKey() ? 0 : -1;
-    }
 
-    Preprocessor preprocessor;
-    std::vector<std::string> sourceFiles;
-    if (!preprocessor.Preprocess(sourceFiles)) {
+    std::vector<FileDetail> fileDetails;
+    if (!Preprocessor::Preprocess(fileDetails)) {
         Logger::E("MAIN", "failed to preprocess");
         return -1;
     }
 
     Parser parser;
-    if (!parser.Parse(sourceFiles)) {
+    if (!parser.Parse(fileDetails)) {
         Logger::E("MAIN", "failed to parse file");
         return -1;
     }
@@ -71,7 +61,8 @@ int main(int argc, char **argv)
     if (!options.DoGenerateCode()) {
         return 0;
     }
-    if (!CodeGenerator(parser.GetAllAst()).Generate()) {
+
+    if (!CodeGenerator().Generate(parser.GetAllAst())) {
         Logger::E("hdi-gen", "failed to generate code");
         return -1;
     }

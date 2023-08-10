@@ -49,6 +49,13 @@ config DRIVERS_HDF_AUDIO_ANA_HEADSET
             support hook interrupt mode.
             support hook adc mode.
 
+config DRIVERS_HDF_AUDIO_RK3588
+    bool "Enable HDF Audio Codec driver"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice HDF Audio Codec driver For RK3588.
+
 config DRIVERS_HDF_AUDIO_ANA_HEADSET_RK3566
     bool "Audio Headset support"
     default n

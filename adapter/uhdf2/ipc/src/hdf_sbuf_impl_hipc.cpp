@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,8 @@ using namespace OHOS;
 static void MParcelImplInterfaceAssign(struct HdfSBufImpl *inf);
 
 struct SBufMParcelImpl {
-    SBufMParcelImpl(OHOS::MessageParcel *parcel, bool owned = true): realParcel_(parcel), owned_(owned)
+    explicit SBufMParcelImpl(
+        OHOS::MessageParcel *parcel = nullptr, bool owned = true): realParcel_(parcel), owned_(owned)
     {
         MParcelImplInterfaceAssign(&infImpl);
     }

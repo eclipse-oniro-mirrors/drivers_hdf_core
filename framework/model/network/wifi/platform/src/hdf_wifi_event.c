@@ -375,29 +375,32 @@ int32_t HdfWifiEventRxMgmt(const struct NetDevice *netDev, int32_t freq, int32_t
     return ret;
 }
 
-int32_t HdfWifiEventEapolRecv(const char *name, void *context)
+void HdfWifiEventEapolRecv(const char *name, void *context)
 {
     struct HdfSBuf *data = NULL;
     int32_t ret;
 
     (void)context;
     if (name == NULL) {
-        return HDF_ERR_INVALID_PARAM;
+        HDF_LOGE("%s name is NULL", __func__);
+        return;
     }
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("%s InitDataBlock failed", __func__);
-        return HDF_FAILURE;
+        return;
     }
     if (!HdfSbufWriteString(data, name)) {
         HDF_LOGE("%s sbuf write failed", __func__);
         HdfSbufRecycle(data);
-        return HDF_FAILURE;
+        return;
     }
 
     ret = HdfWlanSendBroadcastEvent(WIFI_WPA_EVENT_EAPOL_RECV, data);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s send event failed", __func__);
+    }
     HdfSbufRecycle(data);
-    return ret;
 }
 
 int32_t HdfWifiEventResetResult(const uint8_t chipId, int32_t resetStatus, const char *ifName)

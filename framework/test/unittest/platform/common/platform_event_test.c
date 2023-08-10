@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -29,7 +29,7 @@ static int32_t PlatformEventTestInitAndUninit(struct PlatformEvent *pe)
 {
     int32_t ret;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformEventTestInitAndUninit: enter!");
     // eventsWord should be 0 after init
     CHECK_EQ_RETURN(pe->eventsWord, 0, HDF_FAILURE);
 
@@ -47,7 +47,7 @@ static int32_t PlatformEventTestInitAndUninit(struct PlatformEvent *pe)
     }
     (void)OsalSemWait(&pe->sem, HDF_WAIT_FOREVER);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformEventTestInitAndUninit: exit!");
     return HDF_SUCCESS;
 }
 
@@ -56,7 +56,7 @@ static int32_t PlatformEventTestPostAndWait(struct PlatformEvent *pe)
     int32_t ret;
     uint32_t events;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformEventTestPostAndWait: enter!");
     // should wait timeout before post
     ret = PlatformEventWait(pe, PLAT_TEST_EVENT_A, 0, PLAT_EVENT_TEST_TIMEOUT, &events);
     CHECK_EQ_RETURN(ret, HDF_ERR_TIMEOUT, HDF_FAILURE);
@@ -95,7 +95,7 @@ static int32_t PlatformEventTestPostAndWait(struct PlatformEvent *pe)
     ret = PlatformEventWait(pe, PLAT_TEST_EVENT_A, 0, PLAT_EVENT_TEST_TIMEOUT, &events);
     CHECK_EQ_RETURN(ret, HDF_ERR_TIMEOUT, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformEventTestPostAndWait: exit!");
     return HDF_SUCCESS;
 }
 
@@ -113,7 +113,7 @@ static int32_t PlatformEventTestListenAndUnliten(struct PlatformEvent *pe)
     struct PlatformEventListener listener;
     uint32_t events = 0;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformEventTestListenAndUnliten: enter!");
     listener.mask = PLAT_TEST_EVENT_A | PLAT_TEST_EVENT_B;
     listener.cb = PlatformEventListenTestCb;
     listener.data = (void *)&events;
@@ -143,7 +143,7 @@ static int32_t PlatformEventTestListenAndUnliten(struct PlatformEvent *pe)
     // should got the events in callback
     CHECK_EQ_RETURN(events, PLAT_TEST_EVENT_A | PLAT_TEST_EVENT_B, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformEventTestListenAndUnliten: exit!");
     return HDF_SUCCESS;
 }
 
@@ -153,7 +153,7 @@ static int32_t PlatformEventTestReliability(struct PlatformEvent *pe)
     uint32_t events;
     struct PlatformEventListener listener;
 
-    PLAT_LOGD("%s: enter", __func__);
+    PLAT_LOGD("PlatformEventTestReliability: enter!");
     // should return invalid obj when init null pointer
     ret = PlatformEventInit(NULL);
     CHECK_EQ_RETURN(ret, HDF_ERR_INVALID_OBJECT, HDF_FAILURE);
@@ -178,7 +178,7 @@ static int32_t PlatformEventTestReliability(struct PlatformEvent *pe)
     ret = PlatformEventListen(pe, NULL);
     CHECK_NE_RETURN(ret, HDF_SUCCESS, HDF_FAILURE);
 
-    PLAT_LOGD("%s: exit", __func__);
+    PLAT_LOGD("PlatformEventTestReliability: exit!");
     return HDF_SUCCESS;
 }
 
@@ -218,12 +218,12 @@ int PlatformEventTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        PLAT_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        PLAT_LOGE("PlatformEventTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if ((ret = PlatformEventInit(&pe)) != HDF_SUCCESS) {
-        PLAT_LOGE("%s: init failed, ret = %d", __func__, ret);
+        PLAT_LOGE("PlatformEventTestExecute: init failed, ret = %d!", ret);
         return ret;
     }
 

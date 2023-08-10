@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 #
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
@@ -29,7 +29,8 @@ obj-$(CONFIG_DRIVERS_HDF_PLATFORM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/
                                       $(HDF_FRAMWORK_TEST_ROOT)/platform/common/platform_event_test.o \
                                       $(HDF_FRAMWORK_TEST_ROOT)/platform/common/platform_manager_test.o \
                                       $(HDF_FRAMWORK_TEST_ROOT)/platform/common/platform_queue_test.o \
-                                      $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_platform_entry_test.o
+                                      $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_platform_entry_test.o \
+                                      platform/i2c/i2c_adapter_dummy.o
 
 ifeq ($(CONFIG_DRIVERS_HDF_PLATFORM_TRACE), y)
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/platform_trace_test.o
@@ -40,31 +41,40 @@ obj-$(CONFIG_DRIVERS_HDF_PLATFORM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/
 endif
 
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_GPIO) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/gpio_test.o \
-	                                   $(HDF_FRAMWORK_TEST_ROOT)/platform/common/gpio_driver_test.o \
+                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/gpio_driver_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_gpio_entry_test.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_I2C) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/i2c_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/i2c_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_i2c_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_i2c_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/i2c_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_PWM) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/pwm_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/pwm_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_pwm_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_pwm_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/pwm_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_RTC) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/rtc_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/rtc_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_rtc_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_rtc_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/rtc_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_SPI) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/spi_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/spi_driver_test.o \
-                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_spi_entry_test.o
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_spi_entry_test.o \
+                                          $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/spi_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_SDIO) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/sdio_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_sdio_entry_test.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_EMMC) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/emmc_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_emmc_entry_test.o
 
+obj-y                                   += $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/emmc_mini_virtual.o
+
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_UART) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/uart_test.o \
                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/common/uart_driver_test.o \
-                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_uart_entry_test.o
+                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_uart_entry_test.o \
+                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/uart_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_WATCHDOG) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/watchdog_test.o \
                                                $(HDF_FRAMWORK_TEST_ROOT)/platform/common/watchdog_driver_test.o \
-                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_watchdog_entry_test.o
+                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_watchdog_entry_test.o \
+                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/watchdog_virtual.o \
+                                               $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/mini/watchdog_mini_virtual.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_MIPI_DSI) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/mipi_dsi_test.o \
                                                $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_mipi_dsi_entry_test.o
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_MIPI_CSI) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/mipi_csi_test.o \
@@ -111,6 +121,10 @@ ccflags-y += -I$(srctree)/drivers/hdf/framework/include \
              -I$(srctree)/drivers/hdf/framework/core/common/include/host \
              -I$(srctree)/drivers/hdf/framework/core/common/include/manager \
              -I$(srctree)/drivers/hdf/framework/core/adapter/vnode/include \
+             -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+             -I$(srctree)/drivers/hdf/inner_api/utils \
+             -I$(srctree)/drivers/hdf/inner_api/core \
+             -I$(srctree)/drivers/hdf/inner_api/host/shared \
              -I$(srctree)/bounds_checking_function/include \
              -I$(srctree)/drivers/hdf/framework/test/unittest/config \
              -I$(srctree)/drivers/hdf/framework/test/unittest/utils/hcs_parser/unittest \

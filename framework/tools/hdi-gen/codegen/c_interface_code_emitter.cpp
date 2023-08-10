@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,7 +30,66 @@ bool CInterfaceCodeEmitter::ResolveDirectory(const std::string &targetDirectory)
 
 void CInterfaceCodeEmitter::EmitCode()
 {
-    EmitInterfaceHeaderFile();
+    switch (mode_) {
+        case GenMode::LOW: {
+            EmitLowModeInterfaceHeaderFile();
+            break;
+        }
+        case GenMode::PASSTHROUGH:
+        case GenMode::IPC:
+        case GenMode::KERNEL: {
+            EmitInterfaceHeaderFile();
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void CInterfaceCodeEmitter::EmitLowModeInterfaceHeaderFile()
+{
+    std::string filePath =
+        File::AdapterPath(StringHelper::Format("%s/%s.h", directory_.c_str(), FileName(interfaceName_).c_str()));
+    File file(filePath, File::WRITE);
+    StringBuilder sb;
+
+    EmitLicense(sb);
+    EmitHeadMacro(sb, interfaceFullName_);
+    sb.Append("\n");
+    EmitImportInclusions(sb);
+    sb.Append("\n");
+    EmitHeadExternC(sb);
+    sb.Append("\n");
+    EmitInterfaceVersionMacro(sb);
+    if (!interface_->IsSerializable()) {
+        sb.Append("\n");
+        EmitPreDeclaration(sb);
+    }
+    sb.Append("\n");
+    EmitInterfaceDefinition(sb);
+    if (!interface_->IsSerializable()) {
+        sb.Append("\n");
+        EmitLowModeExternalMethod(sb);
+    }
+    sb.Append("\n");
+    EmitTailExternC(sb);
+    sb.Append("\n");
+    EmitTailMacro(sb, interfaceFullName_);
+
+    std::string data = sb.ToString();
+    file.WriteData(data.c_str(), data.size());
+    file.Flush();
+    file.Close();
+}
+
+void CInterfaceCodeEmitter::EmitLowModeExternalMethod(StringBuilder &sb) const
+{
+    sb.AppendFormat(
+        "inline struct %s *%sGet(const char *serviceName)\n", interfaceName_.c_str(), interfaceName_.c_str());
+    sb.Append("{\n");
+    sb.Append(TAB).AppendFormat(
+        "return (struct %s *)DevSvcManagerClntGetService(serviceName);\n", interfaceName_.c_str());
+    sb.Append("}\n");
 }
 
 void CInterfaceCodeEmitter::EmitInterfaceHeaderFile()
@@ -88,6 +147,7 @@ void CInterfaceCodeEmitter::EmitImportInclusions(StringBuilder &sb)
 
 void CInterfaceCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
     if (!Options::GetInstance().DoGenerateKernelCode()) {
         headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdint");
         headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "stdbool");
@@ -113,20 +173,22 @@ void CInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb) const
 void CInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
 {
     sb.AppendFormat("struct %s {\n", interfaceName_.c_str());
+    if (mode_ == GenMode::LOW && !interface_->IsSerializable()) {
+        sb.Append(TAB).Append("struct HdfRemoteService *service;\n\n");
+    }
     EmitInterfaceMethods(sb, TAB);
     sb.Append("};\n");
 }
 
-void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix)
+void CInterfaceCodeEmitter::EmitInterfaceMethods(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
         EmitInterfaceMethod(method, sb, prefix);
         sb.Append("\n");
     }
 
     EmitInterfaceMethod(interface_->GetVersionMethod(), sb, prefix);
-    if (!isKernelCode_ && !Options::GetInstance().DoPassthrough()) {
+    if (mode_ == GenMode::IPC) {
         sb.Append("\n");
         EmitAsObjectMethod(sb, TAB);
     }
@@ -175,7 +237,7 @@ void CInterfaceCodeEmitter::EmitExternalMethod(StringBuilder &sb) const
 
 void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb) const
 {
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.AppendFormat("struct %s *%sGet(void);\n", interfaceName_.c_str(), interfaceName_.c_str());
         sb.Append("\n");
         sb.AppendFormat(
@@ -197,7 +259,7 @@ void CInterfaceCodeEmitter::EmitInterfaceGetMethodDecl(StringBuilder &sb) const
 
 void CInterfaceCodeEmitter::EmitInterfaceReleaseMethodDecl(StringBuilder &sb) const
 {
-    if (isKernelCode_) {
+    if (mode_ == GenMode::KERNEL) {
         sb.AppendFormat("void %sRelease(struct %s *instance);\n", interfaceName_.c_str(), interfaceName_.c_str());
         return;
     }

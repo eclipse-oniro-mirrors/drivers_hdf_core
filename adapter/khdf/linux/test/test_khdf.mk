@@ -46,6 +46,10 @@ ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/core/host/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/core/shared/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/include/core \
+    -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+    -I$(srctree)/drivers/hdf/inner_api/utils \
+    -I$(srctree)/drivers/hdf/inner_api/core \
+    -I$(srctree)/drivers/hdf/inner_api/host/shared \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/core/common/include/host \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/utils/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/include/wifi \
@@ -75,4 +79,6 @@ ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include
     -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/core/include \
     -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/common/include \
     -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../include/audio \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../test/unittest/model/audio/include
+    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../test/unittest/model/audio/include \
+    -I$(srctree)/drivers/hdf/framework/include/platform \
+    -I$(srctree)/drivers/hdf/framework/support/platform/include/i2c

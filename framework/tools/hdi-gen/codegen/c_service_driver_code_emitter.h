@@ -24,6 +24,14 @@ private:
 
     void EmitCode() override;
 
+    void EmitLowDriverSourceFile();
+
+    void EmitLowDriverInclusions(StringBuilder &sb) const;
+
+    void EmitLowDriverBind(StringBuilder &sb) const;
+
+    void EmitLowDriverRelease(StringBuilder &sb) const;
+
     void EmitDriverSourceFile();
 
     void EmitDriverInclusions(StringBuilder &sb);

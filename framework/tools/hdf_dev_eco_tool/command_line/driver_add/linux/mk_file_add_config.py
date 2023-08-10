@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -91,8 +91,8 @@ def audio_makefile_template(date_lines, driver, source_path, head_path, devices,
             sources_lines.append(temp_handle.substitute(temp_dict).replace("temp_flag", "$("))
         else:
             temp_replace_str = temp_handle.substitute(temp_dict).replace("temp_flag", "$(")
-            sources_lines.append("%s \\\n" % temp_replace_str)
-    build_resource = obj_first_line + "".join(sources_lines)
+            sources_lines.append("{} \\\n".format(temp_replace_str))
+    build_resource = "{}{}".format(obj_first_line, "".join(sources_lines))
     head_line = []
     ccflags_first_line = "\nccflags-$(CONFIG_DRIVERS_HDF_${model_name_upper}_${driver_name_upper}) += \\\n"
     temp_line = "        -I$(srctree)/$(${file_parent_path})/${head_path}"

@@ -48,16 +48,44 @@ static struct AudioKcontrol *AudioGetKctrlInstance(const struct AudioCtrlElemId 
     return NULL;
 }
 
+static int32_t FillElemInfoBuf(struct HdfSBuf *rspData, struct AudioCtrlElemInfo *eInfo)
+{
+    if (!HdfSbufWriteInt32(rspData, eInfo->type)) {
+        ADM_LOG_ERR("Write response data type failed!");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(rspData, eInfo->max)) {
+        ADM_LOG_ERR("Write response data max failed!");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(rspData, eInfo->min)) {
+        ADM_LOG_ERR("Write response data min failed!");
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteUint32(rspData, eInfo->count)) {
+        ADM_LOG_ERR("Write response data count failed!");
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t ControlHostElemInfoSub(struct HdfSBuf *rspData, const struct AudioCtrlElemId id)
 {
     int32_t result;
-    struct AudioKcontrol *kctrl = NULL;
     struct AudioCtrlElemInfo elemInfo;
+    struct AudioKcontrol *kctrl = NULL;
+
     if (rspData == NULL) {
         ADM_LOG_ERR("Input rspData is null.");
         return HDF_FAILURE;
     }
-    ADM_LOG_DEBUG("cardName: %s  iface: %d   itemName: %s  .", id.cardServiceName, id.iface, id.itemName);
+
+    ADM_LOG_DEBUG("cardServiceName: %s, iface: %d, itemName: %s.",
+        id.cardServiceName, id.iface, id.itemName);
     kctrl = AudioGetKctrlInstance(&id);
     if (kctrl == NULL || kctrl->Info == NULL) {
         ADM_LOG_ERR("itemname: %s iface: %d kctrl or Info not support!", id.itemName, id.iface);
@@ -71,32 +99,20 @@ static int32_t ControlHostElemInfoSub(struct HdfSBuf *rspData, const struct Audi
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufWriteInt32(rspData, elemInfo.type)) {
-        ADM_LOG_ERR("Write response data type failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufWriteInt32(rspData, elemInfo.max)) {
-        ADM_LOG_ERR("Write response data max failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufWriteInt32(rspData, elemInfo.min)) {
-        ADM_LOG_ERR("Write response data min failed!");
-        return HDF_FAILURE;
-    }
-    if (!HdfSbufWriteUint32(rspData, elemInfo.count)) {
-        ADM_LOG_ERR("Write response data count failed!");
-        return HDF_FAILURE;
+    result = FillElemInfoBuf(rspData, &elemInfo);
+    if (result != HDF_SUCCESS) {
+        return result;
     }
     ADM_LOG_DEBUG("success.");
+
     return HDF_SUCCESS;
 }
 
 static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
-    struct AudioCtrlElemId id;
-    int32_t ret;
     ADM_LOG_DEBUG("entry.");
+    struct AudioCtrlElemId id;
 
     if (reqData == NULL) {
         ADM_LOG_ERR("Input ElemInfo params check error: reqData is NULL.");
@@ -125,12 +141,7 @@ static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
         return HDF_FAILURE;
     }
 
-    ret = ControlHostElemInfoSub(rspData, id);
-    if (ret != HDF_SUCCESS) {
-        return ret;
-    }
-
-    return HDF_SUCCESS;
+    return ControlHostElemInfoSub(rspData, id);
 }
 
 static int32_t ControlHostElemUnloadCard(const struct HdfDeviceIoClient *client,
@@ -270,10 +281,10 @@ static int32_t ControlHostElemGetCard(const struct HdfDeviceIoClient *client,
 static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struct HdfSBuf *reqData,
     struct HdfSBuf *rspData)
 {
-    struct AudioKcontrol *kctrl = NULL;
-    struct AudioCtrlElemValue elemValue;
-    struct AudioCtrlElemId id;
     int32_t result;
+    struct AudioCtrlElemId id;
+    struct AudioCtrlElemValue elemValue;
+    struct AudioKcontrol *kctrl = NULL;
 
     if (client == NULL || reqData == NULL || rspData == NULL) {
         ADM_LOG_ERR("params client or reqData or rspData is null.");
@@ -326,10 +337,11 @@ static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struc
 static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
-    struct AudioKcontrol *kctrl = NULL;
-    struct AudioCtrlElemValue elemValue;
     int32_t result;
+    struct AudioCtrlElemValue elemValue;
+    struct AudioKcontrol *kctrl = NULL;
 
+    (void)rspData;
     if (client == NULL) {
         ADM_LOG_ERR("Input params check error: client is NULL.");
         return HDF_FAILURE;
@@ -338,7 +350,6 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
         ADM_LOG_ERR("Input params check error: reqData is NULL.");
         return HDF_FAILURE;
     }
-    (void)rspData;
 
     (void)memset_s(&elemValue, sizeof(struct AudioCtrlElemValue), 0, sizeof(struct AudioCtrlElemValue));
     if (!HdfSbufReadInt32(reqData, &elemValue.value[0])) {
@@ -363,8 +374,8 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
         return HDF_FAILURE;
     }
 
-    ADM_LOG_DEBUG("itemName: %s cardServiceName: %s iface: %d value: %d ", elemValue.id.itemName,
-        elemValue.id.cardServiceName, elemValue.id.iface, elemValue.value[0]);
+    ADM_LOG_DEBUG("itemName: %s, cardServiceName: %s, iface: %d, value: %d.",
+        elemValue.id.itemName, elemValue.id.cardServiceName, elemValue.id.iface, elemValue.value[0]);
 
     kctrl = AudioGetKctrlInstance(&elemValue.id);
     if (kctrl == NULL || kctrl->Set == NULL) {
@@ -477,13 +488,13 @@ static int32_t ControlElemListRspDataSerialize(struct HdfSBuf *rspData, struct A
 static int32_t ControlHostElemList(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
-    uint64_t listAddress = 0;
-    struct AudioCtlElemList ctlEleList;
-    struct AudioCtlElemListReport *dst = NULL;
     int32_t ret;
+    struct AudioCtlElemList ctlEleList;
+    uint64_t listAddress = 0;
+    struct AudioCtlElemListReport *dst = NULL;
 
-    if ((client == NULL) || (reqData == NULL) || (rspData == NULL)) {
-        ADM_LOG_ERR("Input params check error: client=%p, reqData=%p, rspData=%p.", client, reqData, rspData);
+    if (client == NULL || reqData == NULL || rspData == NULL) {
+        ADM_LOG_ERR("Input params check error");
         return HDF_FAILURE;
     }
 
@@ -517,8 +528,8 @@ static int32_t ControlHostElemList(const struct HdfDeviceIoClient *client,
         OsalMemFree(dst);
         return HDF_FAILURE;
     }
-
     OsalMemFree(dst);
+
     return HDF_SUCCESS;
 }
 

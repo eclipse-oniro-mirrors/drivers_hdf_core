@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -35,7 +35,7 @@ int32_t OsalMutexInit(struct OsalMutex *mutex)
 
     ret = pthread_mutex_init(mutexTmp, NULL);
     if (ret != 0) {
-        HDF_LOGE("%s fail %d %d", __func__, ret, __LINE__);
+        HDF_LOGE("%s: failed to init pthread mutex %d", __func__, ret);
         OsalMemFree(mutexTmp);
         return HDF_FAILURE;
     }
@@ -50,14 +50,12 @@ int32_t OsalMutexDestroy(struct OsalMutex *mutex)
     int32_t ret;
 
     if (mutex == NULL || mutex->realMutex == NULL) {
-        HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = pthread_mutex_destroy((pthread_mutex_t *)mutex->realMutex);
     if (ret != 0) {
-        HDF_LOGE("%s fail %d %d", __func__, ret, __LINE__);
-        return HDF_FAILURE;
+        HDF_LOGE("%s: failed to destroy pthread mutex %d", __func__, ret);
     }
 
     OsalMemFree(mutex->realMutex);
@@ -125,10 +123,9 @@ int32_t OsalMutexUnlock(struct OsalMutex *mutex)
 
     ret = pthread_mutex_unlock((pthread_mutex_t *)mutex->realMutex);
     if (ret != 0) {
-        HDF_LOGE("%s fail %d %d", __func__, ret, __LINE__);
-        return HDF_FAILURE;
+        HDF_LOGE("%s failed to pthread unlock %d", __func__, ret);
     }
 
-    return HDF_SUCCESS;
+    return ret;
 }
 

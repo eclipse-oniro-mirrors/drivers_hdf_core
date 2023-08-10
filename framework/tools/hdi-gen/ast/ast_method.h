@@ -29,26 +29,36 @@ public:
         return name_;
     }
 
-    inline void SetAttribute(const AutoPtr<ASTMethodAttr> &attr)
+    inline void SetAttribute(const AutoPtr<ASTAttr> &attr)
     {
         if (attr != nullptr) {
             attr_ = attr;
         }
     }
 
-    inline bool IsOneWay()
+    inline AutoPtr<ASTAttr> GetAttribute() const
     {
-        return attr_->isOneWay_;
+        return attr_;
     }
 
-    inline bool IsFull()
+    inline bool IsOneWay() const
     {
-        return attr_->isFull_;
+        return attr_->HasValue(ASTAttr::ONEWAY);
     }
 
-    inline bool IsLite()
+    inline bool IsFull() const
     {
-        return attr_->isLite_;
+        return attr_->HasValue(ASTAttr::FULL);
+    }
+
+    inline bool IsLite() const
+    {
+        return attr_->HasValue(ASTAttr::LITE);
+    }
+
+    inline bool IsMini() const
+    {
+        return attr_->HasValue(ASTAttr::MINI);
     }
 
     void AddParameter(const AutoPtr<ASTParameter> &parameter);
@@ -64,7 +74,7 @@ public:
 
 private:
     std::string name_;
-    AutoPtr<ASTMethodAttr> attr_ = new ASTMethodAttr();
+    AutoPtr<ASTAttr> attr_ = new ASTAttr();
     std::vector<AutoPtr<ASTParameter>> parameters_;
 };
 } // namespace HDI

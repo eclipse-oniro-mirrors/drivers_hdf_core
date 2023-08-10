@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2021-2023, Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,18 +27,25 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//drivers/hdf_core/adapter/khdf/liteos_m/hdf.gni")
+import("hdf.gni")
+
+HDF_FRAMEWORKS_PATH = "../../../framework"
+HDF_INTERFACES_PATH = "../../../interfaces"
 
 hdf_driver("hdf_lite") {
   deps = [
-    "core",
     "model",
     "network",
     "osal",
     "platform",
     "test",
-    HDF_ADAPTER_PLATFORM_PATH,
   ]
+  if (!defined(LOSCFG_DRIVERS_HDF_CONFIG_MACRO)) {
+    deps += [
+      "core",
+      HDF_ADAPTER_PLATFORM_PATH,
+    ]
+  }
 }
 
 config("public") {
@@ -78,5 +85,9 @@ config("hdf_config") {
     "$HDF_FRAMEWORKS_PATH/core/common/include/host",
     "$HDF_FRAMEWORKS_PATH/core/adapter/vnode/include",
     "$HDF_FRAMEWORKS_PATH/core/adapter/syscall/include",
+    "$HDF_INTERFACES_PATH/inner_api/osal/shared",
+    "$HDF_INTERFACES_PATH/inner_api/host/shared",
+    "$HDF_INTERFACES_PATH/inner_api/core",
+    "$HDF_INTERFACES_PATH/inner_api/utils",
   ]
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,7 +26,7 @@ struct VirtualPwm {
 int32_t VirtualPwmDeviceGet(struct PwmDev *pwm)
 {
     if (pwm == NULL) {
-        HDF_LOGE("%s: pwm is null", __func__);
+        HDF_LOGE("VirtualPwmDeviceGet: pwm is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -35,7 +35,7 @@ int32_t VirtualPwmDeviceGet(struct PwmDev *pwm)
 int32_t VirtualPwmDevicePut(struct PwmDev *pwm)
 {
     if (pwm == NULL) {
-        HDF_LOGE("%s: pwm is null", __func__);
+        HDF_LOGE("VirtualPwmDevicePut: pwm is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -45,20 +45,20 @@ int32_t VirtualPwmDevicePut(struct PwmDev *pwm)
 int32_t VirtualPwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 {
     if (pwm == NULL || config == NULL) {
-        HDF_LOGE("%s: pwm or config is null", __func__);
+        HDF_LOGE("VirtualPwmSetConfig: pwm or config is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     if (config->polarity != PWM_NORMAL_POLARITY && config->polarity != PWM_INVERTED_POLARITY) {
-        HDF_LOGE("%s: polarity %hhu is invalid", __func__, config->polarity);
+        HDF_LOGE("VirtualPwmSetConfig: polarity %hhu is invalid!", config->polarity);
         return HDF_ERR_INVALID_PARAM;
     }
     if (config->period < PWM_MIN_PERIOD) {
-        HDF_LOGE("%s: period %u is not support, min period %d", __func__, config->period, PWM_MIN_PERIOD);
+        HDF_LOGE("VirtualPwmSetConfig: period %u is not support, min period %d!", config->period, PWM_MIN_PERIOD);
         return HDF_ERR_INVALID_PARAM;
     }
     if (config->duty < 1 || config->duty > config->period) {
-        HDF_LOGE("%s: duty %u is not support, duty must in [1, period = %u].",
-            __func__, config->duty, config->period);
+        HDF_LOGE("VirtualPwmSetConfig: duty %u is not support, duty must in [1, period = %u]!",
+            config->duty, config->period);
         return HDF_ERR_INVALID_PARAM;
     }
     pwm->cfg = *config;
@@ -77,12 +77,12 @@ static int32_t VirtualPwmProbe(struct VirtualPwm *virtual, struct HdfDeviceObjec
 
     iface = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (iface == NULL || iface->GetUint32 == NULL) {
-        HDF_LOGE("%s: face is invalid", __func__);
+        HDF_LOGE("VirtualPwmProbe: face is invalid!");
         return HDF_FAILURE;
     }
 
     if (iface->GetUint32(obj->property, "num", &(virtual->dev.num), 0) != HDF_SUCCESS) {
-        HDF_LOGE("%s: read num fail", __func__);
+        HDF_LOGE("VirtualPwmProbe: read num fail!");
         return HDF_FAILURE;
     }
 
@@ -95,10 +95,10 @@ static int32_t VirtualPwmProbe(struct VirtualPwm *virtual, struct HdfDeviceObjec
     virtual->dev.cfg.number = virtual->dev.num;
     virtual->dev.busy = false;
     if (PwmDeviceAdd(obj, &(virtual->dev)) != HDF_SUCCESS) {
-        HDF_LOGE("%s: [PwmDeviceAdd] failed.", __func__);
+        HDF_LOGE("VirtualPwmProbe: [PwmDeviceAdd] fail!");
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s: set PwmConfig: number %u, period %u, duty %u, polarity %hhu, enable %hhu.", __func__,
+    HDF_LOGI("VirtualPwmProbe: set PwmConfig: number %u, period %u, duty %u, polarity %hhu, enable %hhu!",
         virtual->dev.cfg.number, virtual->dev.cfg.period, virtual->dev.cfg.duty,
         virtual->dev.cfg.polarity, virtual->dev.cfg.status);
     return HDF_SUCCESS;
@@ -116,22 +116,22 @@ static int32_t VirtualPwmInit(struct HdfDeviceObject *obj)
     struct VirtualPwm *virtual = NULL;
 
     if (obj == NULL) {
-        HDF_LOGE("%s: obj is null", __func__);
+        HDF_LOGE("VirtualPwmInit: obj is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     virtual = (struct VirtualPwm *)OsalMemCalloc(sizeof(*virtual));
     if (virtual == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc virtual error", __func__);
+        HDF_LOGE("VirtualPwmInit: OsalMemCalloc virtual error!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = VirtualPwmProbe(virtual, obj);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: error probe, ret is %d", __func__, ret);
+        HDF_LOGE("VirtualPwmInit: error probe, ret is %d!", ret);
         OsalMemFree(virtual);
         return ret;
     }
-    HDF_LOGI("%s: pwm init success", __func__);
+    HDF_LOGI("VirtualPwmInit: pwm init success!");
     return ret;
 }
 
@@ -140,12 +140,12 @@ static void VirtualPwmRelease(struct HdfDeviceObject *obj)
     struct VirtualPwm *virtual = NULL;
 
     if (obj == NULL) {
-        HDF_LOGE("%s: obj is null", __func__);
+        HDF_LOGE("VirtualPwmRelease: obj is null!");
         return;
     }
     virtual = (struct VirtualPwm *)obj->service;
     if (virtual == NULL) {
-        HDF_LOGE("%s: virtual is null", __func__);
+        HDF_LOGE("VirtualPwmRelease: virtual is null!");
         return;
     }
     PwmDeviceRemove(obj, &(virtual->dev));

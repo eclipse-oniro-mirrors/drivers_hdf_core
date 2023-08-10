@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -26,18 +26,19 @@ static void PlatformDeviceOnLastPut(struct HdfSRef *sref)
     int32_t ret;
 
     if (sref == NULL) {
+        PLAT_LOGE("PlatformDeviceOnLastPut: sref is null!");
         return;
     }
 
     device = CONTAINER_OF(sref, struct PlatformDevice, ref);
     if (device == NULL) {
-        PLAT_LOGE("PlatformDeviceOnLastPut: get device is NULL!");
+        PLAT_LOGE("PlatformDeviceOnLastPut: get device is null!");
         return;
     }
 
     ret = PlatformDevicePostEvent(device, PLAT_EVENT_DEVICE_DEAD);
     if (ret != HDF_SUCCESS) {
-        PLAT_LOGE("PlatformDeviceOnLastPut: post event failed:%d", ret);
+        PLAT_LOGE("PlatformDeviceOnLastPut: post event fail, ret: %d!", ret);
         return;
     }
     PLAT_LOGI("PlatformDeviceOnLastPut: device:%s(%d) life cycle end", device->name, device->number);
@@ -58,10 +59,12 @@ int32_t PlatformDeviceSetName(struct PlatformDevice *device, const char *fmt, ..
     char *realName = NULL;
 
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceSetName: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (fmt == NULL) {
+        PLAT_LOGE("PlatformDeviceSetName: fmt is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -69,29 +72,29 @@ int32_t PlatformDeviceSetName(struct PlatformDevice *device, const char *fmt, ..
     ret = vsnprintf_s(tmpName, PLATFORM_DEV_NAME_LEN, PLATFORM_DEV_NAME_LEN, fmt, vargs);
     va_end(vargs);
     if (ret  <= 0) {
-        PLAT_LOGE("PlatformDeviceSetName: failed to format device name:%d", ret);
+        PLAT_LOGE("PlatformDeviceSetName: fail to format device name, ret: %d!", ret);
         return HDF_PLT_ERR_OS_API;
     }
 
     realLen = strlen(tmpName);
     if (realLen == 0 || realLen > PLATFORM_DEV_NAME_LEN) {
-        PLAT_LOGE("PlatformDeviceSetName: invalid name len:%zu", realLen);
+        PLAT_LOGE("PlatformDeviceSetName: invalid name len:%zu!", realLen);
         return HDF_ERR_INVALID_PARAM;
     }
     realName = OsalMemCalloc(realLen + 1);
     if (realName == NULL) {
-        PLAT_LOGE("PlatformDeviceSetName: alloc name mem failed");
+        PLAT_LOGE("PlatformDeviceSetName: memcalloc name mem fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = strncpy_s(realName, realLen + 1, tmpName, realLen);
     if (ret != EOK) {
         OsalMemFree(realName);
-        PLAT_LOGE("PlatformDeviceSetName: copy name(%s) failed:%d", tmpName, ret);
+        PLAT_LOGE("PlatformDeviceSetName: copy name(%s) fail, ret: %d!", tmpName, ret);
         return HDF_ERR_IO;
     }
 
-    PLAT_LOGD("PlatformDeviceSetName: realName:%s, realLen:%zu", realName, realLen);
+    PLAT_LOGD("PlatformDeviceSetName: realName:%s, realLen:%zu!", realName, realLen);
     device->name = (const char *)realName;
     return HDF_SUCCESS;
 }
@@ -107,21 +110,25 @@ void PlatformDeviceClearName(struct PlatformDevice *device)
 int32_t PlatformDeviceInit(struct PlatformDevice *device)
 {
     int32_t ret;
+
     if (device == NULL) {
-        PLAT_LOGW("PlatformDeviceInit: device is NULL");
+        PLAT_LOGE("PlatformDeviceInit: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if ((ret = OsalSpinInit(&device->spin)) != HDF_SUCCESS) {
+        PLAT_LOGE("PlatformDeviceInit: spin init fail!");
         return ret;
     }
     if ((ret = OsalSemInit(&device->released, 0)) != HDF_SUCCESS) {
         (void)OsalSpinDestroy(&device->spin);
+        PLAT_LOGE("PlatformDeviceInit: sem init fail!");
         return ret;
     }
     if ((ret = PlatformEventInit(&device->event)) != HDF_SUCCESS) {
         (void)OsalSemDestroy(&device->released);
         (void)OsalSpinDestroy(&device->spin);
+        PLAT_LOGE("PlatformDeviceInit: event init fail!");
         return ret;
     }
     DListHeadInit(&device->node);
@@ -133,7 +140,7 @@ int32_t PlatformDeviceInit(struct PlatformDevice *device)
 void PlatformDeviceUninit(struct PlatformDevice *device)
 {
     if (device == NULL) {
-        PLAT_LOGW("PlatformDevice: device is NULL");
+        PLAT_LOGW("PlatformDeviceUninit: device is null!");
         return;
     }
 
@@ -145,7 +152,7 @@ void PlatformDeviceUninit(struct PlatformDevice *device)
 int32_t PlatformDeviceGet(struct PlatformDevice *device)
 {
     if (device == NULL) {
-        PLAT_LOGE("PlatformDeviceGet: device is NULL");
+        PLAT_LOGE("PlatformDeviceGet: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -174,6 +181,7 @@ int32_t PlatformDeviceAdd(struct PlatformDevice *device)
     struct PlatformManager *manager = NULL;
 
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceAdd: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -181,7 +189,7 @@ int32_t PlatformDeviceAdd(struct PlatformDevice *device)
     if (manager == NULL) {
         manager = PlatformManagerGet(PLATFORM_MODULE_DEFAULT);
         if (manager == NULL) {
-            PLAT_LOGE("PlatformDeviceAdd: get default manager failed");
+            PLAT_LOGE("PlatformDeviceAdd: get default manager fail!");
             return HDF_PLT_ERR_INNER;
         }
     }
@@ -195,7 +203,7 @@ int32_t PlatformDeviceAdd(struct PlatformDevice *device)
         device->manager = manager;
         PLAT_LOGD("PlatformDeviceAdd: add dev:%s(%d) success", device->name, device->number);
     } else {
-        PLAT_LOGE("PlatformDeviceAdd: add %s(%d) failed:%d", device->name, device->number, ret);
+        PLAT_LOGE("PlatformDeviceAdd: add %s(%d) fail, ret: %d!", device->name, device->number, ret);
         PlatformDeviceUninit(device);
     }
     return ret;
@@ -207,6 +215,7 @@ void PlatformDeviceDel(struct PlatformDevice *device)
     struct PlatformManager *manager = NULL;
 
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceDel: device is null!");
         return;
     }
 
@@ -214,13 +223,13 @@ void PlatformDeviceDel(struct PlatformDevice *device)
     if (manager == NULL) {
         manager = PlatformManagerGet(PLATFORM_MODULE_DEFAULT);
         if (manager == NULL) {
-            PLAT_LOGE("PlatformDeviceAdd: get default manager failed");
+            PLAT_LOGE("PlatformDeviceDel: get default manager fail!");
             return;
         }
     }
     ret = PlatformManagerDelDevice(manager, device);
     if (ret != HDF_SUCCESS) {
-        PLAT_LOGW("PlatformDeviceDel: failed to remove device:%s from manager:%s",
+        PLAT_LOGW("PlatformDeviceDel: fail to remove device:%s from manager:%s!",
             device->name, manager->device.name);
         return; // it's dagerous to continue ...
     }
@@ -230,7 +239,7 @@ void PlatformDeviceDel(struct PlatformDevice *device)
     if (ret == HDF_SUCCESS) {
         PLAT_LOGD("PlatformDeviceDel: remove dev:%s(%d) success", device->name, device->number);
     } else {
-        PLAT_LOGE("PlatformDeviceDel: wait %s(%d) dead failed:%d", device->name, device->number, ret);
+        PLAT_LOGE("PlatformDeviceDel: wait %s(%d) dead fail, ret: %d!", device->name, device->number, ret);
     }
     PlatformDeviceUninit(device);
 }
@@ -239,6 +248,7 @@ int32_t PlatformDeviceCreateService(struct PlatformDevice *device,
     int32_t (*dispatch)(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply))
 {
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceCreateService: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -249,7 +259,7 @@ int32_t PlatformDeviceCreateService(struct PlatformDevice *device,
 
     device->service = (struct IDeviceIoService *)OsalMemCalloc(sizeof(*(device->service)));
     if (device->service == NULL) {
-        PLAT_LOGE("PlatformDeviceCreateService: alloc service failed!");
+        PLAT_LOGE("PlatformDeviceCreateService: memcalloc service fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -260,10 +270,12 @@ int32_t PlatformDeviceCreateService(struct PlatformDevice *device,
 void PlatformDeviceDestroyService(struct PlatformDevice *device)
 {
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceDestroyService: device is null!");
         return;
     }
 
     if (device->service == NULL) {
+        PLAT_LOGE("PlatformDeviceDestroyService: service is null!");
         return;
     }
 
@@ -274,11 +286,12 @@ void PlatformDeviceDestroyService(struct PlatformDevice *device)
 int32_t PlatformDeviceSetHdfDev(struct PlatformDevice *device, struct HdfDeviceObject *hdfDevice)
 {
     if (device == NULL || hdfDevice == NULL) {
+        PLAT_LOGE("PlatformDeviceSetHdfDev: device or hdfDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (device->hdfDev != NULL) {
-        PLAT_LOGE("PlatformDeviceBind: already bind a hdf device!");
+        PLAT_LOGE("PlatformDeviceSetHdfDev: already bind a hdf device!");
         return HDF_FAILURE;
     }
 
@@ -301,9 +314,11 @@ int32_t PlatformDeviceBind(struct PlatformDevice *device, struct HdfDeviceObject
 void PlatformDeviceUnbind(struct PlatformDevice *device, const struct HdfDeviceObject *hdfDev)
 {
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceUnbind: device is null!");
         return;
     }
     if (device->hdfDev == NULL) {
+        PLAT_LOGE("PlatformDeviceUnbind: hdfDev is null!");
         return;
     }
     if (device->hdfDev != hdfDev) {
@@ -319,7 +334,7 @@ void PlatformDeviceUnbind(struct PlatformDevice *device, const struct HdfDeviceO
 struct PlatformDevice *PlatformDeviceFromHdfDev(const struct HdfDeviceObject *hdfDev)
 {
     if (hdfDev == NULL || hdfDev->priv == NULL) {
-        PLAT_LOGE("PlatformDeviceFromHdfDev: hdf device or priv null");
+        PLAT_LOGE("PlatformDeviceFromHdfDev: hdf device or priv is null!");
         return NULL;
     }
 
@@ -329,6 +344,7 @@ struct PlatformDevice *PlatformDeviceFromHdfDev(const struct HdfDeviceObject *hd
 int32_t PlatformDevicePostEvent(struct PlatformDevice *device, uint32_t events)
 {
     if (device == NULL) {
+        PLAT_LOGE("PlatformDevicePostEvent: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return PlatformEventPost(&device->event, events);
@@ -340,14 +356,17 @@ int32_t PlatformDeviceWaitEvent(struct PlatformDevice *device, uint32_t mask, ui
     uint32_t eventsRead;
 
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceWaitEvent: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     ret = PlatformEventWait(&device->event, mask, PLAT_EVENT_MODE_CLEAR, tms, &eventsRead);
     if (ret != HDF_SUCCESS) {
+        PLAT_LOGE("PlatformDeviceWaitEvent: event wait fail!");
         return ret;
     }
 
     if (eventsRead == 0) {
+        PLAT_LOGE("PlatformDeviceWaitEvent: no event read!");
         return HDF_FAILURE;
     }
     if (events != NULL) {
@@ -359,9 +378,11 @@ int32_t PlatformDeviceWaitEvent(struct PlatformDevice *device, uint32_t mask, ui
 int32_t PlatformDeviceListenEvent(struct PlatformDevice *device, struct PlatformEventListener *listener)
 {
     if (device == NULL) {
+        PLAT_LOGE("PlatformDeviceListenEvent: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     if (listener == NULL) {
+        PLAT_LOGE("PlatformDeviceListenEvent: listener is null!");
         return HDF_ERR_INVALID_PARAM;
     }
     return PlatformEventListen(&device->event, listener);

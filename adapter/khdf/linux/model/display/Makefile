@@ -55,6 +55,10 @@ ccflags-y += -lm -lc -lgcc \
             -I$(srctree)/drivers/hdf/framework/include/osal \
             -I$(srctree)/drivers/hdf/framework/include/platform \
             -I$(srctree)/drivers/hdf/framework/include/config \
+            -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+            -I$(srctree)/drivers/hdf/inner_api/utils \
+            -I$(srctree)/drivers/hdf/inner_api/core \
+            -I$(srctree)/drivers/hdf/inner_api/host/shared \
             -I$(srctree)/drivers/hdf/khdf/osal/include \
             -I$(srctree)/include/linux \
             -I$(srctree)/include/drm

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <mutex>
 
 #include <hdf_base.h>
 #include <hdf_log.h>
@@ -28,6 +30,8 @@ namespace OHOS {
 namespace HDI {
 namespace DeviceManager {
 namespace V1_0 {
+std::mutex g_remoteMutex;
+
 enum DevmgrCmdId : uint32_t {
     DEVMGR_SERVICE_ATTACH_DEVICE_HOST = 1,
     DEVMGR_SERVICE_ATTACH_DEVICE,
@@ -63,7 +67,9 @@ int32_t DeviceManagerProxy::LoadDevice(const std::string &serviceName)
         return HDF_FAILURE;
     }
 
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LOAD_DEVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("load device failed, %{public}d", status);
     }
@@ -83,14 +89,16 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
         return HDF_FAILURE;
     }
 
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVMGR_SERVICE_UNLOAD_DEVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("unload device failed, %{public}d", status);
     }
     return status;
 }
 
-static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
+static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, MessageParcel &reply)
 {
     while (true) {
         struct DevInfo devInfo;
@@ -101,19 +109,41 @@ static void HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, M
             break;
         }
         hostInfo.hostName = name;
-        hostInfo.hostId = reply.ReadUint32();
-        devCnt = reply.ReadUint32();
+        if (!reply.ReadUint32(hostInfo.hostId)) {
+            HDF_LOGE("failed to read hostId of DevInfo");
+            return false;
+        }
+
+        if (!reply.ReadUint32(devCnt)) {
+            HDF_LOGE("failed to read size of DevInfo");
+            return false;
+        }
+
+        if (devCnt > hostInfo.devInfo.max_size()) {
+            HDF_LOGE("invalid len of device info");
+            return false;
+        }
+
         for (uint32_t i = 0; i < devCnt; i++) {
+            if (reply.GetReadableBytes() == 0) {
+                HDF_LOGE("no enough data to read");
+                return HDF_ERR_INVALID_PARAM;
+            }
+
             name = reply.ReadCString();
             devInfo.deviceName = (name == nullptr) ? "" : name;
-            devInfo.devId = reply.ReadUint32();
+            if (!reply.ReadUint32(devInfo.devId)) {
+                HDF_LOGE("failed to read devId of DevInfo");
+                return false;
+            }
+
             name = reply.ReadCString();
             devInfo.servName = (name == nullptr) ? "" : name;
             hostInfo.devInfo.push_back(devInfo);
         }
         hostInfos.push_back(hostInfo);
     }
-    return;
+    return true;
 }
 
 int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInfos)
@@ -126,11 +156,17 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
     }
 
     MessageOption option;
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LIST_ALL_DEVICE, data, reply, option);
+    lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("list all device info failed, %{public}d", status);
-    } else {
-        HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply);
+        return status;
+    }
+
+    if (!HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
+        HDF_LOGE("failed to read all device info");
+        return HDF_ERR_INVALID_PARAM;
     }
     return status;
 }
@@ -142,6 +178,8 @@ sptr<IDeviceManager> IDeviceManager::Get()
         HDF_LOGE("failed to get hdi service manager");
         return nullptr;
     }
+
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = servmgr->GetService("hdf_device_manager");
     if (remote != nullptr) {
         return hdi_facecast<IDeviceManager>(remote);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,7 +19,7 @@ static int32_t PlatformTraceSetUintptrInfoTest(void)
     int i = 0;
     int32_t ret = PlatformTraceStart();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformTraceSetUintptrInfoTest: PlatformTraceStart fail %d", ret);
+        HDF_LOGE("PlatformTraceSetUintptrInfoTest: PlatformTraceStart fail, ret: %d!", ret);
         return ret;
     }
 
@@ -36,7 +36,7 @@ static int32_t PlatformTraceFmtInfoTest(void)
 {
     int32_t ret = PlatformTraceStart();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("PlatformTraceSetUintptrInfoTest: PlatformTraceStart fail %d", ret);
+        HDF_LOGE("PlatformTraceFmtInfoTest: PlatformTraceStart fail, ret: %d!", ret);
         return ret;
     }
     PlatformTraceAddMsg(
@@ -98,7 +98,7 @@ int PlatformTraceTestExecute(int cmd)
     }
 
     if (entry == NULL) {
-        HDF_LOGE("%s: no entry matched, cmd = %d", __func__, cmd);
+        HDF_LOGE("PlatformTraceTestExecute: no entry matched, cmd = %d!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 

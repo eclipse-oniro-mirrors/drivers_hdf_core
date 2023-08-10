@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -14,6 +14,7 @@
 #include "hdf_dlist.h"
 #include "hdf_io_service_if.h"
 #include "osal_mutex.h"
+#include "pcie_if.h"
 #include "platform_core.h"
 #include "rtc_if.h"
 #include "timer_if.h"
@@ -55,14 +56,25 @@ struct PlatformUserListenerTimerParam {
     struct PlatformUserListenerManager *manager;
 };
 
+struct PlatformUserListenerPcieParam {
+    DevHandle handle;
+    PcieCallbackFunc func;
+    uintptr_t dmaData;
+    uint32_t len;
+    uint8_t dir;
+    struct PlatformUserListenerManager *manager;
+};
+
 struct PlatformUserListenerManager *PlatformUserListenerManagerGet(enum PlatformModuleType moudle);
 int32_t PlatformUserListenerReg(
     struct PlatformUserListenerManager *manager, uint32_t num, void *data, OnEventReceived callback);
 void PlatformUserListenerDestory(struct PlatformUserListenerManager *manager, uint32_t num);
+void PlatformUserListenerManagerDestory(struct PlatformUserListenerManager *manager);
 
 int GpioOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data);
 int TimerOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data);
 int RtcOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data);
+int PcieOnDevEventReceive(void *priv, uint32_t id, struct HdfSBuf *data);
 
 #ifdef __cplusplus
 }

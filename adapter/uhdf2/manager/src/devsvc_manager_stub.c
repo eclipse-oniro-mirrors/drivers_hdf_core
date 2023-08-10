@@ -24,7 +24,7 @@
 #include "devsvc_manager_proxy.h"
 #include "hdf_cstring.h"
 #include "hdf_log.h"
-#include "hdf_remote_adapter_if.h"
+#include "hdf_remote_service.h"
 #include "hdf_sbuf.h"
 #include "hdf_slist.h"
 #include "osal_mem.h"
@@ -72,7 +72,7 @@ static int32_t ListServicePermCheck(void)
 
 static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfDeviceObject *service)
 {
-    if (service == NULL || service->priv == NULL) {
+    if (service == NULL) {
         HDF_LOGW("%{public}s service object is null", __func__);
         return false;
     }
@@ -85,13 +85,13 @@ static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, 
             HDF_SLIST_CONTAINER_OF(struct HdfSListNode, node, struct HdfDeviceObjectHolder, entry);
 
         if (((uintptr_t)(&holder->devObj) == (uintptr_t)service) && (holder->serviceName != NULL) &&
-            (strcmp(holder->serviceName, (char *)service->priv) == 0)) {
+            (service->priv != NULL) && (strcmp(holder->serviceName, (char *)service->priv) == 0)) {
             HDF_LOGD("%{public}s %{public}s service object is valid", __func__, holder->serviceName);
             return true;
         }
     }
 
-    HDF_LOGW("%{public}s %{public}s service object is invalid", __func__, (char *)service->priv);
+    HDF_LOGW("%{public}s service object is invalid", __func__);
     return false;
 }
 
@@ -174,12 +174,6 @@ static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDevic
     OsalMutexLock(&stub->devSvcStubMutex);
     if (serviceObject == NULL) {
         OsalMutexUnlock(&stub->devSvcStubMutex);
-        return;
-    }
-
-    if (serviceObject->priv == NULL) {
-        OsalMutexUnlock(&stub->devSvcStubMutex);
-        HDF_LOGW("release service object has empty name, may broken object");
         return;
     }
 
@@ -456,6 +450,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     struct ServStatListenerHolder *listenerHolder =
         ServStatListenerHolderCreate((uintptr_t)listenerRemote, listenClass);
     if (listenerHolder == NULL) {
+        HdfRemoteServiceRecycle(listenerRemote);
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -529,8 +524,8 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
             ret = DevSvcManagerStubListServiceByInterfaceDesc(super, data, reply);
             break;
         default:
-            HDF_LOGE("Unknown code : %{public}d", code);
-            ret = HDF_FAILURE;
+            ret = HdfRemoteServiceDefaultDispatch(stub->remote, code, data, reply);
+            break;
     }
     return ret;
 }
@@ -595,6 +590,7 @@ int DevSvcManagerStubStart(struct IDevSvcManager *svcmgr)
     }
     if (!HdfRemoteServiceSetInterfaceDesc(inst->remote, "HDI.IServiceManager.V1_0")) {
         HDF_LOGE("%{public}s: failed to init interface desc", __func__);
+        HdfRemoteServiceRecycle(inst->remote);
         return HDF_ERR_INVALID_OBJECT;
     }
 

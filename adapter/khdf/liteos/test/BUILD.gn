@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -26,9 +26,14 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
+import("./../hdf.gni")
+
+HDF_FRAMEWORKS_PATH = "./../../../../framework"
+HDF_PERIPHERAL_PATH = "./../../../../../peripheral"
+HDF_ADAPTERS_PATH = "./../../../../adapter"
 
 HDF_TEST_FRAMWORK_ROOT = "$HDF_FRAMEWORKS_PATH/test/unittest"
+INTERFACES_INNER_ROOT = "../../../../interfaces/inner_api"
 
 module_switch = defined(LOSCFG_DRIVERS_HDF_TEST)
 module_name = "hdf_test"
@@ -120,6 +125,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/i2c_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/i2c_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_i2c_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/i2c_mini_virtual.c",
       ]
     }
 
@@ -155,6 +161,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/watchdog_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/watchdog_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_watchdog_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/watchdog_mini_virtual.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/watchdog_virtual.c",
       ]
     }
@@ -173,6 +180,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/uart_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/uart_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_uart_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/uart_mini_virtual.c",
       ]
     }
 
@@ -195,6 +203,7 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/rtc_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/rtc_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_rtc_entry_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/mini/rtc_mini_virtual.c",
       ]
     }
 
@@ -235,6 +244,7 @@ hdf_driver(module_name) {
 
     if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_PCIE)) {
       sources += [
+        "$HDF_TEST_FRAMWORK_ROOT/platform/common/pcie_driver_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/common/pcie_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_pcie_entry_test.c",
         "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/pcie_virtual.c",
@@ -282,6 +292,9 @@ config("test_lite") {
     "$HDF_FRAMEWORKS_PATH/utils/include",
     "$HDF_FRAMEWORKS_PATH/include/platform",
     "$HDF_FRAMEWORKS_PATH/include/core",
+    "$INTERFACES_INNER_ROOT/core",
+    "$INTERFACES_INNER_ROOT/utils",
+    "$INTERFACES_INNER_ROOT/osal/shared",
     "$HDF_FRAMEWORKS_PATH/support/platform/include",
     "$HDF_FRAMEWORKS_PATH/core/host/include",
     "$HDF_FRAMEWORKS_PATH/core/master/include",

@@ -9,11 +9,11 @@
 #ifndef CAMERA_BUFFER_MANAGER_H
 #define CAMERA_BUFFER_MANAGER_H
 
-#include <osal/osal_atomic.h>
-#include <osal/osal_spinlock.h>
-#include <osal/osal_mutex.h>
+#include <hdf_dlist.h>
+#include <osal_atomic.h>
+#include <osal_mutex.h>
+#include <osal_spinlock.h>
 #include <camera/camera_product.h>
-#include "hdf_dlist.h"
 #include "camera_buffer_manager_adapter.h"
 #include "camera_buffer.h"
 

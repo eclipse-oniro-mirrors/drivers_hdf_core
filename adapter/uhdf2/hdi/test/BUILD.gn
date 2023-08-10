@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/srvmgr"
 
@@ -30,17 +30,24 @@ ohos_unittest("HdiServiceManagerTest") {
     "//third_party/googletest:gtest_main",
   ]
 
-  include_dirs = [ "$hdf_uhdf_path/host/test/unittest/sample_driver" ]
+  include_dirs = [
+    "$hdf_uhdf_path/host/test/unittest/sample_driver",
+    "$hdf_uhdf_path/utils/include",
+  ]
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_single",
   ]
 }
 
 ohos_unittest("HdiServiceManagerTestCC") {
   module_out_path = module_output_path
+  include_dirs = [
+    "$hdf_framework_path/core/shared/include",
+    "$hdf_uhdf_path/host/test/unittest/sample_driver",
+  ]
   sources = [ "servmgr/service_manager_hdi_test.cpp" ]
 
   deps = [
@@ -50,10 +57,9 @@ ohos_unittest("HdiServiceManagerTestCC") {
     "//third_party/googletest:gtest_main",
   ]
 
-  include_dirs = [ "$hdf_uhdf_path/host/test/unittest/sample_driver" ]
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
   ]
@@ -65,7 +71,8 @@ group("unittest") {
   deps = [
     ":HdiServiceManagerTest",
     ":HdiServiceManagerTestCC",
+    "./../../../../adapter/uhdf2/hdi/test/buffer_handle:hdi_buffer_handle_test",
+    "smq_test:HdiSmqTest",
     "stub_collector:stub_collector_test",
-    "//drivers/hdf_core/adapter/uhdf2/hdi/test/buffer_handle:hdi_buffer_handle_test",
   ]
 }

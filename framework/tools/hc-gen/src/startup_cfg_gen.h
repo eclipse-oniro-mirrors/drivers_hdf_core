@@ -21,6 +21,8 @@ struct HostInfo {
     std::string hostGID;
     std::string hostCritical;
     uint32_t hostPriority;
+    int32_t processPriority;
+    int32_t threadPriority;
     uint32_t hostId;
     bool dynamicLoad;
 };
@@ -65,6 +67,8 @@ private:
     static void GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData);
 
     static void GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name);
+
+    static void GetProcessPriority(const std::shared_ptr<AstObject> &term, HostInfo &hostData);
 
     std::ofstream ofs_;
     std::string outFileName_;

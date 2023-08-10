@@ -23,14 +23,15 @@ static int32_t AdcTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct
 
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("AdcTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("AdcTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
+        HDF_LOGE("AdcTestDispatch: cmd %d is not support!", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -44,37 +45,37 @@ static int32_t AdcTestReadConfig(struct AdcTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: invalid drs ops", __func__);
+        HDF_LOGE("AdcTestReadConfig: invalid drs ops!");
         return HDF_FAILURE;
     }
 
     ret = drsOps->GetUint32(node, "devNum", &config->devNum, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read devNum failed", __func__);
+        HDF_LOGE("AdcTestReadConfig: read devNum fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "channel", &config->channel, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read channel failed", __func__);
+        HDF_LOGE("AdcTestReadConfig: read channel fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "maxChannel", &config->maxChannel, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read maxChannel failed", __func__);
+        HDF_LOGE("AdcTestReadConfig: read maxChannel fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "dataWidth", &config->dataWidth, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read dataWidth failed", __func__);
+        HDF_LOGE("AdcTestReadConfig: read dataWidth fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "rate", &config->rate, 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read rate failed", __func__);
+        HDF_LOGE("AdcTestReadConfig: read rate fail!");
         return ret;
     }
 
@@ -87,25 +88,25 @@ static int32_t AdcTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("AdcTestBind: device or config is null!");
         return HDF_ERR_IO;
     }
 
     ret = AdcTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("AdcTestBind: read config fail!");
         return ret;
     }
     service.Dispatch = AdcTestDispatch;
     device->service = &service;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("AdcTestBind: done!");
     return HDF_SUCCESS;
 }
 
 static int32_t AdcTestInit(struct HdfDeviceObject *device)
 {
     (void)device;
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("AdcTestInit: done!");
     return HDF_SUCCESS;
 }
 
@@ -114,7 +115,7 @@ static void AdcTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("AdcTestRelease: done!");
     return;
 }
 

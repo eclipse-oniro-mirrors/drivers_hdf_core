@@ -5,12 +5,13 @@
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
+
+#include "sidecar.h"
 #include "hdf_base.h"
-#include "securec.h"
-#include "utils/hdf_log.h"
+#include "hdf_log.h"
 #include "message_router.h"
 #include "message_router_inner.h"
-#include "sidecar.h"
+#include "securec.h"
 
 #ifdef USERSPACE_CLIENT_SUPPORT
 #define HDF_LOG_TAG UMsgEngine

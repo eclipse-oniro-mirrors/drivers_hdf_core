@@ -8,7 +8,7 @@
         "info_temp": "${peripheral_name}_host:x:${gid}:\n"
         },
     "selinux":{
-        "pre_path": "base/security/selinux/sepolicy/",
+        "pre_path": "base/security/selinux_adapter/sepolicy/",
         "type.te": {
             "path": "ohos_policy/drivers/adapter/vendor",
             "info_temp": "type ${peripheral_name}_host, hdfdomain, domain;\n",

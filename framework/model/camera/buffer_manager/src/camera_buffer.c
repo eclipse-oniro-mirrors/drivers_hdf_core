@@ -7,8 +7,8 @@
  */
 
 #include <securec.h>
-#include <utils/hdf_log.h>
-#include <osal/osal_mem.h>
+#include <hdf_log.h>
+#include <osal_mem.h>
 #include "osal_uaccess.h"
 #include "buffer_queue.h"
 #include "camera_buffer_manager_adapter.h"
@@ -548,7 +548,7 @@ int32_t CameraBufferFromUserBuffer(struct CameraBuffer *buffer, const struct Use
     }
 
     buffer->state = BUFFER_STATE_PREPARING;
-    (void)memset_s(planes, sizeof(planes), 0, sizeof(planes[0]) * buffer->numPlanes);
+    (void)memset_s(planes, sizeof(planes), 0, sizeof(planes));
     ret = CameraBufferGetPlanesFromUserBuffer(buffer, planes, userBuffer);
     if (ret != HDF_SUCCESS) {
         return ret;

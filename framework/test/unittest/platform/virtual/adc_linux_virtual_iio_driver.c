@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -25,7 +25,7 @@
 #define STORAGE_BITS 16
 #define SHIFT_BITS 0
 #define SCAN_MASKS 0xF
-#define BUS_NUM 2
+#define BUS_NUM 16
 
 enum AdcScanIndex {
     ADC_SCAN_VOLTAGE_1,
@@ -41,7 +41,7 @@ struct VirtualAdcDev {
 static int AdcReadChannelData(const struct iio_dev *indioDev, struct iio_chan_spec const *chan, int *val)
 {
     if (val == NULL) {
-        HDF_LOGE("%s: val is NULL", __func__);
+        HDF_LOGE("AdcReadChannelData: val is null!");
         return -EINVAL;
     }
     (void)indioDev;
@@ -59,13 +59,13 @@ static int AdcIioReadRaw(struct iio_dev *indioDev, struct iio_chan_spec const *c
     struct VirtualAdcDev *dev = NULL;
     int ret;
 
-    HDF_LOGI("%s: Enter", __func__);
+    HDF_LOGI("AdcIioReadRaw: enter!");
     if (indioDev == NULL || chan == NULL || val == NULL || val2 == NULL) {
-        HDF_LOGE("%s: Illegal parameter", __func__);
+        HDF_LOGE("AdcIioReadRaw: Iillegal parameter!");
         return -EINVAL;
     }
     if (ADC_SCALE_DATA == 0) {
-        HDF_LOGE("%s: ADC_SCALE_DATA is Illegal", __func__);
+        HDF_LOGE("AdcIioReadRaw: ADC_SCALE_DATA is illegal!");
         return -EINVAL;
     }
 
@@ -84,7 +84,7 @@ static int AdcIioReadRaw(struct iio_dev *indioDev, struct iio_chan_spec const *c
             ret = IIO_VAL_INT_PLUS_MICRO;
             break;
         default:
-            HDF_LOGE("%s: mask is Illegal", __func__);
+            HDF_LOGE("AdcIioReadRaw: mask is illegal!");
             ret = -EINVAL;
             break;
         }
@@ -150,7 +150,7 @@ static int VirtualAdcPlatformProbe(struct platform_device *pdev)
 
     indioDev = devm_iio_device_alloc(&pdev->dev, sizeof(*adcInfo));
     if (!indioDev) {
-        HDF_LOGE("%s: malloc iio_dev fail", __func__);
+        HDF_LOGE("VirtualAdcPlatformProbe: malloc iio_dev fail!");
         return -ENOMEM;
     }
     adcInfo = iio_priv(indioDev);
@@ -168,7 +168,7 @@ static int VirtualAdcPlatformProbe(struct platform_device *pdev)
 	
     ret = iio_device_register(indioDev);
     if (ret < 0) {
-        HDF_LOGE("%s: iio device register fail", __func__);
+        HDF_LOGE("VirtualAdcPlatformProbe: iio device register fail!");
         return ret;
     }
 	
@@ -181,7 +181,7 @@ static int VirtualAdcPlatformRemove(struct platform_device *pdev)
 
     indioDev = platform_get_drvdata(pdev);
     if (indioDev == NULL) {
-        HDF_LOGE("%s: iio device is NULL", __func__);
+        HDF_LOGE("VirtualAdcPlatformRemove: iio device is null!");
         return -EINVAL;
     }
     iio_device_unregister(indioDev);

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,23 +12,17 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../uhdf.gni")
+
+hdf_framework_path = "./../../../framework"
+hdf_interface_path = "./../../../interfaces"
 
 config("libhdf_ipc_adapter_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
-    "//drivers/hdf_core/framework/core/adapter/syscall/include",
-    "//drivers/hdf_core/framework/core/adapter/vnode/include",
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/include/core/",
-    "//drivers/hdf_core/adapter/uhdf2/shared/include",
-    "include",
+    "$hdf_interface_path/inner_api/ipc",
+    "$hdf_interface_path/inner_api/core",
   ]
 }
 if (defined(ohos_lite)) {
@@ -37,7 +31,11 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libhdf_ipc_adapter") {
-    include_dirs = []
+    include_dirs = [
+      "include",
+      "$hdf_framework_path/utils/include",
+      "$hdf_framework_path/core/shared/include",
+    ]
 
     public_configs = [ ":libhdf_ipc_adapter_pub_config" ]
 
@@ -48,12 +46,11 @@ if (defined(ohos_lite)) {
       "src/hdf_sbuf_impl_hipc.cpp",
     ]
 
-    deps = [ "$hdf_uhdf_path/utils:libhdf_utils" ]
-
     if (is_standard_system) {
+      deps = [ "../pub_utils:libpub_utils" ]
       external_deps = [
         "c_utils:utils",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
         "ipc:ipc_single",
         "samgr:samgr_proxy",
       ]
@@ -65,8 +62,11 @@ if (defined(ohos_lite)) {
       ]
     }
 
+    innerapi_tags = [
+      "chipsetsdk",
+      "platformsdk_indirect",
+    ]
     install_images = [ system_base_dir ]
-    relative_install_dir = "chipset-pub-sdk"
     subsystem_name = "hdf"
     part_name = "hdf_core"
   }

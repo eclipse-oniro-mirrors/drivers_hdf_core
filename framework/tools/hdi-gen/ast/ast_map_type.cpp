@@ -145,8 +145,8 @@ void ASTMapType::EmitCppUnMarshalling(const std::string &parcelName, const std::
     if (emitType) {
         sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), memberName.c_str());
     }
-    sb.Append(prefix).AppendFormat("uint32_t %sSize = 0;\n", name.c_str());
-    sb.Append(prefix).AppendFormat("if (!%s.ReadUint32(%sSize)) {\n", parcelName.c_str(), name.c_str());
+    sb.Append(prefix).AppendFormat("uint32_t %sSize = 0;\n", memberName.c_str());
+    sb.Append(prefix).AppendFormat("if (!%s.ReadUint32(%sSize)) {\n", parcelName.c_str(), memberName.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read size\", __func__);\n");
     sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n\n");
@@ -199,13 +199,13 @@ void ASTMapType::EmitJavaReadInnerVar(const std::string &parcelName, const std::
     sb.Append(prefix).Append("}\n");
 }
 
-void ASTMapType::RegisterWriteMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTMapType::RegisterWriteMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     keyType_->RegisterWriteMethod(language, mode, methods);
     valueType_->RegisterWriteMethod(language, mode, methods);
 }
 
-void ASTMapType::RegisterReadMethod(Options::Language language, SerMode mode, UtilMethodMap &methods) const
+void ASTMapType::RegisterReadMethod(Language language, SerMode mode, UtilMethodMap &methods) const
 {
     keyType_->RegisterReadMethod(language, mode, methods);
     valueType_->RegisterReadMethod(language, mode, methods);

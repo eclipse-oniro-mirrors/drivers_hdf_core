@@ -18,10 +18,11 @@
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
 #include <hdf_log.h>
-#include <hdf_service_status.h>
+#include <hdf_service_status_inner.h>
 #include <idevmgr_hdi.h>
 #include <iostream>
 #include <ipc_object_stub.h>
+#include <iservice_registry.h>
 #include <iservmgr_hdi.h>
 #include <iservstat_listener_hdi.h>
 #include <osal_time.h>
@@ -56,6 +57,9 @@ static constexpr int PAYLOAD_NUM = 1234;
 static constexpr int SMQ_TEST_QUEUE_SIZE = 10;
 static constexpr int SMQ_TEST_WAIT_TIME = 100;
 static constexpr int WAIT_LOAD_UNLOAD_TIME = 300;
+static constexpr int DEVICE_SERVICE_MANAGER_SA_ID = 5100;
+static constexpr int INVALID_CODE = 100;
+static constexpr int ERROR_CODE_WITH_INVALID_CODE = 305;
 
 class HdfServiceMangerHdiTest : public testing::Test {
 public:
@@ -986,5 +990,38 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest006, TestSize.Level1)
 
     int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_EQ(reqRet, HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, InvalidCodeTest001, TestSize.Level1)
+{
+    auto servmgr = OHOS::HDI::ServiceManager::V1_0::IServiceManager::Get();
+    ASSERT_NE(servmgr, nullptr);
+
+    sptr<IRemoteObject> remote = servmgr->GetService("hdf_device_manager");
+    ASSERT_NE(remote, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    ASSERT_TRUE(data.WriteInterfaceToken(IDeviceManager::GetDescriptor()));
+    int ret = remote->SendRequest(INVALID_CODE, data, reply, option);
+    EXPECT_EQ(ret, ERROR_CODE_WITH_INVALID_CODE);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, InvalidCodeTest002, TestSize.Level1)
+{
+    auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    ASSERT_NE(saManager, nullptr);
+    sptr<IRemoteObject> remote = saManager->GetSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID);
+    ASSERT_NE(remote, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    ASSERT_TRUE(data.WriteInterfaceToken(OHOS::HDI::ServiceManager::V1_0::IServiceManager::GetDescriptor()));
+    int ret = remote->SendRequest(INVALID_CODE, data, reply, option);
+    ASSERT_EQ(ret, ERROR_CODE_WITH_INVALID_CODE);
 }
 } // namespace OHOS

@@ -26,12 +26,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
+import("./../../../hdf.gni")
 
 module_switch = defined(LOSCFG_DRIVERS_HDF_LIGHT)
 module_name = "hdf_light_driver"
 hdf_driver(module_name) {
-  FRAMEWORKS_LIGHT_ROOT = "$HDF_FRAMEWORKS_PATH/model/misc/light/driver"
+  FRAMEWORKS_LIGHT_ROOT = "../../../../../../framework/model/misc/light/driver"
 
   sources = [ "$FRAMEWORKS_LIGHT_ROOT/src/light_driver.c" ]
 

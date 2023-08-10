@@ -226,8 +226,8 @@ class HdfLiteScan(object):
         return replace_path
 
     def get_need_result(self, model_path_dict):
-        return_dict = {}
-        need_replace = {}
+        return_dict_temp = {}
+        need_replace_temp = {}
         import_gni_path = []
         import_replace_name = set([])
         for name in list(model_path_dict.keys()):
@@ -239,13 +239,13 @@ class HdfLiteScan(object):
                     enable_path_dict, import_gni_path = \
                         self.get_need_result_only(
                             model_path_dict, name,
-                            import_gni_path, return_dict, need_replace)
+                            import_gni_path, return_dict_temp, need_replace_temp)
                 else:
                     need_replace, return_dict, \
                     enable_path_dict, import_gni_path = \
                         self.get_need_result_list(
                             model_path_dict, name, import_replace_name,
-                            import_gni_path, return_dict, need_replace)
+                            import_gni_path, return_dict_temp, need_replace_temp)
 
         for k_name in list(return_dict.keys()):
             for model_detail in list(return_dict.get(k_name).keys()):

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,7 +12,10 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../uhdf.gni")
+
+hdf_framework_path = "./../../../../framework"
+hdf_uhdf_path = "./../.."
 
 ###########################palTest###########################
 ohos_unittest("DevMgrTest") {
@@ -21,11 +24,11 @@ ohos_unittest("DevMgrTest") {
 
   include_dirs = [
     "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
-    "//drivers/hdf_core/adapter/uhdf2/hdi/include",
-    "//drivers/hdf_core/adapter/uhdf2/include/hidl",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
+    "$hdf_uhdf_path/hdi/include",
+    "$hdf_uhdf_path/include/hidl",
     "unittest/common/",
   ]
 
@@ -40,7 +43,7 @@ ohos_unittest("DevMgrTest") {
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
@@ -52,14 +55,15 @@ ohos_unittest("DevHostTest") {
   sources = [ "unittest/devhost_test.cpp" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
-    "//drivers/hdf_core/framework/core/host/include",
-    "//drivers/hdf_core/adapter/uhdf2/host/include",
-    "//drivers/hdf_core/adapter/uhdf2/manager/include",
-    "//drivers/hdf_core/adapter/uhdf2/ipc/include",
+    "$hdf_framework_path/core/shared/include",
+    "$hdf_framework_path/core/manager/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
+    "$hdf_framework_path/core/host/include",
+    "$hdf_uhdf_path/host/include",
+    "$hdf_uhdf_path/manager/include",
+    "$hdf_uhdf_path/ipc/include",
   ]
 
   deps = [
@@ -73,7 +77,7 @@ ohos_unittest("DevHostTest") {
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]

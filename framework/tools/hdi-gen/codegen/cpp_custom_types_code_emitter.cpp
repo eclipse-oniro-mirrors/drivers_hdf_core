@@ -29,11 +29,17 @@ bool CppCustomTypesCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppCustomTypesCodeEmitter::EmitCode()
 {
-    if (Options::GetInstance().DoPassthrough()) {
-        EmitPassthroughCustomTypesHeaderFile();
-    } else {
-        EmitCustomTypesHeaderFile();
-        EmitCustomTypesSourceFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH: {
+            EmitPassthroughCustomTypesHeaderFile();
+            break;
+        }
+        case GenMode::IPC: {
+            EmitCustomTypesHeaderFile();
+            EmitCustomTypesSourceFile();
+        }
+        default:
+            break;
     }
 }
 
@@ -68,7 +74,8 @@ void CppCustomTypesCodeEmitter::EmitPassthroughCustomTypesHeaderFile()
 void CppCustomTypesCodeEmitter::EmitPassthroughHeaderFileInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
-
+    headerFiles.emplace(HeaderFileType::CPP_STD_HEADER_FILE, "cstdbool");
+    headerFiles.emplace(HeaderFileType::CPP_STD_HEADER_FILE, "cstdint");
     GetStdlibInclusions(headerFiles);
     GetImportInclusions(headerFiles);
 
@@ -92,6 +99,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
     sb.Append("\n");
     EmitInterfaceBuffSizeMacro(sb);
     sb.Append("\n");
+    EmitForwardDeclaration(sb);
+    sb.Append("\n");
     EmitBeginNamespace(sb);
     sb.Append("\n");
     EmitUsingNamespace(sb);
@@ -113,19 +122,21 @@ void CppCustomTypesCodeEmitter::EmitCustomTypesHeaderFile()
 void CppCustomTypesCodeEmitter::EmitHeaderFileInclusions(StringBuilder &sb)
 {
     HeaderFile::HeaderFileSet headerFiles;
-
+    headerFiles.emplace(HeaderFileType::CPP_STD_HEADER_FILE, "cstdbool");
+    headerFiles.emplace(HeaderFileType::CPP_STD_HEADER_FILE, "cstdint");
     GetStdlibInclusions(headerFiles);
     GetImportInclusions(headerFiles);
-    GetHeaderOtherLibInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
     }
 }
 
-void CppCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
+void CppCustomTypesCodeEmitter::EmitForwardDeclaration(StringBuilder &sb) const
 {
-    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_parcel");
+    sb.Append("namespace OHOS {\n");
+    sb.Append("class MessageParcel;\n");
+    sb.Append("}\n");
 }
 
 void CppCustomTypesCodeEmitter::EmitUsingNamespace(StringBuilder &sb)
@@ -244,6 +255,7 @@ void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_parcel");
 }
 
 void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb) const
@@ -365,8 +377,8 @@ void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 void CppCustomTypesCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
 {
     for (const auto &typePair : ast_->GetTypes()) {
-        typePair.second->RegisterWriteMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
-        typePair.second->RegisterReadMethod(Options::GetInstance().GetTargetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterWriteMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
+        typePair.second->RegisterReadMethod(Options::GetInstance().GetLanguage(), SerMode::CUSTOM_SER, methods);
     }
 }
 } // namespace HDI

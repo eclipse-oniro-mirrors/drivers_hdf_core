@@ -88,22 +88,6 @@ void fs_test2(void)
     }
 
     closedir(dirp);
-
-    d = readdir(dirp);
-    if (d != NULL) {
-        printf("readdir %s\n", d->d_name);
-    } else {
-        printf("readdir null\n");
-    }
-
-    dirp = opendir("/data");
-
-    d = readdir(dirp);
-    if (d != NULL) {
-        printf("readdir %s\n", d->d_name);
-    } else {
-        printf("readdir null\n");
-    }
 }
 
 #define TEST_WR_BUF_LEN 40

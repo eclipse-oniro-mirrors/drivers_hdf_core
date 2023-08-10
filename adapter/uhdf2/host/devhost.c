@@ -15,9 +15,11 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <sched.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/prctl.h>
+#include <sys/resource.h>
 
 #include "securec.h"
 #include "parameter.h"
@@ -30,7 +32,11 @@
 
 #define HDF_LOG_TAG                    hdf_device_host
 #define DEVHOST_INPUT_PARAM_NUM        3
+#define DEVHOST_PARAM_NUM_WITH_PRI     5
 #define DEVHOST_INPUT_PARAM_HOSTID_POS 1
+#define DEVHOST_HOST_NAME_POS          2
+#define DEVHOST_PROCESS_PRI_POS        3
+#define DEVHOST_THREAD_PRI_POS         4
 #define PARAM_BUF_LEN 128
 
 static void StartMemoryHook(const char* processName)
@@ -83,9 +89,36 @@ static void SetProcTitle(char **argv, const char *newTitle)
     prctl(PR_SET_NAME, newTitle);
 }
 
+static void HdfSetProcPriority(char **argv)
+{
+    int32_t schedPriority = 0;
+    int32_t procPriority = 0;
+
+    if (!HdfStringToInt(argv[DEVHOST_PROCESS_PRI_POS], &procPriority)) {
+        HDF_LOGE("procPriority parameter error: %{public}s", argv[DEVHOST_PROCESS_PRI_POS]);
+        return;
+    }
+    if (!HdfStringToInt(argv[DEVHOST_THREAD_PRI_POS], &schedPriority)) {
+        HDF_LOGE("schedPriority parameter error: %{public}s", argv[DEVHOST_THREAD_PRI_POS]);
+        return;
+    }
+
+    if (setpriority(PRIO_PROCESS, 0, procPriority) != 0) {
+        HDF_LOGE("host setpriority failed: %{public}d", errno);
+    }
+
+    struct sched_param param = {0};
+    param.sched_priority = schedPriority;
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        HDF_LOGE("host sched_setscheduler failed: %{public}d", errno);
+    } else {
+        HDF_LOGI("host sched_setscheduler succeed:%{public}d %{public}d", procPriority, schedPriority);
+    }
+}
+
 int main(int argc, char **argv)
 {
-    if (argc != DEVHOST_INPUT_PARAM_NUM) {
+    if ((argc != DEVHOST_INPUT_PARAM_NUM) && (argc != DEVHOST_PARAM_NUM_WITH_PRI)) {
         HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -97,24 +130,31 @@ int main(int argc, char **argv)
         HDF_LOGE("Devhost main parameter error, argv[1]: %{public}s", argv[DEVHOST_INPUT_PARAM_HOSTID_POS]);
         return HDF_ERR_INVALID_PARAM;
     }
-    const char *hostName = argv[argc - 1];
+
+    const char *hostName = argv[DEVHOST_HOST_NAME_POS];
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
     StartMemoryHook(hostName);
+    if (argc == DEVHOST_PARAM_NUM_WITH_PRI) {
+        HdfSetProcPriority(argv);
+    }
 
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
     if (instance == NULL || instance->StartService == NULL) {
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
     }
+
+    DevHostDumpInit();
     int status = instance->StartService(instance);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Devhost StartService fail, return: %{public}d", status);
         DevHostServiceFreeInstance(instance);
+        DevHostDumpDeInit();
         return status;
     }
+
     HdfPowerManagerInit();
-    DevHostDumpInit();
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {

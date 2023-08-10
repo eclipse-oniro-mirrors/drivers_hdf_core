@@ -13,9 +13,9 @@
 #include "hdf_device_desc.h"
 #include "hdf_io_service_if.h"
 #include "hdf_log.h"
-#include "osal/osal_io.h"
-#include "osal/osal_mem.h"
-#include "osal/osal_spinlock.h"
+#include "osal_io.h"
+#include "osal_mem.h"
+#include "osal_spinlock.h"
 #include "platform/gpio_if.h"
 
 #define HDF_LOG_TAG HDF_BT
@@ -261,31 +261,31 @@ static int32_t BtMessageDispatcher(struct HdfDeviceIoClient *client, int id, str
         break;
     }
     case HDF_BT_CMD_INIT_DEVICE: {
-        uint8_t id = 0;
+        uint8_t btCmdId = 0;
         char buff[MAX_NODE_NAME_SIZE];
-        if (!HdfSbufReadUint8(reqData, &id)) {
+        if (!HdfSbufReadUint8(reqData, &btCmdId)) {
             HDF_LOGE("%s:read deviceID failed!", __func__);
             break;
         }
-        HDF_LOGI("%s:power on. devID=%d", __func__, id);
-        ret = PowerOnDevice(id);
+        HDF_LOGI("%s:power on. devID=%d", __func__, btCmdId);
+        ret = PowerOnDevice(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:power on failed.devideID=%d", __func__, id);
+            HDF_LOGE("%s:power on failed.devideID=%d", __func__, btCmdId);
             break;
         }
-        ret = InitTransport(id);
+        ret = InitTransport(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:init transport failed.devideID=%d,ret=%d", __func__, id, ret);
+            HDF_LOGE("%s:init transport failed.devideID=%d,ret=%d", __func__, btCmdId, ret);
             break;
         }
-        ret = GetDevNodeName(id, buff, MAX_NODE_NAME_SIZE);
+        ret = GetDevNodeName(btCmdId, buff, MAX_NODE_NAME_SIZE);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:get dev node failed!id=%d", __func__, id);
+            HDF_LOGE("%s:get dev node failed!id=%d", __func__, btCmdId);
             break;
         }
         if (rspData != NULL) {
             if (!HdfSbufWriteString(rspData, buff)) {
-                HDF_LOGE("%s:respose dev node failed!id=%d", __func__, id);
+                HDF_LOGE("%s:respose dev node failed!id=%d", __func__, btCmdId);
                 break;
             }
         }
@@ -293,19 +293,19 @@ static int32_t BtMessageDispatcher(struct HdfDeviceIoClient *client, int id, str
         break;
     }
     case HDF_BT_CMD_DEINIT_DEVICE: {
-        uint8_t id = 0;
-        if (!HdfSbufReadUint8(reqData, &id)) {
+        uint8_t btCmdId = 0;
+        if (!HdfSbufReadUint8(reqData, &btCmdId)) {
             HDF_LOGE("%s:read deviceID failed!", __func__);
             break;
         }
-        ret = DeinitTransport(id);
+        ret = DeinitTransport(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:Deinit transport failed.devideID=%d", __func__, id);
+            HDF_LOGE("%s:Deinit transport failed.devideID=%d", __func__, btCmdId);
         }
-        HDF_LOGI("%s:power on %d", __func__, id);
-        ret = PowerOffDevice(id);
+        HDF_LOGI("%s:power on %d", __func__, btCmdId);
+        ret = PowerOffDevice(btCmdId);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:power off failed.devideID=%d", __func__, id);
+            HDF_LOGE("%s:power off failed.devideID=%d", __func__, btCmdId);
             break;
         }
 
@@ -547,18 +547,20 @@ static void HdfBtChipDriverRelease(struct HdfDeviceObject *object)
         return;
     }
 
-    for (i = g_deviceCount - 1; i >= 0; --i) {
-        g_deviceCount--;
-        if (g_btDevices[i].device != NULL) {
-            ReleaseVirtualDevice(g_btDevices[i].device);
-            g_btDevices[i].device = NULL;
-        }
+    if (g_deviceCount >= 1) {
+        for (i = g_deviceCount - 1; i >= 0; --i) {
+            g_deviceCount--;
+            if (g_btDevices[i].device != NULL) {
+                ReleaseVirtualDevice(g_btDevices[i].device);
+                g_btDevices[i].device = NULL;
+            }
 
-        if (g_btDevices[i].transport != NULL && g_btDevices[i].transport->ops != NULL &&
-            g_btDevices[i].transport->ops->Destory != NULL) {
-            g_btDevices[i].transport->ops->Destory(g_btDevices[i].transport);
+            if (g_btDevices[i].transport != NULL && g_btDevices[i].transport->ops != NULL &&
+                g_btDevices[i].transport->ops->Destory != NULL) {
+                g_btDevices[i].transport->ops->Destory(g_btDevices[i].transport);
+            }
+            g_btDevices[i].transport = NULL;
         }
-        g_btDevices[i].transport = NULL;
     }
 
     (void)OsalSpinUnlockIrq(&g_devicesLock);

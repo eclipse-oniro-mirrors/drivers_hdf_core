@@ -66,7 +66,6 @@ OSAL_DECLARE_SPINLOCK(g_spinTest);
 #define HDF_THREAD_TEST_SLEEP_MS 300
 #define HDF_THREAD_TEST_MUX_CNT 20
 static bool g_thread1RunFlag;
-static bool g_threadMuxLockFlag;
 static int32_t g_test1Para = 120;
 static int32_t g_test2Para = 123;
 #define TIME_RANGE 200000
@@ -89,7 +88,6 @@ static bool OsalCheckTime(OsalTimespec *time, uint32_t ms)
 static int ThreadTest1(void *arg)
 {
     static int cnt = 0;
-    int ret;
 
     HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
     (void)arg;
@@ -103,12 +101,8 @@ static int ThreadTest1(void *arg)
         if (cnt > HDF_THREAD_TEST_MUX_CNT) {
             g_waitMutexTime = HDF_WAIT_FOREVER;
         }
-        ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
-        if (g_threadMuxLockFlag == true) {
-            UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
-        } else {
-            UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
-        }
+        int ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
+        UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
 
         OsalMSleep(HDF_THREAD_TEST_SLEEP_MS);
         if (ret == HDF_SUCCESS) {
@@ -142,12 +136,10 @@ static int ThreadTest2(void *arg)
     OsalTimespec hdfTs1 = { 0, 0 };
     OsalTimespec hdfTs2 = { 0, 0 };
     OsalTimespec hdfTsDiff = { 0, 0 };
-    int ret;
-    int32_t para;
 
     HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
     if (arg != NULL) {
-        para = *(int32_t *)arg;
+        int32_t para = *(int32_t *)arg;
         UT_TEST_CHECK_RET(para != g_test2Para, OSAL_THREAD_PARA_CHECK);
     } else {
         UT_TEST_CHECK_RET(true, OSAL_THREAD_PARA_CHECK);
@@ -161,12 +153,8 @@ static int ThreadTest2(void *arg)
         HDF_LOGI("%s %d", __func__, cnt);
 
         cnt++;
-        ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
-        if (g_threadMuxLockFlag == true) {
-            UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
-        } else {
-            UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
-        }
+        int ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
+        UT_TEST_CHECK_RET(ret == HDF_FAILURE, OSAL_MUTEX_LOCK_TIMEOUT);
 
         OsalMSleep(HDF_THREAD_TEST_SLEEP_MS);
         if (ret == HDF_SUCCESS) {
@@ -221,7 +209,6 @@ static void TimerLoopTest1(int id, uintptr_t arg)
     static OsalTimespec hdfTs2 = { 0, 0 };
     OsalTimespec hdfTsDiff = { 0, 0 };
     static int index = HDF_TEST_TIMER_PARA;
-    int32_t ret;
 
     if (g_timer1Cnt == 0) {
         OsalGetTime(&hdfTs2);
@@ -252,7 +239,7 @@ static void TimerLoopTest1(int id, uintptr_t arg)
 
     if (g_timer1Cnt == HDF_TIMER_TEST_MODIFY) {
         g_timerPeriod1 = g_timerPeriod1Modify;
-        ret = OsalTimerSetTimeout(&g_testTimerLoop1, g_timerPeriod1);
+        int32_t ret = OsalTimerSetTimeout(&g_testTimerLoop1, g_timerPeriod1);
         UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_TIMER_MODIFY_CHECK);
         index = HDF_TEST_TIMER_MODIFY;
     }
@@ -272,7 +259,6 @@ static void TimerLoopTest2(int id, uintptr_t arg)
     static OsalTimespec hdfTs2 = { 0, 0 };
     OsalTimespec hdfTsDiff = { 0, 0 };
     static int index = HDF_TEST_TIMER_PARA;
-    int32_t ret;
 
     if (g_timer2Cnt == 0) {
         OsalGetTime(&hdfTs2);
@@ -305,7 +291,7 @@ static void TimerLoopTest2(int id, uintptr_t arg)
     if (g_timer2Cnt == HDF_TIMER_TEST_MODIFY) {
         g_timerPeriod2 = g_timerPeriod2Modify;
         HDF_LOGI("[OSAL_UT_TEST]%s modify timer", __func__);
-        ret = OsalTimerSetTimeout(&g_testTimerLoop2, g_timerPeriod2);
+        int32_t ret = OsalTimerSetTimeout(&g_testTimerLoop2, g_timerPeriod2);
         UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_TIMER_MODIFY_CHECK);
         index = HDF_TEST_TIMER_MODIFY;
     }
@@ -432,7 +418,6 @@ static int ThreadTest(void *arg)
 
         if (cnt == THREAD_TEST_MUX_BEGIN) {
             HDF_LOGI("%s mutex Lock", __func__);
-            g_threadMuxLockFlag = true;
             ret = OsalMutexTimedLock(&g_mutexTest, g_waitMutexTime);
             UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_MUTEX_STRESS_TEST);
         }
@@ -440,7 +425,6 @@ static int ThreadTest(void *arg)
             ret = OsalMutexUnlock(&g_mutexTest);
             UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_MUTEX_STRESS_TEST);
             HDF_LOGI("%s mutex unLock", __func__);
-            g_threadMuxLockFlag = false;
         }
 #ifndef __USER__
         if (cnt == THREAD_TEST_STOP_TIMER) {
@@ -538,6 +522,7 @@ static void OsaTimeTest(void)
     UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_TIME_GETTIME);
     ret = OsalDiffTime(&hdfTs, &hdfTs2, &hdfTsDiff);
     HDF_LOGI("%s %us %uus", __func__, (uint32_t)hdfTsDiff.sec, (uint32_t)hdfTsDiff.usec);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_TIME_DIFFTIME);
     UT_TEST_CHECK_RET(!OsalCheckTime(&hdfTsDiff, TIME_TEST_SLEEP_S * HDF_KILO_UNIT), OSAL_TIME_DIFFTIME);
 
     OsalGetTime(&hdfTs);

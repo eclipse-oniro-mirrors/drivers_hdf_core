@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,15 +22,15 @@ static int32_t PwmTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct
     (void)data;
     if (cmd == 0) {
         if (reply == NULL) {
-            HDF_LOGE("%s: reply is null!", __func__);
+            HDF_LOGE("PwmTestDispatch: reply is null!");
             return HDF_ERR_INVALID_PARAM;
         }
         if (!HdfSbufWriteBuffer(reply, &g_config, sizeof(g_config))) {
-            HDF_LOGE("%s: write reply failed", __func__);
+            HDF_LOGE("PwmTestDispatch: write reply fail!");
             return HDF_ERR_IO;
         }
     } else {
-        HDF_LOGE("%s: cmd no support\n", __func__);
+        HDF_LOGE("PwmTestDispatch: cmd %d is not support!\n", cmd);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -45,43 +45,43 @@ static int32_t PwmTestReadConfig(struct PwmTestConfig *config, const struct Devi
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL) {
-        HDF_LOGE("%s: drsOps is null.", __func__);
+        HDF_LOGE("PwmTestReadConfig: drsOps is null!");
         return HDF_FAILURE;
     }
 
     if (drsOps->GetUint32 == NULL) {
-        HDF_LOGE("%s: GetUint32 not support.", __func__);
+        HDF_LOGE("PwmTestReadConfig: GetUint32 not support!");
         return HDF_ERR_NOT_SUPPORT;
     }
 
     ret = drsOps->GetUint32(node, "num", &(config->num), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read num fail.", __func__);
+        HDF_LOGE("PwmTestReadConfig: read num fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "period", &(config->cfg.period), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read period fail.", __func__);
+        HDF_LOGE("PwmTestReadConfig: read period fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "duty", &(config->cfg.duty), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read duty fail.", __func__);
+        HDF_LOGE("PwmTestReadConfig: read duty fail!");
         return ret;
     }
 
     ret = drsOps->GetUint32(node, "polarity", &(temp), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read polarity fail.", __func__);
+        HDF_LOGE("PwmTestReadConfig: read polarity fail!");
         return ret;
     }
     config->cfg.polarity = temp;
 
     ret = drsOps->GetUint32(node, "status", &(temp), 0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read status fail", __func__);
+        HDF_LOGE("PwmTestReadConfig: read status fail!");
         return ret;
     }
     config->cfg.status = temp;
@@ -95,13 +95,13 @@ static int32_t PwmTestBind(struct HdfDeviceObject *device)
     static struct IDeviceIoService service;
 
     if (device == NULL || device->property == NULL) {
-        HDF_LOGE("%s: device or config is null!", __func__);
+        HDF_LOGE("PwmTestBind: device or config is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = PwmTestReadConfig(&g_config, device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read config failed", __func__);
+        HDF_LOGE("PwmTestBind: read config fail!");
         return ret;
     }
     
@@ -121,7 +121,7 @@ static void PwmTestRelease(struct HdfDeviceObject *device)
     if (device != NULL) {
         device->service = NULL;
     }
-    HDF_LOGI("%s: Done!", __func__);
+    HDF_LOGI("PwmTestRelease: done!");
     return;
 }
 

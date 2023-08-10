@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -83,18 +83,18 @@ bool MmcDevPresent(DevHandle handle)
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("MmcDevPresent: failed to obtain reply!");
+        HDF_LOGE("MmcDevPresent: fail to obtain reply!");
         return false;
     }
 
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("MmcDevPresent: dispatcher or Dispatch is NULL!");
+        HDF_LOGE("MmcDevPresent: dispatcher or Dispatch is null!");
         goto __EXIT;
     }
     ret = service->dispatcher->Dispatch(&service->object, MMC_CMD_DEV_PRESENT,
         NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcDevPresent: failed to send service call:%d", ret);
+        HDF_LOGE("MmcDevPresent: failed to send service call, ret: %d!", ret);
         goto __EXIT;
     }
 

@@ -22,4 +22,8 @@ ccflags-$(CONFIG_DRIVERS_HDF_NETWORK) += \
             -I$(srctree)/include/hdf/wifi \
             -I$(srctree)/include/hdf/utils \
             -I$(srctree)/include/hdf/osal \
+            -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+            -I$(srctree)/drivers/hdf/inner_api/utils \
+            -I$(srctree)/drivers/hdf/inner_api/core \
+            -I$(srctree)/drivers/hdf/inner_api/host/shared \
             -I$(srctree)/bounds_checking_function/include

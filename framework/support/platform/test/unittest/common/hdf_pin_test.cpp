@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 Huawei Device Co., Ltd.
+/* Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -35,9 +35,9 @@ void HdfPinTest::SetUpTestCase()
 
     ret = PinTestExecute(PIN_TEST_CMD_SETUP_ALL);
     if (ret != 0) {
-        printf("%s: User SetUp FAIL:%d\n\r", __func__, ret);
+        printf("SetUpTestCase: User SetUp FAIL:%d\n\r", ret);
     }
-    printf("%s: exit!\n", __func__);
+    printf("SetUpTestCase: exit!\n");
 }
 
 void HdfPinTest::TearDownTestCase()
@@ -49,9 +49,9 @@ void HdfPinTest::TearDownTestCase()
 
     ret = PinTestExecute(PIN_TEST_CMD_TEARDOWN_ALL);
     if (ret != 0) {
-        printf("%s: User TearDown FAIL:%d\n\r", __func__, ret);
+        printf("TearDownTestCase: User TearDown FAIL:%d\n\r", ret);
     }
-    printf("%s: exit!\n", __func__);
+    printf("TearDownTestCase: exit!\n");
 }
 
 void HdfPinTest::SetUp()
@@ -72,8 +72,6 @@ HWTEST_F(HdfPinTest, PinSetGetPull001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETGETPULL, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_SETGETPULL));
 }
 
@@ -87,8 +85,6 @@ HWTEST_F(HdfPinTest, PinSetGetStrength001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETGETSTRENGTH, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_SETGETSTRENGTH));
 }
 
@@ -102,8 +98,6 @@ HWTEST_F(HdfPinTest, PinSetGetPinFunc001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_SETGETFUNC, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_SETGETFUNC));
 }
 
@@ -117,7 +111,5 @@ HWTEST_F(HdfPinTest, PinReliabilityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PIN_TYPE, PIN_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, PinTestExecute(PIN_TEST_CMD_RELIABILITY));
 }

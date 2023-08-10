@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -217,14 +217,10 @@ static int32_t I2cTestTransfer(void)
     return HDF_SUCCESS;
 }
 
-static int32_t I2cTestWriteRead(void)
-{
-    return HDF_SUCCESS;
-}
-
 static int I2cTestThreadFunc(void *param)
 {
-    int32_t i, ret;
+    int32_t i;
+    int32_t ret;
     struct I2cTester *tester = NULL;
 
     tester = I2cTesterGet();
@@ -237,9 +233,9 @@ static int I2cTestThreadFunc(void *param)
         ret = I2cTransfer(tester->handle, g_msgs, I2C_TEST_MSG_NUM);
         if (ret != I2C_TEST_MSG_NUM) {
 #ifdef __USER__
-            HDF_LOGE("I2cTransfer-user err in multithread test:%d", ret);
+            HDF_LOGE("I2cTestThreadFunc: I2cTransfer-user err in multithread test, ret: %d", ret);
 #else
-            HDF_LOGE("I2cTransfer-kerl err in multithread test:%d", ret);
+            HDF_LOGE("I2cTestThreadFunc: I2cTransfer-kerl err in multithread test, ret: %d", ret);
 #endif
         }
     }
@@ -253,11 +249,12 @@ static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 {
     int32_t ret;
     uint32_t time = 0;
-    struct OsalThreadParam cfg1, cfg2;
+    struct OsalThreadParam cfg1;
+    struct OsalThreadParam cfg2;
 
     if (memset_s(&cfg1, sizeof(cfg1), 0, sizeof(cfg1)) != EOK ||
         memset_s(&cfg2, sizeof(cfg2), 0, sizeof(cfg2)) != EOK) {
-        HDF_LOGE("%s:memset_s fail.", __func__);
+        HDF_LOGE("I2cTestStartThread: memset_s fail!");
         return HDF_ERR_IO;
     }
     cfg1.name = "I2cTestThread-1";
@@ -267,50 +264,50 @@ static int32_t I2cTestStartThread(struct OsalThread *thread1, struct OsalThread 
 
     ret = OsalThreadStart(thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread1 fail:%d", ret);
+        HDF_LOGE("I2cTestStartThread: start test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadStart(thread2, &cfg2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("start test thread2 fail:%d", ret);
+        HDF_LOGE("I2cTestStartThread: start test thread2 fail, ret: %d!", ret);
     }
 
     while (*count1 == 0 || *count2 == 0) {
-        HDF_LOGD("waitting testing thread finish...");
+        HDF_LOGD("I2cTestStartThread: waitting testing thread finish...");
         OsalMSleep(I2C_TEST_WAIT_TIMES);
         time++;
         if (time > I2C_TEST_WAIT_TIMEOUT) {
             break;
         }
     }
-
     return ret;
 }
 
 static int32_t I2cTestMultiThread(void)
 {
     int32_t ret;
-    struct OsalThread thread1, thread2;
-    int32_t count1, count2;
+    struct OsalThread thread1;
+    struct OsalThread thread2;
+    int32_t count1 = 0;
+    int32_t count2 = 0;
 
-    count1 = count2 = 0;
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("I2cTestMultiThread: create test thread1 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = OsalThreadCreate(&thread2, (OsalThreadEntry)I2cTestThreadFunc, (void *)&count2);
     if (ret != HDF_SUCCESS) {
         (void)OsalThreadDestroy(&thread1);
-        HDF_LOGE("create test thread1 fail:%d", ret);
+        HDF_LOGE("I2cTestMultiThread: create test thread2 fail, ret: %d!", ret);
         return ret;
     }
 
     ret = I2cTestStartThread(&thread1, &thread2, &count1, &count2);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("test start thread fail:%d", ret);
+        HDF_LOGE("I2cTestMultiThread: test start thread fail, ret: %d!", ret);
     }
 
     (void)OsalThreadDestroy(&thread1);
@@ -351,7 +348,7 @@ static int32_t I2cTestPeformance(void)
 
     tester = I2cTesterGet();
     if (tester == NULL || tester->handle == NULL) {
-        HDF_LOGE("%s:get tester fail", __func__);
+        HDF_LOGE("I2cTestPeformance: get tester fail!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -361,12 +358,43 @@ static int32_t I2cTestPeformance(void)
 
     if (handle != NULL) {
         useTime = endMs - startMs;
-        HDF_LOGI("----->interface performance test:[start - end] < 1ms[%s]\r\n", useTime < 1 ? "yes" : "no");
+        HDF_LOGI("I2cTestPeformance: ----->interface performance test:[start - end] < 1ms[%s]\r\n",
+            useTime < 1 ? "yes" : "no");
         I2cClose(handle);
         return HDF_SUCCESS;
     }
 
     return HDF_FAILURE;
+}
+
+static int32_t I2cMiniWriteReadTest(void)
+{
+#ifdef __KERNEL__
+    struct I2cTester *tester = NULL;
+    uint8_t buf;
+    int32_t ret;
+
+    tester = I2cTesterGet();
+    if (tester == NULL || tester->handle == NULL) {
+        HDF_LOGE("I2cMiniWriteReadTest: get tester fail!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    ret = I2cWrite(tester->handle, &buf, sizeof(buf));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("I2cMiniWriteReadTest: i2c write fail, ret: %d!", ret);
+        return ret;
+    }
+
+    HDF_LOGI("I2cMiniWriteReadTest: i2c write test done, then test i2c read!");
+    ret = I2cRead(tester->handle, &buf, sizeof(buf));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("I2cMiniWriteReadTest: i2c read fail, ret: %d!", ret);
+        return ret;
+    }
+#endif
+    HDF_LOGI("I2cMiniWriteReadTest: all test done!");
+    return HDF_SUCCESS;
 }
 
 struct I2cTestEntry {
@@ -377,7 +405,6 @@ struct I2cTestEntry {
 
 static struct I2cTestEntry g_entry[] = {
     { I2C_TEST_CMD_TRANSFER, I2cTestTransfer, "I2cTestTransfer" },
-    { I2C_TEST_CMD_WRITE_READ, I2cTestWriteRead, "I2cTestWriteRead" },
     { I2C_TEST_CMD_MULTI_THREAD, I2cTestMultiThread, "I2cTestMultiThread" },
     { I2C_TEST_CMD_RELIABILITY, I2cTestReliability, "I2cTestReliability" },
     { I2C_TEST_CMD_PERFORMANCE, I2cTestPeformance, "I2cTestPeformance" },
@@ -385,6 +412,7 @@ static struct I2cTestEntry g_entry[] = {
     { I2C_TEST_CMD_TEARDOWN_ALL, I2cTestTearDownAll, "I2cTestTearDownAll" },
     { I2C_TEST_CMD_SETUP_SINGLE, I2cTestSetUpSingle, "I2cTestSetUpSingle" },
     { I2C_TEST_CMD_TEARDOWN_SINGLE, I2cTestTearDownSingle, "I2cTestTearDownSingle" },
+    { I2C_MINI_WRITE_READ_TEST, I2cMiniWriteReadTest, "I2cMiniWriteReadTest" },
 };
 
 int32_t I2cTestExecute(int cmd)

@@ -19,7 +19,7 @@
 
 using namespace testing::ext;
 
-class HdfLiteUartTest : public testing::Test {
+class HdfUartTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -27,21 +27,21 @@ public:
     void TearDown();
 };
 
-void HdfLiteUartTest::SetUpTestCase()
+void HdfUartTest::SetUpTestCase()
 {
     HdfTestOpenService();
 }
 
-void HdfLiteUartTest::TearDownTestCase()
+void HdfUartTest::TearDownTestCase()
 {
     HdfTestCloseService();
 }
 
-void HdfLiteUartTest::SetUp()
+void HdfUartTest::SetUp()
 {
 }
 
-void HdfLiteUartTest::TearDown()
+void HdfUartTest::TearDown()
 {
 }
 
@@ -51,14 +51,11 @@ void HdfLiteUartTest::TearDown()
  * @tc.type: FUNC
  * @tc.require: AR000F8689
  */
-HWTEST_F(HdfLiteUartTest, UartSetTransModeTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartSetTransModeTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_TRANSMODE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_TRANSMODE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -67,14 +64,11 @@ HWTEST_F(HdfLiteUartTest, UartSetTransModeTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartWriteTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartWriteTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_WRITE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_WRITE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -83,14 +77,11 @@ HWTEST_F(HdfLiteUartTest, UartWriteTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartReadTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartReadTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = { TEST_PAL_UART_TYPE, UART_TEST_CMD_READ, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_READ));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -99,14 +90,11 @@ HWTEST_F(HdfLiteUartTest, UartReadTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartSetBaudTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartSetBaudTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_BAUD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_BAUD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -115,14 +103,11 @@ HWTEST_F(HdfLiteUartTest, UartSetBaudTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartGetBaudTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartGetBaudTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_GET_BAUD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_GET_BAUD));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -131,14 +116,11 @@ HWTEST_F(HdfLiteUartTest, UartGetBaudTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartSetAttributeTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartSetAttributeTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_ATTRIBUTE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_ATTRIBUTE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -147,14 +129,11 @@ HWTEST_F(HdfLiteUartTest, UartSetAttributeTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartGetAttributeTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartGetAttributeTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_GET_ATTRIBUTE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_GET_ATTRIBUTE));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -163,14 +142,11 @@ HWTEST_F(HdfLiteUartTest, UartGetAttributeTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require: AR000F8689
   */
-HWTEST_F(HdfLiteUartTest, UartReliabilityTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartReliabilityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_RELIABILITY, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    printf("%s: kernel test done, then for user...\n", __func__);
-
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_RELIABILITY));
-    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -179,7 +155,19 @@ HWTEST_F(HdfLiteUartTest, UartReliabilityTest001, TestSize.Level1)
   * @tc.type: FUNC
   * @tc.require:
   */
-HWTEST_F(HdfLiteUartTest, UartIfPerformanceTest001, TestSize.Level1)
+HWTEST_F(HdfUartTest, UartIfPerformanceTest001, TestSize.Level1)
 {
     EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_PERFORMANCE));
+}
+
+/**
+  * @tc.name: UartMiniBlockWriteTest001
+  * @tc.desc: uart mini block write test only for the mini platform
+  * @tc.type: FUNC
+  * @tc.require:
+  */
+HWTEST_F(HdfUartTest, UartMiniBlockWriteTest001, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_MINI_BLOCK_WRITE_TEST, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }

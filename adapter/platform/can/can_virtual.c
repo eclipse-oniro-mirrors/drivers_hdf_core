@@ -177,14 +177,12 @@ static int32_t VirtualCanSetBitRate(struct VirtualCanCntlr *virtualCan, uint32_t
 
 static int32_t VirtualCanSetMode(struct VirtualCanCntlr *virtualCan, int32_t mode)
 {
-    switch (mode) {
-        case CAN_BUS_LOOPBACK:
-            virtualCan->workMode = CAN_BUS_LOOPBACK;
-            break;
-        default:
-            return HDF_ERR_NOT_SUPPORT;
+    if (mode == CAN_BUS_LOOPBACK) {
+        virtualCan->workMode = CAN_BUS_LOOPBACK;
+        return HDF_SUCCESS;
+    } else {
+        return HDF_ERR_NOT_SUPPORT;
     }
-    return HDF_SUCCESS;
 }
 
 static int32_t VirtualCanSetCfg(struct CanCntlr *cntlr, const struct CanConfig *cfg)

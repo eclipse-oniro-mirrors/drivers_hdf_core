@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,7 +27,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//build/lite/config/component/lite_component.gni")
-import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
+import("../hdf.gni")
 
 module_switch = defined(LOSCFG_DRIVERS_HDF_PLATFORM)
 module_name = "hdf_platform"
@@ -65,6 +65,7 @@ hdf_driver(module_name) {
     sources += [
       "$HDF_FRAMEWORKS_PATH/support/platform/src/i2c/i2c_core.c",
       "$HDF_FRAMEWORKS_PATH/support/platform/src/i2c/i2c_if.c",
+      "$HDF_FRAMEWORKS_PATH/support/platform/src/i2c/i2c_msg.c",
       "src/i2c_dev.c",
     ]
   }

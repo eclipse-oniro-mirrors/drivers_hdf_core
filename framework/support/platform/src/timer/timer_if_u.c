@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -25,14 +25,14 @@ static struct HdfIoService *TimerManagerGetService(void)
     }
     service = HdfIoServiceBind(TIMER_SERVICE_NAME);
     if (service == NULL) {
-        HDF_LOGE("%s: fail to get timer manager!", __func__);
+        HDF_LOGE("TimerManagerGetService: fail to get timer manager!");
         return NULL;
     }
 
     if (service->priv == NULL) {
         struct PlatformUserListenerManager *manager = PlatformUserListenerManagerGet(PLATFORM_MODULE_TIMER);
         if (manager == NULL) {
-            HDF_LOGE("%s: PlatformUserListenerManagerGet fail!", __func__);
+            HDF_LOGE("TimerManagerGetService: PlatformUserListenerManagerGet fail!");
             return service;
         }
         service->priv = manager;
@@ -51,22 +51,24 @@ DevHandle HwTimerOpen(const uint32_t number)
 
     service = TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("HwTimerOpen: service is invalid!");
         return NULL;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
+        HDF_LOGE("HwTimerOpen: fail to obtain data!");
         return NULL;
     }
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
+        HDF_LOGE("HwTimerOpen: fail to obtain reply!");
         HdfSbufRecycle(data);
         return NULL;
     }
 
     if (!HdfSbufWriteUint16(data, (uint16_t)number)) {
-        HDF_LOGE("%s: write number fail!", __func__);
+        HDF_LOGE("HwTimerOpen: write number fail!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return NULL;
@@ -74,14 +76,14 @@ DevHandle HwTimerOpen(const uint32_t number)
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_OPEN, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_OPEN service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerOpen: TIMER_IO_OPEN service process fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return NULL;
     }
 
     if (!HdfSbufReadUint32(reply, &handle)) {
-        HDF_LOGE("%s: read reply fail!", __func__);
+        HDF_LOGE("HwTimerOpen: read handle fail!");
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return NULL;
@@ -98,30 +100,31 @@ void HwTimerClose(DevHandle handle)
     struct HdfSBuf *data = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is invalid", __func__);
+        HDF_LOGE("HwTimerClose: handle is invalid!");
         return;
     }
 
     service = TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("HwTimerClose: service is invalid!");
         return;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
+        HDF_LOGE("HwTimerClose: fail to obtain data!");
         return;
     }
 
     if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("%s: write handle fail!", __func__);
+        HDF_LOGE("HwTimerClose: write handle fail!");
         HdfSbufRecycle(data);
         return;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_CLOSE, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_CLOSE service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerClose: TIMER_IO_CLOSE service process fail, ret: %d!", ret);
     }
 
     HdfSbufRecycle(data);
@@ -135,30 +138,30 @@ int32_t HwTimerStart(DevHandle handle)
     struct HdfSBuf *data = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is invalid", __func__);
+        HDF_LOGE("HwTimerStart: handle is invalid!");
         return HDF_FAILURE;
     }
     service = (struct HdfIoService *)TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("HwTimerStart: service is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: HdfSBufObtainDefaultSize fail!", __func__);
+        HDF_LOGE("HwTimerStart: fail to obtain data!");
         return HDF_FAILURE;
     }
 
     if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("%s: write handle fail!", __func__);
+        HDF_LOGE("HwTimerStart: write handle fail!");
         HdfSbufRecycle(data);
         return HDF_FAILURE;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_START, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_START service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerStart: TIMER_IO_START service process fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return HDF_FAILURE;
     }
@@ -174,31 +177,31 @@ int32_t HwTimerStop(DevHandle handle)
     struct HdfSBuf *data = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is invalid", __func__);
+        HDF_LOGE("HwTimerStop: handle is invalid!");
         return HDF_FAILURE;
     }
 
     service = (struct HdfIoService *)TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("HwTimerStop: service is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: HdfSbufObtainDefaultSize fail!", __func__);
+        HDF_LOGE("HwTimerStop: fail to obtain data!");
         return HDF_FAILURE;
     }
 
     if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("%s: write handle fail!", __func__);
+        HDF_LOGE("HwTimerStop: write handle fail!");
         HdfSbufRecycle(data);
         return HDF_FAILURE;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_STOP, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_STOP service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerStop: TIMER_IO_STOP service process fail, ret: %d!", ret);
         HdfSbufRecycle(data);
         return HDF_FAILURE;
     }
@@ -213,7 +216,7 @@ static int32_t TimerListenerReg(struct HdfIoService *service, DevHandle handle, 
 
     param = OsalMemCalloc(sizeof(struct PlatformUserListenerTimerParam));
     if (param == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc param fail", __func__);
+        HDF_LOGE("TimerListenerReg: OsalMemCalloc param fail!");
         return HDF_ERR_IO;
     }
     param->handle = (uint32_t)(uintptr_t)handle;
@@ -223,11 +226,11 @@ static int32_t TimerListenerReg(struct HdfIoService *service, DevHandle handle, 
 
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, param->handle, (void *)param,
         TimerOnDevEventReceive) != HDF_SUCCESS) {
-        HDF_LOGE("%s: PlatformUserListenerReg fail", __func__);
+        HDF_LOGE("TimerListenerReg: PlatformUserListenerReg fail!");
         OsalMemFree(param);
         return HDF_ERR_IO;
     }
-    HDF_LOGD("%s: get timer listener for %d success", __func__, param->handle);
+    HDF_LOGD("TimerListenerReg: get timer listener for %d success!", param->handle);
     return HDF_SUCCESS;
 }
 
@@ -239,42 +242,42 @@ int32_t HwTimerSet(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
     struct TimerConfig cfg;
 
     if (handle == NULL || cb == NULL) {
-        HDF_LOGE("%s: param is invalid", __func__);
+        HDF_LOGE("HwTimerSet: param is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     service = (struct HdfIoService *)TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s:param is invalid", __func__);
+        HDF_LOGE("HwTimerSet: param is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (memset_s(&cfg, sizeof(cfg), 0, sizeof(cfg)) != EOK) {
-        HDF_LOGE("%s:memset_s FAIL", __func__);
+        HDF_LOGE("HwTimerSet: memset_s fail!");
         return HDF_ERR_IO;
     }
     cfg.useconds = useconds;
 
     ret = TimerListenerReg(service, handle, cb, false);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerListenerReg fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerSet: TimerListenerReg fail, ret: %d!", ret);
         return HDF_FAILURE;
     }
 
     buf = HdfSbufObtainDefaultSize();
     if (buf == NULL) {
-        HDF_LOGE("%s: failed to obtain buf", __func__);
+        HDF_LOGE("HwTimerSet: fail to obtain buf!");
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfSbufWriteUint32(buf, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("%s: sbuf write handle failed", __func__);
+        HDF_LOGE("HwTimerSet: sbuf write handle fail!");
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteBuffer(buf, &cfg, sizeof(cfg))) {
-        HDF_LOGE("%s: sbuf write cfg failed", __func__);
+        HDF_LOGE("HwTimerSet: sbuf write cfg fail!");
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
@@ -282,7 +285,7 @@ int32_t HwTimerSet(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_SET, buf, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_SET service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerSet: TIMER_IO_SET service process fail, ret: %d!", ret);
         HdfSbufRecycle(buf);
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         return HDF_FAILURE;
@@ -300,42 +303,42 @@ int32_t HwTimerSetOnce(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
     struct TimerConfig cfg;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is invalid", __func__);
+        HDF_LOGE("HwTimerSetOnce: handle is invalid!");
         return HDF_FAILURE;
     }
 
     service = TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL || cb == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("HwTimerSetOnce: service is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (memset_s(&cfg, sizeof(cfg), 0, sizeof(cfg)) != EOK) {
-        HDF_LOGE("%s:memset_s FAIL", __func__);
+        HDF_LOGE("HwTimerSetOnce: memset_s fail!");
         return HDF_ERR_IO;
     }
     cfg.useconds = useconds;
 
     ret = TimerListenerReg(service, handle, cb, true);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TimerListenerReg fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerSetOnce: TimerListenerReg fail, ret: %d!", ret);
         return HDF_FAILURE;
     }
 
     buf = HdfSbufObtainDefaultSize();
     if (buf == NULL) {
-        HDF_LOGE("%s: failed to obtain buf", __func__);
+        HDF_LOGE("HwTimerSetOnce: fail to obtain buf!");
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfSbufWriteUint32(buf, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("%s: sbuf write handle failed", __func__);
+        HDF_LOGE("HwTimerSetOnce: sbuf write handle fail!");
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteBuffer(buf, &cfg, sizeof(cfg))) {
-        HDF_LOGE("%s: sbuf write cfg failed", __func__);
+        HDF_LOGE("HwTimerSetOnce: sbuf write cfg fail!");
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         HdfSbufRecycle(buf);
         return HDF_ERR_IO;
@@ -343,7 +346,7 @@ int32_t HwTimerSetOnce(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_SETONCE, buf, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_SETONCE service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerSetOnce: TIMER_IO_SETONCE service process fail, ret: %d!", ret);
         HdfSbufRecycle(buf);
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
         return HDF_FAILURE;
@@ -364,54 +367,54 @@ int32_t HwTimerGet(DevHandle handle, uint32_t *useconds, bool *isPeriod)
     uint32_t rLen;
 
     if ((handle == NULL) || (useconds == NULL) || (isPeriod == NULL)) {
-        HDF_LOGE("%s: param is invalid", __func__);
+        HDF_LOGE("HwTimerGet: param is invalid!");
         return HDF_FAILURE;
     }
 
     service = (struct HdfIoService *)TimerManagerGetService();
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("HwTimerGet: service is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: HdfSBufObtainDefaultSize fail!", __func__);
+        HDF_LOGE("HwTimerGet: fail to obtain data!");
         return HDF_FAILURE;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
+        HDF_LOGE("HwTimerGet: fail to obtain reply!");
         ret = HDF_ERR_MALLOC_FAIL;
         goto __EXIT;
     }
 
     if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("%s: write handle fail!", __func__);
+        HDF_LOGE("HwTimerGet: write handle fail!");
         ret = HDF_FAILURE;
         goto __EXIT;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, TIMER_IO_GET, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: TIMER_IO_GET service process fail:%d", __func__, ret);
+        HDF_LOGE("HwTimerGet: TIMER_IO_GET service process fail, ret: %d!", ret);
         ret = HDF_FAILURE;
         goto __EXIT;
     }
 
     if (!HdfSbufReadBuffer(reply, &rBuf, &rLen)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("HwTimerGet: sbuf read buffer fail!");
         ret = HDF_ERR_IO;
         goto __EXIT;
     }
     if (rLen != sizeof(struct TimerConfig)) {
-        HDF_LOGE("%s: sbuf read buffer len error %u != %zu", __func__, rLen, sizeof(struct TimerConfig));
+        HDF_LOGE("HwTimerGet: sbuf read buffer len error %u != %zu", rLen, sizeof(struct TimerConfig));
         ret = HDF_FAILURE;
         goto __EXIT;
     }
     if (memcpy_s(&cfg, sizeof(struct TimerConfig), rBuf, rLen) != EOK) {
-        HDF_LOGE("%s: memcpy rBuf failed", __func__);
+        HDF_LOGE("HwTimerGet: memcpy rBuf fail!");
         ret = HDF_ERR_IO;
         goto __EXIT;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -15,27 +15,25 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <map>
+
 #include "util/common.h"
 #include "util/file.h"
-#include "util/string_helper.h"
-
 #include "util/logger.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
-const char *Options::optSupportArgs = "c:d:r:";
+const char *Options::optSupportArgs = "hvs:m:l:p:c:d:r:o:D:";
 static struct option g_longOpts[] = {
     {"help",         no_argument,       nullptr, 'h'},
     {"version",      no_argument,       nullptr, 'v'},
-    {"gen-c",        no_argument,       nullptr, 'C'},
-    {"gen-cpp",      no_argument,       nullptr, 'P'},
-    {"gen-java",     no_argument,       nullptr, 'J'},
-    {"gen-hash",     no_argument,       nullptr, 'H'},
-    {"build-target", required_argument, nullptr, 'p'},
-    {"module-name",  required_argument, nullptr, 'N'},
-    {"passthrough",  no_argument,       nullptr, 'T'},
-    {"kernel",       no_argument,       nullptr, 'K'},
-    {"dump-ast",     no_argument,       nullptr, 'D'},
+    {"system",       required_argument, nullptr, 's'},
+    {"mode",         required_argument, nullptr, 'm'},
+    {"language",     required_argument, nullptr, 'l'},
+    {"package",      required_argument, nullptr, 'p'},
+    {"dump-ast",     no_argument,       nullptr, 'a'},
+    {"hash",         no_argument,       nullptr, 'H'},
     {nullptr,        0,                 nullptr, 0  }
 };
 
@@ -45,170 +43,201 @@ Options &Options::GetInstance()
     return option;
 }
 
-Options &Options::Parse(int argc, char *argv[])
+bool Options::Parse(int argc, char *argv[])
 {
-    program_ = argv[0];
+    int ret = true;
+    program = argv[0];
     opterr = 1;
     int op = 0;
     int optIndex = 0;
-
     while ((op = getopt_long(argc, argv, optSupportArgs, g_longOpts, &optIndex)) != OPT_END) {
-        SetOptionData(op);
+        switch (op) {
+            case 'v':
+                doShowVersion = true;
+                break;
+            case 's':
+                ret = SetSystemLevel(optarg);
+                break;
+            case 'm':
+                ret = SetGenerateMode(optarg);
+                break;
+            case 'l':
+                SetLanguage(optarg);
+                break;
+            case 'p':
+                SetPackage(optarg);
+                break;
+            case 'a':
+                doDumpAST = true;
+                break;
+            case 'H':
+                doHashKey = true;
+                break;
+            case 'c':
+                AddSources(optarg);
+                break;
+            case 'D':
+                AddSourcesByDir(optarg);
+                break;
+            case 'd':
+                SetOutDir(optarg);
+                break;
+            case 'r':
+                ret = AddPackagePath(optarg);
+                break;
+            case 'o':
+                outPutFile = optarg;
+                break;
+            default:
+                doShowUsage = true;
+                break;
+        }
     }
-    CheckOptions();
-
-    return *this;
+    return ret ? CheckOptions() : ret;
 }
 
-void Options::SetOptionData(char op)
+bool Options::SetSystemLevel(const std::string &system)
 {
-    switch (op) {
-        case 'c':
-            AddSources(optarg);
-            break;
-        case 'd':
-            SetOutDir(optarg);
-            break;
-        case 'h':
-            doShowUsage_ = true;
-            break;
-        case 'v':
-            doShowVersion_ = true;
-            break;
-        case 'r':
-            AddPackagePath(optarg);
-            break;
-        case 'K':
-            doModeKernel_ = true;
-            break;
-        case 'N':
-            SetModuleName(optarg);
-            break;
-        case 'C':
-            SetLanguage(Language::C);
-            break;
-        case 'P':
-            SetLanguage(Language::CPP);
-            break;
-        case 'J':
-            SetLanguage(Language::JAVA);
-            break;
-        case 'p':
-            SetCodePart(optarg);
-            break;
-        case 'T':
-            doPassthrough_ = true;
-            break;
-        case 'H':
-            doGetHashKey_ = true;
-            break;
-        case 'D':
-            doDumpAST_ = true;
-            break;
-        case '?':
-        default:
-            doShowUsage_ = true;
-            break;
+    static std::map<std::string, SystemLevel> systemLevelMap = {
+        {"mini", SystemLevel::MINI},
+        {"lite", SystemLevel::LITE},
+        {"full", SystemLevel::FULL},
+    };
+
+    auto levelIter = systemLevelMap.find(system);
+    if (levelIter == systemLevelMap.end()) {
+        Logger::E(TAG, "invalid system level set: '%s', please input mini/lite/full", system.c_str());
+        return false;
+    }
+    systemLevel = levelIter->second;
+    return true;
+}
+
+bool Options::SetGenerateMode(const std::string &mode)
+{
+    static std::map<std::string, GenMode> codeGenMap = {
+        {"low", GenMode::LOW},
+        {"passthrough", GenMode::PASSTHROUGH},
+        {"ipc", GenMode::IPC},
+        {"kernel", GenMode::KERNEL},
+    };
+
+    auto codeGenIter = codeGenMap.find(mode);
+    if (codeGenIter == codeGenMap.end()) {
+        Logger::E(TAG, "invalid generate mode set: '%s', please input low/passthrough/ipc/kernel.", mode.c_str());
+        return false;
+    }
+    genMode = codeGenIter->second;
+    return true;
+}
+
+bool Options::SetLanguage(const std::string &language)
+{
+    static const std::map<std::string, Language> languageMap = {
+        {"c", Language::C},
+        {"cpp", Language::CPP},
+        {"java", Language::JAVA},
+    };
+
+    const auto kindIter = languageMap.find(language);
+    if (kindIter == languageMap.end()) {
+        Logger::E(TAG, "invalid language '%s', please input c, cpp or java", language.c_str());
+        return false;
+    }
+
+    doGenerateCode = true;
+    genLanguage = kindIter->second;
+    return true;
+}
+
+void Options::SetPackage(const std::string &infPackage)
+{
+    idlPackage = infPackage;
+}
+
+void Options::AddSources(const std::string &sourceFile)
+{
+    std::string realPath = File::AdapterRealPath(sourceFile);
+    if (realPath.empty()) {
+        Logger::E(TAG, "invalid idl file path:%s", sourceFile.c_str());
+        return;
+    }
+
+    if (sourceFiles.insert(realPath).second == false) {
+        Logger::E(TAG, "this idl file has been add:%s", sourceFile.c_str());
+        return;
+    }
+    doCompile = true;
+}
+
+void Options::AddSourcesByDir(const std::string &dir)
+{
+    std::set<std::string> files = File::FindFiles(dir);
+    if (!files.empty()) {
+        doCompile = true;
+        sourceFiles.insert(files.begin(), files.end());
     }
 }
 
-void Options::AddPackagePath(const std::string &packagePath)
+bool Options::AddPackagePath(const std::string &packagePath)
 {
     size_t index = packagePath.find(":");
     if (index == std::string::npos || index == packagePath.size() - 1) {
-        errors_.push_back(
-            StringHelper::Format("%s: invalid option parameters '%s'.", program_.c_str(), packagePath.c_str()));
-        return;
+        Logger::E(TAG, "invalid option parameters '%s'.", packagePath.c_str());
+        return false;
     }
 
     std::string package = packagePath.substr(0, index);
     std::string path = File::AdapterRealPath(packagePath.substr(index + 1));
     if (path.empty()) {
-        errors_.push_back(
-            StringHelper::Format("%s: invalid path '%s'.", program_.c_str(), packagePath.substr(index + 1).c_str()));
-        return;
+        Logger::E(TAG, "invalid path '%s'.", packagePath.substr(index + 1).c_str());
+        return false;
     }
 
-    auto it = packagePath_.find(package);
-    if (it != packagePath_.end()) {
-        errors_.push_back(
-            StringHelper::Format("%s: The '%s:%s' has been set.", program_.c_str(), package.c_str(), path.c_str()));
+    auto it = packagePathMap.find(package);
+    if (it != packagePathMap.end()) {
+        Logger::E(TAG, "The '%s:%s' has been set.", package.c_str(), path.c_str());
+        return false;
     }
 
-    packagePath_[package] = path;
-}
-
-void Options::AddSources(const std::string &sourceFile)
-{
-    doCompile_ = true;
-    sourceFiles_.push_back(sourceFile);
+    packagePathMap[package] = path;
+    return true;
 }
 
 void Options::SetOutDir(const std::string &dir)
 {
-    doOutDir_ = true;
-    generationDirectory_ = dir;
+    doOutDir = true;
+    genDir = dir;
 }
 
-void Options::SetModuleName(const std::string &moduleName)
+bool Options::CheckOptions()
 {
-    doSetModuleName_ = true;
-    moduleName_ = moduleName;
-}
-
-void Options::SetLanguage(Language kind)
-{
-    doGenerateCode_ = true;
-    targetLanguage_ = kind;
-}
-
-void Options::SetCodePart(const std::string &part)
-{
-    // The default parameter is 'all', and the optional parameters is 'client' or 'server'
-    doGeneratePart_ = true;
-    codePart_ = part;
-}
-
-void Options::CheckOptions()
-{
-    if (doShowUsage_ || doShowVersion_) {
-        return;
+    if (doShowUsage || doShowVersion) {
+        return true;
     }
 
-    if (doCompile_) {
-        if (!doGetHashKey_ && !doDumpAST_ && !doGenerateCode_ && !doOutDir_) {
-            errors_.push_back(StringHelper::Format("%s: nothing to do.", program_.c_str()));
-            return;
+    if (doCompile) {
+        if (!DoGetHashKey() && !doDumpAST && !doGenerateCode && !doOutDir) {
+            Logger::E(TAG, "nothing to do.");
+            return false;
         }
 
-        if (!doGenerateCode_ && doOutDir_) {
-            errors_.push_back(StringHelper::Format("%s: no target language.", program_.c_str()));
-            return;
+        if (!doGenerateCode && doOutDir) {
+            Logger::E(TAG, "no target language.");
+            return false;
         }
 
-        if (doGenerateCode_ && !doOutDir_) {
-            errors_.push_back(StringHelper::Format("%s: no out directory.", program_.c_str()));
-            return;
-        }
-
-        if (doGeneratePart_ && codePart_ != "all" && codePart_ != "client" && codePart_ != "server") {
-            std::string errorLog = "The '--build-target' option parameter must be 'client' 'server' or 'all'.";
-            errors_.push_back(StringHelper::Format("%s: %s", program_.c_str(), errorLog.c_str()));
+        if (doGenerateCode && !doOutDir) {
+            Logger::E(TAG, "no out directory.");
+            return false;
         }
     } else {
-        if (doGetHashKey_ || doDumpAST_ || doGenerateCode_ || doOutDir_) {
-            errors_.push_back(StringHelper::Format("%s: no '-c' option.", program_.c_str()));
-            return;
+        if (DoGetHashKey() || doDumpAST || doGenerateCode || doOutDir) {
+            Logger::E(TAG, "no idl files.");
+            return false;
         }
     }
-}
-
-void Options::ShowErrors() const
-{
-    for (auto error : errors_) {
-        printf("%s\n", error.c_str());
-    }
-    printf("Use \"--help\" to show usage.\n");
+    return true;
 }
 
 void Options::ShowVersion() const
@@ -223,21 +252,21 @@ void Options::ShowUsage() const
     printf("Compile a .idl file and generate C/C++ and Java codes.\n"
            "Usage: idl [options] file\n"
            "Options:\n"
-           "  --help                          Display command line options\n"
-           "  --version                       Display toolchain version information\n"
-           "  --dump-ast                      Display the AST of the compiled file\n"
-           "  -r <rootPackage>:<rootPath>     set root path of root package\n"
+           "  -h, --help                      Display command line options\n"
+           "  -v, --version                   Display toolchain version information\n"
+           "  -s, --system <value>            Set system level 'mini','lite' or 'full', the default value is 'full'\n"
+           "  -m, --mode <value>              Set generate code mode 'low', 'passthrough', 'ipc' or 'kernel',"
+           " the default value is 'ipc'\n"
+           "  -l, --language <value>          Set language of generate code 'c','cpp','java' or 'hash',"
+           " the default value is 'cpp'\n"
+           "  -p, --package <package name>    Set package of idl files\n"
+           "      --dump-ast                  Display the AST of the compiled file\n"
+           "      --hash                      Generate hash info of idl files\n"
+           "  -r <rootPackage>:<rootPath>     Set root path of root package\n"
            "  -c <*.idl>                      Compile the .idl file\n"
-           "  --gen-hash                      Generate hash key of the idl file\n"
-           "  --gen-c                         Generate C code\n"
-           "  --gen-cpp                       Generate C++ code\n"
-           "  --gen-java                      Generate Java code\n"
-           "  --kernel                        Generate kernel-mode ioservice stub code,"
-           "default user-mode ioservice stub code\n"
-           "  --passthrough                   Generate code that only supports pass through mode"
-           "  --module-name <module name>     Set driver module name\n"
-           "  --build-target <target name>    Generate client code, server code or all code\n"
-           "  -d <directory>                  Place generated codes into <directory>\n");
+           "  -D <directory>                  Directory of the idl file\n"
+           "  -d <directory>                  Place generated codes into <directory>\n"
+           "  -o <file>                       Place the output into <file>\n");
 }
 
 /*

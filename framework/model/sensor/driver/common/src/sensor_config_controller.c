@@ -52,19 +52,38 @@ static uint32_t GetSensorRegRealValueMask(struct SensorRegCfg *cfgItem, uint32_t
 
 static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
-    uint8_t value[SENSOR_VALUE_BUTT];
+    uint8_t value[SENSOR_SHORT_VALUE_BUTT];
     int32_t ret;
     uint32_t originValue;
     uint32_t busMask;
     uint32_t mask;
+    uint16_t dataLen;
+    uint8_t *valueTemp = NULL;
 
     busMask = (busCfg->i2cCfg.regWidth == SENSOR_ADDR_WIDTH_1_BYTE) ? 0x00ff : 0xffff;
     mask = GetSensorRegRealValueMask(cfgItem, &originValue, busMask);
 
-    value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
-    value[SENSOR_VALUE_INDEX] = originValue & mask;
+    if ((cfgItem->regAddr >> SHIFT_BITS) == 0) {
+        value[SENSOR_SHORT_VALUE_INDEX0] = cfgItem->regAddr;
+        if (cfgItem->len != 0) {
+            value[SENSOR_SHORT_VALUE_INDEX1] = originValue & mask;
+            dataLen = SENSOR_SHORT_VALUE_INDEX1 + 1;
+        } else {
+            dataLen = SENSOR_SHORT_VALUE_INDEX1;
+        }
+    } else {
+        value[SENSOR_SHORT_VALUE_INDEX0] = (cfgItem->regAddr >> SHIFT_BITS) & 0x00ff;
+        value[SENSOR_SHORT_VALUE_INDEX1] = cfgItem->regAddr & 0x00ff;
+        if (cfgItem->len != 0) {
+            value[SENSOR_SHORT_VALUE_INDEX2] = originValue & mask;
+            dataLen = SENSOR_SHORT_VALUE_INDEX2 + 1;
+        } else {
+            dataLen = SENSOR_SHORT_VALUE_INDEX2;
+        }
+    }
+    valueTemp = value;
 
-    ret = WriteSensor(busCfg, value, sizeof(value));
+    ret = WriteSensor(busCfg, valueTemp, dataLen);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "write i2c reg");
 
     return ret;

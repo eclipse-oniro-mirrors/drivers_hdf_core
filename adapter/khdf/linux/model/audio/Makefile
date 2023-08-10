@@ -56,6 +56,9 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC) += \
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/rk3568/audio_drivers/
 
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
+          $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
+
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3566) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/
 
@@ -96,6 +99,10 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -lm -lc -lgcc -std=gnu99 -Werror\
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/core \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/utils \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/osal \
+             -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+             -I$(srctree)/drivers/hdf/inner_api/utils \
+             -I$(srctree)/drivers/hdf/inner_api/core \
+             -I$(srctree)/drivers/hdf/inner_api/host/shared \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/platform \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/config \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/audio \

@@ -76,11 +76,19 @@ struct HdfReset *CreateVirtualReset(const struct HdfResetConfig *resetConfig)
         const static struct HdfResetOps noManagableResetOps = {.Reset = ResetNoManagableReset,
                                                                .Release = ReleaseNoManagableReset};
         result = (struct HdfReset *)OsalMemCalloc(sizeof(struct HdfReset));
+        if (result == NULL) {
+            HDF_LOGE("%s:result OsalMemCalloc fail!", __func__);
+            return NULL;
+        }
         result->ops = &noManagableResetOps;
     } else if (resetConfig->resetType == RESET_TYPE_GPIO) {
         const static struct HdfResetOps gpioBasedResetOps = {.Reset = ResetGpioBasedReset,
                                                              .Release = ReleaseGpioBasedReset};
         struct GpioBasedReset *reset = (struct GpioBasedReset *)OsalMemCalloc(sizeof(struct GpioBasedReset));
+        if (reset == NULL) {
+            HDF_LOGE("%s:reset OsalMemCalloc fail!", __func__);
+            return NULL;
+        }
         reset->resetHoldTime = resetConfig->resetHoldTime;
         reset->gpioId = resetConfig->gpio.gpioId;
         reset->activeLevel = resetConfig->gpio.activeLevel;

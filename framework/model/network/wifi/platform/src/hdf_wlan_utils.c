@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -231,7 +231,8 @@ char *HdfWlanGetIfNames(const uint8_t chipId, uint8_t *ifNameCount)
     uint32_t netIfMapTemp;
     char *ifNames = NULL;
     uint32_t bufferSize;
-    uint8_t i, j;
+    uint8_t i;
+    uint8_t j;
     int32_t ret;
     if (ifNameCount == NULL) {
         HDF_LOGE("%s: para is NULL", __func__);

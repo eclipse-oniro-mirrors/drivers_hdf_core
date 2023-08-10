@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -119,7 +119,7 @@ static int32_t I2cMsgsCreateFromUser(I2cIoctlWrap *wrap,
     ret = LOS_CopyToKernel((void *)uMsgs, sizeof(*uMsgs) * wrap->nmsgs,
         (void *)wrap->msgs, sizeof(*uMsgs) * wrap->nmsgs);
     if (ret != LOS_OK) {
-        HDF_LOGE("%s: copy msgs from user fail!", __func__);
+        HDF_LOGE("I2cMsgsCreateFromUser: copy msgs from user fail!");
         goto __ERR__;
     }
 
@@ -131,7 +131,7 @@ static int32_t I2cMsgsCreateFromUser(I2cIoctlWrap *wrap,
         bufLen += uMsgs[i].len;
     }
     if (bufLen >= I2C_BUF_MAX) {
-        HDF_LOGE("%s: buf too long:%u", __func__, bufLen);
+        HDF_LOGE("I2cMsgsCreateFromUser: buf too long:%u", bufLen);
         ret = HDF_ERR_INVALID_PARAM;
         goto __ERR__;
     }
@@ -182,22 +182,22 @@ static ssize_t I2cFsRead(struct file *filep, char *buf, size_t count)
     struct I2cClient *client = filep->f_priv;
 
     if (client == NULL) {
-        HDF_LOGE("%s: client is null!", __func__);
+        HDF_LOGE("I2cFsRead: client is null!");
         return 0;
     }
 
     kbuf = (uint8_t *)OsalMemCalloc(count);
     if (kbuf == NULL) {
-        HDF_LOGE("%s: malloc kbuf fail!", __func__);
+        HDF_LOGE("I2cFsRead: malloc kbuf fail!");
         return 0;
     }
 
     ret = I2cCntlrRead(client->handle, client->addr, kbuf, count, client->flags);
-    PLAT_LOGV("%s: I2cRead called, ret:%d", __func__, ret);
+    PLAT_LOGV("I2cFsRead: I2cRead called, ret: %d!", ret);
 
     if (ret == HDF_SUCCESS) {
         if (LOS_CopyFromKernel(buf, count, kbuf, count) != LOS_OK) {
-            HDF_LOGE("%s: copy from kernel fail:%d", __func__, ret);
+            HDF_LOGE("I2cFsRead: copy from kernel fail, ret: %d!", ret);
             ret = HDF_ERR_IO;
         }
     }
@@ -220,7 +220,6 @@ static int32_t I2cCntlrWrite(DevHandle handle, uint16_t addr,
     return (ret == 1) ? HDF_SUCCESS : ret;
 }
 
-
 static ssize_t I2cFsWrite(struct file *filep, const char *buf, size_t count)
 {
     int32_t ret;
@@ -228,23 +227,23 @@ static ssize_t I2cFsWrite(struct file *filep, const char *buf, size_t count)
     struct I2cClient *client = filep->f_priv;
 
     if (client == NULL) {
-        HDF_LOGE("%s: client is null!", __func__);
+        HDF_LOGE("I2cFsWrite: client is null!");
         return 0;
     }
 
     kbuf = (uint8_t *)OsalMemCalloc(count);
     if (kbuf == NULL) {
-        HDF_LOGE("%s: malloc kbuf fail!", __func__);
+        HDF_LOGE("I2cFsWrite: malloc kbuf fail!");
         return 0;
     }
     if (LOS_CopyToKernel(kbuf, count, buf, count) != LOS_OK) {
-        HDF_LOGE("%s: copy to kernel fail!", __func__);
+        HDF_LOGE("I2cFsWrite: copy to kernel fail!");
         OsalMemFree(kbuf);
         return 0;
     }
 
     ret = I2cCntlrWrite(client->handle, client->addr, kbuf, count, client->flags);
-    PLAT_LOGV("%s: I2cWrite called, ret:%d", __func__, ret);
+    PLAT_LOGV("I2cFsWrite: I2cWrite called, ret: %d!", ret);
 
     OsalMemFree(kbuf);
     return (ret == HDF_SUCCESS) ? count : 0;
@@ -258,36 +257,36 @@ static int I2cIoctlReadWrite(const struct I2cClient *client, const void *arg)
     struct I2cMsg *kMsgs = NULL;
 
     if (arg == NULL) {
-        HDF_LOGE("%s: arg is null!", __func__);
+        HDF_LOGE("I2cIoctlReadWrite: arg is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = LOS_CopyToKernel(&wrap, sizeof(wrap), (void *)arg, sizeof(wrap));
     if (ret != LOS_OK) {
-        HDF_LOGE("%s: copy wrap fail!", __func__);
+        HDF_LOGE("I2cIoctlReadWrite: copy wrap fail!");
         return HDF_ERR_IO;
     }
 
     if (wrap.msgs == NULL || wrap.nmsgs == 0 || wrap.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS) {
-        HDF_LOGE("%s: wrap msgs is null or invalid num:%u!", __func__, wrap.nmsgs);
+        HDF_LOGE("I2cIoctlReadWrite: wrap msgs is null or invalid num:%u!", wrap.nmsgs);
         return HDF_ERR_INVALID_PARAM;
     }
 
     ret = I2cMsgsCreateFromUser(&wrap, &kMsgs, &uMsgs);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: recreate msgs fail!", __func__);
+        HDF_LOGE("I2cIoctlReadWrite: recreate msgs fail!");
         return ret;
     }
 
     ret = I2cTransfer(client->handle, kMsgs, wrap.nmsgs);
-    PLAT_LOGV("%s: I2cTransfer called, ret:%d", __func__, ret);
+    PLAT_LOGV("I2cIoctlReadWrite: I2cTransfer called, ret: %d!", ret);
     if ((unsigned int)ret == wrap.nmsgs) {
         ret = I2cMsgsCopyBackToUser(&wrap, kMsgs, uMsgs);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s: copy back fail! ret:%d", __func__, ret);
+            HDF_LOGE("I2cIoctlReadWrite: copy back fail, ret: %d!", ret);
         }
     } else {
-        HDF_LOGE("%s: transfer fail, ret:%d, nmsgs:%u", __func__, ret, wrap.nmsgs);
+        HDF_LOGE("I2cIoctlReadWrite: transfer fail, ret:%d, nmsgs:%u!", ret, wrap.nmsgs);
     }
 
     I2cMsgsDestroy(kMsgs, uMsgs);
@@ -303,7 +302,7 @@ static int I2cFsIoctl(struct file *filep, int cmd, unsigned long arg)
         case IOCTL_CLIENT_FORCE:
         case IOCTL_CLIENT:
             if ((((client->flags & I2C_M_TEN) == 0) && arg > 0xfe) || (arg > 0x3ff)) {
-                HDF_LOGE("%s:Not support arg(%0lu)!!!", __func__, arg);
+                HDF_LOGE("I2cFsIoctl: not support arg(%0lu)!!!", arg);
                 retval = -EINVAL;
                 break;
             }
@@ -338,7 +337,7 @@ static int I2cFsIoctl(struct file *filep, int cmd, unsigned long arg)
         case IOCTL_RETRIES:
         case IOCTL_TIMEOUT:
         default:
-            HDF_LOGE("Not support cmd(%0d)!!!", cmd);
+            HDF_LOGE("I2cFsIoctl: not support cmd(%0d)!!!", cmd);
             retval = -EINVAL;
     }
     return retval;
@@ -352,7 +351,7 @@ static int I2cFsOpen(struct file *filep)
     int16_t id;
 
     if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
-        HDF_LOGE("%s: function parameter is null", __func__);
+        HDF_LOGE("I2cFsOpen: function parameter is null");
         return -EINVAL;
     }
     drvData = (struct drv_data *)filep->f_vnode->data;
@@ -360,13 +359,13 @@ static int I2cFsOpen(struct file *filep)
 
     handle = I2cOpen(id);
     if (handle == NULL) {
-        HDF_LOGE("%s:Fail to get host:%d handle!", __func__, id);
+        HDF_LOGE("I2cFsOpen: fail to get host:%d handle!", id);
         return -1;
     }
 
     client = (struct I2cClient *)OsalMemCalloc(sizeof(*client));
     if (client == NULL) {
-        HDF_LOGE("%s:Fail to malloc client-%d!", __func__, id);
+        HDF_LOGE("I2cFsOpen: fail to malloc client-%d!", id);
         return -1;
     }
     client->handle = handle;
@@ -381,7 +380,7 @@ static int I2cFsClose(struct file *filep)
     struct I2cClient *client = filep->f_priv;
 
     if (client == NULL) {
-        HDF_LOGE("%s: has't opened!", __func__);
+        HDF_LOGE("I2cFsClose: has't opened!");
         return 0;
     }
 
@@ -433,24 +432,24 @@ int32_t I2cAddVfsById(int16_t id)
     char *name = NULL;
 
     if (id < 0 || id >= I2C_CNTLR_MAX) {
-        HDF_LOGE("%s: id:%d exceed max:%d", __func__, id, I2C_CNTLR_MAX);
+        HDF_LOGE("I2cAddVfsById: id:%d exceed max:%d", id, I2C_CNTLR_MAX);
         return HDF_ERR_INVALID_PARAM;
     }
     name = (char *)OsalMemCalloc(I2C_NAME_SIZE);
     if (name == NULL) {
-        HDF_LOGE("%s: malloc name fail!", __func__);
+        HDF_LOGE("I2cAddVfsById: malloc name fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
     /* create /dev/i2c-x device files for the i2c adatpers */
     ret = snprintf_s(name, I2C_NAME_SIZE, I2C_NAME_SIZE - 1, "/dev/i2c-%d", id);
     if (ret < 0) {
-        HDF_LOGE("%s: format name fail! ret:%d", __func__, ret);
+        HDF_LOGE("I2cAddVfsById: format name fail, ret: %d!", ret);
         OsalMemFree(name);
         return ret;
     }
     ret = register_driver(name, &g_i2cFops, I2C_FS_MODE, (void *)((uintptr_t)id));
     if (ret != 0) {
-        HDF_LOGE("%s: register %s fail! ret:%d", __func__, name, ret);
+        HDF_LOGE("I2cAddVfsById: register %s fail, ret: %d!", name, ret);
     }
     OsalMemFree(name);
     return ret;
@@ -467,24 +466,24 @@ void I2cRemoveVfsById(int16_t id)
     char *name = NULL;
 
     if (id < 0 || id >= I2C_CNTLR_MAX) {
-        HDF_LOGE("%s: id:%d exceed max:%d", __func__, id, I2C_CNTLR_MAX);
+        HDF_LOGE("I2cRemoveVfsById: id:%d exceed max:%d", id, I2C_CNTLR_MAX);
         return;
     }
     name = (char *)OsalMemCalloc(I2C_NAME_SIZE);
     if (name == NULL) {
-        HDF_LOGE("%s: malloc name fail!", __func__);
+        HDF_LOGE("I2cRemoveVfsById: malloc name fail!");
         return;
     }
     /* remove /dev/i2c-x device files for the i2c controllers */
     ret = snprintf_s(name, I2C_NAME_SIZE, I2C_NAME_SIZE - 1, "/dev/i2c-%d", id);
     if (ret < 0) {
-        HDF_LOGE("%s: format name fail! ret:%d", __func__, ret);
+        HDF_LOGE("I2cRemoveVfsById: format name fail, ret: %d!", ret);
         OsalMemFree(name);
         return;
     }
     ret = unregister_driver(name);
     if (ret != 0) {
-        HDF_LOGE("%s: unregister %s fail!", __func__, name);
+        HDF_LOGE("I2cRemoveVfsById: unregister %s fail!", name);
     }
     OsalMemFree(name);
 #else

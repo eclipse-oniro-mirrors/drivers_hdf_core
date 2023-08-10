@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -34,7 +34,7 @@ private:
 
     void EmitServiceImplConstructor(StringBuilder &sb, const std::string &prefix) const;
 
-    void EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitServiceImplMethodDecl(
         const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;
@@ -45,7 +45,7 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
-    void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix);
+    void EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitServiceImplMethodImpl(
         const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const;

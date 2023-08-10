@@ -169,8 +169,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
                         framework_hdf, adapter_model_path,
                         data_model, *args_tuple)
             else:
-                file_path = {}
-                model_level_config = {}
+                model_level_config = ""
         base_config = {
             'module_name': module,
             'module_path': file_path,
@@ -435,8 +434,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
             file_path = add_driver.add_kernel(file_list, head_list)
         elif board.startswith("hispark_taurus_standard_kernel"):
             file_path = add_driver.add_kernel(file_list, head_list)
-        else:
-            file_path = []
+
         config_item = {
             'module_name': module,
             'module_path': file_path,

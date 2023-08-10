@@ -102,6 +102,17 @@ int32_t EmmcGetCid(DevHandle handle, uint8_t *cid, uint32_t size);
  */
 void EmmcGetHuid(uint8_t *cid, uint32_t size);
 
+/**
+ * @brief The following emmc interfaces are only available for the mini platform
+ *
+ * @since 1.0
+ */
+int32_t EmmcGetCardState(DevHandle handle, uint8_t *state, uint32_t size);
+
+int32_t EmmcGetCardCsd(DevHandle handle, uint8_t *csd, uint32_t size);
+
+int32_t EmmcGetCardInfo(DevHandle handle, uint8_t *cardInfo, uint32_t size);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

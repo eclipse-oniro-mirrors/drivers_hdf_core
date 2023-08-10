@@ -7,12 +7,12 @@
  */
 
 #include "securec.h"
-#include "osal/osal_thread.h"
-#include "osal/osal_time.h"
-#include "osal/osal_mutex.h"
-#include "utils/hdf_log.h"
-#include "message_dispatcher.h"
+#include "osal_mutex.h"
+#include "osal_thread.h"
+#include "osal_time.h"
+#include "hdf_log.h"
 #include "hdf_wlan_priority_queue.h"
+#include "message_dispatcher.h"
 #include "message_router_inner.h"
 
 #ifdef USERSPACE_CLIENT_SUPPORT

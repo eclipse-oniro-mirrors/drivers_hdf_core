@@ -29,7 +29,7 @@
 #include "devmgr_dump.h"
 
 #define HDF_LOG_TAG devmgr_dump
-
+ 
 static const char *HELP_COMMENT =
     " usage:\n"
     " -help  :display help information\n"
@@ -40,13 +40,40 @@ static const char *HELP_COMMENT =
 static const uint32_t DATA_SIZE = 5000;
 static const uint32_t LINE_SIZE = 128;
 
-static int32_t DevMgrDumpHost(uint32_t argv, struct HdfSBuf *data, struct HdfSBuf *reply)
+static int32_t DevMgrDumpHostFindHost(const char *hostName, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct DevmgrService *devMgrSvc = (struct DevmgrService *)DevmgrServiceGetInstance();
     if (devMgrSvc == NULL) {
         return HDF_FAILURE;
     }
 
+    struct DevHostServiceClnt *hostClnt = NULL;
+    int32_t ret = HDF_FAILURE;
+    bool findFlag = false;
+
+    DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
+        HDF_LOGI("%{public}s hostName:%{public}s %{public}s", __func__, hostClnt->hostName, hostName);
+        if (strcmp(hostClnt->hostName, hostName) != 0) {
+            continue;
+        }
+        findFlag = true;
+        if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
+            (void)HdfSbufWriteString(reply, "The host does not start\n");
+            break;
+        }
+        ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
+        break;
+    }
+
+    if (!findFlag) {
+        (void)HdfSbufWriteString(reply, "The host does not exist\n");
+    }
+
+    return ret;
+}
+
+static int32_t DevMgrDumpHost(uint32_t argv, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
     const char *hostName = HdfSbufReadString(data);
     if (hostName == NULL) {
         HDF_LOGE("%{public}s hostName is null", __func__);
@@ -78,18 +105,7 @@ static int32_t DevMgrDumpHost(uint32_t argv, struct HdfSBuf *data, struct HdfSBu
         }
     }
 
-    struct DevHostServiceClnt *hostClnt = NULL;
-    int32_t ret = HDF_FAILURE;
-    DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
-        HDF_LOGI("%{public}s hostName:%{public}s %{public}s", __func__, hostClnt->hostName, hostName);
-        if (strcmp(hostClnt->hostName, hostName) != 0) {
-            continue;
-        }
-        if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
-            continue;
-        }
-        ret = hostClnt->hostService->Dump(hostClnt->hostService, hostData, reply);
-    }
+    int32_t ret = DevMgrDumpHostFindHost(hostName, hostData, reply);
 
     HdfSbufRecycle(hostData);
     return ret;
@@ -121,12 +137,14 @@ static int32_t DevMgrDumpServiceFindHost(const char *servName, struct HdfSBuf *d
                 continue;
             }
             if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
-                continue;
+                return ret;
             }
             ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
+            return ret;
         }
     }
 
+    (void)HdfSbufWriteString(reply, "The service does not exist\n");
     return ret;
 }
 

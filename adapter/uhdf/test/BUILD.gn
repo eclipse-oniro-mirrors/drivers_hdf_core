@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,23 +13,24 @@
 
 import("//build/lite/config/component/lite_component.gni")
 import("//build/lite/config/test.gni")
+import("platform_test.gni")
 
 lite_component("hdf_test_uhdf") {
   # add hdf subsystem unittest
+  unittest_path = "./unittest"
   if (ohos_build_type == "debug") {
     deps = [
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/config:hdf_adapter_uhdf_test_config",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/manager:hdf_adapter_uhdf_test_door",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/manager:hdf_adapter_uhdf_test_ioservice",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/manager:hdf_adapter_uhdf_test_manager",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/manager:hdf_adapter_uhdf_test_pm",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/manager:hdf_adapter_uhdf_test_sbuf",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/osal:hdf_adapter_uhdf_test_osal",
-      "//drivers/hdf_core/adapter/uhdf/test/unittest/osal:hdf_adapter_uhdf_test_osal_posix",
+      "$unittest_path/config:hdf_adapter_uhdf_test_config",
+      "$unittest_path/manager:hdf_adapter_uhdf_test_door",
+      "$unittest_path/manager:hdf_adapter_uhdf_test_ioservice",
+      "$unittest_path/manager:hdf_adapter_uhdf_test_manager",
+      "$unittest_path/manager:hdf_adapter_uhdf_test_pm",
+      "$unittest_path/manager:hdf_adapter_uhdf_test_sbuf",
+      "$unittest_path/osal:hdf_adapter_uhdf_test_osal",
+      "$unittest_path/osal:hdf_adapter_uhdf_test_osal_posix",
     ]
-    if (board_name == "hi3516dv300" || board_name == "hispark_taurus" ||
-        board_name == "hi3518ev300" || board_name == "hispark_aries") {
-      deps += [ "//drivers/hdf_core/adapter/uhdf/test/unittest/platform:hdf_adapter_uhdf_test_platform" ]
+    if (hdf_core_platform_test_support || hdf_core_platform_rtc_test_support) {
+      deps += [ "$unittest_path/platform:hdf_adapter_uhdf_test_platform" ]
     }
   }
   features = []

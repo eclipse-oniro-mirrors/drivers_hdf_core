@@ -9,6 +9,7 @@
 #include "servstatlistenerstub_fuzzer.h"
 #include <cstddef>
 #include <cstdint>
+#include "hdf_base.h"
 #include "hdf_log.h"
 #include "iservstat_listener_hdi.h"
 

@@ -9,21 +9,23 @@
 #include "usb_ddk_pnp_loader.h"
 #include <unistd.h>
 
-#include "devhost_service_clnt.h"
 #include "device_resource_if.h"
 #include "hcs_tree_if.h"
-#include "hdf_attribute_manager.h"
 #include "hdf_base.h"
 #include "hdf_cstring.h"
 #include "hdf_device_node.h"
 #include "hdf_device_object.h"
 #include "hdf_log.h"
+#include "hdf_dlist.h"
 #include "hdf_sbuf.h"
 #include "osal_file.h"
 #include "osal_mem.h"
 #include "osal_time.h"
 #include "securec.h"
 #include "usb_pnp_manager.h"
+#ifndef __LITEOS__
+#include "usb_wrapper.h"
+#endif
 
 #define HDF_LOG_TAG USB_DDK_PNP_LOADER
 
@@ -815,13 +817,13 @@ ERROR:
     return ret;
 }
 
-static void UsbDdkPnpLoaderAddDevice(uint32_t cmdId, uint8_t index, struct HdfDeviceObject *usbPnpManagerDevice,
+static bool UsbDdkPnpLoaderAddDevice(uint32_t cmdId, uint8_t index, struct HdfDeviceObject *usbPnpManagerDevice,
     const struct UsbPnpNotifyMatchInfoTable *infoTable, struct UsbPnpMatchIdTable **matchIdTable)
 {
     int32_t ret;
     struct UsbPnpMatchIdTable *idTable = NULL;
     int32_t tableCount;
-
+    bool match = false;
     for (tableCount = 0, idTable = matchIdTable[0]; idTable != NULL; idTable = matchIdTable[++tableCount]) {
         if (!UsbDdkPnpLoaderMatchDevice(infoTable, idTable)) {
             continue;
@@ -834,12 +836,13 @@ static void UsbDdkPnpLoaderAddDevice(uint32_t cmdId, uint8_t index, struct HdfDe
         HDF_LOGD("%s:%d matchDevice end, index=%d tableCount=%d is match \
             moduleName=%s, serviceName=%s",
             __func__, __LINE__, index, tableCount, idTable->moduleName, idTable->serviceName);
-
+        match = true;
         ret = UsbDdkPnpLoaderrAddPnpDevice(usbPnpManagerDevice, infoTable, idTable, cmdId);
         if (ret != HDF_SUCCESS) {
             continue;
         }
     }
+    return match;
 }
 
 static int32_t UsbDdkPnpLoaderRemoveHandle(
@@ -944,9 +947,16 @@ static int32_t UsbDdkPnpLoaderDevice(
         HDF_LOGE("%s:%d infoTable or super or g_usbPnpMatchIdTable is NULL!", __func__, __LINE__);
         return HDF_ERR_INVALID_PARAM;
     }
-
+    bool match = false;
     for (i = 0; i < infoTable->numInfos; i++) {
-        UsbDdkPnpLoaderAddDevice(id, i, usbPnpManagerDevice, infoTable, g_usbPnpMatchIdTable);
+        if (UsbDdkPnpLoaderAddDevice(id, i, usbPnpManagerDevice, infoTable, g_usbPnpMatchIdTable)) {
+            match = true;
+        }
+    }
+    if (!match) {
+#ifndef __LITEOS__
+        UsbDDKDriverMatchFailEvent(infoTable);
+#endif
     }
 
     for (tableCount = 0, idTable = g_usbPnpMatchIdTable[0]; idTable != NULL;

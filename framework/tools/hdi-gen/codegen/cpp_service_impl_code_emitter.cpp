@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -30,8 +30,16 @@ bool CppServiceImplCodeEmitter::ResolveDirectory(const std::string &targetDirect
 
 void CppServiceImplCodeEmitter::EmitCode()
 {
-    EmitImplHeaderFile();
-    EmitImplSourceFile();
+    switch (mode_) {
+        case GenMode::PASSTHROUGH:
+        case GenMode::IPC: {
+            EmitImplHeaderFile();
+            EmitImplSourceFile();
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void CppServiceImplCodeEmitter::EmitImplHeaderFile()
@@ -69,7 +77,8 @@ void CppServiceImplCodeEmitter::EmitServiceImplInclusions(StringBuilder &sb)
 void CppServiceImplCodeEmitter::EmitServiceImplDecl(StringBuilder &sb)
 {
     EmitBeginNamespace(sb);
-    sb.AppendFormat("class %sService : public %s {\n", baseName_.c_str(), interfaceName_.c_str());
+    sb.AppendFormat("class %sService : public %s {\n", baseName_.c_str(),
+        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append("public:\n");
     EmitServiceImplBody(sb, TAB);
     sb.Append("};\n");
@@ -90,14 +99,15 @@ void CppServiceImplCodeEmitter::EmitServiceImplConstructor(StringBuilder &sb, co
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", implName_.c_str());
 }
 
-void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix)
+void CppServiceImplCodeEmitter::EmitServiceImplMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
-        EmitServiceImplMethodDecl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            EmitServiceImplMethodDecl(method, sb, prefix);
             sb.Append("\n");
         }
+        interface = interface->GetExtendsInterface();
     }
 }
 
@@ -163,14 +173,15 @@ void CppServiceImplCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
 }
 
-void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix)
+void CppServiceImplCodeEmitter::EmitServiceImplMethodImpls(StringBuilder &sb, const std::string &prefix) const
 {
-    for (size_t i = 0; i < interface_->GetMethodNumber(); i++) {
-        AutoPtr<ASTMethod> method = interface_->GetMethod(i);
-        EmitServiceImplMethodImpl(method, sb, prefix);
-        if (i + 1 < interface_->GetMethodNumber()) {
+    AutoPtr<ASTInterfaceType> interface = interface_;
+    while (interface != nullptr) {
+        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+            EmitServiceImplMethodImpl(method, sb, prefix);
             sb.Append("\n");
         }
+        interface = interface->GetExtendsInterface();
     }
 }
 

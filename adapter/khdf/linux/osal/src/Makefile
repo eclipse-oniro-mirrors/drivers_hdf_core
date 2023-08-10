@@ -19,4 +19,6 @@ ccflags-y +=-I$(srctree)/include/hdf \
 			-I$(srctree)/include/hdf/utils \
 			-I$(srctree)/drivers/hdf/framework/utils/include \
 			-I$(srctree)/drivers/hdf/khdf/osal/include \
+                        -I$(srctree)/drivers/hdf/inner_api/osal/shared \
+                        -I$(srctree)/drivers/hdf/inner_api/utils \
 			-I$(srctree)/bounds_checking_function/include

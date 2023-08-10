@@ -502,8 +502,8 @@ static int HdfVNodeAdapterSendDevEvent(struct HdfVNodeAdapter *adapter, struct H
     return ret;
 }
 
-static int HdfVNodeAdapterSendDevEventNoLock(
-    struct HdfVNodeAdapter *adapter, struct HdfVNodeAdapterClient *vnodeClient, uint32_t id, const struct HdfSBuf *data)
+static int HdfVNodeAdapterSendDevEventNoLock(const struct HdfVNodeAdapter *adapter,
+    struct HdfVNodeAdapterClient *vnodeClient, uint32_t id, const struct HdfSBuf *data)
 {
     if (adapter == NULL || data == NULL || HdfSbufGetDataSize(data) == 0) {
         return HDF_ERR_INVALID_PARAM;

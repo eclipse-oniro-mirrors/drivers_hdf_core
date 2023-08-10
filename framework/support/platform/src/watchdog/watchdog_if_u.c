@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,19 +22,19 @@ static void *WatchdogServiceGetById(int16_t wdtId)
     void *service = NULL;
 
     if (wdtId < 0 || wdtId >= WATCHDOG_ID_MAX) {
-        HDF_LOGE("%s: invalid id:%d", __func__, wdtId);
+        HDF_LOGE("WatchdogServiceGetById: invalid id:%d!", wdtId);
         return NULL;
     }
 
     if (snprintf_s(serviceName, WATCHDOG_NAME_LEN + 1, WATCHDOG_NAME_LEN,
         "HDF_PLATFORM_WATCHDOG_%d", wdtId) < 0) {
-        HDF_LOGE("%s: format service name fail!", __func__);
+        HDF_LOGE("WatchdogServiceGetById: format service name fail!");
         return NULL;
     }
 
     service = (void *)HdfIoServiceBind(serviceName);
     if (service == NULL) {
-        HDF_LOGE("%s: get obj fail!", __func__);
+        HDF_LOGE("WatchdogServiceGetById: get obj fail!");
     }
 
     return service;
@@ -47,39 +47,39 @@ int32_t WatchdogOpen(int16_t wdtId, DevHandle *handle)
     struct HdfIoService *service = NULL;
 
     if (handle == NULL) {
-        HDF_LOGE("%s: handle null", __func__);
+        HDF_LOGE("WatchdogOpen: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = WatchdogServiceGetById(wdtId);
     if (service == NULL) {
-        HDF_LOGE("%s: get service fail", __func__);
+        HDF_LOGE("WatchdogOpen: get service fail!");
         return HDF_FAILURE;
     }
 
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogOpen: service is invalid!");
         HdfIoServiceRecycle(service);
         return HDF_FAILURE;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
+        HDF_LOGE("WatchdogOpen: fail to obtain reply!");
         HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_GET_PRIV, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: get priv error, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogOpen: get priv error, ret: %d!", ret);
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadInt32(reply, &ret)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("WatchdogOpen: sbuf read buffer fail!");
         HdfIoServiceRecycle(service);
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
@@ -97,14 +97,14 @@ void WatchdogClose(DevHandle handle)
 
     service = (struct HdfIoService *)handle;
     if (service == NULL ||service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogClose: service is invalid!");
         HdfIoServiceRecycle((struct HdfIoService *)handle);
         return;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_RELEASE_PRIV, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WatchdogReleasePriv error, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogClose: release priv error, ret: %d!", ret);
     }
     HdfIoServiceRecycle((struct HdfIoService *)handle);
 }
@@ -116,31 +116,31 @@ int32_t WatchdogGetStatus(DevHandle handle, int32_t *status)
     struct HdfIoService *service = NULL;
 
     if ((handle == NULL) || (status == NULL)) {
-        HDF_LOGE("%s: param is invalid", __func__);
+        HDF_LOGE("WatchdogGetStatus: handle or status is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogGetStatus: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
+        HDF_LOGE("WatchdogGetStatus: fail to obtain reply!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_GET_STATUS, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogGetStatus: get watchdog status error, ret: %d!", ret);
         HdfSbufRecycle(reply);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadInt32(reply, status)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("WatchdogGetStatus: sbuf read status fail!");
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
@@ -152,20 +152,21 @@ int32_t WatchdogStart(DevHandle handle)
 {
     int32_t ret;
     struct HdfIoService *service = NULL;
+
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is null", __func__);
+        HDF_LOGE("WatchdogStart: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogStart: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_START, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WatchdogCntlrStart error, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogStart: start watchdog error, ret: %d!", ret);
         return ret;
     }
 
@@ -176,20 +177,21 @@ int32_t WatchdogStop(DevHandle handle)
 {
     int32_t ret;
     struct HdfIoService *service = NULL;
+
     if (handle == NULL) {
-        HDF_LOGE("%s: handle is null", __func__);
+        HDF_LOGE("WatchdogStop: handle is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogStop: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_STOP, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WatchdogCntlrStop error, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogStop: stop watchdog error, ret: %d!", ret);
         return ret;
     }
 
@@ -204,25 +206,25 @@ int32_t WatchdogSetTimeout(DevHandle handle, uint32_t seconds)
 
     service = (struct HdfIoService *)handle;
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogSetTimeout: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
-        HDF_LOGE("%s: failed to obtain data", __func__);
+        HDF_LOGE("WatchdogSetTimeout: failed to obtain data!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     if (!HdfSbufWriteUint32(data, seconds)) {
-        HDF_LOGE("%s: sbuf write seconds failed", __func__);
+        HDF_LOGE("WatchdogSetTimeout: sbuf write seconds fail!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_SET_TIMEOUT, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to set timeout, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogSetTimeout: fail to set timeout, ret: %d!", ret);
         HdfSbufRecycle(data);
         return HDF_FAILURE;
     }
@@ -237,31 +239,31 @@ int32_t WatchdogGetTimeout(DevHandle handle, uint32_t *seconds)
     struct HdfIoService *service = NULL;
 
     if ((handle == NULL) || (seconds == NULL)) {
-        HDF_LOGE("%s: param is invalid", __func__);
+        HDF_LOGE("WatchdogGetTimeout: param is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     service = (struct HdfIoService *)handle;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogGetTimeout: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
-        HDF_LOGE("%s: failed to obtain reply", __func__);
+        HDF_LOGE("WatchdogGetTimeout: failed to obtain reply!");
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_GET_TIMEOUT, NULL, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to read, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogGetTimeout: fail to get timeout, ret: %d!", ret);
         HdfSbufRecycle(reply);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint32(reply, seconds)) {
-        HDF_LOGE("%s: sbuf read buffer failed", __func__);
+        HDF_LOGE("WatchdogGetTimeout: sbuf read seconds fail!");
         HdfSbufRecycle(reply);
         return HDF_ERR_IO;
     }
@@ -276,13 +278,13 @@ int32_t WatchdogFeed(DevHandle handle)
 
     service = (struct HdfIoService *)handle;
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
+        HDF_LOGE("WatchdogFeed: service is invalid!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, WATCHDOG_IO_FEED, NULL, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WatchdogCntlrFeed error, ret %d", __func__, ret);
+        HDF_LOGE("WatchdogFeed: feed watchdog error, ret: %d!", ret);
         return ret;
     }
 

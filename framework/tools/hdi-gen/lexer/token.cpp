@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -20,17 +20,17 @@ namespace HDI {
 std::string Token::Dump()
 {
     StringBuilder sb;
-    sb.AppendFormat("{kind_:%u, row_:%u, col_:%u, value_:%s}",
-        static_cast<size_t>(kind_), location_.row_, location_.col_, value_.c_str());
+    sb.AppendFormat("{kind:%u, row:%u, col:%u, value:%s}",
+        static_cast<size_t>(kind), location.row, location.col, value.c_str());
     return sb.ToString();
 }
 
 std::string LocInfo(const Token &token)
 {
-    size_t index = token.location_.filePath_.rfind(SEPARATOR);
+    size_t index = token.location.filePath.rfind(SEPARATOR);
     std::string fileName =
-        (index == std::string::npos) ? token.location_.filePath_ : token.location_.filePath_.substr(index + 1);
-    return StringHelper::Format("%s:%u:%u", fileName.c_str(), token.location_.row_, token.location_.col_);
+        (index == std::string::npos) ? token.location.filePath : token.location.filePath.substr(index + 1);
+    return StringHelper::Format("%s:%zu:%zu", fileName.c_str(), token.location.row, token.location.col);
 }
 } // namespace HDI
 } // namespace OHOS

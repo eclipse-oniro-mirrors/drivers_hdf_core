@@ -294,10 +294,6 @@ HWTEST_F(DevAttributeSerializeTest, DevAttributeSerializeTest014, TestSize.Level
 HWTEST_F(DevAttributeSerializeTest, DevAttributeSerializeTest015, TestSize.Level1)
 {
     DeviceSerializedAttributeRelease(nullptr);
-}
-
-HWTEST_F(DevAttributeSerializeTest, DevAttributeSerializeTest016, TestSize.Level1)
-{
     struct HdfDeviceInfo *attribute = HdfDeviceInfoNewInstance();
     ASSERT_NE(attribute, nullptr);
     DeviceSerializedAttributeRelease(attribute);

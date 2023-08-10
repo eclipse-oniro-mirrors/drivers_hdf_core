@@ -13,40 +13,36 @@
 
 namespace OHOS {
 namespace HDI {
-class ASTTypeAttr : public ASTNode {
+class ASTAttr : public ASTNode {
 public:
+    using Attribute = uint32_t;
+    static constexpr Attribute NONE = 0U;
+    static constexpr Attribute MINI = 0x1U;
+    static constexpr Attribute LITE = 0x1U << 1;
+    static constexpr Attribute FULL = 0x1U << 2;
+    static constexpr Attribute ONEWAY = 0x1U << 3;
+    static constexpr Attribute CALLBACK = 0x1U << 4;
+
+    explicit ASTAttr(Attribute value = ASTAttr::NONE) : value_(value) {}
+
     std::string ToString() const override;
 
     std::string Dump(const std::string &prefix) override;
 
-public:
-    bool isFull_ = false;
-    bool isLite_ = false;
-};
+    inline void SetValue(Attribute value)
+    {
+        value_ |= value;
+    }
 
-class ASTInfAttr : public ASTNode {
-public:
-    std::string ToString() const override;
+    bool HasValue(Attribute attr) const
+    {
+        return (value_ & attr) != 0;
+    }
 
-    std::string Dump(const std::string &prefix) override;
+    bool Match(SystemLevel level) const;
 
-public:
-    bool isFull_ = false;
-    bool isLite_ = false;
-    bool isCallback_ = false;
-    bool isOneWay_ = false;
-};
-
-class ASTMethodAttr : public ASTNode {
-public:
-    std::string ToString() const override;
-
-    std::string Dump(const std::string &prefix) override;
-
-public:
-    bool isFull_ = false;
-    bool isLite_ = false;
-    bool isOneWay_ = false;
+private:
+    Attribute value_;
 };
 
 enum class ParamAttr {
