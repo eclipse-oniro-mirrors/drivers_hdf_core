@@ -11,7 +11,7 @@ visual studio code 版本需1.62.0及以上。
 
 1.安装VS Code插件。
 
-2.找到工程中hcs文件，鼠标单击右键选择“HCS可视化配置”插件。
+2.找到工程中hcs文件，鼠标单击右键选择“HCS Configuration Source View”插件。
 
 3.在可视化节点配置窗口中编辑hcs配置节点。
 

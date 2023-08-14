@@ -25,19 +25,13 @@ visual studio code 版本需1.62.0及以上。
 
 ![](../figures/pic-plug-in-search.png)
 
-2.单击上面三个点的按钮，选择从VSIX安装选项，然后选择生成的hcsView-0.0.1.vsix插件文件，再单击安装。
+2.搜索框中输入hcs关键字，查找到插件，进行安装。
 
-![](../figures/pic-plug-in-select.png)
+![](../figures/pic-install-plugin.png)
 
-![](../figures/pic-install-plug.png)
+3.安装完成后，找到需要编辑的hcs文件，鼠标单击右键选择“HCS Configuration Source View”，例如：
 
-3.安装完成后就会在VS Code的插件管理器中能看到hcsView这个插件了。
-
-![](../figures/pic-plug-in-hcs.png)
-
-4.在VS Code中drivers_hdf_core-master\framework\tools\hcs-view\examples路径下找到需要编辑的hcs文件，鼠标单击右键选择“hcsView”，例如：
-
-![](../figures/pic-plug-in-select-hcs.png)
+![](../figures/pic-start-plugin.png)
 
 5.以上步骤操作成功后，即可打开可视化节点配置窗口，例如：
 
