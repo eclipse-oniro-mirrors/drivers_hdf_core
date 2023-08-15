@@ -487,6 +487,7 @@ static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwPa
         HDF_LOGE("read request perid failed!");
         return HDF_FAILURE;
     }
+    ADM_LOG_INFO("params->period = %d", params->period);
     if (!HdfSbufReadUint32(reqData, &params->frameSize)) {
         HDF_LOGE("read request frameSize failed!");
         return HDF_FAILURE;
@@ -526,7 +527,7 @@ static int32_t StreamHostHwParams(const struct HdfDeviceIoClient *client, struct
     struct AudioPcmHwParams params;
     struct AudioCard *audioCard = NULL;
     int32_t ret;
-    ADM_LOG_DEBUG("entry.");
+    ADM_LOG_INFO("entry.");
 
     if ((client == NULL || client->device == NULL) || (data == NULL)) {
         ADM_LOG_ERR("input param is NULL.");
@@ -551,6 +552,7 @@ static int32_t StreamHostHwParams(const struct HdfDeviceIoClient *client, struct
         ADM_LOG_ERR("hwparams dispatch failed ret=%d", ret);
         return HDF_FAILURE;
     }
+    ADM_LOG_INFO("params->period = %d", params.period);
     ADM_LOG_DEBUG("success.");
     return HDF_SUCCESS;
 }
@@ -595,7 +597,7 @@ static int32_t StreamHostCaptureOpen(const struct HdfDeviceIoClient *client, str
 {
     struct AudioCard *audioCard = NULL;
 
-    ADM_LOG_DEBUG("entry.");
+    ADM_LOG_INFO("entry.");
 
     if (data == NULL) {
         ADM_LOG_ERR("StreamHostCaptureOpen input param is NULL.");
@@ -663,6 +665,7 @@ static int32_t StreamHostRenderPrepare(const struct HdfDeviceIoClient *client, s
 static int32_t StreamHostRenderOpen(const struct HdfDeviceIoClient *client, struct HdfSBuf *data,
     struct HdfSBuf *reply)
 {
+    ADM_LOG_INFO("entry.");
     struct AudioCard *audioCard = NULL;
 
     (void)reply;
@@ -1178,6 +1181,7 @@ static int32_t StreamHostRenderStop(const struct HdfDeviceIoClient *client, stru
 static int32_t StreamHostRenderClose(const struct HdfDeviceIoClient *client, struct HdfSBuf *data,
     struct HdfSBuf *reply)
 {
+    ADM_LOG_INFO("entry.");
     struct AudioCard *audioCard = NULL;
     int32_t ret;
 
@@ -1260,6 +1264,7 @@ static int32_t StreamHostCaptureStop(const struct HdfDeviceIoClient *client,
 static int32_t StreamHostCaptureClose(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    ADM_LOG_INFO("entry.");
     struct AudioCard *audioCard = NULL;
     int32_t ret;
 
