@@ -19,6 +19,12 @@ const { DataType, NodeType } = require('./hcs/NodeTools');
 const { NodeTools } = require('./hcs/NodeTools');
 const INT64_MAX = 9223372036854775807n;
 const INT64_MIN = -9223372036854775808n;
+const CASE_DELETE = 5;
+const CASE_QUOTE = 4;
+const CASE_BOOL = 3;
+const CASE_ARRAY = 2;
+const CASE_CHARACTER_STR = 1;
+const CASE_INTEGER = 0;
 
 class AttrEditor {
   constructor() {
@@ -231,50 +237,50 @@ class AttrEditor {
       v.type_ == DataType.INT16 ||
       v.type_ == DataType.INT32 ||
       v.type_ == DataType.INT64) {
-      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[0]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[CASE_INTEGER]);
       AttributeArea.gi().addValidatorInput(
         'value', 'Attribute Value', NodeTools.jinZhi10ToX(v.value_, v.jinzhi_), false, '请输入整数');
     } else if (v.type_ == DataType.STRING) {
-      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[1]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[CASE_CHARACTER_STR]);
       AttributeArea.gi().addInput('value', 'Attribute Value', v.value_);
     } else if (v.type_ == DataType.ARRAY) {
-      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[2]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[CASE_ARRAY]);
       AttributeArea.gi().addTextArea('value', 'Attribute Value', NodeTools.arrayToString(v, 20));
     } else if (v.type_ == DataType.BOOL) {
-      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[3]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[CASE_BOOL]);
       AttributeArea.gi().addSelect('value', 'Attribute Value', [true, false], v.value_ == 1);
     } else if (v.type_ == DataType.REFERENCE) {
-      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[4]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[CASE_QUOTE]);
       AttributeArea.gi().addLabelButton('change_target', v.value_, 'Original Node');
     } else if (v.type_ == DataType.DELETE) {
-      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[5]);
+      AttributeArea.gi().addSelect('value_type', 'Type', AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[CASE_DELETE]);
     }
   }
 
   getNodeValue(v, value) {
     switch (AttrEditor.ATTR_TYPE_STR.indexOf(value)) {
-      case 0:
+      case CASE_INTEGER:
         v.type_ = DataType.INT8;
         v.value_ = 0;
         v.jinzhi_ = 10;
         break;
-      case 1:
+      case CASE_CHARACTER_STR:
         v.type_ = DataType.STRING;
         v.value_ = '';
         break;
-      case 2:
+      case CASE_ARRAY:
         v.type_ = DataType.ARRAY;
         v.value_ = [];
         break;
-      case 3:
+      case CASE_BOOL:
         v.type_ = DataType.BOOL;
         v.value_ = 1;
         break;
-      case 4:
+      case CASE_QUOTE:
         v.type_ = DataType.REFERENCE;
         v.value_ = 'unknow';
         break;
-      case 5:
+      case CASE_DELETE:
         v.type_ = DataType.DELETE;
         break;
     }

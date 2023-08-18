@@ -37,9 +37,11 @@ class XButton {
   }
 
   draw() {
+    const COLOR_OFF = 0x00202020;
+    const SIZE = 14;
     let coloroff = 0;
     if (this.touchDown_) {
-      coloroff = 0x00202020;
+      coloroff = COLOR_OFF;
     }
     this.pm2f_.fillRect(
       this.posX_,
@@ -50,7 +52,7 @@ class XButton {
     );
     if (this.name_ != undefined && this.name_.length > 0)
     {
-      this.pm2f_.drawText(this.name_, 14, this.posX_ + this.posW_ / 2, this.posY_ + this.posH_ / 2 + 2, 1, 1, 0, -2, -2, this.nameColor_ - coloroff);
+      this.pm2f_.drawText(this.name_, SIZE, this.posX_ + this.posW_ / 2, this.posY_ + this.posH_ / 2 + 2, 1, 1, 0, -2, -2, this.nameColor_ - coloroff);
     }
   }
 
