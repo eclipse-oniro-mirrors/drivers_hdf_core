@@ -57,9 +57,7 @@ hdf_driver(module_name) {
   }
 
   if (defined(LOSCFG_DRIVERS_HDF_DUAL_LCD_ICN9700_ST7701SN)) {
-    sources += [
-      "$HDF_FRAMEWORKS_PATH/../../../device/board/hisilicon/hispark_taurus/display_drivers/mipi_icn9700_st7701sn.c"
-    ]
+    sources += [ "$HDF_FRAMEWORKS_PATH/../../../device/board/hisilicon/hispark_taurus/display_drivers/mipi_icn9700_st7701sn.c" ]
   }
 
   if (defined(LOSCFG_DRIVERS_HDF_LCD_ST7789)) {
