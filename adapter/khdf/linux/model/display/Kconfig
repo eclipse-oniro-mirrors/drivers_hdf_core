@@ -22,3 +22,9 @@ config DRIVERS_HDF_LCD_ST7789
     depends on DRIVERS_HDF_DISP
     help
         Answer Y to enable HDF St7789 driver.
+config DRIVERS_HDF_DUAL_LCD_ICN9700_ST7701SN
+    bool "Enable HDF Icn9700&ST7701SN drivers"
+    default n
+    depends on DRIVERS_HDF_DISP
+    help
+        Answer Y to enable HDF Icn9700&ST7701SN drivers.

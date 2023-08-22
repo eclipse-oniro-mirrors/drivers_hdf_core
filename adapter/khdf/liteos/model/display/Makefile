@@ -56,6 +56,10 @@ ifeq ($(LOSCFG_DRIVERS_HDF_LCD_ICN9700), y)
 LOCAL_SRCS += $(LITEOSTOPDIR)/../../drivers/hdf_core/framework/model/display/driver/panel/mipi_icn9700.c
 endif
 
+ifeq ($(LOSCFG_DRIVERS_HDF_DUAL_LCD_ICN9700_ST7701SN), y)
+LOCAL_SRCS += $(LITEOSTOPDIR)/../../device/board/hisilicon/hispark_taurus/display_drivers/mipi_icn9700_st7701sn.c
+endif
+
 ifeq ($(LOSCFG_DRIVERS_HDF_LCD_ST7789), y)
 LOCAL_SRCS += $(LITEOSTOPDIR)/../../drivers/hdf_core/framework/model/display/driver/panel/ssp_st7789.c
 endif
