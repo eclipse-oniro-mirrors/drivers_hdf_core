@@ -32,6 +32,7 @@ const { ObjectType } = require('./hcs/ast');
 var DISPLAY_TEXT_MAX = 30;
 var ELLIPSIS_LEN = 3;
 var EQUAL_SIGN_LEN = 3;
+const MAX_RANDOM = 255;
 
 function rgba(colorArr) {
   return 0xff000000 | (colorArr[0] << 16) | (colorArr[1] << 8) | colorArr[2];
@@ -600,6 +601,10 @@ class MainEditor {
   }
 
   drawNode(pm2f, s, size, x, y, type, data) {
+    const SPACE = 2;
+    const MAXLEN_DISPLAY_WITH_SPACE = 25;
+    const MAXLEN_DISPLAY_NO_SPACE = 26;
+    const DISPLAY_TEXT_MAX_NOPOINT = 27;
     let w = pm2f.getTextWidth(type == DataType.ATTR ? s + ' = ' : s, size);
     if (data.parent_ == undefined) {
       return w;
@@ -607,37 +612,37 @@ class MainEditor {
 
     if (type == DataType.ATTR) {
       let lenDisplay = DISPLAY_TEXT_MAX - EQUAL_SIGN_LEN;
-      if (s.length < 25) {
+      if (s.length < MAXLEN_DISPLAY_WITH_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText(' = ', size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
-      } else if (s.length == 25) {
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
+      } else if (s.length == MAXLEN_DISPLAY_WITH_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText(' =', size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
-      } else if (s.length == 26) {
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
+      } else if (s.length == MAXLEN_DISPLAY_NO_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText('=', size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2 + pm2f.getTextWidth(s, size),
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
-      } else if (s.length > 26) {
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
+      } else if (s.length > MAXLEN_DISPLAY_NO_SPACE) {
         s = s.substring(0, lenDisplay) + '...';
         pm2f.drawText(s, size, x - (data.parent_ != undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
-          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
-          y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+          MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
+        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
       }
     } else {
-      pm2f.drawText( s.length > DISPLAY_TEXT_MAX ? s.substring(0, 27) + '...' : s, size, x - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_) +
-       MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      pm2f.drawText( s.length > DISPLAY_TEXT_MAX ? s.substring(0, DISPLAY_TEXT_MAX_NOPOINT) + '...' : s, size, x -
+        (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
+      y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     }
     return w;
   }
@@ -986,6 +991,7 @@ class MainEditor {
   }
 
   draw(pm2f) {
+    const DRAW_HEIGHT = 4;
     getVsCodeTheme();
     pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
     if (this.filePoint_ != null && this.filePoint_ in this.files_) {
@@ -1008,11 +1014,11 @@ class MainEditor {
       this.nodeMoreBtnPoint_ = 0;
       this.drawObj(pm2f, data, this.offX_, this.offY_, '');
     }
-    pm2f.fillRect(0, 0, window.innerWidth, 4, MainEditor.CANVAS_LINE);
+    pm2f.fillRect(0, 0, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
     pm2f.fillRect(
-      window.innerWidth - 420 - 4,
+      window.innerWidth - 420 - DRAW_HEIGHT,
       0,
-      4,
+      DRAW_HEIGHT,
       window.innerHeight,
       MainEditor.CANVAS_LINE
     );
@@ -1020,12 +1026,12 @@ class MainEditor {
     pm2f.fillRect(
       0,
       52,
-      window.innerWidth - 420 - 4,
-      4,
+      window.innerWidth - 420 - DRAW_HEIGHT,
+      DRAW_HEIGHT,
       MainEditor.CANVAS_LINE
     );
     this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
-    this.sltInclude.move(16, 20, window.innerWidth - 420 - 4 - 16, 20).draw();
+    this.sltInclude.move(16, 20, window.innerWidth - 420 - DRAW_HEIGHT - 16, 20).draw();
 
     if (this.selectNode_.type != null) {
       if (this.selectNode_.type == 'change_target') {
@@ -1082,8 +1088,8 @@ class MainEditor {
       for (let i in this.errorMsg_) {
         let y = Scr.logich / 2 - this.errorMsg_.length * 20 + i * 20;
         let a = parseInt((this.errorMsg_[i][0] - ts) / 2);
-        if (a > 255) {
-          a = 255;
+        if (a > MAX_RANDOM) {
+          a = MAX_RANDOM;
         }
         NapiLog.logError(a);
         a = a << 24;
@@ -1196,6 +1202,8 @@ class MainEditor {
   }
 
   procTouch(msg, x, y) {
+    const ADD = 6;
+    const DELETE = 7;
     if (this.searchInput) {
       if (XTools.InRect(x, y, ...this.searchInput.pos)) {
         if (this.searchInput.btnUp.procTouch(msg, x, y)) {
@@ -1257,7 +1265,7 @@ class MainEditor {
         } else if (nodeBtns.isRightClicked()) {
           this.onAttributeChange('change_current_select', nodeBtns.node_);
           switch (nodeBtns.node_.type_) {
-            case 6:
+            case ADD:
               RightMenu.Reset(
                 [
                   RightMenu.Button(null, 'Add Child Node', null, () => {
@@ -1277,7 +1285,7 @@ class MainEditor {
                 nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
               );
               break;
-            case 7:
+            case DELETE:
               RightMenu.Reset(
                 [
                   RightMenu.Button(null, 'Delete', null, () => {
@@ -1694,298 +1702,150 @@ class MainEditor {
   }
 
   initSearchAttrRectImgData(wurl) {
+    const HEIGHT = 32;
+    const NEW_WIDTH = 132;
+    const OLD_WIDTH = 8;
+    const CS_X_VAL = 8;
+    const RS_X_VAL = 124;
+    const CS_OLD_WIDTH = 116;
     this.searchAttrCicleImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.leftSearchAttrCicleCut_ = XTexture.gi().makeCut(
-      this.searchAttrCicleImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerSearchAttrCut_ = XTexture.gi().makeCut(
-      this.searchAttrCicleImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightSearchAttrCicleCut_ = XTexture.gi().makeCut(
-      this.searchAttrCicleImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
+    this.leftSearchAttrCicleCut_ = XTexture.gi().makeCut(this.searchAttrCicleImg_, 0, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.centerSearchAttrCut_ = XTexture.gi().makeCut(this.searchAttrCicleImg_, CS_X_VAL, 0, CS_OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.rightSearchAttrCicleCut_ = XTexture.gi().makeCut(this.searchAttrCicleImg_, RS_X_VAL, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
   }
 
   initSearchNoodRectImgData(wurl) {
+    const HEIGHT = 32;
+    const NEW_WIDTH = 132;
+    const OLD_WIDTH = 8;
+    const CS_X_VAL = 8;
+    const RS_X_VAL = 124;
+    const CS_OLD_WIDTH = 116;
     this.searchRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.leftSearchFocusCicleCut_ = XTexture.gi().makeCut(
-      this.searchRectFocusCicleImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerSearchCut_ = XTexture.gi().makeCut(
-      this.searchRectFocusCicleImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightSearchFocusCicleCut_ = XTexture.gi().makeCut(
-      this.searchRectFocusCicleImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
+    this.leftSearchFocusCicleCut_ = XTexture.gi().makeCut(this.searchRectFocusCicleImg_, 0, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.centerSearchCut_ = XTexture.gi().makeCut(this.searchRectFocusCicleImg_, CS_X_VAL, 0, CS_OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.rightSearchFocusCicleCut_ = XTexture.gi().makeCut(this.searchRectFocusCicleImg_, RS_X_VAL, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
   }
 
   initSearchImgData(wurl) {
+    const WIDTH = 16;
+    const HEIGHT = 16;
     this.searchImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.searchCut_ = XTexture.gi().makeCut(
-      this.searchImg_,
-      0,
-      0,
-      16,
-      16,
-      16,
-      16
-    );
+    this.searchCut_ = XTexture.gi().makeCut(this.searchImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initCloseImgData(wurl) {
+    const WIDTH = 16;
+    const HEIGHT = 16;
     this.closeImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.closeCut_ = XTexture.gi().makeCut(
-      this.closeImg_,
-      0,
-      0,
-      16,
-      16,
-      16,
-      16
-    );
+    this.closeCut_ = XTexture.gi().makeCut(this.closeImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initDownImgData(wurl) {
+    const WIDTH = 16;
+    const HEIGHT = 16;
     this.downImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.downCut_ = XTexture.gi().makeCut(this.downImg_, 0, 0, 16, 16, 16, 16);
+    this.downCut_ = XTexture.gi().makeCut(this.downImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initUpImgData(wurl) {
+    const WIDTH = 16;
+    const HEIGHT = 16;
     this.upImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.upCut_ = XTexture.gi().makeCut(this.upImg_, 0, 0, 16, 16, 16, 16);
+    this.upCut_ = XTexture.gi().makeCut(this.upImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initSearchBgImgData(wurl) {
+    const WIDTH = 494;
+    const HEIGHT = 56;
     this.searchBgImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.searchBgCut_ = XTexture.gi().makeCut(
-      this.searchBgImg_,
-      0,
-      0,
-      494,
-      56,
-      494,
-      56
-    );
+    this.searchBgCut_ = XTexture.gi().makeCut(this.searchBgImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initPopItemFocusImgData(wurl) {
+    const WIDTH = 148;
+    const HEIGHT = 32;
     RightMenu.popItemFocusImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    RightMenu.popItemFocusCut_ = XTexture.gi().makeCut(
-      RightMenu.popItemFocusImg_,
-      0,
-      0,
-      148,
-      32,
-      148,
-      32
-    );
+    RightMenu.popItemFocusCut_ = XTexture.gi().makeCut(RightMenu.popItemFocusImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initBackgroundImgData(wurl) {
+    const WIDTH = 156;
+    const HEIGHT = 112;
     RightMenu.backgroundImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    RightMenu.backgroundCut_ = XTexture.gi().makeCut(
-      RightMenu.backgroundImg_,
-      0,
-      0,
-      156,
-      112,
-      156,
-      112
-    );
+    RightMenu.backgroundCut_ = XTexture.gi().makeCut(RightMenu.backgroundImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initRootIconFocusImgData(wurl) {
+    const WIDTH = 132;
+    const HEIGHT = 32;
     this.rootIconFocusImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.rootIconFocusCut_ = XTexture.gi().makeCut(
-      this.rootIconFocusImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
+    this.rootIconFocusCut_ = XTexture.gi().makeCut(this.rootIconFocusImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initRootIconImgData(wurl) {
+    const WIDTH = 132;
+    const HEIGHT = 32;
     this.rootIconImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.rootIconCut_ = XTexture.gi().makeCut(
-      this.rootIconImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
+    this.rootIconCut_ = XTexture.gi().makeCut(this.rootIconImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initAttrIconImgData(wurl) {
+    const WIDTH = 8;
+    const HEIGHT = 8;
     this.attrIconImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.attrIconCut_ = XTexture.gi().makeCut(
-      this.attrIconImg_,
-      0,
-      0,
-      8,
-      8,
-      8,
-      8
-    );
+    this.attrIconCut_ = XTexture.gi().makeCut(this.attrIconImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initNodeIconImgData(wurl) {
+    const WIDTH = 8;
+    const HEIGHT = 8;
     this.nodeIconImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.nodeIconCut_ = XTexture.gi().makeCut(
-      this.nodeIconImg_,
-      0,
-      0,
-      8,
-      8,
-      8,
-      8
-    );
+    this.nodeIconCut_ = XTexture.gi().makeCut(this.nodeIconImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initcicleOpenImgData(wurl) {
+    const WIDTH = 20;
+    const HEIGHT = 20;
     this.cicleOpenImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.circleOpenCut_ = XTexture.gi().makeCut(
-      this.cicleOpenImg_,
-      0,
-      0,
-      20,
-      20,
-      20,
-      20
-    );
+    this.circleOpenCut_ = XTexture.gi().makeCut(this.cicleOpenImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initRectangleFocusImgData(wurl) {
+    const HEIGHT = 32;
+    const NEW_WIDTH = 132;
+    const OLD_WIDTH = 8;
+    const RF_OLD_WIDTH = 132;
+    const CF_X_VAL = 8;
+    const CF_OLD_WIDTH = 116;
+    const RR_X_VAL = 124;
     this.rectangleFocusImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.rectangleFocusCut_ = XTexture.gi().makeCut(
-      this.rectangleFocusImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
-    this.leftRectFocusCicleCut_ = XTexture.gi().makeCut(
-      this.rectangleFocusImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerFocusCut_ = XTexture.gi().makeCut(
-      this.rectangleFocusImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightRectFocusCicleCut_ = XTexture.gi().makeCut(
-      this.rectangleFocusImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
+    this.rectangleFocusCut_ = XTexture.gi().makeCut(this.rectangleFocusImg_, 0, 0, RF_OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.leftRectFocusCicleCut_ = XTexture.gi().makeCut(this.rectangleFocusImg_, 0, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.centerFocusCut_ = XTexture.gi().makeCut(this.rectangleFocusImg_, CF_X_VAL, 0, CF_OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.rightRectFocusCicleCut_ = XTexture.gi().makeCut(this.rectangleFocusImg_, RR_X_VAL, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
   }
 
   initCicleImgData(wurl) {
+    const WIDTH = 20;
+    const HEIGHT = 20;
     this.cicleImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.circleCut_ = XTexture.gi().makeCut(
-      this.cicleImg_,
-      0,
-      0,
-      20,
-      20,
-      20,
-      20
-    );
+    this.circleCut_ = XTexture.gi().makeCut(this.cicleImg_, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
   }
 
   initCutData(wurl) {
+    const HEIGHT = 32;
+    const NEW_WIDTH = 132;
+    const OLD_WIDTH = 8;
+    const CR_X_VAL = 8;
+    const RR_X_VAL = 124;
+    const WC_OLD_WIDTH = 132;
+    const CR_OLD_WIDTH = 116;
     this.whiteImg_ = XTexture.gi().loadTextureFromImage(wurl);
-    this.whiteCut_ = XTexture.gi().makeCut(
-      this.whiteImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
-    this.leftRectCicleCut_ = XTexture.gi().makeCut(
-      this.whiteImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerRectCut_ = XTexture.gi().makeCut(
-      this.whiteImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightRectCicleCut_ = XTexture.gi().makeCut(
-      this.whiteImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
+    this.whiteCut_ = XTexture.gi().makeCut(this.whiteImg_, 0, 0, WC_OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.leftRectCicleCut_ = XTexture.gi().makeCut(this.whiteImg_, 0, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.centerRectCut_ = XTexture.gi().makeCut(this.whiteImg_, CR_X_VAL, 0, CR_OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
+    this.rightRectCicleCut_ = XTexture.gi().makeCut(this.whiteImg_, RR_X_VAL, 0, OLD_WIDTH, HEIGHT, NEW_WIDTH, HEIGHT);
   }
 
   syncOpenStatus(newNode, oldParentNode) {

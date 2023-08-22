@@ -156,12 +156,13 @@ export class XMat4 {
     const RIGHT = -3;
     const UP = -1;
     const DOWN = -3;
+    const BY_MIDDLE = 2;
     this.unit();
     if (ox == LEFT) {
       ox = 0;
     }
     if (ox == MIDDLE) {
-      ox = realw / 2;
+      ox = realw / BY_MIDDLE;
     }
     if (ox == RIGHT) {
       ox = realw;
@@ -170,7 +171,7 @@ export class XMat4 {
       oy = 0;
     }
     if (oy == MIDDLE) {
-      oy = realh / 2;
+      oy = realh / BY_MIDDLE;
     }
     if (oy == DOWN) {
       oy = realh;

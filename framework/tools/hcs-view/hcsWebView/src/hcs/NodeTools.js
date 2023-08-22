@@ -16,6 +16,12 @@
 const { NapiLog } = require('./NapiLog');
 const re = require('./re');
 
+const MAX_DECIMAL = 10;
+const MAX_BINARY = 2;
+const MAX_OCTAL = 8;
+const MAX_HEXADECIMAL = 16;
+const STAT_SIZE = 100;
+
 var DataType = {
   INT8: 1,
   INT16: 2,
@@ -111,16 +117,19 @@ NodeTools.lookup = function (node) {
     (node.nodeType_ == NodeType.COPY ||
       node.nodeType_ == NodeType.REFERENCE ||
       node.nodeType_ == NodeType.INHERIT)
-  )
+  ) {
     refname = node.ref_;
+  }
   else if (
     node.type_ == DataType.ATTR &&
     node.value_.type_ == DataType.REFERENCE
-  )
+  ) {
     refname = node.value_.value_;
+  }
   else { return null; }
-  if (refname.indexOf('.') >= 0)
+  if (refname.indexOf('.') >= 0) {
     return NodeTools.getNodeByPath(getRoot(node), refname);
+  }
 
   let ret = NodeTools.findChildByName(node.parent_, refname);
   if (ret == null) {
@@ -467,16 +476,16 @@ NodeTools.merge = function (node1, node2) {
 NodeTools.jinZhi10ToX = function (num, jinzhi) {
   let ret;
   switch (jinzhi) {
-    case 2:
+    case MAX_BINARY:
       ret = '0b';
       break;
-    case 8:
+    case MAX_OCTAL:
       ret = '0';
       break;
-    case 10:
+    case MAX_DECIMAL:
       ret = '';
       break;
-    case 16:
+    case MAX_HEXADECIMAL:
       ret = '0x';
       break;
     default:
@@ -487,31 +496,31 @@ NodeTools.jinZhi10ToX = function (num, jinzhi) {
 };
 NodeTools.jinZhiXTo10 = function (s) {
   if (s == null || s.length == 0) {
-    return [0, 10];
+    return [0, MAX_DECIMAL];
   }
 
   s = s.trim();
   if (!isFinite(s)) {
-    return [undefined, 10];
+    return [undefined, MAX_DECIMAL];
   }
 
   try {
     if (s[0] == '0') {
       if (s.length == 1) {
-        return [BigInt(s), 10];
+        return [BigInt(s), MAX_DECIMAL];
       } else if (s[1] == 'b' || s[1] == 'B') {
-        return [BigInt(s), 2];
+        return [BigInt(s), MAX_BINARY];
       } else if (s[1] == 'x' || s[1] == 'X') {
-        return [BigInt(s), 16];
+        return [BigInt(s), MAX_HEXADECIMAL];
       } else {
-        return [BigInt('0o' + s.substring(1)), 8];
+        return [BigInt('0o' + s.substring(1)), MAX_OCTAL];
       }
     } else {
-      return [BigInt(s), 10];
+      return [BigInt(s), MAX_DECIMAL];
     }
   } catch (ex) {
     NapiLog.logError(ex.message);
-    return [undefined, 10];
+    return [undefined, MAX_DECIMAL];
   }
 };
 
@@ -522,7 +531,7 @@ NodeTools.createNewNode = function (type, name, value, nodetype) {
   ret.value_ = value;
   ret.isOpen_ = true;
   if (type < DataType.STRING) {
-    ret.jinzhi_ = 10;
+    ret.jinzhi_ = MAX_DECIMAL;
   }
   if (type == DataType.NODE) {
     ret.nodeType_ = nodetype;
@@ -570,14 +579,14 @@ NodeTools.stringToArray = function (s) {
     let p = 0;
     let stat = 0;
     let v;
-    while (p < s.length && stat < 100) {
+    while (p < s.length && stat < STAT_SIZE) {
       switch (stat) {
         case 0:
           if (s[p] == '"') {
             stat = 1;
             v = '';
           } else if (s[p] != ' ') {
-            stat = 100;
+            stat = STAT_SIZE;
           }
           break;
         case 1:
@@ -593,7 +602,7 @@ NodeTools.stringToArray = function (s) {
             stat = 0;
           }
           else if (s[p] != ' ') {
-            stat = 100;
+            stat = STAT_SIZE;
           }
           break;
       }

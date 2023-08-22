@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+const MAX_LABEL_LENGTH = 40;
+
 class AttributeArea {
   constructor() {
     document.attrCallback = this;
@@ -147,8 +149,8 @@ class AttributeArea {
     this.htmlStr += ret;
   }
   addButton(searchId, label) {
-    if (label.length > 40) {
-      label = label.substring(0, 40) + '...';
+    if (label.length > MAX_LABEL_LENGTH) {
+      label = label.substring(0, MAX_LABEL_LENGTH) + '...';
     }
     let text =
       '" class="button_click" type="button" onclick="document.attrCallback.Event(';
@@ -165,8 +167,8 @@ class AttributeArea {
       '</button><br>';
   }
   addLabelButton(searchId, label, title) {
-    if (label.length > 40) {
-      label = label.substring(0, 40) + '...';
+    if (label.length > MAX_LABEL_LENGTH) {
+      label = label.substring(0, MAX_LABEL_LENGTH) + '...';
     }
     let text =
       '" class="label_button_click" type="button" onclick="document.attrCallback.Event(';
@@ -186,8 +188,8 @@ class AttributeArea {
   }
 
   addButtonDelete(searchId, label) {
-    if (label.length > 40) {
-      label = label.substring(0, 40) + '...';
+    if (label.length > MAX_LABEL_LENGTH) {
+      label = label.substring(0, MAX_LABEL_LENGTH) + '...';
     }
     let text =
       '" class="button_click_delete" type="button" onclick="document.attrCallback.Event(';
