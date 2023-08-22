@@ -42,7 +42,7 @@ class CanvasInput {
     ci.focus();
 
     ci.addEventListener('keydown', (k) => {
-      if (k.key == 'Enter') {
+      if (k.key === 'Enter') {
         if (k.shiftKey) {
         } else {
           CanvasInput.Hide();

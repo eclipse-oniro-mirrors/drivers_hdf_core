@@ -80,15 +80,15 @@ export class XMat4 {
     return this;
   }
   rotate(x, y, z) {
-    if (x != 0) {
+    if (x !== 0) {
       tmpmat.initRotateMatX((x * Math.PI) / 180);
       this.mult(tmpmat);
     }
-    if (y != 0) {
+    if (y !== 0) {
       tmpmat.initRotateMatY((y * Math.PI) / 180);
       this.mult(tmpmat);
     }
-    if (z != 0) {
+    if (z !== 0) {
       tmpmat.initRotateMatZ((z * Math.PI) / 180);
       this.mult(tmpmat);
     }
@@ -127,10 +127,10 @@ export class XMat4 {
   }
 
   PerspectiveMatrix(n, f, w = NO_INITIAL_VAL, h = NO_INITIAL_VAL) {
-    if (w == NO_INITIAL_VAL) {
+    if (w === NO_INITIAL_VAL) {
       w = Scr.logicw;
     }
-    if (h == NO_INITIAL_VAL) {
+    if (h === NO_INITIAL_VAL) {
       h = Scr.logich;
     }
     let ret = w / (tan((30 * pi) / 180) * 2);
@@ -158,47 +158,47 @@ export class XMat4 {
     const DOWN = -3;
     const BY_MIDDLE = 2;
     this.unit();
-    if (ox == LEFT) {
+    if (ox === LEFT) {
       ox = 0;
     }
-    if (ox == MIDDLE) {
+    if (ox === MIDDLE) {
       ox = realw / BY_MIDDLE;
     }
-    if (ox == RIGHT) {
+    if (ox === RIGHT) {
       ox = realw;
     }
-    if (oy == UP) {
+    if (oy === UP) {
       oy = 0;
     }
-    if (oy == MIDDLE) {
+    if (oy === MIDDLE) {
       oy = realh / BY_MIDDLE;
     }
-    if (oy == DOWN) {
+    if (oy === DOWN) {
       oy = realh;
     }
-    if (ox != 0 || oy != 0) {
+    if (ox !== 0 || oy !== 0) {
       this.move(-ox, -oy, 0);
     }
-    if (sw != 1 || sh != 1) {
+    if (sw !== 1 || sh !== 1) {
       this.scale(sw, sh, 1);
     }
-    if (ra != 0) {
+    if (ra !== 0) {
       this.rotate(0, 0, ra);
     }
-    if (mx != 0 || my != 0) {
+    if (mx !== 0 || my !== 0) {
       this.move(mx, my, 0);
     }
   }
 
   Make2DTransformMat_(mx, my, sw, sh, ra, ox = 0, oy = 0) {
     this.unit();
-    if (mx != 0 || my != 0) {
+    if (mx !== 0 || my !== 0) {
       this.move(-mx, -my, 0);
     }
-    if (ra != 0) {
+    if (ra !== 0) {
       this.rotate(0, 0, -ra);
     }
-    if (sw != 1 || sh != 1) {
+    if (sw !== 1 || sh !== 1) {
       this.scale(1 / sw, 1 / sh, 1);
     }
     return this;

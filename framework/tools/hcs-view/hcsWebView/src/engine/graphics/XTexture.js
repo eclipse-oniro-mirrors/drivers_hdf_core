@@ -17,7 +17,7 @@ import { gl } from '../GLFrame.js';
 
 export class XTexture {
   static gi() {
-    if (XTexture.pinstance_ == null) {
+    if (XTexture.pinstance_ === null) {
       XTexture.pinstance_ = new XTexture();
     }
     return XTexture.pinstance_;
@@ -51,7 +51,7 @@ export class XTexture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
   loadTextureFromImage(path, keepdata = false) {
-    if (path == 'CUSTOM_TEXTURE_1') {
+    if (path === 'CUSTOM_TEXTURE_1') {
       var rid = this.ximages.length;
 
       var texture = gl.createTexture();
@@ -74,7 +74,7 @@ export class XTexture {
       return rid;
     } else {
       for (let i = 0; i < this.ximages.length; i++) {
-        if (this.ximages[i]['path'] == path) {
+        if (this.ximages[i]['path'] === path) {
           return i;
         }
       }
@@ -105,14 +105,14 @@ export class XTexture {
     }
   }
   TmpCut(rid, x = 0, y = 0, w = -1, h = -1, ww = 1024, hh = 1024) {
-    if (this.ximages[rid].stat != 1) {
+    if (this.ximages[rid].stat !== 1) {
       return -1;
     }
 
-    if (w == -1) {
+    if (w === -1) {
       w = ww;
     }
-    if (h == -1) {
+    if (h === -1) {
       h = hh;
     }
     this.allCuts[this.tmpCutid] = {
@@ -134,16 +134,16 @@ export class XTexture {
     return this.tmpCutid - 1;
   }
   makeCut(rid, x = 0, y = 0, w = -1, h = -1, ww = -1, hh = -1) {
-    if (ww == -1) {
+    if (ww === -1) {
       ww = this.ximages[rid].w;
     }
-    if (hh == -1) {
+    if (hh === -1) {
       hh = this.ximages[rid].h;
     }
-    if (w == -1) {
+    if (w === -1) {
       w = ww;
     }
-    if (h == -1) {
+    if (h === -1) {
       h = hh;
     }
     this.allCuts[this.aiCutid] = {
@@ -210,21 +210,21 @@ export class XTexture {
     let w = 1024;
     let h = size + 5;
     let x = 256;
-    while (x == 256) {
+    while (x === 256) {
       h -= 1;
       for (x = 0; x < 128; x++) {
         let p = (h * 1024 + x) * 4;
-        if (imgd[p] != 0) {
+        if (imgd[p] !== 0) {
           break;
         }
       }
     }
     let y = h;
-    while (y == h) {
+    while (y === h) {
       w -= 1;
       for (y = 0; y < h; y++) {
         let p = (y * 1024 + w) * 4;
-        if (imgd[p] != 0) {
+        if (imgd[p] !== 0) {
           break;
         }
       }
@@ -253,12 +253,12 @@ export class XTexture {
           break;
         }
       }
-      if (off != -1) {
+      if (off !== -1) {
         rid = k;
         break;
       }
     }
-    if (rid == -1) {
+    if (rid === -1) {
       rid = this.loadTexture(1024, 1024);
       this.textImgs[rid] = { mask: 0 };
       off = 0;

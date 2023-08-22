@@ -56,7 +56,7 @@ export function RandInt(min = 0, max = 100) {
 }
 
 export function GetURL() {
-  if ('undefined' != typeof wx) {
+  if ('undefined' !== typeof wx) {
     return 'https://7465-testegg-19e3c9-1301193145.tcb.qcloud.la/';
   } else {
     return '';

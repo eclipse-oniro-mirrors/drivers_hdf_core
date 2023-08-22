@@ -19,7 +19,7 @@ import { gl } from '../GLFrame.js';
 
 export class XShader {
   static gi() {
-    if (XShader.pinstance_ == null) {
+    if (XShader.pinstance_ === null) {
       XShader.pinstance_ = new XShader();
     }
     return XShader.pinstance_;
