@@ -77,7 +77,7 @@ ohos_shared_library("hdf_platform") {
 
   external_deps = [
     "hdf_core:hdf_posix_osal",
-    "hilog_featured_lite:hilog_shared",
+    "hilog_lite:hilog_shared",
   ]
 
   defines = [ "__USER__" ]
