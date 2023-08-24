@@ -174,6 +174,12 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
         HDF_LOGD("%{public}s host %{public}s devices is not empty", __func__, hostClnt->hostName);
         return HDF_SUCCESS;
     }
+    if (!HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
+        OsalMutexUnlock(&hostClnt->hostLock);
+        HDF_LOGD("%{public}s the hdf_devmgr need not to stop automatically started host %{public}s", __func__,
+            hostClnt->hostName);
+        return HDF_SUCCESS;
+    }
     hostClnt->hostPid = INVALID_PID;
     hostClnt->hostService = NULL; // old hostService will be recycled in CleanupDiedHostResources
     HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
