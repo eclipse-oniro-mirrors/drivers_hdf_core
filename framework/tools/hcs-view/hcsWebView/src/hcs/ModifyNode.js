@@ -25,7 +25,7 @@ function getParent(node, dest, parent) {
 
 function isNameRepeat(node, name) {
   for (let i in node.value_) {
-    if (node.value_[i].name_ == name) {
+    if (node.value_[i].name_ === name) {
       return true;
     }
   }
@@ -34,7 +34,7 @@ function isNameRepeat(node, name) {
 
 ModifyNode.modifyName = function (files, root, node, name) {
   let parent = getParent(root, node, null);
-  if (parent == null) {
+  if (parent === null) {
     NapiLog.logError("Can't change root node name");
     return false;
   }
@@ -44,7 +44,7 @@ ModifyNode.modifyName = function (files, root, node, name) {
 
 ModifyNode.modifyNodeType = function (files, root, node, type) {
   let parent = getParent(root, node, null);
-  if (parent == null) {
+  if (parent === null) {
     NapiLog.logError("Can't change root node type");
     return false;
   }
@@ -99,12 +99,12 @@ ModifyNode.addChildNode = function (root, node) {
 
 ModifyNode.deleteNode = function (node) {
   let parent = node.parent_;
-  if (parent == null) {
+  if (parent === null) {
     NapiLog.logError('不能删除root节点');
     return false;
   }
   for (let i in parent.value_) {
-    if (parent.value_[i] == node) {
+    if (parent.value_[i] === node) {
       parent.value_.splice(i, 1);
       return;
     }
@@ -114,38 +114,38 @@ ModifyNode.deleteNode = function (node) {
 ModifyNode.getInheritList = function (root, node) {
   let ret = [];
   let parent = getParent(root, node, null);
-  if (parent == null) return ret;
+  if (parent === null) return ret;
   for (let i in parent.value_) {
     let pn = parent.value_[i];
-    if (pn.type_ == DataType.NODE && pn.nodeType_ == NodeType.TEMPLETE) {
+    if (pn.type_ === DataType.NODE && pn.nodeType_ === NodeType.TEMPLETE) {
       ret.push(pn);
     }
   }
   let ps = [parent];
   while (true) {
     let pp = getParent(root, parent, null);
-    if (pp == null) {
+    if (pp === null) {
       break;
     }
     ps.splice(0, 0, pp);
   }
   let ptemp = null;
   for (let i in ps) {
-    if (ps[i].nodeType_ == NodeType.INHERIT) {
+    if (ps[i].nodeType_ === NodeType.INHERIT) {
       ptemp = NodeTools.findChildByName(ptemp, ps[i].ref_);
-    } else if (ptemp == null) {
+    } else if (ptemp === null) {
       ptemp = ps[i];
     } else {
       ptemp = NodeTools.findChildByName(ptemp, ps[i].name_);
     }
-    if (ptemp == null) {
+    if (ptemp === null) {
       break;
     }
   }
-  if (ptemp != null && ptemp != parent) {
+  if (ptemp !== null && ptemp !== parent) {
     for (let i in ptemp.value_) {
       let pn = ptemp.value_[i];
-      if (pn.type_ == DataType.NODE && pn.nodeType_ == NodeType.TEMPLETE) {
+      if (pn.type_ === DataType.NODE && pn.nodeType_ === NodeType.TEMPLETE) {
         ret.push(pn);
       }
     }
@@ -163,16 +163,16 @@ ModifyNode.getInheritNameList = function (root, node) {
 };
 ModifyNode.getInheritTemplete = function (root, node) {
   let parent = getParent(root, node, null);
-  if (parent == null) {
+  if (parent === null) {
     return null;
   }
   let ilist = ModifyNode.getInheritList(root, node);
   for (let i in ilist) {
-    if (parent.nodeType_ == NodeType.TEMPLETE) {
-      if (parent.ref_ == ilist[i].name_) {
+    if (parent.nodeType_ === NodeType.TEMPLETE) {
+      if (parent.ref_ === ilist[i].name_) {
         return ilist[i];
       }
-    } else if (parent.name_ == ilist[i].name_) {
+    } else if (parent.name_ === ilist[i].name_) {
       return ilist[i];
     }
   }

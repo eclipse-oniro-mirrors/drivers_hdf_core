@@ -232,16 +232,16 @@ class AttributeArea {
     this.htmlStr += ret;
   }
   addGap(type) {
-    if (type == 0) this.htmlStr += '<br>';
+    if (type === 0) this.htmlStr += '<br>';
   }
   Event(type, value) {
     let cbv = '';
-    if (type == 'input') {
+    if (type === 'input') {
       cbv = document.getElementById(value).value;
-    } else if (type == 'select') {
+    } else if (type === 'select') {
       cbv = document.getElementById(value).value;
     }
-    if (this.callbackFunc != null) {
+    if (this.callbackFunc !== null) {
       this.callbackFunc(value, type, cbv);
     }
   }
@@ -251,7 +251,7 @@ class AttributeArea {
 }
 AttributeArea.pInstance_ = null;
 AttributeArea.gi = function () {
-  if (AttributeArea.pInstance_ == null) {
+  if (AttributeArea.pInstance_ === null) {
     AttributeArea.pInstance_ = new AttributeArea();
   }
   return AttributeArea.pInstance_;

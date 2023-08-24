@@ -45,7 +45,7 @@ root {
 
 function getArray(fn) {
   for (let i in mockTest) {
-    if (mockTest[i].fn == fn) {
+    if (mockTest[i].fn === fn) {
       let ret = [];
       for (let j in mockTest[i].data) {
         ret.push(mockTest[i].data.charCodeAt(j));
@@ -73,9 +73,9 @@ class MockMessage {
     NapiLog.logInfo('---MockMessage start---');
     NapiLog.logInfo(msg.type);
     NapiLog.logInfo(msg.data);
-    if (msg.type == 'inited') {
+    if (msg.type === 'inited') {
       this.send('parse', mockTest[0].fn);
-    } else if (msg.type == 'getfiledata') {
+    } else if (msg.type === 'getfiledata') {
       this.send('filedata', {
         fn: msg.data,
         data: getArray(msg.data),
@@ -87,7 +87,7 @@ class MockMessage {
 
 MockMessage.pInstance_ = null;
 MockMessage.gi = function () {
-  if (MockMessage.pInstance_ == null) {
+  if (MockMessage.pInstance_ === null) {
     MockMessage.pInstance_ = new MockMessage();
   }
   return MockMessage.pInstance_;

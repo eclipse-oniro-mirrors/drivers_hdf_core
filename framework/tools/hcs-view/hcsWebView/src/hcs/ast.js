@@ -60,18 +60,18 @@ var UINT64_MAX = 0xffffffffffffffff;
 class AstObject {
   constructor(name, type, value, bindToken, jinzhi) {
     let callType = Object.prototype.toString.call(name);
-    if (callType == '[object Object]') {
+    if (callType === '[object Object]') {
       this.constructorSis(name.name_, name.type_, name.stringValue_);
       this.integerValue_ = name.integerValue_;
-    } else if (callType == '[object String]') {
-      if (Object.prototype.toString.call(value) == '[object Number]') {
-        if (Object.prototype.toString.call(bindToken) == '[object Object]') {
+    } else if (callType === '[object String]') {
+      if (Object.prototype.toString.call(value) === '[object Number]' || Object.prototype.toString.call(value) === '[object BigInt]') {
+        if (Object.prototype.toString.call(bindToken) === '[object Object]') {
           this.constructorSiit(name, type, value, bindToken, jinzhi);
         } else {
           this.constructorSii(name, type, value, jinzhi);
         }
-      } else if (Object.prototype.toString.call(value) == '[object String]') {
-        if (Object.prototype.toString.call(bindToken) == '[object Object]') {
+      } else if (Object.prototype.toString.call(value) === '[object String]') {
+        if (Object.prototype.toString.call(bindToken) === '[object Object]') {
           this.constructorSist(name, type, value, bindToken);
         } else {
           this.constructorSis(name, type, value);
@@ -136,13 +136,13 @@ class AstObject {
     }
   }
   addChild(childObj) {
-    if (childObj == null) {
+    if (childObj === null || childObj === undefined) {
       return false;
     }
-    if (this.child_ == null) {
+    if (this.child_ === null || this.child_ === undefined) { //
       this.child_ = childObj;
       let childNext = childObj;
-      while (childNext != null) {
+      while (childNext !== null && childNext !== undefined) {
         childNext.parent_ = this;
         childNext = childNext.next_;
       }
@@ -154,20 +154,20 @@ class AstObject {
   }
 
   addPeer(peerObject) {
-    if (peerObject == null) {
+    if (peerObject === null || peerObject === undefined) {
       return false;
     }
 
-    if (this == peerObject) {
+    if (this === peerObject) {
       NapiLog.logError('add self as peer');
       return false;
     }
 
-    if (this.next_ == null) {
+    if (this.next_ === null || this.next_ === undefined) {
       this.next_ = peerObject;
     } else {
       let lastNode = this.next_;
-      while (lastNode.next_ != null) {
+      while (lastNode.next_ !== null && lastNode.next_ !== undefined) {
         lastNode = lastNode.next_;
       }
       lastNode.next_ = peerObject;
@@ -183,14 +183,14 @@ class AstObject {
   }
 
   merge(srcObj) {
-    if (srcObj.name_ != this.name_) {
+    if (srcObj.name_ !== this.name_) {
       NapiLog.logError(
         this.sourceInfo() + 'merge different node to' + srcObj.sourceInfo()
       );
       return false;
     }
 
-    if (srcObj.type_ != this.type_) {
+    if (srcObj.type_ !== this.type_) {
       NapiLog.logError(
         this.sourceInfo() + 'conflict type with ' + srcObj.sourceInfo()
       );
@@ -205,7 +205,7 @@ class AstObject {
     return true;
   }
   copy(src, overwrite) {
-    if (src == null) {
+    if (src === null) {
       return false;
     }
 
@@ -239,8 +239,8 @@ class AstObject {
 
   lookup(name, type) {
     let peer = this.child_;
-    while (peer != null) {
-      if (peer.name_ == name && (type == 0 || peer.type_ == type)) {
+    while (peer !== null) {
+      if (peer.name_ === name && (type === 0 || peer.type_ === type)) {
         return peer;
       }
 
@@ -258,28 +258,28 @@ class AstObject {
   }
 
   isNode() {
-    return this.type_ == ObjectType.PARSEROP_CONFNODE;
+    return this.type_ === ObjectType.PARSEROP_CONFNODE;
   }
 
   isTerm() {
-    return this.type_ == ObjectType.PARSEROP_CONFTERM;
+    return this.type_ === ObjectType.PARSEROP_CONFTERM;
   }
   isArray() {
-    return this.type_ == ObjectType.PARSEROP_ARRAY;
+    return this.type_ === ObjectType.PARSEROP_ARRAY;
   }
   separate() {
     if (this.parent_ == null) {
       return;
     }
-    if (this.parent_.child_ == this) {
+    if (this.parent_.child_ === this) {
       this.parent_.child_ = this.next_;
       this.next_ = null;
       return;
     }
 
     let pre = this.parent_.child_;
-    while (pre != null) {
-      if (pre.next_ == this) {
+    while (pre !== null) {
+      if (pre.next_ === this) {
         let tmp = this.next_;
         this.next_ = null;
         pre.next_ = tmp;
@@ -339,8 +339,8 @@ class AstObject {
   }
   isElders(child) {
     let p = child;
-    while (p != null) {
-      if (p == this) {
+    while (p !== null) {
+      if (p === this) {
         return true;
       }
       p = p.parent_;
@@ -354,14 +354,14 @@ class AstObject {
 
 class ConfigNode extends AstObject {
   constructor(name, nodeType, refName) {
-    if (Object.prototype.toString.call(name) == '[object String]') {
+    if (Object.prototype.toString.call(name) === '[object String]') {
       super(name, ObjectType.PARSEROP_CONFNODE, '');
       this.refNodePath_ = refName;
       this.nodeType_ = nodeType;
       this.inheritIndex_ = 0;
       this.inheritCount_ = 0;
       this.templateSignNum_ = 0;
-    } else if (Object.prototype.toString.call(nodeType) == '[object Number]') {
+    } else if (Object.prototype.toString.call(nodeType) === '[object Number]') {
       super(name.strval, ObjectType.PARSEROP_CONFNODE, 0, name);
       this.refNodePath_ = refName;
       this.nodeType_ = nodeType;
@@ -377,7 +377,7 @@ class ConfigNode extends AstObject {
       this.templateSignNum_ = 0;
 
       let child = name.child_;
-      while (child != null) {
+      while (child !== null) {
         super.addChild(AstObjectFactory.build(child));
         child = child.next();
       }
@@ -406,10 +406,10 @@ class ConfigNode extends AstObject {
     return this.refNodePath_;
   }
   merge(srcObj) {
-    if (srcObj == null) {
+    if (srcObj === null) {
       return true;
     }
-    if (!srcObj.isNode() || srcObj.name() != this.name_) {
+    if (!srcObj.isNode() || srcObj.name() !== this.name_) {
       NapiLog.logError(
         sourceInfo() + 'merge conflict type with ' + srcObj.sourceInfo()
       );
@@ -417,7 +417,7 @@ class ConfigNode extends AstObject {
     }
 
     let srcNode = srcObj;
-    if (srcNode.getNodeType() == TokenType.DELETE) {
+    if (srcNode.getNodeType() === TokenType.DELETE) {
       srcObj.separate();
       this.separate();
       return true;
@@ -427,10 +427,10 @@ class ConfigNode extends AstObject {
     this.refNodePath_ = srcNode.refNodePath_;
 
     let childSrc = srcObj.child();
-    while (childSrc != null) {
+    while (childSrc !== null) {
       let childSrcNext = childSrc.next();
       let childDst = this.lookup(childSrc.name(), childSrc.type());
-      if (childDst == null) {
+      if (childDst === null) {
         childSrc.separate();
         this.addChild(childSrc);
       } else if (!childDst.merge(childSrc)) {
@@ -449,9 +449,9 @@ class ConfigNode extends AstObject {
   hasDuplicateChild() {
     let symMap = {};
     let child = this.child_;
-    while (child != null) {
+    while (child !== null) {
       let sym = symMap[child.name()];
-      if (sym != undefined) {
+      if (sym !== undefined) {
         NapiLog.logError(
           child.sourceInfo() +
             'redefined, first definition at ' +
@@ -466,7 +466,7 @@ class ConfigNode extends AstObject {
     return false;
   }
   inheritExpand(refObj) {
-    if (refObj == null) {
+    if (refObj === null) {
       NapiLog.logError(sourceInfo() + 'inherit invalid node: ' + refNodePath_);
       return false;
     }
@@ -484,7 +484,7 @@ class ConfigNode extends AstObject {
     return true;
   }
   refExpand(refObj) {
-    if (this.nodeType_ == NodeRefType.NODE_DELETE) {
+    if (this.nodeType_ === NodeRefType.NODE_DELETE) {
       this.separate();
       return true;
     }
@@ -497,9 +497,9 @@ class ConfigNode extends AstObject {
     }
 
     let ret = true;
-    if (this.nodeType_ == NodeRefType.NODE_REF) {
+    if (this.nodeType_ === NodeRefType.NODE_REF) {
       ret = this.nodeRefExpand(refObj);
-    } else if (nodeType_ == NodeRefType.NODE_COPY) {
+    } else if (nodeType_ === NodeRefType.NODE_COPY) {
       ret = nodeCopyExpand(refObj);
     }
 
@@ -507,9 +507,9 @@ class ConfigNode extends AstObject {
   }
   copy(src, overwrite) {
     let child = src.child();
-    while (child != null) {
+    while (child !== null) {
       let dst = this.lookup(child.name(), child.type());
-      if (dst == null) {
+      if (dst === null) {
         this.addChild(AstObjectFactory.build(child));
       } else if (!dst.copy(child, overwrite)) {
         return false;
@@ -523,7 +523,7 @@ class ConfigNode extends AstObject {
     return super.move(src);
   }
   nodeRefExpand(ref) {
-    if (ref == null) {
+    if (ref === null) {
       NapiLog.logError(
         sourceInfo() + "reference node '" + refNodePath_ + "' not exist"
       );
@@ -532,7 +532,7 @@ class ConfigNode extends AstObject {
     return ref.move(this);
   }
   nodeCopyExpand(ref) {
-    if (ref == null) {
+    if (ref === null) {
       NapiLog.logError(
         sourceInfo() + "copy node '" + refNodePath_ + "' not exist"
       );
@@ -543,9 +543,9 @@ class ConfigNode extends AstObject {
   }
   compare(other) {
     let objChild = this.child_;
-    while (objChild != null) {
+    while (objChild !== null) {
       let baseObj = this.lookup(objChild.name(), objChild.type());
-      if (baseObj == null) {
+      if (baseObj === null) {
         NapiLog.logError(
           objChild.sourceInfo() + 'not in template node: ' + other.sourceInfo()
         );
@@ -578,28 +578,28 @@ class ConfigNode extends AstObject {
 
 class ConfigTerm extends AstObject {
   constructor(name, value) {
-    if (Object.prototype.toString.call(name) == '[object String]') {
+    if (Object.prototype.toString.call(name) === '[object String]') {
       super(name, ObjectType.PARSEROP_CONFTERM, 0);
       this.signNum_ = 0;
       this.child_ = value;
-      if (value != null) {
+      if (value !== null) {
         value.this.setParent(this);
       }
     } else if (
-      Object.prototype.toString.call(value) == '[object Object]' ||
-      Object.prototype.toString.call(value) == '[object Null]'
+      Object.prototype.toString.call(value) === '[object Object]' ||
+      Object.prototype.toString.call(value) === '[object Null]'
     ) {
       super(name.strval, ObjectType.PARSEROP_CONFTERM, 0, name);
       this.signNum_ = 0;
       this.child_ = value;
-      if (value != null) {
+      if (value !== null) {
         value.this.setParent(this);
       }
     } else {
       super(name.name_, ObjectType.PARSEROP_CONFTERM, 0);
       this.signNum_ = 0;
       this.child_ = value;
-      if (value != null) {
+      if (value !== null) {
         value.this.setParent(this);
       }
       super.addChild(AstObjectFactory.build(name.child_));
@@ -625,21 +625,21 @@ class ConfigTerm extends AstObject {
   }
 
   refExpand(refObj) {
-    if (child_.type() == ObjectType.PARSEROP_DELETE) {
+    if (child_.type() === ObjectType.PARSEROP_DELETE) {
       this.separate();
       return true;
     }
 
-    if (child_.type() != ObjectType.PARSEROP_NODEREF) {
+    if (child_.type() !== ObjectType.PARSEROP_NODEREF) {
       return true;
     }
 
     if (
-      refObj == null ||
+      refObj === null ||
       !refObj.isNode() ||
-      ConfigNode.castFrom(refObj).getNodeType() == NodeRefType.NODE_REF ||
-      ConfigNode.castFrom(refObj).getNodeType() == NodeRefType.NODE_TEMPLATE ||
-      ConfigNode.castFrom(refObj).getNodeType() == NodeRefType.NODE_DELETE
+      ConfigNode.castFrom(refObj).getNodeType() === NodeRefType.NODE_REF ||
+      ConfigNode.castFrom(refObj).getNodeType() === NodeRefType.NODE_TEMPLATE ||
+      ConfigNode.castFrom(refObj).getNodeType() === NodeRefType.NODE_DELETE
     ) {
       NapiLog.logError(
         sourceInfo() + "reference invalid node '" + child_.stringValue() + "'"
@@ -655,7 +655,7 @@ class ConfigTerm extends AstObject {
       return true;
     }
     if (
-      this.child_.type() != src.child().type() &&
+      this.child_.type() !== src.child().type() &&
       (!this.child_.isNumber() || !src.child().isNumber())
     ) {
       NapiLog.logError(
@@ -682,13 +682,13 @@ class ConfigTerm extends AstObject {
 }
 class ConfigArray extends AstObject {
   constructor(array) {
-    if (Object.prototype.toString.call(array) == '[object Object]') {
+    if (Object.prototype.toString.call(array) === '[object Object]') {
       super('', ObjectType.PARSEROP_ARRAY, 0, array); // bindToken
       this.arrayType_ = 0;
       this.arraySize_ = 0;
-      if (array.type == undefined) {
+      if (array.type === undefined) {
         let child = array.child_;
-        while (child != null) {
+        while (child !== null) {
           super.addChild(AstObjectFactory.build(child));
           child = child.next();
         }
@@ -734,7 +734,7 @@ class ConfigArray extends AstObject {
     let array = ConfigArray.castFrom(src);
     this.child_ = null;
     let t = array.child_;
-    while (t != null) {
+    while (t !== null) {
       addChild(AstObjectFactory.build(t));
     }
     return true;
@@ -794,13 +794,13 @@ class Ast {
           NapiLog.logInfo(this.setw(walkDepth * 4) + current.stringValue_);
           break;
         case ObjectType.PARSEROP_CONFNODE: // 6 content
-          if (current.name_ == 'blockSize') {
+          if (current.name_ === 'blockSize') {
             current.name_ = 'blockSize';
           }
           NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_ + ' :');
           break;
         case ObjectType.PARSEROP_CONFTERM: // 7 Attribute name
-          if (current.name_ == 'funcNum') {
+          if (current.name_ === 'funcNum') {
             current.name_ = 'funcNum';
           }
           NapiLog.logInfo(this.setw(walkDepth * 4) + current.name_ + ' = ');
@@ -832,9 +832,9 @@ class Ast {
       if (!astIt.redefineCheck()) {
         return false;
       }
-      if (this.astRoot_ != null && !this.astRoot_.merge(astIt.astRoot_)) {
+      if (this.astRoot_ !== null && !this.astRoot_.merge(astIt.astRoot_)) {
         return false;
-      } else if (this.astRoot_ == null) {
+      } else if (this.astRoot_ === null) {
         this.astRoot_ = astIt.getAstRoot();
       }
     }
@@ -843,8 +843,8 @@ class Ast {
 
   getchild(node, name) {
     let p = node.child_;
-    while (p != null) {
-      if (p.name_ == name) {
+    while (p !== null) {
+      if (p.name_ === name) {
         return p;
       }
       p = p.next_;
@@ -855,7 +855,7 @@ class Ast {
   getpath(node) {
     NapiLog.logError('----path start----');
     let p = node;
-    while (p != null) {
+    while (p !== null) {
       NapiLog.logError(p.name_);
       p = p.parent_;
     }
@@ -869,7 +869,7 @@ class Ast {
       return false;
     }
 
-    if (this.astRoot_.lookup('module', ObjectType.PARSEROP_CONFTERM) == null) {
+    if (this.astRoot_.lookup('module', ObjectType.PARSEROP_CONFTERM) === null) {
       NapiLog.logError(
         astRoot_.sourceInfo() + "miss 'module' attribute under root node"
       );
@@ -891,14 +891,14 @@ class Ast {
     return this.walkBackward(this.astRoot_, (current, walkDepth) => {
       if (current.isNode()) {
         let node = current;
-        if (node.getNodeType() == NodeRefType.NODE_DELETE) {
+        if (node.getNodeType() === NodeRefType.NODE_DELETE) {
           current.remove();
           child_;
           return HcsErrorNo.NOERR;
         }
         if (
-          node.getNodeType() != NodeRefType.NODE_REF &&
-          node.getNodeType() != NodeRefType.NODE_COPY
+          node.getNodeType() !== NodeRefType.NODE_REF &&
+          node.getNodeType() !== NodeRefType.NODE_COPY
         ) {
           return HcsErrorNo.NOERR;
         }
@@ -909,11 +909,11 @@ class Ast {
         }
       } else if (current.isTerm()) {
         let ref;
-        if (current.child_.type() == ObjectType.PARSEROP_DELETE) {
+        if (current.child_.type() === ObjectType.PARSEROP_DELETE) {
           current.remove();
           return HcsErrorNo.NOERR;
         }
-        if (current.child_.type() == ObjectType.PARSEROP_NODEREF) {
+        if (current.child_.type() === ObjectType.PARSEROP_NODEREF) {
           ref = lookup(current, current.child_.stringValue());
           if (!current.refExpand(ref)) {
             return HcsErrorNo.EFAIL;
@@ -931,13 +931,13 @@ class Ast {
     let walkDepth = 0;
     let preVisited = false;
 
-    while (backWalkObj != null) {
+    while (backWalkObj !== null) {
       let backWalk = true;
-      if (backWalkObj.child_ == null || preVisited) {
+      if (backWalkObj.child_ === null || preVisited) {
         next = backWalkObj.next_;
         parent = backWalkObj.parent();
 
-        if (callback(backWalkObj, walkDepth) != HcsErrorNo.NOERR) {
+        if (callback(backWalkObj, walkDepth) !== HcsErrorNo.NOERR) {
           return false;
         }
       } else if (backWalkObj.child_) {
@@ -946,11 +946,11 @@ class Ast {
         backWalk = false;
       }
       if (backWalk) {
-        if (backWalkObj == startObject) {
+        if (backWalkObj === startObject) {
           break;
         }
 
-        if (next != null) {
+        if (next !== null) {
           backWalkObj = next;
           preVisited = false;
         } else {
@@ -967,7 +967,7 @@ class Ast {
     return this.walkForward(this.astRoot_, (current, ii) => {
       if (current.isNode()) {
         let node = current;
-        if (node.getNodeType() != NodeRefType.NODE_INHERIT) {
+        if (node.getNodeType() !== NodeRefType.NODE_INHERIT) {
           return HcsErrorNo.NOERR;
         }
         let inherit = this.lookup(current, node.getRefPath());
@@ -1002,15 +1002,15 @@ class Ast {
     let walkDepth = 0;
     let preVisited = false;
 
-    while (forwardWalkObj != null) {
+    while (forwardWalkObj !== null) {
       let forward = true;
       if (!preVisited) {
         let ret = callback(forwardWalkObj, walkDepth);
-        if (ret && ret != HcsErrorNo.EASTWALKBREAK) {
+        if (ret && ret !== HcsErrorNo.EASTWALKBREAK) {
           return false;
         } else if (
-          ret != HcsErrorNo.EASTWALKBREAK &&
-          forwardWalkObj.child_ != null
+          ret !== HcsErrorNo.EASTWALKBREAK &&
+          forwardWalkObj.child_ !== null
         ) {
           walkDepth++;
           forwardWalkObj = forwardWalkObj.child_;
@@ -1019,11 +1019,11 @@ class Ast {
       }
 
       if (forward) {
-        if (forwardWalkObj == startObject) {
+        if (forwardWalkObj === startObject) {
           break;
         }
 
-        if (forwardWalkObj.next_ != null) {
+        if (forwardWalkObj.next_ !== null) {
           forwardWalkObj = forwardWalkObj.next_;
           preVisited = false;
         } else {

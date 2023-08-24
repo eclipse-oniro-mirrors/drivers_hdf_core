@@ -25,7 +25,7 @@ const DRAWTEXT_SIZE = 14;
 
 export class X2DFast {
   static gi() {
-    if (X2DFast.px2f == null) {
+    if (X2DFast.px2f === null) {
       X2DFast.px2f = new X2DFast();
     }
     return X2DFast.px2f;
@@ -83,7 +83,7 @@ export class X2DFast {
     while (i < Math.PI * 2 + 0.00001) {
       let dx = Math.cos(i) * rw + ox;
       let dy = Math.sin(i) * rh + oy;
-      if (lx != -1) {
+      if (lx !== -1) {
         this.drawLine(lx, ly, dx, dy, c, lw);
       }
       lx = dx;
@@ -125,34 +125,34 @@ export class X2DFast {
     const DOWN = -3;
     const BY_MIDDLE = 2;
     X2DFast.tmpMat.unit();
-    if (ox == LEFT) {
+    if (ox === LEFT) {
       ox = 0;
     }
-    if (ox == MIDDLE) {
+    if (ox === MIDDLE) {
       ox = Math.floor(realw / BY_MIDDLE);
     }
-    if (ox == RIGHT) {
+    if (ox === RIGHT) {
       ox = realw;
     }
-    if (oy == UP) {
+    if (oy === UP) {
       oy = 0;
     }
-    if (oy == MIDDLE) {
+    if (oy === MIDDLE) {
       oy = Math.floor(realh / BY_MIDDLE);
     }
-    if (oy == DOWN) {
+    if (oy === DOWN) {
       oy = realh;
     }
-    if (ox != 0 || oy != 0) {
+    if (ox !== 0 || oy !== 0) {
       X2DFast.tmpMat.move(-ox, -oy, 0);
     }
-    if (sw != 1 || sh != 1) {
+    if (sw !== 1 || sh !== 1) {
       X2DFast.tmpMat.scale(sw, sh, 1);
     }
-    if (ra != 0) {
+    if (ra !== 0) {
       X2DFast.tmpMat.rotate(0, 0, ra);
     }
-    if (x != 0 || y != 0) {
+    if (x !== 0 || y !== 0) {
       X2DFast.tmpMat.move(x, y, 0);
     }
   }
@@ -169,7 +169,7 @@ export class X2DFast {
     return ((a * 64 + r) * 64 + g) * 64 + b;
   }
   drawCut_(pcut, m00, m01, m10, m11, m22, m30, m31, c = COLOR) {
-    if (c == -1) {
+    if (c === -1) {
       c = COLOR;
     }
     c = this.swapC(c);
@@ -196,7 +196,7 @@ export class X2DFast {
     let intX = parseInt(x);
     let intY = parseInt(y);
     let pcut = XTexture.gi().allCuts[cid];
-    if (pcut == null) {
+    if (pcut === null) {
       NapiLog.logError('error occured getting object');
       return;
     }
@@ -232,7 +232,7 @@ export class X2DFast {
   }
   freshBuffer() {
     XTexture.gi()._FreshText();
-    if (this.drawCount == 0) {
+    if (this.drawCount === 0) {
       return;
     }
     let ps = XShader.gi().use(XShader.ID_SHADER_FAST);

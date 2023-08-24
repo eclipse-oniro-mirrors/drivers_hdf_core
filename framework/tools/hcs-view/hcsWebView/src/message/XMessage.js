@@ -33,17 +33,17 @@ class XMessage {
     this.callbackFunc = func;
   }
   onRecv(event) {
-    if (XMessage.gi().callbackFunc != null) {
+    if (XMessage.gi().callbackFunc !== null) {
       XMessage.gi().callbackFunc(event.data.type, event.data.data);
     }
   }
   send(msgtype, msgdata) {
-    if (this.messageType == XMessage.TYPE_VSCODE) {
+    if (this.messageType === XMessage.TYPE_VSCODE) {
       this.vscode.postMessage({
         type: msgtype,
         data: msgdata,
       });
-    } else if (this.messageType == XMessage.TYPE_NONE) {
+    } else if (this.messageType === XMessage.TYPE_NONE) {
       MockMessage.gi().processMessage({
         type: msgtype,
         data: msgdata,
@@ -57,7 +57,7 @@ XMessage.TYPE_VSCODE = 1;
 
 XMessage.pinstance_ = null;
 XMessage.gi = function () {
-  if (XMessage.pinstance_ == null) {
+  if (XMessage.pinstance_ === null) {
     XMessage.pinstance_ = new XMessage();
   }
   return XMessage.pinstance_;

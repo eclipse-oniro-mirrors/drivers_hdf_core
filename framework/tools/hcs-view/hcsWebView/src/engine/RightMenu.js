@@ -30,8 +30,8 @@ class RightMenu {
   static isDarkBackground_ = true;
   static Reset(detail, x, y) {
     RightMenu.MENU = {
-      x: x == null ? XTools.MOUSE_POS.x : x,
-      y: y == null ? XTools.MOUSE_POS.y : y,
+      x: x === null ? XTools.MOUSE_POS.x : x,
+      y: y === null ? XTools.MOUSE_POS.y : y,
       detail: detail,
       needClose: false,
     };
@@ -89,13 +89,13 @@ class RightMenu {
     let w = RightMenu.MENUW;
     let l = 0;
     for (let e of grp) {
-      if (e.type != 2) {
+      if (e.type !== 2) {
         l += 1;
       }
     }
-    if (grp.length == 3) {
+    if (grp.length === 3) {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 0.88, 0, -1, -1);
-    } else if (grp.length == 1) {
+    } else if (grp.length === 1) {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 0.3, 0, -1, -1);
     } else {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 1, 0, -1, -1);
@@ -109,7 +109,7 @@ class RightMenu {
           y
         );
       }
-      if (e.type == 2) {
+      if (e.type === 2) {
         e.rect = [x, y, w, 0];
         X2DFast.px2f.drawLine(x, y, x + w, y, 0xff808080, 2);
         continue;
@@ -128,7 +128,7 @@ class RightMenu {
         0,
         textColor
       );
-      if (e.type == 0) {
+      if (e.type === 0) {
         if (e.hk) {
           X2DFast.px2f.drawText(
             e.hk,
@@ -143,7 +143,7 @@ class RightMenu {
             0xff808080
           );
         }
-      } else if (e.type == 1) {
+      } else if (e.type === 1) {
         if (e.open) {
           X2DFast.px2f.drawText(
             '<',
@@ -180,7 +180,7 @@ class RightMenu {
     if (RightMenu.MENU) {
       if (RightMenu.TouchGroup(RightMenu.MENU.detail, msg, x, y)) {
         return true;
-      } else if (msg != 2) {
+      } else if (msg !== 2) {
         RightMenu.MENU.needClose = true;
       }
     }
@@ -204,20 +204,20 @@ class RightMenu {
         return false;
       }
       if (XTools.InRect(x, y, ...e.rect)) {
-        if (e.type == 1 && msg == 1) {
+        if (e.type === 1 && msg === 1) {
           e.open = !e.open;
         }
-        if (e.type == 2) {
+        if (e.type === 2) {
         }
-        if (e.type == 0) {
-          if (msg == 1) {
+        if (e.type === 0) {
+          if (msg === 1) {
             e.cb();
           }
         }
         e.on = true;
         return true;
       }
-      if (e.type == 1) {
+      if (e.type === 1) {
         if (e.open && RightMenu.TouchGroup(e.group, msg, x, y)) {
           return true;
         }

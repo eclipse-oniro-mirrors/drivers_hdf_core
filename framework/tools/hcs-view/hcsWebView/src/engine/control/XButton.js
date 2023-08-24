@@ -50,7 +50,7 @@ class XButton {
       this.posH_,
       this.backgroundColor_ - coloroff
     );
-    if (this.name_ != undefined && this.name_.length > 0)
+    if (this.name_ !== undefined && this.name_.length > 0)
     {
       this.pm2f_.drawText(this.name_, SIZE, this.posX_ + this.posW_ / 2, this.posY_ + this.posH_ / 2 + 2, 1, 1, 0, -2, -2, this.nameColor_ - coloroff);
     }
