@@ -542,7 +542,10 @@ void CppClientProxyCodeEmitter::EmitProxyStaticMethodBody(
             }
         }
     }
-
+    sb.Append(prefix + TAB).AppendFormat("if (remote == nullptr) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: invalid remote object!\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return HDF_ERR_INVALID_OBJECT;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
     sb.Append(prefix + TAB).AppendFormat("int32_t %s = remote->SendRequest(%s, %s, %s, %s);\n", errorCodeName_.c_str(),
         EmitMethodCmdID(method).c_str(), dataParcelName_.c_str(), replyParcelName_.c_str(), optionName_.c_str());
     sb.Append(prefix + TAB).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
