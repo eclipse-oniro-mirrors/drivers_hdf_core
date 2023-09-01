@@ -17,6 +17,12 @@
 
 #define LIGHT_WORK_QUEUE_NAME    "light_queue"
 
+#define CHECK_LIGHT_PARSER_NUM_RETURN_VALUE(ret, num) do { \
+    if ((ret) != HDF_SUCCESS) { \
+        (num) = LIGHT_INVALID_GPIO;\
+    } \
+} while (0) 
+
 struct LightDriverData *g_lightDrvData = NULL;
 
 static struct LightDriverData *GetLightDrvData(void)
@@ -376,19 +382,13 @@ static int32_t GetLightBaseConfigData(const struct DeviceResourceNode *node, con
     }
 
     ret = parser->GetUint32(node, "busRNum", (uint32_t *)&drvData->info[lightId]->busRNum, 0);
-    if (ret != HDF_SUCCESS) {
-        drvData->info[lightId]->busRNum = LIGHT_INVALID_GPIO;
-    }
+    CHECK_LIGHT_PARSER_NUM_RETURN_VALUE(ret, drvData->info[lightId]->busRNum);
 
     ret = parser->GetUint32(node, "busGNum", (uint32_t *)&drvData->info[lightId]->busGNum, 0);
-    if (ret != HDF_SUCCESS) {
-        drvData->info[lightId]->busGNum = LIGHT_INVALID_GPIO;
-    }
+    CHECK_LIGHT_PARSER_NUM_RETURN_VALUE(ret, drvData->info[lightId]->busGNum);
 
-    ret = parser->GetUint32(node, "busBNum", (uint32_t *)&drvData->info[lightId]->busBNum, 0);
-    if (ret != HDF_SUCCESS) {
-        drvData->info[lightId]->busBNum = LIGHT_INVALID_GPIO;
-    }
+    ret = parser->GetUint32(node, "busBNum", (uint32_t *)&drvData->info[lightId]->busBNum, 0); 
+    CHECK_LIGHT_PARSER_NUM_RETURN_VALUE(ret, drvData->info[lightId]->busBNum);
 
     ret = parser->GetString(node, "lightName", &name, NULL);
     if (ret != HDF_SUCCESS) {
