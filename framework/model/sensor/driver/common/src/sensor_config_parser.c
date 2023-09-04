@@ -14,13 +14,6 @@
 
 #define HDF_LOG_TAG    khdf_sensor_common_driver
 
-#define CHECK_PARSER_NAME(ptr, str,cname) do { \
-    if (strcpy_s(ptr, SENSOR_INFO_VERSION_MAX_LEN, cname) != EOK) { \
-        HDF_LOGE("%s:copy %s failed!", __func__, str); \
-        return HDF_FAILURE; \
-    } \
-} while (0) 
-
 static char *g_sensorRegGroupName[SENSOR_GROUP_MAX] = {
     "initSeqConfig",
     "enableSeqConfig",
@@ -317,19 +310,19 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
 
     ret = parser->GetString(infoNode, "sensorName", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
-    CHECK_PARSER_NAME(config->sensorInfo.sensorName, "sensorName",name);
+    CHECK_PARSER_NAME(config->sensorInfo.sensorName, "sensorName", name);
 
     ret = parser->GetString(infoNode, "vendorName", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "vendorName");
-    CHECK_PARSER_NAME(config->sensorInfo.vendorName, "vendorName",name);
+    CHECK_PARSER_NAME(config->sensorInfo.vendorName, "vendorName", name);
 
     ret = parser->GetString(infoNode, "firmwareVersion", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "firmwareVersion");
-    CHECK_PARSER_NAME(config->sensorInfo.firmwareVersion, "firmwareVersion",name);
+    CHECK_PARSER_NAME(config->sensorInfo.firmwareVersion, "firmwareVersion", name);
 
     ret = parser->GetString(infoNode, "hardwareVersion", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "hardwareVersion");
-    CHECK_PARSER_NAME(config->sensorInfo.hardwareVersion, "hardwareVersion",name);
+    CHECK_PARSER_NAME(config->sensorInfo.hardwareVersion, "hardwareVersion", name);
 
     ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorTypeId");
