@@ -11,7 +11,7 @@
 # GNU General Public License for more details.
 #
 #
-
+KHDF_DISPLAY_BASE_ROOT_DIR = ../../../../../../..
 DISPLAY_ROOT_DIR = ../../../../../framework/model/display/driver
 
 ifeq ($(CONFIG_DRIVERS_HDF_DISP), y)
@@ -39,6 +39,8 @@ obj-$(CONFIG_DRIVERS_HDF_LCDKIT) += \
          $(DISPLAY_ROOT_DIR)/lcdkit/lcdkit_parse_config.o
 obj-$(CONFIG_DRIVERS_HDF_LCD_ICN9700) += \
          $(DISPLAY_ROOT_DIR)/panel/mipi_icn9700.o
+obj-$(CONFIG_DRIVERS_HDF_DUAL_LCD_ICN9700_ST7701SN) += \
+         $(KHDF_DISPLAY_BASE_ROOT_DIR)/device/board/hisilicon/hispark_taurus/display_drivers/
 obj-$(CONFIG_DRIVERS_HDF_LCD_ST7789) += \
          $(DISPLAY_ROOT_DIR)/panel/ssp_st7789.o
 obj-$(CONFIG_ARCH_ROCKCHIP) += \
