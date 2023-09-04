@@ -50,6 +50,12 @@
     } \
 } while (0)
 
+#define CHECK_LIGHT_PARSER_NUM_RETURN_VALUE(ret, num) do { \
+    if ((ret) != HDF_SUCCESS) { \
+        (num) = LIGHT_INVALID_GPIO; \
+    } \
+} while (0)
+
 enum LightIoCmd {
     LIGHT_IO_CMD_GET_INFO_LIST     = 0,
     LIGHT_IO_CMD_OPS               = 1,

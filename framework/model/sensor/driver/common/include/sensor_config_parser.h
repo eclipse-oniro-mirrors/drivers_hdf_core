@@ -20,6 +20,13 @@
 #define MAX_SENSOR_INDEX_NUM   48
 #define MAX_SENSOR_AXIS_NUM    3
 
+#define CHECK_PARSER_NAME(ptr, str, cname) do { \
+    if (strcpy_s(ptr, SENSOR_INFO_VERSION_MAX_LEN, cname) != EOK) { \
+        HDF_LOGE("%s:copy %s failed!", __func__, str); \
+        return HDF_FAILURE; \
+    } \
+} while (0)
+
 enum SensorRegOpsType {
     SENSOR_INIT_GROUP = 0,
     SENSOR_ENABLE_GROUP,
