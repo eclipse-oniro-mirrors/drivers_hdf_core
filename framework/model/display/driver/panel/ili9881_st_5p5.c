@@ -604,6 +604,27 @@ static void PanelResInit(struct panel_ili9881_dev *panel_dev)
     panel_dev->hw_delay.unprepare_delay = 20;  /* 20:unprepare_delay */
 }
 
+static int32_t PanelRequestGpio(struct panel_ili9881_dev *panel_dev)
+{
+    struct panel_ili9881_dev *pdev = panel_dev;
+    pdev->enable_gpio = devm_gpiod_get_optional(&pdev->dsiDev->dev, "enable", GPIOD_ASIS);
+    if (IS_ERR(pdev->enable_gpio)) {
+        HDF_LOGE("get enable_gpio fail");
+        return HDF_FAILURE;
+    }
+    pdev->hpd_gpio = devm_gpiod_get_optional(&pdev->dsiDev->dev, "hpd", GPIOD_IN);
+    if (IS_ERR(pdev->hpd_gpio)) {
+        HDF_LOGE("get hpd_gpio fail");
+        return HDF_FAILURE;
+    }
+    pdev->reset_gpio = devm_gpiod_get_optional(&pdev->dsiDev->dev, "reset", GPIOD_ASIS);
+    if (IS_ERR(pdev->reset_gpio)) {
+        HDF_LOGE("get reset_gpio fail");
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
 static int32_t PanelEntryInit(struct HdfDeviceObject *object)
 {
     struct device_node *panelNode = NULL;
@@ -631,19 +652,7 @@ static int32_t PanelEntryInit(struct HdfDeviceObject *object)
         goto FAIL;
     }
 
-    panel_dev->enable_gpio = devm_gpiod_get_optional(&panel_dev->dsiDev->dev, "enable", GPIOD_ASIS);
-    if (IS_ERR(panel_dev->enable_gpio)) {
-        HDF_LOGE("get enable_gpio fail");
-        goto FAIL;
-    }
-    panel_dev->hpd_gpio = devm_gpiod_get_optional(&panel_dev->dsiDev->dev, "hpd", GPIOD_IN);
-    if (IS_ERR(panel_dev->hpd_gpio)) {
-        HDF_LOGE("get hpd_gpio fail");
-        goto FAIL;
-    }
-    panel_dev->reset_gpio = devm_gpiod_get_optional(&panel_dev->dsiDev->dev, "reset", GPIOD_ASIS);
-    if (IS_ERR(panel_dev->reset_gpio)) {
-        HDF_LOGE("get reset_gpio fail");
+    if (PanelRequestGpio(panel_dev) != HDF_SUCCESS) {
         goto FAIL;
     }
 
