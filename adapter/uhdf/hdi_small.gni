@@ -126,15 +126,16 @@ template("hdi_small") {
     if (defined(invoker.sources)) {
       sources = hdi_build_info.proxy_sources
       public_configs = [ ":$idl_headers_config" ]
-      deps = [
-        ":hdi_gen",
-        "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-        "//third_party/bounds_checking_function:libsec_shared",
-      ]
+      deps = [ ":hdi_gen" ]
 
       public_deps = hdi_build_info.proxy_deps
 
-      external_deps = [ "hdf_core:libhdi" ]
+      external_deps = [
+        "bounds_checking_function:libsec_shared",
+        "hdf_core:libhdi",
+        "hilog_lite:hilog_shared",
+      ]
+
       if (invoker.language == "c") {
         external_deps += [ "hdf_core:libhdf_utils" ]
       }
@@ -148,6 +149,12 @@ template("hdi_small") {
         part_name = invoker.part_name + "_interface"
       }
     }
+  }
+
+  lib_server = "lib" + target_name + "_stub" + "_" + hdi_build_info.version
+  group(lib_server) {
+    public_configs = [ ":$idl_headers_config" ]
+    deps = [ ":hdi_gen" ]
   }
 
   # generate code and shared library
