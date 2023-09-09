@@ -610,7 +610,7 @@ void Parser::CheckMethodAttr(const AutoPtr<ASTInterfaceType> &interface, const A
 {
     // if the attribute of method is empty, the default value is attribute of interface
     if (!method->IsMini() && !method->IsLite() && !method->IsFull()) {
-        method->GetAttribute()->SetValue(ASTAttr::FULL | ASTAttr::LITE | ASTAttr::MINI);
+        method->SetAttribute(interface->GetAttribute());
     }
 
     if (!interface->IsMini() && method->IsMini()) {
