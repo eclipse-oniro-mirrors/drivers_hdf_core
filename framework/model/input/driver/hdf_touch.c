@@ -237,7 +237,8 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 }
 #endif
 
-static int32_t SetTiming(ChipDevice *dev, bool enable)
+static int32_t SetTiming(
+        ChipDevice *chipDev, bool enable)
 {
 #if defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
