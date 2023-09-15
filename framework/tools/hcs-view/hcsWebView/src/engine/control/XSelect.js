@@ -70,10 +70,10 @@ class XSelect {
       this.pm2f_.fillRect(x, y + h, w, HEIGHT * this.list_.length, this.backgroundColor_);
       for (let i in this.list_) {
         if (i === this.tmpSelect_) {
-          this.pm2f_.fillRect(x, y + h + i * 20, w, HEIGHT, this.backgroundColor_);
+          this.pm2f_.fillRect(x, y + h + i * HEIGHT, w, HEIGHT, this.backgroundColor_);
         }
         if (this.list_[i] === this.default_) {
-          this.pm2f_.fillRect(x, y + h + i * 20, w, HEIGHT, this.backgroundColor_);
+          this.pm2f_.fillRect(x, y + h + i * HEIGHT, w, HEIGHT, this.backgroundColor_);
         }
         let name1 = '...';
         if (this.list_[i].indexOf('\\') !== -1) {

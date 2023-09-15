@@ -16,6 +16,12 @@ const { X2DFast } = require('./graphics/X2DFast');
 const { Scr } = require('./XDefine');
 const { XTools } = require('./XTools');
 
+var MenuType = {
+  BUTTON: 0, // 按钮
+  CONTENT: 1, // 目录
+  DIVIDER: 2, // 分割线
+};
+
 class RightMenu {
   static backgroundImg_ = -1;
   static backgroundCut_ = -1;
@@ -89,7 +95,7 @@ class RightMenu {
     let w = RightMenu.MENUW;
     let l = 0;
     for (let e of grp) {
-      if (e.type !== 2) {
+      if (e.type !== MenuType.DIVIDER) {
         l += 1;
       }
     }
@@ -109,7 +115,7 @@ class RightMenu {
           y
         );
       }
-      if (e.type === 2) {
+      if (e.type === MenuType.DIVIDER) {
         e.rect = [x, y, w, 0];
         X2DFast.px2f.drawLine(x, y, x + w, y, 0xff808080, 2);
         continue;
@@ -128,7 +134,7 @@ class RightMenu {
         0,
         textColor
       );
-      if (e.type === 0) {
+      if (e.type === MenuType.BUTTON) {
         if (e.hk) {
           X2DFast.px2f.drawText(
             e.hk,
@@ -143,7 +149,7 @@ class RightMenu {
             0xff808080
           );
         }
-      } else if (e.type === 1) {
+      } else if (e.type === MenuType.CONTENT) {
         if (e.open) {
           X2DFast.px2f.drawText(
             '<',
@@ -204,12 +210,12 @@ class RightMenu {
         return false;
       }
       if (XTools.InRect(x, y, ...e.rect)) {
-        if (e.type === 1 && msg === 1) {
+        if (e.type === MenuType.CONTENT && msg === 1) {
           e.open = !e.open;
         }
-        if (e.type === 2) {
+        if (e.type === MenuType.DIVIDER) {
         }
-        if (e.type === 0) {
+        if (e.type === MenuType.BUTTON) {
           if (msg === 1) {
             e.cb();
           }
@@ -217,7 +223,7 @@ class RightMenu {
         e.on = true;
         return true;
       }
-      if (e.type === 1) {
+      if (e.type === MenuType.CONTENT) {
         if (e.open && RightMenu.TouchGroup(e.group, msg, x, y)) {
           return true;
         }

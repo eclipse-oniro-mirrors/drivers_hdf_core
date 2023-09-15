@@ -36,6 +36,12 @@ const MAX_RANDOM = 255;
 const CONSTANT_MIDDLE = 2;
 const CONSTANT_QUARTER = 4;
 
+var MouseType = {
+  DOWN: 1, // 按下
+  MOVE: 2, // 移动
+  UP: 3, // 抬起
+};
+
 function rgba(colorArr) {
   return 0xff000000 | (colorArr[0] << 16) | (colorArr[1] << 8) | colorArr[2];
 }
@@ -826,7 +832,9 @@ class MainEditor {
         break;
     }
     if (data.errMsg_ !== null && data.errMsg_ !== undefined) {
-      if (parseInt(this.delay_ / 10) % 2 === 0) {
+      let displayFreq = 2;  // 显示频率
+      let frameNo = 10;
+      if (parseInt(this.delay_ / frameNo) % displayFreq === 0) {
         pm2f.drawRect(offx - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_), offy + data.posY,
           data.nodeWidth_, MainEditor.NODE_RECT_HEIGHT, 0xffff0000, 1);
       }
@@ -1216,13 +1224,13 @@ class MainEditor {
   }
 
   dropAllLocked(msg, x, y) {
-    if (msg === 2) {
+    if (msg === MouseType.MOVE) {
       this.offX_ += x - this.dropAll_.oldx;
       this.offY_ += y - this.dropAll_.oldy;
       this.dropAll_.oldx = x;
       this.dropAll_.oldy = y;
     }
-    if (msg === 3) {
+    if (msg === MouseType.UP) {
       this.dropAll_.locked = false;
     }
   }
@@ -1252,7 +1260,7 @@ class MainEditor {
         }
         return true;
       } else {
-        if (msg === 1) {
+        if (msg === MouseType.DOWN) {
           this.searchInput = null;
           this.isSearchResult_ = false;
         }
@@ -1347,7 +1355,7 @@ class MainEditor {
       }
     }
 
-    if (msg === 1 && !this.dropAll_.locked) {
+    if (msg === MouseType.DOWN && !this.dropAll_.locked) {
       this.dropAll_.locked = true;
       this.dropAll_.oldx = x;
       this.dropAll_.oldy = y;

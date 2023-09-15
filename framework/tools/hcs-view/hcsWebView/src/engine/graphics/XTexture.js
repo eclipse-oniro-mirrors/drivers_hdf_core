@@ -209,10 +209,11 @@ export class XTexture {
     let imgd = this.textCtx.getImageData(0, 0, 1024, 256).data;
     let w = 1024;
     let h = size + 5;
-    let x = 256;
-    while (x === 256) {
+    let x = 128;
+    let lenMax = 128;
+    while (x === lenMax) {
       h -= 1;
-      for (x = 0; x < 128; x++) {
+      for (x = 0; x < lenMax; x++) {
         let p = (h * 1024 + x) * 4;
         if (imgd[p] !== 0) {
           break;
