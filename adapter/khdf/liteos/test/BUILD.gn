@@ -250,6 +250,13 @@ hdf_driver(module_name) {
         "$HDF_TEST_FRAMWORK_ROOT/platform/virtual/pcie_virtual.c",
       ]
     }
+    if (defined(LOSCFG_DRIVERS_HDF_WLAN_PCIE)) {
+      sources += [
+        "$HDF_TEST_FRAMWORK_ROOT/platform/common/pcie_bus_driver_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/common/pcie_bus_test.c",
+        "$HDF_TEST_FRAMWORK_ROOT/platform/entry/hdf_pcie_bus_entry_test.c",
+      ]
+    }
 
     if (defined(LOSCFG_DRIVERS_HDF_PLATFORM_PWM)) {
       sources += [
@@ -318,6 +325,7 @@ config("test_lite") {
     "$HDF_TEST_FRAMWORK_ROOT/adapter/osal/include",
     "$HDF_TEST_FRAMWORK_ROOT/utils/hcs_parser/unittest",
     "$HDF_TEST_FRAMWORK_ROOT",
+    "$HDF_FRAMEWORKS_PATH/include/wifi",
   ]
 
   if (defined(LOSCFG_DRIVERS_HDF_WIFI)) {

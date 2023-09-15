@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -87,7 +87,9 @@
 #if defined(LOSCFG_DRIVERS_HDF_USB_DDK_HOST) || defined(CONFIG_DRIVERS_HDF_USB_DDK_HOST)
 #include "hdf_usb_entry_test.h"
 #endif
-
+#if defined(LOSCFG_DRIVERS_HDF_WLAN_PCIE) || defined(CONFIG_DRIVERS_HDF_WLAN_PCIE)
+#include "hdf_pcie_bus_entry_test.h"
+#endif
 #define HDF_LOG_TAG hdf_test
 
 // add submodule entry
@@ -165,6 +167,9 @@ HdfTestFuncList g_hdfTestFuncList[] = {
     { TEST_OSAL_ITEM, HdfOsalEntry },
 #if defined(LOSCFG_DRIVERS_HDF_WIFI) || defined(CONFIG_DRIVERS_HDF_WIFI)
     {TEST_WIFI_TYPE, HdfWifiEntry},
+#endif
+#if defined(LOSCFG_DRIVERS_HDF_WLAN_PCIE) || defined(CONFIG_DRIVERS_HDF_WLAN_PCIE)
+    {TEST_WIFI_PCIE_BUS_TYPE, HdfPcieBusUnitTestEntry},
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_AUDIO_TEST) || defined(CONFIG_DRIVERS_HDF_AUDIO_TEST)
     {TEST_AUDIO_TYPE, HdfAudioEntry},

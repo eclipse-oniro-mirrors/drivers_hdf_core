@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,7 +19,7 @@ extern "C" {
 
 struct BusDev;
 typedef void IrqHandler(void *);
-
+typedef int32_t MapHandler(void *);
 struct SdioConfigInfo {
     uint32_t maxBlockNum;
     uint32_t maxBlockSize;
@@ -65,6 +65,13 @@ struct DevOps {
 
     void (*claimHost)(struct BusDev *dev);
     void (*releaseHost)(struct BusDev *dev);
+
+    // dma map/unmap
+    int32_t (*dmaMap)(struct BusDev *dev, MapHandler* cb, uintptr_t addr, uint32_t len, uint8_t dir);
+    int32_t (*dmaUnmap)(struct BusDev *dev, uintptr_t addr, uint32_t len, uint8_t dir);
+    // io read/write
+    int32_t (*ioRead)(struct BusDev *dev, uint32_t addr, uint32_t cnt, uint8_t *buf);
+    int32_t (*ioWrite)(struct BusDev *dev, uint32_t addr, uint32_t cnt, uint8_t *buf);
 };
 
 struct BusDev {

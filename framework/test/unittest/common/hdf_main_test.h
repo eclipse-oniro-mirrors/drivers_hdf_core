@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -75,6 +75,7 @@ typedef enum {
     TEST_OSAL_END           = 400,
     TEST_WIFI_BEGIN         = TEST_OSAL_END,
     TEST_WIFI_TYPE          = TEST_WIFI_BEGIN + 1,
+    TEST_WIFI_PCIE_BUS_TYPE,
     TEST_WIFI_END           = 600,
     TEST_CONFIG_TYPE        = 601,
     TEST_AUDIO_TYPE         = 701,
