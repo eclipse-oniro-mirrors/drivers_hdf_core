@@ -24,6 +24,7 @@ struct HostInfo {
     int32_t processPriority;
     int32_t threadPriority;
     uint32_t hostId;
+    uint32_t sandBox;
     bool dynamicLoad;
 };
 
