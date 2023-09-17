@@ -39,6 +39,8 @@ static constexpr const char *DYNAMIC_INFO  = "            \"ondemand\" : true,\n
 static constexpr const char *SECON_INFO    = "            \"secon\" : \"u:r:";
 static constexpr const char *CRITICAL_INFO = "            \"critical\" : [";
 static constexpr uint32_t INVALID_PRIORITY = 0xffffffff;
+static constexpr const char *SAND_BOX_INFO = "            \"sandbox\" : ";
+static constexpr uint32_t INVALID_SAND_BOX = 0xffffffff;
 StartupCfgGen::StartupCfgGen(const std::shared_ptr<Ast> &ast) : Generator(ast)
 {
 }
@@ -125,6 +127,10 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
         ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
 
+    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX) {
+        ofs_ << SAND_BOX_INFO << hostInfoMap_[name].sandBox << ",\n";
+    }
+
     ofs_ << SECON_INFO << name << ":s0\"\n";
 
     ofs_ << TAB TAB << "}";
@@ -146,6 +152,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostCritical = "";
     hostData.processPriority = INVALID_PRIORITY;
     hostData.threadPriority = INVALID_PRIORITY;
+    hostData.sandBox = INVALID_SAND_BOX;
 }
 
 bool StartupCfgGen::TemplateNodeSeparate()
@@ -347,6 +354,11 @@ bool StartupCfgGen::GetHostInfo()
         object = hostInfo->Lookup("critical", PARSEROP_CONFTERM);
         GetConfigIntArray(object, hostData.hostCritical);
         GetProcessPriority(hostInfo, hostData);
+
+        object = hostInfo->Lookup("sandbox", PARSEROP_CONFTERM);
+        if (object != nullptr) {
+            hostData.sandBox = object->Child()->IntegerValue();
+        }
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));
