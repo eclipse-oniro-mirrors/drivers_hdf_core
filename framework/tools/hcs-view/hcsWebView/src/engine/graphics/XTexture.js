@@ -74,7 +74,7 @@ export class XTexture {
       return rid;
     } else {
       for (let i = 0; i < this.ximages.length; i++) {
-        if (this.ximages[i]['path'] === path) {
+        if (this.ximages[i].path === path) {
           return i;
         }
       }

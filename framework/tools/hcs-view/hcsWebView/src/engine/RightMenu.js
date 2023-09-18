@@ -22,6 +22,13 @@ var MenuType = {
   DIVIDER: 2, // 分割线
 };
 
+var MenuGroupSize = {
+  DELETE: 1, // 目录
+  NODEMENU: 3, // 分割线
+};
+
+const MOUSETYPE_MOVE = 2;
+
 class RightMenu {
   static backgroundImg_ = -1;
   static backgroundCut_ = -1;
@@ -99,9 +106,9 @@ class RightMenu {
         l += 1;
       }
     }
-    if (grp.length === 3) {
+    if (grp.length === MenuGroupSize.NODEMENU) {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 0.88, 0, -1, -1);
-    } else if (grp.length === 1) {
+    } else if (grp.length === MenuGroupSize.DELETE) {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 0.3, 0, -1, -1);
     } else {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 1, 0, -1, -1);
@@ -186,7 +193,7 @@ class RightMenu {
     if (RightMenu.MENU) {
       if (RightMenu.TouchGroup(RightMenu.MENU.detail, msg, x, y)) {
         return true;
-      } else if (msg !== 2) {
+      } else if (msg !== MOUSETYPE_MOVE) {
         RightMenu.MENU.needClose = true;
       }
     }

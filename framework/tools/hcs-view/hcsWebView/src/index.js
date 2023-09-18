@@ -22,15 +22,16 @@ const { NapiLog } = require('./hcs/NapiLog');
 const { MainEditor } = require('./MainEditor');
 
 let canvas = document.getElementById('visual_area');
-canvas.width = window.innerWidth - 420;
+let widthOffset = 420;
+canvas.width = window.innerWidth - widthOffset;
 canvas.height = window.innerHeight;
 
 function myDraw() {
   if (
-    canvas.width !== window.innerWidth - 420 ||
+    canvas.width !== window.innerWidth - widthOffset ||
     canvas.height !== window.innerHeight
   ) {
-    canvas.width = window.innerWidth - 420;
+    canvas.width = window.innerWidth - widthOffset;
     canvas.height = window.innerHeight;
 
     Scr.setLogicScreenSize(canvas.width, canvas.height);
