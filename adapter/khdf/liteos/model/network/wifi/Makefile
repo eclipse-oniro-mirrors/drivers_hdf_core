@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -77,6 +77,8 @@ ifeq ($(LOSCFG_DRIVERS_HDF_WLAN_SDIO), y)
 LOCAL_SRCS += $(IBUS_PATH)/hdf_sdio_intf.c
 else ifeq ($(LOSCFG_DRIVERS_HDF_WLAN_USB), y)
 LOCAL_SRCS += $(IBUS_PATH)/hdf_usb_intf.c
+else ifeq ($(LOSCFG_DRIVERS_HDF_WLAN_PCIE), y)
+LOCAL_SRCS += $(IBUS_PATH)/hdf_pcie_intf.c
 endif
 
 MESSAGE_INCLUDE += -I $(PLATFORM_PATH)/include/message \

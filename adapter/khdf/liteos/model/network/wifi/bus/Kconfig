@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@ config DRIVERS_HDF_WIFI_BUS
 
 if DRIVERS_HDF_WIFI_BUS
 choice
-  prompt "Select wlan sdio or usb source"
+  prompt "Select wlan sdio, usb or pcie source"
   default DRIVERS_HDF_WLAN_SDIO
 
   config DRIVERS_HDF_WLAN_SDIO
@@ -50,5 +50,12 @@ choice
     depends on DRIVERS_HDF_USB_PNP_NOTIFY
     help
       Answer Y to enable HDF WLAN Usb Host driver.
+
+  config DRIVERS_HDF_WLAN_PCIE
+    bool "Enable HDF WLAN Pcie Host driver"
+    default n
+    depends on DRIVERS_HDF_PLATFORM_PCIE
+    help
+      Answer Y to enable HDF WLAN Pcie Host driver.
 endchoice
 endif

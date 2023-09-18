@@ -19,6 +19,8 @@
 #define GT5688_FIRMWARE_VERSION    256
 #define GT911_FIRMWARE_VERSION     4192
 #endif
+#define COMPENSATION_VALUE_Y 32
+#define UNCONTROLLABLE_VALUE_Y 10
 
 static int32_t ChipInit(ChipDevice *device)
 {
@@ -122,6 +124,9 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
             frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+            if (frame->fingers[i].y > UNCONTROLLABLE_VALUE_Y) {
+                frame->fingers[i].y += COMPENSATION_VALUE_Y;
+            }
 #elif defined(LOSCFG_PLATFORM_STM32MP157)
             frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
