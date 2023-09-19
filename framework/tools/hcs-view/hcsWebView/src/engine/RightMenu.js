@@ -16,6 +16,19 @@ const { X2DFast } = require('./graphics/X2DFast');
 const { Scr } = require('./XDefine');
 const { XTools } = require('./XTools');
 
+var MenuType = {
+  BUTTON: 0, // 按钮
+  CONTENT: 1, // 目录
+  DIVIDER: 2, // 分割线
+};
+
+var MenuGroupSize = {
+  DELETE: 1, // 目录
+  NODEMENU: 3, // 分割线
+};
+
+const MOUSETYPE_MOVE = 2;
+
 class RightMenu {
   static backgroundImg_ = -1;
   static backgroundCut_ = -1;
@@ -89,13 +102,13 @@ class RightMenu {
     let w = RightMenu.MENUW;
     let l = 0;
     for (let e of grp) {
-      if (e.type !== 2) {
+      if (e.type !== MenuType.DIVIDER) {
         l += 1;
       }
     }
-    if (grp.length === 3) {
+    if (grp.length === MenuGroupSize.NODEMENU) {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 0.88, 0, -1, -1);
-    } else if (grp.length === 1) {
+    } else if (grp.length === MenuGroupSize.DELETE) {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 0.3, 0, -1, -1);
     } else {
       X2DFast.px2f.drawCut(this.backgroundCut_, x, y, 1, 1, 0, -1, -1);
@@ -109,7 +122,7 @@ class RightMenu {
           y
         );
       }
-      if (e.type === 2) {
+      if (e.type === MenuType.DIVIDER) {
         e.rect = [x, y, w, 0];
         X2DFast.px2f.drawLine(x, y, x + w, y, 0xff808080, 2);
         continue;
@@ -128,7 +141,7 @@ class RightMenu {
         0,
         textColor
       );
-      if (e.type === 0) {
+      if (e.type === MenuType.BUTTON) {
         if (e.hk) {
           X2DFast.px2f.drawText(
             e.hk,
@@ -143,7 +156,7 @@ class RightMenu {
             0xff808080
           );
         }
-      } else if (e.type === 1) {
+      } else if (e.type === MenuType.CONTENT) {
         if (e.open) {
           X2DFast.px2f.drawText(
             '<',
@@ -180,7 +193,7 @@ class RightMenu {
     if (RightMenu.MENU) {
       if (RightMenu.TouchGroup(RightMenu.MENU.detail, msg, x, y)) {
         return true;
-      } else if (msg !== 2) {
+      } else if (msg !== MOUSETYPE_MOVE) {
         RightMenu.MENU.needClose = true;
       }
     }
@@ -204,12 +217,12 @@ class RightMenu {
         return false;
       }
       if (XTools.InRect(x, y, ...e.rect)) {
-        if (e.type === 1 && msg === 1) {
+        if (e.type === MenuType.CONTENT && msg === 1) {
           e.open = !e.open;
         }
-        if (e.type === 2) {
+        if (e.type === MenuType.DIVIDER) {
         }
-        if (e.type === 0) {
+        if (e.type === MenuType.BUTTON) {
           if (msg === 1) {
             e.cb();
           }
@@ -217,7 +230,7 @@ class RightMenu {
         e.on = true;
         return true;
       }
-      if (e.type === 1) {
+      if (e.type === MenuType.CONTENT) {
         if (e.open && RightMenu.TouchGroup(e.group, msg, x, y)) {
           return true;
         }

@@ -331,8 +331,9 @@ class Lexer {
           this.consumeChar();
           param.value += toStr(c);
         }
-        param.v = BigInt(param.value, 10);
-        param.baseSystem = 10;
+        let baseSystem = 10;
+        param.v = BigInt(param.value, baseSystem);
+        param.baseSystem = baseSystem;
         break;
     }
 

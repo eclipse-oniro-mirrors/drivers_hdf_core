@@ -161,7 +161,7 @@ class Parser {
 
     let node = new ConfigNode(name, NodeRefType.NODE_NOREF, '');
     let child;
-    while (this.lexer_.lex(this.current_) && this.current_.type !== 125) {
+    while (this.lexer_.lex(this.current_) && this.current_.type !== code('}')) {
       switch (this.current_.type) {
         case TokenType.TEMPLATE:
           child = this.parseTemplate();

@@ -33,6 +33,14 @@ var DISPLAY_TEXT_MAX = 30;
 var ELLIPSIS_LEN = 3;
 var EQUAL_SIGN_LEN = 3;
 const MAX_RANDOM = 255;
+const CONSTANT_MIDDLE = 2;
+const CONSTANT_QUARTER = 4;
+
+var MouseType = {
+  DOWN: 1, // 按下
+  MOVE: 2, // 移动
+  UP: 3, // 抬起
+};
 
 function rgba(colorArr) {
   return 0xff000000 | (colorArr[0] << 16) | (colorArr[1] << 8) | colorArr[2];
@@ -567,7 +575,7 @@ class MainEditor {
         break;
     }
     if (y > ty) {
-      data.posY = (ty + y - MainEditor.LINE_HEIGHT) / 2;
+      data.posY = (ty + y - MainEditor.LINE_HEIGHT) / CONSTANT_MIDDLE;
     }
     return y > ty + MainEditor.LINE_HEIGHT ? y : ty + MainEditor.LINE_HEIGHT;
   }
@@ -615,34 +623,35 @@ class MainEditor {
       if (s.length < MAXLEN_DISPLAY_WITH_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText(' = ', size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, 0xffa9a9a9);
       } else if (s.length === MAXLEN_DISPLAY_WITH_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText(' =', size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, 0xffa9a9a9);
       } else if (s.length === MAXLEN_DISPLAY_NO_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText('=', size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 0, 0, 0xffa9a9a9);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, 0xffa9a9a9);
       } else if (s.length > MAXLEN_DISPLAY_NO_SPACE) {
         s = s.substring(0, lenDisplay) + '...';
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
       }
     } else {
+      let logoSizeTimes = 2; // logosize显示大小是logoSize长度的2倍
       pm2f.drawText( s.length > DISPLAY_TEXT_MAX ? s.substring(0, DISPLAY_TEXT_MAX_NOPOINT) + '...' : s, size, x -
-        (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * 2,
-      y + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+        (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_) + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * logoSizeTimes,
+      y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     }
     return w;
   }
@@ -659,27 +668,27 @@ class MainEditor {
       dis;
     pm2f.drawLine(
       baseX_,
-      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2,
+      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE,
       baseX_ + MainEditor.LINE_WIDTH,
-      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2,
+      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE,
       MainEditor.NODE_LINE_COLOR,
       0.5
     );
 
     pm2f.drawLine(
       baseX_ + MainEditor.LINE_WIDTH,
-      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2,
+      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE,
       baseX_ + MainEditor.LINE_WIDTH,
-      offy + data.value_[i].posY + MainEditor.NODE_RECT_HEIGHT / 2,
+      offy + data.value_[i].posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE,
       MainEditor.NODE_LINE_COLOR,
       0.5
     );
 
     pm2f.drawLine(
       baseX_ + MainEditor.LINE_WIDTH,
-      offy + data.value_[i].posY + MainEditor.NODE_RECT_HEIGHT / 2,
+      offy + data.value_[i].posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE,
       baseX_ + MainEditor.LINE_WIDTH * 2,
-      offy + data.value_[i].posY + MainEditor.NODE_RECT_HEIGHT / 2,
+      offy + data.value_[i].posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE,
       MainEditor.NODE_LINE_COLOR,
       0.5
     );
@@ -688,20 +697,29 @@ class MainEditor {
   arrayNodeProc(w, pm2f, data, offx, offy) {
     let ss = '[' + data.value_.length + ']' + NodeTools.arrayToString(data);
     let keyAndValue = data.parent_.name_ + ' = ';
-    if (keyAndValue.length >= 30) {
+    let maxKeyAndValue = 30;
+    let one2maxKeyAndValue = 29;
+    let two2maxKeyAndValue = 28;
+    let three2maxKeyAndValue = 27;
+
+    if (keyAndValue.length >= maxKeyAndValue) {
       return;
-    } else if (keyAndValue.length === 29) {
-      w = pm2f.drawText('.', 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length === 28) {
-      w = pm2f.drawText('..', 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length === 27) {
-      w = pm2f.drawText('...', 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length < 27) {
+    } else if (keyAndValue.length === one2maxKeyAndValue) {
+      w = pm2f.drawText('.', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
+      MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    } else if (keyAndValue.length === two2maxKeyAndValue) {
+      w = pm2f.drawText('..', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
+      MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    } else if (keyAndValue.length === three2maxKeyAndValue) {
+      w = pm2f.drawText('...', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
+      MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    } else if (keyAndValue.length < three2maxKeyAndValue) {
       let displayValueLen = DISPLAY_TEXT_MAX - keyAndValue.length;
       if (ss.length > displayValueLen) {
         ss = ss.substring(0, displayValueLen - 3) + '...';
       }
-      w = pm2f.drawText(ss, 14, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      w = pm2f.drawText(ss, MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
+      MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     }
   }
 
@@ -715,7 +733,7 @@ class MainEditor {
     if (data.type_ === DataType.NODE) {
       for (let i in data.value_) {
         if (
-          data.value_[i].parent_.type_ === 6 &&
+          data.value_[i].parent_.type_ === DataType.NODE &&
           data.value_[i].parent_.isOpen_
         ) {
           this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
@@ -746,14 +764,16 @@ class MainEditor {
     }
     let parentTextWidth = pm2f.getTextWidth(' = ', MainEditor.NODE_TEXT_SIZE);
     let drawTextX_ = offx + MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE + parentTextWidth;
-    let drawTextY_ = offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.NODE_TEXT_SIZE / 2;
+    let drawTextY_ = offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
+    MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE;
     switch (data.type_) {
       case 1:
       case 2:
       case 3:
       case 4:
         w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_), MainEditor.NODE_TEXT_SIZE,
-          drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+          drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_),
+          drawTextY_, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
       case 5:
         let value = data.value_;
@@ -769,7 +789,7 @@ class MainEditor {
         this.configNodeProc(w, pm2f, data, offx, offy, path);
         if (data.parent_ !== undefined) {
           pm2f.drawCut(this.nodeIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
-            offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.LOGO_SIZE / 2);
+            offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
         }
         break;
       case 7:
@@ -777,7 +797,7 @@ class MainEditor {
         this.setNodeButton(pm2f, offx, offy + data.posY, w, MainEditor.NODE_TEXT_SIZE, path, data);
         this.drawObj(pm2f, data.value_, offx + w, offy, path);
         pm2f.drawCut(this.attrIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
-          offy + data.posY + MainEditor.NODE_RECT_HEIGHT / 2 - MainEditor.LOGO_SIZE / 2);
+          offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
         break;
       case 8:
         this.arrayNodeProc(w, pm2f, data, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), offy);
@@ -812,7 +832,9 @@ class MainEditor {
         break;
     }
     if (data.errMsg_ !== null && data.errMsg_ !== undefined) {
-      if (parseInt(this.delay_ / 10) % 2 === 0) {
+      let displayFreq = 2;  // 显示频率
+      let frameNo = 10;
+      if (parseInt(this.delay_ / frameNo) % displayFreq === 0) {
         pm2f.drawRect(offx - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_), offy + data.posY,
           data.nodeWidth_, MainEditor.NODE_RECT_HEIGHT, 0xffff0000, 1);
       }
@@ -833,8 +855,8 @@ class MainEditor {
       pm2f.drawText(
         node.name_,
         MainEditor.NODE_TEXT_SIZE,
-        x + MainEditor.NODE_RECT_WIDTH / 2 - w / 2,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - h / 2,
+        x + MainEditor.NODE_RECT_WIDTH / CONSTANT_MIDDLE - w / CONSTANT_MIDDLE,
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - h / CONSTANT_MIDDLE,
         1,
         1,
         0,
@@ -872,11 +894,13 @@ class MainEditor {
 
         let keyAndValue;
         let lenDisplay = 27;
+        let moreLenDisplayOne = 1;
+        let moreLenDisplayTwo = 2;
         if (node.name_.length <= lenDisplay) {
           keyAndValue = node.name_ + ' = ' + displayValue;
-        } else if (node.name_.length === lenDisplay + 1) {
+        } else if (node.name_.length === lenDisplay + moreLenDisplayOne) {
           keyAndValue = node.name_ + ' =';
-        } else if (node.name_.length === lenDisplay + 2) {
+        } else if (node.name_.length === lenDisplay + moreLenDisplayTwo) {
           keyAndValue = node.name_ + '=';
         } else if (node.name_.length >= DISPLAY_TEXT_MAX) {
           keyAndValue = node.name_;
@@ -898,9 +922,11 @@ class MainEditor {
       this.nodeBtns.push(new XButton());
     }
     let pbtn = this.nodeBtns[this.nodeBtnPoint_];
+    let widthOffset =  6 * 2;
+    let logoSizeOffset = 8;
     pbtn.move(
       x - (node.parent_ === undefined ? 0 : MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_),
-      y, node.parent_ === undefined ? MainEditor.NODE_RECT_WIDTH : rectWidth + 6 * 2 + MainEditor.LOGO_SIZE + 8, MainEditor.NODE_RECT_HEIGHT
+      y, node.parent_ === undefined ? MainEditor.NODE_RECT_WIDTH : rectWidth + widthOffset + MainEditor.LOGO_SIZE + logoSizeOffset, MainEditor.NODE_RECT_HEIGHT
     );
     pbtn.name_ = path;
     pbtn.node_ = node;
@@ -908,7 +934,9 @@ class MainEditor {
   }
 
   drawNodeRectButton(pm2f, x, y, rectWidth, node) {
-    let width = rectWidth + 6 * 2 + MainEditor.LOGO_SIZE + 8;
+    let widthOffset =  6 * 2;
+    let logoSizeOffset = 8;
+    let width = rectWidth + widthOffset + MainEditor.LOGO_SIZE + logoSizeOffset;
     if (node.type_ === DataType.ATTR) {
       switch (node.value_.type_) {
         case 1:
@@ -966,25 +994,26 @@ class MainEditor {
     let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
     if (node.parent_ === undefined) {
       pbtn.move(x + MainEditor.NODE_RECT_WIDTH + MainEditor.NODE_SIZE_BG_OFFX,
-        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / 2, w, h);
+        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE, w, h);
     } else {
       if (node.isOpen_) {
         pbtn.move(x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
-          y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / 2, w, h);
+          y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE, w, h);
       } else {
         pbtn.move(x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
-          y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / 2, w, h);
+          y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE, w, h);
       }
     }
     if (node.isOpen_) {
       pm2f.drawCut(this.circleOpenCut_, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
-        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / 2);
+        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
     } else {
       pm2f.drawCut(this.circleCut_, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
-        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / 2);
+        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
       let textWidth = pm2f.getTextWidth(node.value_.length, 10);
-      pm2f.drawText(node.value_.length, 10, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX + MainEditor.NODE_MORE_CHILD / 2 - textWidth / 2,
-        y + MainEditor.NODE_RECT_HEIGHT / 2 - 4, 1, 1, 0, 1, 1, 0xffffffff);
+      pm2f.drawText(node.value_.length, 10, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX + 
+        MainEditor.NODE_MORE_CHILD / CONSTANT_MIDDLE - textWidth / CONSTANT_MIDDLE,
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 4, 1, 1, 0, 1, 1, 0xffffffff);
     }
     pbtn.node_ = node;
     this.nodeMoreBtnPoint_ += 1;
@@ -1003,41 +1032,46 @@ class MainEditor {
         this.modifyPos_ = null;
       } else if (this.isFirstDraw) {
         this.offX_ = 0;
-        this.offY_ = -data.posY + Scr.logich / 2;
+        this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
         this.maxX = 0;
         this.drawObj(pm2f, data, this.offX_, this.offY_, '');
         pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
-        this.offX_ = (Scr.logicw - this.maxX) / 2;
+        this.offX_ = (Scr.logicw - this.maxX) / CONSTANT_MIDDLE;
         this.isFirstDraw = false;
       }
       this.nodeBtnPoint_ = 0;
       this.nodeMoreBtnPoint_ = 0;
       this.drawObj(pm2f, data, this.offX_, this.offY_, '');
     }
+    let xOffset = 420;
     pm2f.fillRect(0, 0, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
     pm2f.fillRect(
-      window.innerWidth - 420 - DRAW_HEIGHT,
+      window.innerWidth - xOffset - DRAW_HEIGHT,
       0,
       DRAW_HEIGHT,
       window.innerHeight,
       MainEditor.CANVAS_LINE
     );
-    pm2f.fillRect(0, 4, window.innerWidth - 420 - 4, 48, MainEditor.CANVAS_BG);
+    pm2f.fillRect(0, 4, window.innerWidth - xOffset - 4, 48, MainEditor.CANVAS_BG);
     pm2f.fillRect(
       0,
       52,
-      window.innerWidth - 420 - DRAW_HEIGHT,
+      window.innerWidth - xOffset - DRAW_HEIGHT,
       DRAW_HEIGHT,
       MainEditor.CANVAS_LINE
     );
     this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
-    this.sltInclude.move(16, 20, window.innerWidth - 420 - DRAW_HEIGHT - 16, 20).draw();
+    let x = 16;
+    let y = 20;
+    let w = window.innerWidth - xOffset - DRAW_HEIGHT - 16;
+    let h = 20;
+    this.sltInclude.move(x, y, w, h).draw();
 
     if (this.selectNode_.type !== null) {
       if (this.selectNode_.type === 'change_target') {
         pm2f.drawText(
           '点击选择目标',
-          14,
+          MainEditor.NODE_TEXT_SIZE,
           this.mousePos_.x,
           this.mousePos_.y,
           1,
@@ -1051,7 +1085,7 @@ class MainEditor {
       } else if (this.selectNode_.type === 'copy_node') {
         pm2f.drawText(
           '已复制' + this.selectNode_.pnode.name_,
-          14,
+          MainEditor.NODE_TEXT_SIZE,
           this.mousePos_.x,
           this.mousePos_.y,
           1,
@@ -1086,8 +1120,8 @@ class MainEditor {
         this.errorMsg_.shift();
       }
       for (let i in this.errorMsg_) {
-        let y = Scr.logich / 2 - this.errorMsg_.length * 20 + i * 20;
-        let a = parseInt((this.errorMsg_[i][0] - ts) / 2);
+        let y = Scr.logich / CONSTANT_MIDDLE - this.errorMsg_.length * 20 + i * 20;
+        let a = parseInt((this.errorMsg_[i][0] - ts) / CONSTANT_MIDDLE);
         if (a > MAX_RANDOM) {
           a = MAX_RANDOM;
         }
@@ -1096,8 +1130,8 @@ class MainEditor {
         pm2f.fillRect(0, y, Scr.logicw, 20, 0xff0000 | a);
         pm2f.drawText(
           this.errorMsg_[i][1],
-          14,
-          Scr.logicw / 2,
+          MainEditor.NODE_TEXT_SIZE,
+          Scr.logicw / CONSTANT_MIDDLE,
           y,
           1,
           1,
@@ -1116,7 +1150,7 @@ class MainEditor {
       let w = this.searchInput.pos[2];
       let h = this.searchInput.pos[3];
       pm2f.drawCut(this.searchBgCut_, x, y);
-      pm2f.drawCut(this.searchCut_, x + 28, y + 56 / 2 - 8);
+      pm2f.drawCut(this.searchCut_, x + 28, y + 56 / CONSTANT_MIDDLE - 8);
       x = x + 16 + 290 + 16;
 
       let searchResultTxt =
@@ -1125,7 +1159,7 @@ class MainEditor {
         searchResultTxt,
         MainEditor.NODE_TEXT_SIZE,
         x,
-        y + 56 / 2 + 3,
+        y + 56 / CONSTANT_MIDDLE + 3,
         1,
         1,
         0,
@@ -1134,14 +1168,14 @@ class MainEditor {
         0xffffffff
       );
       x += 74 - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
-      pm2f.drawCut(this.upCut_, x, y + 56 / 2 - 8);
-      this.searchInput.btnUp.move(x, y + 56 / 2 - 8, 16, 16);
+      pm2f.drawCut(this.upCut_, x, y + 56 / CONSTANT_MIDDLE - 8);
+      this.searchInput.btnUp.move(x, y + 56 / CONSTANT_MIDDLE - 8, 16, 16);
       x += 16 + 16;
-      pm2f.drawCut(this.downCut_, x, y + 56 / 2 - 8);
-      this.searchInput.btnDown.move(x, y + 56 / 2 - 8, 16, 16);
+      pm2f.drawCut(this.downCut_, x, y + 56 / CONSTANT_MIDDLE - 8);
+      this.searchInput.btnDown.move(x, y + 56 / CONSTANT_MIDDLE - 8, 16, 16);
       x += 16 + 16;
-      pm2f.drawCut(this.closeCut_, x, y + 56 / 2 - 8);
-      this.searchInput.btnClose.move(x, y + 56 / 2 - 8, 16, 16);
+      pm2f.drawCut(this.closeCut_, x, y + 56 / CONSTANT_MIDDLE - 8);
+      this.searchInput.btnClose.move(x, y + 56 / CONSTANT_MIDDLE - 8, 16, 16);
     }
     this.procAll();
   }
@@ -1190,13 +1224,13 @@ class MainEditor {
   }
 
   dropAllLocked(msg, x, y) {
-    if (msg === 2) {
+    if (msg === MouseType.MOVE) {
       this.offX_ += x - this.dropAll_.oldx;
       this.offY_ += y - this.dropAll_.oldy;
       this.dropAll_.oldx = x;
       this.dropAll_.oldy = y;
     }
-    if (msg === 3) {
+    if (msg === MouseType.UP) {
       this.dropAll_.locked = false;
     }
   }
@@ -1226,7 +1260,7 @@ class MainEditor {
         }
         return true;
       } else {
-        if (msg === 1) {
+        if (msg === MouseType.DOWN) {
           this.searchInput = null;
           this.isSearchResult_ = false;
         }
@@ -1321,7 +1355,7 @@ class MainEditor {
       }
     }
 
-    if (msg === 1 && !this.dropAll_.locked) {
+    if (msg === MouseType.DOWN && !this.dropAll_.locked) {
       this.dropAll_.locked = true;
       this.dropAll_.oldx = x;
       this.dropAll_.oldy = y;
@@ -1372,8 +1406,8 @@ class MainEditor {
     }
     this.expandAllParents(node);
     this.isSearchResult_ = true;
-    this.offX_ -= node.posX - Scr.logicw / 2;
-    this.offY_ -= this.offY_ + node.posY - Scr.logich / 2;
+    this.offX_ -= node.posX - Scr.logicw / CONSTANT_MIDDLE;
+    this.offY_ -= this.offY_ + node.posY - Scr.logich / CONSTANT_MIDDLE;
     this.nodePoint_ = node;
     AttrEditor.gi().freshEditor();
   }
@@ -1409,8 +1443,11 @@ class MainEditor {
       }
       AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
     } else if (k === 'ctrl+f') {
+      let xOffset = 300;
+      let posWidth = 450;
+      let posHeight = 40;
       this.searchInput = {
-        pos: [(Scr.logicw - 300) / 2, Scr.logich / 4, 450, 40],
+        pos: [(Scr.logicw - xOffset) / CONSTANT_MIDDLE, Scr.logich / CONSTANT_QUARTER, posWidth, posHeight],
         result: [],
         point: 0,
         btnUp: new XButton(0, 0, 0, 0, '上一个'),
@@ -1421,7 +1458,10 @@ class MainEditor {
       let y = this.searchInput.pos[1];
       let w = this.searchInput.pos[2];
       let h = this.searchInput.pos[3];
-      CanvasInput.Reset(x, y + (h - 20) / 2, 258, 32, '', null, (v) => {
+      let width = 258;
+      let height = 32;
+      let hOffset = 20;
+      CanvasInput.Reset(x, y + (h - hOffset) / CONSTANT_MIDDLE, width, height, '', null, (v) => {
         this.searchInput.result = [];
         if (v.length > 0) {
           this.searchNodeByName(
@@ -1474,7 +1514,10 @@ class MainEditor {
   procAll() {
     while (this.touchQueue_.length > 0) {
       let touch = this.touchQueue_.shift();
-      this.procTouch(touch[0], touch[1], touch[2]);
+      let msgIndex = 0;
+      let xIndex = 1;
+      let yIndex = 2;
+      this.procTouch(touch[msgIndex], touch[xIndex], touch[yIndex]);
     }
 
     while (this.keyQueue_.length > 0) {
@@ -1548,6 +1591,7 @@ class MainEditor {
   }
   onAttributeChange(type, value) {
     let pme = MainEditor.gi();
+    let lenChange_target = 13;
     if (type === 'writefile') {
       let data1 = Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_]);
       let data2 = [];
@@ -1579,7 +1623,7 @@ class MainEditor {
         data: data1,
       });
       pme.saveHistory(pme.filePoint_, data2, NodeTools.getPathByNode(pme.nodePoint_), 1);
-    } else if (type.substring(0, 13) === 'change_target') {
+    } else if (type.substring(0, lenChange_target) === 'change_target') {
       pme.selectNode_.type = type;
       pme.selectNode_.pnode = value;
     } else if (type.startsWith('cancel_change_target')) {

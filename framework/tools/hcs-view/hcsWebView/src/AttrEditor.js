@@ -46,27 +46,27 @@ class AttrEditor {
     if (this.node_ !== null && this.node_ !== undefined) {
       AttributeArea.gi().addTitle(this.node_.name_);
       switch (this.node_.type_) {
-        case 6:
+        case DataType.NODE:
           switch (this.node_.nodeType_) {
-            case 0:
+            case NodeType.DATA:
               this.freshDataNodeNotInheritEditor(this.node_);
               break;
-            case 1:
-            case 2:
-            case 5:
+            case NodeType.COPY:
+            case NodeType.REFERENCE:
+            case NodeType.INHERIT:
               this.freshcopyNodeEditor(this.node_);
               break;
-            case 3:
+            case NodeType.DELETE:
               this.freshdeleteNodeEditor(this.node_);
               break;
-            case 4:
+            case NodeType.TEMPLETE:
               this.freshTempletNodeEditor(this.node_);
               break;
             default:
               break;
           }
           break;
-        case 7:
+        case DataType.ATTR:
           this.freshDefineAttributeEditor(this.node_);
           break;
       }
@@ -348,29 +348,28 @@ class AttrEditor {
     let pattr = AttrEditor.gi();
     if (pattr.node_ !== null) {
       AttributeArea.gi().addTitle(pattr.node_.name_);
-
       switch (pattr.node_.type_) {
-        case 6:
+        case DataType.NODE:
           switch (pattr.node_.nodeType_) {
-            case 0:
+            case NodeType.DATA:
               pattr.changeDataNodeNotInherit(searchId, type, value);
               break;
-            case 1:
-            case 2:
-            case 5:
+            case NodeType.COPY:
+            case NodeType.REFERENCE:
+            case NodeType.INHERIT:
               pattr.changecopyNode(searchId, type, value);
               break;
-            case 3:
+            case NodeType.DELETE:
               pattr.changedeleteNode(searchId, type, value);
               break;
-            case 4:
+            case NodeType.TEMPLETE:
               pattr.changeTempletNode(searchId, type, value);
               break;
             default:
               break;
           }
           break;
-        case 7:
+        case DataType.ATTR:
           pattr.changeDefineAttribute(searchId, type, value);
           break;
       }

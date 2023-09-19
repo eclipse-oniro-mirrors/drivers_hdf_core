@@ -114,7 +114,10 @@ ModifyNode.deleteNode = function (node) {
 ModifyNode.getInheritList = function (root, node) {
   let ret = [];
   let parent = getParent(root, node, null);
-  if (parent === null) return ret;
+  if (parent === null) {
+    return ret;
+  }
+  
   for (let i in parent.value_) {
     let pn = parent.value_[i];
     if (pn.type_ === DataType.NODE && pn.nodeType_ === NodeType.TEMPLETE) {

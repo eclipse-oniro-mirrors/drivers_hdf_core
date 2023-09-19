@@ -232,7 +232,9 @@ class AttributeArea {
     this.htmlStr += ret;
   }
   addGap(type) {
-    if (type === 0) this.htmlStr += '<br>';
+    if (type === 0) {
+      this.htmlStr += '<br>';
+    }
   }
   Event(type, value) {
     let cbv = '';
