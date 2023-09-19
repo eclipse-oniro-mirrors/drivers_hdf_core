@@ -45,6 +45,7 @@
 #define LOG_TAG LOG_TAG_MARK(HDF_LOG_TAG)
 #endif /* LOG_TAG */
 
+#undef HILOG_RAWFORMAT
 #include "hdf_log_adapter.h"
 
 #ifdef __cplusplus
