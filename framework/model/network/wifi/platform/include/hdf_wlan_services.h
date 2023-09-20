@@ -60,6 +60,7 @@ enum APCommands {
     CMD_AP_DEL_STATION,
     CMD_AP_GET_ASSOC_STA,
     CMD_AP_SET_COUNTRY_CODE,
+    CMD_AP_GET_BANDWIDTH,
 };
 
 enum STACommands {
