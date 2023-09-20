@@ -59,6 +59,14 @@
 #define USB_ENDPOINT_INDEX_2 2
 
 #define AUDIO_USB_PCM_RATE_CONTINUOUS (1 << 30) /* continuous range */
+#define IF_TRUE_CONTINUE(cond) \
+    if (cond) { \
+        continue; \
+    }
+#define IF_TRUE_BREAK(cond) \
+    if (cond) { \
+        break; \
+    }
 
 int32_t AudioUsbDmaDeviceInit(const struct AudioCard *card, const struct PlatformDevice *platform)
 {
@@ -310,8 +318,8 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     bool epDescAudioSize = false;
     bool usbDirInva = false;
 
-    if ((isRender != 0 && (attr == USB_ENDPOINT_SYNC_SYNC || attr == USB_ENDPOINT_SYNC_ADAPTIVE)) ||
-        (isRender == 0 && attr != USB_ENDPOINT_SYNC_ADAPTIVE)) {
+    if ((isRender && (attr == USB_ENDPOINT_SYNC_SYNC || attr == USB_ENDPOINT_SYNC_ADAPTIVE)) ||
+        (!isRender && attr != USB_ENDPOINT_SYNC_ADAPTIVE)) {
         return HDF_SUCCESS;
     }
 
@@ -340,14 +348,12 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0) {
         epDescAudioSize = true;
     }
-    if ((isRender != 0 && *epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN)) ||
-        (isRender != 0 && *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN))) {
-        usbDirInva = true;
-    }
-    if (epDescAudioSize && usbDirInva) {
+    usbDirInva = *epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN) ||
+                 *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN);
+    if (epDescAudioSize && isRender && usbDirInva) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. isRender %d, ep %02x, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, isRender, *epNum, epDesc->bSynchAddress);
-        if (isRender && attr == USB_ENDPOINT_SYNC_NONE) {
+        if (attr == USB_ENDPOINT_SYNC_NONE) {
             return HDF_SUCCESS;
         }
         return -EINVAL;
@@ -544,19 +550,13 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
         return NULL;
     }
     DLIST_FOR_EACH_ENTRY(fp, audioUsbFormatList, struct AudioUsbFormat, list) {
-        if (!AudioUsbFindFormatSub(pcmInfo, fp, usbPcmFormat)) {
-            continue;
-        }
+        IF_TRUE_CONTINUE(!AudioUsbFindFormatSub(pcmInfo, fp, usbPcmFormat));
 
         if (!(fp->rates & AUDIO_USB_PCM_RATE_CONTINUOUS)) {
             for (i = 0; i < fp->nrRates; i++) {
-                if (fp->rateTable[i] == pcmInfo->rate) {
-                    break;
-                }
+                IF_TRUE_BREAK(fp->rateTable[i] == pcmInfo->rate);
             }
-            if (i >= fp->nrRates) {
-                continue;
-            }
+            IF_TRUE_CONTINUE(i >= fp->nrRates);
         }
         attr = fp->epAttr & USB_ENDPOINT_SYNCTYPE;
 
@@ -567,10 +567,8 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
         }
 
         if (attr != curAttr) {
-            if ((attr == USB_ENDPOINT_SYNC_ASYNC && streamType == AUDIO_RENDER_STREAM) ||
-                (attr == USB_ENDPOINT_SYNC_ADAPTIVE && streamType == AUDIO_CAPTURE_STREAM)) {
-                continue;
-            }
+            IF_TRUE_CONTINUE((attr == USB_ENDPOINT_SYNC_ASYNC && streamType == AUDIO_RENDER_STREAM) ||
+                             (attr == USB_ENDPOINT_SYNC_ADAPTIVE && streamType == AUDIO_CAPTURE_STREAM));
             if ((curAttr == USB_ENDPOINT_SYNC_ASYNC && streamType == AUDIO_RENDER_STREAM) ||
                 (curAttr == USB_ENDPOINT_SYNC_ADAPTIVE && streamType == AUDIO_CAPTURE_STREAM)) {
                 found = fp;
