@@ -524,7 +524,8 @@ static bool AudioUsbFindFormatSub(struct PcmInfo *pcmInfo, struct AudioUsbFormat
     return true;
 }
 
-static struct AudioUsbFormat *SeekAudioUsbListFindFormat(struct DListHead *audioUsbFormatList,struct PcmInfo *pcmInfo,int usbPcmFormat)
+static struct AudioUsbFormat *SeekAudioUsbListFindFormat(
+    struct DListHead *audioUsbFormatList, struct PcmInfo *pcmInfo, int usbPcmFormat)
 {
     struct AudioUsbFormat *fp = NULL, *found = NULL;
     uint32_t curAttr = 0, attr, i;
