@@ -524,8 +524,8 @@ static bool AudioUsbFindFormatSub(struct PcmInfo *pcmInfo, struct AudioUsbFormat
     return true;
 }
 
-static struct AudioUsbFormat *SeekAudioUsbListFindFormat(
-    struct DListHead *audioUsbFormatList, struct PcmInfo *pcmInfo, int usbPcmFormat)
+static struct AudioUsbFormat *SeekAudioUsbListFindFormat(struct DListHead *audioUsbFormatList,
+    struct PcmInfo *pcmInfo, int usbPcmFormat, const enum AudioStreamType streamType)
 {
     struct AudioUsbFormat *fp = NULL, *found = NULL;
     uint32_t curAttr = 0, attr, i;
@@ -588,7 +588,7 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
         ADM_LOG_ERR("audioUsbFormatList is empty.");
         return NULL;
     }
-    return SeekAudioUsbListFindFormat(audioUsbFormatList, pcmInfo, usbPcmFormat);
+    return SeekAudioUsbListFindFormat(audioUsbFormatList, pcmInfo, usbPcmFormat, streamType);
 }
 
 int32_t AudioUsbDmaConfigChannel(const struct PlatformData *data, const enum AudioStreamType streamType)
