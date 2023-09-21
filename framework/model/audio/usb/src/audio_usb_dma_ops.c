@@ -59,14 +59,6 @@
 #define USB_ENDPOINT_INDEX_2 2
 
 #define AUDIO_USB_PCM_RATE_CONTINUOUS (1 << 30) /* continuous range */
-#define IF_TRUE_CONTINUE(cond) \
-    if (cond) { \
-        continue; \
-    }
-#define IF_TRUE_BREAK(cond) \
-    if (cond) { \
-        break; \
-    }
 
 int32_t AudioUsbDmaDeviceInit(const struct AudioCard *card, const struct PlatformDevice *platform)
 {
@@ -532,31 +524,24 @@ static bool AudioUsbFindFormatSub(struct PcmInfo *pcmInfo, struct AudioUsbFormat
     return true;
 }
 
-static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsbDriver, struct PcmInfo *pcmInfo,
-    int usbPcmFormat, const enum AudioStreamType streamType)
+static struct AudioUsbFormat *SeekAudioUsbListFindFormat(struct DListHead *audioUsbFormatList,struct PcmInfo *pcmInfo,int usbPcmFormat)
 {
     struct AudioUsbFormat *fp = NULL, *found = NULL;
     uint32_t curAttr = 0, attr, i;
-    struct DListHead *audioUsbFormatList = NULL;
-
-    if (streamType == AUDIO_RENDER_STREAM) {
-        audioUsbFormatList = &audioUsbDriver->renderUsbFormatList;
-    } else {
-        audioUsbFormatList = &audioUsbDriver->captureUsbFormatList;
-    }
-
-    if (DListIsEmpty(audioUsbFormatList)) {
-        ADM_LOG_ERR("audioUsbFormatList is empty.");
-        return NULL;
-    }
     DLIST_FOR_EACH_ENTRY(fp, audioUsbFormatList, struct AudioUsbFormat, list) {
-        IF_TRUE_CONTINUE(!AudioUsbFindFormatSub(pcmInfo, fp, usbPcmFormat));
+        if (!AudioUsbFindFormatSub(pcmInfo, fp, usbPcmFormat)) {
+            continue;
+        }
 
         if (!(fp->rates & AUDIO_USB_PCM_RATE_CONTINUOUS)) {
             for (i = 0; i < fp->nrRates; i++) {
-                IF_TRUE_BREAK(fp->rateTable[i] == pcmInfo->rate);
+                if (fp->rateTable[i] == pcmInfo->rate) {
+                    break;
+                }
             }
-            IF_TRUE_CONTINUE(i >= fp->nrRates);
+            if (i >= fp->nrRates) {
+                continue;
+            }
         }
         attr = fp->epAttr & USB_ENDPOINT_SYNCTYPE;
 
@@ -567,8 +552,10 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
         }
 
         if (attr != curAttr) {
-            IF_TRUE_CONTINUE((attr == USB_ENDPOINT_SYNC_ASYNC && streamType == AUDIO_RENDER_STREAM) ||
-                             (attr == USB_ENDPOINT_SYNC_ADAPTIVE && streamType == AUDIO_CAPTURE_STREAM));
+            if ((attr == USB_ENDPOINT_SYNC_ASYNC && streamType == AUDIO_RENDER_STREAM) ||
+                (attr == USB_ENDPOINT_SYNC_ADAPTIVE && streamType == AUDIO_CAPTURE_STREAM)) {
+                continue;
+            }
             if ((curAttr == USB_ENDPOINT_SYNC_ASYNC && streamType == AUDIO_RENDER_STREAM) ||
                 (curAttr == USB_ENDPOINT_SYNC_ADAPTIVE && streamType == AUDIO_CAPTURE_STREAM)) {
                 found = fp;
@@ -582,8 +569,25 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
             curAttr = attr;
         }
     }
+    return found
+}
 
-    return found;
+static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsbDriver, struct PcmInfo *pcmInfo,
+    int usbPcmFormat, const enum AudioStreamType streamType)
+{
+    struct DListHead *audioUsbFormatList = NULL;
+
+    if (streamType == AUDIO_RENDER_STREAM) {
+        audioUsbFormatList = &audioUsbDriver->renderUsbFormatList;
+    } else {
+        audioUsbFormatList = &audioUsbDriver->captureUsbFormatList;
+    }
+
+    if (DListIsEmpty(audioUsbFormatList)) {
+        ADM_LOG_ERR("audioUsbFormatList is empty.");
+        return NULL;
+    }
+    return SeekAudioUsbListFindFormat(audioUsbFormatList, pcmInfo, usbPcmFormat);
 }
 
 int32_t AudioUsbDmaConfigChannel(const struct PlatformData *data, const enum AudioStreamType streamType)
