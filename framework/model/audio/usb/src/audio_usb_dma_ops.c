@@ -570,7 +570,7 @@ static struct AudioUsbFormat *SeekAudioUsbListFindFormat(struct DListHead *audio
             curAttr = attr;
         }
     }
-    return found
+    return found;
 }
 
 static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsbDriver, struct PcmInfo *pcmInfo,
