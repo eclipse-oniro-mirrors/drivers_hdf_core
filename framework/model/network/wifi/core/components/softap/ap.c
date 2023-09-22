@@ -465,13 +465,68 @@ static int32_t WifiCmdSetCountryCode(const RequestContext *context, struct HdfSB
     return ret;
 }
 
+static uint32_t OpsGetApBandwidth(const char *ifName, uint8_t *bandwidth)
+{
+    struct NetDevice *netdev = NULL;
+
+    if (ifName == NULL || bandwidth == NULL) {
+        HDF_LOGE("%s: Invalid parameter", __func__);
+        return HDF_FAILURE;
+    }
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->ops == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    return HDF_ERR_NOT_SUPPORT;
+}
+
+static int32_t WifiCmdGetApBandwidth(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    int32_t ret;
+    const char *ifName = NULL;
+    uint8_t bandwidth;
+    (void)context;
+
+    if (reqData == NULL || rspData == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        return HDF_FAILURE;
+    }
+    ret = OpsGetApBandwidth(ifName, &bandwidth);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: fail to get power mode, %d", __func__, ret);
+        return ret;
+    }
+    HDF_LOGI("%s: ap bandwidth: %d", __func__, bandwidth);
+    if (!HdfSbufWriteUint8(rspData, bandwidth)) {
+        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+
 static struct MessageDef g_wifiApFeatureCmds[] = {
     DUEMessage(CMD_AP_START, WifiCmdSetAp, 0),
     DUEMessage(CMD_AP_STOP, WifiCmdStopAp, 0),
     DUEMessage(CMD_AP_CHANGE_BEACON, WifiCmdChangeBeacon, 0),
     DUEMessage(CMD_AP_DEL_STATION, WifiCmdStaRemove, 0),
     DUEMessage(CMD_AP_GET_ASSOC_STA, WifiCmdGetAssociatedStas, 0),
-    DUEMessage(CMD_AP_SET_COUNTRY_CODE, WifiCmdSetCountryCode, 0)
+    DUEMessage(CMD_AP_SET_COUNTRY_CODE, WifiCmdSetCountryCode, 0),
+    DUEMessage(CMD_AP_GET_BANDWIDTH, WifiCmdGetApBandwidth, 0)
 };
 ServiceDefine(APService, AP_SERVICE_ID, g_wifiApFeatureCmds);
 
