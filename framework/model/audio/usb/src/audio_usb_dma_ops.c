@@ -310,24 +310,19 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     bool epDescAudioSize = false;
     bool usbDirInva = false;
 
-    if ((isRender && (attr == USB_ENDPOINT_SYNC_SYNC || attr == USB_ENDPOINT_SYNC_ADAPTIVE)) ||
-        (!isRender && attr != USB_ENDPOINT_SYNC_ADAPTIVE)) {
+    if ((isRender != 0 && (attr == USB_ENDPOINT_SYNC_SYNC || attr == USB_ENDPOINT_SYNC_ADAPTIVE)) ||
+        (isRender == 0 && attr != USB_ENDPOINT_SYNC_ADAPTIVE)) {
         return HDF_SUCCESS;
     }
 
     epDesc = AudioEndpointDescriptor(alts, USB_ENDPOINT_INDEX_1);
-    if ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC) {
-        epTypeIsoc = true;
-    }
-    if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE) {
-        epDescAudioSize = true;
-    }
-
+    epTypeIsoc = (epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC;
+    epDescAudioSize = epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE;
     if (epTypeIsoc || (epDescAudioSize && epDesc->bSynchAddress != 0)) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. bmAttributes %02x, bLength %d, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, epDesc->bmAttributes, epDesc->bLength,
             epDesc->bSynchAddress);
-        if (isRender && attr == USB_ENDPOINT_SYNC_NONE) {
+        if (isRender != 0 && attr == USB_ENDPOINT_SYNC_NONE) {
             return HDF_SUCCESS;
         }
         return -EINVAL;
@@ -335,14 +330,10 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     *epNum = epDesc->bEndpointAddress;
 
     epDesc = AudioEndpointDescriptor(alts, 0);
-    epDescAudioSize = false;
-
-    if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0) {
-        epDescAudioSize = true;
-    }
+    epDescAudioSize = epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0;
     usbDirInva = *epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN) ||
                  *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN);
-    if (epDescAudioSize && isRender && usbDirInva) {
+    if (epDescAudioSize && isRender != 0 && usbDirInva) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. isRender %d, ep %02x, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, isRender, *epNum, epDesc->bSynchAddress);
         if (attr == USB_ENDPOINT_SYNC_NONE) {
