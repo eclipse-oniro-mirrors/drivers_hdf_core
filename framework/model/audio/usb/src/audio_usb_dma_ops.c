@@ -316,8 +316,8 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     }
 
     epDesc = AudioEndpointDescriptor(alts, USB_ENDPOINT_INDEX_1);
-    epTypeIsoc = (epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC;
-    epDescAudioSize = epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE;
+    epTypeIsoc = ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC);
+    epDescAudioSize = (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE);
     if (epTypeIsoc || (epDescAudioSize && epDesc->bSynchAddress != 0)) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. bmAttributes %02x, bLength %d, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, epDesc->bmAttributes, epDesc->bLength,
@@ -330,9 +330,9 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     *epNum = epDesc->bEndpointAddress;
 
     epDesc = AudioEndpointDescriptor(alts, 0);
-    epDescAudioSize = epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0;
-    usbDirInva = *epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN) ||
-                 *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN);
+    epDescAudioSize = (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0);
+    usbDirInva = (*epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN) ||
+                  *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN));
     if (epDescAudioSize && isRender != 0 && usbDirInva) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. isRender %d, ep %02x, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, isRender, *epNum, epDesc->bSynchAddress);
