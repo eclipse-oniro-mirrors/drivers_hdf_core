@@ -59,7 +59,8 @@ class XButton {
       let ra = 0;
       let ox = -2;
       let oy = -2;
-      this.pm2f_.drawText(this.name_, SIZE, this.posX_ + this.posW_ / middle, this.posY_ + this.posH_ / middle + yOffset, sw, sh, ra, ox, oy, this.nameColor_ - coloroff);
+      this.pm2f_.drawText(this.name_, SIZE, this.posX_ + this.posW_ / middle, this.posY_ +
+      this.posH_ / middle + yOffset, sw, sh, ra, ox, oy, this.nameColor_ - coloroff);
     }
   }
 

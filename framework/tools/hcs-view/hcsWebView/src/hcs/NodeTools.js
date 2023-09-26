@@ -22,7 +22,7 @@ const MAX_OCTAL = 8;
 const MAX_HEXADECIMAL = 16;
 const STAT_SIZE = 100;
 
-var DataType = {
+const DataType = {
   INT8: 1,
   INT16: 2,
   INT32: 3,
@@ -35,7 +35,7 @@ var DataType = {
   DELETE: 10,
   BOOL: 11,
 };
-var NodeType = {
+const NodeType = {
   DATA: 0,
   COPY: 1,
   REFERENCE: 2,
