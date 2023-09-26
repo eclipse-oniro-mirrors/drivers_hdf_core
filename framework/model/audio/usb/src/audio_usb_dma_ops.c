@@ -316,18 +316,13 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     }
 
     epDesc = AudioEndpointDescriptor(alts, USB_ENDPOINT_INDEX_1);
-    if ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC) {
-        epTypeIsoc = true;
-    }
-    if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE) {
-        epDescAudioSize = true;
-    }
-
+    epTypeIsoc = ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC);
+    epDescAudioSize = (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE);
     if (epTypeIsoc || (epDescAudioSize && epDesc->bSynchAddress != 0)) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. bmAttributes %02x, bLength %d, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, epDesc->bmAttributes, epDesc->bLength,
             epDesc->bSynchAddress);
-        if (isRender && attr == USB_ENDPOINT_SYNC_NONE) {
+        if (isRender != 0 && attr == USB_ENDPOINT_SYNC_NONE) {
             return HDF_SUCCESS;
         }
         return -EINVAL;
@@ -335,19 +330,13 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
     *epNum = epDesc->bEndpointAddress;
 
     epDesc = AudioEndpointDescriptor(alts, 0);
-    epDescAudioSize = false;
-
-    if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0) {
-        epDescAudioSize = true;
-    }
-    if ((isRender != 0 && *epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN)) ||
-        (isRender != 0 && *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN))) {
-        usbDirInva = true;
-    }
-    if (epDescAudioSize && usbDirInva) {
+    epDescAudioSize = (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0);
+    usbDirInva = (*epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN) ||
+                  *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN));
+    if (epDescAudioSize && isRender != 0 && usbDirInva) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. isRender %d, ep %02x, bSynchAddress %02x\n",
             audioUsbFormat->iface, audioUsbFormat->altsetting, isRender, *epNum, epDesc->bSynchAddress);
-        if (isRender && attr == USB_ENDPOINT_SYNC_NONE) {
+        if (attr == USB_ENDPOINT_SYNC_NONE) {
             return HDF_SUCCESS;
         }
         return -EINVAL;
@@ -526,23 +515,11 @@ static bool AudioUsbFindFormatSub(struct PcmInfo *pcmInfo, struct AudioUsbFormat
     return true;
 }
 
-static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsbDriver, struct PcmInfo *pcmInfo,
-    int usbPcmFormat, const enum AudioStreamType streamType)
+static struct AudioUsbFormat *SeekAudioUsbListFindFormat(struct DListHead *audioUsbFormatList,
+    struct PcmInfo *pcmInfo, int usbPcmFormat, const enum AudioStreamType streamType)
 {
     struct AudioUsbFormat *fp = NULL, *found = NULL;
     uint32_t curAttr = 0, attr, i;
-    struct DListHead *audioUsbFormatList = NULL;
-
-    if (streamType == AUDIO_RENDER_STREAM) {
-        audioUsbFormatList = &audioUsbDriver->renderUsbFormatList;
-    } else {
-        audioUsbFormatList = &audioUsbDriver->captureUsbFormatList;
-    }
-
-    if (DListIsEmpty(audioUsbFormatList)) {
-        ADM_LOG_ERR("audioUsbFormatList is empty.");
-        return NULL;
-    }
     DLIST_FOR_EACH_ENTRY(fp, audioUsbFormatList, struct AudioUsbFormat, list) {
         if (!AudioUsbFindFormatSub(pcmInfo, fp, usbPcmFormat)) {
             continue;
@@ -584,8 +561,25 @@ static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsb
             curAttr = attr;
         }
     }
-
     return found;
+}
+
+static struct AudioUsbFormat *AudioUsbFindFormat(struct AudioUsbDriver *audioUsbDriver, struct PcmInfo *pcmInfo,
+    int usbPcmFormat, const enum AudioStreamType streamType)
+{
+    struct DListHead *audioUsbFormatList = NULL;
+
+    if (streamType == AUDIO_RENDER_STREAM) {
+        audioUsbFormatList = &audioUsbDriver->renderUsbFormatList;
+    } else {
+        audioUsbFormatList = &audioUsbDriver->captureUsbFormatList;
+    }
+
+    if (DListIsEmpty(audioUsbFormatList)) {
+        ADM_LOG_ERR("audioUsbFormatList is empty.");
+        return NULL;
+    }
+    return SeekAudioUsbListFindFormat(audioUsbFormatList, pcmInfo, usbPcmFormat, streamType);
 }
 
 int32_t AudioUsbDmaConfigChannel(const struct PlatformData *data, const enum AudioStreamType streamType)
