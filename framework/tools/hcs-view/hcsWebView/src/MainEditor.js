@@ -1068,9 +1068,9 @@ class MainEditor {
       MainEditor.CANVAS_LINE
     );
     yy = 4;
-    wSpace = 4;
-    h = 48;
-    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, h, MainEditor.CANVAS_BG);
+    let wSpace = 4;
+    let hh = 48;
+    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, hh, MainEditor.CANVAS_BG);
     yy = 52
     pm2f.fillRect(
       xx,
@@ -1080,11 +1080,11 @@ class MainEditor {
       MainEditor.CANVAS_LINE
     );
     this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
-    let x = 16;
-    let y = 20;
-    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x;
+    let x0 = 16;
+    let y0 = 20;
+    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x0;
     let h = 20;
-    this.sltInclude.move(x, y, w, h).draw();
+    this.sltInclude.move(x0, y0, w, h).draw();
 
     if (this.selectNode_.type !== null) {
       if (this.selectNode_.type === 'change_target') {
@@ -1214,7 +1214,7 @@ class MainEditor {
     }
     this.procAll();
   }
-
+  
   buttonClickedProc(nodeBtns) {
     if (
       this.selectNode_.type === null ||
