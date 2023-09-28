@@ -1034,12 +1034,8 @@ class MainEditor {
   }
 
     /**
-   * 绘制节点数
-   * @param {} pm2f X2DFast
-   * @param {*} x 起始x坐标
-   * @param {*} y 起始y坐标
-   * @param {*} h 节点高度
-   * @param {*} node 节点
+   * 移动绘制
+   * @param {} xOffset x偏移值
    */
   moveAndDraw(xOffset) {
     let x = 16;
@@ -1049,13 +1045,12 @@ class MainEditor {
     this.sltInclude.move(x, y, w, h).draw();
   }
 
-    /**
-   * 绘制节点数
+   /**
+   * 绘制Rect
    * @param {} pm2f X2DFast
-   * @param {*} x 起始x坐标
-   * @param {*} y 起始y坐标
-   * @param {*} h 节点高度
-   * @param {*} node 节点
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   * @param {*} xOffset x偏移值
    */
   fillWholeRect(pm2f, xx, yy, xOffset) {
     pm2f.fillRect(xx, yy, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
@@ -1070,7 +1065,7 @@ class MainEditor {
     let wSpace = 4;
     let h = 48;
     pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, h, MainEditor.CANVAS_BG);
-    yy = 52
+    yy = 52;
     pm2f.fillRect(
       xx,
       yy,
@@ -1080,12 +1075,22 @@ class MainEditor {
     );
   }
 
+  /**
+   * 修改节点位置
+   */
   subFuncModify() {
     this.offX_ -= this.modifyPos_.node.posX - this.modifyPos_.x;
     this.offY_ -= this.modifyPos_.node.posY - this.modifyPos_.y;
     this.modifyPos_ = null;
   }
 
+  /**
+   * 绘制Rect
+   * @param {} pm2f X2DFast
+   * @param {*} x 起始x坐标
+   * @param {*} y 起始y坐标
+   * @param {*} data 绘制的数据对象
+   */
   subFuncFirstDraw(pm2f, x, y, data) {
     this.offX_ = 0;
     this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
@@ -1096,6 +1101,12 @@ class MainEditor {
     this.isFirstDraw = false;
   }
 
+  /**
+   * 绘制接口
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */  
   subFuncDraw(pm2f, xx, yy) {
     let data = this.files_[this.filePoint_];
     this.calcPostionY(data, 0);
@@ -1109,6 +1120,146 @@ class MainEditor {
     this.drawObj(pm2f, data, this.offX_, this.offY_, '');
   }
 
+  /**
+   * 绘制选择文本
+   * @param {} pm2f X2DFast
+   */   
+  drawSelectText(pm2f) {
+    pm2f.drawText(
+      '点击选择目标',
+      MainEditor.NODE_TEXT_SIZE,
+      this.mousePos_.x,
+      this.mousePos_.y,
+      1,
+      1,
+      0,
+      -3,
+      -3,
+      MainEditor.NODE_TEXT_COLOR
+    );
+    this.btnCancelSelect_.name_ = '取消选择';
+  }
+
+  /**
+   * 绘制复制文本
+   * @param {} pm2f X2DFast
+   */   
+  drawCopyText(pm2f) {
+    pm2f.drawText(
+      '已复制' + this.selectNode_.pnode.name_,
+      MainEditor.NODE_TEXT_SIZE,
+      this.mousePos_.x,
+      this.mousePos_.y,
+      1,
+      1,
+      0,
+      -3,
+      -3,
+      MainEditor.NODE_TEXT_COLOR
+    );
+    this.btnCancelSelect_.name_ = '取消复制';
+  }
+
+  /**
+   * 绘制剪切文本
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */   
+  drawCutText(pm2f) {
+    pm2f.drawText(
+      '已剪切' + this.selectNode_.pnode.name_,
+      18,
+      this.mousePos_.x,
+      this.mousePos_.y,
+      1,
+      1,
+      0,
+      -3,
+      -3,
+      MainEditor.NODE_TEXT_COLOR
+    );
+    this.btnCancelSelect_.name_ = '取消剪切';
+  }
+
+  /**
+   * 绘制错误信息文本
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */    
+  drawErrorText(pm2f, a, y) {
+    a = a << 24;
+    pm2f.fillRect(0, y, Scr.logicw, 20, 0xff0000 | a);
+    pm2f.drawText(
+      this.errorMsg_[i][1],
+      MainEditor.NODE_TEXT_SIZE,
+      Scr.logicw / CONSTANT_MIDDLE,
+      y,
+      1,
+      1,
+      0,
+      -2,
+      -1,
+      MainEditor.NODE_TEXT_COLOR
+    );
+  }
+
+  /**
+   * 绘制一组剪切文本
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */  
+  drawCuts(pm2f, x, y) {
+    let xOffset = 28;
+    let yDoubleOffset = 56;
+    let ySpace = 8;
+    pm2f.drawCut(this.searchBgCut_, x, y);
+    pm2f.drawCut(this.searchCut_, x + xOffset, y + yDoubleOffset / CONSTANT_MIDDLE - ySpace);
+    x = x + 16 + 290 + 16;
+
+    let searchResultTxt =
+    this.searchInput.result.length === 0 ? 'No result' : this.searchInput.point + 1 + '/' + this.searchInput.result.length;
+    let color = 0xffffffff;
+    let offsetY = -2;
+    let offsetX = -1;
+    let ra = 0;
+    let sh = 1;
+    let sw = 1;
+    let yOffsetBase = 56;
+    let yOffset = 3;
+    let xStep = 16;
+    let yRightSpace = 8;
+    let start = 74;
+
+    x += pm2f.drawText(
+    searchResultTxt,
+    MainEditor.NODE_TEXT_SIZE,
+    x,
+    y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
+    sw,
+    sh,
+    ra,
+    offsetX,
+    offsetY,
+    color
+    );
+    x += start - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
+    pm2f.drawCut(this.upCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+    this.searchInput.btnUp.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+    x += xStep + xStep;
+    pm2f.drawCut(this.downCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+    this.searchInput.btnDown.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+    x += xStep + xStep;
+    pm2f.drawCut(this.closeCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+    this.searchInput.btnClose.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+  }
+
+  /**
+   * MainEditor绘制
+   * @param {} pm2f X2DFast
+   */  
   draw(pm2f) {    
     let xx = 0;
     let yy = 0;
@@ -1124,47 +1275,11 @@ class MainEditor {
     
     if (this.selectNode_.type !== null) {
       if (this.selectNode_.type === 'change_target') {
-        pm2f.drawText(
-          '点击选择目标',
-          MainEditor.NODE_TEXT_SIZE,
-          this.mousePos_.x,
-          this.mousePos_.y,
-          1,
-          1,
-          0,
-          -3,
-          -3,
-          MainEditor.NODE_TEXT_COLOR
-        );
-        this.btnCancelSelect_.name_ = '取消选择';
+        this.drawSelectText(pm2f);
       } else if (this.selectNode_.type === 'copy_node') {
-        pm2f.drawText(
-          '已复制' + this.selectNode_.pnode.name_,
-          MainEditor.NODE_TEXT_SIZE,
-          this.mousePos_.x,
-          this.mousePos_.y,
-          1,
-          1,
-          0,
-          -3,
-          -3,
-          MainEditor.NODE_TEXT_COLOR
-        );
-        this.btnCancelSelect_.name_ = '取消复制';
+        this.drawCopyText(pm2f);
       } else if (this.selectNode_.type === 'cut_node') {
-        pm2f.drawText(
-          '已剪切' + this.selectNode_.pnode.name_,
-          18,
-          this.mousePos_.x,
-          this.mousePos_.y,
-          1,
-          1,
-          0,
-          -3,
-          -3,
-          MainEditor.NODE_TEXT_COLOR
-        );
-        this.btnCancelSelect_.name_ = '取消剪切';
+        this.drawCutText(pm2f);
       }
       this.btnCancelSelect_.move(Scr.logicw - 250, Scr.logich - 30, 100, 20);
     }
@@ -1182,20 +1297,7 @@ class MainEditor {
           a = MAX_RANDOM;
         }
         NapiLog.logError(a);
-        a = a << 24;
-        pm2f.fillRect(0, y, Scr.logicw, 20, 0xff0000 | a);
-        pm2f.drawText(
-          this.errorMsg_[i][1],
-          MainEditor.NODE_TEXT_SIZE,
-          Scr.logicw / CONSTANT_MIDDLE,
-          y,
-          1,
-          1,
-          0,
-          -2,
-          -1,
-          MainEditor.NODE_TEXT_COLOR
-        );
+        this.drawErrorText(pm2f,a, y);
       }
     }
     this.delay_ += 1;
@@ -1203,50 +1305,7 @@ class MainEditor {
     if (this.searchInput) {
       let x = this.searchInput.pos[0];
       let y = this.searchInput.pos[1];
-      let w = this.searchInput.pos[2];
-      let h = this.searchInput.pos[3];
-      let xOffset = 28;
-      let yDoubleOffset = 56;
-      let ySpace = 8;
-      pm2f.drawCut(this.searchBgCut_, x, y);
-      pm2f.drawCut(this.searchCut_, x + xOffset, y + yDoubleOffset / CONSTANT_MIDDLE - ySpace);
-      x = x + 16 + 290 + 16;
-
-      let searchResultTxt =
-        this.searchInput.result.length === 0 ? 'No result' : this.searchInput.point + 1 + '/' + this.searchInput.result.length;
-      let color = 0xffffffff;
-      let offsetY = -2;
-      let offsetX = -1;
-      let ra = 0;
-      let sh = 1;
-      let sw = 1;
-      let yOffsetBase = 56;
-      let yOffset = 3;
-      let xStep = 16;
-      let yRightSpace = 8;
-      let start = 74;
-
-        x += pm2f.drawText(
-        searchResultTxt,
-        MainEditor.NODE_TEXT_SIZE,
-        x,
-        y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
-        sw,
-        sh,
-        ra,
-        offsetX,
-        offsetY,
-        color
-      );
-      x += start - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
-      pm2f.drawCut(this.upCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
-      this.searchInput.btnUp.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
-      x += xStep + xStep;
-      pm2f.drawCut(this.downCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
-      this.searchInput.btnDown.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
-      x += xStep + xStep;
-      pm2f.drawCut(this.closeCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
-      this.searchInput.btnClose.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+      this.drawCuts(pm2f, x, y);
     }
     this.procAll();
   }
