@@ -914,6 +914,85 @@ class MainEditor {
     }
   }
 
+    /**
+   * 获取绘制框宽度
+   * @param {} pm2f X2DFast
+   * @param {} node 节点数据对象
+   * @return {} rectWidth 绘制框宽度
+   */
+  getRectWidth(pm2f, node) {
+    let displayValue;
+    let rectWidth = 0;
+    if (node.value_.type_ === ObjectType.PARSEROP_ARRAY) {
+      let arrayValue = NodeTools.arrayToString(node.value_);
+      displayValue = '[' + node.value_.value_.length + ']' + arrayValue;
+    } else if (
+      node.value_.type_ === ObjectType.PARSEROP_UINT8 ||
+      node.value_.type_ === ObjectType.PARSEROP_UINT16 ||
+      node.value_.type_ === ObjectType.PARSEROP_UINT32 ||
+      node.value_.type_ === ObjectType.PARSEROP_UINT64
+    ) {
+      displayValue = NodeTools.jinZhi10ToX(
+        node.value_.value_,
+        node.value_.jinzhi_
+      );
+    } else if (node.value_.type_ === ObjectType.PARSEROP_DELETE) {
+      displayValue = 'delete';
+    } else if (node.value_.type_ === ObjectType.PARSEROP_BOOL) {
+      if (node.value_) {
+        displayValue = 'true';
+      } else {
+        displayValue = 'false';
+      }
+    } else {
+      displayValue = node.value_.value_;
+    }
+    
+    let keyAndValue;
+    let lenDisplay = 27;
+    let moreLenDisplayOne = 1;
+    let moreLenDisplayTwo = 2;
+    if (node.name_.length <= lenDisplay) {
+      keyAndValue = node.name_ + ' = ' + displayValue;
+    } else if (node.name_.length === lenDisplay + moreLenDisplayOne) {
+      keyAndValue = node.name_ + ' =';
+    } else if (node.name_.length === lenDisplay + moreLenDisplayTwo) {
+      keyAndValue = node.name_ + '=';
+    } else if (node.name_.length >= DISPLAY_TEXT_MAX) {
+      keyAndValue = node.name_;
+    }
+
+    if (keyAndValue.length >= DISPLAY_TEXT_MAX) {
+      keyAndValue = keyAndValue.substring(0, 27) + '...';
+    }
+    rectWidth = pm2f.getTextWidth(keyAndValue, MainEditor.NODE_TEXT_SIZE);
+    return rectWidth;
+  }
+
+  /**
+   * 绘制节点名称
+   * @param {} pm2f X2DFast
+   * @param {} node 节点数据对象
+   * @param {} x x坐标值
+   * @param {} y y坐标值
+   * @param {} w 宽度
+   * @param {} h 高度
+   */  
+  drawNodeNameText(pm2f, node, x, y, w, h) {
+    pm2f.drawText(
+      node.name_,
+      MainEditor.NODE_TEXT_SIZE,
+      x + MainEditor.NODE_RECT_WIDTH / CONSTANT_MIDDLE - w / CONSTANT_MIDDLE,
+      y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - h / CONSTANT_MIDDLE,
+      1,
+      1,
+      0,
+      1,
+      1,
+      MainEditor.NODE_TEXT_COLOR
+    );
+  }
+
   setNodeButton(pm2f, x, y, w, h, path, node) {
     let rectWidth = MainEditor.NODE_RECT_WIDTH;
     if (node.parent_ === undefined) {
@@ -923,64 +1002,10 @@ class MainEditor {
         pm2f.drawCut(this.rootIconCut_, x, y);
       }
       node.nodeWidth_ = MainEditor.NODE_RECT_WIDTH;
-      pm2f.drawText(
-        node.name_,
-        MainEditor.NODE_TEXT_SIZE,
-        x + MainEditor.NODE_RECT_WIDTH / CONSTANT_MIDDLE - w / CONSTANT_MIDDLE,
-        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - h / CONSTANT_MIDDLE,
-        1,
-        1,
-        0,
-        1,
-        1,
-        MainEditor.NODE_TEXT_COLOR
-      );
+      this.drawNodeNameText(pm2f, node, x, y, w, h);
     } else {
       if (node.type_ === DataType.ATTR) {
-        let displayValue;
-        if (node.value_.type_ === ObjectType.PARSEROP_ARRAY) {
-          let arrayValue = NodeTools.arrayToString(node.value_);
-          displayValue = '[' + node.value_.value_.length + ']' + arrayValue;
-        } else if (
-          node.value_.type_ === ObjectType.PARSEROP_UINT8 ||
-          node.value_.type_ === ObjectType.PARSEROP_UINT16 ||
-          node.value_.type_ === ObjectType.PARSEROP_UINT32 ||
-          node.value_.type_ === ObjectType.PARSEROP_UINT64
-        ) {
-          displayValue = NodeTools.jinZhi10ToX(
-            node.value_.value_,
-            node.value_.jinzhi_
-          );
-        } else if (node.value_.type_ === ObjectType.PARSEROP_DELETE) {
-          displayValue = 'delete';
-        } else if (node.value_.type_ === ObjectType.PARSEROP_BOOL) {
-          if (node.value_) {
-            displayValue = 'true';
-          } else {
-            displayValue = 'false';
-          }
-        } else {
-          displayValue = node.value_.value_;
-        }
-
-        let keyAndValue;
-        let lenDisplay = 27;
-        let moreLenDisplayOne = 1;
-        let moreLenDisplayTwo = 2;
-        if (node.name_.length <= lenDisplay) {
-          keyAndValue = node.name_ + ' = ' + displayValue;
-        } else if (node.name_.length === lenDisplay + moreLenDisplayOne) {
-          keyAndValue = node.name_ + ' =';
-        } else if (node.name_.length === lenDisplay + moreLenDisplayTwo) {
-          keyAndValue = node.name_ + '=';
-        } else if (node.name_.length >= DISPLAY_TEXT_MAX) {
-          keyAndValue = node.name_;
-        }
-
-        if (keyAndValue.length >= DISPLAY_TEXT_MAX) {
-          keyAndValue = keyAndValue.substring(0, 27) + '...';
-        }
-        rectWidth = pm2f.getTextWidth(keyAndValue, MainEditor.NODE_TEXT_SIZE);
+        rectWidth = this.getRectWidth(pm2f, node);
       } else {
         rectWidth = pm2f.getTextWidth(
           this.getNodeText(node).length > DISPLAY_TEXT_MAX ? this.getNodeText(node).substring(0, 27) + '...' : this.getNodeText(node),
@@ -989,6 +1014,7 @@ class MainEditor {
       }
       this.drawNodeRectButton(pm2f, x, y, rectWidth, node);
     }
+
     if (this.nodeBtnPoint_ >= this.nodeBtns.length) {
       this.nodeBtns.push(new XButton());
     }
@@ -1608,71 +1634,103 @@ class MainEditor {
     this.nodePoint_ = node;
     AttrEditor.gi().freshEditor();
   }
+
+  /**
+   * Ctrl+Z 快捷键处理
+   */   
+  procCtrlZ() {
+    let h;
+    if (this.historyZ.length <= 0) {
+      h = this.historyBase[this.filePoint_];
+    } else {
+      if (this.historyZ.length > 1 && this.historyPushed) {
+        this.historyZ.pop();
+        this.historyPushed = false;
+      }
+      h = this.historyZ.pop();
+    }
+
+    this.filePoint_ = h.fn;
+    this.rootPoint_ = h.fn;
+    Lexer.FILE_AND_DATA[this.filePoint_] = h.data;
+    this.parse(this.filePoint_);
+    if (h.sel) {
+      this.nodePoint_ = NodeTools.getNodeByPath(
+        this.files_[this.filePoint_],
+        h.sel
+      );
+    } else {
+      this.nodePoint_ = null;
+    }
+    AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
+  }
+
+  /**
+   * Ctrl+F 快捷键处理
+   */  
+  procCtrlF() {
+    let xOffset = 300;
+    let posWidth = 450;
+    let posHeight = 40;
+    this.searchInput = {
+      pos: [(Scr.logicw - xOffset) / CONSTANT_MIDDLE, Scr.logich / CONSTANT_QUARTER, posWidth, posHeight],
+      result: [],
+      point: 0,
+      btnUp: new XButton(0, 0, 0, 0, '上一个'),
+      btnDown: new XButton(0, 0, 0, 0, '下一个'),
+      btnClose: new XButton(0, 0, 0, 0, '关闭'),
+    };
+    let x = this.searchInput.pos[0];
+    let y = this.searchInput.pos[1];
+    let w = this.searchInput.pos[2];
+    let h = this.searchInput.pos[3];
+    let width = 258;
+    let height = 32;
+    let hOffset = 20;
+    CanvasInput.Reset(x, y + (h - hOffset) / CONSTANT_MIDDLE, width, height, '', null, (v) => {
+      this.searchInput.result = [];
+      if (v.length > 0) {
+        this.searchNodeByName(
+          this.files_[this.filePoint_],
+          v,
+          this.searchInput.result
+        );
+        if (this.searchInput.result.length > 0) {
+          this.locateNode(this.searchInput.result[0]);
+          this.searchInput.point = 0;
+        }
+      }
+    });
+    CanvasInput.SetSafeArea(...this.searchInput.pos);
+  }
+
+  /**
+   * Ctrl+V 快捷键处理
+   */
+  procCtrlV() {
+    if (this.selectNode_.type !== null && this.nodePoint_ !== null) {
+      let parent = this.nodePoint_;
+      if (this.nodePoint_.type_ !== DataType.NODE) {
+        parent = this.nodePoint_.parent_;
+      }
+      parent.value_.push(NodeTools.copyNode(this.selectNode_.pnode, parent));
+      if (this.selectNode_.type === 'cut_node') {
+        ModifyNode.deleteNode(this.selectNode_.pnode);
+        this.selectNode_.type = null;
+      }
+      this.checkAllError();
+    }
+  }
+
   procKey(k) {
     if (k === 'ctrl+z') {
       if (this.selectNode_.type !== null) {
         this.selectNode_.type = null;
       }
-
       console.log('!!! popHistory ', this.historyZ.length);
-      let h;
-      if (this.historyZ.length <= 0) {
-        h = this.historyBase[this.filePoint_];
-      } else {
-        if (this.historyZ.length > 1 && this.historyPushed) {
-          this.historyZ.pop();
-          this.historyPushed = false;
-        }
-        h = this.historyZ.pop();
-      }
-
-      this.filePoint_ = h.fn;
-      this.rootPoint_ = h.fn;
-      Lexer.FILE_AND_DATA[this.filePoint_] = h.data;
-      this.parse(this.filePoint_);
-      if (h.sel) {
-        this.nodePoint_ = NodeTools.getNodeByPath(
-          this.files_[this.filePoint_],
-          h.sel
-        );
-      } else {
-        this.nodePoint_ = null;
-      }
-      AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
+      this.procCtrlZ();  
     } else if (k === 'ctrl+f') {
-      let xOffset = 300;
-      let posWidth = 450;
-      let posHeight = 40;
-      this.searchInput = {
-        pos: [(Scr.logicw - xOffset) / CONSTANT_MIDDLE, Scr.logich / CONSTANT_QUARTER, posWidth, posHeight],
-        result: [],
-        point: 0,
-        btnUp: new XButton(0, 0, 0, 0, '上一个'),
-        btnDown: new XButton(0, 0, 0, 0, '下一个'),
-        btnClose: new XButton(0, 0, 0, 0, '关闭'),
-      };
-      let x = this.searchInput.pos[0];
-      let y = this.searchInput.pos[1];
-      let w = this.searchInput.pos[2];
-      let h = this.searchInput.pos[3];
-      let width = 258;
-      let height = 32;
-      let hOffset = 20;
-      CanvasInput.Reset(x, y + (h - hOffset) / CONSTANT_MIDDLE, width, height, '', null, (v) => {
-        this.searchInput.result = [];
-        if (v.length > 0) {
-          this.searchNodeByName(
-            this.files_[this.filePoint_],
-            v,
-            this.searchInput.result
-          );
-          if (this.searchInput.result.length > 0) {
-            this.locateNode(this.searchInput.result[0]);
-            this.searchInput.point = 0;
-          }
-        }
-      });
-      CanvasInput.SetSafeArea(...this.searchInput.pos);
+      this.procCtrlF();
     } else if (k === 'ctrl+c') {
       if (this.nodePoint_ !== null) {
         this.selectNode_ = {
@@ -1688,18 +1746,7 @@ class MainEditor {
         };
       }
     } else if (k === 'ctrl+v') {
-      if (this.selectNode_.type !== null && this.nodePoint_ !== null) {
-        let parent = this.nodePoint_;
-        if (this.nodePoint_.type_ !== DataType.NODE) {
-          parent = this.nodePoint_.parent_;
-        }
-        parent.value_.push(NodeTools.copyNode(this.selectNode_.pnode, parent));
-        if (this.selectNode_.type === 'cut_node') {
-          ModifyNode.deleteNode(this.selectNode_.pnode);
-          this.selectNode_.type = null;
-        }
-        this.checkAllError();
-      }
+      this.procCtrlV();
     } else if (k === 'Delete') {
       if (this.nodePoint_ !== null) {
         ModifyNode.deleteNode(this.nodePoint_);
