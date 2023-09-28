@@ -757,6 +757,76 @@ class MainEditor {
     }
   }
 
+  /**
+   * 绘制Attr对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} offx x偏移值
+   * @param {} offy y偏移值
+   * @param {} path 节点路径
+   */
+  drawAttrObj(pm2f, data, offx, offy, path) {
+    let w = this.drawNode(pm2f, data.name_, MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
+    this.setNodeButton(pm2f, offx, offy + data.posY, w, MainEditor.NODE_TEXT_SIZE, path, data);
+    this.drawObj(pm2f, data.value_, offx + w, offy, path);
+    pm2f.drawCut(this.attrIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
+      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
+  }
+
+  /**
+   * 绘制Node对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} offx x偏移值
+   * @param {} offy y偏移值
+   * @param {} path 节点路径
+   */  
+  drawNodeObj(pm2f, data, offx, offy, path) {
+    let w = this.drawNode(pm2f, this.getNodeText(data), MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
+    this.configNodeProc(w, pm2f, data, offx, offy, path);
+    if (data.parent_ !== undefined) {
+      pm2f.drawCut(this.nodeIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
+        offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
+    }
+  }
+
+  /**
+   * 绘制引用对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} drawTextX_ x偏移值
+   * @param {} drawTextY_ y偏移值
+   */
+  drawReferenceObj(pm2f, data, drawTextX_, drawTextY_) {
+    let content = data.parent_.name_ + ' = ';
+    if (content.length > DISPLAY_TEXT_MAX) {
+      content = '';
+    } else if ((content + data.value_).length > DISPLAY_TEXT_MAX) {
+      content = data.value_.substring((data.parent_.name_ + ' = ').length, 27) + '...';
+    } else {
+      content = data.value_;
+    }
+    pm2f.drawText('&' + content, MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+      1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+  }
+
+  /**
+   * 绘制引用对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} drawTextX_ x偏移值
+   * @param {} drawTextY_ y偏移值
+   */  
+  drawStringObj(pm2f, data, drawTextX_, drawTextY_) {
+    let value = data.value_;
+    let keyAndValue = data.parent_.name_ + ' = ' + data.value_;
+    if (keyAndValue.length > DISPLAY_TEXT_MAX) {
+      value = keyAndValue.substring((data.parent_.name_ + ' = ').length, 27) + '...';
+    }
+    let w = pm2f.drawText('"' + value + '"', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+      1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+  }
+
   drawObj(pm2f, data, offx, offy, path) {
     let w;
     path += data.name_;
@@ -769,70 +839,69 @@ class MainEditor {
     let drawTextY_ = offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
     MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE;
     switch (data.type_) {
-      case 1:
-      case 2:
-      case 3:
-      case 4:
+      case DataType.INT8:
+      case DataType.INT16:
+      case DataType.INT32:
+      case DataType.INT64:
         w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_), MainEditor.NODE_TEXT_SIZE,
           drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_),
           drawTextY_, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
-      case 5:
-        let value = data.value_;
-        let keyAndValue = data.parent_.name_ + ' = ' + data.value_;
-        if (keyAndValue.length > DISPLAY_TEXT_MAX) {
-          value = keyAndValue.substring((data.parent_.name_ + ' = ').length, 27) + '...';
-        }
-        w = pm2f.drawText('"' + value + '"', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-          1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      case DataType.STRING:
+        this.drawStringObj(pm2f, data, drawTextX_, drawTextY_);
         break;
-      case 6:
-        w = this.drawNode(pm2f, this.getNodeText(data), MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
-        this.configNodeProc(w, pm2f, data, offx, offy, path);
-        if (data.parent_ !== undefined) {
-          pm2f.drawCut(this.nodeIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
-            offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
-        }
+      case DataType.NODE:
+        this.drawNodeObj(pm2f, data, offx, offy, path);
         break;
-      case 7:
-        w = this.drawNode(pm2f, data.name_, MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
-        this.setNodeButton(pm2f, offx, offy + data.posY, w, MainEditor.NODE_TEXT_SIZE, path, data);
-        this.drawObj(pm2f, data.value_, offx + w, offy, path);
-        pm2f.drawCut(this.attrIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
-          offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
+      case DataType.ATTR:
+        this.drawAttrObj(pm2f, data, offx, offy, path);
         break;
       case 8:
         this.arrayNodeProc(w, pm2f, data, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), offy);
         break;
-      case 9:
-        let content = data.parent_.name_ + ' = ';
-        if (content.length > DISPLAY_TEXT_MAX) {
-          content = '';
-        } else if ((content + data.value_).length > DISPLAY_TEXT_MAX) {
-          content = data.value_.substring((data.parent_.name_ + ' = ').length, 27) + '...';
-        } else {
-          content = data.value_;
-        }
-        w = pm2f.drawText('&' + content, MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-          1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      case DataType.REFERENCE:
+        this.drawReferenceObj(pm2f, data, drawTextX_, drawTextY_);
         break;
-      case 10:
+      case DataType.DELETE:
         w = pm2f.drawText('delete', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
           1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
-      case 11:
-        if (data.value_) {
-          w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-            1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        } else {
-          w = pm2f.drawText('false', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-            1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        }
+      case DataType.BOOL:
+        this.drawBoolObj(pm2f, data, drawTextX_, drawTextY_);
         break;
       default:
         NapiLog.logError('unknow' + data.type_);
         break;
     }
+    this.drawErrorRect(pm2f, data, offx, offy);
+  }
+
+  /**
+   * 绘制Bool对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} drawTextX_ x偏移值
+   * @param {} drawTextY_ y偏移值
+   */  
+  drawBoolObj(pm2f, data, drawTextX_, drawTextY_) {
+    let w;
+    if (data.value_) {
+     w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+        1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    } else {
+      w = pm2f.drawText('false', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+        1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    }
+  }
+
+  /**
+   * 绘制错误显示框
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} offx x偏移值
+   * @param {} offy y偏移值
+   */  
+  drawErrorRect(pm2f, data, offx, offy) {
     if (data.errMsg_ !== null && data.errMsg_ !== undefined) {
       let displayFreq = 2; // 显示频率
       let frameNo = 10;
