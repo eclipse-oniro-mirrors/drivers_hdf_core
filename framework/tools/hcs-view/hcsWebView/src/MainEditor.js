@@ -35,6 +35,7 @@ const EQUAL_SIGN_LEN = 3;
 const MAX_RANDOM = 255;
 const CONSTANT_MIDDLE = 2;
 const CONSTANT_QUARTER = 4;
+const DRAW_HEIGHT = 4;
 
 const MouseType = {
   DOWN: 1, // 按下
@@ -1032,33 +1033,31 @@ class MainEditor {
     this.nodeMoreBtnPoint_ += 1;
   }
 
-  draw(pm2f) {
-    const DRAW_HEIGHT = 4;
-    let xx = 0;
-    let yy = 0;
-    getVsCodeTheme();
-    pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
-    if (this.filePoint_ !== null && this.filePoint_ in this.files_) {
-      let data = this.files_[this.filePoint_];
-      this.calcPostionY(data, 0);
-      if (this.modifyPos_) {
-        this.offX_ -= this.modifyPos_.node.posX - this.modifyPos_.x;
-        this.offY_ -= this.modifyPos_.node.posY - this.modifyPos_.y;
-        this.modifyPos_ = null;
-      } else if (this.isFirstDraw) {
-        this.offX_ = 0;
-        this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
-        this.maxX = 0;
-        this.drawObj(pm2f, data, this.offX_, this.offY_, '');
-        pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
-        this.offX_ = (Scr.logicw - this.maxX) / CONSTANT_MIDDLE;
-        this.isFirstDraw = false;
-      }
-      this.nodeBtnPoint_ = 0;
-      this.nodeMoreBtnPoint_ = 0;
-      this.drawObj(pm2f, data, this.offX_, this.offY_, '');
-    }
-    let xOffset = 420;
+    /**
+   * 绘制节点数
+   * @param {} pm2f X2DFast
+   * @param {*} x 起始x坐标
+   * @param {*} y 起始y坐标
+   * @param {*} h 节点高度
+   * @param {*} node 节点
+   */
+  moveAndDraw(xOffset) {
+    let x = 16;
+    let y = 20;
+    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x;
+    let h = 20;
+    this.sltInclude.move(x, y, w, h).draw();
+  }
+
+    /**
+   * 绘制节点数
+   * @param {} pm2f X2DFast
+   * @param {*} x 起始x坐标
+   * @param {*} y 起始y坐标
+   * @param {*} h 节点高度
+   * @param {*} node 节点
+   */
+  fillWholeRect(pm2f, xx, yy, xOffset) {
     pm2f.fillRect(xx, yy, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
     pm2f.fillRect(
       window.innerWidth - xOffset - DRAW_HEIGHT,
@@ -1069,8 +1068,8 @@ class MainEditor {
     );
     yy = 4;
     let wSpace = 4;
-    let hh = 48;
-    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, hh, MainEditor.CANVAS_BG);
+    let h = 48;
+    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, h, MainEditor.CANVAS_BG);
     yy = 52
     pm2f.fillRect(
       xx,
@@ -1079,13 +1078,50 @@ class MainEditor {
       DRAW_HEIGHT,
       MainEditor.CANVAS_LINE
     );
-    this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
-    let x0 = 16;
-    let y0 = 20;
-    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x0;
-    let h = 20;
-    this.sltInclude.move(x0, y0, w, h).draw();
+  }
 
+  subFuncModify() {
+    this.offX_ -= this.modifyPos_.node.posX - this.modifyPos_.x;
+    this.offY_ -= this.modifyPos_.node.posY - this.modifyPos_.y;
+    this.modifyPos_ = null;
+  }
+
+  subFuncFirstDraw(pm2f, x, y, data) {
+    this.offX_ = 0;
+    this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
+    this.maxX = 0;
+    this.drawObj(pm2f, data, this.offX_, this.offY_, '');
+    pm2f.fillRect(x, y, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
+    this.offX_ = (Scr.logicw - this.maxX) / CONSTANT_MIDDLE;
+    this.isFirstDraw = false;
+  }
+
+  subFuncDraw(pm2f, xx, yy) {
+    let data = this.files_[this.filePoint_];
+    this.calcPostionY(data, 0);
+    if (this.modifyPos_) {
+      this.subFuncModify();
+    } else if (this.isFirstDraw) {
+      this.subFuncFirstDraw(pm2f, xx, yy, data);
+    }
+    this.nodeBtnPoint_ = 0;
+    this.nodeMoreBtnPoint_ = 0;
+    this.drawObj(pm2f, data, this.offX_, this.offY_, '');
+  }
+
+  draw(pm2f) {    
+    let xx = 0;
+    let yy = 0;
+    getVsCodeTheme();
+    pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
+    if (this.filePoint_ !== null && this.filePoint_ in this.files_) {      
+      this.subFuncDraw(pm2f, xx, yy);
+    }
+    let xOffset = 420;
+    this.fillWholeRect(pm2f, xx, yy, xOffset);    
+    this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
+    this.moveAndDraw(xOffset);
+    
     if (this.selectNode_.type !== null) {
       if (this.selectNode_.type === 'change_target') {
         pm2f.drawText(
@@ -1217,10 +1253,8 @@ class MainEditor {
   
   buttonClickedProc(nodeBtns) {
     if (
-      this.selectNode_.type === null ||
-      this.selectNode_.type === 'copy_node' ||
-      this.selectNode_.type === 'cut_node'
-    ) {
+      this.selectNode_.type === null || this.selectNode_.type === 'copy_node' ||
+      this.selectNode_.type === 'cut_node') {
       this.nodePoint_ = nodeBtns.node_;
       AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
       return true;
@@ -1363,7 +1397,7 @@ class MainEditor {
                   }),
                 ],
                 nodeBtns.posX_,
-                nodeBtns.posY_ + +MainEditor.NODE_RECT_HEIGHT
+                nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
               );
               break;
           }
