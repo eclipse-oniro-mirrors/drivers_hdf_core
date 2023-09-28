@@ -16,13 +16,13 @@ const { X2DFast } = require('./graphics/X2DFast');
 const { Scr } = require('./XDefine');
 const { XTools } = require('./XTools');
 
-var MenuType = {
+const MenuType = {
   BUTTON: 0, // 按钮
   CONTENT: 1, // 目录
   DIVIDER: 2, // 分割线
 };
 
-var MenuGroupSize = {
+const MenuGroupSize = {
   DELETE: 1, // 目录
   NODEMENU: 3, // 分割线
 };

@@ -29,14 +29,14 @@ const { XTexture } = require('./engine/graphics/XTexture');
 const { XTools } = require('./engine/XTools');
 
 const { ObjectType } = require('./hcs/ast');
-var DISPLAY_TEXT_MAX = 30;
-var ELLIPSIS_LEN = 3;
-var EQUAL_SIGN_LEN = 3;
+const DISPLAY_TEXT_MAX = 30;
+const ELLIPSIS_LEN = 3;
+const EQUAL_SIGN_LEN = 3;
 const MAX_RANDOM = 255;
 const CONSTANT_MIDDLE = 2;
 const CONSTANT_QUARTER = 4;
 
-var MouseType = {
+const MouseType = {
   DOWN: 1, // 按下
   MOVE: 2, // 移动
   UP: 3, // 抬起
@@ -620,27 +620,28 @@ class MainEditor {
 
     if (type === DataType.ATTR) {
       let lenDisplay = DISPLAY_TEXT_MAX - EQUAL_SIGN_LEN;
+      let orangeColor = 0xffa9a9a9;
       if (s.length < MAXLEN_DISPLAY_WITH_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
         y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText(' = ', size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
-        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, 0xffa9a9a9);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, orangeColor);
       } else if (s.length === MAXLEN_DISPLAY_WITH_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
         y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText(' =', size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
-        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, 0xffa9a9a9);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, orangeColor);
       } else if (s.length === MAXLEN_DISPLAY_NO_SPACE) {
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE,
         y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         pm2f.drawText('=', size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
           MainEditor.LOGO_LEFT_PADDING + MainEditor.LOGO_SIZE * SPACE + pm2f.getTextWidth(s, size),
-        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, 0xffa9a9a9);
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 0, 0, orangeColor);
       } else if (s.length > MAXLEN_DISPLAY_NO_SPACE) {
         s = s.substring(0, lenDisplay) + '...';
         pm2f.drawText(s, size, x - (data.parent_ !== undefined ? MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_ : 0) +
@@ -832,7 +833,7 @@ class MainEditor {
         break;
     }
     if (data.errMsg_ !== null && data.errMsg_ !== undefined) {
-      let displayFreq = 2;  // 显示频率
+      let displayFreq = 2; // 显示频率
       let frameNo = 10;
       if (parseInt(this.delay_ / frameNo) % displayFreq === 0) {
         pm2f.drawRect(offx - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_), offy + data.posY,
@@ -922,7 +923,9 @@ class MainEditor {
       this.nodeBtns.push(new XButton());
     }
     let pbtn = this.nodeBtns[this.nodeBtnPoint_];
-    let widthOffset =  6 * 2;
+    let singleOffset = 6;
+    let numberOffset = 2;
+    let widthOffset = singleOffset * numberOffset;
     let logoSizeOffset = 8;
     pbtn.move(
       x - (node.parent_ === undefined ? 0 : MainEditor.NODE_RECT_WIDTH - node.parent_.nodeWidth_),
@@ -934,7 +937,9 @@ class MainEditor {
   }
 
   drawNodeRectButton(pm2f, x, y, rectWidth, node) {
-    let widthOffset =  6 * 2;
+    let singleOffset = 6;
+    let numberOffset = 2;
+    let widthOffset = singleOffset * numberOffset;
     let logoSizeOffset = 8;
     let width = rectWidth + widthOffset + MainEditor.LOGO_SIZE + logoSizeOffset;
     if (node.type_ === DataType.ATTR) {
@@ -1008,12 +1013,20 @@ class MainEditor {
       pm2f.drawCut(this.circleOpenCut_, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
         y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
     } else {
+      let c = 0xffffffff;
+      let oy = 1;
+      let ox = 1;
+      let ra = 0;
+      let sh = 1;
+      let sw = 1;
+      let yOffset = 4;
+      let textSize = 10;
       pm2f.drawCut(this.circleCut_, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
-        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
+      y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
       let textWidth = pm2f.getTextWidth(node.value_.length, 10);
-      pm2f.drawText(node.value_.length, 10, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX + 
-        MainEditor.NODE_MORE_CHILD / CONSTANT_MIDDLE - textWidth / CONSTANT_MIDDLE,
-        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 4, 1, 1, 0, 1, 1, 0xffffffff);
+      pm2f.drawText(node.value_.length, textSize, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX + 
+      MainEditor.NODE_MORE_CHILD / CONSTANT_MIDDLE - textWidth / CONSTANT_MIDDLE,
+      y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - yOffset, sw, sh, ra, ox, oy, c);
     }
     pbtn.node_ = node;
     this.nodeMoreBtnPoint_ += 1;
@@ -1021,8 +1034,10 @@ class MainEditor {
 
   draw(pm2f) {
     const DRAW_HEIGHT = 4;
+    let xx = 0;
+    let yy = 0;
     getVsCodeTheme();
-    pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
+    pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
     if (this.filePoint_ !== null && this.filePoint_ in this.files_) {
       let data = this.files_[this.filePoint_];
       this.calcPostionY(data, 0);
@@ -1035,7 +1050,7 @@ class MainEditor {
         this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
         this.maxX = 0;
         this.drawObj(pm2f, data, this.offX_, this.offY_, '');
-        pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
+        pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
         this.offX_ = (Scr.logicw - this.maxX) / CONSTANT_MIDDLE;
         this.isFirstDraw = false;
       }
@@ -1044,7 +1059,7 @@ class MainEditor {
       this.drawObj(pm2f, data, this.offX_, this.offY_, '');
     }
     let xOffset = 420;
-    pm2f.fillRect(0, 0, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
+    pm2f.fillRect(xx, yy, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
     pm2f.fillRect(
       window.innerWidth - xOffset - DRAW_HEIGHT,
       0,
@@ -1052,20 +1067,24 @@ class MainEditor {
       window.innerHeight,
       MainEditor.CANVAS_LINE
     );
-    pm2f.fillRect(0, 4, window.innerWidth - xOffset - 4, 48, MainEditor.CANVAS_BG);
+    yy = 4;
+    let wSpace = 4;
+    let hh = 48;
+    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, hh, MainEditor.CANVAS_BG);
+    yy = 52
     pm2f.fillRect(
-      0,
-      52,
+      xx,
+      yy,
       window.innerWidth - xOffset - DRAW_HEIGHT,
       DRAW_HEIGHT,
       MainEditor.CANVAS_LINE
     );
     this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
-    let x = 16;
-    let y = 20;
-    let w = window.innerWidth - xOffset - DRAW_HEIGHT - 16;
+    let x0 = 16;
+    let y0 = 20;
+    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x0;
     let h = 20;
-    this.sltInclude.move(x, y, w, h).draw();
+    this.sltInclude.move(x0, y0, w, h).draw();
 
     if (this.selectNode_.type !== null) {
       if (this.selectNode_.type === 'change_target') {
@@ -1120,7 +1139,8 @@ class MainEditor {
         this.errorMsg_.shift();
       }
       for (let i in this.errorMsg_) {
-        let y = Scr.logich / CONSTANT_MIDDLE - this.errorMsg_.length * 20 + i * 20;
+        let sizeNumber= 20;
+        let y = Scr.logich / CONSTANT_MIDDLE - this.errorMsg_.length * sizeNumber + i * sizeNumber;
         let a = parseInt((this.errorMsg_[i][0] - ts) / CONSTANT_MIDDLE);
         if (a > MAX_RANDOM) {
           a = MAX_RANDOM;
@@ -1149,37 +1169,52 @@ class MainEditor {
       let y = this.searchInput.pos[1];
       let w = this.searchInput.pos[2];
       let h = this.searchInput.pos[3];
+      let xOffset = 28;
+      let yDoubleOffset = 56;
+      let ySpace = 8;
       pm2f.drawCut(this.searchBgCut_, x, y);
-      pm2f.drawCut(this.searchCut_, x + 28, y + 56 / CONSTANT_MIDDLE - 8);
+      pm2f.drawCut(this.searchCut_, x + xOffset, y + yDoubleOffset / CONSTANT_MIDDLE - ySpace);
       x = x + 16 + 290 + 16;
 
       let searchResultTxt =
         this.searchInput.result.length === 0 ? 'No result' : this.searchInput.point + 1 + '/' + this.searchInput.result.length;
-      x += pm2f.drawText(
+      let color = 0xffffffff;
+      let offsetY = -2;
+      let offsetX = -1;
+      let ra = 0;
+      let sh = 1;
+      let sw = 1;
+      let yOffsetBase = 56;
+      let yOffset = 3;
+      let xStep = 16;
+      let yRightSpace = 8;
+      let start = 74;
+
+        x += pm2f.drawText(
         searchResultTxt,
         MainEditor.NODE_TEXT_SIZE,
         x,
-        y + 56 / CONSTANT_MIDDLE + 3,
-        1,
-        1,
-        0,
-        -1,
-        -2,
-        0xffffffff
+        y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
+        sw,
+        sh,
+        ra,
+        offsetX,
+        offsetY,
+        color
       );
-      x += 74 - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
-      pm2f.drawCut(this.upCut_, x, y + 56 / CONSTANT_MIDDLE - 8);
-      this.searchInput.btnUp.move(x, y + 56 / CONSTANT_MIDDLE - 8, 16, 16);
-      x += 16 + 16;
-      pm2f.drawCut(this.downCut_, x, y + 56 / CONSTANT_MIDDLE - 8);
-      this.searchInput.btnDown.move(x, y + 56 / CONSTANT_MIDDLE - 8, 16, 16);
-      x += 16 + 16;
-      pm2f.drawCut(this.closeCut_, x, y + 56 / CONSTANT_MIDDLE - 8);
-      this.searchInput.btnClose.move(x, y + 56 / CONSTANT_MIDDLE - 8, 16, 16);
+      x += start - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
+      pm2f.drawCut(this.upCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+      this.searchInput.btnUp.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+      x += xStep + xStep;
+      pm2f.drawCut(this.downCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+      this.searchInput.btnDown.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+      x += xStep + xStep;
+      pm2f.drawCut(this.closeCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+      this.searchInput.btnClose.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
     }
     this.procAll();
   }
-
+  
   buttonClickedProc(nodeBtns) {
     if (
       this.selectNode_.type === null ||
@@ -1384,12 +1419,12 @@ class MainEditor {
       out.push(data);
     }
     switch (data.type_) {
-      case 6:
+      case DataType.NODE:
         for (let i in data.value_) {
           this.searchNodeByName(data.value_[i], name, out);
         }
         break;
-      case 7:
+      case  DataType.ATTR:
         this.searchNodeByName(data.value_, name, out);
         break;
     }
@@ -1591,7 +1626,7 @@ class MainEditor {
   }
   onAttributeChange(type, value) {
     let pme = MainEditor.gi();
-    let lenChange_target = 13;
+    let lenChangeTarget = 13;
     if (type === 'writefile') {
       let data1 = Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_]);
       let data2 = [];
@@ -1623,7 +1658,7 @@ class MainEditor {
         data: data1,
       });
       pme.saveHistory(pme.filePoint_, data2, NodeTools.getPathByNode(pme.nodePoint_), 1);
-    } else if (type.substring(0, lenChange_target) === 'change_target') {
+    } else if (type.substring(0, lenChangeTarget) === 'change_target') {
       pme.selectNode_.type = type;
       pme.selectNode_.pnode = value;
     } else if (type.startsWith('cancel_change_target')) {
@@ -1958,7 +1993,7 @@ class MainEditor {
 MainEditor.LINE_HEIGHT = 50;
 MainEditor.NODE_RECT_HEIGHT = 32;
 MainEditor.NODE_RECT_WIDTH = 132;
-MainEditor.NODE_TEXT_COLOR = 0xffffffff;
+MainEditor.NODE_TEXT_COLOR = 0xffffffff; // white
 MainEditor.NODE_TEXT_SIZE = 14;
 MainEditor.BTN_CONTENT_OFFY = 4;
 MainEditor.NODE_TEXT_OFFX = 5;
