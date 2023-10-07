@@ -100,60 +100,88 @@ static int ChipCleanBuffer(InputI2cClient *i2cClient)
 
 #define X_OFFSET    1
 
+static void ChipVersionDefault(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
+{
+    int32_t resX = 0;
+    int32_t resY = 0;
+    for (uint8_t i = 0; i < pointNum; i++) {         // chipversion  A:gt911_zsj5p5
+        frame->fingers[i].trackId = buf[GT_POINT_SIZE * i + GT_TRACK_ID];
+#if defined(CONFIG_ARCH_SPRD)
+        resX = device->driver->boardCfg->attr.resolutionX;
+        resY = device->driver->boardCfg->attr.resolutionY;
+        frame->fingers[i].y = (resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) <<
+                              ONE_BYTE_OFFSET))) * resY / resX;
+        frame->fingers[i].x = ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) <<
+                              ONE_BYTE_OFFSET)) * resX / resY;
+#elif defined(CONFIG_ARCH_ROCKCHIP)
+        resX = device->driver->boardCfg->attr.resolutionX;
+        resY = device->driver->boardCfg->attr.resolutionY;
+        frame->fingers[i].x = resX - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        if (frame->fingers[i].y < GT_Y_OFFSET_A) {
+            frame->fingers[i].y += CORRECTION_VALUE_A;
+        } else if (frame->fingers[i].y < GT_Y_OFFSET_B) {
+            frame->fingers[i].y += CORRECTION_VALUE_B;
+        } else if (frame->fingers[i].y < GT_Y_OFFSET_C) {
+            frame->fingers[i].y += CORRECTION_VALUE_C;
+        }
+#elif defined(LOSCFG_PLATFORM_STM32MP157)
+        frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
+        frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
+#else
+        frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
+        frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
+#endif
+        if (frame->fingers[i].x == 0) {
+            frame->fingers[i].x = X_OFFSET;
+        }
+        frame->fingers[i].valid = true;
+    }
+}
+
+static void ChipVersionIsOne(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
+{
+    int32_t resX = device->driver->boardCfg->attr.resolutionX;
+    int32_t resY = device->driver->boardCfg->attr.resolutionY;
+    for (uint8_t i = 0; i < pointNum; i++) {
+        frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        frame->fingers[i].valid = true;
+    }
+}
+
+static void ChipVersionIsExt(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
+{
+    int32_t resX = device->driver->boardCfg->attr.resolutionX;
+    int32_t resY = device->driver->boardCfg->attr.resolutionY;
+    for (uint8_t i = 0; i < pointNum; i++) {
+        frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        frame->fingers[i].valid = true;
+    }
+}
+
 static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
 {
     int32_t chipVer = device->chipCfg->chipVersion;
-    int32_t resX = device->driver->boardCfg->attr.resolutionX;
-    int32_t resY = device->driver->boardCfg->attr.resolutionY;
-    int32_t i;
-
-    for (i = 0; i < pointNum; i++) {
-        if (chipVer == 0) {         // chipversion  A:gt911_zsj5p5
-            frame->fingers[i].trackId = buf[GT_POINT_SIZE * i + GT_TRACK_ID];
-#if defined(CONFIG_ARCH_SPRD)
-            frame->fingers[i].y = (resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) <<
-                                  ONE_BYTE_OFFSET))) * resY / resX;
-            frame->fingers[i].x = ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) <<
-                                  ONE_BYTE_OFFSET)) * resX / resY;
-#elif defined(CONFIG_ARCH_ROCKCHIP)
-            frame->fingers[i].x = resX - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            if (frame->fingers[i].y < GT_Y_OFFSET_A)
-                frame->fingers[i].y += CORRECTION_VALUE_A;
-            else if (frame->fingers[i].y < GT_Y_OFFSET_B)
-                frame->fingers[i].y += CORRECTION_VALUE_B;
-            else if (frame->fingers[i].y < GT_Y_OFFSET_C)
-                frame->fingers[i].y += CORRECTION_VALUE_C;
-#elif defined(LOSCFG_PLATFORM_STM32MP157)
-            frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-            frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-#else
-            frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-            frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-#endif
-            if (frame->fingers[i].x == 0) {
-                frame->fingers[i].x = X_OFFSET;
-            }
-        } else if (chipVer == 1) {  // chipversion B:gt911_zsj4p0
-            frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-        } else {                    // chipversion C:gt911_tg7p0
-            frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-            frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-        }
-        frame->fingers[i].valid = true;
+    if (chipVer == 0) {         // chipversion  A:gt911_zsj5p5
+        ChipVersionDefault(device, frame, buf, pointNum);
+    } else if (chipVer == 1) {  // chipversion B:gt911_zsj4p0
+        ChipVersionIsOne(device, frame, buf, pointNum);
+    } else {                    // chipversion C:gt911_tg7p0
+        ChipVersionIsExt(device, frame, buf, pointNum);
     }
 }
 
