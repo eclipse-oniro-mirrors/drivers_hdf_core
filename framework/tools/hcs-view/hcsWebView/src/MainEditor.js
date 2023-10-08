@@ -120,53 +120,6 @@ class MainEditor {
     NapiLog.registError(this.onError);
     this.errorMsg_ = [];
     this.cutImgDict_ = {};
-    // this.whiteImg_ = INIT_VALUE;
-    // this.whiteCut_ = INIT_VALUE;
-    // this.cicleImg_ = INIT_VALUE;
-    // this.circleCut_ = INIT_VALUE;
-    // this.cicleOpenImg_ = INIT_VALUE;
-    // this.circleOpenCut_ = INIT_VALUE;
-    // this.rectangleFocusImg_ = INIT_VALUE;
-    // this.rectangleFocusCut_ = INIT_VALUE;
-    // this.nodeIconImg_ = INIT_VALUE;
-    // this.nodeIconCut_ = INIT_VALUE;
-    // this.attrIconImg_ = INIT_VALUE;
-    // this.attrIconCut_ = INIT_VALUE;
-    // this.rootIconImg_ = INIT_VALUE;
-    // this.rootIconCut_ = INIT_VALUE;
-    // this.rootIconFocusImg_ = INIT_VALUE;
-    // this.rootIconFocusCut_ = INIT_VALUE;
-    // RightMenu.backgroundImg_ = INIT_VALUE;
-    // RightMenu.backgroundCut_ = INIT_VALUE;
-    // RightMenu.popItemFocusImg_ = INIT_VALUE;
-    // RightMenu.popItemFocusCut_ = INIT_VALUE;
-    // this.leftRectCicleCut_ = INIT_VALUE;
-    // this.centerRectCut_ = INIT_VALUE;
-    // this.rightRectCicleCut_ = INIT_VALUE;
-    // this.leftRectFocusCicleCut_ = INIT_VALUE;
-    // this.centerFocusCut_ = INIT_VALUE;
-    // this.rightRectFocusCicleCut_ = INIT_VALUE;
-    // this.delay_ = 0;
-    // this.searchBgImg_ = INIT_VALUE;
-    // this.searchBgCut_ = INIT_VALUE;
-    // this.upImg_ = INIT_VALUE;
-    // this.upCut_ = INIT_VALUE;
-    // this.downImg_ = INIT_VALUE;
-    // this.downCut_ = INIT_VALUE;
-    // this.closeImg_ = INIT_VALUE;
-    // this.closeCut_ = INIT_VALUE;
-    // this.searchImg_ = INIT_VALUE;
-    // this.searchCut_ = INIT_VALUE;
-    // this.isSearchResult_ = false;
-    // this.searchRectFocusCicleImg_ = INIT_VALUE;
-    // this.leftSearchFocusCicleCut_ = INIT_VALUE;
-    // this.centerSearchCut_ = INIT_VALUE;
-    // this.rightSearchFocusCicleCut_ = INIT_VALUE;
-
-    // this.searchAttrCicleImg_ = INIT_VALUE;
-    // this.leftSearchAttrCicleCut_ = INIT_VALUE;
-    // this.centerSearchAttrCut_ = INIT_VALUE;
-    // this.rightSearchAttrCicleCut_ = INIT_VALUE;
     this.initMainEditorWithInitValue();
     this.selectNode_ = {
       type: null,
@@ -756,14 +709,6 @@ class MainEditor {
   arrayNodeProc(w, pm2f, data, offx, offy) {
     let ss = '[' + data.value_.length + ']' + NodeTools.arrayToString(data);
     let keyAndValue = data.parent_.name_ + ' = ';
-    // const KEY_VALUE_MAX = 30;
-    // const ONE_KEY_VALUE_MAX = 29;
-    // const TWO_KEY_VALUE_MAX = 28;
-    // const THREE_KEY_VALUE_MAX = 27;
-    // let maxKeyAndValue = 30;
-    // let one2maxKeyAndValue = 29;
-    // let two2maxKeyAndValue = 28;
-    // let three2maxKeyAndValue = 27;
 
     if (keyAndValue.length >= KEY_VALUE_MAX) {
       return;
