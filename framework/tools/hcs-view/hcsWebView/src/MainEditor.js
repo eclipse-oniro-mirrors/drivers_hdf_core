@@ -36,6 +36,13 @@ const MAX_RANDOM = 255;
 const CONSTANT_MIDDLE = 2;
 const CONSTANT_QUARTER = 4;
 const DRAW_HEIGHT = 4;
+const COLOR_MAX = 10;
+const GRAY_LEVEL = 192;
+const INIT_VALUE = -1;
+const KEY_VALUE_MAX = 30;
+const ONE_KEY_VALUE_MAX = 29;
+const TWO_KEY_VALUE_MAX = 28;
+const THREE_KEY_VALUE_MAX = 27;
 
 const MouseType = {
   DOWN: 1, // 按下
@@ -49,8 +56,8 @@ function rgba(colorArr) {
 
 function getDarker(colorArr) {
   colorArr.forEach((item, index) => {
-    if (item - 0 > 10) {
-      item = item - 10;
+    if (item - 0 > COLOR_MAX) {
+      item = item - COLOR_MAX;
     } 
   });
   return rgba(colorArr);
@@ -59,7 +66,7 @@ function getDarker(colorArr) {
 function isDarkColor(colorArr) {
   let grayLevel =
     colorArr[0] * 0.299 + colorArr[1] * 0.587 + colorArr[2] * 0.114;
-  return grayLevel < 192;
+  return grayLevel < GRAY_LEVEL;
 }
 
 function getVsCodeTheme() {
@@ -96,8 +103,8 @@ class MainEditor {
     this.keyQueue_ = [];
     this.dropAll_ = {
       locked: false,
-      oldx: -1,
-      oldy: -1,
+      oldx: INIT_VALUE,
+      oldy: INIT_VALUE,
     };
     getVsCodeTheme();
     this.nodeBtns = [];
@@ -113,54 +120,54 @@ class MainEditor {
     NapiLog.registError(this.onError);
     this.errorMsg_ = [];
     this.cutImgDict_ = {};
-    this.whiteImg_ = -1;
-    this.whiteCut_ = -1;
-    this.cicleImg_ = -1;
-    this.circleCut_ = -1;
-    this.cicleOpenImg_ = -1;
-    this.circleOpenCut_ = -1;
-    this.rectangleFocusImg_ = -1;
-    this.rectangleFocusCut_ = -1;
-    this.nodeIconImg_ = -1;
-    this.nodeIconCut_ = -1;
-    this.attrIconImg_ = -1;
-    this.attrIconCut_ = -1;
-    this.rootIconImg_ = -1;
-    this.rootIconCut_ = -1;
-    this.rootIconFocusImg_ = -1;
-    this.rootIconFocusCut_ = -1;
-    RightMenu.backgroundImg_ = -1;
-    RightMenu.backgroundCut_ = -1;
-    RightMenu.popItemFocusImg_ = -1;
-    RightMenu.popItemFocusCut_ = -1;
-    this.leftRectCicleCut_ = -1;
-    this.centerRectCut_ = -1;
-    this.rightRectCicleCut_ = -1;
-    this.leftRectFocusCicleCut_ = -1;
-    this.centerFocusCut_ = -1;
-    this.rightRectFocusCicleCut_ = -1;
-    this.delay_ = 0;
-    this.searchBgImg_ = -1;
-    this.searchBgCut_ = -1;
-    this.upImg_ = -1;
-    this.upCut_ = -1;
-    this.downImg_ = -1;
-    this.downCut_ = -1;
-    this.closeImg_ = -1;
-    this.closeCut_ = -1;
-    this.searchImg_ = -1;
-    this.searchCut_ = -1;
-    this.isSearchResult_ = false;
-    this.searchRectFocusCicleImg_ = -1;
-    this.leftSearchFocusCicleCut_ = -1;
-    this.centerSearchCut_ = -1;
-    this.rightSearchFocusCicleCut_ = -1;
+    // this.whiteImg_ = INIT_VALUE;
+    // this.whiteCut_ = INIT_VALUE;
+    // this.cicleImg_ = INIT_VALUE;
+    // this.circleCut_ = INIT_VALUE;
+    // this.cicleOpenImg_ = INIT_VALUE;
+    // this.circleOpenCut_ = INIT_VALUE;
+    // this.rectangleFocusImg_ = INIT_VALUE;
+    // this.rectangleFocusCut_ = INIT_VALUE;
+    // this.nodeIconImg_ = INIT_VALUE;
+    // this.nodeIconCut_ = INIT_VALUE;
+    // this.attrIconImg_ = INIT_VALUE;
+    // this.attrIconCut_ = INIT_VALUE;
+    // this.rootIconImg_ = INIT_VALUE;
+    // this.rootIconCut_ = INIT_VALUE;
+    // this.rootIconFocusImg_ = INIT_VALUE;
+    // this.rootIconFocusCut_ = INIT_VALUE;
+    // RightMenu.backgroundImg_ = INIT_VALUE;
+    // RightMenu.backgroundCut_ = INIT_VALUE;
+    // RightMenu.popItemFocusImg_ = INIT_VALUE;
+    // RightMenu.popItemFocusCut_ = INIT_VALUE;
+    // this.leftRectCicleCut_ = INIT_VALUE;
+    // this.centerRectCut_ = INIT_VALUE;
+    // this.rightRectCicleCut_ = INIT_VALUE;
+    // this.leftRectFocusCicleCut_ = INIT_VALUE;
+    // this.centerFocusCut_ = INIT_VALUE;
+    // this.rightRectFocusCicleCut_ = INIT_VALUE;
+    // this.delay_ = 0;
+    // this.searchBgImg_ = INIT_VALUE;
+    // this.searchBgCut_ = INIT_VALUE;
+    // this.upImg_ = INIT_VALUE;
+    // this.upCut_ = INIT_VALUE;
+    // this.downImg_ = INIT_VALUE;
+    // this.downCut_ = INIT_VALUE;
+    // this.closeImg_ = INIT_VALUE;
+    // this.closeCut_ = INIT_VALUE;
+    // this.searchImg_ = INIT_VALUE;
+    // this.searchCut_ = INIT_VALUE;
+    // this.isSearchResult_ = false;
+    // this.searchRectFocusCicleImg_ = INIT_VALUE;
+    // this.leftSearchFocusCicleCut_ = INIT_VALUE;
+    // this.centerSearchCut_ = INIT_VALUE;
+    // this.rightSearchFocusCicleCut_ = INIT_VALUE;
 
-    this.searchAttrCicleImg_ = -1;
-    this.leftSearchAttrCicleCut_ = -1;
-    this.centerSearchAttrCut_ = -1;
-    this.rightSearchAttrCicleCut_ = -1;
-
+    // this.searchAttrCicleImg_ = INIT_VALUE;
+    // this.leftSearchAttrCicleCut_ = INIT_VALUE;
+    // this.centerSearchAttrCut_ = INIT_VALUE;
+    // this.rightSearchAttrCicleCut_ = INIT_VALUE;
+    this.initMainEditorWithInitValue();
     this.selectNode_ = {
       type: null,
       pnode: null,
@@ -515,6 +522,56 @@ class MainEditor {
     this.historyPushed = false;
   }
 
+  initMainEditorWithInitValue() {
+    this.whiteImg_ = INIT_VALUE;
+    this.whiteCut_ = INIT_VALUE;
+    this.cicleImg_ = INIT_VALUE;
+    this.circleCut_ = INIT_VALUE;
+    this.cicleOpenImg_ = INIT_VALUE;
+    this.circleOpenCut_ = INIT_VALUE;
+    this.rectangleFocusImg_ = INIT_VALUE;
+    this.rectangleFocusCut_ = INIT_VALUE;
+    this.nodeIconImg_ = INIT_VALUE;
+    this.nodeIconCut_ = INIT_VALUE;
+    this.attrIconImg_ = INIT_VALUE;
+    this.attrIconCut_ = INIT_VALUE;
+    this.rootIconImg_ = INIT_VALUE;
+    this.rootIconCut_ = INIT_VALUE;
+    this.rootIconFocusImg_ = INIT_VALUE;
+    this.rootIconFocusCut_ = INIT_VALUE;
+    RightMenu.backgroundImg_ = INIT_VALUE;
+    RightMenu.backgroundCut_ = INIT_VALUE;
+    RightMenu.popItemFocusImg_ = INIT_VALUE;
+    RightMenu.popItemFocusCut_ = INIT_VALUE;
+    this.leftRectCicleCut_ = INIT_VALUE;
+    this.centerRectCut_ = INIT_VALUE;
+    this.rightRectCicleCut_ = INIT_VALUE;
+    this.leftRectFocusCicleCut_ = INIT_VALUE;
+    this.centerFocusCut_ = INIT_VALUE;
+    this.rightRectFocusCicleCut_ = INIT_VALUE;
+    this.delay_ = 0;
+    this.searchBgImg_ = INIT_VALUE;
+    this.searchBgCut_ = INIT_VALUE;
+    this.upImg_ = INIT_VALUE;
+    this.upCut_ = INIT_VALUE;
+    this.downImg_ = INIT_VALUE;
+    this.downCut_ = INIT_VALUE;
+    this.closeImg_ = INIT_VALUE;
+    this.closeCut_ = INIT_VALUE;
+    this.searchImg_ = INIT_VALUE;
+    this.searchCut_ = INIT_VALUE;
+    this.isSearchResult_ = false;
+    this.searchRectFocusCicleImg_ = INIT_VALUE;
+    this.leftSearchFocusCicleCut_ = INIT_VALUE;
+    this.centerSearchCut_ = INIT_VALUE;
+    this.rightSearchFocusCicleCut_ = INIT_VALUE;
+
+    this.searchAttrCicleImg_ = INIT_VALUE;
+    this.leftSearchAttrCicleCut_ = INIT_VALUE;
+    this.centerSearchAttrCut_ = INIT_VALUE;
+    this.rightSearchAttrCicleCut_ = INIT_VALUE;
+  }
+
   reloadMenuBgPic() {
     let bgPic = RightMenu.isDarkBackground_ ? 'pop_background.png' : 'pop_background_light.png';
     let bgPicPath = '../images/' + bgPic;
@@ -538,16 +595,16 @@ class MainEditor {
     data.posY = y;
     let ty = y;
     switch (data.type_) {
-      case 1:
-      case 2:
-      case 3:
-      case 4:
+      case DataType.INT8:
+      case DataType.INT16:
+      case DataType.INT32:
+      case DataType.INT64:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 5:
+      case DataType.STRING:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 6:
+      case DataType.NODE:
         if (!data.isOpen_) {
           y += MainEditor.LINE_HEIGHT;
         } else {
@@ -556,19 +613,19 @@ class MainEditor {
           }); 
         }
         break;
-      case 7:
+      case DataType.ATTR:
         y = this.calcPostionY(data.value_, y);
         break;
-      case 8:
+      case DataType.ARRAY:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 9:
+      case DataType.REFERENCE:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 10:
+      case DataType.DELETE:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 11:
+      case DataType.BOOL:
         y += MainEditor.LINE_HEIGHT;
         break;
       default:
@@ -583,23 +640,23 @@ class MainEditor {
 
   getNodeText(data) {
     switch (data.nodeType_) {
-      case 0:
+      case NodeType.DATA:
         return data.name_;
-      case 3:
+      case NodeType.DELETE:
         return data.name_ + ' : delete';
-      case 4:
+      case NodeType.TEMPLETE:
         return 'templete ' + data.name_;
-      case 5:
+      case NodeType.INHERIT:
         if (data.ref_ === 'unknow') {
           return data.name_;
         }
         return data.name_ + ' :: ' + data.ref_;
-      case 1:
+      case NodeType.COPY:
         if (data.ref_ === 'unknow') {
           return data.name_;
         }
         return data.name_ + ' : ' + data.ref_;
-      case 2:
+      case NodeType.REFERENCE:
         if (data.ref_ === 'unknow') {
           return data.name_;
         }
@@ -699,23 +756,27 @@ class MainEditor {
   arrayNodeProc(w, pm2f, data, offx, offy) {
     let ss = '[' + data.value_.length + ']' + NodeTools.arrayToString(data);
     let keyAndValue = data.parent_.name_ + ' = ';
-    let maxKeyAndValue = 30;
-    let one2maxKeyAndValue = 29;
-    let two2maxKeyAndValue = 28;
-    let three2maxKeyAndValue = 27;
+    // const KEY_VALUE_MAX = 30;
+    // const ONE_KEY_VALUE_MAX = 29;
+    // const TWO_KEY_VALUE_MAX = 28;
+    // const THREE_KEY_VALUE_MAX = 27;
+    // let maxKeyAndValue = 30;
+    // let one2maxKeyAndValue = 29;
+    // let two2maxKeyAndValue = 28;
+    // let three2maxKeyAndValue = 27;
 
-    if (keyAndValue.length >= maxKeyAndValue) {
+    if (keyAndValue.length >= KEY_VALUE_MAX) {
       return;
-    } else if (keyAndValue.length === one2maxKeyAndValue) {
+    } else if (keyAndValue.length === ONE_KEY_VALUE_MAX) {
       w = pm2f.drawText('.', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
       MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length === two2maxKeyAndValue) {
+    } else if (keyAndValue.length === TWO_KEY_VALUE_MAX) {
       w = pm2f.drawText('..', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
       MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length === three2maxKeyAndValue) {
+    } else if (keyAndValue.length === THREE_KEY_VALUE_MAX) {
       w = pm2f.drawText('...', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
       MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length < three2maxKeyAndValue) {
+    } else if (keyAndValue.length < THREE_KEY_VALUE_MAX) {
       let displayValueLen = DISPLAY_TEXT_MAX - keyAndValue.length;
       if (ss.length > displayValueLen) {
         ss = ss.substring(0, displayValueLen - 3) + '...';
@@ -799,7 +860,7 @@ class MainEditor {
     if (content.length > DISPLAY_TEXT_MAX) {
       content = '';
     } else if ((content + data.value_).length > DISPLAY_TEXT_MAX) {
-      content = data.value_.substring((data.parent_.name_ + ' = ').length, 27) + '...';
+      content = data.value_.substring((data.parent_.name_ + ' = ').length, THREE_KEY_VALUE_MAX) + '...';
     } else {
       content = data.value_;
     }
@@ -818,7 +879,7 @@ class MainEditor {
     let value = data.value_;
     let keyAndValue = data.parent_.name_ + ' = ' + data.value_;
     if (keyAndValue.length > DISPLAY_TEXT_MAX) {
-      value = keyAndValue.substring((data.parent_.name_ + ' = ').length, 27) + '...';
+      value = keyAndValue.substring((data.parent_.name_ + ' = ').length, THREE_KEY_VALUE_MAX) + '...';
     }
     let w = pm2f.drawText('"' + value + '"', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
       1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
@@ -946,7 +1007,7 @@ class MainEditor {
     }
     
     let keyAndValue;
-    let lenDisplay = 27;
+    let lenDisplay = THREE_KEY_VALUE_MAX;
     let moreLenDisplayOne = 1;
     let moreLenDisplayTwo = 2;
     if (node.name_.length <= lenDisplay) {
@@ -960,7 +1021,7 @@ class MainEditor {
     }
 
     if (keyAndValue.length >= DISPLAY_TEXT_MAX) {
-      keyAndValue = keyAndValue.substring(0, 27) + '...';
+      keyAndValue = keyAndValue.substring(0, THREE_KEY_VALUE_MAX) + '...';
     }
     rectWidth = pm2f.getTextWidth(keyAndValue, MainEditor.NODE_TEXT_SIZE);
     return rectWidth;
@@ -1005,7 +1066,7 @@ class MainEditor {
         rectWidth = this.getRectWidth(pm2f, node);
       } else {
         rectWidth = pm2f.getTextWidth(
-          this.getNodeText(node).length > DISPLAY_TEXT_MAX ? this.getNodeText(node).substring(0, 27) + '...' : this.getNodeText(node),
+          this.getNodeText(node).length > DISPLAY_TEXT_MAX ? this.getNodeText(node).substring(0, THREE_KEY_VALUE_MAX) + '...' : this.getNodeText(node),
           MainEditor.NODE_TEXT_SIZE
         );
       }
@@ -1037,11 +1098,11 @@ class MainEditor {
     let width = rectWidth + widthOffset + MainEditor.LOGO_SIZE + logoSizeOffset;
     if (node.type_ === DataType.ATTR) {
       switch (node.value_.type_) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 8:
+        case ObjectType.PARSEROP_UINT8:
+        case ObjectType.PARSEROP_UINT16:
+        case ObjectType.PARSEROP_UINT32:
+        case ObjectType.PARSEROP_UINT64:
+        case ObjectType.PARSEROP_ARRAY:
           width = width;
           break;
         default:
