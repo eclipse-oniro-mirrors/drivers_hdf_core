@@ -118,6 +118,7 @@ void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const st
 
 void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const std::string &prefix) const
 {
+    EmitProxyIsProxyMethodImpl(sb, prefix);
     AutoPtr<ASTInterfaceType> interface = interface_;
     while (interface != nullptr) {
         for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
@@ -269,12 +270,17 @@ void CppClientProxyCodeEmitter::EmitProxySourceFile()
     GetUtilMethods(utilMethods);
     EmitUtilMethods(sb, "", utilMethods, true);
     sb.Append("\n");
+    if (interface_->GetExtendsInterface() != nullptr) {
+        EmitProxyCastFromMethodImplTemplate(sb, "");
+        sb.Append("\n");
+    }
     if (!interface_->IsSerializable()) {
         EmitGetMethodImpl(sb, "");
         sb.Append("\n");
         EmitGetInstanceMethodImpl(sb, "");
         sb.Append("\n");
     }
+    EmitProxyCastFromMethodImpls(sb, "");
     EmitUtilMethods(sb, "", utilMethods, false);
     EmitProxyMethodImpls(sb, "");
     sb.Append("\n");
@@ -449,6 +455,89 @@ void CppClientProxyCodeEmitter::EmitProxyMethodImpls(StringBuilder &sb, const st
         sb.Append("\n");
         EmitProxyStaticMethodImpl(interface_->GetVersionMethod(), sb, prefix);
     }
+}
+
+void CppClientProxyCodeEmitter::EmitProxyIsProxyMethodImpl(StringBuilder &sb, const std::string &prefix) const
+{
+    sb.Append(prefix).Append("inline bool IsProxy() override\n");
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("return true;\n");
+    sb.Append(prefix).Append("}\n\n");
+}
+
+void CppClientProxyCodeEmitter::EmitProxyCastFromMethodImpls(StringBuilder &sb, const std::string &prefix) const
+{
+    AutoPtr<ASTInterfaceType> interface = interface_->GetExtendsInterface();
+    while (interface != nullptr) {
+        EmitProxyCastFromMethodImpl(interface, sb, prefix);
+        sb.Append(prefix).Append("\n");
+        interface = interface->GetExtendsInterface();
+    }
+}
+
+void CppClientProxyCodeEmitter::EmitProxyCastFromMethodImpl(const AutoPtr<ASTInterfaceType> interface,
+    StringBuilder &sb, const std::string &prefix) const
+{
+    std::string currentInterface = EmitDefinitionByInterface(interface_, interfaceName_);
+    std::string parentInterface = EmitDefinitionByInterface(interface, interfaceName_);
+
+    sb.Append(prefix).AppendFormat("sptr<%s> %s::CastFrom(const sptr<%s> &parent)\n",
+        currentInterface.c_str(), currentInterface.c_str(), parentInterface.c_str());
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).AppendFormat("return CastFromTemplate<%s, %s>(parent);\n",
+        currentInterface.c_str(), parentInterface.c_str());
+    sb.Append(prefix).Append("}\n");
+}
+
+void CppClientProxyCodeEmitter::EmitProxyCastFromMethodImplTemplate(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string serMajorName = "serMajorVer";
+    std::string serMinorName = "serMinorVer";
+
+    sb.Append(prefix).Append("template<typename ChildType, typename ParentType>\n");
+    sb.Append(prefix).Append("static sptr<ChildType> CastFromTemplate(const sptr<ParentType> &parent)\n");
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("if (parent == nullptr) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:parent is nullptr!\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).Append("if (!parent->IsProxy()) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:not proxy, not support castfrom!\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).AppendFormat("sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<ParentType>(parent);\n");
+    sb.Append(prefix + TAB).Append("if (remote == nullptr) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:hdi_objcast failed!\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).AppendFormat("sptr<ChildType> proxy = OHOS::HDI::hdi_facecast<ChildType>(remote);\n");
+    sb.Append(prefix + TAB).Append("if (proxy == nullptr) {\n");
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:hdi_facecast failed!\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", serMajorName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", serMinorName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("int32_t %s = proxy->GetVersion(%s, %s);\n",
+        errorCodeName_.c_str(), serMajorName.c_str(), serMinorName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("if (%s != HDF_SUCCESS) {\n", errorCodeName_.c_str());
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:get version failed!\", __func__);\n");
+    sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).AppendFormat("if (%s != %d) {\n", serMajorName.c_str(), ast_->GetMajorVer());
+    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:check version failed! ");
+    sb.Append("version of service:%u.%u");
+    sb.AppendFormat(", version of client:%d.%d\", __func__, ", ast_->GetMajorVer(), ast_->GetMinorVer());
+    sb.AppendFormat("%s, %s);\n", serMajorName.c_str(), serMinorName.c_str());
+    sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
+    sb.Append(prefix + TAB).Append("}\n\n");
+
+    sb.Append(prefix + TAB).Append("return proxy;\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodImpl(const AutoPtr<ASTInterfaceType> interface,

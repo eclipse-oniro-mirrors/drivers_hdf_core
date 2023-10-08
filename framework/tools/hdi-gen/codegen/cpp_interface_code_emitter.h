@@ -46,12 +46,15 @@ private:
 
     void EmitInterfaceGetVersionMethod(StringBuilder &sb, const std::string &prefix) const;
 
+    void EmitInterfaceIsProxyMethod(StringBuilder &sb, const std::string &prefix) const;
+
     void EmitInterfaceMethodParameter(
         const AutoPtr<ASTParameter> &param, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitInterfaceMethodCommandsWithExtends(StringBuilder &sb, const std::string &prefix);
 
     void EmitGetDescMethod(StringBuilder &sb, const std::string &prefix) const;
+    void EmitCastFromDecl(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

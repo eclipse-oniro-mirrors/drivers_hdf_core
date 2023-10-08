@@ -124,6 +124,10 @@ void CppInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)
         EmitGetMethodDecl(sb, TAB);
         sb.Append("\n");
     }
+    if (interface_->GetExtendsInterface() != nullptr) {
+        EmitCastFromDecl(sb, TAB);
+        sb.Append("\n");
+    }
     EmitInterfaceMethodsDecl(sb, TAB);
     sb.Append("\n");
     EmitGetDescMethod(sb, TAB);
@@ -150,6 +154,19 @@ void CppInterfaceCodeEmitter::EmitInterfaceDescriptor(StringBuilder &sb, const s
     sb.Append(TAB).AppendFormat("DECLARE_HDI_DESCRIPTOR(u\"%s\");\n", interfaceFullName_.c_str());
 }
 
+void CppInterfaceCodeEmitter::EmitCastFromDecl(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string currentInterface = EmitDefinitionByInterface(interface_, interfaceName_);
+
+    AutoPtr<ASTInterfaceType> interface = interface_->GetExtendsInterface();
+    while (interface != nullptr) {
+        std::string parentInterface = EmitDefinitionByInterface(interface, interfaceName_);
+        sb.Append(prefix).AppendFormat("static sptr<%s> CastFrom(const sptr<%s> &parent);\n",
+            currentInterface.c_str(), parentInterface.c_str());
+        interface = interface->GetExtendsInterface();
+    }
+}
+
 void CppInterfaceCodeEmitter::EmitGetMethodDecl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("static %s Get(bool isStub = false);\n", interface_->EmitCppType().c_str());
@@ -170,6 +187,10 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodsDecl(StringBuilder &sb, const 
     }
 
     EmitInterfaceGetVersionMethod(sb, prefix);
+    if (interface_->GetExtendsInterface() == nullptr) {
+        sb.Append("\n");
+        EmitInterfaceIsProxyMethod(sb, prefix);
+    }
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
@@ -222,6 +243,15 @@ void CppInterfaceCodeEmitter::EmitInterfaceGetVersionMethod(StringBuilder &sb, c
     sb.Append(prefix + TAB).AppendFormat("%s = %d;\n", minorParam->GetName().c_str(), ast_->GetMinorVer());
 
     sb.Append(prefix + TAB).Append("return HDF_SUCCESS;\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void CppInterfaceCodeEmitter::EmitInterfaceIsProxyMethod(StringBuilder &sb, const std::string &prefix) const
+{
+    sb.Append(prefix).AppendFormat("virtual bool %s(", "IsProxy");
+    sb.Append(")\n");
+    sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("return false;\n");
     sb.Append(prefix).Append("}\n");
 }
 

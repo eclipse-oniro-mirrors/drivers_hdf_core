@@ -83,6 +83,12 @@ private:
     void EmitProxyStaticMethodImpl(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
     void EmitProxyStaticMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
+
+    void EmitProxyIsProxyMethodImpl(StringBuilder &sb, const std::string &prefix) const;
+    void EmitProxyCastFromMethodImpls(StringBuilder &sb, const std::string &prefix) const;
+    void EmitProxyCastFromMethodImpl(const AutoPtr<ASTInterfaceType> interface, StringBuilder &sb,
+        const std::string &prefix) const;
+    void EmitProxyCastFromMethodImplTemplate(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS
