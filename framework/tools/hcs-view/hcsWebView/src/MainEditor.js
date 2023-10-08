@@ -48,11 +48,6 @@ function rgba(colorArr) {
 }
 
 function getDarker(colorArr) {
-  // for (let i = 0; i < colorArr.length; ++i) {
-  //   if (colorArr[i] - 0 > 10) {
-  //     colorArr[i] = colorArr[i] - 10;
-  //   }
-  // }
   colorArr.forEach((item, index) => {
     if (item - 0 > 10) {
       item = item - 10;
@@ -559,10 +554,6 @@ class MainEditor {
           data.value_.forEach((item, index) => {
             y = this.calcPostionY(item, y);
           }); 
-
-          // for (let i in data.value_) {
-          //   y = this.calcPostionY(data.value_[i], y);
-          // }
         }
         break;
       case 7:
@@ -754,34 +745,12 @@ class MainEditor {
           NapiLog.logInfo('Node collapse does not need to draw child node');
         }
       }); 
-
-      // for (let i in data.value_) {
-      //   if (
-      //     data.value_[i].parent_.type_ === DataType.NODE &&
-      //     data.value_[i].parent_.isOpen_
-      //   ) {
-      //     this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
-      //     this.drawBrokenLine(pm2f, data, offy, i);
-      //   } else if (data.value_[i].parent_.type_ === DataType.ATTR) {
-      //     this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
-      //     pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-      //     data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
-      //   } else {
-      //     NapiLog.logInfo('Node collapse does not need to draw child node');
-      //   }
-      // }
     } else {
       data.value_.forEach((item, index) => {
         this.drawObj(pm2f, item, drawNodeX_, offy, path + '.');
         pm2f.drawLine(data.posX + w, offy + data.posY + 10,
           item.posX, offy + item.posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
       }); 
-
-      // for (let i in data.value_) {
-      //   this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
-      //   pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-      //   data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
-      // }
     }
   }
 
@@ -1414,7 +1383,7 @@ class MainEditor {
       }
 
       this.errorMsg_.forEach((item, index) => {  
-        let sizeNumber= 20;
+        let sizeNumber = 20;
         let y = Scr.logich / CONSTANT_MIDDLE - this.errorMsg_.length * sizeNumber + i * sizeNumber;
         let a = parseInt((item[0] - ts) / CONSTANT_MIDDLE);
         if (a > MAX_RANDOM) {
@@ -1423,17 +1392,6 @@ class MainEditor {
         NapiLog.logError(a);
         this.drawErrorText(pm2f,a, y); 
       }); 
-
-      // for (let i in this.errorMsg_) {
-      //   let sizeNumber= 20;
-      //   let y = Scr.logich / CONSTANT_MIDDLE - this.errorMsg_.length * sizeNumber + i * sizeNumber;
-      //   let a = parseInt((this.errorMsg_[i][0] - ts) / CONSTANT_MIDDLE);
-      //   if (a > MAX_RANDOM) {
-      //     a = MAX_RANDOM;
-      //   }
-      //   NapiLog.logError(a);
-      //   this.drawErrorText(pm2f,a, y);
-      // }
     }
 
     this.delay_ += 1;
@@ -1602,53 +1560,6 @@ class MainEditor {
       }   
     });
 
-    // for (let i = 0; i < this.nodeBtnPoint_; i++) {
-    //   if (this.nodeBtns[i].procTouch(msg, x, y)) {
-    //     let nodeBtns = this.nodeBtns[i];
-    //     if (nodeBtns.isClicked()) {
-    //       this.buttonClickedProc(nodeBtns);
-    //     } else if (nodeBtns.isRightClicked()) {
-    //       this.onAttributeChange('change_current_select', nodeBtns.node_);
-    //       switch (nodeBtns.node_.type_) {
-    //         case ADD:
-    //           RightMenu.Reset(
-    //             [
-    //               RightMenu.Button(null, 'Add Child Node', null, () => {
-    //                 this.procAddNodeAction();
-    //                 this.onAttributeChange('writefile');
-    //               }),
-    //               RightMenu.Button(null, 'Add Sub Property', null, () => {
-    //                 this.procAddAttAction();
-    //                 this.onAttributeChange('writefile');
-    //               }),
-    //               RightMenu.Button(null, 'Delete', null, () => {
-    //                 this.procDeleteAction();
-    //                 this.onAttributeChange('writefile');
-    //               }),
-    //             ],
-    //             nodeBtns.posX_,
-    //             nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
-    //           );
-    //           break;
-    //         case DELETE:
-    //           RightMenu.Reset(
-    //             [
-    //               RightMenu.Button(null, 'Delete', null, () => {
-    //                 this.procDeleteAction();
-    //                 this.onAttributeChange('writefile');
-    //               }),
-    //             ],
-    //             nodeBtns.posX_,
-    //             nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
-    //           );
-    //           break;
-    //       }
-    //     }
-
-    //     return true;
-    //   }
-    // }
-
     this.nodeMoreBtnPoint_.forEach((item, index) => {
       if (item.procTouch(msg, x, y)) {
         let nodeMoreBtn = item;
@@ -1665,23 +1576,6 @@ class MainEditor {
         return true;
       }      
     });
-
-    // for (let i = 0; i < this.nodeMoreBtnPoint_; i++) {
-    //   if (this.nodeMoreBtns[i].procTouch(msg, x, y)) {
-    //     let nodeMoreBtn = this.nodeMoreBtns[i];
-    //     if (nodeMoreBtn.isClicked()) {
-    //       this.buttonClickedProc(nodeMoreBtn);
-    //       this.nodeMoreBtns[i].node_.isOpen_ =
-    //         !this.nodeMoreBtns[i].node_.isOpen_;
-    //       this.modifyPos_ = {
-    //         node: this.nodeMoreBtns[i].node_,
-    //         x: this.nodeMoreBtns[i].node_.posX,
-    //         y: this.nodeMoreBtns[i].node_.posY,
-    //       };
-    //     }
-    //     return true;
-    //   }
-    // }
 
     if (msg === MouseType.DOWN && !this.dropAll_.locked) {
       this.dropAll_.locked = true;
@@ -1716,10 +1610,6 @@ class MainEditor {
         data.value_.forEach((item, index) => {  
           this.searchNodeByName(item, name, out);  
         });
-
-        // for (let i in data.value_) {
-        //   this.searchNodeByName(data.value_[i], name, out);
-        // }
         break;
       case  DataType.ATTR:
         this.searchNodeByName(data.value_, name, out);
@@ -1897,10 +1787,6 @@ class MainEditor {
         data.value_.forEach((item, index) => {  
           ret += this.nodeCount(item);  
         });
-
-        // for (let i in data.value_) {
-        //   ret += this.nodeCount(data.value_[i]);
-        // }
         break;
       case 7:
         ret += this.nodeCount(data.value_);
@@ -1955,10 +1841,6 @@ class MainEditor {
       data1.forEach((item, index) => {  
         data2.push(data1.charCodeAt(index));  
       });
-
-      // for (let j in data1) {
-      //   data2.push(data1.charCodeAt(j));
-      // }
       if (pme.isNodeCountChanged(pme.filePoint_)) {
         Lexer.FILE_AND_DATA[pme.filePoint_] = data2;
         pme.parse(pme.filePoint_);
@@ -2260,12 +2142,6 @@ class MainEditor {
         oldNode = item;
       } 
     });
-
-    // for (let i = 0; i < oldParentNode.value_.length; ++i) {
-    //   if (newNode.name_ === oldParentNode.value_[i].name_) {
-    //     oldNode = oldParentNode.value_[i];
-    //   }
-    // }
     if (oldNode === null) {
       return;
     }
@@ -2274,10 +2150,6 @@ class MainEditor {
     newNode.value_.forEach((item, index) => {
       this.syncOpenStatus(item, oldNode);
     });
-
-    // for (let j = 0; j < newNode.value_.length; ++j) {
-    //   this.syncOpenStatus(newNode.value_[j], oldNode);
-    // }
   }
 
   syncRootStatus(newRoot, oldRoot) {
@@ -2285,10 +2157,6 @@ class MainEditor {
     newRoot.value_.forEach((item, index) => {
       this.syncOpenStatus(item, oldRoot);
     });
-
-    // for (let i = 0; i < newRoot.value_.length; ++i) {
-    //   this.syncOpenStatus(newRoot.value_[i], oldRoot);
-    // }
   }
 
   parse(fn) {
@@ -2312,16 +2180,6 @@ class MainEditor {
       fs.push(index);  
     });
 
-    // for (let i in t) {
-    //   let newRoot = Generator.gi().astToObj(t[i].ast.astRoot_);
-
-    //   if (this.files_[i]) {
-    //     this.syncRootStatus(newRoot, this.files_[i]);
-    //   }
-
-    //   this.files_[i] = newRoot;
-    //   fs.push(i);
-    // }
     this.filePoint_ = this.rootPoint_;
     this.sltInclude.resetList(fs, this.filePoint_);
     AttrEditor.gi().setFiles(this.files_);
