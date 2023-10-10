@@ -35,6 +35,14 @@ const EQUAL_SIGN_LEN = 3;
 const MAX_RANDOM = 255;
 const CONSTANT_MIDDLE = 2;
 const CONSTANT_QUARTER = 4;
+const DRAW_HEIGHT = 4;
+const COLOR_MAX = 10;
+const GRAY_LEVEL = 192;
+const INIT_VALUE = -1;
+const KEY_VALUE_MAX = 30;
+const ONE_KEY_VALUE_MAX = 29;
+const TWO_KEY_VALUE_MAX = 28;
+const THREE_KEY_VALUE_MAX = 27;
 
 const MouseType = {
   DOWN: 1, // 按下
@@ -47,18 +55,18 @@ function rgba(colorArr) {
 }
 
 function getDarker(colorArr) {
-  for (let i = 0; i < colorArr.length; ++i) {
-    if (colorArr[i] - 0 > 10) {
-      colorArr[i] = colorArr[i] - 10;
-    }
-  }
+  colorArr.forEach((item, index) => {
+    if (item - 0 > COLOR_MAX) {
+      item = item - COLOR_MAX;
+    } 
+  });
   return rgba(colorArr);
 }
 
 function isDarkColor(colorArr) {
   let grayLevel =
     colorArr[0] * 0.299 + colorArr[1] * 0.587 + colorArr[2] * 0.114;
-  return grayLevel < 192;
+  return grayLevel < GRAY_LEVEL;
 }
 
 function getVsCodeTheme() {
@@ -95,8 +103,8 @@ class MainEditor {
     this.keyQueue_ = [];
     this.dropAll_ = {
       locked: false,
-      oldx: -1,
-      oldy: -1,
+      oldx: INIT_VALUE,
+      oldy: INIT_VALUE,
     };
     getVsCodeTheme();
     this.nodeBtns = [];
@@ -112,54 +120,7 @@ class MainEditor {
     NapiLog.registError(this.onError);
     this.errorMsg_ = [];
     this.cutImgDict_ = {};
-    this.whiteImg_ = -1;
-    this.whiteCut_ = -1;
-    this.cicleImg_ = -1;
-    this.circleCut_ = -1;
-    this.cicleOpenImg_ = -1;
-    this.circleOpenCut_ = -1;
-    this.rectangleFocusImg_ = -1;
-    this.rectangleFocusCut_ = -1;
-    this.nodeIconImg_ = -1;
-    this.nodeIconCut_ = -1;
-    this.attrIconImg_ = -1;
-    this.attrIconCut_ = -1;
-    this.rootIconImg_ = -1;
-    this.rootIconCut_ = -1;
-    this.rootIconFocusImg_ = -1;
-    this.rootIconFocusCut_ = -1;
-    RightMenu.backgroundImg_ = -1;
-    RightMenu.backgroundCut_ = -1;
-    RightMenu.popItemFocusImg_ = -1;
-    RightMenu.popItemFocusCut_ = -1;
-    this.leftRectCicleCut_ = -1;
-    this.centerRectCut_ = -1;
-    this.rightRectCicleCut_ = -1;
-    this.leftRectFocusCicleCut_ = -1;
-    this.centerFocusCut_ = -1;
-    this.rightRectFocusCicleCut_ = -1;
-    this.delay_ = 0;
-    this.searchBgImg_ = -1;
-    this.searchBgCut_ = -1;
-    this.upImg_ = -1;
-    this.upCut_ = -1;
-    this.downImg_ = -1;
-    this.downCut_ = -1;
-    this.closeImg_ = -1;
-    this.closeCut_ = -1;
-    this.searchImg_ = -1;
-    this.searchCut_ = -1;
-    this.isSearchResult_ = false;
-    this.searchRectFocusCicleImg_ = -1;
-    this.leftSearchFocusCicleCut_ = -1;
-    this.centerSearchCut_ = -1;
-    this.rightSearchFocusCicleCut_ = -1;
-
-    this.searchAttrCicleImg_ = -1;
-    this.leftSearchAttrCicleCut_ = -1;
-    this.centerSearchAttrCut_ = -1;
-    this.rightSearchAttrCicleCut_ = -1;
-
+    this.initMainEditorWithInitValue();
     this.selectNode_ = {
       type: null,
       pnode: null,
@@ -514,6 +475,56 @@ class MainEditor {
     this.historyPushed = false;
   }
 
+  initMainEditorWithInitValue() {
+    this.whiteImg_ = INIT_VALUE;
+    this.whiteCut_ = INIT_VALUE;
+    this.cicleImg_ = INIT_VALUE;
+    this.circleCut_ = INIT_VALUE;
+    this.cicleOpenImg_ = INIT_VALUE;
+    this.circleOpenCut_ = INIT_VALUE;
+    this.rectangleFocusImg_ = INIT_VALUE;
+    this.rectangleFocusCut_ = INIT_VALUE;
+    this.nodeIconImg_ = INIT_VALUE;
+    this.nodeIconCut_ = INIT_VALUE;
+    this.attrIconImg_ = INIT_VALUE;
+    this.attrIconCut_ = INIT_VALUE;
+    this.rootIconImg_ = INIT_VALUE;
+    this.rootIconCut_ = INIT_VALUE;
+    this.rootIconFocusImg_ = INIT_VALUE;
+    this.rootIconFocusCut_ = INIT_VALUE;
+    RightMenu.backgroundImg_ = INIT_VALUE;
+    RightMenu.backgroundCut_ = INIT_VALUE;
+    RightMenu.popItemFocusImg_ = INIT_VALUE;
+    RightMenu.popItemFocusCut_ = INIT_VALUE;
+    this.leftRectCicleCut_ = INIT_VALUE;
+    this.centerRectCut_ = INIT_VALUE;
+    this.rightRectCicleCut_ = INIT_VALUE;
+    this.leftRectFocusCicleCut_ = INIT_VALUE;
+    this.centerFocusCut_ = INIT_VALUE;
+    this.rightRectFocusCicleCut_ = INIT_VALUE;
+    this.delay_ = 0;
+    this.searchBgImg_ = INIT_VALUE;
+    this.searchBgCut_ = INIT_VALUE;
+    this.upImg_ = INIT_VALUE;
+    this.upCut_ = INIT_VALUE;
+    this.downImg_ = INIT_VALUE;
+    this.downCut_ = INIT_VALUE;
+    this.closeImg_ = INIT_VALUE;
+    this.closeCut_ = INIT_VALUE;
+    this.searchImg_ = INIT_VALUE;
+    this.searchCut_ = INIT_VALUE;
+    this.isSearchResult_ = false;
+    this.searchRectFocusCicleImg_ = INIT_VALUE;
+    this.leftSearchFocusCicleCut_ = INIT_VALUE;
+    this.centerSearchCut_ = INIT_VALUE;
+    this.rightSearchFocusCicleCut_ = INIT_VALUE;
+
+    this.searchAttrCicleImg_ = INIT_VALUE;
+    this.leftSearchAttrCicleCut_ = INIT_VALUE;
+    this.centerSearchAttrCut_ = INIT_VALUE;
+    this.rightSearchAttrCicleCut_ = INIT_VALUE;
+  }
+
   reloadMenuBgPic() {
     let bgPic = RightMenu.isDarkBackground_ ? 'pop_background.png' : 'pop_background_light.png';
     let bgPicPath = '../images/' + bgPic;
@@ -537,37 +548,37 @@ class MainEditor {
     data.posY = y;
     let ty = y;
     switch (data.type_) {
-      case 1:
-      case 2:
-      case 3:
-      case 4:
+      case DataType.INT8:
+      case DataType.INT16:
+      case DataType.INT32:
+      case DataType.INT64:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 5:
+      case DataType.STRING:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 6:
+      case DataType.NODE:
         if (!data.isOpen_) {
           y += MainEditor.LINE_HEIGHT;
         } else {
-          for (let i in data.value_) {
-            y = this.calcPostionY(data.value_[i], y);
-          }
+          data.value_.forEach((item, index) => {
+            y = this.calcPostionY(item, y);
+          }); 
         }
         break;
-      case 7:
+      case DataType.ATTR:
         y = this.calcPostionY(data.value_, y);
         break;
-      case 8:
+      case DataType.ARRAY:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 9:
+      case DataType.REFERENCE:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 10:
+      case DataType.DELETE:
         y += MainEditor.LINE_HEIGHT;
         break;
-      case 11:
+      case DataType.BOOL:
         y += MainEditor.LINE_HEIGHT;
         break;
       default:
@@ -582,23 +593,23 @@ class MainEditor {
 
   getNodeText(data) {
     switch (data.nodeType_) {
-      case 0:
+      case NodeType.DATA:
         return data.name_;
-      case 3:
+      case NodeType.DELETE:
         return data.name_ + ' : delete';
-      case 4:
+      case NodeType.TEMPLETE:
         return 'templete ' + data.name_;
-      case 5:
+      case NodeType.INHERIT:
         if (data.ref_ === 'unknow') {
           return data.name_;
         }
         return data.name_ + ' :: ' + data.ref_;
-      case 1:
+      case NodeType.COPY:
         if (data.ref_ === 'unknow') {
           return data.name_;
         }
         return data.name_ + ' : ' + data.ref_;
-      case 2:
+      case NodeType.REFERENCE:
         if (data.ref_ === 'unknow') {
           return data.name_;
         }
@@ -698,23 +709,19 @@ class MainEditor {
   arrayNodeProc(w, pm2f, data, offx, offy) {
     let ss = '[' + data.value_.length + ']' + NodeTools.arrayToString(data);
     let keyAndValue = data.parent_.name_ + ' = ';
-    let maxKeyAndValue = 30;
-    let one2maxKeyAndValue = 29;
-    let two2maxKeyAndValue = 28;
-    let three2maxKeyAndValue = 27;
 
-    if (keyAndValue.length >= maxKeyAndValue) {
+    if (keyAndValue.length >= KEY_VALUE_MAX) {
       return;
-    } else if (keyAndValue.length === one2maxKeyAndValue) {
+    } else if (keyAndValue.length === ONE_KEY_VALUE_MAX) {
       w = pm2f.drawText('.', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
       MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length === two2maxKeyAndValue) {
+    } else if (keyAndValue.length === TWO_KEY_VALUE_MAX) {
       w = pm2f.drawText('..', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
       MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length === three2maxKeyAndValue) {
+    } else if (keyAndValue.length === THREE_KEY_VALUE_MAX) {
       w = pm2f.drawText('...', MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
       MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-    } else if (keyAndValue.length < three2maxKeyAndValue) {
+    } else if (keyAndValue.length < THREE_KEY_VALUE_MAX) {
       let displayValueLen = DISPLAY_TEXT_MAX - keyAndValue.length;
       if (ss.length > displayValueLen) {
         ss = ss.substring(0, displayValueLen - 3) + '...';
@@ -732,28 +739,95 @@ class MainEditor {
     }
     let drawNodeX_ = offx + MainEditor.NODE_RECT_WIDTH + MainEditor.NODE_SIZE_BG_OFFX + MainEditor.NODE_MORE_CHILD + MainEditor.LINE_WIDTH * 2 - dis;
     if (data.type_ === DataType.NODE) {
-      for (let i in data.value_) {
-        if (
-          data.value_[i].parent_.type_ === DataType.NODE &&
-          data.value_[i].parent_.isOpen_
-        ) {
-          this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
+      data.value_.forEach((item, index) => {
+        if (item.parent_.type_ === DataType.NODE && item.parent_.isOpen_) {
+          this.drawObj(pm2f, item, drawNodeX_, offy, path + '.');
           this.drawBrokenLine(pm2f, data, offy, i);
         } else if (data.value_[i].parent_.type_ === DataType.ATTR) {
-          this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
+          this.drawObj(pm2f, item, drawNodeX_, offy, path + '.');
           pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-          data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
+            item.posX, offy + item.posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
         } else {
           NapiLog.logInfo('Node collapse does not need to draw child node');
         }
-      }
+      }); 
     } else {
-      for (let i in data.value_) {
-        this.drawObj(pm2f, data.value_[i], drawNodeX_, offy, path + '.');
+      data.value_.forEach((item, index) => {
+        this.drawObj(pm2f, item, drawNodeX_, offy, path + '.');
         pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-        data.value_[i].posX, offy + data.value_[i].posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
-      }
+          item.posX, offy + item.posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
+      }); 
     }
+  }
+
+  /**
+   * 绘制Attr对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} offx x偏移值
+   * @param {} offy y偏移值
+   * @param {} path 节点路径
+   */
+  drawAttrObj(pm2f, data, offx, offy, path) {
+    let w = this.drawNode(pm2f, data.name_, MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
+    this.setNodeButton(pm2f, offx, offy + data.posY, w, MainEditor.NODE_TEXT_SIZE, path, data);
+    this.drawObj(pm2f, data.value_, offx + w, offy, path);
+    pm2f.drawCut(this.attrIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
+      offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
+  }
+
+  /**
+   * 绘制Node对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} offx x偏移值
+   * @param {} offy y偏移值
+   * @param {} path 节点路径
+   */  
+  drawNodeObj(pm2f, data, offx, offy, path) {
+    let w = this.drawNode(pm2f, this.getNodeText(data), MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
+    this.configNodeProc(w, pm2f, data, offx, offy, path);
+    if (data.parent_ !== undefined) {
+      pm2f.drawCut(this.nodeIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
+        offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
+    }
+  }
+
+  /**
+   * 绘制引用对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} drawTextX_ x偏移值
+   * @param {} drawTextY_ y偏移值
+   */
+  drawReferenceObj(pm2f, data, drawTextX_, drawTextY_) {
+    let content = data.parent_.name_ + ' = ';
+    if (content.length > DISPLAY_TEXT_MAX) {
+      content = '';
+    } else if ((content + data.value_).length > DISPLAY_TEXT_MAX) {
+      content = data.value_.substring((data.parent_.name_ + ' = ').length, THREE_KEY_VALUE_MAX) + '...';
+    } else {
+      content = data.value_;
+    }
+    pm2f.drawText('&' + content, MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+      1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+  }
+
+  /**
+   * 绘制引用对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} drawTextX_ x偏移值
+   * @param {} drawTextY_ y偏移值
+   */  
+  drawStringObj(pm2f, data, drawTextX_, drawTextY_) {
+    let value = data.value_;
+    let keyAndValue = data.parent_.name_ + ' = ' + data.value_;
+    if (keyAndValue.length > DISPLAY_TEXT_MAX) {
+      value = keyAndValue.substring((data.parent_.name_ + ' = ').length, THREE_KEY_VALUE_MAX) + '...';
+    }
+    let w = pm2f.drawText('"' + value + '"', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+      1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
   }
 
   drawObj(pm2f, data, offx, offy, path) {
@@ -768,70 +842,69 @@ class MainEditor {
     let drawTextY_ = offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - 
     MainEditor.NODE_TEXT_SIZE / CONSTANT_MIDDLE;
     switch (data.type_) {
-      case 1:
-      case 2:
-      case 3:
-      case 4:
+      case DataType.INT8:
+      case DataType.INT16:
+      case DataType.INT32:
+      case DataType.INT64:
         w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_), MainEditor.NODE_TEXT_SIZE,
           drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_),
           drawTextY_, 1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
-      case 5:
-        let value = data.value_;
-        let keyAndValue = data.parent_.name_ + ' = ' + data.value_;
-        if (keyAndValue.length > DISPLAY_TEXT_MAX) {
-          value = keyAndValue.substring((data.parent_.name_ + ' = ').length, 27) + '...';
-        }
-        w = pm2f.drawText('"' + value + '"', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-          1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      case DataType.STRING:
+        this.drawStringObj(pm2f, data, drawTextX_, drawTextY_);
         break;
-      case 6:
-        w = this.drawNode(pm2f, this.getNodeText(data), MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
-        this.configNodeProc(w, pm2f, data, offx, offy, path);
-        if (data.parent_ !== undefined) {
-          pm2f.drawCut(this.nodeIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
-            offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
-        }
+      case DataType.NODE:
+        this.drawNodeObj(pm2f, data, offx, offy, path);
         break;
-      case 7:
-        w = this.drawNode(pm2f, data.name_, MainEditor.NODE_TEXT_SIZE, offx, offy + data.posY, data.type_, data);
-        this.setNodeButton(pm2f, offx, offy + data.posY, w, MainEditor.NODE_TEXT_SIZE, path, data);
-        this.drawObj(pm2f, data.value_, offx + w, offy, path);
-        pm2f.drawCut(this.attrIconCut_, offx + MainEditor.LOGO_LEFT_PADDING - (MainEditor.NODE_RECT_WIDTH - data.parent_.nodeWidth_),
-          offy + data.posY + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - MainEditor.LOGO_SIZE / CONSTANT_MIDDLE);
+      case DataType.ATTR:
+        this.drawAttrObj(pm2f, data, offx, offy, path);
         break;
       case 8:
         this.arrayNodeProc(w, pm2f, data, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), offy);
         break;
-      case 9:
-        let content = data.parent_.name_ + ' = ';
-        if (content.length > DISPLAY_TEXT_MAX) {
-          content = '';
-        } else if ((content + data.value_).length > DISPLAY_TEXT_MAX) {
-          content = data.value_.substring((data.parent_.name_ + ' = ').length, 27) + '...';
-        } else {
-          content = data.value_;
-        }
-        w = pm2f.drawText('&' + content, MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-          1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+      case DataType.REFERENCE:
+        this.drawReferenceObj(pm2f, data, drawTextX_, drawTextY_);
         break;
-      case 10:
+      case DataType.DELETE:
         w = pm2f.drawText('delete', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
           1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
         break;
-      case 11:
-        if (data.value_) {
-          w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-            1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        } else {
-          w = pm2f.drawText('false', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
-            1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
-        }
+      case DataType.BOOL:
+        this.drawBoolObj(pm2f, data, drawTextX_, drawTextY_);
         break;
       default:
         NapiLog.logError('unknow' + data.type_);
         break;
     }
+    this.drawErrorRect(pm2f, data, offx, offy);
+  }
+
+  /**
+   * 绘制Bool对象
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} drawTextX_ x偏移值
+   * @param {} drawTextY_ y偏移值
+   */  
+  drawBoolObj(pm2f, data, drawTextX_, drawTextY_) {
+    let w;
+    if (data.value_) {
+     w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+        1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    } else {
+      w = pm2f.drawText('false', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+        1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
+    }
+  }
+
+  /**
+   * 绘制错误显示框
+   * @param {} pm2f X2DFast
+   * @param {} data 节点数据对象
+   * @param {} offx x偏移值
+   * @param {} offy y偏移值
+   */  
+  drawErrorRect(pm2f, data, offx, offy) {
     if (data.errMsg_ !== null && data.errMsg_ !== undefined) {
       let displayFreq = 2; // 显示频率
       let frameNo = 10;
@@ -844,6 +917,85 @@ class MainEditor {
     }
   }
 
+    /**
+   * 获取绘制框宽度
+   * @param {} pm2f X2DFast
+   * @param {} node 节点数据对象
+   * @return {} rectWidth 绘制框宽度
+   */
+  getRectWidth(pm2f, node) {
+    let displayValue;
+    let rectWidth = 0;
+    if (node.value_.type_ === ObjectType.PARSEROP_ARRAY) {
+      let arrayValue = NodeTools.arrayToString(node.value_);
+      displayValue = '[' + node.value_.value_.length + ']' + arrayValue;
+    } else if (
+      node.value_.type_ === ObjectType.PARSEROP_UINT8 ||
+      node.value_.type_ === ObjectType.PARSEROP_UINT16 ||
+      node.value_.type_ === ObjectType.PARSEROP_UINT32 ||
+      node.value_.type_ === ObjectType.PARSEROP_UINT64
+    ) {
+      displayValue = NodeTools.jinZhi10ToX(
+        node.value_.value_,
+        node.value_.jinzhi_
+      );
+    } else if (node.value_.type_ === ObjectType.PARSEROP_DELETE) {
+      displayValue = 'delete';
+    } else if (node.value_.type_ === ObjectType.PARSEROP_BOOL) {
+      if (node.value_) {
+        displayValue = 'true';
+      } else {
+        displayValue = 'false';
+      }
+    } else {
+      displayValue = node.value_.value_;
+    }
+    
+    let keyAndValue;
+    let lenDisplay = THREE_KEY_VALUE_MAX;
+    let moreLenDisplayOne = 1;
+    let moreLenDisplayTwo = 2;
+    if (node.name_.length <= lenDisplay) {
+      keyAndValue = node.name_ + ' = ' + displayValue;
+    } else if (node.name_.length === lenDisplay + moreLenDisplayOne) {
+      keyAndValue = node.name_ + ' =';
+    } else if (node.name_.length === lenDisplay + moreLenDisplayTwo) {
+      keyAndValue = node.name_ + '=';
+    } else if (node.name_.length >= DISPLAY_TEXT_MAX) {
+      keyAndValue = node.name_;
+    }
+
+    if (keyAndValue.length >= DISPLAY_TEXT_MAX) {
+      keyAndValue = keyAndValue.substring(0, THREE_KEY_VALUE_MAX) + '...';
+    }
+    rectWidth = pm2f.getTextWidth(keyAndValue, MainEditor.NODE_TEXT_SIZE);
+    return rectWidth;
+  }
+
+  /**
+   * 绘制节点名称
+   * @param {} pm2f X2DFast
+   * @param {} node 节点数据对象
+   * @param {} x x坐标值
+   * @param {} y y坐标值
+   * @param {} w 宽度
+   * @param {} h 高度
+   */  
+  drawNodeNameText(pm2f, node, x, y, w, h) {
+    pm2f.drawText(
+      node.name_,
+      MainEditor.NODE_TEXT_SIZE,
+      x + MainEditor.NODE_RECT_WIDTH / CONSTANT_MIDDLE - w / CONSTANT_MIDDLE,
+      y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - h / CONSTANT_MIDDLE,
+      1,
+      1,
+      0,
+      1,
+      1,
+      MainEditor.NODE_TEXT_COLOR
+    );
+  }
+
   setNodeButton(pm2f, x, y, w, h, path, node) {
     let rectWidth = MainEditor.NODE_RECT_WIDTH;
     if (node.parent_ === undefined) {
@@ -853,72 +1005,19 @@ class MainEditor {
         pm2f.drawCut(this.rootIconCut_, x, y);
       }
       node.nodeWidth_ = MainEditor.NODE_RECT_WIDTH;
-      pm2f.drawText(
-        node.name_,
-        MainEditor.NODE_TEXT_SIZE,
-        x + MainEditor.NODE_RECT_WIDTH / CONSTANT_MIDDLE - w / CONSTANT_MIDDLE,
-        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - h / CONSTANT_MIDDLE,
-        1,
-        1,
-        0,
-        1,
-        1,
-        MainEditor.NODE_TEXT_COLOR
-      );
+      this.drawNodeNameText(pm2f, node, x, y, w, h);
     } else {
       if (node.type_ === DataType.ATTR) {
-        let displayValue;
-        if (node.value_.type_ === ObjectType.PARSEROP_ARRAY) {
-          let arrayValue = NodeTools.arrayToString(node.value_);
-          displayValue = '[' + node.value_.value_.length + ']' + arrayValue;
-        } else if (
-          node.value_.type_ === ObjectType.PARSEROP_UINT8 ||
-          node.value_.type_ === ObjectType.PARSEROP_UINT16 ||
-          node.value_.type_ === ObjectType.PARSEROP_UINT32 ||
-          node.value_.type_ === ObjectType.PARSEROP_UINT64
-        ) {
-          displayValue = NodeTools.jinZhi10ToX(
-            node.value_.value_,
-            node.value_.jinzhi_
-          );
-        } else if (node.value_.type_ === ObjectType.PARSEROP_DELETE) {
-          displayValue = 'delete';
-        } else if (node.value_.type_ === ObjectType.PARSEROP_BOOL) {
-          if (node.value_) {
-            displayValue = 'true';
-          } else {
-            displayValue = 'false';
-          }
-        } else {
-          displayValue = node.value_.value_;
-        }
-
-        let keyAndValue;
-        let lenDisplay = 27;
-        let moreLenDisplayOne = 1;
-        let moreLenDisplayTwo = 2;
-        if (node.name_.length <= lenDisplay) {
-          keyAndValue = node.name_ + ' = ' + displayValue;
-        } else if (node.name_.length === lenDisplay + moreLenDisplayOne) {
-          keyAndValue = node.name_ + ' =';
-        } else if (node.name_.length === lenDisplay + moreLenDisplayTwo) {
-          keyAndValue = node.name_ + '=';
-        } else if (node.name_.length >= DISPLAY_TEXT_MAX) {
-          keyAndValue = node.name_;
-        }
-
-        if (keyAndValue.length >= DISPLAY_TEXT_MAX) {
-          keyAndValue = keyAndValue.substring(0, 27) + '...';
-        }
-        rectWidth = pm2f.getTextWidth(keyAndValue, MainEditor.NODE_TEXT_SIZE);
+        rectWidth = this.getRectWidth(pm2f, node);
       } else {
         rectWidth = pm2f.getTextWidth(
-          this.getNodeText(node).length > DISPLAY_TEXT_MAX ? this.getNodeText(node).substring(0, 27) + '...' : this.getNodeText(node),
+          this.getNodeText(node).length > DISPLAY_TEXT_MAX ? this.getNodeText(node).substring(0, THREE_KEY_VALUE_MAX) + '...' : this.getNodeText(node),
           MainEditor.NODE_TEXT_SIZE
         );
       }
       this.drawNodeRectButton(pm2f, x, y, rectWidth, node);
     }
+
     if (this.nodeBtnPoint_ >= this.nodeBtns.length) {
       this.nodeBtns.push(new XButton());
     }
@@ -944,11 +1043,11 @@ class MainEditor {
     let width = rectWidth + widthOffset + MainEditor.LOGO_SIZE + logoSizeOffset;
     if (node.type_ === DataType.ATTR) {
       switch (node.value_.type_) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 8:
+        case ObjectType.PARSEROP_UINT8:
+        case ObjectType.PARSEROP_UINT16:
+        case ObjectType.PARSEROP_UINT32:
+        case ObjectType.PARSEROP_UINT64:
+        case ObjectType.PARSEROP_ARRAY:
           width = width;
           break;
         default:
@@ -1032,33 +1131,26 @@ class MainEditor {
     this.nodeMoreBtnPoint_ += 1;
   }
 
-  draw(pm2f) {
-    const DRAW_HEIGHT = 4;
-    let xx = 0;
-    let yy = 0;
-    getVsCodeTheme();
-    pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
-    if (this.filePoint_ !== null && this.filePoint_ in this.files_) {
-      let data = this.files_[this.filePoint_];
-      this.calcPostionY(data, 0);
-      if (this.modifyPos_) {
-        this.offX_ -= this.modifyPos_.node.posX - this.modifyPos_.x;
-        this.offY_ -= this.modifyPos_.node.posY - this.modifyPos_.y;
-        this.modifyPos_ = null;
-      } else if (this.isFirstDraw) {
-        this.offX_ = 0;
-        this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
-        this.maxX = 0;
-        this.drawObj(pm2f, data, this.offX_, this.offY_, '');
-        pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
-        this.offX_ = (Scr.logicw - this.maxX) / CONSTANT_MIDDLE;
-        this.isFirstDraw = false;
-      }
-      this.nodeBtnPoint_ = 0;
-      this.nodeMoreBtnPoint_ = 0;
-      this.drawObj(pm2f, data, this.offX_, this.offY_, '');
-    }
-    let xOffset = 420;
+    /**
+   * 移动绘制
+   * @param {} xOffset x偏移值
+   */
+  moveAndDraw(xOffset) {
+    let x = 16;
+    let y = 20;
+    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x;
+    let h = 20;
+    this.sltInclude.move(x, y, w, h).draw();
+  }
+
+   /**
+   * 绘制Rect
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   * @param {*} xOffset x偏移值
+   */
+  fillWholeRect(pm2f, xx, yy, xOffset) {
     pm2f.fillRect(xx, yy, window.innerWidth, DRAW_HEIGHT, MainEditor.CANVAS_LINE);
     pm2f.fillRect(
       window.innerWidth - xOffset - DRAW_HEIGHT,
@@ -1069,9 +1161,9 @@ class MainEditor {
     );
     yy = 4;
     let wSpace = 4;
-    let hh = 48;
-    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, hh, MainEditor.CANVAS_BG);
-    yy = 52
+    let h = 48;
+    pm2f.fillRect(xx, yy, window.innerWidth - xOffset - wSpace, h, MainEditor.CANVAS_BG);
+    yy = 52;
     pm2f.fillRect(
       xx,
       yy,
@@ -1079,56 +1171,213 @@ class MainEditor {
       DRAW_HEIGHT,
       MainEditor.CANVAS_LINE
     );
-    this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
-    let x0 = 16;
-    let y0 = 20;
-    let w = window.innerWidth - xOffset - DRAW_HEIGHT - x0;
-    let h = 20;
-    this.sltInclude.move(x0, y0, w, h).draw();
+  }
 
+  /**
+   * 修改节点位置
+   */
+  subFuncModify() {
+    this.offX_ -= this.modifyPos_.node.posX - this.modifyPos_.x;
+    this.offY_ -= this.modifyPos_.node.posY - this.modifyPos_.y;
+    this.modifyPos_ = null;
+  }
+
+  /**
+   * 绘制Rect
+   * @param {} pm2f X2DFast
+   * @param {*} x 起始x坐标
+   * @param {*} y 起始y坐标
+   * @param {*} data 绘制的数据对象
+   */
+  subFuncFirstDraw(pm2f, x, y, data) {
+    this.offX_ = 0;
+    this.offY_ = -data.posY + Scr.logich / CONSTANT_MIDDLE;
+    this.maxX = 0;
+    this.drawObj(pm2f, data, this.offX_, this.offY_, '');
+    pm2f.fillRect(x, y, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
+    this.offX_ = (Scr.logicw - this.maxX) / CONSTANT_MIDDLE;
+    this.isFirstDraw = false;
+  }
+
+  /**
+   * 绘制接口
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */  
+  subFuncDraw(pm2f, xx, yy) {
+    let data = this.files_[this.filePoint_];
+    this.calcPostionY(data, 0);
+    if (this.modifyPos_) {
+      this.subFuncModify();
+    } else if (this.isFirstDraw) {
+      this.subFuncFirstDraw(pm2f, xx, yy, data);
+    }
+    this.nodeBtnPoint_ = 0;
+    this.nodeMoreBtnPoint_ = 0;
+    this.drawObj(pm2f, data, this.offX_, this.offY_, '');
+  }
+
+  /**
+   * 绘制选择文本
+   * @param {} pm2f X2DFast
+   */   
+  drawSelectText(pm2f) {
+    pm2f.drawText(
+      '点击选择目标',
+      MainEditor.NODE_TEXT_SIZE,
+      this.mousePos_.x,
+      this.mousePos_.y,
+      1,
+      1,
+      0,
+      -3,
+      -3,
+      MainEditor.NODE_TEXT_COLOR
+    );
+    this.btnCancelSelect_.name_ = '取消选择';
+  }
+
+  /**
+   * 绘制复制文本
+   * @param {} pm2f X2DFast
+   */   
+  drawCopyText(pm2f) {
+    pm2f.drawText(
+      '已复制' + this.selectNode_.pnode.name_,
+      MainEditor.NODE_TEXT_SIZE,
+      this.mousePos_.x,
+      this.mousePos_.y,
+      1,
+      1,
+      0,
+      -3,
+      -3,
+      MainEditor.NODE_TEXT_COLOR
+    );
+    this.btnCancelSelect_.name_ = '取消复制';
+  }
+
+  /**
+   * 绘制剪切文本
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */   
+  drawCutText(pm2f) {
+    pm2f.drawText(
+      '已剪切' + this.selectNode_.pnode.name_,
+      18,
+      this.mousePos_.x,
+      this.mousePos_.y,
+      1,
+      1,
+      0,
+      -3,
+      -3,
+      MainEditor.NODE_TEXT_COLOR
+    );
+    this.btnCancelSelect_.name_ = '取消剪切';
+  }
+
+  /**
+   * 绘制错误信息文本
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */    
+  drawErrorText(pm2f, a, y) {
+    a = a << 24;
+    pm2f.fillRect(0, y, Scr.logicw, 20, 0xff0000 | a);
+    pm2f.drawText(
+      this.errorMsg_[i][1],
+      MainEditor.NODE_TEXT_SIZE,
+      Scr.logicw / CONSTANT_MIDDLE,
+      y,
+      1,
+      1,
+      0,
+      -2,
+      -1,
+      MainEditor.NODE_TEXT_COLOR
+    );
+  }
+
+  /**
+   * 绘制一组剪切文本
+   * @param {} pm2f X2DFast
+   * @param {*} xx 起始x坐标
+   * @param {*} yy 起始y坐标
+   */  
+  drawCuts(pm2f, x, y) {
+    let xOffset = 28;
+    let yDoubleOffset = 56;
+    let ySpace = 8;
+    pm2f.drawCut(this.searchBgCut_, x, y);
+    pm2f.drawCut(this.searchCut_, x + xOffset, y + yDoubleOffset / CONSTANT_MIDDLE - ySpace);
+    x = x + 16 + 290 + 16;
+
+    let searchResultTxt =
+    this.searchInput.result.length === 0 ? 'No result' : this.searchInput.point + 1 + '/' + this.searchInput.result.length;
+    let color = 0xffffffff;
+    let offsetY = -2;
+    let offsetX = -1;
+    let ra = 0;
+    let sh = 1;
+    let sw = 1;
+    let yOffsetBase = 56;
+    let yOffset = 3;
+    let xStep = 16;
+    let yRightSpace = 8;
+    let start = 74;
+
+    x += pm2f.drawText(
+    searchResultTxt,
+    MainEditor.NODE_TEXT_SIZE,
+    x,
+    y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
+    sw,
+    sh,
+    ra,
+    offsetX,
+    offsetY,
+    color
+    );
+    x += start - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
+    pm2f.drawCut(this.upCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+    this.searchInput.btnUp.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+    x += xStep + xStep;
+    pm2f.drawCut(this.downCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+    this.searchInput.btnDown.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+    x += xStep + xStep;
+    pm2f.drawCut(this.closeCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
+    this.searchInput.btnClose.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+  }
+
+  /**
+   * MainEditor绘制
+   * @param {} pm2f X2DFast
+   */  
+  draw(pm2f) {    
+    let xx = 0;
+    let yy = 0;
+    getVsCodeTheme();
+    pm2f.fillRect(xx, yy, Scr.logicw, Scr.logich, MainEditor.CANVAS_BG);
+    if (this.filePoint_ !== null && this.filePoint_ in this.files_) {      
+      this.subFuncDraw(pm2f, xx, yy);
+    }
+    let xOffset = 420;
+    this.fillWholeRect(pm2f, xx, yy, xOffset);    
+    this.sltInclude.setColor(MainEditor.CANVAS_BG, MainEditor.NODE_TEXT_COLOR);
+    this.moveAndDraw(xOffset);
+    
     if (this.selectNode_.type !== null) {
       if (this.selectNode_.type === 'change_target') {
-        pm2f.drawText(
-          '点击选择目标',
-          MainEditor.NODE_TEXT_SIZE,
-          this.mousePos_.x,
-          this.mousePos_.y,
-          1,
-          1,
-          0,
-          -3,
-          -3,
-          MainEditor.NODE_TEXT_COLOR
-        );
-        this.btnCancelSelect_.name_ = '取消选择';
+        this.drawSelectText(pm2f);
       } else if (this.selectNode_.type === 'copy_node') {
-        pm2f.drawText(
-          '已复制' + this.selectNode_.pnode.name_,
-          MainEditor.NODE_TEXT_SIZE,
-          this.mousePos_.x,
-          this.mousePos_.y,
-          1,
-          1,
-          0,
-          -3,
-          -3,
-          MainEditor.NODE_TEXT_COLOR
-        );
-        this.btnCancelSelect_.name_ = '取消复制';
+        this.drawCopyText(pm2f);
       } else if (this.selectNode_.type === 'cut_node') {
-        pm2f.drawText(
-          '已剪切' + this.selectNode_.pnode.name_,
-          18,
-          this.mousePos_.x,
-          this.mousePos_.y,
-          1,
-          1,
-          0,
-          -3,
-          -3,
-          MainEditor.NODE_TEXT_COLOR
-        );
-        this.btnCancelSelect_.name_ = '取消剪切';
+        this.drawCutText(pm2f);
       }
       this.btnCancelSelect_.move(Scr.logicw - 250, Scr.logich - 30, 100, 20);
     }
@@ -1138,89 +1387,33 @@ class MainEditor {
       while (this.errorMsg_.length > 0 && this.errorMsg_[0][0] < ts) {
         this.errorMsg_.shift();
       }
-      for (let i in this.errorMsg_) {
-        let sizeNumber= 20;
+
+      this.errorMsg_.forEach((item, index) => {  
+        let sizeNumber = 20;
         let y = Scr.logich / CONSTANT_MIDDLE - this.errorMsg_.length * sizeNumber + i * sizeNumber;
-        let a = parseInt((this.errorMsg_[i][0] - ts) / CONSTANT_MIDDLE);
+        let a = parseInt((item[0] - ts) / CONSTANT_MIDDLE);
         if (a > MAX_RANDOM) {
           a = MAX_RANDOM;
         }
         NapiLog.logError(a);
-        a = a << 24;
-        pm2f.fillRect(0, y, Scr.logicw, 20, 0xff0000 | a);
-        pm2f.drawText(
-          this.errorMsg_[i][1],
-          MainEditor.NODE_TEXT_SIZE,
-          Scr.logicw / CONSTANT_MIDDLE,
-          y,
-          1,
-          1,
-          0,
-          -2,
-          -1,
-          MainEditor.NODE_TEXT_COLOR
-        );
-      }
+        this.drawErrorText(pm2f,a, y); 
+      }); 
     }
+
     this.delay_ += 1;
     RightMenu.Draw();
     if (this.searchInput) {
       let x = this.searchInput.pos[0];
       let y = this.searchInput.pos[1];
-      let w = this.searchInput.pos[2];
-      let h = this.searchInput.pos[3];
-      let xOffset = 28;
-      let yDoubleOffset = 56;
-      let ySpace = 8;
-      pm2f.drawCut(this.searchBgCut_, x, y);
-      pm2f.drawCut(this.searchCut_, x + xOffset, y + yDoubleOffset / CONSTANT_MIDDLE - ySpace);
-      x = x + 16 + 290 + 16;
-
-      let searchResultTxt =
-        this.searchInput.result.length === 0 ? 'No result' : this.searchInput.point + 1 + '/' + this.searchInput.result.length;
-      let color = 0xffffffff;
-      let offsetY = -2;
-      let offsetX = -1;
-      let ra = 0;
-      let sh = 1;
-      let sw = 1;
-      let yOffsetBase = 56;
-      let yOffset = 3;
-      let xStep = 16;
-      let yRightSpace = 8;
-      let start = 74;
-
-        x += pm2f.drawText(
-        searchResultTxt,
-        MainEditor.NODE_TEXT_SIZE,
-        x,
-        y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
-        sw,
-        sh,
-        ra,
-        offsetX,
-        offsetY,
-        color
-      );
-      x += start - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
-      pm2f.drawCut(this.upCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
-      this.searchInput.btnUp.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
-      x += xStep + xStep;
-      pm2f.drawCut(this.downCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
-      this.searchInput.btnDown.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
-      x += xStep + xStep;
-      pm2f.drawCut(this.closeCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
-      this.searchInput.btnClose.move(x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace, xStep, xStep);
+      this.drawCuts(pm2f, x, y);
     }
     this.procAll();
   }
   
   buttonClickedProc(nodeBtns) {
     if (
-      this.selectNode_.type === null ||
-      this.selectNode_.type === 'copy_node' ||
-      this.selectNode_.type === 'cut_node'
-    ) {
+      this.selectNode_.type === null || this.selectNode_.type === 'copy_node' ||
+      this.selectNode_.type === 'cut_node') {
       this.nodePoint_ = nodeBtns.node_;
       AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
       return true;
@@ -1326,9 +1519,9 @@ class MainEditor {
       }
     }
 
-    for (let i = 0; i < this.nodeBtnPoint_; i++) {
-      if (this.nodeBtns[i].procTouch(msg, x, y)) {
-        let nodeBtns = this.nodeBtns[i];
+    this.nodeBtnPoint_.forEach((item, index) => {  
+      if (item.procTouch(msg, x, y)) {
+        let nodeBtns = item;
         if (nodeBtns.isClicked()) {
           this.buttonClickedProc(nodeBtns);
         } else if (nodeBtns.isRightClicked()) {
@@ -1363,32 +1556,32 @@ class MainEditor {
                   }),
                 ],
                 nodeBtns.posX_,
-                nodeBtns.posY_ + +MainEditor.NODE_RECT_HEIGHT
+                nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
               );
               break;
           }
         }
 
         return true;
-      }
-    }
+      }   
+    });
 
-    for (let i = 0; i < this.nodeMoreBtnPoint_; i++) {
-      if (this.nodeMoreBtns[i].procTouch(msg, x, y)) {
-        let nodeMoreBtn = this.nodeMoreBtns[i];
+    this.nodeMoreBtnPoint_.forEach((item, index) => {
+      if (item.procTouch(msg, x, y)) {
+        let nodeMoreBtn = item;
         if (nodeMoreBtn.isClicked()) {
           this.buttonClickedProc(nodeMoreBtn);
           this.nodeMoreBtns[i].node_.isOpen_ =
             !this.nodeMoreBtns[i].node_.isOpen_;
           this.modifyPos_ = {
-            node: this.nodeMoreBtns[i].node_,
-            x: this.nodeMoreBtns[i].node_.posX,
-            y: this.nodeMoreBtns[i].node_.posY,
+            node: item.node_,
+            x: item.node_.posX,
+            y: item.node_.posY,
           };
         }
         return true;
-      }
-    }
+      }      
+    });
 
     if (msg === MouseType.DOWN && !this.dropAll_.locked) {
       this.dropAll_.locked = true;
@@ -1420,9 +1613,9 @@ class MainEditor {
     }
     switch (data.type_) {
       case DataType.NODE:
-        for (let i in data.value_) {
-          this.searchNodeByName(data.value_[i], name, out);
-        }
+        data.value_.forEach((item, index) => {  
+          this.searchNodeByName(item, name, out);  
+        });
         break;
       case  DataType.ATTR:
         this.searchNodeByName(data.value_, name, out);
@@ -1446,71 +1639,103 @@ class MainEditor {
     this.nodePoint_ = node;
     AttrEditor.gi().freshEditor();
   }
+
+  /**
+   * Ctrl+Z 快捷键处理
+   */   
+  procCtrlZ() {
+    let h;
+    if (this.historyZ.length <= 0) {
+      h = this.historyBase[this.filePoint_];
+    } else {
+      if (this.historyZ.length > 1 && this.historyPushed) {
+        this.historyZ.pop();
+        this.historyPushed = false;
+      }
+      h = this.historyZ.pop();
+    }
+
+    this.filePoint_ = h.fn;
+    this.rootPoint_ = h.fn;
+    Lexer.FILE_AND_DATA[this.filePoint_] = h.data;
+    this.parse(this.filePoint_);
+    if (h.sel) {
+      this.nodePoint_ = NodeTools.getNodeByPath(
+        this.files_[this.filePoint_],
+        h.sel
+      );
+    } else {
+      this.nodePoint_ = null;
+    }
+    AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
+  }
+
+  /**
+   * Ctrl+F 快捷键处理
+   */  
+  procCtrlF() {
+    let xOffset = 300;
+    let posWidth = 450;
+    let posHeight = 40;
+    this.searchInput = {
+      pos: [(Scr.logicw - xOffset) / CONSTANT_MIDDLE, Scr.logich / CONSTANT_QUARTER, posWidth, posHeight],
+      result: [],
+      point: 0,
+      btnUp: new XButton(0, 0, 0, 0, '上一个'),
+      btnDown: new XButton(0, 0, 0, 0, '下一个'),
+      btnClose: new XButton(0, 0, 0, 0, '关闭'),
+    };
+    let x = this.searchInput.pos[0];
+    let y = this.searchInput.pos[1];
+    let w = this.searchInput.pos[2];
+    let h = this.searchInput.pos[3];
+    let width = 258;
+    let height = 32;
+    let hOffset = 20;
+    CanvasInput.Reset(x, y + (h - hOffset) / CONSTANT_MIDDLE, width, height, '', null, (v) => {
+      this.searchInput.result = [];
+      if (v.length > 0) {
+        this.searchNodeByName(
+          this.files_[this.filePoint_],
+          v,
+          this.searchInput.result
+        );
+        if (this.searchInput.result.length > 0) {
+          this.locateNode(this.searchInput.result[0]);
+          this.searchInput.point = 0;
+        }
+      }
+    });
+    CanvasInput.SetSafeArea(...this.searchInput.pos);
+  }
+
+  /**
+   * Ctrl+V 快捷键处理
+   */
+  procCtrlV() {
+    if (this.selectNode_.type !== null && this.nodePoint_ !== null) {
+      let parent = this.nodePoint_;
+      if (this.nodePoint_.type_ !== DataType.NODE) {
+        parent = this.nodePoint_.parent_;
+      }
+      parent.value_.push(NodeTools.copyNode(this.selectNode_.pnode, parent));
+      if (this.selectNode_.type === 'cut_node') {
+        ModifyNode.deleteNode(this.selectNode_.pnode);
+        this.selectNode_.type = null;
+      }
+      this.checkAllError();
+    }
+  }
+
   procKey(k) {
     if (k === 'ctrl+z') {
       if (this.selectNode_.type !== null) {
         this.selectNode_.type = null;
       }
-
       console.log('!!! popHistory ', this.historyZ.length);
-      let h;
-      if (this.historyZ.length <= 0) {
-        h = this.historyBase[this.filePoint_];
-      } else {
-        if (this.historyZ.length > 1 && this.historyPushed) {
-          this.historyZ.pop();
-          this.historyPushed = false;
-        }
-        h = this.historyZ.pop();
-      }
-
-      this.filePoint_ = h.fn;
-      this.rootPoint_ = h.fn;
-      Lexer.FILE_AND_DATA[this.filePoint_] = h.data;
-      this.parse(this.filePoint_);
-      if (h.sel) {
-        this.nodePoint_ = NodeTools.getNodeByPath(
-          this.files_[this.filePoint_],
-          h.sel
-        );
-      } else {
-        this.nodePoint_ = null;
-      }
-      AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
+      this.procCtrlZ();  
     } else if (k === 'ctrl+f') {
-      let xOffset = 300;
-      let posWidth = 450;
-      let posHeight = 40;
-      this.searchInput = {
-        pos: [(Scr.logicw - xOffset) / CONSTANT_MIDDLE, Scr.logich / CONSTANT_QUARTER, posWidth, posHeight],
-        result: [],
-        point: 0,
-        btnUp: new XButton(0, 0, 0, 0, '上一个'),
-        btnDown: new XButton(0, 0, 0, 0, '下一个'),
-        btnClose: new XButton(0, 0, 0, 0, '关闭'),
-      };
-      let x = this.searchInput.pos[0];
-      let y = this.searchInput.pos[1];
-      let w = this.searchInput.pos[2];
-      let h = this.searchInput.pos[3];
-      let width = 258;
-      let height = 32;
-      let hOffset = 20;
-      CanvasInput.Reset(x, y + (h - hOffset) / CONSTANT_MIDDLE, width, height, '', null, (v) => {
-        this.searchInput.result = [];
-        if (v.length > 0) {
-          this.searchNodeByName(
-            this.files_[this.filePoint_],
-            v,
-            this.searchInput.result
-          );
-          if (this.searchInput.result.length > 0) {
-            this.locateNode(this.searchInput.result[0]);
-            this.searchInput.point = 0;
-          }
-        }
-      });
-      CanvasInput.SetSafeArea(...this.searchInput.pos);
+      this.procCtrlF();
     } else if (k === 'ctrl+c') {
       if (this.nodePoint_ !== null) {
         this.selectNode_ = {
@@ -1526,18 +1751,7 @@ class MainEditor {
         };
       }
     } else if (k === 'ctrl+v') {
-      if (this.selectNode_.type !== null && this.nodePoint_ !== null) {
-        let parent = this.nodePoint_;
-        if (this.nodePoint_.type_ !== DataType.NODE) {
-          parent = this.nodePoint_.parent_;
-        }
-        parent.value_.push(NodeTools.copyNode(this.selectNode_.pnode, parent));
-        if (this.selectNode_.type === 'cut_node') {
-          ModifyNode.deleteNode(this.selectNode_.pnode);
-          this.selectNode_.type = null;
-        }
-        this.checkAllError();
-      }
+      this.procCtrlV();
     } else if (k === 'Delete') {
       if (this.nodePoint_ !== null) {
         ModifyNode.deleteNode(this.nodePoint_);
@@ -1576,9 +1790,9 @@ class MainEditor {
       case 5:
         break;
       case 6:
-        for (let i in data.value_) {
-          ret += this.nodeCount(data.value_[i]);
-        }
+        data.value_.forEach((item, index) => {  
+          ret += this.nodeCount(item);  
+        });
         break;
       case 7:
         ret += this.nodeCount(data.value_);
@@ -1630,9 +1844,9 @@ class MainEditor {
     if (type === 'writefile') {
       let data1 = Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_]);
       let data2 = [];
-      for (let j in data1) {
-        data2.push(data1.charCodeAt(j));
-      }
+      data1.forEach((item, index) => {  
+        data2.push(data1.charCodeAt(index));  
+      });
       if (pme.isNodeCountChanged(pme.filePoint_)) {
         Lexer.FILE_AND_DATA[pme.filePoint_] = data2;
         pme.parse(pme.filePoint_);
@@ -1929,26 +2143,26 @@ class MainEditor {
 
   syncOpenStatus(newNode, oldParentNode) {
     let oldNode = null;
-    for (let i = 0; i < oldParentNode.value_.length; ++i) {
-      if (newNode.name_ === oldParentNode.value_[i].name_) {
-        oldNode = oldParentNode.value_[i];
-      }
-    }
+    oldParentNode.value_.forEach((item, index) => {  
+      if (newNode.name_ === item.name_) {
+        oldNode = item;
+      } 
+    });
     if (oldNode === null) {
       return;
     }
     newNode.isOpen_ = oldNode.isOpen_;
 
-    for (let j = 0; j < newNode.value_.length; ++j) {
-      this.syncOpenStatus(newNode.value_[j], oldNode);
-    }
+    newNode.value_.forEach((item, index) => {
+      this.syncOpenStatus(item, oldNode);
+    });
   }
 
   syncRootStatus(newRoot, oldRoot) {
     newRoot.isOpen_ = oldRoot.isOpen_;
-    for (let i = 0; i < newRoot.value_.length; ++i) {
-      this.syncOpenStatus(newRoot.value_[i], oldRoot);
-    }
+    newRoot.value_.forEach((item, index) => {
+      this.syncOpenStatus(item, oldRoot);
+    });
   }
 
   parse(fn) {
@@ -1961,16 +2175,17 @@ class MainEditor {
     }
 
     let fs = [];
-    for (let i in t) {
-      let newRoot = Generator.gi().astToObj(t[i].ast.astRoot_);
+    t.forEach((item, index) => {
+      let newRoot = Generator.gi().astToObj(item.ast.astRoot_);
 
-      if (this.files_[i]) {
-        this.syncRootStatus(newRoot, this.files_[i]);
+      if (this.files_[index]) {
+        this.syncRootStatus(newRoot, this.files_[index]);
       }
 
-      this.files_[i] = newRoot;
-      fs.push(i);
-    }
+      this.files_[index] = newRoot;
+      fs.push(index);  
+    });
+
     this.filePoint_ = this.rootPoint_;
     this.sltInclude.resetList(fs, this.filePoint_);
     AttrEditor.gi().setFiles(this.files_);
