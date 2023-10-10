@@ -11,7 +11,7 @@ import("//build/test.gni")
 hdf_framework_path = "../../../"
 hdf_adapter_path = "../../../../adapter"
 hdf_interfaces_path = "../../../../interfaces"
-module_output_path = "hdf_core/devmgrservicestub"
+module_output_path = "hdf_core/hdf_core"
 
 ohos_fuzztest("DevmgrServiceStubFuzzTest") {
   module_out_path = module_output_path
