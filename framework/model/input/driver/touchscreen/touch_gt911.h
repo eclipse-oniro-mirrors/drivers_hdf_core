@@ -49,6 +49,12 @@
 #if defined(CONFIG_ARCH_ROCKCHIP)
 #define FIRMWARE_LEN          241
 #define GTP_REG_CONFIG_DATA         0x8050
+#define GT_Y_OFFSET_A         200
+#define GT_Y_OFFSET_B         700
+#define GT_Y_OFFSET_C         1000
+#define CORRECTION_VALUE_A    30
+#define CORRECTION_VALUE_B    20
+#define CORRECTION_VALUE_C    5
 #else
 #define FIRMWARE_LEN          188
 #endif
