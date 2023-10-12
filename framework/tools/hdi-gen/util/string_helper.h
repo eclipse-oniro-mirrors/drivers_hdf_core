@@ -13,6 +13,11 @@
 #include <string>
 #include <vector>
 
+#define PACKAGE_NAME_LENGTH (result.size() - 3)
+#define INTERFACE_NAME_POSITION (result.size() - 3)
+#define VERSION_NAME_POSITION (result.size() - 2)
+#define TYPE_NAME_POSITION (result.size() - 1)
+
 namespace OHOS {
 namespace HDI {
 class StringHelper {
@@ -42,10 +47,26 @@ public:
 
     static std::string StrToUpper(const std::string &value);
 
-    static std::string Format(const char *format, ...);
+    static std::string Format(const char *format, ...);    
+    static std::string GetVersionName(std::string typeName);
+
+    static std::string GetMajorVersionName(std::string typeName);
+    
+    static std::string GetMinorVersionName(std::string typeName);
+
+    static std::string GetRealTypeName(std::string typeName);
+
+    static bool isCorrectVersion(std::string typeName, std::string importInfo);
+
 
     static constexpr size_t lineMaxSize = 1024; // 1KB
     static constexpr size_t maxSize = 262144;    // 256KB
+    static constexpr size_t TYPE_NAME_MIN_PART = 4;
+    static constexpr size_t RE_MAJOR_VERSION_INDEX = 1;
+    static constexpr size_t RE_MINOR_VERSION_INDEX = 2;
+
+    static const std::string TYPE_NAME_SEPARATOR;
+    static const std::string STRING_HELPER_NULL_STRING;
 };
 } // namespace HDI
 } // namespace OHOS

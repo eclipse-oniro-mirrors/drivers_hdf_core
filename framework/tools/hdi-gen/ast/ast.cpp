@@ -11,6 +11,7 @@
 #include <cstdlib>
 
 #include "util/string_builder.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
@@ -173,8 +174,15 @@ AutoPtr<ASTType> AST::FindType(const std::string &typeName, bool lookImports)
     }
 
     AutoPtr<ASTType> type = nullptr;
+    std::string typeNameVersion = StringHelper::GetVersionName(typeName);
     for (const auto &importPair : imports_) {
-        type = importPair.second->FindType(typeName, false);
+        if (typeNameVersion != StringHelper::STRING_HELPER_NULL_STRING) {
+            if (StringHelper::isCorrectVersion(typeName, importPair.first)) {
+                type = importPair.second->FindType(StringHelper::GetRealTypeName(typeName), false);
+            }
+        } else {
+            type = importPair.second->FindType(typeName, false);
+        }
         if (type != nullptr) {
             break;
         }

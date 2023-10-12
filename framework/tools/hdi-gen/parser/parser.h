@@ -127,7 +127,7 @@ private:
     // parse declaration of enum
     void ParseEnumDeclaration(const AttrSet &attrs = {});
 
-    AutoPtr<ASTType> ParseEnumBaseType();
+    AutoPtr<ASTType> ParseEnumBaseType(AutoPtr<ASTEnumType> enumType);
 
     void ParserEnumMember(const AutoPtr<ASTEnumType> &enumType);
 

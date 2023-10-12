@@ -69,6 +69,7 @@ public:
         return name_;
     }
 
+
     inline void SetAttribute(const AutoPtr<ASTAttr> &attr)
     {
         if (attr != nullptr) {
@@ -88,12 +89,17 @@ public:
 
     void SetBaseType(const AutoPtr<ASTType> &baseType);
 
-    inline AutoPtr<ASTType> GetBaseType()
-    {
-        return baseType_;
-    }
 
     void AddMember(const AutoPtr<ASTEnumValue> &member);
+
+    bool CheckMember(const AutoPtr<ASTEnumValue> &member);
+
+    void InitMembers(const std::vector<AutoPtr<ASTEnumValue>> members);
+
+    inline std::vector<AutoPtr<ASTEnumValue>> GetMembers()
+    {
+        return members_;
+    }
 
     inline size_t GetMemberNumber()
     {
@@ -152,6 +158,8 @@ public:
 
     void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
+
+    AutoPtr<ASTType> GetBaseType();
 
 private:
     AutoPtr<ASTAttr> attr_ = new ASTAttr();

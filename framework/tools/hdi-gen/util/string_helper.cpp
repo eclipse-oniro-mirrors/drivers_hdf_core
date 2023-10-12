@@ -9,11 +9,20 @@
 #include "util/string_helper.h"
 
 #include <cstdarg>
+#include <regex>
 
 #include "securec.h"
 
+#define RE_DEC_DIGIT "[0-9]+"
+
 namespace OHOS {
 namespace HDI {
+
+const std::string StringHelper::TYPE_NAME_SEPARATOR = ".";
+const std::string StringHelper::STRING_HELPER_NULL_STRING = "";
+
+const std::regex RE_VERSION("[V|v]" "(" RE_DEC_DIGIT ")_(" RE_DEC_DIGIT ")");
+
 std::vector<std::string> StringHelper::Split(std::string sources, const std::string &limit)
 {
     std::vector<std::string> result;
@@ -172,5 +181,52 @@ std::string StringHelper::Format(const char *format, ...)
     va_end(argsCopy);
     return std::string(buf, len);
 }
+
+std::string StringHelper::GetVersionName(std::string typeName)
+{
+    std::vector<std::string> result = Split(typeName, TYPE_NAME_SEPARATOR);
+    if (result.size() < TYPE_NAME_MIN_PART) {
+        return STRING_HELPER_NULL_STRING;
+    }
+
+    return result[VERSION_NAME_POSITION];
+}
+
+std::string StringHelper::GetMajorVersionName(std::string typeName)
+{
+    std::string result = GetVersionName(typeName);
+    std::cmatch ret;
+    if (!std::regex_match(result.c_str(), ret, RE_VERSION)) {
+        return STRING_HELPER_NULL_STRING;
+    }
+
+    return ret.str(RE_MAJOR_VERSION_INDEX);
+}
+
+std::string StringHelper::GetMinorVersionName(std::string typeName)
+{
+    std::string result = GetVersionName(typeName);
+    std::cmatch ret;
+    if (!std::regex_match(result.c_str(), ret, RE_VERSION)) {
+        return STRING_HELPER_NULL_STRING;
+    }
+
+    return ret.str(RE_MINOR_VERSION_INDEX);
+}
+std::string StringHelper::GetRealTypeName(std::string typeName)
+{
+    std::vector<std::string> result = Split(typeName, TYPE_NAME_SEPARATOR);
+    if (result.size() < TYPE_NAME_MIN_PART) {
+        return STRING_HELPER_NULL_STRING;
+    }
+
+    return result[TYPE_NAME_POSITION];
+}
+
+bool StringHelper::isCorrectVersion(std::string typeName, std::string importInfo)
+{
+    return GetVersionName(typeName) == GetVersionName(importInfo);
+}
+
 } // namespace HDI
 } // namespace OHOS

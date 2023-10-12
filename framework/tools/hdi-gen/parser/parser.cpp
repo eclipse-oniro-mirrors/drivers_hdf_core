@@ -748,6 +748,7 @@ AutoPtr<ASTType> Parser::ParseType()
 {
     AutoPtr<ASTType> type = nullptr;
     Token token = lexer_.PeekToken();
+    
     switch (token.kind) {
         case TokenType::BOOLEAN:
         case TokenType::BYTE:
@@ -1002,7 +1003,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind == TokenType::COLON || token.kind == TokenType::BRACES_LEFT) {
-        enumType->SetBaseType(ParseEnumBaseType());
+        enumType->SetBaseType(ParseEnumBaseType(enumType));
     } else {
         LogError(token, StringHelper::Format("expected ':' or '{' before '%s' token", token.value.c_str()));
     }
@@ -1027,7 +1028,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
     ast_->AddTypeDefinition(enumType.Get());
 }
 
-AutoPtr<ASTType> Parser::ParseEnumBaseType()
+AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
 {
     AutoPtr<ASTType> baseType = nullptr;
     Token token = lexer_.PeekToken();
@@ -1040,7 +1041,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
     lexer_.GetToken();
     token = lexer_.PeekToken();
     baseType = ParseType();
-    if (baseType != nullptr) {
+    if (baseType != nullptr) {  
         switch (baseType->GetTypeKind()) {
             case TypeKind::TYPE_BYTE:
             case TypeKind::TYPE_SHORT:
@@ -1051,6 +1052,20 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
             case TypeKind::TYPE_UINT:
             case TypeKind::TYPE_ULONG:
                 break;
+            case TypeKind::TYPE_ENUM:
+                 //Parse enumeration extended sentence pattern  
+               if (ast_->GetMajorVer() == std::stoul(StringHelper::GetMajorVersionName(token.value)) && \
+                ast_->GetMinorVer() > std::stoul(StringHelper::GetMinorVersionName(token.value))){
+                 AutoPtr<ASTType> parentEnumType = ast_->FindType(token.value);
+                 AutoPtr<ASTEnumType> parentEnumType_ = dynamic_cast<ASTEnumType *>(parentEnumType.Get());
+                 std::vector<AutoPtr<ASTEnumValue>> parentMembers_ = parentEnumType_->GetMembers();
+                 baseType=parentEnumType_->GetBaseType();
+                 enumType->InitMembers(parentMembers_);
+               } else{
+                LogError( StringHelper::Format("E:inhernumVersionErrorit enumVersion is %s,please check your current enumVersion.",StringHelper::GetVersionName(token.value).c_str()));
+               }
+            
+                break;
             default: {
                 LogError(token, StringHelper::Format("illegal base type of enum", baseType->ToString().c_str()));
                 lexer_.SkipUntilToken(TokenType::BRACES_LEFT);
@@ -1059,6 +1074,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
     }
 
     token = lexer_.PeekToken();
+        
     if (token.kind != TokenType::BRACES_LEFT) {
         LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value.c_str()));
     }
@@ -1079,7 +1095,11 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         }
 
         enumValue->SetType(enumType->GetBaseType());
-        enumType->AddMember(enumValue);
+        if(!enumType->CheckMember(enumValue)){
+            LogError(StringHelper::Format("AddMemberException:member '%s' already exists !", enumValue->GetName().c_str()));
+        }else{
+            enumType->AddMember(enumValue);
+        }
 
         token = lexer_.PeekToken();
         if (token.kind == TokenType::COMMA) {
@@ -1324,6 +1344,7 @@ AutoPtr<ASTExpr> Parser::ParseAndExpr()
     AutoPtr<ASTExpr> left = ParseXorExpr();
     Token token = lexer_.PeekToken();
     while (token.kind == TokenType::AND) {
+        
         lexer_.GetToken();
         AutoPtr<ASTBinaryExpr> expr = new ASTBinaryExpr;
         expr->op_ = BinaryOpKind::AND;
