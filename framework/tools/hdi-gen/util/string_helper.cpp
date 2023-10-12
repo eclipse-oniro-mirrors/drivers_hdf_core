@@ -213,6 +213,7 @@ std::string StringHelper::GetMinorVersionName(std::string typeName)
 
     return ret.str(RE_MINOR_VERSION_INDEX);
 }
+
 std::string StringHelper::GetRealTypeName(std::string typeName)
 {
     std::vector<std::string> result = Split(typeName, TYPE_NAME_SEPARATOR);

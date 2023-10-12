@@ -47,7 +47,8 @@ public:
 
     static std::string StrToUpper(const std::string &value);
 
-    static std::string Format(const char *format, ...);    
+    static std::string Format(const char *format, ...);
+	   
     static std::string GetVersionName(std::string typeName);
 
     static std::string GetMajorVersionName(std::string typeName);
@@ -57,7 +58,6 @@ public:
     static std::string GetRealTypeName(std::string typeName);
 
     static bool isCorrectVersion(std::string typeName, std::string importInfo);
-
 
     static constexpr size_t lineMaxSize = 1024; // 1KB
     static constexpr size_t maxSize = 262144;    // 256KB

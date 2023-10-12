@@ -24,26 +24,26 @@ void ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
     members_.push_back(member);
 }
 
-void ASTEnumType::InitMembers(const std::vector<AutoPtr<ASTEnumValue>> members)
+void ASTEnumType::InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members)
 {
-    for (auto member : members){
+    for (auto member : members) {
         members_.push_back(member);
     }
 }
+
 bool ASTEnumType::CheckMember(const AutoPtr<ASTEnumValue> &member)
 {
-        for (auto members : members_){
-                if (member->GetName() == members->GetName()){
+    for (auto members : members_) {
+        if (member->GetName() == members->GetName()) {
                     return false;
-                }
-            }
-      
+        }
+    }
         return true;
 }
 
-AutoPtr<ASTType> ASTEnumType::GetBaseType() 
+AutoPtr<ASTType> ASTEnumType::GetBaseType()
 {
-   return baseType_;
+    return baseType_;
 }
 
 bool ASTEnumType::IsEnumType()
@@ -81,7 +81,6 @@ TypeKind ASTEnumType::GetTypeKind()
 {
     return TypeKind::TYPE_ENUM;
 }
-
 
 std::string ASTEnumType::EmitCType(TypeMode mode) const
 {

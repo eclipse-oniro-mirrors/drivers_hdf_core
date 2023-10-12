@@ -748,7 +748,6 @@ AutoPtr<ASTType> Parser::ParseType()
 {
     AutoPtr<ASTType> type = nullptr;
     Token token = lexer_.PeekToken();
-    
     switch (token.kind) {
         case TokenType::BOOLEAN:
         case TokenType::BYTE:
@@ -1041,7 +1040,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
     lexer_.GetToken();
     token = lexer_.PeekToken();
     baseType = ParseType();
-    if (baseType != nullptr) {  
+    if (baseType != nullptr) {
         switch (baseType->GetTypeKind()) {
             case TypeKind::TYPE_BYTE:
             case TypeKind::TYPE_SHORT:
@@ -1053,18 +1052,18 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
             case TypeKind::TYPE_ULONG:
                 break;
             case TypeKind::TYPE_ENUM:
-                 //Parse enumeration extended sentence pattern  
-               if (ast_->GetMajorVer() == std::stoul(StringHelper::GetMajorVersionName(token.value)) && \
-                ast_->GetMinorVer() > std::stoul(StringHelper::GetMinorVersionName(token.value))){
-                 AutoPtr<ASTType> parentEnumType = ast_->FindType(token.value);
-                 AutoPtr<ASTEnumType> parentEnumType_ = dynamic_cast<ASTEnumType *>(parentEnumType.Get());
-                 std::vector<AutoPtr<ASTEnumValue>> parentMembers_ = parentEnumType_->GetMembers();
-                 baseType=parentEnumType_->GetBaseType();
-                 enumType->InitMembers(parentMembers_);
-               } else{
-                LogError( StringHelper::Format("E:inhernumVersionErrorit enumVersion is %s,please check your current enumVersion.",StringHelper::GetVersionName(token.value).c_str()));
-               }
-            
+                if (ast_->GetMajorVer() == std::stoul(StringHelper::GetMajorVersionName(token.value)) &&
+                    ast_->GetMinorVer() > std::stoul(StringHelper::GetMinorVersionName(token.value))) {
+                    AutoPtr<ASTType> parentEnumType = ast_->FindType(token.value);
+                    AutoPtr<ASTEnumType> parentEnumType_ = dynamic_cast<ASTEnumType *>(parentEnumType.Get());
+                    std::vector<AutoPtr<ASTEnumValue>> parentMembers_ = parentEnumType_->GetMembers();
+                    baseType=parentEnumType_->GetBaseType();
+                    enumType->InitMembers(parentMembers_);
+                } else {
+                    LogError(StringHelper::Format("inhernumVersionErrorit enumVersion is %s",
+                        ",please check your current enumVersion.",
+				        StringHelper::GetVersionName(token.value).c_str()));
+                }
                 break;
             default: {
                 LogError(token, StringHelper::Format("illegal base type of enum", baseType->ToString().c_str()));
@@ -1074,7 +1073,6 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
     }
 
     token = lexer_.PeekToken();
-        
     if (token.kind != TokenType::BRACES_LEFT) {
         LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value.c_str()));
     }
@@ -1095,9 +1093,10 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         }
 
         enumValue->SetType(enumType->GetBaseType());
-        if(!enumType->CheckMember(enumValue)){
-            LogError(StringHelper::Format("AddMemberException:member '%s' already exists !", enumValue->GetName().c_str()));
-        }else{
+        if (!enumType->CheckMember(enumValue)) {
+            LogError(StringHelper::Format("AddMemberException:member '%s' already exists !",
+            enumValue->GetName().c_str()));
+        } else {
             enumType->AddMember(enumValue);
         }
 
@@ -1344,7 +1343,6 @@ AutoPtr<ASTExpr> Parser::ParseAndExpr()
     AutoPtr<ASTExpr> left = ParseXorExpr();
     Token token = lexer_.PeekToken();
     while (token.kind == TokenType::AND) {
-        
         lexer_.GetToken();
         AutoPtr<ASTBinaryExpr> expr = new ASTBinaryExpr;
         expr->op_ = BinaryOpKind::AND;
