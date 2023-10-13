@@ -10,18 +10,13 @@
 
 #include <cstdarg>
 #include <regex>
-
 #include "securec.h"
-
-#define RE_DEC_DIGIT "[0-9]+"
 
 namespace OHOS {
 namespace HDI {
-
 const std::string StringHelper::TYPE_NAME_SEPARATOR = ".";
 const std::string StringHelper::STRING_HELPER_NULL_STRING = "";
-
-const std::regex RE_VERSION("[V|v]" "(" RE_DEC_DIGIT ")_(" RE_DEC_DIGIT ")");
+const std::regex RE_VERSION("[V|v]" "(" "[0-9]+" ")_(" "[0-9]+" ")");
 
 std::vector<std::string> StringHelper::Split(std::string sources, const std::string &limit)
 {
