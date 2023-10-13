@@ -1060,7 +1060,9 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
                     baseType=parentEnumType_->GetBaseType();
                     enumType->InitMembers(parentMembers_);
                 } else {
-                    LogError(StringHelper::Format("EnumVersionException,please check your current enumVersion.");
+                    LogError(StringHelper::Format("inhernumVersionErrorit enumVersion is %s,",
+                    "please check your current enumVersion.",
+                    StringHelper::GetVersionName(token.value).c_str()));
                 }
                 break;
             default: {
