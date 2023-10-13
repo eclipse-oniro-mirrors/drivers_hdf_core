@@ -188,6 +188,15 @@ public:
         return idlFilePath_;
     }
 
+    inline bool IsSequenceableType(std::string typeName)
+    {
+        size_t index = typeName.rfind('.');
+        if (index == std::string::npos || (typeName[index - 1] >= '0' && typeName[index - 1] <= '9')) {
+            return false;
+        }
+        return true;
+    }
+
 private:
     ASTFileType astFileType_ = ASTFileType::AST_IFACE;
     std::string name_;
