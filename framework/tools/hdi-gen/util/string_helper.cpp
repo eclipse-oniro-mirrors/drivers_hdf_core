@@ -223,6 +223,5 @@ bool StringHelper::isCorrectVersion(std::string typeName, std::string importInfo
 {
     return GetVersionName(typeName) == GetVersionName(importInfo);
 }
-
 } // namespace HDI
 } // namespace OHOS
