@@ -7,7 +7,7 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-module_output_path = "hdf/platform"
+module_output_path = "hdf_core/hdf_core"
 
 include_dirs = [
   "//drivers/hdf_core/framework/include/platform",

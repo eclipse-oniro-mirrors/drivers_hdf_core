@@ -11,7 +11,7 @@ import("//build/test.gni")
 hdf_framework_path = "../../../"
 hdf_adapter_path = "../../../../adapter"
 hdf_interfaces_path = "../../../../interfaces"
-module_output_path = "hdf_core/devsvcmanagerstub"
+module_output_path = "hdf_core/hdf_core"
 
 ohos_fuzztest("DevSvcManagerStubFuzzTest") {
   module_out_path = module_output_path
