@@ -146,7 +146,7 @@ class MainEditor {
       132,
       32
     );
-    this.cutImgDict_['whiteCut'] = 'rectangle.png';
+    this.cutImgDict_.whiteCut = 'rectangle.png';
 
     this.cicleImg_ = XTexture.gi().loadTextureFromImage('../images/circle.png');
     this.circleCut_ = XTexture.gi().makeCut(
@@ -158,7 +158,7 @@ class MainEditor {
       20,
       20
     );
-    this.cutImgDict_['circleCut'] = 'circle.png';
+    this.cutImgDict_.circleCut = 'circle.png';
 
     this.cicleOpenImg_ = XTexture.gi().loadTextureFromImage(
       '../images/circle_open.png'
@@ -172,7 +172,7 @@ class MainEditor {
       20,
       20
     );
-    this.cutImgDict_['circleOpenCut'] = 'circle_open.png';
+    this.cutImgDict_.circleOpenCut = 'circle_open.png';
 
     this.rectangleFocusImg_ = XTexture.gi().loadTextureFromImage(
       '../images/rectangle_focus.png'
@@ -742,8 +742,8 @@ class MainEditor {
       data.value_.forEach((item, index) => {
         if (item.parent_.type_ === DataType.NODE && item.parent_.isOpen_) {
           this.drawObj(pm2f, item, drawNodeX_, offy, path + '.');
-          this.drawBrokenLine(pm2f, data, offy, i);
-        } else if (data.value_[i].parent_.type_ === DataType.ATTR) {
+          this.drawBrokenLine(pm2f, data, offy, index);
+        } else if (item.parent_.type_ === DataType.ATTR) {
           this.drawObj(pm2f, item, drawNodeX_, offy, path + '.');
           pm2f.drawLine(data.posX + w, offy + data.posY + 10,
             item.posX, offy + item.posY + 10, MainEditor.NODE_TEXT_COLOR, 1);
@@ -889,7 +889,7 @@ class MainEditor {
   drawBoolObj(pm2f, data, drawTextX_, drawTextY_) {
     let w;
     if (data.value_) {
-     w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
+      w = pm2f.drawText('true', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
         1, 1, 0, 1, 1, MainEditor.NODE_TEXT_COLOR);
     } else {
       w = pm2f.drawText('false', MainEditor.NODE_TEXT_SIZE, drawTextX_ - (MainEditor.NODE_RECT_WIDTH - data.parent_.parent_.nodeWidth_), drawTextY_,
@@ -917,7 +917,7 @@ class MainEditor {
     }
   }
 
-    /**
+  /**
    * 获取绘制框宽度
    * @param {} pm2f X2DFast
    * @param {} node 节点数据对象
@@ -999,7 +999,7 @@ class MainEditor {
   setNodeButton(pm2f, x, y, w, h, path, node) {
     let rectWidth = MainEditor.NODE_RECT_WIDTH;
     if (node.parent_ === undefined) {
-      if (this.nodePoint_ == node) {
+      if (this.nodePoint_ === node) {
         pm2f.drawCut(this.rootIconFocusCut_, x, y);
       } else {
         pm2f.drawCut(this.rootIconCut_, x, y);
@@ -1121,17 +1121,17 @@ class MainEditor {
       let yOffset = 4;
       let textSize = 10;
       pm2f.drawCut(this.circleCut_, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX,
-      y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
+        y + (MainEditor.NODE_RECT_HEIGHT - MainEditor.NODE_MORE_CHILD) / CONSTANT_MIDDLE);
       let textWidth = pm2f.getTextWidth(node.value_.length, 10);
-      pm2f.drawText(node.value_.length, textSize, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX + 
-      MainEditor.NODE_MORE_CHILD / CONSTANT_MIDDLE - textWidth / CONSTANT_MIDDLE,
-      y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - yOffset, sw, sh, ra, ox, oy, c);
+      pm2f.drawText(node.value_.length, textSize, x + node.nodeWidth_ + MainEditor.NODE_SIZE_BG_OFFX +
+        MainEditor.NODE_MORE_CHILD / CONSTANT_MIDDLE - textWidth / CONSTANT_MIDDLE,
+        y + MainEditor.NODE_RECT_HEIGHT / CONSTANT_MIDDLE - yOffset, sw, sh, ra, ox, oy, c);
     }
     pbtn.node_ = node;
     this.nodeMoreBtnPoint_ += 1;
   }
 
-    /**
+  /**
    * 移动绘制
    * @param {} xOffset x偏移值
    */
@@ -1143,7 +1143,7 @@ class MainEditor {
     this.sltInclude.move(x, y, w, h).draw();
   }
 
-   /**
+  /**
    * 绘制Rect
    * @param {} pm2f X2DFast
    * @param {*} xx 起始x坐标
@@ -1332,16 +1332,16 @@ class MainEditor {
     let start = 74;
 
     x += pm2f.drawText(
-    searchResultTxt,
-    MainEditor.NODE_TEXT_SIZE,
-    x,
-    y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
-    sw,
-    sh,
-    ra,
-    offsetX,
-    offsetY,
-    color
+      searchResultTxt,
+      MainEditor.NODE_TEXT_SIZE,
+      x,
+      y + yOffsetBase / CONSTANT_MIDDLE + yOffset,
+      sw,
+      sh,
+      ra,
+      offsetX,
+      offsetY,
+      color
     );
     x += start - pm2f.getTextWidth(searchResultTxt, MainEditor.NODE_TEXT_SIZE);
     pm2f.drawCut(this.upCut_, x, y + yOffsetBase / CONSTANT_MIDDLE - yRightSpace);
@@ -1396,7 +1396,7 @@ class MainEditor {
           a = MAX_RANDOM;
         }
         NapiLog.logError(a);
-        this.drawErrorText(pm2f,a, y); 
+        this.drawErrorText(pm2f, a, y); 
       }); 
     }
 
@@ -1519,9 +1519,9 @@ class MainEditor {
       }
     }
 
-    this.nodeBtnPoint_.forEach((item, index) => {  
-      if (item.procTouch(msg, x, y)) {
-        let nodeBtns = item;
+    for (let i = 0; i < this.nodeBtns.length; i++) {
+      if (this.nodeBtns[i].procTouch(msg, x, y)) {
+        let nodeBtns = this.nodeBtns[i];
         if (nodeBtns.isClicked()) {
           this.buttonClickedProc(nodeBtns);
         } else if (nodeBtns.isRightClicked()) {
@@ -1564,15 +1564,14 @@ class MainEditor {
 
         return true;
       }   
-    });
+  }
 
-    this.nodeMoreBtnPoint_.forEach((item, index) => {
+    this.nodeMoreBtns.forEach((item, index) => {
       if (item.procTouch(msg, x, y)) {
         let nodeMoreBtn = item;
         if (nodeMoreBtn.isClicked()) {
           this.buttonClickedProc(nodeMoreBtn);
-          this.nodeMoreBtns[i].node_.isOpen_ =
-            !this.nodeMoreBtns[i].node_.isOpen_;
+          item.node_.isOpen_ = !item.node_.isOpen_;
           this.modifyPos_ = {
             node: item.node_,
             x: item.node_.posX,
@@ -1617,7 +1616,7 @@ class MainEditor {
           this.searchNodeByName(item, name, out);  
         });
         break;
-      case  DataType.ATTR:
+      case DataType.ATTR:
         this.searchNodeByName(data.value_, name, out);
         break;
     }
@@ -1813,7 +1812,7 @@ class MainEditor {
       this.nodeCount_[fn] = -1;
     }
     let newcount = this.nodeCount(this.files_[fn]);
-    if (this.nodeCount_[fn] != newcount) {
+    if (this.nodeCount_[fn] !== newcount) {
       if (bset) {
         this.nodeCount_[fn] = newcount;
       }
@@ -1844,7 +1843,8 @@ class MainEditor {
     if (type === 'writefile') {
       let data1 = Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_]);
       let data2 = [];
-      data1.forEach((item, index) => {  
+      let dataCharArr = Array.from(data1);
+      dataCharArr.forEach((item, index) => {
         data2.push(data1.charCodeAt(index));  
       });
       if (pme.isNodeCountChanged(pme.filePoint_)) {
@@ -2153,9 +2153,11 @@ class MainEditor {
     }
     newNode.isOpen_ = oldNode.isOpen_;
 
-    newNode.value_.forEach((item, index) => {
-      this.syncOpenStatus(item, oldNode);
-    });
+    if (newNode.type_ === DataType.NODE) {
+      newNode.value_.forEach((j, index) => {
+        this.syncOpenStatus(j, oldNode);
+      });
+    }
   }
 
   syncRootStatus(newRoot, oldRoot) {
@@ -2175,8 +2177,8 @@ class MainEditor {
     }
 
     let fs = [];
-    t.forEach((item, index) => {
-      let newRoot = Generator.gi().astToObj(item.ast.astRoot_);
+    Object.keys(t).forEach((index) => {
+      let newRoot = Generator.gi().astToObj(t[index].ast.astRoot_);
 
       if (this.files_[index]) {
         this.syncRootStatus(newRoot, this.files_[index]);
