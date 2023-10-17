@@ -159,8 +159,7 @@ AutoPtr<ASTType> AST::FindType(const std::string &typeName, bool lookImports)
 
     for (const auto &type : types_) {
         if ((typeName.find('.') == std::string::npos && type.second->GetName() == typeName) ||
-            type.first == typeName ||
-            (IsSequenceableType(type.first) && type.second->GetName() == typeName.substr(typeName.rfind('.') + 1))) {
+            type.first == typeName) {
             return type.second;
         }
     }

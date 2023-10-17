@@ -82,11 +82,11 @@ std::string ASTEnumType::EmitCppType(TypeMode mode) const
         case TypeMode::NO_MODE:
             return StringHelper::Format("%s", name_.c_str());
         case TypeMode::PARAM_IN:
-            return StringHelper::Format("%s", name_.c_str());
+            return StringHelper::Format("%s", GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::PARAM_OUT:
-            return StringHelper::Format("%s&", name_.c_str());
+            return StringHelper::Format("%s&", GetNameWithNamespace(namespace_, name_).c_str());
         case TypeMode::LOCAL_VAR:
-            return StringHelper::Format("%s", name_.c_str());
+            return StringHelper::Format("%s", GetNameWithNamespace(namespace_, name_).c_str());
         default:
             return "unknow type";
     }
