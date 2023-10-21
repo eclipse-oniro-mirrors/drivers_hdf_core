@@ -265,9 +265,18 @@ static void SetAbility(ChipDevice *device)
     device->driver->inputDev->abilitySet.devProp[0] = SET_BIT(INPUT_PROP_DIRECT);
     device->driver->inputDev->abilitySet.eventType[0] = SET_BIT(EV_SYN) |
         SET_BIT(EV_KEY) | SET_BIT(EV_ABS);
-    device->driver->inputDev->abilitySet.absCode[0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y);
-    device->driver->inputDev->abilitySet.absCode[1] = SET_BIT(ABS_MT_POSITION_X) |
-        SET_BIT(ABS_MT_POSITION_Y) | SET_BIT(ABS_MT_TRACKING_ID);
+    if (sizeof(unsigned long) > 4) {
+        unsigned long highBit = SET_BIT(ABS_MT_POSITION_X) | SET_BIT(ABS_MT_POSITION_Y) |
+            SET_BIT(ABS_MT_TRACKING_ID);
+        if (BITS_PER_LONG == 32) {
+            highBit <<= 32;
+        }
+        device->driver->inputDev->abilitySet.absCode[0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y) | highBit;
+    } else {
+        device->driver->inputDev->abilitySet.absCode[0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y);
+        device->driver->inputDev->abilitySet.absCode[1] = SET_BIT(ABS_MT_POSITION_X) |
+            SET_BIT(ABS_MT_POSITION_Y) | SET_BIT(ABS_MT_TRACKING_ID);
+    }
     device->driver->inputDev->abilitySet.keyCode[KEY_CODE_4TH] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
     device->driver->inputDev->attrSet.axisInfo[ABS_X].min = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_X].max = device->boardCfg->attr.resolutionX - 1;
