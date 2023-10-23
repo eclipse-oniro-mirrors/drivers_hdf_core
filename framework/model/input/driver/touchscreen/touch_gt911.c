@@ -20,6 +20,9 @@
 #define GT911_FIRMWARE_VERSION     4192
 #endif
 
+#define FOUR_BYTES 4
+#define FOUR_BYTES_BIT 32
+
 static int32_t ChipInit(ChipDevice *device)
 {
     return HDF_SUCCESS;
@@ -265,11 +268,11 @@ static void SetAbility(ChipDevice *device)
     device->driver->inputDev->abilitySet.devProp[0] = SET_BIT(INPUT_PROP_DIRECT);
     device->driver->inputDev->abilitySet.eventType[0] = SET_BIT(EV_SYN) |
         SET_BIT(EV_KEY) | SET_BIT(EV_ABS);
-    if (sizeof(unsigned long) > 4) {
+    if (sizeof(unsigned long) > FOUR_BYTES) {
         unsigned long highBit = SET_BIT(ABS_MT_POSITION_X) | SET_BIT(ABS_MT_POSITION_Y) |
             SET_BIT(ABS_MT_TRACKING_ID);
-        if (BITS_PER_LONG == 32) {
-            highBit <<= 32;
+        if (BITS_PER_LONG == FOUR_BYTES_BIT) {
+            highBit <<= FOUR_BYTES_BIT;
         }
         device->driver->inputDev->abilitySet.absCode[0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y) | highBit;
     } else {
