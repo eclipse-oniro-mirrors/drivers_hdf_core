@@ -36,6 +36,7 @@ if (is_standard_system) {
     public_configs = [ ":libhdf_platform_pub_config" ]
     sources = [
       "$HDF_FRAMEWORKS/support/platform/src/adc/adc_if_u.c",
+      "$HDF_FRAMEWORKS/support/platform/src/clock/clock_if_u.c",
       "$HDF_FRAMEWORKS/support/platform/src/fwk/platform_listener_u.c",
       "$HDF_FRAMEWORKS/support/platform/src/gpio/gpio_if_u.c",
       "$HDF_FRAMEWORKS/support/platform/src/i2c/i2c_if_u.c",

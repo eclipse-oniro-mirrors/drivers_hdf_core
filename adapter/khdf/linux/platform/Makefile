@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd.
 #
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
@@ -23,4 +23,5 @@ obj-$(CONFIG_DRIVERS_HDF_PLATFORM_UART)      += uart/
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_SPI)       += spi/
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_RTC)       += rtc/
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_ADC)       += adc/
+obj-$(CONFIG_DRIVERS_HDF_PLATFORM_CLOCK)     += clock/
 obj-$(CONFIG_DRIVERS_HDF_PLATFORM_REGULATOR) += regulator/

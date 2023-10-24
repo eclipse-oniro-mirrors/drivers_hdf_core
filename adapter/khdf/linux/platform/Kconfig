@@ -114,6 +114,13 @@ config DRIVERS_HDF_PLATFORM_ADC
     help
       Answer Y to enable HDF platform adc driver.
 
+config DRIVERS_HDF_PLATFORM_CLOCK
+    bool "Enable HDF platform clock driver"
+    default n
+    depends on DRIVERS_HDF_PLATFORM
+    help
+      Answer Y to enable HDF platform clock driver.
+
 config DRIVERS_HDF_PLATFORM_TRACE
     bool "Enable HDF platform trace driver"
     default n
