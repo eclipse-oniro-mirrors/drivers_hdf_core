@@ -241,7 +241,6 @@ private:
 
     void ModifyInterfaceNamespace(AutoPtr<ASTNamespace> &ns);
 
-
     Lexer lexer_;
     std::vector<std::string> errors_;
     AutoPtr<AST> ast_;

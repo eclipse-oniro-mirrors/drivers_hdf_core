@@ -13,7 +13,6 @@
 
 namespace OHOS {
 namespace HDI {
-
 std::vector<std::string> StringHelper::Split(std::string sources, const std::string &limit)
 {
     std::vector<std::string> result;
@@ -167,7 +166,6 @@ std::string StringHelper::Format(const char *format, ...)
         va_end(argsCopy);
         return "";
     }
-
     va_end(args);
     va_end(argsCopy);
     return std::string(buf, len);
