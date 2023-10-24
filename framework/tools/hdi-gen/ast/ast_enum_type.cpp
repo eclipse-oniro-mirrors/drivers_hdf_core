@@ -26,7 +26,7 @@ void ASTEnumType::SetBaseType(const AutoPtr<ASTType> &baseType)
         baseType_ = parentEnumType_->GetBaseType();
     } else {
         baseType_ = baseType;
-    }  
+    }
 }
 
 bool ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
@@ -37,7 +37,7 @@ bool ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
         }
     }
     members_.push_back(member);
-    return true;    
+    return true;
 }
 
 void ASTEnumType::InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members)

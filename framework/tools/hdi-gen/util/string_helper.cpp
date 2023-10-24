@@ -170,6 +170,5 @@ std::string StringHelper::Format(const char *format, ...)
     va_end(argsCopy);
     return std::string(buf, len);
 }
-
 } // namespace HDI
 } // namespace OHOS
