@@ -238,6 +238,11 @@ void Parser::ParseImportInfo()
         return;
     }
 
+    if (!CheckImportsVersion(importAst)) {
+        LogError(token, StringHelper::Format("extends import version must less than current import version"));
+        return;
+    }
+
     if (!ast_->AddImport(importAst)) {
         LogError(token, StringHelper::Format("multiple import of '%s'", importName.c_str()));
         return;
@@ -1050,20 +1055,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
             case TypeKind::TYPE_USHORT:
             case TypeKind::TYPE_UINT:
             case TypeKind::TYPE_ULONG:
-                break;
             case TypeKind::TYPE_ENUM:
-                if (ast_->GetMajorVer() == std::stoul(StringHelper::GetMajorVersionName(token.value)) &&
-                    ast_->GetMinorVer() > std::stoul(StringHelper::GetMinorVersionName(token.value))) {
-                    AutoPtr<ASTType> parentEnumType = ast_->FindType(token.value);
-                    AutoPtr<ASTEnumType> parentEnumType_ = dynamic_cast<ASTEnumType *>(parentEnumType.Get());
-                    std::vector<AutoPtr<ASTEnumValue>> parentMembers_ = parentEnumType_->GetMembers();
-                    baseType=parentEnumType_->GetBaseType();
-                    enumType->InitMembers(parentMembers_);
-                } else {
-                    LogError(StringHelper::Format("inhernumVersionErrorit enumVersion is %s,",
-                    "please check your current enumVersion.",
-                    StringHelper::GetVersionName(token.value).c_str()));
-                }
                 break;
             default: {
                 LogError(token, StringHelper::Format("illegal base type of enum", baseType->ToString().c_str()));
@@ -1093,13 +1085,10 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         }
 
         enumValue->SetType(enumType->GetBaseType());
-        if (!enumType->CheckMember(enumValue)) {
+        if (!enumType->AddMember(enumValue)) {
             LogError(StringHelper::Format("AddMemberException:member '%s' already exists !",
             enumValue->GetName().c_str()));
-        } else {
-            enumType->AddMember(enumValue);
         }
-
         token = lexer_.PeekToken();
         if (token.kind == TokenType::COMMA) {
             lexer_.GetToken();
@@ -1807,6 +1796,14 @@ bool Parser::CheckExtendsVersion(
     AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsName, AutoPtr<AST> extendsAst)
 {
     if (extendsAst->GetMajorVer() != ast_->GetMajorVer() || extendsAst->GetMinorVer() >= ast_->GetMinorVer()) {
+        return false;
+    }
+    return true;
+}
+
+bool Parser::CheckImportsVersion(AutoPtr<AST> extendsAst)
+{
+    if (extendsAst->GetMajorVer() != ast_->GetMajorVer() || extendsAst->GetMinorVer() > ast_->GetMinorVer()) {
         return false;
     }
     return true;

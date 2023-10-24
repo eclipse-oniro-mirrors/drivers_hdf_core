@@ -16,12 +16,29 @@ void ASTEnumType::SetBaseType(const AutoPtr<ASTType> &baseType)
     if (baseType == nullptr) {
         return;
     }
-    baseType_ = baseType;
+    if(baseType->GetTypeKind() == TypeKind::TYPE_ENUM){
+        AutoPtr<ASTEnumType> parentEnumType_ = dynamic_cast<ASTEnumType *>(baseType.Get());
+        std::vector<AutoPtr<ASTEnumValue>> parentMembers_ = parentEnumType_->GetMembers();
+        for (auto member : parentMembers_) {
+            members_.push_back(member);
+        }
+        parentType_= baseType;
+        baseType_ = parentEnumType_->GetBaseType();
+    }else{
+        baseType_ = baseType;
+    }  
 }
 
-void ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
+bool ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
 {
+    for (auto members : members_) {
+        if (member->GetName() == members->GetName()) {
+                    return false;
+        }
+    }
     members_.push_back(member);
+    return true;
+    
 }
 
 void ASTEnumType::InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members)
@@ -29,16 +46,6 @@ void ASTEnumType::InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members)
     for (auto member : members) {
         members_.push_back(member);
     }
-}
-
-bool ASTEnumType::CheckMember(const AutoPtr<ASTEnumValue> &member)
-{
-    for (auto members : members_) {
-        if (member->GetName() == members->GetName()) {
-                    return false;
-        }
-    }
-        return true;
 }
 
 AutoPtr<ASTType> ASTEnumType::GetBaseType()
@@ -56,7 +63,12 @@ std::string ASTEnumType::Dump(const std::string &prefix)
     StringBuilder sb;
     sb.Append(prefix).Append(attr_->Dump(prefix)).Append(" ");
     if (baseType_ != nullptr) {
-        sb.AppendFormat("enum %s : %s {\n", name_.c_str(), baseType_->ToString().c_str());
+        if (parentType_!= nullptr) {
+            sb.AppendFormat("enum %s : %s ", name_.c_str(), parentType_->ToString().c_str());
+            sb.AppendFormat(" : %s {\n",  baseType_->ToString().c_str());
+        } else{
+            sb.AppendFormat("enum %s : %s {\n", name_.c_str(), baseType_->ToString().c_str());
+        }         
     } else {
         sb.AppendFormat("enum %s {\n", name_.c_str());
     }

@@ -90,10 +90,8 @@ public:
 	
     AutoPtr<ASTType> GetBaseType();
 	
-    void AddMember(const AutoPtr<ASTEnumValue> &member);
-
-    bool CheckMember(const AutoPtr<ASTEnumValue> &member);
-
+    bool AddMember(const AutoPtr<ASTEnumValue> &member);
+    
     void InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members);
 	
     inline std::vector<AutoPtr<ASTEnumValue>> GetMembers()
@@ -162,6 +160,7 @@ public:
 private:
     AutoPtr<ASTAttr> attr_ = new ASTAttr();
     AutoPtr<ASTType> baseType_;
+    AutoPtr<ASTType> parentType_;
     std::vector<AutoPtr<ASTEnumValue>> members_;
 };
 } // namespace HDI
