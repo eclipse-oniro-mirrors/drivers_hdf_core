@@ -184,7 +184,7 @@ void ASTStructType::EmitCppReadVar(const std::string &parcelName, const std::str
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), name.c_str());
+        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType(TypeMode::LOCAL_VAR).c_str(), name.c_str());
     }
     sb.Append(prefix).AppendFormat(
         "if (!%sBlockUnmarshalling(%s, %s)) {\n", name_.c_str(), parcelName.c_str(), name.c_str());
