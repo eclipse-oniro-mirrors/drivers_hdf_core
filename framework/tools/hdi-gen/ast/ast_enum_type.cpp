@@ -17,13 +17,13 @@ void ASTEnumType::SetBaseType(const AutoPtr<ASTType> &baseType)
         return;
     }
     if (baseType->GetTypeKind() == TypeKind::TYPE_ENUM) {
-        AutoPtr<ASTEnumType> parentEnumType_ = dynamic_cast<ASTEnumType *>(baseType.Get());
-        std::vector<AutoPtr<ASTEnumValue>> parentMembers_ = parentEnumType_->GetMembers();
-        for (auto member : parentMembers_) {
+        AutoPtr<ASTEnumType> parentEnumType = dynamic_cast<ASTEnumType *>(baseType.Get());
+        std::vector<AutoPtr<ASTEnumValue>> parentMembers = parentEnumType->GetMembers();
+        for (auto member : parentMembers) {
             members_.push_back(member);
         }
         parentType_= baseType;
-        baseType_ = parentEnumType_->GetBaseType();
+        baseType_ = parentEnumType->GetBaseType();
     } else {
         baseType_ = baseType;
     }
@@ -33,7 +33,7 @@ bool ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
 {
     for (auto members : members_) {
         if (member->GetName() == members->GetName()) {
-                    return false;
+            return false;
         }
     }
     members_.push_back(member);
@@ -62,7 +62,7 @@ std::string ASTEnumType::Dump(const std::string &prefix)
     StringBuilder sb;
     sb.Append(prefix).Append(attr_->Dump(prefix)).Append(" ");
     if (baseType_ != nullptr) {
-        if (parentType_!= nullptr) {
+        if (parentType_ != nullptr) {
             sb.AppendFormat("enum %s : %s ", name_.c_str(), parentType_->ToString().c_str());
             sb.AppendFormat(" : %s {\n",  baseType_->ToString().c_str());
         } else {

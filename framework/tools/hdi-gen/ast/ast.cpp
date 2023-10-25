@@ -11,7 +11,6 @@
 #include <cstdlib>
 
 #include "util/string_builder.h"
-#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {

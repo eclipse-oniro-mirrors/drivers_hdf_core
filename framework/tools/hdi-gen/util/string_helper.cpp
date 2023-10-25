@@ -9,6 +9,7 @@
 #include "util/string_helper.h"
 
 #include <cstdarg>
+
 #include "securec.h"
 
 namespace OHOS {
@@ -166,6 +167,7 @@ std::string StringHelper::Format(const char *format, ...)
         va_end(argsCopy);
         return "";
     }
+
     va_end(args);
     va_end(argsCopy);
     return std::string(buf, len);
