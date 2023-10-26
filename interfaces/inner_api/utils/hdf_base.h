@@ -125,9 +125,7 @@ typedef enum {
 /**
  * @brief Declares the full path of the HDF module library.
  */
-#ifdef __aarch64__
-#define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib64/" x ".z.so"
-#elif defined(__x86_64__)
+#if (defined(__aarch64__) || defined(__x86_64__))
 #define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib64/" x ".z.so"
 #else
 #define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib/" x ".z.so"
