@@ -103,7 +103,7 @@ static int ChipCleanBuffer(InputI2cClient *i2cClient)
 
 #define X_OFFSET    1
 
-static void ChipVersionDefault(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
+static void ChipVersionDefault(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
 {
     for (uint8_t i = 0; i < pointNum; i++) {         // chipversion  A:gt911_zsj5p5
         frame->fingers[i].trackId = buf[GT_POINT_SIZE * i + GT_TRACK_ID];
@@ -148,7 +148,7 @@ static void ChipVersionDefault(ChipDevice *device, FrameData *frame, uint8_t *bu
     }
 }
 
-static void ChipVersionIsOne(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
+static void ChipVersionIsOne(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
 {
     int32_t resX = device->driver->boardCfg->attr.resolutionX;
     int32_t resY = device->driver->boardCfg->attr.resolutionY;
@@ -161,7 +161,7 @@ static void ChipVersionIsOne(ChipDevice *device, FrameData *frame, uint8_t *buf,
     }
 }
 
-static void ChipVersionIsExt(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
+static void ChipVersionIsExt(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
 {
     int32_t resX = device->driver->boardCfg->attr.resolutionX;
     int32_t resY = device->driver->boardCfg->attr.resolutionY;
