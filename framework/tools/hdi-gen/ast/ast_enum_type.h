@@ -92,8 +92,6 @@ public:
 	
     bool AddMember(const AutoPtr<ASTEnumValue> &member);
     
-    void InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members);
-	
     inline std::vector<AutoPtr<ASTEnumValue>> GetMembers()
     {
         return members_;

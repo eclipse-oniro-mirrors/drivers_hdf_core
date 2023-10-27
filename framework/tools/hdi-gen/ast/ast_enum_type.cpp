@@ -40,13 +40,6 @@ bool ASTEnumType::AddMember(const AutoPtr<ASTEnumValue> &member)
     return true;
 }
 
-void ASTEnumType::InitMembers(const std::vector<AutoPtr<ASTEnumValue>> &members)
-{
-    for (auto member : members) {
-        members_.push_back(member);
-    }
-}
-
 AutoPtr<ASTType> ASTEnumType::GetBaseType()
 {
     return baseType_;
