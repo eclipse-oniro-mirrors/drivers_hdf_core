@@ -1007,7 +1007,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 
     token = lexer_.PeekToken();
     if (token.kind == TokenType::COLON || token.kind == TokenType::BRACES_LEFT) {
-        enumType->SetBaseType(ParseEnumBaseType(enumType));
+        enumType->SetBaseType(ParseEnumBaseType());
     } else {
         LogError(token, StringHelper::Format("expected ':' or '{' before '%s' token", token.value.c_str()));
     }
@@ -1032,7 +1032,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
     ast_->AddTypeDefinition(enumType.Get());
 }
 
-AutoPtr<ASTType> Parser::ParseEnumBaseType(AutoPtr<ASTEnumType> enumType)
+AutoPtr<ASTType> Parser::ParseEnumBaseType()
 {
     AutoPtr<ASTType> baseType = nullptr;
     Token token = lexer_.PeekToken();
