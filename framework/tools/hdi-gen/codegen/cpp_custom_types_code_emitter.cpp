@@ -279,7 +279,7 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(
 {
     std::string objName("dataBlock");
 
-    sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel& data, const %s& %s)\n", type->EmitCppType().c_str(),
+    sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel& data, const %s& %s)\n", type->GetName().c_str(),
         type->EmitCppType().c_str(), objName.c_str());
     sb.Append("{\n");
 
