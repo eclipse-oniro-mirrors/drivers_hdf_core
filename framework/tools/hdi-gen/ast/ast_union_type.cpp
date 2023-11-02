@@ -111,7 +111,7 @@ std::string ASTUnionType::EmitCppTypeDecl() const
     for (auto it : members_) {
         AutoPtr<ASTType> member = std::get<1>(it);
         std::string memberName = std::get<0>(it);
-        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType(TypeMode::LOCAL_VAR).c_str(), memberName.c_str());
+        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType().c_str(), memberName.c_str());
     }
 
     sb.Append("}  __attribute__ ((aligned(8)));");

@@ -119,7 +119,7 @@ std::string ASTStructType::EmitCppTypeDecl() const
     for (auto it : members_) {
         AutoPtr<ASTType> member = std::get<1>(it);
         std::string memberName = std::get<0>(it);
-        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType(TypeMode::LOCAL_VAR).c_str(), memberName.c_str());
+        sb.Append(TAB).AppendFormat("%s %s;\n", member->EmitCppType().c_str(), memberName.c_str());
     }
 
     sb.Append("}");
@@ -184,7 +184,7 @@ void ASTStructType::EmitCppReadVar(const std::string &parcelName, const std::str
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
     if (initVariable) {
-        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType(TypeMode::LOCAL_VAR).c_str(), name.c_str());
+        sb.Append(prefix).AppendFormat("%s %s;\n", EmitCppType().c_str(), name.c_str());
     }
     sb.Append(prefix).AppendFormat(
         "if (!%sBlockUnmarshalling(%s, %s)) {\n", name_.c_str(), parcelName.c_str(), name.c_str());
