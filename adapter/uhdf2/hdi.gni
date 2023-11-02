@@ -187,6 +187,14 @@ template("hdi") {
       } else {
         part_name = invoker.part_name + "_interface"
       }
+
+      if (defined(invoker.stack_protector_ret)) {
+        stack_protector_ret = invoker.stack_protector_ret
+      }
+
+      if (defined(invoker.sanitize)) {
+        sanitize = invoker.sanitize
+      }
     }
   }
 
@@ -230,6 +238,14 @@ template("hdi") {
         install_images = [ chipset_base_dir ]
         subsystem_name = invoker.subsystem_name
         part_name = invoker.part_name
+
+        if (defined(invoker.stack_protector_ret)) {
+          stack_protector_ret = invoker.stack_protector_ret
+        }
+
+        if (defined(invoker.sanitize)) {
+          sanitize = invoker.sanitize
+        }
       }
     }
   }
