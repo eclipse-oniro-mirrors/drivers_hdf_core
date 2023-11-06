@@ -257,7 +257,7 @@ void Parser::ParseSequenceableInfo()
     size_t index = seqName.rfind('.');
     if (index != std::string::npos) {
         seqType->SetName(seqName.substr(index + 1));
-        seqType->SetNamespace(ast_->ParseNamespace(seqName.substr(0, index)));
+        seqType->SetNamespace(ast_->ParseNamespace(seqName));
     } else {
         seqType->SetName(seqName);
     }
