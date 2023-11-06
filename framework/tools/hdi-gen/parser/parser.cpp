@@ -238,6 +238,11 @@ void Parser::ParseImportInfo()
         return;
     }
 
+    if (!CheckImportsVersion(importAst)) {
+        LogError(token, StringHelper::Format("extends import version must less than current import version"));
+        return;
+    }
+
     if (!ast_->AddImport(importAst)) {
         LogError(token, StringHelper::Format("multiple import of '%s'", importName.c_str()));
         return;
@@ -1050,6 +1055,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
             case TypeKind::TYPE_USHORT:
             case TypeKind::TYPE_UINT:
             case TypeKind::TYPE_ULONG:
+            case TypeKind::TYPE_ENUM:
                 break;
             default: {
                 LogError(token, StringHelper::Format("illegal base type of enum", baseType->ToString().c_str()));
@@ -1079,8 +1085,10 @@ void Parser::ParserEnumMember(const AutoPtr<ASTEnumType> &enumType)
         }
 
         enumValue->SetType(enumType->GetBaseType());
-        enumType->AddMember(enumValue);
-
+        if (!enumType->AddMember(enumValue)) {
+            LogError(StringHelper::Format("AddMemberException:member '%s' already exists !",
+            enumValue->GetName().c_str()));
+        }
         token = lexer_.PeekToken();
         if (token.kind == TokenType::COMMA) {
             lexer_.GetToken();
@@ -1788,6 +1796,14 @@ bool Parser::CheckExtendsVersion(
     AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsName, AutoPtr<AST> extendsAst)
 {
     if (extendsAst->GetMajorVer() != ast_->GetMajorVer() || extendsAst->GetMinorVer() >= ast_->GetMinorVer()) {
+        return false;
+    }
+    return true;
+}
+
+bool Parser::CheckImportsVersion(AutoPtr<AST> extendsAst)
+{
+    if (extendsAst->GetMajorVer() != ast_->GetMajorVer() || extendsAst->GetMinorVer() > ast_->GetMinorVer()) {
         return false;
     }
     return true;

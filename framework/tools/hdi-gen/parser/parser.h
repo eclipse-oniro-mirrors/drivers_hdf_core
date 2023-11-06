@@ -194,6 +194,8 @@ private:
     bool CheckExtendsVersion(
         AutoPtr<ASTInterfaceType> &interfaceType, const std::string &extendsName, AutoPtr<AST> extendsAst);
 
+    bool CheckImportsVersion(AutoPtr<AST> extendsAst);
+
     void SetInterfaceVersion(AutoPtr<ASTInterfaceType> &interfaceType);
 
     inline static bool IsPrimitiveType(Token token)
