@@ -30,6 +30,8 @@ private:
 
     void GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
+    void GetSourceOtherFileInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
+
     void EmitProxyDecl(StringBuilder &sb, const std::string &prefix);
 
     void EmitProxyConstructor(StringBuilder &sb, const std::string &prefix) const;

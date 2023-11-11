@@ -200,9 +200,16 @@ void ASTInterfaceType::EmitCppReadVar(const std::string &parcelName, const std::
     if (initVariable) {
         sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", GetNameWithNamespace(namespace_, name_).c_str(), name.c_str());
     }
-    sb.Append(prefix).AppendFormat("if (!ReadInterface<%s>(%s, %s)) {\n",
-        GetNameWithNamespace(namespace_, name_).c_str(), parcelName.c_str(), name.c_str());
-    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to read interface object\", __func__);\n");
+    sb.Append(prefix).AppendFormat("sptr<IRemoteObject> %sRemote = %s.ReadRemoteObject();\n", name.c_str(),
+        parcelName.c_str());
+    sb.Append(prefix).AppendFormat("if (%sRemote == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: read an invalid remote object\", __func__);\n");
+    sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
+    sb.Append(prefix).Append("}\n\n");
+    sb.Append(prefix).AppendFormat("%s = new %s(%sRemote);\n", name.c_str(),
+        ((StringHelper::StartWith(name_, "I") ? name_.substr(1) : name_) + "Proxy").c_str(), name.c_str());
+    sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
+    sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to create interface object\", __func__);\n");
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n");
 }
@@ -245,10 +252,6 @@ void ASTInterfaceType::RegisterReadMethod(Language language, SerMode mode, UtilM
         case Language::C: {
             std::string methodName = StringHelper::Format("Read%s", name_.c_str());
             methods.emplace(methodName, std::bind(&ASTInterfaceType::EmitCReadMethods, this, _1, _2, _3, _4));
-            break;
-        }
-        case Language::CPP: {
-            methods.emplace("ReadInterface", std::bind(&ASTInterfaceType::EmitCppReadMethods, this, _1, _2, _3, _4));
             break;
         }
         default:
@@ -305,35 +308,6 @@ void ASTInterfaceType::EmitCReadMethods(StringBuilder &sb, const std::string &pr
     sb.Append(prefix + TAB + TAB).Append("return NULL;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
     sb.Append(prefix + TAB).AppendFormat("return %sGet(remote);\n", name_.c_str());
-    sb.Append(prefix).Append("}\n");
-}
-
-void ASTInterfaceType::EmitCppReadMethods(StringBuilder &sb, const std::string &prefix,
-    const std::string &methodPrefix, bool isDecl) const
-{
-    std::string methodName = StringHelper::Format("%sReadInterface", methodPrefix.c_str(), name_.c_str());
-    sb.Append(prefix).AppendFormat("template<typename InterfaceType>\n");
-    sb.Append(prefix).AppendFormat("static bool %s(MessageParcel &parcel, sptr<InterfaceType>& object)",
-        methodName.c_str());
-    if (isDecl) {
-        sb.Append(";\n");
-        return;
-    } else {
-        sb.Append("\n");
-    }
-
-    sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB).Append("sptr<IRemoteObject> remote = parcel.ReadRemoteObject();\n");
-    sb.Append(prefix + TAB).Append("if (remote == nullptr) {\n");
-    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: read an invalid remote object\", __func__);\n");
-    sb.Append(prefix + TAB + TAB).Append("return false;\n");
-    sb.Append(prefix + TAB).Append("}\n\n");
-    sb.Append(prefix + TAB).Append("object = hdi_facecast<InterfaceType>(remote);\n");
-    sb.Append(prefix + TAB).Append("if (object == nullptr) {\n");
-    sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s: failed to cast interface object\", __func__);\n");
-    sb.Append(prefix + TAB + TAB).Append("return false;\n");
-    sb.Append(prefix + TAB).Append("}\n");
-    sb.Append(prefix + TAB).Append("return true;\n");
     sb.Append(prefix).Append("}\n");
 }
 } // namespace HDI

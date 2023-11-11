@@ -54,6 +54,8 @@ private:
 
     void GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
 
+    void GetSourceOtherFileInclusions(HeaderFile::HeaderFileSet &headerFiles) const;
+
     void EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const;

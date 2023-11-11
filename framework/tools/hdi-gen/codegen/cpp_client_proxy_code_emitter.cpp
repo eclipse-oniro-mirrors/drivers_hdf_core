@@ -9,6 +9,7 @@
 #include "codegen/cpp_client_proxy_code_emitter.h"
 #include "util/file.h"
 #include "util/logger.h"
+#include "util/string_helper.h"
 
 namespace OHOS {
 namespace HDI {
@@ -297,6 +298,7 @@ void CppClientProxyCodeEmitter::EmitProxySourceInclusions(StringBuilder &sb)
     HeaderFile::HeaderFileSet headerFiles;
     headerFiles.emplace(HeaderFileType::OWN_HEADER_FILE, EmitVersionHeaderName(proxyName_));
     GetSourceOtherLibInclusions(headerFiles);
+    GetSourceOtherFileInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
@@ -341,6 +343,22 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
     }
 }
 
+void CppClientProxyCodeEmitter::GetSourceOtherFileInclusions(HeaderFile::HeaderFileSet &headerFiles) const
+{
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+        for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
+            AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_OUT &&
+                (param->GetType()->IsInterfaceType() || paramType->HasInnerType(TypeKind::TYPE_INTERFACE))) {
+                AutoPtr<ASTInterfaceType> type = dynamic_cast<ASTInterfaceType *>(paramType.Get());       
+                std::string FileName = InterfaceToFilePath(paramType->ToString());
+                headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, FileName);
+            }
+        }
+    }
+}
+
 void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("%s %s::Get(bool isStub)\n", interface_->EmitCppType().c_str(),
@@ -373,9 +391,10 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:get remote object failed!\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
-    sb.Append(prefix + TAB).AppendFormat("sptr<%s> %s = OHOS::HDI::hdi_facecast<%s>(remote);\n",
+    sb.Append(prefix + TAB).AppendFormat("sptr<%s> %s = new %s(remote);\n",
         EmitDefinitionByInterface(interface_, interfaceName_).c_str(), objName.c_str(),
-        EmitDefinitionByInterface(interface_, interfaceName_).c_str());
+        ((StringHelper::StartWith(interfaceName_, "I") ? interfaceName_.substr(1) : interfaceName_) +
+        "Proxy").c_str());
     sb.Append(prefix + TAB).AppendFormat("if (%s == nullptr) {\n", objName.c_str());
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:iface_cast failed!\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
