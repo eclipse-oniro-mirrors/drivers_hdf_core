@@ -12,7 +12,6 @@
 
 #include "util/file.h"
 #include "util/options.h"
-#include "util/logger.h"
 
 namespace OHOS {
 namespace HDI {
@@ -143,7 +142,7 @@ std::string CodeEmitter::InterfaceToFilePath(const std::string &interfaceName) c
 {
     std::string fullName = interfaceName;
     if (StringHelper::EndWith(fullName, "]")) {
-        fullName = fullName.substr(0, fullName.length() - 2);
+        fullName = fullName.substr(0, fullName.find("["));
     }
     size_t index = fullName.rfind(".");
     std::string prefix = fullName.substr(0, index + 1);
