@@ -18,6 +18,8 @@
 #include "devhost_service.h"
 #include "devhost_service_stub.h"
 #include "devhost_service_proxy.h"
+#include "devhost_dump.h"
+#include "devhost_dump_reg.h"
 #include "device_service_stub.h"
 #include "devmgr_service_clnt.h"
 #include "devmgr_service_proxy.h"
@@ -28,6 +30,7 @@
 #include "hdf_device_node.h"
 #include "hdf_remote_service.h"
 #include "hdf_log.h"
+#include "hdf_sbuf.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG   host_test
@@ -409,5 +412,157 @@ HWTEST_F(DevHostTest, DevHostDeviceServiceStubTest, TestSize.Level1)
     DeviceServiceStubRelease(nullptr);
 
     DevHostServiceStubRelease(nullptr);
+}
+
+static int32_t DevHostTestDumpHostFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    uint32_t argv = 0;
+
+    (void)HdfSbufReadUint32(data, &argv);
+    HDF_LOGI("%{public}d", argv);
+
+    const char *value = HdfSbufReadString(data);
+    while (value != NULL && argv > 0) {
+        HDF_LOGI("%{public}s", value);
+        value = HdfSbufReadString(data);
+        argv--;
+    }
+
+    HdfSbufWriteString(reply, "test_host_dump\n");
+
+    return HDF_SUCCESS;
+}
+
+static int32_t DevHostTestDumpServiceFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    uint32_t argv = 0;
+    (void)HdfSbufReadUint32(data, &argv);
+    HDF_LOGI("%{public}d", argv);
+    const char *value = HdfSbufReadString(data);
+    while (value != NULL && argv > 0) {
+        HDF_LOGI("%{public}s", value);
+        value = HdfSbufReadString(data);
+        argv--;
+    }
+
+    HdfSbufWriteString(reply, "test_service_dump\n");
+
+    return HDF_SUCCESS;
+}
+
+HWTEST_F(DevHostTest, DevHostDumpTest001, TestSize.Level1)
+{
+    DevHostDumpInit();
+    HdfSBuf * testSBufData = HdfSbufTypedObtain(SBUF_RAW);
+    HdfSBuf * testSBufReply = HdfSbufTypedObtain(SBUF_RAW);
+
+    // test DevHostDump NULL inpput
+    HDF_LOGI("test DevHostDump NULL inpput BEGIN");
+    DevHostDump(nullptr, nullptr);
+    ASSERT_TRUE(HdfSbufReadString(testSBufReply) == NULL);
+    DevHostDump(testSBufData, nullptr);
+    ASSERT_TRUE(HdfSbufReadString(testSBufReply) == NULL);
+    DevHostDump(nullptr, testSBufReply);
+    ASSERT_TRUE(HdfSbufReadString(testSBufReply) == NULL);
+    HDF_LOGI("test DevHostDump NULL inpput END");
+
+    // test DevHostDump null option
+    HDF_LOGI("test DevHostDump null option BEGIN");
+    DevHostDump(testSBufData, testSBufReply);
+    ASSERT_TRUE(HdfSbufReadString(testSBufReply) == NULL);
+    HDF_LOGI("test DevHostDump null option END");
+
+    // test DevHostDump invalid parameter brunch
+    HDF_LOGI("test DevHostDump invalid parameter brunch BEGIN");
+    HdfSbufWriteString(testSBufData, "dumpNothing");
+    DevHostDump(testSBufData, testSBufReply);
+    ASSERT_TRUE(HdfSbufReadString(testSBufReply) == NULL);
+    HDF_LOGI("test DevHostDump invalid parameter brunch END");
+
+    DevHostDumpDeInit();
+}
+
+HWTEST_F(DevHostTest, DevHostDumpTest002, TestSize.Level1)
+{
+    DevHostDumpInit();
+    HdfSBuf * testSBufData = HdfSbufTypedObtain(SBUF_RAW);
+    HdfSBuf * testSBufReply = HdfSbufTypedObtain(SBUF_RAW);
+
+    // test DevHostDump option dumpHost without dumpHostFunc
+    HDF_LOGI("test DevHostDump option dumpHost without dumpHostFunc BEGIN");
+    HdfSbufFlush(testSBufData);
+    HdfSbufFlush(testSBufReply);
+    HdfSbufWriteString(testSBufData, "dumpHost");
+    DevHostDump(testSBufData, testSBufReply);
+    ASSERT_TRUE(strcmp(HdfSbufReadString(testSBufReply), "The host does not register dump function\n") == 0);
+    HdfSbufFlush(testSBufData);
+    HdfSbufFlush(testSBufReply);
+    HDF_LOGI("test DevHostDump option dumpHost without dumpHostFunc END");
+
+    // test DevHostRegisterDumpHost NULL input
+    HDF_LOGI("test DevHostRegisterDumpHost NULL input BEGIN");
+    int32_t ret = DevHostRegisterDumpHost(NULL);
+    ASSERT_TRUE(HDF_FAILURE == ret);
+    HDF_LOGI("test DevHostRegisterDumpHost NULL input END");
+
+    // test DevHostRegisterDumpHost normal brunch
+    HDF_LOGI("test DevHostRegisterDumpHost normal brunch BEGIN");
+    ret = DevHostRegisterDumpHost(DevHostTestDumpHostFunc);
+    ASSERT_TRUE(HDF_SUCCESS == ret);
+    HDF_LOGI("test DevHostRegisterDumpHost normal brunch END");
+
+    // test DevHostDump option dumpHost with dumpHostFunc
+    HDF_LOGI("test DevHostDump option dumpHost with dumpHostFunc BEGIN");
+    HdfSbufWriteString(testSBufData, "dumpHost");
+    DevHostDump(testSBufData, testSBufReply);
+    ASSERT_TRUE(strcmp(HdfSbufReadString(testSBufReply), "test_host_dump\n") == 0);
+    HdfSbufFlush(testSBufData);
+    HdfSbufFlush(testSBufReply);
+    HDF_LOGI("test DevHostDump option dumpHost with dumpHostFunc END");
+}
+
+HWTEST_F(DevHostTest, DevHostDumpServiceTest, TestSize.Level1)
+{
+    HdfSBuf * testSBufData = HdfSbufTypedObtain(SBUF_RAW);
+    HdfSBuf * testSBufReply = HdfSbufTypedObtain(SBUF_RAW);
+    DevHostDumpInit();
+    // test DevHostRegisterDumpService NULL input
+    HDF_LOGI("test DevHostRegisterDumpService NULL input BEGIN");
+    int32_t ret = DevHostRegisterDumpService(nullptr, DevHostTestDumpServiceFunc);
+    ASSERT_TRUE(HDF_FAILURE == ret);
+    HDF_LOGI("test DevHostRegisterDumpService NULL input END");
+
+    // test DevHostRegisterDumpService with sample_driver_service
+    HDF_LOGI("test DevHostRegisterDumpService with sample_driver_service BEGIN");
+    ret = DevHostRegisterDumpService("sample_driver_service", DevHostTestDumpServiceFunc);
+    ASSERT_TRUE(HDF_SUCCESS == ret);
+    HDF_LOGI("test DevHostRegisterDumpService with sample_driver_service END");
+
+    // test DevHostRegisterDumpService with sample_driver_service Redundantly
+    HDF_LOGI("test DevHostRegisterDumpService with sample_driver_service Redundantly BEGIN");
+    ret = DevHostRegisterDumpService("sample_driver_service", DevHostTestDumpServiceFunc);
+    ASSERT_TRUE(HDF_FAILURE == ret);
+    HDF_LOGI("test DevHostRegisterDumpService with sample_driver_service Redundantly END");
+
+    // test DevDumpHost with option dumpService and wrong service name
+    HDF_LOGI("test DevDumpHost with option dumpService and wrong service name BEGIN");
+    HdfSbufWriteString(testSBufData, "dumpService");
+    HdfSbufWriteString(testSBufData, "no_driver_service");
+    DevHostDump(testSBufData, testSBufReply);
+    ASSERT_TRUE(strcmp(HdfSbufReadString(testSBufReply), "The service does not register dump function\n") == 0);
+    HdfSbufFlush(testSBufData);
+    HdfSbufFlush(testSBufReply);
+    HDF_LOGI("test DevDumpHost with option dumpService and wrong service name END");
+
+    // test DevDumpHost with option dumpService and correct service name
+    HDF_LOGI("test DevDumpHost with option dumpService and correct service name BEGIN");
+    HdfSbufWriteString(testSBufData, "dumpService");
+    HdfSbufWriteString(testSBufData, "sample_driver_service");
+    DevHostDump(testSBufData, testSBufReply);
+    ASSERT_TRUE(strcmp(HdfSbufReadString(testSBufReply), "test_service_dump\n") == 0);
+    HdfSbufFlush(testSBufData);
+    HdfSbufFlush(testSBufReply);
+    DevHostDumpDeInit();
+    HDF_LOGI("test DevDumpHost with option dumpService and correct service name END");
 }
 } // namespace OHOS
