@@ -87,6 +87,10 @@ obj-$(CONFIG_DRIVERS_HDF_PLATFORM_ADC) += $(HDF_FRAMWORK_TEST_ROOT)/platform/com
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/common/adc_driver_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_adc_entry_test.o \
                                           $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/adc_linux_virtual_iio_driver.o
+obj-$(CONFIG_DRIVERS_HDF_PLATFORM_CLOCK) += $(HDF_FRAMWORK_TEST_ROOT)/platform/common/clock_test.o \
+                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/common/clock_driver_test.o \
+                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/entry/hdf_clock_entry_test.o \
+                                            $(HDF_FRAMWORK_TEST_ROOT)/platform/virtual/clock_virtual.o
 
 obj-$(CONFIG_DRIVERS_HDF_WIFI) += $(HDF_FRAMWORK_TEST_ROOT)/wifi/hdf_wifi_test.o \
                                   $(HDF_FRAMWORK_TEST_ROOT)/model/network/wifi/unittest/netdevice/net_device_test.o \

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd.
 #
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
@@ -17,6 +17,7 @@ ccflags-$(CONFIG_DRIVERS_HDF_PLATFORM) +=-I$(srctree)/drivers/hdf/framework/incl
    -I$(srctree)/drivers/hdf/framework/support/platform/include \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/fwk \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/adc \
+   -I$(srctree)/drivers/hdf/framework/support/platform/include/clock \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/dma \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/gpio \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/hdmi \
