@@ -89,6 +89,8 @@ protected:
 
     std::string PackageToFilePath(const std::string &packageName) const;
 
+    std::string InterfaceToFilePath(const std::string &interfaceName) const;
+
     std::string EmitMethodCmdID(const AutoPtr<ASTMethod> &method);
 
     virtual void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);

@@ -211,6 +211,7 @@ void CppServiceStubCodeEmitter::EmitStubSourceInclusions(StringBuilder &sb)
     HeaderFile::HeaderFileSet headerFiles;
     headerFiles.emplace(HeaderFileType::OWN_HEADER_FILE, EmitVersionHeaderName(stubName_));
     GetSourceOtherLibInclusions(headerFiles);
+    GetSourceOtherFileInclusions(headerFiles);
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
@@ -252,6 +253,22 @@ void CppServiceStubCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
 
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
+}
+
+void CppServiceStubCodeEmitter::GetSourceOtherFileInclusions(HeaderFile::HeaderFileSet &headerFiles) const
+{
+    for (const auto &method : interface_->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
+        for (size_t paramIndex = 0; paramIndex < method->GetParameterNumber(); paramIndex++) {
+            AutoPtr<ASTParameter> param = method->GetParameter(paramIndex);
+            AutoPtr<ASTType> paramType = param->GetType();
+            if (param->GetAttribute() == ParamAttr::PARAM_IN &&
+                (param->GetType()->IsInterfaceType() || paramType->HasInnerType(TypeKind::TYPE_INTERFACE))) {
+                AutoPtr<ASTInterfaceType> type = dynamic_cast<ASTInterfaceType *>(paramType.Get());
+                std::string FileName = InterfaceToFilePath(paramType->ToString());
+                headerFiles.emplace(HeaderFileType::OWN_MODULE_HEADER_FILE, FileName);
+            }
+        }
+    }
 }
 
 void CppServiceStubCodeEmitter::EmitInterfaceGetMethodImpl(StringBuilder &sb, const std::string &prefix) const

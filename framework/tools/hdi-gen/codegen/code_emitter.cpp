@@ -138,6 +138,19 @@ std::string CodeEmitter::PackageToFilePath(const std::string &packageName) const
     return filePath.ToString();
 }
 
+std::string CodeEmitter::InterfaceToFilePath(const std::string &interfaceName) const
+{
+    std::string fullName = interfaceName;
+    if (StringHelper::EndWith(fullName, "]")) {
+        fullName = fullName.substr(0, fullName.find("["));
+    }
+    size_t index = fullName.rfind(".");
+    std::string prefix = fullName.substr(0, index + 1);
+    std::string suffix = fullName.substr(index + 1);
+    std::string fileName = prefix + (StringHelper::StartWith(suffix, "I") ? suffix.substr(1) : suffix) + "Proxy";
+    return PackageToFilePath(fileName);
+}
+
 std::string CodeEmitter::EmitMethodCmdID(const AutoPtr<ASTMethod> &method)
 {
     return StringHelper::Format("CMD_%s_%s", ConstantName(baseName_).c_str(), ConstantName(method->GetName()).c_str());

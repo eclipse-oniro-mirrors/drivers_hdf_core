@@ -186,9 +186,6 @@ public:
 
     void EmitCReadMethods(
         StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
-
-    void EmitCppReadMethods(
-        StringBuilder &sb, const std::string &prefix, const std::string &methodPrefix, bool isDecl) const;
 private:
     std::string license_;
 
