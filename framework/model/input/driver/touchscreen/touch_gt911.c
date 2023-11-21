@@ -15,6 +15,13 @@
 #include "touch_gt911.h"
 
 #define MAX_POINT 5
+#if defined(CONFIG_ARCH_ROCKCHIP)
+#define GT5688_FIRMWARE_VERSION    256
+#define GT911_FIRMWARE_VERSION     4192
+#endif
+
+#define FOUR_BYTES 4
+#define FOUR_BYTES_BIT 32
 
 static int32_t ChipInit(ChipDevice *device)
 {
@@ -53,13 +60,19 @@ static int32_t ChipDetect(ChipDevice *device)
     xSolution = (buf[GT_SOLU_X_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_X_LOW];
     ySolution = (buf[GT_SOLU_Y_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_Y_LOW];
 #if defined(CONFIG_ARCH_ROCKCHIP)
-    if (buf[GT_PROD_ID_1ST] != '5' || buf[GT_PROD_ID_2ND] != '6' || \
-        buf[GT_PROD_ID_3RD] != '8' || buf[GT_PROD_ID_4TH] != '8') {
-        HDF_LOGE("%s: ID wrong,IC FW version is 0x%x", __func__, version);
-        return HDF_FAILURE;
+    HDF_LOGI("%s:IC FW version is %d", __func__, version);
+    switch (version) {
+        case GT5688_FIRMWARE_VERSION:
+            HDF_LOGI("%s:TOUCH IC is GT5688", __func__);
+            break;
+        case GT911_FIRMWARE_VERSION:
+            HDF_LOGI("%s:TOUCH IC is GT911", __func__);
+            break;
+        default:
+            HDF_LOGE("%s: ID wrong,IC FW version is %d", __func__, version);
+            return HDF_FAILURE;
     }
 #endif
-    HDF_LOGI("%s: IC FW version is 0x%x", __func__, version);
     if (buf[GT_FW_VER_HIGH] == 0x0) {
         HDF_LOGI("Product ID : %c%c%c_%02x%02x, xSol = %d, ySol = %d", buf[GT_PROD_ID_1ST], buf[GT_PROD_ID_2ND],
             buf[GT_PROD_ID_3RD], buf[GT_FW_VER_HIGH], buf[GT_FW_VER_LOW], xSolution, ySolution);
