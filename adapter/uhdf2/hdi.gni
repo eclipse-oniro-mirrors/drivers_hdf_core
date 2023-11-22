@@ -179,7 +179,12 @@ template("hdi") {
         innerapi_tags = invoker.innerapi_tags
       }
       shlib_type = "hdi_proxy"
-      install_images = [ system_base_dir ]
+      if (defined(invoker.install_images)) {
+        install_images = invoker.install_images
+      } else {
+        install_images = [ system_base_dir ]
+      }
+
       subsystem_name = invoker.subsystem_name
       partname_list = string_split(invoker.part_name, "_")
       if (partname_list[0] == "drivers") {
