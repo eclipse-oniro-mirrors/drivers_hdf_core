@@ -19,6 +19,12 @@ hdf_interfaces_path = "./../../../interfaces"
 hdf_uhdf_path = "./.."
 
 ohos_executable("hdf_devmgr") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   defines = [ "__USER__" ]
   include_dirs = [
     "$hdf_framework_path/core/manager/include",
