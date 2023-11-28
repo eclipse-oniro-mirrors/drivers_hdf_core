@@ -81,10 +81,10 @@ static bool QueryPidOfHostName(const std::string &hostName, int &hostPid)
         return false;
     }
 
-    // ps -ef | grep hostName | grep -v "grep" | sed 's/\s\s*/ /g' | cut -d ' ' -f 2
+    // ps -ef | grep hostName | grep -v "grep" | sed 's/  */ /g' | cut -d ' ' -f 2
     std::ostringstream cmdStr;
     cmdStr << "ps -ef | grep '" << hostName << "' | grep -v 'grep' | ";
-    cmdStr << "sed 's/\\s\\s*/ /g' | cut -d ' ' -f 2";
+    cmdStr << "sed 's/  */ /g' | cut -d ' ' -f 2";
     FILE *res = popen(cmdStr.str().c_str(), "r");
     if (res == nullptr) {
         HDF_LOGE("[%{public}s:%{public}d] failed to popen '%{public}s'", __func__, __LINE__, cmdStr.str().c_str());
