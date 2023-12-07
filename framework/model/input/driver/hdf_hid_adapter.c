@@ -219,7 +219,7 @@ static void DoRegisterInputDev(InputDevice* inputDev)
     }
 }
 
-static void CacheHid(InputDevice* inputDev)
+void CacheHid(InputDevice* inputDev)
 {
     int32_t i = 0;
     while ((i < MAX_INPUT_DEV_NUM) && (cachedHid[i] != NULL)) {
