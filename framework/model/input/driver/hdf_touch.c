@@ -1075,7 +1075,9 @@ static int HdfTouchDriverDozeResume(struct HdfDeviceObject *device)
     }
     HDF_LOGI("%s:called", __func__);
 #if GTP_ESD_PROTECT
-    Gt1xEsdSwitch(1);
+    if (gt1x_workqueue) {
+        Gt1xEsdSwitch(1);
+    }
 #endif
     SuspendFlag = 0;
     static int32_t isFirstResume = 1;
@@ -1097,7 +1099,9 @@ static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
     }
     HDF_LOGI("%s:called", __func__);
 #if GTP_ESD_PROTECT
-    Gt1xDeinitEsdProtect();
+    if (gt1x_workqueue) {
+        Gt1xDeinitEsdProtect();
+    }
 #endif
     SuspendFlag = 1;
     int32_t ret = -1;
