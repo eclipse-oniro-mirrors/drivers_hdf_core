@@ -86,17 +86,12 @@ static int Ft5x06_EP01(ChipDevice *device, u8 *rdbuf)
 static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 {
     u8 rdbuf[EDT_NAME_LEN];
-    char *p;
-    int error;
-
     (void)memset_s(rdbuf, sizeof(rdbuf), NUM_0, sizeof(rdbuf));
     (void)memset_s(touch_fw_version, sizeof(touch_fw_version), NUM_0, sizeof(touch_fw_version));
-
-    error = InputI2cRead(i2cClient, "\xbb", NUM_1, rdbuf, EDT_NAME_LEN - NUM_1);
+    int error = InputI2cRead(i2cClient, "\xbb", NUM_1, rdbuf, EDT_NAME_LEN - NUM_1);
     if (error != HDF_SUCCESS) {
         return error;
     }
-
     /* Probe content for something consistent.
      * M06 starts with a response byte.
      * M09/Generic does not provide model number information.
@@ -108,18 +103,15 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     } else {
         device->chipCfg->chipVersion = GENERIC_FT;
         HDF_LOGI("%s: version = GENERIC_FT;", __func__);
-
         error = InputI2cRead(i2cClient, "\xA6", NUM_1, rdbuf, NUM_2);
         if (error != HDF_SUCCESS) {
             return error;
         }
         strlcpy(touch_fw_version, rdbuf, NUM_2);
-
         error = InputI2cRead(i2cClient, "\xA8", NUM_1, rdbuf, NUM_1);
         if (error != HDF_SUCCESS) {
             return error;
         }
-
         switch (rdbuf[0]) {
             case EP0350M09:fallthrough;
             case EP0430M09:fallthrough;
@@ -133,7 +125,6 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
             case EPDISPLAY:
                 device->chipCfg->chipVersion = EV_FT;
                 HDF_LOGI("%s: version = EV_FT;", __func__);
-
                 error = InputI2cRead(i2cClient, "\x53", NUM_1, rdbuf, NUM_1);
                 if (error)
                     return error;
@@ -143,7 +134,6 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
                 break;
         }
     }
-
     HDF_LOGI("%s: touch_fw_version = %s", __func__, touch_fw_version);
     return NUM_0;
 }
