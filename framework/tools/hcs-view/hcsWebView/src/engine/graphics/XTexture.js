@@ -115,23 +115,15 @@ export class XTexture {
     if (h === -1) {
       h = hh;
     }
-    this.allCuts[this.tmpCutid] = {
-      rid: rid,
-      x: x,
-      y: y,
-      w: w,
-      h: h,
-      u0: x / ww,
-      v0: y / hh,
-      u1: (x + w) / ww,
-      v1: y / hh,
-      u2: (x + w) / ww,
-      v2: (y + h) / hh,
-      u3: x / ww,
-      v3: (y + h) / hh,
-    };
+    this.callAllCuts(this.tmpCutid, rid, x, y, w, h, ww, hh);
     this.tmpCutid += 1;
     return this.tmpCutid - 1;
+  }
+  callAllCuts(param, rid, x, y, w, h, ww, hh) {
+    this.allCuts[param] = {
+      rid: rid, x: x, y: y, w: w, h: h, u0: x / ww, v0: y / hh, u1: (x + w) / ww, v1: y / hh,
+      u2: (x + w) / ww, v2: (y + h) / hh, u3: x / ww, v3: (y + h) / hh,
+    };
   }
   makeCut(rid, x = 0, y = 0, w = -1, h = -1, ww = -1, hh = -1) {
     if (ww === -1) {
@@ -146,21 +138,7 @@ export class XTexture {
     if (h === -1) {
       h = hh;
     }
-    this.allCuts[this.aiCutid] = {
-      rid: rid,
-      x: x,
-      y: y,
-      w: w,
-      h: h,
-      u0: x / ww,
-      v0: y / hh,
-      u1: (x + w) / ww,
-      v1: y / hh,
-      u2: (x + w) / ww,
-      v2: (y + h) / hh,
-      u3: x / ww,
-      v3: (y + h) / hh,
-    };
+    this.callAllCuts(this.aiCutid, rid, x, y, w, h, ww, hh);
     this.aiCutid += 1;
     return this.aiCutid - 1;
   }

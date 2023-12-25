@@ -28,6 +28,8 @@ const MenuGroupSize = {
 };
 
 const MOUSETYPE_MOVE = 2;
+const DRAWTEXT_OFFSETX = -3;
+const DRAWTEXT_OFFSETY = -2;
 
 class RightMenu {
   static backgroundImg_ = -1;
@@ -158,37 +160,20 @@ class RightMenu {
         }
       } else if (e.type === MenuType.CONTENT) {
         if (e.open) {
-          X2DFast.px2f.drawText(
-            '<',
-            RightMenu.TEXT_SIZE,
-            x + w,
-            OFFY_,
-            1,
-            1,
-            0,
-            -3,
-            -2,
-            textColor
-          );
+          RightMenu.callDrawText('<', x, w, OFFY_, textColor);
           RightMenu.DrawGroup(e.group, x + w, y);
         } else {
-          X2DFast.px2f.drawText(
-            '>',
-            RightMenu.TEXT_SIZE,
-            x + w,
-            OFFY_,
-            1,
-            1,
-            0,
-            -3,
-            -2,
-            textColor
-          );
+          RightMenu.callDrawText('>', x, w, OFFY_, textColor);
         }
       }
       y += 32;
     }
   }
+  static callDrawText(symbol, x, w, OFFY_, textColor) {
+    X2DFast.px2f.drawText(symbol, RightMenu.TEXT_SIZE, x + w, OFFY_, 1, 1, 0,
+      DRAWTEXT_OFFSETX, DRAWTEXT_OFFSETY, textColor);
+  }
+
   static Touch(msg, x, y) {
     if (RightMenu.MENU) {
       if (RightMenu.TouchGroup(RightMenu.MENU.detail, msg, x, y)) {
