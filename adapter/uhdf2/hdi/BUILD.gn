@@ -41,7 +41,8 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libhdi") {
-    if (target_cpu == "arm64" || target_cpu == "x86_64") {
+    if (target_cpu == "arm64" || target_cpu == "x86_64" ||
+        target_cpu == "riscv64") {
       defines = [ "__ARM64__" ]
     }
 
