@@ -46,7 +46,7 @@ extern "C" {
  * @brief Defines the log domain of the HDF.
  */
 #undef LOG_DOMAIN
-#define LOG_DOMAIN 0xD002500
+#define LOG_DOMAIN 0xD002510
 
 /**
  * @brief Defines the default log label of the HDF.
