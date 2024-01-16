@@ -1101,16 +1101,16 @@ static int32_t AudioPcmTransferBytes(struct PlatformData *data, enum AudioStream
     }
 
     if (streamType == AUDIO_RENDER_STREAM) {
-        data->renderBufInfo.oneMsBytes = data->renderPcmInfo.rate * data->renderPcmInfo.frameSize
-            / SECOND_TO_MILLISECOND;
+        data->renderBufInfo.oneMsBytes =
+            data->renderPcmInfo.rate * data->renderPcmInfo.frameSize / SECOND_TO_MILLISECOND;
         if (data->renderBufInfo.oneMsBytes == 0) {
             AUDIO_DRIVER_LOG_ERR("render pcm info is error.");
             return HDF_FAILURE;
         }
         AUDIO_DRIVER_LOG_DEBUG("render pcm one ms transfer bytes is %d .", data->renderBufInfo.oneMsBytes);
     } else if (streamType == AUDIO_CAPTURE_STREAM) {
-        data->captureBufInfo.oneMsBytes = data->capturePcmInfo.rate * data->capturePcmInfo.frameSize
-            / SECOND_TO_MILLISECOND;
+        data->captureBufInfo.oneMsBytes =
+            data->capturePcmInfo.rate * data->capturePcmInfo.frameSize / SECOND_TO_MILLISECOND;
         if (data->captureBufInfo.oneMsBytes == 0) {
             AUDIO_DRIVER_LOG_ERR("capture pcm info is error.");
             return HDF_FAILURE;
