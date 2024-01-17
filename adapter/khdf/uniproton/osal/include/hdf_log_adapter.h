@@ -41,7 +41,7 @@ extern "C" {
 
 #ifdef LOSCFG_BASE_CORE_HILOG
 #undef LOG_DOMAIN
-#define LOG_DOMAIN 0xD002500
+#define LOG_DOMAIN 0xD002510
 
 #define HDF_LOGV_WRAPPER(fmt, arg...) HILOG_DEBUG(LOG_DOMAIN, fmt, ##arg)
 
