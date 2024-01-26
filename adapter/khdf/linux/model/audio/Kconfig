@@ -11,14 +11,6 @@ config DRIVERS_HDF_AUDIO_HI3516CODEC
     help
         Answer Y to choice HDF Audio Codec driver.
 
-config DRIVERS_HDF_AUDIO_THEAD
-    bool "Enable HDF Thead Audio Codec driver"
-    select SND_SOC_GENERIC_DMAENGINE_PCM
-    default n
-    depends on DRIVERS_HDF_AUDIO
-    help
-        Answer Y to choice HDF Audio Codec driver.
-
 config DRIVERS_HDF_AUDIO_RK3568
     bool "Enable HDF Audio Codec driver"
     default n
