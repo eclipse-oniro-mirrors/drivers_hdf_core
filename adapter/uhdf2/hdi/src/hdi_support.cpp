@@ -27,7 +27,7 @@
 
 #define HDF_LOG_TAG load_hdi
 
-#ifdef __ARM64__
+#if defined(__ARM64__) || defined(__RISCV64__)
 #define HDI_SO_PATH HDF_LIBRARY_DIR "64"
 #else
 #define HDI_SO_PATH HDF_LIBRARY_DIR
