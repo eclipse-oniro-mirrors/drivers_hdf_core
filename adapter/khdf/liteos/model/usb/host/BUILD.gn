@@ -40,7 +40,7 @@ hdf_driver(module_name) {
     "$PERIPHERAL_USB_DDK_HOST/src/usb_raw_api.c",
     "$PERIPHERAL_USB_DDK_HOST/src/usb_raw_api_library.c",
   ]
-  include_dirs = []
+  include_dirs = [ "$HDF_PERIPHERAL_PATH/usb/utils/include" ]
   if (defined(LOSCFG_DRIVERS_HDF_USB_PNP_NOTIFY)) {
     USB_PNP_NOTIFY_SHARED_ROOT = "$HDF_FRAMEWORKS_PATH/core/shared"
     FRAMEWORKS_USB_DDK_HOST = "$HDF_FRAMEWORKS_PATH/model/usb"
@@ -58,6 +58,7 @@ hdf_driver(module_name) {
       "$HDF_INTERFACE_PATH/inner_api/osal/shared",
       "$HDF_INTERFACE_PATH/inner_api/host/shared",
       "$FRAMEWORKS_USB_DDK_HOST/include",
+      "$HDF_PERIPHERAL_PATH/usb/utils/include",
     ]
     public_configs = [ ":public" ]
   }
@@ -81,6 +82,7 @@ hdf_driver(module_name) {
       "$FRAMEWORKS_USB_SERIAL_DEMO_ROOT/include",
       "$FRAMEWORKS_USB_NET_DEMO_ROOT/include",
       "$FRAMEWORKS_USB_DDK_SPEED_TEST_ROOT/include",
+      "$HDF_PERIPHERAL_PATH/usb/utils/include",
     ]
   }
 
@@ -88,6 +90,7 @@ hdf_driver(module_name) {
     "$PERIPHERAL_USB_DDK_HOST/../../interfaces/ddk/common",
     "$PERIPHERAL_USB_DDK_HOST/../../interfaces/ddk/host",
     "$PERIPHERAL_USB_DDK_HOST/include",
+    "$HDF_PERIPHERAL_PATH/usb/utils/include",
   ]
 }
 
@@ -95,5 +98,6 @@ config("public") {
   include_dirs = [
     "include",
     "$HDF_FRAMEWORKS_PATH/model/usb/include",
+    "$HDF_PERIPHERAL_PATH/usb/utils/include",
   ]
 }
