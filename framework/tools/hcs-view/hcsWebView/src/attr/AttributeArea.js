@@ -49,6 +49,13 @@ class AttributeArea {
       '<label class="input_text_readonly_top">' + label + '</label></br>';
     ret += '<input id="' + searchId + '"';
     ret += ' class="input_text"';
+    ret = this.addInputFunc(default_, ret, searchId, disable);
+    ret += ' oninput="document.attrCallback.Event(' + "'input', " +
+      "'" + searchId + "'" + ')" /><br>';
+    this.htmlStr += ret;
+  }
+
+  addInputFunc(default_, ret, searchId, disable) {
     if (default_.indexOf('"') >= 0) {
       ret += ' value=""';
       this.freshInputValue_.push([searchId, default_]);
@@ -58,36 +65,16 @@ class AttributeArea {
     if (disable) {
       ret += ' disabled="disabled"';
     }
-    ret +=
-      ' oninput="document.attrCallback.Event(' +
-      "'input', " +
-      "'" +
-      searchId +
-      "'" +
-      ')" /><br>';
-    this.htmlStr += ret;
+    return ret;
   }
 
   addInput(searchId, label, default_, disable) {
     let ret = '<label class="input_text_readonly">' + label + '</label></br>';
     ret += '<input id="' + searchId + '"';
     ret += ' class="input_text"';
-    if (default_.indexOf('"') >= 0) {
-      ret += ' value=""';
-      this.freshInputValue_.push([searchId, default_]);
-    } else { 
-      ret += ' value="' + default_ + '"';
-    }
-    if (disable) {
-      ret += ' disabled="disabled"';
-    }
-    ret +=
-      ' oninput="document.attrCallback.Event(' +
-      "'input', " +
-      "'" +
-      searchId +
-      "'" +
-      ')" /><br>';
+    ret = this.addInputFunc(default_, ret, searchId, disable);
+    ret += ' oninput="document.attrCallback.Event(' + "'input', " + "'" +
+      searchId + "'" + ')" /><br>';
     this.htmlStr += ret;
   }
 
@@ -101,17 +88,8 @@ class AttributeArea {
     let validatorId = 'valid_' + searchId;
     let ret = '<label class="input_text_readonly">' + label + '</label></br>';
     ret += '<input id="' + searchId + '"';
-    ret +=
-      ' class="input_text" maxlength="40" placeholder="' + defaultTxt + '"';
-    if (default_.indexOf('"') >= 0) {
-      ret += ' value=""';
-      this.freshInputValue_.push([searchId, default_]);
-    } else { 
-      ret += ' value="' + default_ + '"';
-    }
-    if (disable) {
-      ret += ' disabled="disabled"';
-    }
+    ret += ' class="input_text" maxlength="40" placeholder="' + defaultTxt + '"';
+    ret = this.addInputFunc(default_, ret, searchId, disable);
     ret +=
       ' autofocus="autofocus" onFocus="document.attrCallback.Event(' +
       "'input', " +
@@ -154,56 +132,30 @@ class AttributeArea {
     }
     let text =
       '" class="button_click" type="button" onclick="document.attrCallback.Event(';
-    this.htmlStr +=
-      '<button id="' +
-      searchId +
-      text +
-      "'button', " +
-      "'" +
-      searchId +
-      "'" +
-      ')">' +
-      label +
-      '</button><br>';
+    let htmlString = this.getStrText(searchId, text, label);
+    this.htmlStr += '<button id="' + htmlString;
   }
+  getStrText(searchId, text, label) {
+    return searchId + text + "'button', " + "'" + searchId + "'" + ')">' + label + '</button><br>';
+  }
+
   addLabelButton(searchId, label, title) {
     if (label.length > MAX_LABEL_LENGTH) {
       label = label.substring(0, MAX_LABEL_LENGTH) + '...';
     }
     let text =
       '" class="label_button_click" type="button" onclick="document.attrCallback.Event(';
-    this.htmlStr +=
-      '<label class="input_text_readonly">' +
-      title +
-      '</label></br><button id="' +
-      searchId +
-      text +
-      "'button', " +
-      "'" +
-      searchId +
-      "'" +
-      ')">' +
-      label +
-      '</button><br>';
+    let htmlString = this.getStrText(searchId, text, label);
+    this.htmlStr += '<label class="input_text_readonly">' + title + '</label></br><button id="' + htmlString;
   }
 
   addButtonDelete(searchId, label) {
     if (label.length > MAX_LABEL_LENGTH) {
       label = label.substring(0, MAX_LABEL_LENGTH) + '...';
     }
-    let text =
-      '" class="button_click_delete" type="button" onclick="document.attrCallback.Event(';
-    this.htmlStr +=
-      '<button id="' +
-      searchId +
-      text +
-      "'button', " +
-      "'" +
-      searchId +
-      "'" +
-      ')">' +
-      label +
-      '</button><br>';
+    let text = '" class="button_click_delete" type="button" onclick="document.attrCallback.Event(';
+    this.htmlStr += '<button id="' + searchId + text + "'button', " + "'" +
+      searchId + "'" + ')">' + label + '</button><br>';
   }
   addSelect(searchId, label, selectList, default_, disable) {
     let ret = '<label class="input_text_readonly">' + label + '</label></br>';

@@ -43,6 +43,10 @@ const KEY_VALUE_MAX = 30;
 const ONE_KEY_VALUE_MAX = 29;
 const TWO_KEY_VALUE_MAX = 28;
 const THREE_KEY_VALUE_MAX = 27;
+const BGPIC_WIDTH = 156;
+const BGPIC_HEIGHT = 112;
+const DRAWTEXT_OFFSETX = -3;
+const DRAWTEXT_OFFSETY = -3;
 
 const MouseType = {
   DOWN: 1, // 按下
@@ -318,19 +322,7 @@ class MainEditor {
       32
     );
 
-    let bgPic = RightMenu.isDarkBackground_ ? 'pop_background.png' : 'pop_background_light.png';
-    let bgPicPath = '../images/' + bgPic;
-    RightMenu.backgroundImg_ = XTexture.gi().loadTextureFromImage(bgPicPath);
-    RightMenu.backgroundCut_ = XTexture.gi().makeCut(
-      RightMenu.backgroundImg_,
-      0,
-      0,
-      156,
-      112,
-      156,
-      112
-    );
-    this.cutImgDict_['backgroundCut'] = bgPic;
+    this.reloadBgPic();
 
     RightMenu.popItemFocusImg_ = XTexture.gi().loadTextureFromImage(
       '../images/pop_item_focus.png'
@@ -526,6 +518,13 @@ class MainEditor {
   }
 
   reloadMenuBgPic() {
+    let bgPic = this.reloadBgPic();
+    XMessage.gi().send('reloadMenuBg', {
+      data: bgPic,
+    });
+  }
+
+  reloadBgPic() {
     let bgPic = RightMenu.isDarkBackground_ ? 'pop_background.png' : 'pop_background_light.png';
     let bgPicPath = '../images/' + bgPic;
     RightMenu.backgroundImg_ = XTexture.gi().loadTextureFromImage(bgPicPath);
@@ -533,15 +532,13 @@ class MainEditor {
       RightMenu.backgroundImg_,
       0,
       0,
-      156,
-      112,
-      156,
-      112
+      BGPIC_WIDTH,
+      BGPIC_HEIGHT,
+      BGPIC_WIDTH,
+      BGPIC_HEIGHT
     );
-    this.cutImgDict_['backgroundCut'] = bgPic;
-    XMessage.gi().send('reloadMenuBg', {
-      data: bgPic,
-    });
+    this.cutImgDict_.backgroundCut = bgPic;
+    return bgPic;
   }
 
   calcPostionY(data, y) {
@@ -1223,19 +1220,14 @@ class MainEditor {
    * @param {} pm2f X2DFast
    */   
   drawSelectText(pm2f) {
-    pm2f.drawText(
-      '点击选择目标',
-      MainEditor.NODE_TEXT_SIZE,
-      this.mousePos_.x,
-      this.mousePos_.y,
-      1,
-      1,
-      0,
-      -3,
-      -3,
-      MainEditor.NODE_TEXT_COLOR
-    );
+    let drawTextName = '点击选择目标';
+    this.callDrawText(pm2f, drawTextName);
     this.btnCancelSelect_.name_ = '取消选择';
+  }
+
+  callDrawText(pm2f, drawTextName) {
+    pm2f.drawText(drawTextName, MainEditor.NODE_TEXT_SIZE, this.mousePos_.x,
+      this.mousePos_.y, 1, 1, 0, DRAWTEXT_OFFSETX, DRAWTEXT_OFFSETY, MainEditor.NODE_TEXT_COLOR);
   }
 
   /**
@@ -1243,18 +1235,8 @@ class MainEditor {
    * @param {} pm2f X2DFast
    */   
   drawCopyText(pm2f) {
-    pm2f.drawText(
-      '已复制' + this.selectNode_.pnode.name_,
-      MainEditor.NODE_TEXT_SIZE,
-      this.mousePos_.x,
-      this.mousePos_.y,
-      1,
-      1,
-      0,
-      -3,
-      -3,
-      MainEditor.NODE_TEXT_COLOR
-    );
+    let drawTextName = '已复制' + this.selectNode_.pnode.name_;
+    this.callDrawText(pm2f, drawTextName);
     this.btnCancelSelect_.name_ = '取消复制';
   }
 
