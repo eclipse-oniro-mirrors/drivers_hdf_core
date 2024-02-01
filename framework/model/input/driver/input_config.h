@@ -25,8 +25,13 @@ typedef struct {
     uint8_t busNum;
     uint16_t clkGpio;
     uint16_t dataGpio;
+#if defined(CONFIG_ARCH_RV64I)
+    uint64_t i2cClkReg[REG_CONFIG_LEN];
+    uint64_t i2cDataReg[REG_CONFIG_LEN];
+#else
     uint32_t i2cClkReg[REG_CONFIG_LEN];
     uint32_t i2cDataReg[REG_CONFIG_LEN];
+#endif
 } BoardI2cCfg;
 
 typedef struct {
@@ -52,8 +57,13 @@ typedef struct {
 typedef struct {
     uint16_t rstGpio;
     uint16_t intGpio;
+#if defined(CONFIG_ARCH_RV64I)
+    uint64_t rstPinReg[REG_CONFIG_LEN];
+    uint64_t intPinReg[REG_CONFIG_LEN];
+#else
     uint32_t rstPinReg[REG_CONFIG_LEN];
     uint32_t intPinReg[REG_CONFIG_LEN];
+#endif
 } BoardPinCfg;
 
 typedef struct {

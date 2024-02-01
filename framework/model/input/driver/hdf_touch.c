@@ -160,6 +160,29 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
     return ret;
 }
 
+#if defined(CONFIG_ARCH_RV64I)
+static int32_t InputPinMuxCfg(uint64_t regAddr, int32_t regSize, uint64_t regValue)
+{
+    uint8_t *base = NULL;
+    uint64_t value;
+    if (regAddr == 0) {
+        HDF_LOGE("%s: regAddr invalid", __func__);
+        return HDF_FAILURE;
+    }
+
+    base = OsalIoRemap(regAddr, regSize);
+    if (base == NULL) {
+        HDF_LOGE("%s: ioremap failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    value = OSAL_READL(base);
+    regValue = (value & regValue);
+    OSAL_WRITEL(regValue, base);
+    OsalIoUnmap((void *)base);
+    return HDF_SUCCESS;
+}
+#else
 static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regValue)
 {
 #if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || \
@@ -182,6 +205,7 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
     OsalIoUnmap((void *)base);
     return HDF_SUCCESS;
 }
+#endif
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
 static int32_t SetResetStatus(TouchDriver *driver)
@@ -244,10 +268,17 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
 #endif
     int32_t i;
     int32_t ret;
+#if defined(CONFIG_ARCH_RV64I)
+    uint64_t rstPinAddr;
+    uint64_t rstPinValue;
+    uint64_t intPinAddr;
+    uint64_t intPinValue;
+#else
     uint32_t rstPinAddr;
     uint32_t rstPinValue;
     uint32_t intPinAddr;
     uint32_t intPinValue;
+#endif
     SeqArray pwrOnTiming = {0};
     SeqArray pwroffTiming = {0};
     TouchDriver *driver = chipDev->driver;
@@ -959,10 +990,17 @@ static int32_t TouchSetupBus(TouchDriver *driver, TouchBoardCfg *config)
     uint8_t busType = config->bus.busType;
     uint8_t busNum = config->bus.i2c.busNum;
     if (busType == I2C_TYPE) {
+#if defined(CONFIG_ARCH_RV64I)
+        uint64_t i2cClkAddr = config->bus.i2c.i2cClkReg[0];
+        uint64_t i2cClkValue = config->bus.i2c.i2cClkReg[1];
+        uint64_t i2cDataAddr = config->bus.i2c.i2cDataReg[0];
+        uint64_t i2cDataValue = config->bus.i2c.i2cDataReg[1];
+#else
         uint32_t i2cClkAddr = config->bus.i2c.i2cClkReg[0];
         uint32_t i2cClkValue = config->bus.i2c.i2cClkReg[1];
         uint32_t i2cDataAddr = config->bus.i2c.i2cDataReg[0];
         uint32_t i2cDataValue = config->bus.i2c.i2cDataReg[1];
+#endif
 
         if (InputPinMuxCfg(i2cClkAddr, REGISTER_BYTE_SIZE, i2cClkValue) != HDF_SUCCESS) {
             return HDF_FAILURE;

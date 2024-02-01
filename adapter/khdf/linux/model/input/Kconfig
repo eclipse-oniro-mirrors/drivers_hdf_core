@@ -12,6 +12,13 @@ config DRIVERS_HDF_TP_5P5_GT911
     help
       Answer Y to enable HDF TP 5P5 GT911 driver.
 
+config DRIVERS_HDF_TP_TH1520_GT911
+    bool "Enable HDF tp 5P5 c9xx GT911  driver"
+    default n
+    depends on DRIVERS_HDF_INPUT
+    help
+      Answer Y to enable HDF TP 5P5 c9xx GT911  driver.
+
 config DRIVERS_HDF_TP_2P35_FT6236
     bool "Enable HDF tp 2P35 FT6236 driver"
     default n

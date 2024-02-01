@@ -136,10 +136,17 @@ static int32_t ParseBus(struct DeviceResourceIface *parser, const struct DeviceR
         CHECK_PARSER_RET(ret, "GetUint16");
         ret = parser->GetUint16(busNode, "dataGpio", &bus->i2c.dataGpio, 0);
         CHECK_PARSER_RET(ret, "GetUint16");
+#if defined(CONFIG_ARCH_RV64I)
+        ret = parser->GetUint64Array(busNode, "i2cClkIomux", bus->i2c.i2cClkReg, REG_CONFIG_LEN, 0);
+        CHECK_PARSER_RET(ret, "GetUint64Array");
+        ret = parser->GetUint64Array(busNode, "i2cDataIomux", bus->i2c.i2cDataReg, REG_CONFIG_LEN, 0);
+        CHECK_PARSER_RET(ret, "GetUint64Array");
+#else
         ret = parser->GetUint32Array(busNode, "i2cClkIomux", bus->i2c.i2cClkReg, REG_CONFIG_LEN, 0);
         CHECK_PARSER_RET(ret, "GetUint32Array");
         ret = parser->GetUint32Array(busNode, "i2cDataIomux", bus->i2c.i2cDataReg, REG_CONFIG_LEN, 0);
         CHECK_PARSER_RET(ret, "GetUint32Array");
+#endif
     } else if (bus->busType == SPI) {
         ret = parser->GetUint8(busNode, "busNum", &bus->spi.busNum, 0);
         CHECK_PARSER_RET(ret, "GetUint8");
@@ -165,10 +172,17 @@ static int32_t ParsePins(struct DeviceResourceIface *parser, const struct Device
     CHECK_PARSER_RET(ret, "GetUint16");
     ret = parser->GetUint16(pinsNode, "intGpio", &pins->intGpio, 0);
     CHECK_PARSER_RET(ret, "GetUint16");
+#if defined(CONFIG_ARCH_RV64I)
+    ret = parser->GetUint64Array(pinsNode, "rstRegCfg", pins->rstPinReg, REG_CONFIG_LEN, 0);
+    CHECK_PARSER_RET(ret, "GetUint64Array");
+    ret = parser->GetUint64Array(pinsNode, "intRegCfg", pins->intPinReg, REG_CONFIG_LEN, 0);
+    CHECK_PARSER_RET(ret, "GetUint64Array");
+#else
     ret = parser->GetUint32Array(pinsNode, "rstRegCfg", pins->rstPinReg, REG_CONFIG_LEN, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
     ret = parser->GetUint32Array(pinsNode, "intRegCfg", pins->intPinReg, REG_CONFIG_LEN, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
+#endif
     return HDF_SUCCESS;
 }
 
