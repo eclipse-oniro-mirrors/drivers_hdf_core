@@ -10,6 +10,9 @@
 #define TOUCH_GT911_H
 
 /* the macro defines of GT911 */
+#if defined(CONFIG_ARCH_RV64I)
+#define MAX_SUPPORT_POINT     10
+#endif
 #define MAX_SUPPORT_POINT     5
 #define ONE_BYTE_MASK         0xFF
 #define ONE_BYTE_OFFSET       8
