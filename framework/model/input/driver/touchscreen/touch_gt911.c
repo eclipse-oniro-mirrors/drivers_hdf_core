@@ -125,12 +125,7 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
             frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-#elif defined(LOSCFG_PLATFORM_STM32MP157)
-            frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-            frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
-                                  ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
-#elif defined(CONFIG_ARCH_RV64I)
+#elif defined(LOSCFG_PLATFORM_STM32MP157) || defined(CONFIG_ARCH_RV64I)
             frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
             frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
@@ -228,8 +223,8 @@ static int32_t UpdateFirmware(ChipDevice *device)
         return HDF_SUCCESS;
     }
 #elif defined(CONFIG_ARCH_RV64I)
-	HDF_LOGI("%s: Turn off RV64I firmware updates", __func__);
-	return HDF_SUCCESS;   //Turn off firmware updates
+    HDF_LOGI("%s: Turn off RV64I firmware updates", __func__);
+    return HDF_SUCCESS;
 #endif
     ret = InputI2cWrite(i2cClient, firmWareParm, FIRMWARE_LEN);
     if (ret < 0) {
