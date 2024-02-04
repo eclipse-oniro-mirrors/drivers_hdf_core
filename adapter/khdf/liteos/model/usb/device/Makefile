@@ -39,6 +39,7 @@ LOCAL_INCLUDE := $(USB_DEVICE_ROOT) \
                  $(USB_DEVICE_ROOT)/gadget/fconfig/include \
                  $(FRAMEWORKS_USB_DDK_DEVICE)/../../interfaces/ddk/common \
                  $(FRAMEWORKS_USB_DDK_DEVICE)/../../interfaces/ddk/device \
+                 $(FRAMEWORKS_USB_DDK_DEVICE)/../../utils/include \
                  $(FRAMEWORKS_USB_DDK_DEVICE)/include
 
 LOCAL_SRCS += $(FRAMEWORKS_USB_DDK_DEVICE)/src/adapter_if_liteos.c \
