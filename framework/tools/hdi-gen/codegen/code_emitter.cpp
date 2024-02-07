@@ -153,7 +153,8 @@ std::string CodeEmitter::InterfaceToFilePath(const std::string &interfaceName) c
 
 std::string CodeEmitter::EmitMethodCmdID(const AutoPtr<ASTMethod> &method)
 {
-    return StringHelper::Format("CMD_%s_%s", ConstantName(baseName_).c_str(), ConstantName(method->GetName()).c_str());
+    return StringHelper::Format("CMD_%s_%s_%d",
+        ConstantName(baseName_).c_str(), ConstantName(method->GetName()).c_str(), method->GetCmdId());
 }
 
 void CodeEmitter::EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix)

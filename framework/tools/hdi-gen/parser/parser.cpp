@@ -546,6 +546,14 @@ AutoPtr<ASTMethod> Parser::ParseMethod(const AutoPtr<ASTInterfaceType> &interfac
         lexer_.GetToken();
     }
 
+    size_t methodsCount = interface->GetMethodNumber() + 1;
+    AutoPtr<ASTInterfaceType> extInterface = interface->GetExtendsInterface();
+    while (extInterface != nullptr) {
+        methodsCount += extInterface->GetMethodNumber();
+        extInterface = extInterface->GetExtendsInterface();
+    }
+    method->SetCmdId(methodsCount);
+
     return method;
 }
 
