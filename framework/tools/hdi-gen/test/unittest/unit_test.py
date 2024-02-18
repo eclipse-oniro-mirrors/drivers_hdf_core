@@ -33,11 +33,11 @@ def compare_file(first_file, second_file):
 
 
 def compare_target_files(first_file_path, second_file_path):
-    first_files = get_all_files(first_file_path)
-    second_files = get_all_files(second_file_path)
+    first_files_list = get_all_files(first_file_path)
+    second_files_list = get_all_files(second_file_path)
 
-    first_files = set([file[len(first_file_path):] for file in first_files])
-    second_files = set([file[len(second_file_path):-4] for file in second_files])
+    first_files = set([file[len(first_file_path):] for file in first_files_list])
+    second_files = set([file[len(second_file_path):-4] for file in second_files_list])
 
     common_files = first_files & second_files
     
@@ -202,7 +202,8 @@ class Tests:
         ret = file_exists(hdi_gen_file)
         if not ret:
             hdi_gen_path = "../../"
-            ret = make_binary_file(hdi_gen_path)
+            if make_binary_file(hdi_gen_path)[0] == 0:
+                ret = True
         if not ret:
             print_failure("[===========] failed to make hdi-gen")
         return ret
