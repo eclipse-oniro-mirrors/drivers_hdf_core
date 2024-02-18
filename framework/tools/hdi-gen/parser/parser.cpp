@@ -1124,7 +1124,10 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
     }
 
     token = lexer_.PeekToken();
-    if (token.kind != TokenType::BRACES_LEFT) {
+    if (token.kind == TokenType::COLON) {
+        AutoPtr<ASTStructType> parentType = ParseStructParentType();
+        structType->SetParentType(parentType);
+    } else if (token.kind != TokenType::BRACES_LEFT) {
         LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value.c_str()));
     } else {
         lexer_.GetToken();
@@ -1148,6 +1151,34 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
 
     structType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(structType.Get());
+}
+
+AutoPtr<ASTStructType> Parser::ParseStructParentType()
+{
+    lexer_.GetToken();
+    Token token = lexer_.PeekToken();
+    AutoPtr<ASTType> baseType = ParseType();
+    if (baseType == nullptr) {
+        LogError(token, StringHelper::Format("expected base type name before '{' token"));
+        return nullptr;
+    }
+
+    switch (baseType->GetTypeKind()) {
+        case TypeKind::TYPE_STRUCT:
+            break;
+        default: {
+            LogError(token, StringHelper::Format("illegal base type of struct: '%s'", baseType->ToString().c_str()));
+            lexer_.SkipUntilToken(TokenType::BRACES_LEFT);
+        }
+    }
+
+    AutoPtr<ASTStructType> parentType = dynamic_cast<ASTStructType *>(baseType.Get());
+    token = lexer_.PeekToken();
+    if (token.kind != TokenType::BRACES_LEFT) {
+        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value.c_str()));
+    }
+    lexer_.GetToken();
+    return parentType;
 }
 
 void Parser::ParseStructMember(const AutoPtr<ASTStructType> &structType)

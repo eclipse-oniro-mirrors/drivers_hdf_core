@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef OHOS_HDI_FOO_V1_1_FOOSTUB_H
+#define OHOS_HDI_FOO_V1_1_FOOSTUB_H
+
+#include <ipc_object_stub.h>
+#include <message_option.h>
+#include <message_parcel.h>
+#include <object_collector.h>
+#include <refbase.h>
+#include "v1_0/foo_stub.h"
+#include "v1_1/ifoo.h"
+
+namespace OHOS {
+namespace HDI {
+namespace Foo {
+namespace V1_1 {
+
+using namespace OHOS;
+class FooStub : public IPCObjectStub {
+public:
+    explicit FooStub(const sptr<IFoo> &impl);
+    virtual ~FooStub();
+
+    int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+    static int32_t FooStubTestPingV1_1_4_(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption, sptr<OHOS::HDI::Foo::V1_1::IFoo> impl);
+
+    static int32_t FooStubTestGetData_5_(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption, sptr<OHOS::HDI::Foo::V1_1::IFoo> impl);
+
+private:
+    int32_t FooStubTestPingV1_1_4(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption);
+
+    int32_t FooStubTestGetData_5(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption);
+
+    int32_t FooStubPing_1(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption);
+
+    int32_t FooStubGetData_2(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption);
+
+    int32_t FooStubInfoTest_3(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption);
+
+    int32_t FooStubGetVersion_0(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption);
+
+
+    static inline ObjectDelegator<OHOS::HDI::Foo::V1_1::FooStub, OHOS::HDI::Foo::V1_1::IFoo> objDelegator_;
+    sptr<OHOS::HDI::Foo::V1_1::IFoo> impl_;
+};
+} // V1_1
+} // Foo
+} // HDI
+} // OHOS
+
+#endif // OHOS_HDI_FOO_V1_1_FOOSTUB_H

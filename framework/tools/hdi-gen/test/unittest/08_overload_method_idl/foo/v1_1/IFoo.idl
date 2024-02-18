@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package ohos.hdi.foo.v1_0;
+package ohos.hdi.foo.v1_1;
 
-interface IFoo {
-    Ping([in] String sendMsg,[out] String recvMsg);
+import ohos.hdi.foo.v1_0.IFoo;
 
-    GetData([out] String info);
+interface IFoo extends ohos.hdi.foo.v1_0.IFoo {
+    Ping([in] String sendMsg,[out] String recvMsg, [in] int code);
 
-    InfoTest([in] int inParam, [out] double outParam);
+    GetData([out] String info, [out] String ver);
 };

@@ -49,7 +49,14 @@ public:
         return attr_ != nullptr ? attr_->HasValue(ASTAttr::LITE) : false;
     }
 
+    void SetParentType(const AutoPtr<ASTStructType> &parentType);
+
     void AddMember(const AutoPtr<ASTType> &typeName, std::string name);
+
+    inline std::vector<std::tuple<std::string, AutoPtr<ASTType>>> GetMembers()
+    {
+        return members_;
+    }
 
     inline size_t GetMemberNumber()
     {
@@ -123,6 +130,7 @@ public:
 private:
     AutoPtr<ASTAttr> attr_;
     std::vector<std::tuple<std::string, AutoPtr<ASTType>>> members_;
+    AutoPtr<ASTStructType> parentType_;
 };
 } // namespace HDI
 } // namespace OHOS

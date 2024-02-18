@@ -134,6 +134,8 @@ private:
     // parse declaration of struct
     void ParseStructDeclaration(const AttrSet &attrs = {});
 
+    AutoPtr<ASTStructType> ParseStructParentType();
+
     void ParseStructMember(const AutoPtr<ASTStructType> &structType);
 
     // parse declaration of union

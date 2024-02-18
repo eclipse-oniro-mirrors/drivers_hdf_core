@@ -13,12 +13,30 @@
  * limitations under the License.
  */
 
-package ohos.hdi.foo.v1_0;
+#ifndef OHOS_HDI_FOO_V1_0_FOOSERVICE_H
+#define OHOS_HDI_FOO_V1_0_FOOSERVICE_H
 
-interface IFoo {
-    Ping([in] String sendMsg,[out] String recvMsg);
+#include "v1_0/ifoo.h"
 
-    GetData([out] String info);
+namespace OHOS {
+namespace HDI {
+namespace Foo {
+namespace V1_0 {
+class FooService : public OHOS::HDI::Foo::V1_0::IFoo {
+public:
+    FooService() = default;
+    virtual ~FooService() = default;
 
-    InfoTest([in] int inParam, [out] double outParam);
+    int32_t Ping(const std::string& sendMsg, std::string& recvMsg) override;
+
+    int32_t GetData(std::string& info) override;
+
+    int32_t InfoTest(int32_t inParam, double& outParam) override;
+
 };
+} // V1_0
+} // Foo
+} // HDI
+} // OHOS
+
+#endif // OHOS_HDI_FOO_V1_0_FOOSERVICE_H

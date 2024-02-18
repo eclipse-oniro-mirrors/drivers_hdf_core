@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -32,15 +32,18 @@ def compare_file(first_file, second_file):
             return first_hash_info == second_hash_info
 
 
-def compare_files(first_file_path, second_file_path):
-    first_files = set(os.listdir(first_file_path))
-    second_files = set(os.listdir(second_file_path))
+def compare_target_files(first_file_path, second_file_path):
+    first_files = get_all_files(first_file_path)
+    second_files = get_all_files(second_file_path)
 
-    if first_files != second_files:
-        return False
+    first_files = set([file[len(first_file_path):] for file in first_files])
+    second_files = set([file[len(second_file_path):-4] for file in second_files])
+
+    common_files = first_files & second_files
     
-    for files in first_files:
-        if not compare_file(os.path.join(first_file_path, files), os.path.join(second_file_path, files)):
+    for files in common_files:
+        if not compare_file(first_file_path + files, second_file_path + files + ".txt"):
+            print(first_file_path + files, second_file_path + files + ".txt")
             return False
     return True
 
@@ -58,6 +61,27 @@ def make_binary_file(file_path):
     return exec_command("make --directory={} --jobs=4".format(file_path))
 
 
+def get_all_files(path):
+    file_list = []
+    for item in os.listdir(path):
+        item = os.path.join(path, item)
+        if os.path.isdir(item):
+            file_list += get_all_files(item)
+        else:
+            file_list.append(item)
+    return file_list
+
+
+def get_all_idl_files(idl_path):
+    file_list = get_all_files(idl_path)
+    idl_file_list = []
+    for file in file_list:
+        if os.path.splitext(file)[-1] == ".idl":
+            idl_file_list.append(file)
+    return idl_file_list
+
+
+
 class Test:
     def __init__(self, name, working_dir):
         self.name = name
@@ -71,8 +95,33 @@ class Test:
         # please add test code here
         return False
 
+    def run_success(self):
+        self.add_idl_files()
+        status, _ = exec_command(self.command)
+        if status == 0 and compare_target_files(self.output_dir, self.target_dir):
+            return True
+        return False
+    
+    def run_fail(self):
+        self.add_idl_files()
+        status, _ = exec_command(self.command)
+
+        expected_fail_output = ""
+        with open(os.path.join(self.target_dir, "fail_output.txt"), 'r') as target_output:
+            expected_fail_output = target_output.read()
+
+        if status != 0 and expected_fail_output == _:
+            return True
+        return False
+
     def remove_output(self):
         exec_command("rm -rf {}".format(self.output_dir))
+        return True
+
+    def add_idl_files(self):
+        idl_list = get_all_idl_files(self.idl_dir)
+        for idl in idl_list:
+            self.command += " -c {}".format(idl)
 
     def test(self):
         print_success("[ RUN       ] {}".format(self.name))
@@ -89,106 +138,62 @@ class Test:
 
 # compile empty idl file
 class UnitTest01(Test):
-    def add_idl_files(self):
-        self.command += "-c {}".format(os.path.join(self.idl_dir, "v1_0", "IFoo.idl"))
-    
     def run(self):
-        self.add_idl_files()
-        status, _ = exec_command(self.command)
-        if status != 0 and _ == "[HDI-GEN]: no idl files.":
-            return True
-        return False
+        return self.run_fail()
 
 
-# compile empty idl file
+# standard interface idl file
 class UnitTest02(Test):
-    def add_idl_files(self):
-        self.command += "-c {}".format(os.path.join(self.idl_dir, "v1_0", "IFoo.idl"))
-    
     def run(self):
-        self.add_idl_files()
-        status, _ = exec_command(self.command)
-        if status == 0 and compare_files(self.output_dir, self.target_dir):
-            return True
-        return False
+        return self.run_success()
 
-'''
-# get hash key and print standard ouput
-class TestHashGood1(Test):
+
+# standard callback idl file
+class UnitTest03(Test):
     def run(self):
-        result_hash_file_path = "./good/hash.txt"
-        command = "../../hdi-gen -D ./good/ -r ohos.hdi:./good/ --hash"
-        status, exec_result = exec_command(command)
-        if status != 0:
-            print(exec_result)
-            return False
-        temp_hash_info = exec_result
-
-        with open(result_hash_file_path, 'r') as result_hash_file:
-            result_hash_info = result_hash_file.read().rstrip()
-            return temp_hash_info == result_hash_info
+        return self.run_success()
 
 
-# get hash key and print file
-class TestHashGood2(Test):
+# extended interface idl file
+class UnitTest04(Test):
     def run(self):
-        result_hash_file_path = "./good/hash.txt"
-        temp_hash_file_path = "./good/temp.txt"
-        command = "../../hdi-gen -D ./good/ -r ohos.hdi:./good/ --hash -o {}".format(temp_hash_file_path)
-        status, result = exec_command(command)
-        if status != 0:
-            print(result)
-            return False
-
-        result = False
-        if compare_file(temp_hash_file_path, result_hash_file_path):
-            result = True
-        exec_command("rm -f ./good/temp.txt")
-        return result
+        return self.run_success()
 
 
-# nothing idl files
-class TestBadHash01(Test):
+# interface with types idl file
+class UnitTest05(Test):
     def run(self):
-        command = "../../hdi-gen -D ./bad_01/ -r ohos.hdi:./bad_01/ --hash"
-        status, _ = exec_command(command)
-        return status != 0
+        return self.run_success()
 
 
-# empty idl file
-class TestBadHash02(Test):
+# extended enum idl file
+class UnitTest06(Test):
     def run(self):
-        command = "../../hdi-gen -D ./bad_02/ -r ohos.hdi:./bad_02/ --hash"
-        status, _ = exec_command(command)
-        return status != 0
+        return self.run_success()
 
 
-# the idl file has no package name
-class TestBadHash03(Test):
+# extended struct idl file
+class UnitTest07(Test):
     def run(self):
-        command = "../../hdi-gen -D ./bad_03/ -r ohos.hdi:./bad_03/ --hash"
-        status, _ = exec_command(command)
-        return status != 0
+        return self.run_success()
 
 
-# the idl file has error package name
-class TestBadHash04(Test):
+# overload method idl file
+class UnitTest08(Test):
     def run(self):
-        command = "../../hdi-gen -D ./bad_04/ -r ohos.hdi:./bad_04/ --hash"
-        status, _ = exec_command(command)
-        return status != 0
-'''
+        return self.run_success()
+
 
 class Tests:
     test_cases = [
         UnitTest01("UnitTestEmptyIdl", "01_empty_idl"),
         UnitTest02("UnitTestStandardInterface", "02_standard_interface_idl"),
-        # UnitTest03("UnitTestStandardCallback", "03_standard_callback_idl"),
-        # UnitTest04("UnitTestExtendedInterface", "04_extended_interface_idl"),
-        # UnitTest05("UnitTestTypesIdl", "05_types_idl"),
-        # UnitTest06("UnitTestEnumExtension", "06_extended_enum_idl"),
-        # UnitTest06("UnitTestStructExtension", "07_extended_struct_idl"),
-        # UnitTest06("UnitTestOverloadMethod", "08_overload_method_idl"),
+        UnitTest03("UnitTestStandardCallback", "03_standard_callback_idl"),
+        UnitTest04("UnitTestExtendedInterface", "04_extended_interface_idl"),
+        UnitTest05("UnitTestTypesIdl", "05_types_idl"),
+        UnitTest06("UnitTestEnumExtension", "06_extended_enum_idl"),
+        UnitTest07("UnitTestStructExtension", "07_extended_struct_idl"),
+        UnitTest08("UnitTestOverloadMethod", "08_overload_method_idl"),
     ]
 
     @staticmethod
