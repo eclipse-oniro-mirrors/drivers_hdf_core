@@ -222,6 +222,9 @@ static int32_t UpdateFirmware(ChipDevice *device)
         HDF_LOGI("%s: needn't update fw version", __func__);
         return HDF_SUCCESS;
     }
+#elif defined(CONFIG_ARCH_RV64I)
+    HDF_LOGI("%s: Turn off RV64I firmware updates", __func__);
+    return HDF_SUCCESS;
 #endif
     ret = InputI2cWrite(i2cClient, firmWareParm, FIRMWARE_LEN);
     if (ret < 0) {

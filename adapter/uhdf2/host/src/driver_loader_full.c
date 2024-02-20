@@ -27,7 +27,7 @@
 
 #define DRIVER_DESC "driverDesc"
 #define HDF_LOG_TAG driver_loader_full
-#ifdef __ARM64__
+#if defined(__ARM64__) || defined(__RISCV64__)
 #define DRIVER_PATH HDF_LIBRARY_DIR"64/"
 #else
 #define DRIVER_PATH HDF_LIBRARY_DIR"/"
