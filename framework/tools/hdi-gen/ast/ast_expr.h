@@ -69,6 +69,12 @@ public:
     std::string Dump(const std::string &prefix) override;
     std::string value_;
 };
+
+class ASTEnumExpr : public ASTExpr {
+public:
+    std::string Dump(const std::string &prefix) override;
+    std::string value_;
+};
 } // namespace HDI
 } // namespace OHOS
 

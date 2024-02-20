@@ -169,6 +169,8 @@ private:
 
     AutoPtr<ASTExpr> ParseNumExpr();
 
+    AutoPtr<ASTExpr> ParseEnumExpr();
+
     bool CheckNumber(const std::string& integerVal) const;
 
     bool CheckType(const Token &token, const AutoPtr<ASTType> &type);

@@ -43,6 +43,7 @@ static std::regex g_binaryNumRe(RE_BIN_DIGIT RE_DIGIT_SUFFIX, std::regex_constan
 static std::regex g_octNumRe(RE_OCT_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 static std::regex g_decNumRe(RE_DEC_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 static std::regex g_hexNumRe(RE_HEX_DIFIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
+AutoPtr<ASTEnumType> g_currentEnum = nullptr;
 
 bool Parser::Parse(const std::vector<FileDetail> &fileDetails)
 {
@@ -1002,6 +1003,7 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
 void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 {
     AutoPtr<ASTEnumType> enumType = new ASTEnumType;
+    g_currentEnum = enumType;
     enumType->SetAttribute(ParseUserDefTypeAttr(attrs));
 
     lexer_.GetToken();
@@ -1038,6 +1040,7 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 
     enumType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(enumType.Get());
+    g_currentEnum = nullptr;
 }
 
 AutoPtr<ASTType> Parser::ParseEnumBaseType()
@@ -1519,6 +1522,13 @@ AutoPtr<ASTExpr> Parser::ParsePrimaryExpr()
         }
         case TokenType::NUM:
             return ParseNumExpr();
+        case TokenType::ID:
+            if (g_currentEnum == nullptr) {
+                LogError(token, StringHelper::Format("this expression is not supported"));
+                lexer_.SkipUntilToken(TokenType::COMMA);
+                return nullptr;
+            }
+            return ParseEnumExpr();
         default:
             LogError(token, StringHelper::Format("this expression is not supported"));
             lexer_.SkipUntilToken(TokenType::COMMA);
@@ -1535,6 +1545,19 @@ AutoPtr<ASTExpr> Parser::ParseNumExpr()
     }
 
     AutoPtr<ASTNumExpr> expr = new ASTNumExpr;
+    expr->value_ = token.value;
+    return expr.Get();
+}
+
+AutoPtr<ASTExpr> Parser::ParseEnumExpr()
+{
+    Token token = lexer_.GetToken();
+    if (!g_currentEnum->HasMember(token.value)) {
+        LogError(token, StringHelper::Format("unknown enum member: '%s'", token.value.c_str()));
+        return nullptr;
+    }
+
+    AutoPtr<ASTEnumExpr> expr = new ASTEnumExpr;
     expr->value_ = token.value;
     return expr.Get();
 }

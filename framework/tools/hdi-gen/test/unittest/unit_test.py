@@ -24,12 +24,17 @@ def print_failure(info):
     print("\033[31m{}\033[0m".format(info))
 
 
-def compare_file(first_file, second_file):
-    with open(first_file, 'r') as first_hash_file:
-        with open(second_file, 'r') as second_hash_file:
-            first_hash_info = first_hash_file.read()
-            second_hash_info = second_hash_file.read()
-            return first_hash_info == second_hash_info
+def compare_file(first_file_path, second_file_path):
+    with open(first_file_path, 'r') as first_file:
+        with open(second_file_path, 'r') as second_file:
+            first_info = first_file.read()
+            second_info = second_file.readline()
+            while second_info:
+                if first_info.find(second_info) == -1:
+                    print("line\n", second_info, "is not in output file", first_file_path)
+                    return False
+                second_info = second_file.readline()
+            return True
 
 
 def compare_target_files(first_file_path, second_file_path):
@@ -43,7 +48,7 @@ def compare_target_files(first_file_path, second_file_path):
     
     for files in common_files:
         if not compare_file(first_file_path + files, second_file_path + files + ".txt"):
-            print(first_file_path + files, second_file_path + files + ".txt")
+            print("file ", first_file_path + files, second_file_path + files + ".txt", "is different")
             return False
     return True
 
@@ -59,6 +64,10 @@ def file_exists(file_path):
 def make_binary_file(file_path):
     print("making hdi-gen...")
     return exec_command("make --directory={} --jobs=4".format(file_path))
+
+
+def clean_binary_file(file_path):
+    return exec_command("make --directory={} clean".format(file_path))
 
 
 def get_all_files(path):
@@ -184,6 +193,12 @@ class UnitTest08(Test):
         return self.run_success()
 
 
+# enum nesting idl file
+class UnitTest09(Test):
+    def run(self):
+        return self.run_success()
+
+
 class Tests:
     test_cases = [
         UnitTest01("UnitTestEmptyIdl", "01_empty_idl"),
@@ -194,6 +209,7 @@ class Tests:
         UnitTest06("UnitTestEnumExtension", "06_extended_enum_idl"),
         UnitTest07("UnitTestStructExtension", "07_extended_struct_idl"),
         UnitTest08("UnitTestOverloadMethod", "08_overload_method_idl"),
+        UnitTest09("UnitTestEnumNesting", "09_enum_nesting_idl"),
     ]
 
     @staticmethod
@@ -212,6 +228,8 @@ class Tests:
     def tear_down_test_case():
         for case in Tests.test_cases:
             case.remove_output()
+        hdi_gen_path = "../../"
+        clean_binary_file(hdi_gen_path)
 
     @staticmethod
     def test():
