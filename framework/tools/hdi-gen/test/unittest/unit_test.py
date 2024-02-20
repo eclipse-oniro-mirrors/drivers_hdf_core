@@ -24,17 +24,21 @@ def print_failure(info):
     print("\033[31m{}\033[0m".format(info))
 
 
+def is_subsequence(first_file, second_file):
+    first_info = first_file.read()
+    second_info = second_file.readline()
+    while second_info:
+        if first_info.find(second_info) == -1:
+            print("line\n", second_info, "is not in output file", first_file_path)
+            return False
+        second_info = second_file.readline()
+    return True
+
+
 def compare_file(first_file_path, second_file_path):
     with open(first_file_path, 'r') as first_file:
         with open(second_file_path, 'r') as second_file:
-            first_info = first_file.read()
-            second_info = second_file.readline()
-            while second_info:
-                if first_info.find(second_info) == -1:
-                    print("line\n", second_info, "is not in output file", first_file_path)
-                    return False
-                second_info = second_file.readline()
-            return True
+            return is_subsequence(first_file, second_file)
 
 
 def compare_target_files(first_file_path, second_file_path):
@@ -72,12 +76,13 @@ def clean_binary_file(file_path):
 
 def get_all_files(path):
     file_list = []
-    for item in os.listdir(path):
-        item = os.path.join(path, item)
-        if os.path.isdir(item):
-            file_list += get_all_files(item)
+    items = os.listdir(path)
+    for item in items:
+        item_path = os.path.join(path, item)
+        if not os.path.isdir(item_path):
+            file_list.append(item_path)
         else:
-            file_list.append(item)
+            file_list += get_all_files(item_path)
     return file_list
 
 
