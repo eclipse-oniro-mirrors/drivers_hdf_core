@@ -340,7 +340,6 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
 
     ret = parser->GetString(infoNode, "sensorName", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
-    CHECK_PARSER_NAME(config->sensorInfo.sensorName, "sensorName", name);
     if (strcpy_s(config->sensorInfo.sensorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
         HDF_LOGE("%s:copy sensorName failed!", __func__);
         return HDF_FAILURE;
