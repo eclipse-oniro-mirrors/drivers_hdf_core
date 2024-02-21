@@ -300,30 +300,12 @@ int32_t DetectSensorDevice(struct SensorCfgData *config)
     return HDF_SUCCESS;
 }
 
-static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
+static int32_t ParseSensorInfoValue(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
     int32_t ret;
     uint16_t id;
     int32_t value;
-    const char *name = NULL;
-
-    ret = parser->GetString(infoNode, "sensorName", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
-    CHECK_PARSER_NAME(config->sensorInfo.sensorName, "sensorName", name);
-
-    ret = parser->GetString(infoNode, "vendorName", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "vendorName");
-    CHECK_PARSER_NAME(config->sensorInfo.vendorName, "vendorName", name);
-
-    ret = parser->GetString(infoNode, "firmwareVersion", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "firmwareVersion");
-    CHECK_PARSER_NAME(config->sensorInfo.firmwareVersion, "firmwareVersion", name);
-
-    ret = parser->GetString(infoNode, "hardwareVersion", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "hardwareVersion");
-    CHECK_PARSER_NAME(config->sensorInfo.hardwareVersion, "hardwareVersion", name);
-
     ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorTypeId");
     config->sensorInfo.sensorTypeId = id;
@@ -346,6 +328,71 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
     ret = parser->GetUint64(infoNode, "maxDelay", (uint64_t *)&value, 0);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "maxDelay");
     config->sensorInfo.maxDelay = value;
+
+    return ret;
+}
+
+static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
+    struct SensorCfgData *config)
+{
+    int32_t ret;
+    // uint16_t id;
+    // int32_t value;
+    const char *name = NULL;
+
+    ret = parser->GetString(infoNode, "sensorName", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
+    CHECK_PARSER_NAME(config->sensorInfo.sensorName, "sensorName", name);
+    if (strcpy_s(config->sensorInfo.sensorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy sensorName failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetString(infoNode, "vendorName", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "vendorName");
+    if (strcpy_s(config->sensorInfo.vendorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy vendorName failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetString(infoNode, "firmwareVersion", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "firmwareVersion");
+    if (strcpy_s(config->sensorInfo.firmwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy firmwareVersion failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetString(infoNode, "hardwareVersion", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "hardwareVersion");
+    if (strcpy_s(config->sensorInfo.hardwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy hardwareVersion failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = ParseSensorInfoValue(parser, infoNode, config);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorInfoValue");
+    // ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorTypeId");
+    // config->sensorInfo.sensorTypeId = id;
+    // ret = parser->GetUint16(infoNode, "sensorId", &id, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorId");
+    // config->sensorInfo.sensorId = id;
+
+    // ret = parser->GetUint32(infoNode, "maxRange", (uint32_t *)&value, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "maxRange");
+    // config->sensorInfo.maxRange = value;
+    // ret = parser->GetUint32(infoNode, "accuracy", (uint32_t *)&value, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "accuracy");
+    // config->sensorInfo.accuracy = value;
+    // ret = parser->GetUint32(infoNode, "power", (uint32_t *)&value, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "power");
+    // config->sensorInfo.power = value;
+    // ret = parser->GetUint64(infoNode, "minDelay", (uint64_t *)&value, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "minDelay");
+    // config->sensorInfo.minDelay = value;
+    // ret = parser->GetUint64(infoNode, "maxDelay", (uint64_t *)&value, 0);
+    // CHECK_PARSER_RESULT_RETURN_VALUE(ret, "maxDelay");
+    // config->sensorInfo.maxDelay = value;
 
     return ret;
 }
