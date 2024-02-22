@@ -88,7 +88,7 @@ private:
     std::string name_;
     AutoPtr<ASTAttr> attr_ = new ASTAttr();
     std::vector<AutoPtr<ASTParameter>> parameters_;
-    size_t cmdId_;
+    size_t cmdId_;  // used to identify same name method
 };
 } // namespace HDI
 } // namespace OHOS

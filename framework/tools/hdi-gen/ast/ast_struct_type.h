@@ -130,7 +130,7 @@ public:
 private:
     AutoPtr<ASTAttr> attr_;
     std::vector<std::tuple<std::string, AutoPtr<ASTType>>> members_;
-    AutoPtr<ASTStructType> parentType_;
+    AutoPtr<ASTStructType> parentType_; // used to dump parent type when using struct extension identify in idl
 };
 } // namespace HDI
 } // namespace OHOS
