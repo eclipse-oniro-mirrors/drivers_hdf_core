@@ -377,7 +377,6 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
     ret = ParseSensorString(parser, infoNode, config);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorString");
 
-
     ret = ParseSensorValue(parser, infoNode, config);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorValue");
     return ret;
