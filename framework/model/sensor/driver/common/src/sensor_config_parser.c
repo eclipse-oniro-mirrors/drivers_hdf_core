@@ -303,10 +303,9 @@ int32_t DetectSensorDevice(struct SensorCfgData *config)
 static int32_t ParseSensorString(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
-    int32_t ret;
     const char *name = NULL;
 
-    ret = parser->GetString(infoNode, "sensorName", &name, NULL);
+    int32_t ret = parser->GetString(infoNode, "sensorName", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
     if (strcpy_s(config->sensorInfo.sensorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
         HDF_LOGE("%s:copy sensorName failed!", __func__);
@@ -340,10 +339,9 @@ static int32_t ParseSensorString(struct DeviceResourceIface *parser, const struc
 static int32_t ParseSensorValue(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
-    int32_t ret;
     uint16_t id;
     int32_t value;
-    ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
+    int32_t ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorTypeId");
     config->sensorInfo.sensorTypeId = id;
     ret = parser->GetUint16(infoNode, "sensorId", &id, 0);
@@ -372,9 +370,7 @@ static int32_t ParseSensorValue(struct DeviceResourceIface *parser, const struct
 static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
-    int32_t ret;
-
-    ret = ParseSensorString(parser, infoNode, config);
+    int32_t ret = ParseSensorString(parser, infoNode, config);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorString");
 
     ret = ParseSensorValue(parser, infoNode, config);
