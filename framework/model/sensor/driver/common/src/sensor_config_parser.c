@@ -300,6 +300,43 @@ int32_t DetectSensorDevice(struct SensorCfgData *config)
     return HDF_SUCCESS;
 }
 
+static int32_t ParseSensorString(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
+    struct SensorCfgData *config)
+{
+    int32_t ret;
+    const char *name = NULL;
+
+    ret = parser->GetString(infoNode, "sensorName", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
+    if (strcpy_s(config->sensorInfo.sensorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy sensorName failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetString(infoNode, "vendorName", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "vendorName");
+    if (strcpy_s(config->sensorInfo.vendorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy vendorName failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetString(infoNode, "firmwareVersion", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "firmwareVersion");
+    if (strcpy_s(config->sensorInfo.firmwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy firmwareVersion failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    ret = parser->GetString(infoNode, "hardwareVersion", &name, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "hardwareVersion");
+    if (strcpy_s(config->sensorInfo.hardwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy hardwareVersion failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    return ret;
+}
+
 static int32_t ParseSensorValue(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
@@ -336,35 +373,10 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
     struct SensorCfgData *config)
 {
     int32_t ret;
-    const char *name = NULL;
 
-    ret = parser->GetString(infoNode, "sensorName", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
-    if (strcpy_s(config->sensorInfo.sensorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
-        HDF_LOGE("%s:copy sensorName failed!", __func__);
-        return HDF_FAILURE;
-    }
+    ret = ParseSensorString(parser, infoNode, config);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorString");
 
-    ret = parser->GetString(infoNode, "vendorName", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "vendorName");
-    if (strcpy_s(config->sensorInfo.vendorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
-        HDF_LOGE("%s:copy vendorName failed!", __func__);
-        return HDF_FAILURE;
-    }
-
-    ret = parser->GetString(infoNode, "firmwareVersion", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "firmwareVersion");
-    if (strcpy_s(config->sensorInfo.firmwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
-        HDF_LOGE("%s:copy firmwareVersion failed!", __func__);
-        return HDF_FAILURE;
-    }
-
-    ret = parser->GetString(infoNode, "hardwareVersion", &name, NULL);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "hardwareVersion");
-    if (strcpy_s(config->sensorInfo.hardwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
-        HDF_LOGE("%s:copy hardwareVersion failed!", __func__);
-        return HDF_FAILURE;
-    }
 
     ret = ParseSensorValue(parser, infoNode, config);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorValue");
