@@ -300,31 +300,48 @@ int32_t DetectSensorDevice(struct SensorCfgData *config)
     return HDF_SUCCESS;
 }
 
-static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
+static int32_t ParseSensorString(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
-    int32_t ret;
-    uint16_t id;
-    int32_t value;
     const char *name = NULL;
 
-    ret = parser->GetString(infoNode, "sensorName", &name, NULL);
+    int32_t ret = parser->GetString(infoNode, "sensorName", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorName");
-    CHECK_PARSER_NAME(config->sensorInfo.sensorName, "sensorName", name);
+    if (strcpy_s(config->sensorInfo.sensorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy sensorName failed!", __func__);
+        return HDF_FAILURE;
+    }
 
     ret = parser->GetString(infoNode, "vendorName", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "vendorName");
-    CHECK_PARSER_NAME(config->sensorInfo.vendorName, "vendorName", name);
+    if (strcpy_s(config->sensorInfo.vendorName, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy vendorName failed!", __func__);
+        return HDF_FAILURE;
+    }
 
     ret = parser->GetString(infoNode, "firmwareVersion", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "firmwareVersion");
-    CHECK_PARSER_NAME(config->sensorInfo.firmwareVersion, "firmwareVersion", name);
+    if (strcpy_s(config->sensorInfo.firmwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy firmwareVersion failed!", __func__);
+        return HDF_FAILURE;
+    }
 
     ret = parser->GetString(infoNode, "hardwareVersion", &name, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "hardwareVersion");
-    CHECK_PARSER_NAME(config->sensorInfo.hardwareVersion, "hardwareVersion", name);
+    if (strcpy_s(config->sensorInfo.hardwareVersion, SENSOR_INFO_NAME_MAX_LEN, name) != EOK) {
+        HDF_LOGE("%s:copy hardwareVersion failed!", __func__);
+        return HDF_FAILURE;
+    }
 
-    ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
+    return ret;
+}
+
+static int32_t ParseSensorValue(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
+    struct SensorCfgData *config)
+{
+    uint16_t id;
+    int32_t value;
+    int32_t ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "sensorTypeId");
     config->sensorInfo.sensorTypeId = id;
     ret = parser->GetUint16(infoNode, "sensorId", &id, 0);
@@ -347,6 +364,17 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "maxDelay");
     config->sensorInfo.maxDelay = value;
 
+    return ret;
+}
+
+static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
+    struct SensorCfgData *config)
+{
+    int32_t ret = ParseSensorString(parser, infoNode, config);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorString");
+
+    ret = ParseSensorValue(parser, infoNode, config);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorValue");
     return ret;
 }
 
