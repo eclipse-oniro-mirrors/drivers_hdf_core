@@ -69,19 +69,6 @@ public:
     std::string Dump(const std::string &prefix) override;
     std::string value_;
 };
-
-/**
- * @brief Defines the enumeration object structure in expression.
- *
- * This structure includes the enumeration information when using enum nesting identify in idl.
- *
- * @since 5.0
- */
-class ASTEnumExpr : public ASTExpr {
-public:
-    std::string Dump(const std::string &prefix) override;
-    std::string value_;
-};
 } // namespace HDI
 } // namespace OHOS
 

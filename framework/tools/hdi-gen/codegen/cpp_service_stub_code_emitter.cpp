@@ -150,18 +150,17 @@ void CppServiceStubCodeEmitter::EmitStubMethodDecls(StringBuilder &sb, const std
 void CppServiceStubCodeEmitter::EmitStubMethodDecl(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("int32_t %s%s_%d(MessageParcel& %s, MessageParcel& %s, MessageOption& %s);\n",
-        stubName_.c_str(), method->GetName().c_str(), method->GetCmdId(),
-        dataParcelName_.c_str(), replyParcelName_.c_str(), optionName_.c_str());
+    sb.Append(prefix).AppendFormat("int32_t %s%s(MessageParcel& %s, MessageParcel& %s, MessageOption& %s);\n",
+        stubName_.c_str(), method->GetName().c_str(), dataParcelName_.c_str(), replyParcelName_.c_str(),
+        optionName_.c_str());
 }
 
 void CppServiceStubCodeEmitter::EmitStubStaticMethodDecl(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
-        "static int32_t %s%s_%d_(MessageParcel& %s, MessageParcel& %s, MessageOption& %s, sptr<%s> impl);\n",
-        stubName_.c_str(), method->GetName().c_str(), method->GetCmdId(),
-        dataParcelName_.c_str(), replyParcelName_.c_str(),
+        "static int32_t %s%s_(MessageParcel& %s, MessageParcel& %s, MessageOption& %s, sptr<%s> impl);\n",
+        stubName_.c_str(), method->GetName().c_str(), dataParcelName_.c_str(), replyParcelName_.c_str(),
         optionName_.c_str(), EmitDefinitionByInterface(interface_, interfaceName_).c_str());
 }
 
@@ -345,15 +344,13 @@ void CppServiceStubCodeEmitter::EmitStubOnRequestMethodImpl(StringBuilder &sb, c
     AutoPtr<ASTMethod> getVerMethod = interface_->GetVersionMethod();
     sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(getVerMethod).c_str());
     sb.Append(prefix + TAB + TAB + TAB)
-        .AppendFormat("return %sStub%s_%d(data, reply, option);\n",
-        baseName_.c_str(), getVerMethod->GetName().c_str(), getVerMethod->GetCmdId());
+        .AppendFormat("return %sStub%s(data, reply, option);\n", baseName_.c_str(), getVerMethod->GetName().c_str());
     AutoPtr<ASTInterfaceType> interface = interface_;
     while (interface != nullptr) {
         for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
             sb.Append(prefix + TAB + TAB).AppendFormat("case %s:\n", EmitMethodCmdID(method).c_str());
             sb.Append(prefix + TAB + TAB + TAB)
-                .AppendFormat("return %sStub%s_%d(data, reply, option);\n",
-                baseName_.c_str(), method->GetName().c_str(), method->GetCmdId());
+                .AppendFormat("return %sStub%s(data, reply, option);\n", baseName_.c_str(), method->GetName().c_str());
         }
         interface = interface->GetExtendsInterface();
     }
@@ -396,14 +393,13 @@ void CppServiceStubCodeEmitter::EmitStubMethodImpls(StringBuilder &sb, const std
 void CppServiceStubCodeEmitter::EmitStubMethodImpl(AutoPtr<ASTInterfaceType> interface,
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
-    sb.Append(prefix).AppendFormat("int32_t %s::%s%s_%d(MessageParcel& %s, MessageParcel& %s, MessageOption& %s)\n",
-        EmitDefinitionByInterface(interface_, stubName_).c_str(),
-        stubName_.c_str(), method->GetName().c_str(), method->GetCmdId(),
+    sb.Append(prefix).AppendFormat("int32_t %s::%s%s(MessageParcel& %s, MessageParcel& %s, MessageOption& %s)\n",
+        EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str(), method->GetName().c_str(),
         dataParcelName_.c_str(), replyParcelName_.c_str(), optionName_.c_str());
     sb.Append(prefix).Append("{\n");
-    sb.Append(prefix + TAB).AppendFormat("return %s::%s%s_%d_(%s, %s, %s, impl_);\n",
+    sb.Append(prefix + TAB).AppendFormat("return %s::%s%s_(%s, %s, %s, impl_);\n",
         EmitDefinitionByInterface(interface, stubName_).c_str(),
-        stubName_.c_str(), method->GetName().c_str(), method->GetCmdId(),
+        stubName_.c_str(), method->GetName().c_str(),
         dataParcelName_.c_str(), replyParcelName_.c_str(),
         optionName_.c_str());
     sb.Append("}\n");
@@ -413,9 +409,8 @@ void CppServiceStubCodeEmitter::EmitStubStaticMethodImpl(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat(
-        "int32_t %s::%s%s_%d_(MessageParcel& %s, MessageParcel& %s, MessageOption& %s, sptr<%s> impl)\n",
-        EmitDefinitionByInterface(interface_, stubName_).c_str(),
-        stubName_.c_str(), method->GetName().c_str(), method->GetCmdId(),
+        "int32_t %s::%s%s_(MessageParcel& %s, MessageParcel& %s, MessageOption& %s, sptr<%s> impl)\n",
+        EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str(), method->GetName().c_str(),
         dataParcelName_.c_str(), replyParcelName_.c_str(), optionName_.c_str(),
         EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("{\n");
