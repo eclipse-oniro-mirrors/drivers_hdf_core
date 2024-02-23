@@ -43,7 +43,6 @@ static std::regex g_binaryNumRe(RE_BIN_DIGIT RE_DIGIT_SUFFIX, std::regex_constan
 static std::regex g_octNumRe(RE_OCT_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 static std::regex g_decNumRe(RE_DEC_DIGIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
 static std::regex g_hexNumRe(RE_HEX_DIFIT RE_DIGIT_SUFFIX, std::regex_constants::icase);
-AutoPtr<ASTEnumType> g_currentEnum = nullptr;
 
 bool Parser::Parse(const std::vector<FileDetail> &fileDetails)
 {
@@ -547,14 +546,6 @@ AutoPtr<ASTMethod> Parser::ParseMethod(const AutoPtr<ASTInterfaceType> &interfac
         lexer_.GetToken();
     }
 
-    size_t methodsCount = interface->GetMethodNumber() + 1;
-    AutoPtr<ASTInterfaceType> extInterface = interface->GetExtendsInterface();
-    while (extInterface != nullptr) {
-        methodsCount += extInterface->GetMethodNumber();
-        extInterface = extInterface->GetExtendsInterface();
-    }
-    method->SetCmdId(methodsCount);
-
     return method;
 }
 
@@ -1003,7 +994,6 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
 void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 {
     AutoPtr<ASTEnumType> enumType = new ASTEnumType;
-    g_currentEnum = enumType;
     enumType->SetAttribute(ParseUserDefTypeAttr(attrs));
 
     lexer_.GetToken();
@@ -1040,7 +1030,6 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 
     enumType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(enumType.Get());
-    g_currentEnum = nullptr;
 }
 
 AutoPtr<ASTType> Parser::ParseEnumBaseType()
@@ -1127,10 +1116,7 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
     }
 
     token = lexer_.PeekToken();
-    if (token.kind == TokenType::COLON) {
-        AutoPtr<ASTStructType> parentType = ParseStructParentType();
-        structType->SetParentType(parentType);
-    } else if (token.kind != TokenType::BRACES_LEFT) {
+    if (token.kind != TokenType::BRACES_LEFT) {
         LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value.c_str()));
     } else {
         lexer_.GetToken();
@@ -1154,34 +1140,6 @@ void Parser::ParseStructDeclaration(const AttrSet &attrs)
 
     structType->SetNamespace(ast_->ParseNamespace(ast_->GetFullName()));
     ast_->AddTypeDefinition(structType.Get());
-}
-
-AutoPtr<ASTStructType> Parser::ParseStructParentType()
-{
-    lexer_.GetToken();
-    Token token = lexer_.PeekToken();
-    AutoPtr<ASTType> baseType = ParseType();
-    if (baseType == nullptr) {
-        LogError(token, StringHelper::Format("expected base type name before '{' token"));
-        return nullptr;
-    }
-
-    switch (baseType->GetTypeKind()) {
-        case TypeKind::TYPE_STRUCT:
-            break;
-        default: {
-            LogError(token, StringHelper::Format("illegal base type of struct: '%s'", baseType->ToString().c_str()));
-            lexer_.SkipUntilToken(TokenType::BRACES_LEFT);
-        }
-    }
-
-    AutoPtr<ASTStructType> parentType = dynamic_cast<ASTStructType *>(baseType.Get());
-    token = lexer_.PeekToken();
-    if (token.kind != TokenType::BRACES_LEFT) {
-        LogError(token, StringHelper::Format("expected '{' before '%s' token", token.value.c_str()));
-    }
-    lexer_.GetToken();
-    return parentType;
 }
 
 void Parser::ParseStructMember(const AutoPtr<ASTStructType> &structType)
@@ -1522,13 +1480,6 @@ AutoPtr<ASTExpr> Parser::ParsePrimaryExpr()
         }
         case TokenType::NUM:
             return ParseNumExpr();
-        case TokenType::ID:
-            if (g_currentEnum == nullptr) {
-                LogError(token, StringHelper::Format("this expression is not supported"));
-                lexer_.SkipUntilToken(TokenType::COMMA);
-                return nullptr;
-            }
-            return ParseEnumExpr();
         default:
             LogError(token, StringHelper::Format("this expression is not supported"));
             lexer_.SkipUntilToken(TokenType::COMMA);
@@ -1545,19 +1496,6 @@ AutoPtr<ASTExpr> Parser::ParseNumExpr()
     }
 
     AutoPtr<ASTNumExpr> expr = new ASTNumExpr;
-    expr->value_ = token.value;
-    return expr.Get();
-}
-
-AutoPtr<ASTExpr> Parser::ParseEnumExpr()
-{
-    Token token = lexer_.GetToken();
-    if (!g_currentEnum->HasMember(token.value)) {
-        LogError(token, StringHelper::Format("unknown enum member: '%s'", token.value.c_str()));
-        return nullptr;
-    }
-
-    AutoPtr<ASTEnumExpr> expr = new ASTEnumExpr;
     expr->value_ = token.value;
     return expr.Get();
 }

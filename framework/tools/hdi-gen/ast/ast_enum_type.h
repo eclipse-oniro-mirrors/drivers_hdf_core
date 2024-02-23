@@ -110,16 +110,6 @@ public:
         return members_[index];
     }
 
-    inline bool HasMember(std::string memberName)
-    {
-        for (size_t i = 0; i < members_.size(); i++) {
-            if (members_[i]->GetName() == memberName) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     bool IsEnumType() override;
 
     std::string Dump(const std::string &prefix) override;

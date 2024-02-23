@@ -7,29 +7,10 @@
  */
 
 #include "ast/ast_method.h"
-
-#include "ast/ast_interface_type.h"
 #include "util/string_builder.h"
 
 namespace OHOS {
 namespace HDI {
-bool ASTMethod::IsOverload(AutoPtr<ASTInterfaceType> interface)
-{
-    if (interface == nullptr) {
-        return false;
-    }
-    interface = interface->GetExtendsInterface();
-    while (interface != nullptr) {
-        for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
-            if (name_ == method->GetName()) {
-                return true;
-            }
-        }
-        interface = interface->GetExtendsInterface();
-    }
-    return false;
-}
-
 void ASTMethod::AddParameter(const AutoPtr<ASTParameter> &parameter)
 {
     if (parameter == nullptr) {

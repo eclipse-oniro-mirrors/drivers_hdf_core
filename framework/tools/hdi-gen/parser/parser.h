@@ -134,8 +134,6 @@ private:
     // parse declaration of struct
     void ParseStructDeclaration(const AttrSet &attrs = {});
 
-    AutoPtr<ASTStructType> ParseStructParentType();
-
     void ParseStructMember(const AutoPtr<ASTStructType> &structType);
 
     // parse declaration of union
@@ -168,8 +166,6 @@ private:
     AutoPtr<ASTExpr> ParsePrimaryExpr();
 
     AutoPtr<ASTExpr> ParseNumExpr();
-
-    AutoPtr<ASTExpr> ParseEnumExpr();
 
     bool CheckNumber(const std::string& integerVal) const;
 
