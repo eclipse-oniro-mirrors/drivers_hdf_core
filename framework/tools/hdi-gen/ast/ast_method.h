@@ -61,6 +61,8 @@ public:
         return attr_->HasValue(ASTAttr::MINI);
     }
 
+    bool IsOverload(AutoPtr<ASTInterfaceType> interface);
+
     void AddParameter(const AutoPtr<ASTParameter> &parameter);
 
     AutoPtr<ASTParameter> GetParameter(size_t index);
@@ -70,12 +72,23 @@ public:
         return parameters_.size();
     }
 
+    inline void SetCmdId(size_t cmdId)
+    {
+        cmdId_ = cmdId;
+    }
+
+    inline size_t GetCmdId()
+    {
+        return cmdId_;
+    }
+
     std::string Dump(const std::string &prefix) override;
 
 private:
     std::string name_;
     AutoPtr<ASTAttr> attr_ = new ASTAttr();
     std::vector<AutoPtr<ASTParameter>> parameters_;
+    size_t cmdId_;  // used to identify same name method
 };
 } // namespace HDI
 } // namespace OHOS

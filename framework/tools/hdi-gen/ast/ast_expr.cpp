@@ -103,5 +103,22 @@ std::string ASTNumExpr::Dump(const std::string &prefix)
 
     return sb.ToString();
 }
+
+std::string ASTEnumExpr::Dump(const std::string &prefix)
+{
+    StringBuilder sb;
+    sb.Append(prefix);
+    if (isParenExpr) {
+        sb.Append("(");
+    }
+
+    sb.AppendFormat("%s", value_.c_str());
+
+    if (isParenExpr) {
+        sb.Append("(");
+    }
+
+    return sb.ToString();
+}
 } // namespace HDI
 } // namespace OHOS
