@@ -11,6 +11,19 @@
 
 namespace OHOS {
 namespace HDI {
+void ASTStructType::SetParentType(const AutoPtr<ASTStructType> &parentType)
+{
+    if (parentType == nullptr) {
+        return;
+    }
+
+    std::vector<std::tuple<std::string, AutoPtr<ASTType>>> parentMembers = parentType->GetMembers();
+    for (auto member : parentMembers) {
+        AddMember(std::get<1>(member), std::get<0>(member));
+    }
+    parentType_ = parentType;
+}
+
 void ASTStructType::AddMember(const AutoPtr<ASTType> &typeName, std::string name)
 {
     for (auto it : members_) {
@@ -34,7 +47,11 @@ std::string ASTStructType::Dump(const std::string &prefix)
 {
     StringBuilder sb;
     sb.Append(prefix).Append(attr_->Dump(prefix)).Append(" ");
-    sb.AppendFormat("struct %s {\n", name_.c_str());
+    if (parentType_ == nullptr) {
+        sb.AppendFormat("struct %s {\n", name_.c_str());
+    } else {
+        sb.AppendFormat("struct %s : %s {\n", name_.c_str(), parentType_->ToString().c_str());
+    }
     if (members_.size() > 0) {
         for (auto it : members_) {
             sb.Append(prefix + "  ");
