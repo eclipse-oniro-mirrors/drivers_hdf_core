@@ -64,7 +64,7 @@ class XButton {
     }
   }
 
-  isTouchIn(x, y) {
+  isTouchInButton(x, y) {
     if (x < this.posX_) {
       return false;
     }
@@ -80,7 +80,7 @@ class XButton {
     return true;
   }
   procTouch(msg, x, y) {
-    let isIn = this.isTouchIn(x, y);
+    let isIn = this.isTouchInButton(x, y);
     switch (msg) {
       case 1:
         if (isIn) {
