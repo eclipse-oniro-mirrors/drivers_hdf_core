@@ -52,7 +52,8 @@ def compare_target_files(first_file_path, second_file_path):
     
     for files in common_files:
         if not compare_file("{}{}".format(first_file_path, files), "{}{}.txt".format(second_file_path, files)):
-            print("file ", "{}{}".format(first_file_path, files), "{}{}.txt".format(second_file_path, files), "is different")
+            print("file ", "{}{}".format(first_file_path, files), "{}{}.txt".format(second_file_path, files), \
+                "is different")
             return False
     return True
 
