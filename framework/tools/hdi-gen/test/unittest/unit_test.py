@@ -51,8 +51,8 @@ def compare_target_files(first_file_path, second_file_path):
     common_files = first_files & second_files
     
     for files in common_files:
-        if not compare_file(first_file_path + files, second_file_path + files + ".txt"):
-            print("file ", first_file_path + files, second_file_path + files + ".txt", "is different")
+        if not compare_file("{}{}".format(first_file_path, files), "{}{}.txt".format(second_file_path, files)):
+            print("file ", "{}{}".format(first_file_path, files), "{}{}.txt".format(second_file_path, files), "is different")
             return False
     return True
 
@@ -135,7 +135,7 @@ class Test:
     def add_idl_files(self):
         idl_list = get_all_idl_files(self.idl_dir)
         for idl in idl_list:
-            self.command += " -c {}".format(idl)
+            self.command = "".join((self.command, " -c {}".format(idl)))
 
     def test(self):
         print_success("[ RUN       ] {}".format(self.name))
