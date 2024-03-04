@@ -11,6 +11,8 @@
 
 #include <fstream>
 #include <map>
+#include <vector>
+
 #include "generator.h"
 
 namespace OHOS {
@@ -20,6 +22,7 @@ struct HostInfo {
     std::string hostUID;
     std::string hostGID;
     std::string hostCritical;
+    std::vector <std::string>;
     uint32_t hostPriority;
     int32_t processPriority;
     int32_t threadPriority;
@@ -62,6 +65,8 @@ private:
     void HostInfosOutput();
 
     static void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
+
+    static void GetConfigVector(const std::shared_ptr<AstObject> &term, std::vector<std::string> &config);
 
     static void GetConfigIntArray(const std::shared_ptr<AstObject> &term, std::string &config);
 
