@@ -178,7 +178,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostCaps = "";
     hostData.hostUID = "";
     hostData.hostGID = "";
-    hostData.initconfig = {};
+    hostData.initConfig = {};
     hostData.hostPriority = 0;
     hostData.hostId = 0;
     hostData.hostCritical = "";
