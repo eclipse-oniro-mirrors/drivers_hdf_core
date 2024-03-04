@@ -103,8 +103,8 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
     std::set<std::string> tempData;
 
-    if (!hostInfoMap_[name].initconfig.empty()) {
-        for (auto &info : hostInfoMap_[name].initconfig) {
+    if (!hostInfoMap_[name].initConfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initConfig) {
             int indexFirst = info.find("\"");
             int indexTwo = info.find("\"", indexFirst + 1);
             tempData.insert(info.substr(indexFirst + 1, indexTwo - (indexFirst + 1)));
