@@ -294,7 +294,7 @@ bool Lexer::LexFromNumber(Token &token)
     uint64_t v = 0;
     errno = 0;
 
-    GetChar(c, false);
+    GetChar(c, false); 
     switch (c) {
         case '0':
             if (!PeekChar(c, true)) {

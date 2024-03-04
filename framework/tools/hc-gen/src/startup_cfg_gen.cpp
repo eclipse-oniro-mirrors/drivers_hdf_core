@@ -13,6 +13,7 @@
 #include "file.h"
 #include "logger.h"
 
+
 using namespace OHOS::Hardware;
 
 static constexpr const char *BOOT_CONFIG_TOP =
