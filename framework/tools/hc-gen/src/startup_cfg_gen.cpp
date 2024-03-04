@@ -150,15 +150,15 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
 
     if (tempData.find("secon") == tempData.end()) {
         ofs_ << SECON_INFO << name << ":s0\"";
-        if (!hostInfoMap_[name].initconfig.empty()) {
+        if (!hostInfoMap_[name].initConfig.empty()) {
             ofs_ << ",";
         }
         ofs_ << "\n";
     }
-    if (!hostInfoMap_[name].initconfig.empty()) {
-        for (auto &info : hostInfoMap_[name].initconfig) {
+    if (!hostInfoMap_[name].initConfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initConfig) {
             ofs_ << TAB TAB TAB << info;
-            if (&info != &hostInfoMap_[name].initconfig.back()) {
+            if (&info != &hostInfoMap_[name].initConfig.back()) {
                 ofs_ << ",";
             }
             ofs_ << "\n";
