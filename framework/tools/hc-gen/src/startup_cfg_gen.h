@@ -22,7 +22,7 @@ struct HostInfo {
     std::string hostUID;
     std::string hostGID;
     std::string hostCritical;
-    std::vector <std::string>;
+    std::vector <std::string> initconfig;
     uint32_t hostPriority;
     int32_t processPriority;
     int32_t threadPriority;
