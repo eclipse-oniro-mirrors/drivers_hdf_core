@@ -100,8 +100,17 @@ bool StartupCfgGen::Initialize()
 void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
 {
     ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
+    std::set<std::string> tempData;
 
-    if (hostInfoMap_[name].dynamicLoad) {
+    if (!hostInfoMap_[name].initconfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initconfig) {
+            int indexFirst = info.find("\"");
+            int indexTwo = info.find("\"", indexFirst + 1);
+            tempData.insert(info.substr(indexFirst + 1, indexTwo - (indexFirst + 1)));
+        }
+    }
+
+    if (hostInfoMap_[name].dynamicLoad && (tempData.find("preload") == tempData.end())) {
         ofs_ << DYNAMIC_INFO;
     }
 
@@ -110,30 +119,50 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
         (hostInfoMap_[name].threadPriority != INVALID_PRIORITY)) {
         flag = true;
     }
-    if (flag) {
-        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
-            hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
-    } else {
-        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
+    if ((tempData.find("path") == tempData.end())) {
+        if (flag) {
+            ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
+                hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
+        } else {
+            ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
+        }
+    }
+    if ((tempData.find("uid") == tempData.end())) {
+        ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
     }
 
-    ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
-    ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
+    if (tempData.find("gid") == tempData.end()) {
+        ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
+    }
 
-    if (!hostInfoMap_[name].hostCaps.empty()) {
+    if (!hostInfoMap_[name].hostCaps.empty() && tempData.find("caps") == tempData.end()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps << "],\n";
     }
 
-    if (!hostInfoMap_[name].hostCritical.empty()) {
+    if (!hostInfoMap_[name].hostCritical.empty() && tempData.find("critical") == tempData.end()) {
         ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
 
-    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX) {
+    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && tempData.find("sandbox") == tempData.end()) {
         ofs_ << SAND_BOX_INFO << hostInfoMap_[name].sandBox << ",\n";
     }
 
-    ofs_ << SECON_INFO << name << ":s0\"\n";
-
+    if (tempData.find("secon") == tempData.end()) {
+        ofs_ << SECON_INFO << name << ":s0\"";
+        if (!hostInfoMap_[name].initconfig.empty()) {
+            ofs_ << ",";
+        }
+        ofs_ << "\n";
+    }
+    if (!hostInfoMap_[name].initconfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initconfig) {
+            ofs_ << TAB TAB TAB << info;
+            if (&info != &hostInfoMap_[name].initconfig.back()) {
+                ofs_ << ",";
+            }
+            ofs_ << "\n";
+        }
+    }
     ofs_ << TAB TAB << "}";
 
     if (!end) {
@@ -148,6 +177,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostCaps = "";
     hostData.hostUID = "";
     hostData.hostGID = "";
+    hostData.initconfig = {};
     hostData.hostPriority = 0;
     hostData.hostId = 0;
     hostData.hostCritical = "";
@@ -235,6 +265,29 @@ void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, st
         config.append(value);
         if (arraySize != 1) {
             config.append(", ");
+        }
+
+        object = object->Next();
+        arraySize--;
+    }
+}
+
+void StartupCfgGen::GetConfigVector(const std::shared_ptr<AstObject> &term, std::vector<std::string> &config)
+{
+    if (term == nullptr) {
+        return;
+    }
+
+    std::shared_ptr<AstObject> arrayObj = term->Child();
+    if (arrayObj == nullptr) {
+        return;
+    }
+
+    uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
+    std::shared_ptr<AstObject> object = arrayObj->Child();
+    while (arraySize && object != nullptr) {
+        if (!object->StringValue().empty()) {
+            config.push_back(object->StringValue());
         }
 
         object = object->Next();
@@ -360,6 +413,9 @@ bool StartupCfgGen::GetHostInfo()
         if (object != nullptr) {
             hostData.sandBox = object->Child()->IntegerValue();
         }
+
+        object = hostInfo->Lookup("initconfig", PARSEROP_CONFTERM);
+        GetConfigVector(object, hostData.initconfig);
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));
