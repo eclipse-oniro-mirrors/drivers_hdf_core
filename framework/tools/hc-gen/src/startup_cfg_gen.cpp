@@ -9,10 +9,11 @@
 #include "startup_cfg_gen.h"
 #include <algorithm>
 #include <string>
+#include <set>
+
 #include "ast.h"
 #include "file.h"
 #include "logger.h"
-
 
 using namespace OHOS::Hardware;
 
