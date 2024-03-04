@@ -416,7 +416,7 @@ bool StartupCfgGen::GetHostInfo()
         }
 
         object = hostInfo->Lookup("initconfig", PARSEROP_CONFTERM);
-        GetConfigVector(object, hostData.initconfig);
+        GetConfigVector(object, hostData.initConfig);
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));
