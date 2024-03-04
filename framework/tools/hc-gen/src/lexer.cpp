@@ -250,6 +250,9 @@ bool Lexer::LexFromString(Token &token)
     GetChar(c, false); // skip first '"'
     std::string value;
     while (GetChar(c, false) && c != '"') {
+        if (c == '\\') {
+            GetChar(c, false);
+        }
         value.push_back(c);
     }
 
