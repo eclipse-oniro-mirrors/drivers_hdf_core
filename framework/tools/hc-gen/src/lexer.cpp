@@ -252,6 +252,10 @@ bool Lexer::LexFromString(Token &token)
     while (GetChar(c, false) && c != '"') {
         if (c == '\\') {
             GetChar(c, false);
+            if (c != '\"') {
+                Logger().Error() << *this << "Invalid escape character.";
+                return false;
+            }
         }
         value.push_back(c);
     }

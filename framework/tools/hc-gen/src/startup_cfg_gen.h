@@ -23,7 +23,7 @@ struct HostInfo {
     std::string hostUID;
     std::string hostGID;
     std::string hostCritical;
-    std::vector <std::string> initConfig;
+    std::vector<std::string> initConfig;
     uint32_t hostPriority;
     int32_t processPriority;
     int32_t threadPriority;
@@ -65,19 +65,19 @@ private:
 
     void HostInfosOutput();
 
-    void EmitDynamicLoad(const std::string &name, std::set<std::string> tmpData);
+    void EmitDynamicLoad(const std::string &name, std::set<std::string> &configedKeywords);
 
-    void EmitPathInfo(const std::string &name, std::set<std::string> tmpData);
+    void EmitPathInfo(const std::string &name, std::set<std::string> &configedKeywords);
 
-    void EmitIdInfo(const std::string &name, std::set<std::string> tmpData);
+    void EmitIdInfo(const std::string &name, std::set<std::string> &configedKeywords);
 
-    void EmitHostCapsInfo(const std::string &name, std::set<std::string> tmpData);
+    void EmitHostCapsInfo(const std::string &name, std::set<std::string> &configedKeywords);
 
-    void EmitHostCriticalInfo(const std::string &name, std::set<std::string> tmpData);
+    void EmitHostCriticalInfo(const std::string &name, std::set<std::string> &configedKeywords);
 
-    void EmitSandBoxInfo(const std::string &name, std::set<std::string> tmpData);
+    void EmitSandBoxInfo(const std::string &name, std::set<std::string> &configedKeywords);
 
-    void EmitSeconInfo(const std::string &name, std::set<std::string> tmpData);
+    void EmitSeconInfo(const std::string &name, std::set<std::string> &configedKeywords);
 
     void EmitInitConfigInfo(const std::string &name);
 

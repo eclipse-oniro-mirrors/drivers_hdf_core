@@ -97,21 +97,21 @@ bool StartupCfgGen::Initialize()
     return true;
 }
 
-void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    if (hostInfoMap_[name].dynamicLoad && (tmpData.find("preload") == tmpData.end())) {
+    if (hostInfoMap_[name].dynamicLoad && (configedKeywords.find("preload") == configedKeywords.end())) {
         ofs_ << DYNAMIC_INFO;
     }
 }
 
-void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
     bool flag = false;
     if ((hostInfoMap_[name].processPriority != INVALID_PRIORITY) &&
         (hostInfoMap_[name].threadPriority != INVALID_PRIORITY)) {
         flag = true;
     }
-    if ((tmpData.find("path") == tmpData.end())) {
+    if ((configedKeywords.find("path") == configedKeywords.end())) {
         if (flag) {
             ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
                 hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
@@ -121,41 +121,41 @@ void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> 
     }
 }
 
-void StartupCfgGen::EmitIdInfo(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitIdInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    if ((tmpData.find("uid") == tmpData.end())) {
+    if ((configedKeywords.find("uid") == configedKeywords.end())) {
         ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
     }
 
-    if (tmpData.find("gid") == tmpData.end()) {
+    if (configedKeywords.find("gid") == configedKeywords.end()) {
         ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
     }
 }
 
-void StartupCfgGen::EmitHostCapsInfo(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitHostCapsInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    if (!hostInfoMap_[name].hostCaps.empty() && tmpData.find("caps") == tmpData.end()) {
+    if (!hostInfoMap_[name].hostCaps.empty() && configedKeywords.find("caps") == configedKeywords.end()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps << "],\n";
     }
 }
 
-void StartupCfgGen::EmitHostCriticalInfo(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitHostCriticalInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    if (!hostInfoMap_[name].hostCritical.empty() && tmpData.find("critical") == tmpData.end()) {
+    if (!hostInfoMap_[name].hostCritical.empty() && configedKeywords.find("critical") == configedKeywords.end()) {
         ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
 }
 
-void StartupCfgGen::EmitSandBoxInfo(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitSandBoxInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && tmpData.find("sandbox") == tmpData.end()) {
+    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && configedKeywords.find("sandbox") == configedKeywords.end()) {
         ofs_ << SAND_BOX_INFO << hostInfoMap_[name].sandBox << ",\n";
     }
 }
 
-void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string> tmpData)
+void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    if (tmpData.find("secon") == tmpData.end()) {
+    if (configedKeywords.find("secon") == configedKeywords.end()) {
         ofs_ << SECON_INFO << name << ":s0\"";
         if (!hostInfoMap_[name].initConfig.empty()) {
             ofs_ << ",";
@@ -169,8 +169,9 @@ void StartupCfgGen::EmitInitConfigInfo(const std::string &name)
     if (!hostInfoMap_[name].initConfig.empty()) {
         for (auto &info : hostInfoMap_[name].initConfig) {
             ofs_ << TAB TAB TAB << info;
-            if (&info != &hostInfoMap_[name].initConfig.back())
+            if (&info != &hostInfoMap_[name].initConfig.back()) {
                 ofs_ << ",";
+            }
             ofs_ << "\n";
         }
     }
@@ -178,25 +179,24 @@ void StartupCfgGen::EmitInitConfigInfo(const std::string &name)
 
 void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
 {
-    using InitCfgSet = std::set<std::string>;
+    std::set<std::string> configedKeywords;
     ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
 
-    InitCfgSet initCfgKey;
     if (!hostInfoMap_[name].initConfig.empty()) {
         for (auto &info : hostInfoMap_[name].initConfig) {
-            int indexFirst = info.find("\"");
-            int indexSecond = info.find("\"", indexFirst + 1);
-            initCfgKey.insert(info.substr(indexFirst + 1, indexSecond - (indexFirst + 1)));
+            int firstQuotePos = info.find("\"");
+            int secondQuotePos = info.find("\"", firstQuotePos + 1);
+            configedKeywords.insert(info.substr(firstQuotePos + 1, secondQuotePos - (firstQuotePos + 1)));
         }
     }
 
-    EmitDynamicLoad(name, initCfgKey);
-    EmitPathInfo(name, initCfgKey);
-    EmitIdInfo(name, initCfgKey);
-    EmitHostCapsInfo(name, initCfgKey);
-    EmitHostCriticalInfo(name, initCfgKey);
-    EmitSandBoxInfo(name, initCfgKey);
-    EmitSeconInfo(name, initCfgKey);
+    EmitDynamicLoad(name, configedKeywords);
+    EmitPathInfo(name, configedKeywords);
+    EmitIdInfo(name, configedKeywords);
+    EmitHostCapsInfo(name, configedKeywords);
+    EmitHostCriticalInfo(name, configedKeywords);
+    EmitSandBoxInfo(name, configedKeywords);
+    EmitSeconInfo(name, configedKeywords);
     EmitInitConfigInfo(name);
 
     ofs_ << TAB TAB << "}";
@@ -318,15 +318,13 @@ void StartupCfgGen::GetConfigVector(const std::shared_ptr<AstObject> &term, std:
         return;
     }
 
-    uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
     std::shared_ptr<AstObject> object = arrayObj->Child();
-    while (arraySize && object != nullptr) {
+    while (object != nullptr) {
         if (!object->StringValue().empty()) {
             config.push_back(object->StringValue());
         }
 
         object = object->Next();
-        arraySize--;
     }
 }
 
