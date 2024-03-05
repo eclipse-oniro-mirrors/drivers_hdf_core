@@ -9,7 +9,6 @@
 #include "startup_cfg_gen.h"
 #include <algorithm>
 #include <string>
-#include <set>
 
 #include "ast.h"
 #include "file.h"
