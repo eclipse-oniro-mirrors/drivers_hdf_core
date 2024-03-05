@@ -278,7 +278,6 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
     uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
     std::shared_ptr<AstObject> object = arrayObj->Child();
     while (arraySize && object != nullptr) {
-        Logger().Debug() << "GetConfigArray arraySize or object is null" << '\n';
         if (!object->StringValue().empty()) {
             config.append("\"").append(object->StringValue()).append("\"");
             if (arraySize != 1) {
@@ -307,7 +306,6 @@ void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, st
     uint16_t arraySize = ConfigArray::CastFrom(intArrayObj)->ArraySize();
     std::shared_ptr<AstObject> object = intArrayObj->Child();
     while (arraySize && object != nullptr) {
-        Logger().Debug() << "GetConfigIntArray object or arraySize is null" << '\n';
         std::string value = std::to_string(object->IntegerValue());
         config.append(value);
         if (arraySize != 1) {
@@ -334,7 +332,6 @@ void StartupCfgGen::GetConfigVector(const std::shared_ptr<AstObject> &term, std:
 
     std::shared_ptr<AstObject> object = arrayObj->Child();
     while (object != nullptr) {
-        Logger().Debug() << "GetConfigVector object is null" << '\n';
         if (!object->StringValue().empty()) {
             config.push_back(object->StringValue());
         }
