@@ -157,7 +157,7 @@ void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string>
 {
     if (tmpData.find("secon") == tmpData.end()) {
         ofs_ << SECON_INFO << name << ":s0\"";
-        if (!hostInfoMap_[name].initconfig.empty()) {
+        if (!hostInfoMap_[name].initConfig.empty()) {
             ofs_ << ",";
         }
         ofs_ << "\n";
@@ -166,10 +166,10 @@ void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string>
 
 void StartupCfgGen::EmitInitConfigInfo(const std::string &name)
 {
-    if (!hostInfoMap_[name].initconfig.empty()) {
-        for (auto &info : hostInfoMap_[name].initconfig) {
+    if (!hostInfoMap_[name].initConfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initConfig) {
             ofs_ << TAB TAB TAB << info;
-            if (&info != &hostInfoMap_[name].initconfig.back())
+            if (&info != &hostInfoMap_[name].initConfig.back())
                 ofs_ << ",";
             ofs_ << "\n";
         }
@@ -182,8 +182,8 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
 
     InitCfgSet initCfgKey;
-    if (!hostInfoMap_[name].initconfig.empty()) {
-        for (auto &info : hostInfoMap_[name].initconfig) {
+    if (!hostInfoMap_[name].initConfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initConfig) {
             int indexFirst = info.find("\"");
             int indexSecond = info.find("\"", indexFirst + 1);
             initCfgKey.insert(info.substr(indexFirst + 1, indexSecond - (indexFirst + 1)));
@@ -197,7 +197,7 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     EmitHostCriticalInfo(name, initCfgKey);
     EmitSandBoxInfo(name, initCfgKey);
     EmitSeconInfo(name, initCfgKey);
-    EmitInitconfigInfo(name);
+    EmitInitConfigInfo(name);
 
     ofs_ << TAB TAB << "}";
     if (!end) {
