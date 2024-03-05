@@ -98,29 +98,21 @@ bool StartupCfgGen::Initialize()
     return true;
 }
 
-void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
+void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::string> tmpData)
 {
-    ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
-    std::set<std::string> tempData;
-
-    if (!hostInfoMap_[name].initConfig.empty()) {
-        for (auto &info : hostInfoMap_[name].initConfig) {
-            int indexFirst = info.find("\"");
-            int indexTwo = info.find("\"", indexFirst + 1);
-            tempData.insert(info.substr(indexFirst + 1, indexTwo - (indexFirst + 1)));
-        }
-    }
-
-    if (hostInfoMap_[name].dynamicLoad && (tempData.find("preload") == tempData.end())) {
+    if (hostInfoMap_[name].dynamicLoad && (tmpData.find("preload") == tmpData.end())) {
         ofs_ << DYNAMIC_INFO;
     }
+}
 
+void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> tmpData)
+{
     bool flag = false;
     if ((hostInfoMap_[name].processPriority != INVALID_PRIORITY) &&
         (hostInfoMap_[name].threadPriority != INVALID_PRIORITY)) {
         flag = true;
     }
-    if ((tempData.find("path") == tempData.end())) {
+    if ((tmpData.find("path") == tmpData.end())) {
         if (flag) {
             ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
                 hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
@@ -128,44 +120,87 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
             ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
         }
     }
-    if ((tempData.find("uid") == tempData.end())) {
+}
+
+void StartupCfgGen::EmitIdInfo(const std::string &name, std::set<std::string> tmpData)
+{
+    if ((tmpData.find("uid") == tmpData.end())) {
         ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
     }
 
-    if (tempData.find("gid") == tempData.end()) {
+    if (tmpData.find("gid") == tmpData.end()) {
         ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
     }
+}
 
-    if (!hostInfoMap_[name].hostCaps.empty() && tempData.find("caps") == tempData.end()) {
+void StartupCfgGen::EmitHostCapsInfo(const std::string &name, std::set<std::string> tmpData)
+{
+    if (!hostInfoMap_[name].hostCaps.empty() && tmpData.find("caps") == tmpData.end()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps << "],\n";
     }
+}
 
-    if (!hostInfoMap_[name].hostCritical.empty() && tempData.find("critical") == tempData.end()) {
+void StartupCfgGen::EmitHostCriticalInfo(const std::string &name, std::set<std::string> tmpData)
+{
+    if (!hostInfoMap_[name].hostCritical.empty() && tmpData.find("critical") == tmpData.end()) {
         ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
+}
 
-    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && tempData.find("sandbox") == tempData.end()) {
+void StartupCfgGen::EmitSandBoxInfo(const std::string &name, std::set<std::string> tmpData)
+{
+    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && tmpData.find("sandbox") == tmpData.end()) {
         ofs_ << SAND_BOX_INFO << hostInfoMap_[name].sandBox << ",\n";
     }
+}
 
-    if (tempData.find("secon") == tempData.end()) {
+void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string> tmpData)
+{
+    if (tmpData.find("secon") == tmpData.end()) {
         ofs_ << SECON_INFO << name << ":s0\"";
-        if (!hostInfoMap_[name].initConfig.empty()) {
+        if (!hostInfoMap_[name].initconfig.empty()) {
             ofs_ << ",";
         }
         ofs_ << "\n";
     }
-    if (!hostInfoMap_[name].initConfig.empty()) {
-        for (auto &info : hostInfoMap_[name].initConfig) {
+}
+
+void StartupCfgGen::EmitInitconfigInfo(const std::string &name)
+{
+    if (!hostInfoMap_[name].initconfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initconfig) {
             ofs_ << TAB TAB TAB << info;
-            if (&info != &hostInfoMap_[name].initConfig.back()) {
+            if (&info != &hostInfoMap_[name].initconfig.back())
                 ofs_ << ",";
-            }
             ofs_ << "\n";
         }
     }
-    ofs_ << TAB TAB << "}";
+}
 
+void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
+{
+    using InitCfgSet = std::set<std::string>;
+    ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
+
+    InitCfgSet initCfgKey;
+    if (!hostInfoMap_[name].initconfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initconfig) {
+            int indexFirst = info.find("\"");
+            int indexSecond = info.find("\"", indexFirst + 1);
+            initCfgKey.insert(info.substr(indexFirst + 1, indexSecond - (indexFirst + 1)));
+        }
+    }
+
+    EmitDynamicLoad(name, initCfgKey);
+    EmitPathInfo(name, initCfgKey);
+    EmitIdInfo(name, initCfgKey);
+    EmitHostCapsInfo(name, initCfgKey);
+    EmitHostCriticalInfo(name, initCfgKey);
+    EmitSandBoxInfo(name, initCfgKey);
+    EmitSeconInfo(name, initCfgKey);
+    EmitInitconfigInfo(name);
+
+    ofs_ << TAB TAB << "}";
     if (!end) {
         ofs_<< ",";
     }

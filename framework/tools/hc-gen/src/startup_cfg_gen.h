@@ -64,6 +64,22 @@ private:
 
     void HostInfosOutput();
 
+    void EmitDynamicLoad(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitPathInfo(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitIdInfo(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitHostCapsInfo(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitHostCriticalInfo(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitSandBoxInfo(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitSeconInfo(const std::string &name, std::set<std::string> tmpData);
+
+    void EmitInitconfigInfo(const std::string &name);
+
     static void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
 
     static void GetConfigVector(const std::shared_ptr<AstObject> &term, std::vector<std::string> &config);
