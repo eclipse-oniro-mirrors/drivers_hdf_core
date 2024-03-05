@@ -164,7 +164,7 @@ void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string>
     }
 }
 
-void StartupCfgGen::EmitInitconfigInfo(const std::string &name)
+void StartupCfgGen::EmitInitConfigInfo(const std::string &name)
 {
     if (!hostInfoMap_[name].initconfig.empty()) {
         for (auto &info : hostInfoMap_[name].initconfig) {

@@ -79,7 +79,7 @@ private:
 
     void EmitSeconInfo(const std::string &name, std::set<std::string> tmpData);
 
-    void EmitInitconfigInfo(const std::string &name);
+    void EmitInitConfigInfo(const std::string &name);
 
     static void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
 
