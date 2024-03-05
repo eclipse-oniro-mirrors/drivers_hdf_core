@@ -99,6 +99,7 @@ bool StartupCfgGen::Initialize()
 
 void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::string> &configedKeywords)
 {
+    // If the parameter is configured in initconfig, dynamicLoad info is generated in function EmitInitConfigInfo.
     if (hostInfoMap_[name].dynamicLoad && (configedKeywords.find("preload") == configedKeywords.end())) {
         ofs_ << DYNAMIC_INFO;
     }
@@ -123,6 +124,7 @@ void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> 
 
 void StartupCfgGen::EmitIdInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
+   // If the parameter is configured in initconfig, uid and gid info is generated in function EmitInitConfigInfo.
     if ((configedKeywords.find("uid") == configedKeywords.end())) {
         ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
     }
@@ -134,6 +136,7 @@ void StartupCfgGen::EmitIdInfo(const std::string &name, std::set<std::string> &c
 
 void StartupCfgGen::EmitHostCapsInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
+   // If the parameter is configured in initconfig, hostCaps info is generated in function EmitInitConfigInfo.
     if (!hostInfoMap_[name].hostCaps.empty() && configedKeywords.find("caps") == configedKeywords.end()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps << "],\n";
     }
@@ -141,6 +144,7 @@ void StartupCfgGen::EmitHostCapsInfo(const std::string &name, std::set<std::stri
 
 void StartupCfgGen::EmitHostCriticalInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
+    // If the parameter is configured in initconfig, hostCritical info is generated in function EmitInitConfigInfo.
     if (!hostInfoMap_[name].hostCritical.empty() && configedKeywords.find("critical") == configedKeywords.end()) {
         ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
@@ -148,6 +152,7 @@ void StartupCfgGen::EmitHostCriticalInfo(const std::string &name, std::set<std::
 
 void StartupCfgGen::EmitSandBoxInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
+    // If the parameter is configured in initconfig, sandBox info is generated in function EmitInitConfigInfo.
     if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && configedKeywords.find("sandbox") == configedKeywords.end()) {
         ofs_ << SAND_BOX_INFO << hostInfoMap_[name].sandBox << ",\n";
     }
@@ -155,6 +160,7 @@ void StartupCfgGen::EmitSandBoxInfo(const std::string &name, std::set<std::strin
 
 void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
+    // If the parameter is configured in initconfig, secon info is generated in function EmitInitConfigInfo.
     if (configedKeywords.find("secon") == configedKeywords.end()) {
         ofs_ << SECON_INFO << name << ":s0\"";
         if (!hostInfoMap_[name].initConfig.empty()) {
@@ -259,17 +265,20 @@ void StartupCfgGen::HostInfosOutput()
 void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
     if (term == nullptr) {
+        Logger().Debug() << "GetConfigArray term is null" << '\n';
         return;
     }
 
     std::shared_ptr<AstObject> arrayObj = term->Child();
     if (arrayObj == nullptr) {
+        Logger().Debug() << "GetConfigArray arrayObj is null" << '\n';
         return;
     }
 
     uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
     std::shared_ptr<AstObject> object = arrayObj->Child();
     while (arraySize && object != nullptr) {
+        Logger().Debug() << "GetConfigArray arraySize or object is null" << '\n';
         if (!object->StringValue().empty()) {
             config.append("\"").append(object->StringValue()).append("\"");
             if (arraySize != 1) {
@@ -285,17 +294,20 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
 void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
     if (term == nullptr) {
+        Logger().Debug() << "GetConfigIntArray term is null" << '\n';
         return;
     }
 
     std::shared_ptr<AstObject> intArrayObj = term->Child();
     if (intArrayObj == nullptr) {
+        Logger().Debug() << "GetConfigIntArray intArrayObj is null" << '\n';
         return;
     }
 
     uint16_t arraySize = ConfigArray::CastFrom(intArrayObj)->ArraySize();
     std::shared_ptr<AstObject> object = intArrayObj->Child();
     while (arraySize && object != nullptr) {
+        Logger().Debug() << "GetConfigIntArray object or arraySize is null" << '\n';
         std::string value = std::to_string(object->IntegerValue());
         config.append(value);
         if (arraySize != 1) {
@@ -310,16 +322,19 @@ void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, st
 void StartupCfgGen::GetConfigVector(const std::shared_ptr<AstObject> &term, std::vector<std::string> &config)
 {
     if (term == nullptr) {
+        Logger().Debug() << "GetConfigVector term is null" << '\n';
         return;
     }
 
     std::shared_ptr<AstObject> arrayObj = term->Child();
     if (arrayObj == nullptr) {
+        Logger().Debug() << "GetConfigVector arrayObj is null" << '\n';
         return;
     }
 
     std::shared_ptr<AstObject> object = arrayObj->Child();
     while (object != nullptr) {
+        Logger().Debug() << "GetConfigVector object is null" << '\n';
         if (!object->StringValue().empty()) {
             config.push_back(object->StringValue());
         }
