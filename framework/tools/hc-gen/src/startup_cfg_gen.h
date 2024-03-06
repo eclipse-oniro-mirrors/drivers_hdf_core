@@ -11,6 +11,9 @@
 
 #include <fstream>
 #include <map>
+#include <vector>
+#include <set>
+
 #include "generator.h"
 
 namespace OHOS {
@@ -20,6 +23,7 @@ struct HostInfo {
     std::string hostUID;
     std::string hostGID;
     std::string hostCritical;
+    std::vector<std::string> initConfig;
     uint32_t hostPriority;
     int32_t processPriority;
     int32_t threadPriority;
@@ -61,7 +65,25 @@ private:
 
     void HostInfosOutput();
 
+    void EmitDynamicLoad(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitPathInfo(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitIdInfo(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitHostCapsInfo(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitHostCriticalInfo(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitSandBoxInfo(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitSeconInfo(const std::string &name, std::set<std::string> &configedKeywords);
+
+    void EmitInitConfigInfo(const std::string &name);
+
     static void GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config);
+
+    static void GetConfigVector(const std::shared_ptr<AstObject> &term, std::vector<std::string> &config);
 
     static void GetConfigIntArray(const std::shared_ptr<AstObject> &term, std::string &config);
 

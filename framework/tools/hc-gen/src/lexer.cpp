@@ -250,6 +250,13 @@ bool Lexer::LexFromString(Token &token)
     GetChar(c, false); // skip first '"'
     std::string value;
     while (GetChar(c, false) && c != '"') {
+        if (c == '\\') {
+            GetChar(c, false);
+            if (c != '\"') {
+                Logger().Error() << *this << "Invalid escape character.";
+                return false;
+            }
+        }
         value.push_back(c);
     }
 
