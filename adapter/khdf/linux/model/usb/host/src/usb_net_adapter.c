@@ -134,7 +134,7 @@ static void RxComplete(WorkStruct *work)
 static void UsbnetAdapterSkbReturn(struct UsbnetAdapter *usbNet, SkBuff *skb)
 {
     if (test_bit(EVENT_RX_PAUSED, &usbNet->flags)) {
-        skb_queue_tail(&usbNet->rxq_pause, skb);
+        skb_queue_tail(&usbNet->rxqPause, skb);
         return;
     }
 
@@ -317,7 +317,7 @@ static void UsbnetAdapterBhTasklet(unsigned long data)
 }
 
 /* The caller must hold list->lock */
-static void UsbnetAdapterQueueSkb(SkBuff_Head *list,
+static void UsbnetAdapterQueueSkb(SkBuffHead *list,
     SkBuff *newsk, enum SkbState state)
 {
     struct SkbData *entry = (struct SkbData *) newsk->cb;
@@ -327,7 +327,7 @@ static void UsbnetAdapterQueueSkb(SkBuff_Head *list,
 }
 
 static enum SkbState UsbnetAdapterDeferBh(struct UsbnetAdapter *usbNet, SkBuff *skb,
-    SkBuff_Head *list, enum SkbState state)
+    SkBuffHead *list, enum SkbState state)
 {
     unsigned long flags = 0;
     enum SkbState old_state = ILLEGAL;
@@ -393,7 +393,7 @@ static int32_t UsbnetAdapterOpen(NetDevice *net)
     return HDF_SUCCESS;
 }
 
-static void WaitSkbQueueEmpty(SkBuff_Head *q)
+static void WaitSkbQueueEmpty(SkBuffHead *q)
 {
     unsigned long flags = 0;
     HARCH_NET_INFO_PRINT();
@@ -464,7 +464,7 @@ static int32_t UsbnetAdapterStop(NetDevice *net)
     
     /* 6. usbnet_status_stop none */
     /* 7. usbnet_purge_paused_rxq none */
-    skb_queue_purge(&usbNet->rxq_pause);
+    skb_queue_purge(&usbNet->rxqPause);
     /* 8. test_and_clear_bit and no manage_power interface impl in rndis driver info*/
     /* 9. dev flags */
     usbNet->flags = 0;
@@ -731,7 +731,7 @@ static void UsbnetAdapterResumeRx(struct UsbnetAdapter *usbNet)
     }
     OsalMutexUnlock(&usbNet->sendSkbClock);
 
-    while ((skb = skb_dequeue(&usbNet->rxq_pause)) != NULL) {
+    while ((skb = skb_dequeue(&usbNet->rxqPause)) != NULL) {
         UsbnetAdapterSkbReturn(usbNet, skb);
         num++;
     }
@@ -824,7 +824,7 @@ static void UsbnetAdapterGetStats64(NetDevice *net, struct rtnl_link_stats64 *st
     return;
 }
 
-static NetDevice_Ops g_UsbnetAdapterDeviceOps = {
+static NetDeviceOps g_UsbnetAdapterDeviceOps = {
     .ndo_open               = UsbnetAdapterOpen,
     .ndo_stop               = UsbnetAdapterStop,
     .ndo_start_xmit         = UsbnetAdapterStartXmit,
@@ -989,7 +989,7 @@ static void UsbnetAdapterSetUsbNet(struct HdfDeviceObject *device,
     skb_queue_head_init (&usbNet->rxq);
     skb_queue_head_init (&usbNet->txq);
     skb_queue_head_init (&usbNet->done);
-    skb_queue_head_init(&usbNet->rxq_pause);
+    skb_queue_head_init(&usbNet->rxqPause);
 
     // init work for tx_complete rx_complete
     INIT_WORK(&usbNet->TxCompleteWorkqueue, TxComplete);
@@ -1126,7 +1126,7 @@ static int32_t UsbnetAdapterDisconnect(struct HdfDeviceObject *device)
     }
     
     UsbnetAdapterTerminateUrbs(usbNet);
-    skb_queue_purge(&usbNet->rxq_pause);
+    skb_queue_purge(&usbNet->rxqPause);
     OsalMutexDestroy(&usbNet->sendSkbClock);
    
     free_netdev(net);

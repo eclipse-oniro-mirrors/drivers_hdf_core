@@ -17,7 +17,7 @@
 #define HARCH_LOG_TAG "[-net-hdf-]"
 #define HARCH_NET_INFO_PRINT(fmt, ...) \
 do { \
-    if (1) { \
+    if (0) { \
         HDF_LOGI(HARCH_LOG_TAG"[%{public}s][%{public}d]:" fmt "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);} \
 } while (0)
 
@@ -30,8 +30,8 @@ typedef struct device_type          DeviceType;
 typedef struct ethtool_ops          EthtoolOps;
 typedef struct rndis_data_hdr       RndisDataHdr;
 typedef struct sk_buff              SkBuff;
-typedef struct sk_buff_head         SkBuff_Head;
-typedef struct net_device_ops       NetDevice_Ops;
+typedef struct sk_buff_head         SkBuffHead;
+typedef struct net_device_ops       NetDeviceOps;
 
 struct rndis_data_hdr {
     __le32    msg_type;        /* RNDIS_MSG_PACKET */
@@ -64,12 +64,12 @@ struct UsbnetAdapter {
     wait_queue_head_t    wait;
     TimerList           delay;
 
-    SkBuff_Head    rxq;
-    SkBuff_Head    txq;
+    SkBuffHead    rxq;
+    SkBuffHead    txq;
 
-    SkBuff_Head    done;
-    SkBuff_Head    rxq_pause;
-    TaskletStruct    bh;
+    SkBuffHead    done;
+    SkBuffHead    rxqPause;
+    TaskletStruct  bh;
 
     struct pcpu_sw_netstats __percpu *stats64;
     
@@ -78,21 +78,21 @@ struct UsbnetAdapter {
     WorkStruct    RxCompleteWorkqueue;
     unsigned int        txLen;
     unsigned int        rxLen;
-    unsigned long        flags;
-#        define EVENT_TX_HALT    0
-#        define EVENT_RX_HALT    1
-#        define EVENT_RX_MEMORY    2
-#        define EVENT_STS_SPLIT    3
+    unsigned long       flags;
+#        define EVENT_TX_HALT       0
+#        define EVENT_RX_HALT       1
+#        define EVENT_RX_MEMORY     2
+#        define EVENT_STS_SPLIT     3
 #        define EVENT_LINK_RESET    4
-#        define EVENT_RX_PAUSED    5
-#        define EVENT_DEV_ASLEEP 6
-#        define EVENT_DEV_OPEN    7
+#        define EVENT_RX_PAUSED     5
+#        define EVENT_DEV_ASLEEP    6
+#        define EVENT_DEV_OPEN      7
 #        define EVENT_DEVICE_REPORT_IDLE    8
-#        define EVENT_NO_RUNTIME_PM    9
-#        define EVENT_RX_KILL    10
-#        define EVENT_LINK_CHANGE    11
-#        define EVENT_SET_RX_MODE    12
-#        define EVENT_NO_IP_ALIGN    13
+#        define EVENT_NO_RUNTIME_PM         9
+#        define EVENT_RX_KILL               10
+#        define EVENT_LINK_CHANGE           11
+#        define EVENT_SET_RX_MODE           12
+#        define EVENT_NO_IP_ALIGN           13
 };
 
 /* we record the state for each of our queued skbs */

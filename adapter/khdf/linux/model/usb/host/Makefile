@@ -13,7 +13,7 @@ USB_PNP_NOTIFY_ROOT_DIR = ./
 obj-$(CONFIG_DRIVERS_HDF_USB_PNP_NOTIFY) += \
          $(USB_PNP_NOTIFY_ROOT_DIR)/src/usb_pnp_notify.o
 
-obj-$(DRIVERS_HDF_USB_NET_ADAPTER) += \
+obj-$(CONFIG_DRIVERS_HDF_USB_NET_ADAPTER) += \
          $(USB_PNP_NOTIFY_ROOT_DIR)/src/usb_net_adapter.o
 
 ccflags-y += -lm -lc -lgcc \
