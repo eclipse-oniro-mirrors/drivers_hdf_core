@@ -15,3 +15,11 @@ config DRIVERS_HDF_USB_PNP_NOTIFY
     depends on DRIVERS_HDF
     help
         Answer Y to choice HDF USB PNP Notify driver.
+
+config DRIVERS_HDF_USB_NET_ADAPTER
+    bool "Enable HDF USB NET ADAPTER driver"
+    default n
+    depends on DRIVERS_HDF
+    depends on DRIVERS_HDF_USB_PNP_NOTIFY
+    help
+        Answer Y to choice HDF NET ADAPTER driver.
