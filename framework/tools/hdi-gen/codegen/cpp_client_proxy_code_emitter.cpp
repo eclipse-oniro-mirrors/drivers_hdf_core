@@ -374,6 +374,8 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     std::string objName = "proxy";
     std::string serMajorName = "serMajorVer";
     std::string serMinorName = "serMinorVer";
+    int index = EmitDefinitionByInterface(interface_, interfaceName_).rfind(':');
+    std::string interfaceNamespace = EmitDefinitionByInterface(interface_, interfaceName_).substr(0, index + 1);
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string& serviceName, bool isStub)\n",
         EmitDefinitionByInterface(interface_, interfaceName_).c_str(),
         EmitDefinitionByInterface(interface_, interfaceName_).c_str());
@@ -393,7 +395,8 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB).Append("}\n\n");
     sb.Append(prefix + TAB).AppendFormat("sptr<%s> %s = new %s(remote);\n",
         EmitDefinitionByInterface(interface_, interfaceName_).c_str(), objName.c_str(),
-        ((StringHelper::StartWith(interfaceName_, "I") ? interfaceName_.substr(1) : interfaceName_) +
+        (interfaceNamespace +
+        (StringHelper::StartWith(interfaceName_, "I") ? interfaceName_.substr(1) : interfaceName_) +
         "Proxy").c_str());
     sb.Append(prefix + TAB).AppendFormat("if (%s == nullptr) {\n", objName.c_str());
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:iface_cast failed!\", __func__);\n");
