@@ -374,8 +374,7 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     std::string objName = "proxy";
     std::string serMajorName = "serMajorVer";
     std::string serMinorName = "serMinorVer";
-    int index = EmitDefinitionByInterface(interface_, interfaceName_).rfind(':');
-    std::string interfaceNamespace = EmitDefinitionByInterface(interface_, interfaceName_).substr(0, index + 1);
+    std::string interfaceNamespace = GetNameSpaceByInterface(interface_, interfaceName_);
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string& serviceName, bool isStub)\n",
         EmitDefinitionByInterface(interface_, interfaceName_).c_str(),
         EmitDefinitionByInterface(interface_, interfaceName_).c_str());

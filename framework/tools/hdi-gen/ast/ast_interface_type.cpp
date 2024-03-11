@@ -197,8 +197,7 @@ void ASTInterfaceType::EmitCppWriteVar(const std::string &parcelName, const std:
 void ASTInterfaceType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
-    int index = GetNameWithNamespace(namespace_, name_).rfind(':');
-    std::string interfaceNamespace = GetNameWithNamespace(namespace_, name_).substr(0, index + 1);
+    std::string interfaceNamespace = namespace_->GetNamespaceWithColon();
     if (initVariable) {
         sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", GetNameWithNamespace(namespace_, name_).c_str(), name.c_str());
     }

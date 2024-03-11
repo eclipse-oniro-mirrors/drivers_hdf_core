@@ -69,6 +69,8 @@ protected:
     std::string EmitHeaderNameByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name);
 
     std::string EmitDefinitionByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name) const;
+
+    std::string GetNameSpaceByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name);
 };
 } // namespace HDI
 } // namespace OHOS

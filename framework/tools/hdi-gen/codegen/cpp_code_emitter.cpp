@@ -288,5 +288,15 @@ std::string CppCodeEmitter::EmitDefinitionByInterface(
     sb.Append(name.c_str());
     return sb.ToString();
 }
+
+std::string CppCodeEmitter::GetNameSpaceByInterface(AutoPtr<ASTInterfaceType> interface, const std::string &name)
+{
+    std::string value = EmitDefinitionByInterface(interface, name);
+    if (value.empty()) {
+        return "";
+    }
+    size_t index = value.rfind(':');
+    return (index == std::string::npos) ? value.substr(0) : value.substr(0, index + 1);
+}
 } // namespace HDI
 } // namespace OHOS
