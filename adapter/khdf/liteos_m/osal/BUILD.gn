@@ -43,5 +43,4 @@ hdf_driver("hdf_osal_lite") {
   if (hilog_lite_enable) {
     deps = [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_static" ]
   }
-  
 }
