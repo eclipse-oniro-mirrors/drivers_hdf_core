@@ -62,7 +62,7 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
         HdfSbufFlush(reply);
         timeout--;
         usleep(sleepInterval);
-    } while((status != HDF_SUCCESS || attachRes != HDF_SUCCESS) && (timeout > 0));
+    } while ((status != HDF_SUCCESS || attachRes != HDF_SUCCESS) && (timeout > 0));
     HDF_LOGI("Attach device host dispatch finish, status is %{public}d, attachRes is %{public}d",
         status, attachRes);
 FINISHED:
