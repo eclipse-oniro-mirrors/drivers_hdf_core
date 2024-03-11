@@ -66,8 +66,6 @@ public:
 
     std::string ToString() const override;
 
-    std::string GetNamespaceWithColon() const;
-
 private:
     std::string name_;
     ASTNamespace *outerNamespace_;

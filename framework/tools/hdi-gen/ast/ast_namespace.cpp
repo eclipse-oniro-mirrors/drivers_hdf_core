@@ -95,16 +95,5 @@ std::string ASTNamespace::ToString() const
     }
     return nspaceStr;
 }
-
-std::string ASTNamespace::GetNamespaceWithColon() const
-{
-    std::string nspaceStr;
-    const ASTNamespace *nspace = this;
-    while (nspace != nullptr) {
-        nspaceStr = nspace->name_ + "::" + nspaceStr;
-        nspace = nspace->outerNamespace_;
-    }
-    return nspaceStr;
-}
 } // namespace HDI
 } // namespace OHOS
