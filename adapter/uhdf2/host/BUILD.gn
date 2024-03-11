@@ -131,7 +131,7 @@ if (defined(ohos_lite)) {
         "../ipc:libhdf_ipc_adapter",
         "../utils:libhdf_utils",
       ]
-      external_deps += ["init:libbegetutil"]
+      external_deps += [ "init:libbegetutil" ]
       if (c_utils_enable) {
         external_deps += [ "c_utils:utils" ]
       }

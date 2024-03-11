@@ -161,6 +161,7 @@ template("hdi") {
           "hdf_core:libhdi",
           "hdf_core:libpub_utils",
         ]
+
         if (hilog_enable) {
           external_deps += [ "hilog:libhilog" ]
         }
