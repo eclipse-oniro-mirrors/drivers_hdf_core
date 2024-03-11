@@ -13,3 +13,28 @@
 
 hdf_framework_path = "//drivers/hdf_core/framework"
 hdf_uhdf_path = "//drivers/hdf_core/adapter/uhdf2"
+
+declare_args() {
+  samgr_enable = true
+  if (defined(global_parts_info) && !defined(global_parts_info.systemabilitymgr_samgr)) {
+    samgr_enable = false
+  }
+
+  c_utils_enable = true
+  if (defined(global_parts_info) && !defined(global_parts_info.commonlibrary_c_utils)) {
+    c_utils_enable = false
+  }
+
+  hilog_enable = true
+  if (defined(global_parts_info) && !defined(global_parts_info.hiviewdfx_hilog)) {
+    hilog_enable = false
+  }
+  selinux_adapter_enable = true
+  if (defined(global_parts_info) && !defined(global_parts_info.security_selinux_adapter)) {
+    selinux_adapter_enable = false
+  }
+  hilog_lite_enable = true
+  if (defined(global_parts_info) && !defined(global_parts_info.hiviewdfx_hilog_lite)){
+    hilog_lite_enable = false
+  }
+} 

@@ -88,17 +88,17 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/shared/src/hcb_config_entry.c",
     ]
 
+    if (hilog_enable) {
+      external_deps = [ "hilog:libhilog" ]
+    }
     if (is_standard_system) {
       deps = [
         "../ipc:libhdf_ipc_adapter",
         "../utils:libhdf_utils",
       ]
-      external_deps = [
-        "c_utils:utils",
-        "hilog:libhilog",
-      ]
-    } else {
-      external_deps = [ "hilog:libhilog" ]
+      if (c_utils_enable) {
+        external_deps += [ "c_utils:utils" ]
+      }
     }
 
     install_images = [ chipset_base_dir ]
@@ -122,19 +122,19 @@ if (defined(ohos_lite)) {
 
     sources = [ "devhost.c" ]
 
+    if (hilog_enable) {
+      external_deps = [ "hilog:libhilog" ]
+    }
     if (is_standard_system) {
       deps = [
         "../host:libhdf_host",
         "../ipc:libhdf_ipc_adapter",
         "../utils:libhdf_utils",
       ]
-      external_deps = [
-        "c_utils:utils",
-        "hilog:libhilog",
-        "init:libbegetutil",
-      ]
-    } else {
-      external_deps = [ "hilog:libhilog" ]
+      external_deps += ["init:libbegetutil"]
+      if (c_utils_enable) {
+        external_deps += [ "c_utils:utils" ]
+      }
     }
 
     # Ensure that the maximum page size is 4096 and the load section is aligned

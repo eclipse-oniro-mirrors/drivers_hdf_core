@@ -40,10 +40,10 @@ if (defined(ohos_lite)) {
       "$framework_core_relative_path/osal_time.c",
     ]
 
-    deps = [
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-      "//third_party/bounds_checking_function:libsec_shared",
-    ]
+    deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+    if (hilog_lite_enable) {
+      deps += [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
+    }
 
     defines = [ "__USER__" ]
     ldflags = [ "-lpthread" ]

@@ -158,11 +158,16 @@ template("hdi") {
         public_deps += hdi_build_info.proxy_deps
 
         external_deps = [
-          "c_utils:utils",
           "hdf_core:libhdi",
           "hdf_core:libpub_utils",
-          "hilog:libhilog",
         ]
+
+        if (hilog_enable) {
+        external_deps += [ "hilog:libhilog" ]
+        }
+        if (c_utils_enable) {
+          external_deps += [ "c_utils:utils" ]
+        }
         if (defined(invoker.sequenceable_ext_deps)) {
           external_deps += invoker.sequenceable_ext_deps
         }
@@ -172,7 +177,9 @@ template("hdi") {
           external_deps += [ "ipc:ipc_single" ]
         }
       } else {
+        if (hilog_enable) {
         external_deps = [ "hilog:libhilog" ]
+        }
       }
 
       if (defined(invoker.innerapi_tags)) {
@@ -219,11 +226,13 @@ template("hdi") {
 
           public_deps += hdi_build_info.stub_deps
 
-          external_deps = [
-            "c_utils:utils",
-            "hdf_core:libhdi",
-            "hilog:libhilog",
-          ]
+          external_deps = [ "hdf_core:libhdi" ]
+          if (hilog_enable) {
+            external_deps += [ "hilog:libhilog" ]
+          }
+          if (c_utils_enable) {
+          external_deps += [ "c_utils:utils" ]
+          }
           if (defined(invoker.sequenceable_ext_deps)) {
             external_deps += invoker.sequenceable_ext_deps
           }
@@ -236,7 +245,9 @@ template("hdi") {
             external_deps += [ "ipc:ipc_single" ]
           }
         } else {
-          external_deps = [ "hilog:libhilog" ]
+          if (hilog_enable) {
+            external_deps = [ "hilog:libhilog" ]
+          }
         }
 
         shlib_type = "hdi_stub"

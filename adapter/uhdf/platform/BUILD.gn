@@ -75,10 +75,10 @@ ohos_shared_library("hdf_platform") {
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   public_deps = [ "$hdf_adapter_path/uhdf/manager:hdf_core" ]
 
-  external_deps = [
-    "hdf_core:hdf_posix_osal",
-    "hilog_lite:hilog_shared",
-  ]
+  external_deps = [ "hdf_core:hdf_posix_osal" ]
+  if (hilog_lite_enable) {
+    external_deps += [ "hilog_lite:hilog_shared" ]
+  }
 
   defines = [ "__USER__" ]
 

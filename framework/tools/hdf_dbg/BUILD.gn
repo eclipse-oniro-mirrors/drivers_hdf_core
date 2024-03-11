@@ -15,10 +15,10 @@ ohos_executable("hdf_dbg") {
       "../../../adapter/uhdf2/hdi:libhdi",
       "../../../adapter/uhdf2/utils/:libhdf_utils",
     ]
-    external_deps = [
-      "c_utils:utils",
-      "ipc:ipc_single",
-    ]
+    external_deps = [ "ipc:ipc_single" ]
+    if (c_utils_enable) {
+      external_deps += [ "c_utils:utils" ]
+    }
   }
 
   install_enable = false
