@@ -45,8 +45,7 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
     const int sleepInterval = 20000; // 20ms
     int timeout = waitTimes;
     do {
-        HDF_LOGI("waiting for devmgr attaching device host : %{public}d, will retry %{public}d times",
-            hostId, timeout);
+        HDF_LOGI("wait devmgr attach device host : %{public}d, will retry %{public}d times", hostId, timeout);
         if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) || !HdfSbufWriteInt32(data, hostId) ||
             HdfSbufWriteRemoteService(data, hostStub->remote) != HDF_SUCCESS) {
             HDF_LOGE("failed to attach host, write sbuf error");
