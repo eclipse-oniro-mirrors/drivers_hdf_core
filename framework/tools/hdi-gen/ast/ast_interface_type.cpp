@@ -197,6 +197,7 @@ void ASTInterfaceType::EmitCppWriteVar(const std::string &parcelName, const std:
 void ASTInterfaceType::EmitCppReadVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
     const std::string &prefix, bool initVariable, unsigned int innerLevel) const
 {
+    std::string interfaceNamespace = GetNamespaceWithColon(namespace_, name_);
     if (initVariable) {
         sb.Append(prefix).AppendFormat("sptr<%s> %s;\n", GetNameWithNamespace(namespace_, name_).c_str(), name.c_str());
     }
@@ -207,7 +208,8 @@ void ASTInterfaceType::EmitCppReadVar(const std::string &parcelName, const std::
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
     sb.Append(prefix).Append("}\n\n");
     sb.Append(prefix).AppendFormat("%s = new %s(%sRemote);\n", name.c_str(),
-        ((StringHelper::StartWith(name_, "I") ? name_.substr(1) : name_) + "Proxy").c_str(), name.c_str());
+        (interfaceNamespace +
+        (StringHelper::StartWith(name_, "I") ? name_.substr(1) : name_) + "Proxy").c_str(), name.c_str());
     sb.Append(prefix).AppendFormat("if (%s == nullptr) {\n", name.c_str());
     sb.Append(prefix + TAB).Append("HDF_LOGE(\"%{public}s: failed to create interface object\", __func__);\n");
     sb.Append(prefix + TAB).Append("return HDF_ERR_INVALID_PARAM;\n");
