@@ -12,8 +12,8 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf/uhdf.gni")
 import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+
 inner_api_relative_path = "./../../../interfaces/inner_api"
 
 config("hdf_core_pub_config") {
