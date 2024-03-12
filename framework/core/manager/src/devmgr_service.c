@@ -405,7 +405,8 @@ int DevmgrServiceStartService(struct IDevmgrService *inst)
 
     ret = DevmgrServiceStartDeviceHosts(dmService);
     HDF_LOGI("init DeviceHosts info result: %{public}d", ret);
-    HDF_LOGI("start svcmgr result %{public}d", DevSvcManagerStartService());
+    int startServiceRet = DevSvcManagerStartService();
+    HDF_LOGI("start svcmgr result %{public}d", startServiceRet);
     return ret;
 }
 
