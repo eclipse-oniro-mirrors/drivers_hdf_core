@@ -27,6 +27,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("./../hdf.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 module_switch = defined(DRIVERS_HDF)
 hdf_driver("hdf_osal_lite") {

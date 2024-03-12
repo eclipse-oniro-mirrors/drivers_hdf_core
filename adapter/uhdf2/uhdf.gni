@@ -32,13 +32,13 @@ declare_args() {
       !defined(global_parts_info.hiviewdfx_hilog)) {
     hilog_enable = false
   }
-  
+
   selinux_adapter_enable = true
   if (defined(global_parts_info) &&
       !defined(global_parts_info.security_selinux_adapter)) {
     selinux_adapter_enable = false
   }
-  
+
   hilog_lite_enable = true
   if (defined(global_parts_info) &&
       !defined(global_parts_info.hiviewdfx_hilog_lite)) {

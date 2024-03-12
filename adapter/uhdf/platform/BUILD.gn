@@ -16,6 +16,7 @@ hdf_interfaces_path = "../../../interfaces"
 hdf_adapter_path = "../../../adapter"
 
 import("//build/ohos.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 config("hdf_platform_pub_config") {
   visibility = [ ":*" ]
 

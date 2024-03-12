@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/lite/config/component/lite_component.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 shared_library("hdf_posix_osal") {
   hdf_framework_path = "./../../../../framework"
