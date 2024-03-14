@@ -26,6 +26,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 import("./../hdf.gni")
 
 module_switch = defined(DRIVERS_HDF)
@@ -39,5 +40,7 @@ hdf_driver("hdf_osal_lite") {
     "src/osal_time.c",
     "src/osal_timer.c",
   ]
-  deps = [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_static" ]
+  if (hilog_lite_enable) {
+    deps = [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_static" ]
+  }
 }

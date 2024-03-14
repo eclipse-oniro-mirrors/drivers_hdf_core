@@ -30,8 +30,10 @@ executable("hello_uart_dispatch") {
   deps = [
     "$hdf_adapter_path/uhdf/manager:hdf_core",
     "$hdf_adapter_path/uhdf/posix:hdf_posix_osal",
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
   ]
+  if (hilog_lite_enable) {
+    deps += [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
+  }
 
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   defines = [ "__USER__" ]

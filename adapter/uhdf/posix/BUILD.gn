@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 inner_api_relative_path = "./../../../interfaces/inner_api"
 
@@ -40,10 +41,10 @@ if (defined(ohos_lite)) {
       "$framework_core_relative_path/osal_time.c",
     ]
 
-    deps = [
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-      "//third_party/bounds_checking_function:libsec_shared",
-    ]
+    deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+    if (hilog_lite_enable) {
+      deps += [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
+    }
 
     defines = [ "__USER__" ]
     ldflags = [ "-lpthread" ]
