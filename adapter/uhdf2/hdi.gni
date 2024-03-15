@@ -56,6 +56,11 @@ template("hdi") {
   }
   root_package_path = "${root_package}:${root_path}"
 
+  # set base directory of hdi files, set this parameter to your component name if you are using external idl files.
+  if (defined(invoker.base_dir)) {
+    root_path += invoker.base_dir
+  }
+
   sources_gen_dir = get_path_info("${root_path}/", "gen_dir")
   get_build_info_args = [
     "-s",
