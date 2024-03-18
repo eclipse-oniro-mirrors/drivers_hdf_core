@@ -82,10 +82,8 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/utils/src/hcs_parser/hcs_dm_parser.c",
     ]
 
-    if (hilog_lite_enable) {
-      public_deps =
-          [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
-    }
+    public_deps =
+        [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
 
     subsystem_name = "hdf"
     part_name = "hdf_core"
@@ -159,13 +157,13 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/utils/src/shared_mem.cpp",
     ]
 
-    if (hilog_enable) {
-      external_deps = [ "hilog:libhilog" ]
-    }
     if (is_standard_system) {
-      if (c_utils_enable) {
-        external_deps += [ "c_utils:utils" ]
-      }
+      external_deps = [
+        "c_utils:utils",
+        "hilog:libhilog",
+      ]
+    } else {
+      external_deps = [ "hilog:libhilog" ]
     }
 
     innerapi_tags = [ "chipsetsdk" ]

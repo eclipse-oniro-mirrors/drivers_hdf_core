@@ -39,13 +39,13 @@ ohos_shared_library("libhdf_sec") {
     "$hdf_uhdf_path/utils:libhdf_utils",
   ]
 
-  if (hilog_enable) {
-    external_deps = [ "hilog:libhilog" ]
-  }
   if (is_standard_system) {
-    if (c_utils_enable) {
-      external_deps += [ "c_utils:utils" ]
-    }
+    external_deps = [
+      "c_utils:utils",
+      "hilog:libhilog",
+    ]
+  } else {
+    external_deps = [ "hilog:libhilog" ]
   }
 
   install_images = [ chipset_base_dir ]

@@ -43,12 +43,10 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/utils/src/hdf_sbuf_impl_raw.c",
     ]
 
-    if (c_utils_enable) {
-      external_deps = [ "c_utils:utils" ]
-    }
-    if (hilog_enable) {
-      external_deps += [ "hilog:libhilog" ]
-    }
+    external_deps = [
+      "c_utils:utils",
+      "hilog:libhilog",
+    ]
     install_images = [
       system_base_dir,
       "updater",

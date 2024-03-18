@@ -12,16 +12,15 @@
 # limitations under the License.
 
 import("//build/lite/config/component/lite_component.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 shared_library("hdf_posix_osal") {
   hdf_framework_path = "./../../../../framework"
   hdf_core_path = "./../../../../../hdf_core"
   output_name = "hdf_osal"
-  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  if (hilog_lite_enable) {
-    deps += [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
-  }
+  deps = [
+    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "//third_party/bounds_checking_function:libsec_shared",
+  ]
   sources = [
     "$hdf_framework_path/support/posix/src/osal_mem.c",
     "$hdf_framework_path/support/posix/src/osal_mutex.c",
