@@ -116,7 +116,7 @@ void HdfPmAcquireDeviceAsync(struct HdfDeviceObject *deviceObject)
     struct HdfDeviceNode *devNode = NULL;
 
     if (deviceObject == NULL) {
-        HDF_LOGE("%s: input param is invalid", __func__);
+        HDF_LOGE("%{public}s: input param is invalid", __func__);
         return;
     }
 
@@ -130,7 +130,7 @@ void HdfPmReleaseDeviceAsync(struct HdfDeviceObject *deviceObject)
     struct HdfDeviceNode *devNode = NULL;
 
     if (deviceObject == NULL) {
-        HDF_LOGE("%s: input param is invalid", __func__);
+        HDF_LOGE("%{public}s: input param is invalid", __func__);
         return;
     }
 
@@ -145,7 +145,7 @@ void HdfPmSetMode(struct HdfDeviceObject *deviceObject, uint32_t mode)
     struct HdfDeviceNode *devNode = NULL;
     struct PowerStateToken *token = NULL;
     if (deviceObject == NULL || mode > HDF_POWER_MODE_MAX) {
-        HDF_LOGE("%s: input param is invalid", __func__);
+        HDF_LOGE("%{public}s: input param is invalid", __func__);
         return;
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
@@ -236,13 +236,13 @@ int HdfDeviceObjectRegister(struct HdfDeviceObject *dev)
 
     devNode->driver = driverLoader->GetDriver(devNode->driverName);
     if (devNode->driver == NULL) {
-        HDF_LOGE("can not found driver %s", devNode->driverName);
+        HDF_LOGE("can not found driver %{public}s", devNode->driverName);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
     ret = devNode->device->super.Attach(&devNode->device->super, devNode);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to attach device %s", devNode->driverName);
+        HDF_LOGE("failed to attach device %{public}s", devNode->driverName);
         return HDF_DEV_ERR_ATTACHDEV_FAIL;
     }
 

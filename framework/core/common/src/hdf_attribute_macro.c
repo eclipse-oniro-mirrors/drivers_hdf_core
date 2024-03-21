@@ -38,7 +38,7 @@ static bool GetHostInfoMacro(const struct HdfHostType *hostNode, struct HdfHostI
         return false;
     }
     if (hostInfo->priority > MAX_PRIORITY_NUM) {
-        HDF_LOGW("GetHostInfoMacro get host priority failed, priority is: %u", hostInfo->priority);
+        HDF_LOGW("GetHostInfoMacro get host priority failed, priority is: %{public}u", hostInfo->priority);
         return false;
     }
 
@@ -79,7 +79,7 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
         struct HdfHostInfo *hostInfo = HdfHostInfoNewInstance();
         if (hostInfo == NULL) {
             HdfSListFlush(hostList, HdfHostInfoDelete);
-            HDF_LOGE("%s: new hostInfo is null", __func__);
+            HDF_LOGE("%{public}s: new hostInfo is null", __func__);
             return false;
         }
 
@@ -115,17 +115,17 @@ static bool HdfDeviceListCompareMacro(struct HdfSListNode *listEntryFirst, struc
 static bool CheckDeviceInfoMacro(const struct HdfDeviceInfo *deviceNodeInfo)
 {
     if (deviceNodeInfo->policy >= SERVICE_POLICY_INVALID) {
-        HDF_LOGE("CheckDeviceInfoMacro policy %u is invalid", deviceNodeInfo->policy);
+        HDF_LOGE("CheckDeviceInfoMacro policy %{public}u is invalid", deviceNodeInfo->policy);
         return false;
     }
 
     if (deviceNodeInfo->priority > MAX_PRIORITY_NUM) {
-        HDF_LOGE("CheckDeviceInfoMacro priority %u is invalid", deviceNodeInfo->priority);
+        HDF_LOGE("CheckDeviceInfoMacro priority %{public}u is invalid", deviceNodeInfo->priority);
         return false;
     }
 
     if (deviceNodeInfo->preload >= DEVICE_PRELOAD_INVALID) {
-        HDF_LOGE("CheckDeviceInfoMacro preload %u is invalid", deviceNodeInfo->preload);
+        HDF_LOGE("CheckDeviceInfoMacro preload %{public}u is invalid", deviceNodeInfo->preload);
         return false;
     }
 
@@ -161,14 +161,14 @@ static bool GetDevcieNodeList(const struct HdfDeviceType *device,
         }
         if (!GetDeviceNodeInfo(devNode, devInfo)) {
             HdfDeviceInfoFreeInstance(devInfo);
-            HDF_LOGE("%s: failed to parse device node info, ignore", __func__);
+            HDF_LOGE("%{public}s: failed to parse device node info, ignore", __func__);
             continue;
         }
 
         devInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
         if (devInfo->preload != DEVICE_PRELOAD_DISABLE) {
             if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &devInfo->node, HdfDeviceListCompareMacro)) {
-                HDF_LOGE("%s: failed to add device info to list %s", __func__, devInfo->svcName);
+                HDF_LOGE("%{public}s: failed to add device info to list %{public}s", __func__, devInfo->svcName);
                 HdfDeviceInfoFreeInstance(devInfo);
                 continue;
             }

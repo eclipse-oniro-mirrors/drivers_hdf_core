@@ -354,7 +354,7 @@ bool DevSvcManagerConstruct(struct DevSvcManager *inst)
 {
     struct IDevSvcManager *devSvcMgrIf = NULL;
     if (inst == NULL) {
-        HDF_LOGE("%s: inst is null!", __func__);
+        HDF_LOGE("%{public}s: inst is null!", __func__);
         return false;
     }
     devSvcMgrIf = &inst->super;

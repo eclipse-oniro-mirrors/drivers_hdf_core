@@ -150,7 +150,7 @@ static bool DevMgrUeventCheckRuleValid(const char *line)
     }
 
     if (strstr(line, PNP_EVENT_STR) == NULL) {
-        HDF_LOGE("%s invalid rule: %s", __func__, line);
+        HDF_LOGE("%{public}s invalid rule: %{public}s", __func__, line);
         return false;
     }
 

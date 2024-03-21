@@ -69,7 +69,7 @@ static int32_t DevHostServiceClntConstruct(struct DevHostServiceClnt *hostClnt)
     HdfSListInit(&hostClnt->dynamicDevInfos);
     hostClnt->deviceHashMap = (Map *)OsalMemCalloc(sizeof(Map));
     if (hostClnt->deviceHashMap == NULL) {
-        HDF_LOGE("%s:failed to malloc deviceHashMap", __func__);
+        HDF_LOGE("%{public}s:failed to malloc deviceHashMap", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
     if (OsalMutexInit(&hostClnt->hostLock) != HDF_SUCCESS) {

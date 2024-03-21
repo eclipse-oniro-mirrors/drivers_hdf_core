@@ -22,7 +22,7 @@ int32_t HdfLoadDriverByServiceName(const char *serviceName)
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("HdfLoadDriverByServiceName failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfLoadDriverByServiceName failed to get %{public}s service", DEV_MGR_NODE);
         return ret;
     }
     data = HdfSbufObtainDefaultSize();
@@ -38,7 +38,7 @@ int32_t HdfLoadDriverByServiceName(const char *serviceName)
     }
     ret = ioService->dispatcher->Dispatch(&ioService->object, DEVMGR_LOAD_SERVICE, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("HdfLoadDriverByServiceName failed to load khdf driver %s", serviceName);
+        HDF_LOGE("HdfLoadDriverByServiceName failed to load khdf driver %{public}s", serviceName);
     }
 OUT:
     HdfIoServiceRecycle(ioService);
@@ -51,12 +51,12 @@ int32_t HdfGetServiceNameByDeviceClass(DeviceClass deviceClass, struct HdfSBuf *
     int32_t ret = HDF_FAILURE;
     struct HdfSBuf *data = NULL;
     if (reply == NULL) {
-        HDF_LOGE("%s input reply is null", __func__);
+        HDF_LOGE("%{public}s input reply is null", __func__);
         return ret;
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("HdfGetServiceNameByDeviceClass failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfGetServiceNameByDeviceClass failed to get %{public}s service", DEV_MGR_NODE);
         return ret;
     }
     data = HdfSbufObtainDefaultSize();
@@ -89,7 +89,7 @@ int32_t HdfListAllService(struct HdfSBuf *reply)
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("HdfListAllService failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfListAllService failed to get %{public}s service", DEV_MGR_NODE);
         return ret;
     }
 
@@ -110,7 +110,7 @@ int32_t HdfListAllDevice(struct HdfSBuf *reply)
     }
     struct HdfIoService *ioService = HdfIoServiceBind(DEV_MGR_NODE);
     if (ioService == NULL) {
-        HDF_LOGE("HdfListAllDevice failed to get %s service", DEV_MGR_NODE);
+        HDF_LOGE("HdfListAllDevice failed to get %{public}s service", DEV_MGR_NODE);
         return ret;
     }
 

@@ -30,7 +30,7 @@ static int32_t GetDeviceServiceNameByClass(struct HdfSBuf *data, struct HdfSBuf 
     }
 
     if (!HdfSbufReadInt32(data, &deviceClass)) {
-        HDF_LOGE("%s: failed to get deviceClass", __func__);
+        HDF_LOGE("%{public}s: failed to get deviceClass", __func__);
         return HDF_FAILURE;
     }
 
@@ -74,7 +74,7 @@ int DeviceManagerDispatch(struct HdfObject *stub, int code, struct HdfSBuf *data
     };
     (void)stub;
     if (devMgrSvc == NULL) {
-        HDF_LOGE("%s: input param is invalid", __func__);
+        HDF_LOGE("%{public}s: input param is invalid", __func__);
         return ret;
     }
     OsalMutexLock(&devMgrSvc->devMgrMutex);
@@ -97,7 +97,7 @@ int DeviceManagerDispatch(struct HdfObject *stub, int code, struct HdfSBuf *data
             ret = ListAllDevice(devMgrSvc, reply);
             break;
         default:
-            HDF_LOGE("%s: unsupported configuration type: %d", __func__, code);
+            HDF_LOGE("%{public}s: unsupported configuration type: %{public}d", __func__, code);
             break;
     }
     OsalMutexUnlock(&devMgrSvc->devMgrMutex);
@@ -145,7 +145,7 @@ int DeviceManagerStartStep2(void)
 {
     struct DevmgrService *devMgrSvc = NULL;
     if (DeviceManagerIsQuickLoad() == DEV_MGR_SLOW_LOAD) {
-        HDF_LOGW("%s: device manager is not set to QuickLoad mode", __func__);
+        HDF_LOGW("%{public}s: device manager is not set to QuickLoad mode", __func__);
         return HDF_SUCCESS;
     }
     devMgrSvc = (struct DevmgrService *)DevmgrServiceGetInstance();

@@ -50,7 +50,7 @@ static int32_t DevSvcManagerExtRegisterListener(struct HdfDeviceIoClient *client
 
     holder = ServStatListenerHolderGet((uintptr_t)client);
     if (holder != NULL) {
-        HDF_LOGE("%s:register listener exist, update and return", __func__);
+        HDF_LOGE("%{public}s:register listener exist, update and return", __func__);
         holder->listenClass = devClass;
         return HDF_SUCCESS;
     }
