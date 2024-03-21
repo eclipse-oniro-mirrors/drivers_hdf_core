@@ -254,16 +254,14 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
         HDF_LOGE("Start service failed, fullService is null");
         return HDF_ERR_INVALID_PARAM;
     }
+
     struct IDevSvcManager *serviceManager = DevSvcManagerGetInstance();
-    if (serviceManager == NULL) {
-        HDF_LOGE("Start service failed, get service manager failed");
-        return HDF_ERR_INVALID_OBJECT;
-    }
     struct HdfRemoteService *remoteService = HdfRemoteServiceObtain((struct HdfObject *)inst, &g_devmgrDispatcher);
-    if (remoteService == NULL) {
-        HDF_LOGE("failed to start devmgr, remoteService obtain err");
-        return HDF_ERR_MALLOC_FAIL;
+    if (serviceManager == NULL || remoteService == NULL) {
+        HDF_LOGE("Start service failed, get service manager failed or remoteService obtain err");
+        return HDF_FAILURE;
     }
+
     if (!HdfRemoteServiceSetInterfaceDesc(remoteService, "HDI.IDeviceManager.V1_0")) {
         HDF_LOGE("%{public}s: failed to init interface desc", __func__);
         HdfRemoteServiceRecycle(remoteService);
