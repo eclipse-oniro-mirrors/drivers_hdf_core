@@ -76,6 +76,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
 
     device = DevHostServiceQueryOrAddDevice(hostService, DEVICEID(deviceInfo->deviceId));
     if (device == NULL || device->super.Attach == NULL) {
+        HDF_LOGE("failed to add device %{public}d, device or Attach func is null", deviceInfo->deviceId);
         return HDF_DEV_ERR_NO_DEVICE;
     }
     devNode = device->super.GetDeviceNode(&device->super, deviceInfo->deviceId);
@@ -85,12 +86,14 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     }
     driver = driverLoader->GetDriver(deviceInfo->moduleName);
     if (driver == NULL) {
+        HDF_LOGE("failed to add device %{public}s, get driver failed", deviceInfo->moduleName);
         ret = HDF_DEV_ERR_NODATA;
         goto ERROR;
     }
 
     devNode = HdfDeviceNodeNewInstance(deviceInfo, driver);
     if (devNode == NULL) {
+        HDF_LOGE("failed to add device %{public}d, create devNode failed", deviceInfo->deviceId);
         driverLoader->ReclaimDriver(driver);
         return HDF_DEV_ERR_NO_MEMORY;
     }
@@ -100,6 +103,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     devNode->driver = driver;
     ret = device->super.Attach(&device->super, devNode);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("failed to add device %{public}d, attach devNode failed", deviceInfo->deviceId);
         HdfDeviceNodeFreeInstance(devNode);
         goto ERROR;
     }

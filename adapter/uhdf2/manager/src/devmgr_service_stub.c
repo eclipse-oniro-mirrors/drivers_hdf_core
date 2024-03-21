@@ -110,6 +110,8 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
         return HDF_ERR_INVALID_PARAM;
     }
     uint32_t hostId = 0;
+    HDF_LOGD("DevmgrServiceStubDispatch called: code=%{public}d, calling pid=%{public}d",
+        code, HdfRemoteGetCallingPid());
     switch (code) {
         case DEVMGR_SERVICE_ATTACH_DEVICE_HOST:
             if (!HdfSbufReadUint32(data, &hostId)) {
@@ -244,18 +246,19 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
 {
     struct DevmgrServiceStub *fullService = (struct DevmgrServiceStub *)inst;
     if (fullService == NULL) {
+        HDF_LOGE("Start service failed, fullService is null");
         return HDF_ERR_INVALID_PARAM;
     }
 
     struct IDevSvcManager *serviceManager = DevSvcManagerGetInstance();
     if (serviceManager == NULL) {
-        HDF_LOGI("Start service failed, fullService is null");
+        HDF_LOGE("Start service failed, get service manager failed");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     struct HdfRemoteService *remoteService = HdfRemoteServiceObtain((struct HdfObject *)inst, &g_devmgrDispatcher);
     if (remoteService == NULL) {
-        HDF_LOGI("failed to start devmgr, remoteService obtain err");
+        HDF_LOGE("failed to start devmgr, remoteService obtain err");
         return HDF_ERR_MALLOC_FAIL;
     }
     if (!HdfRemoteServiceSetInterfaceDesc(remoteService, "HDI.IDeviceManager.V1_0")) {
@@ -265,6 +268,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     }
     struct HdfDeviceObject *deviceObject = OsalMemCalloc(sizeof(struct HdfDeviceObject));
     if (deviceObject == NULL) {
+        HDF_LOGE("%{public}s: failed to malloc device obj", __func__);
         HdfRemoteServiceRecycle(remoteService);
         return HDF_ERR_MALLOC_FAIL;
     }
@@ -276,6 +280,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     info.devClass = DEVICE_CLASS_DEFAULT;
     int status = DevSvcManagerAddService(serviceManager, deviceObject, &info);
     if (status != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: failed to add service", __func__);
         HdfRemoteServiceRecycle(remoteService);
         OsalMemFree(deviceObject);
         return status;
@@ -285,6 +290,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     (void)DriverModuleLoadHelperInit();
     status = DevmgrServiceStartService((struct IDevmgrService *)&fullService->super);
     if (status != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: failed to start service", __func__);
         HdfRemoteServiceRecycle(remoteService);
         OsalMemFree(deviceObject);
         return status;

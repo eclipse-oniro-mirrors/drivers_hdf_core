@@ -408,7 +408,7 @@ static int32_t DevSvcManagerStubRemoveService(struct IDevSvcManager *super, stru
     OsalMutexLock(&stub->devSvcStubMutex);
     if (!CheckServiceObjectValidNoLock(stub, serviceObject)) {
         OsalMutexUnlock(&stub->devSvcStubMutex);
-        HDF_LOGI("StubRemoveService service %{public}s is invalid", name);
+        HDF_LOGE("StubRemoveService service %{public}s is invalid", name);
         return HDF_FAILURE;
     }
 
@@ -497,7 +497,8 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
         return ret;
     }
     struct IDevSvcManager *super = (struct IDevSvcManager *)&stub->super;
-    HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d", code);
+    HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling pid=%{public}d",
+        code, HdfRemoteGetCallingPid());
     switch (code) {
         case DEVSVC_MANAGER_ADD_SERVICE:
             ret = DevSvcManagerStubAddService(super, data);
@@ -574,6 +575,7 @@ int DevSvcManagerStubStart(struct IDevSvcManager *svcmgr)
 {
     struct DevSvcManagerStub *inst = (struct DevSvcManagerStub *)svcmgr;
     if (inst == NULL) {
+        HDF_LOGE("%{public}s: failed to init interface desc", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (inst->started) {
