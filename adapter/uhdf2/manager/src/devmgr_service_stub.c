@@ -35,6 +35,18 @@
 
 #define HDF_LOG_TAG devmgr_service_stub
 
+static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
+{
+    uint32_t hostId = 0;
+    if (!HdfSbufReadUint32(data, &hostId)) {
+        HDF_LOGE("invalid host id");
+        return HDF_FAILURE;
+    }
+    struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
+    struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
+    return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
+}
+
 static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
 {
     uint32_t deviceId;
@@ -109,18 +121,11 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
         HDF_LOGE("%{public}s: invalid interface token, code=%{public}d", __func__, code);
         return HDF_ERR_INVALID_PARAM;
     }
-    uint32_t hostId = 0;
     HDF_LOGD("DevmgrServiceStubDispatch called: code=%{public}d, calling pid=%{public}d",
         code, HdfRemoteGetCallingPid());
     switch (code) {
         case DEVMGR_SERVICE_ATTACH_DEVICE_HOST:
-            if (!HdfSbufReadUint32(data, &hostId)) {
-                HDF_LOGE("invalid host id");
-                return HDF_FAILURE;
-            }
-            struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
-            struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
-            ret = super->AttachDeviceHost(super, hostId, hostIf);
+            ret = DevmgrServiceStubDispatchAttachDeviceHost(super, data);
             break;
         case DEVMGR_SERVICE_ATTACH_DEVICE:
             ret = DevmgrServiceStubDispatchAttachDevice(super, data);
@@ -249,13 +254,11 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
         HDF_LOGE("Start service failed, fullService is null");
         return HDF_ERR_INVALID_PARAM;
     }
-
     struct IDevSvcManager *serviceManager = DevSvcManagerGetInstance();
     if (serviceManager == NULL) {
         HDF_LOGE("Start service failed, get service manager failed");
         return HDF_ERR_INVALID_OBJECT;
     }
-
     struct HdfRemoteService *remoteService = HdfRemoteServiceObtain((struct HdfObject *)inst, &g_devmgrDispatcher);
     if (remoteService == NULL) {
         HDF_LOGE("failed to start devmgr, remoteService obtain err");
