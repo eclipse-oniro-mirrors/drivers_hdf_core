@@ -403,10 +403,10 @@ int DevmgrServiceStartService(struct IDevmgrService *inst)
         return HDF_FAILURE;
     }
 
-    ret = DevSvcManagerStartService();
-    HDF_LOGI("start svcmgr result %{public}d", ret);
-
-    return DevmgrServiceStartDeviceHosts(dmService);
+    ret = DevmgrServiceStartDeviceHosts(dmService);
+    int startServiceRet = DevSvcManagerStartService();
+    HDF_LOGI("start svcmgr result %{public}d. Init DeviceHosts info result: %{public}d", startServiceRet, ret);
+    return ret;
 }
 
 int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum HdfPowerState powerState)
