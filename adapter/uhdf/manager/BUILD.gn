@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 inner_api_relative_path = "./../../../interfaces/inner_api"
 
@@ -53,10 +52,10 @@ ohos_shared_library("hdf_core") {
     "$hdf_frameworks_path/utils/src/hdf_sbuf_impl_raw.c",
   ]
 
-  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-  if (hilog_lite_enable) {
-    deps += [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
-  }
+  deps = [
+    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "//third_party/bounds_checking_function:libsec_shared",
+  ]
 
   external_deps = [ "hdf_core:hdf_posix_osal" ]
   defines = [ "__USER__" ]

@@ -76,15 +76,13 @@ ohos_executable("hdf_devmgr") {
     "../utils:libhdf_utils",
   ]
 
-  external_deps = [ "init:libbegetutil" ]
-  if (c_utils_enable) {
-    external_deps += [ "c_utils:utils" ]
-  }
-  if (hilog_enable) {
-    external_deps += [ "hilog:libhilog" ]
-  }
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+  ]
 
-  if (build_selinux && selinux_adapter_enable) {
+  if (build_selinux) {
     external_deps += [ "selinux_adapter:libservice_checker" ]
     cflags = [ "-DWITH_SELINUX" ]
   }

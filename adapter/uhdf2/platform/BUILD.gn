@@ -56,15 +56,15 @@ if (is_standard_system) {
 
     defines = [ "__USER__" ]
 
-    if (hilog_enable) {
-      external_deps = [ "hilog:libhilog" ]
-    }
     if (is_standard_system) {
       deps = [ "../utils:libhdf_utils" ]
 
-      if (c_utils_enable) {
-        external_deps += [ "c_utils:utils" ]
-      }
+      external_deps = [
+        "c_utils:utils",
+        "hilog:libhilog",
+      ]
+    } else {
+      external_deps = [ "hilog:libhilog" ]
     }
 
     cflags = [

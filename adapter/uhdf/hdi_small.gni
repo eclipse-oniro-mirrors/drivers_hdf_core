@@ -13,7 +13,6 @@
 
 import("//build/ohos.gni")
 import("//drivers/hdf_core/adapter/uhdf/uhdf.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 template("hdi_small") {
   assert(defined(invoker.sources), "sources must be set")
@@ -134,10 +133,8 @@ template("hdi_small") {
       external_deps = [
         "bounds_checking_function:libsec_shared",
         "hdf_core:libhdi",
+        "hilog_lite:hilog_shared",
       ]
-      if (hilog_lite_enable) {
-        external_deps += [ "hilog_lite:hilog_shared" ]
-      }
 
       if (invoker.language == "c") {
         external_deps += [ "hdf_core:libhdf_utils" ]

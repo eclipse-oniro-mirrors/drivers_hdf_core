@@ -11,13 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+hdf_framework_path = "../../../framework"
 hdf_interfaces_path = "../../../interfaces"
 hdf_adapter_path = "../../../adapter"
 
 import("//build/ohos.gni")
-import("./../../../adapter/uhdf2/uhdf.gni")
 config("hdf_platform_pub_config") {
-  hdf_framework_path = "../../../framework"
   visibility = [ ":*" ]
 
   include_dirs = [
@@ -49,7 +48,6 @@ config("hdf_platform_pub_config") {
 }
 
 ohos_shared_library("hdf_platform") {
-  hdf_framework_path = "../../../framework"
   include_dirs = []
 
   public_configs = [ ":hdf_platform_pub_config" ]
@@ -77,10 +75,10 @@ ohos_shared_library("hdf_platform") {
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   public_deps = [ "$hdf_adapter_path/uhdf/manager:hdf_core" ]
 
-  external_deps = [ "hdf_core:hdf_posix_osal" ]
-  if (hilog_lite_enable) {
-    external_deps += [ "hilog_lite:hilog_shared" ]
-  }
+  external_deps = [
+    "hdf_core:hdf_posix_osal",
+    "hilog_lite:hilog_shared",
+  ]
 
   defines = [ "__USER__" ]
 

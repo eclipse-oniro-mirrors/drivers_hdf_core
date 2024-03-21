@@ -46,10 +46,10 @@ if (defined(ohos_lite)) {
     all_dependent_configs = [ ":libhdi_pub_config" ]
     sources = [ "src/hdi_support.cpp" ]
 
-    deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-    if (hilog_lite_enable) {
-      deps += [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
-    }
+    deps = [
+      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+      "//third_party/bounds_checking_function:libsec_shared",
+    ]
 
     defines = [ "__USER__" ]
 
@@ -100,21 +100,23 @@ if (defined(ohos_lite)) {
       "src/stub_collector.cpp",
     ]
 
-    external_deps = [ "ipc:ipc_single" ]
-    if (samgr_enable) {
-      external_deps += [ "samgr:samgr_proxy" ]
-    }
-    if (hilog_enable) {
-      external_deps += [ "hilog:libhilog" ]
-    }
     if (is_standard_system) {
       deps = [
         "../ipc:libhdf_ipc_adapter",
         "../pub_utils:libpub_utils",
       ]
-      if (c_utils_enable) {
-        external_deps += [ "c_utils:utils" ]
-      }
+      external_deps = [
+        "c_utils:utils",
+        "hilog:libhilog",
+        "ipc:ipc_single",
+        "samgr:samgr_proxy",
+      ]
+    } else {
+      external_deps = [
+        "hilog:libhilog",
+        "ipc:ipc_single",
+        "samgr:samgr_proxy",
+      ]
     }
 
     innerapi_tags = [
