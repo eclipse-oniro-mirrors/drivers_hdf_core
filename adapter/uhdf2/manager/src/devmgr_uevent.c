@@ -528,13 +528,13 @@ static int32_t DevMgrUeventThread(void *arg)
             continue;
         }
         if (((uint32_t)fd.revents & (POLLIN | POLLERR)) != 0) {
-            int back_errno = errno;
+            int backErrno = errno;
             msgLen = DevMgrReadUeventMessage(sfd, msg, DEVMGR_UEVENT_MSG_SIZE);
             if (((uint32_t)fd.revents & POLLERR) != 0) {
                 HDF_LOGE("%{public}s poll error", __func__);
             }
             if (msgLen <= 0) {
-                HDF_LOGE("%{public}s recv errno: %{public}d", __func__, back_errno);
+                HDF_LOGE("%{public}s recv errno: %{public}d", __func__, backErrno);
                 continue;
             }
             DevMgrParseUevent(msg, msgLen);
