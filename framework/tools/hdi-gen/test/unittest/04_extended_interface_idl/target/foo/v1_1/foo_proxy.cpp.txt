@@ -80,7 +80,7 @@ sptr<OHOS::HDI::Foo::V1_1::IFoo> OHOS::HDI::Foo::V1_1::IFoo::Get(const std::stri
         return nullptr;
     }
 
-    sptr<OHOS::HDI::Foo::V1_1::IFoo> proxy = new FooProxy(remote);
+    sptr<OHOS::HDI::Foo::V1_1::IFoo> proxy = new OHOS::HDI::Foo::V1_1::FooProxy(remote);
     if (proxy == nullptr) {
         HDF_LOGE("%{public}s:iface_cast failed!", __func__);
         return nullptr;
