@@ -24,7 +24,7 @@ static int DriverInstallerStartDeviceHost(uint32_t devHostId, const char *devHos
     }
     ret = hostServiceIf->StartService(hostServiceIf);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to start host service, ret: %d", ret);
+        HDF_LOGE("failed to start host service, ret: %{public}d", ret);
         DevHostServiceFreeInstance(hostServiceIf);
     }
     return ret;

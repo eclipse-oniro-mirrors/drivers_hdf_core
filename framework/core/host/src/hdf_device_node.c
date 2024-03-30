@@ -70,13 +70,13 @@ int DeviceDriverBind(struct HdfDeviceNode *devNode)
     driverEntry = devNode->driver->entry;
     if (devNode->policy == SERVICE_POLICY_PUBLIC || devNode->policy == SERVICE_POLICY_CAPACITY) {
         if (driverEntry->Bind == NULL) {
-            HDF_LOGE("driver %s bind method not implement", driverEntry->moduleName);
+            HDF_LOGE("driver %{public}s bind method not implement", driverEntry->moduleName);
             devNode->devStatus = DEVNODE_NONE;
             return HDF_ERR_INVALID_OBJECT;
         }
         ret = driverEntry->Bind(&devNode->deviceObject);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("bind driver %s failed", driverEntry->moduleName);
+            HDF_LOGE("bind driver %{public}s failed", driverEntry->moduleName);
             return HDF_DEV_ERR_DEV_INIT_FAIL;
         }
     }

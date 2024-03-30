@@ -79,7 +79,7 @@ static int DeviceNodeExtPublishService(struct HdfDeviceNode *devNode)
     // base(device node) publish inner service
     ret = HdfDeviceNodePublishPublicService(devNode);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to publish device service, ret is %d", ret);
+        HDF_LOGE("failed to publish device service, ret is %{public}d", ret);
         HdfIoServiceRemove(devNodeExt->ioService);
         devNodeExt->ioService = NULL;
         return ret;

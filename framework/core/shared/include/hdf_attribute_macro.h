@@ -44,7 +44,7 @@ struct HdfDeviceNodeType {
     do { \
         deviceNode = (struct HdfDeviceNodeType *)OsalMemCalloc(sizeof(*deviceNode)); \
         if (deviceNode == NULL) { \
-            HDF_LOGE("%s malloc fail", __func__); \
+            HDF_LOGE("%{public}s malloc fail", __func__); \
             AttributeManagerFreeHost(host); \
             return (retCode); \
         } \
@@ -63,7 +63,7 @@ struct HdfDeviceNodeType {
     do { \
         device = (struct HdfDeviceType *)OsalMemCalloc(sizeof(*device)); \
         if (device == NULL) { \
-            HDF_LOGE("%s malloc fail", __func__); \
+            HDF_LOGE("%{public}s malloc fail", __func__); \
             AttributeManagerFreeHost(host); \
             return (retCode); \
         } \
@@ -85,7 +85,7 @@ struct HdfDeviceNodeType {
     do { \
         host = (struct HdfHostType *)OsalMemCalloc(sizeof(*host)); \
         if (host == NULL) { \
-            HDF_LOGE("%s malloc fail", __func__); \
+            HDF_LOGE("%{public}s malloc fail", __func__); \
             AttributeManagerFreeDevHost(devHost); \
             return (retCode); \
         } \

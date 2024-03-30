@@ -38,25 +38,27 @@ int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
 {
     ServiceStatus status;
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        HDF_LOGI("failed to check interface token");
+        HDF_LOGE("failed to check interface token");
         return HDF_FAILURE;
     }
 
     const char *name = data.ReadCString();
     status.serviceName = (name == nullptr) ? "" : name;
     if (status.serviceName.empty()) {
-        HDF_LOGI("failed to read serviceName in ServiceStatus");
+        HDF_LOGE("failed to read serviceName in ServiceStatus");
         return HDF_FAILURE;
     }
 
     if (!data.ReadUint16(status.deviceClass) || !data.ReadUint16(status.status)) {
-        HDF_LOGI("failed to read deviceClass or status in ServiceStatus");
+        HDF_LOGE("failed to read deviceClass or status in ServiceStatus");
         return HDF_FAILURE;
     }
 
     const char *info = data.ReadCString();
     status.info = (info == nullptr) ? "" : info;
 
+    HDF_LOGI("%{public}s call func OnReceive, serviceName: %{public}s, status: %{public}d",
+        __func__, status.serviceName.c_str(), status.status);
     OnReceive(status);
     return HDF_SUCCESS;
 }

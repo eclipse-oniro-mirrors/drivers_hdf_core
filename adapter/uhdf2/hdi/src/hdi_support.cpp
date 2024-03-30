@@ -157,14 +157,15 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
     std::string symName = interfaceName + "ImplGetInstance";
     hdiImpl.constructor = reinterpret_cast<HdiImplInstanceFunc>(dlsym(hdiImpl.handler, symName.data()));
     if (hdiImpl.constructor == nullptr) {
-        HDF_LOGE("%{public}s failed to get symbol of '%s', %{public}s", __func__, symName.c_str(), dlerror());
+        HDF_LOGE("%{public}s failed to get symbol of '%{public}s', %{public}s", __func__, symName.c_str(), dlerror());
         hdiImpl.Unload();
         return nullptr;
     }
     std::string desSymName = interfaceName + "ImplRelease";
     hdiImpl.destructor = reinterpret_cast<HdiImplReleaseFunc>(dlsym(hdiImpl.handler, desSymName.data()));
     if (hdiImpl.destructor == nullptr) {
-        HDF_LOGE("%{public}s failed to get symbol of '%s', %{public}s", __func__, desSymName.c_str(), dlerror());
+        HDF_LOGW("%{public}s failed to get symbol of '%{public}s', %{public}s",
+            __func__, desSymName.c_str(), dlerror());
     }
 
     void *implInstance = hdiImpl.constructor();

@@ -144,8 +144,10 @@ int main(int argc, char **argv)
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
     }
+    HDF_LOGD("create IDevHostService of %{public}s success", hostName);
 
     DevHostDumpInit();
+    HDF_LOGD("%{public}s start device service begin", hostName);
     int status = instance->StartService(instance);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Devhost StartService fail, return: %{public}d", status);
@@ -158,6 +160,7 @@ int main(int argc, char **argv)
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {
+        HDF_LOGI("%{public}s start loop", hostName);
         looper->Start(looper);
     }
 
