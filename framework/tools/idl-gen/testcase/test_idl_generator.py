@@ -29,15 +29,15 @@ class IDLGeneratorTestCase(unittest.TestCase):
 
         generator._idl = ""
         generator._install_package(".\\h\\audio\\test")
-        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package("C:\\h\\audio\\test")
-        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package("./h/audio/test")
-        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
     def test_install_import_interface(self):
         generator = IDLGenerator()
@@ -279,7 +279,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         generator._key_list["InputController"] = "struct"
         generator._key_list["InputControllerDesc"] = "struct"
         generator._install_interface(parser._header_dict.get("interface")[0])
-        self.assertEqual("".join(generator._idl),  "interface InputController {\n"
+        self.assertEqual("".join(generator._idl), "interface InputController {\n"
                                          "    RunExtraCommand([in] unsigned int devIndex,[out] unsigned int cmd);\n"
                                          "    RunExtra([in] struct InputControllerDesc desc);\n"
                                          "}\n")
