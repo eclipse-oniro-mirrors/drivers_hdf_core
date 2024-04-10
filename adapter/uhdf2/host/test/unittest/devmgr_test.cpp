@@ -143,7 +143,7 @@ HWTEST_F(DevMgrTest, DriverTest, TestSize.Level1)
     }
 }
 
-HWTEST_F(DevMgrTest, DevMgrDumpTest, TestSize.Level1)
+HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
 {
     ASSERT_TRUE(servmgr != nullptr);
     ASSERT_TRUE(devmgr != nullptr);
