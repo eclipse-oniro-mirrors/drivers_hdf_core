@@ -205,6 +205,14 @@ template("hdi") {
       if (defined(invoker.sanitize)) {
         sanitize = invoker.sanitize
       }
+
+      if (defined(invoker.cflags)) {
+        cflags = invoker.cflags
+      }
+
+      if (defined(invoker.cflags_cc)) {
+        cflags_cc = invoker.cflags_cc
+      }
     }
   }
 
@@ -255,6 +263,14 @@ template("hdi") {
 
         if (defined(invoker.sanitize)) {
           sanitize = invoker.sanitize
+        }
+
+        if (defined(invoker.cflags)) {
+          cflags = invoker.cflags
+        }
+
+        if (defined(invoker.cflags_cc)) {
+          cflags_cc = invoker.cflags_cc
         }
       }
     }
