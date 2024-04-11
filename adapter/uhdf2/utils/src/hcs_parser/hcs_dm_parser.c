@@ -24,7 +24,7 @@
 #define HDF_LOG_TAG hcs_dm_parser
 static char *g_hcsBlob = NULL;
 static struct DeviceResourceNode *g_hcsTreeRoot = NULL;
-static const char *g_hcsBlobPath = NULL;
+static const char *HCS_BLOB_PATH = NULL;
 static pthread_mutex_t g_getDmRootMutex = PTHREAD_MUTEX_INITIALIZER;
 
 void ReleaseHcsTree(void)
@@ -37,17 +37,17 @@ void ReleaseHcsTree(void)
 
 void SetHcsBlobPath(const char *path)
 {
-    if (g_hcsBlobPath != NULL) {
-        OsalMemFree((void *)g_hcsBlobPath);
+    if (HCS_BLOB_PATH != NULL) {
+        OsalMemFree((void *)HCS_BLOB_PATH);
     }
-    g_hcsBlobPath = strdup(path);
+    HCS_BLOB_PATH = strdup(path);
 }
 
 static bool CreateHcsToTree(void)
 {
     bool ret = true;
     do {
-        uint32_t length = OpenHcsBlobFile(g_hcsBlobPath, &g_hcsBlob);
+        uint32_t length = OpenHcsBlobFile(HCS_BLOB_PATH, &g_hcsBlob);
         if (length == 0) {
             ret = false;
             break;

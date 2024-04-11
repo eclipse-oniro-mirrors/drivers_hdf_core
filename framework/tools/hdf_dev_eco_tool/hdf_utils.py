@@ -281,7 +281,7 @@ def get_drv_include_dir(root, module, driver):
     return os.path.join(get_drv_dir(root, module, driver), 'include')
 
 
-def get_vendor_kconfig_path(root,  kernel):
+def get_vendor_kconfig_path(root, kernel):
     hdf_dir = get_vendor_hdf_dir_adapter(root, kernel)
     return os.path.join(hdf_dir, 'Kconfig')
 
