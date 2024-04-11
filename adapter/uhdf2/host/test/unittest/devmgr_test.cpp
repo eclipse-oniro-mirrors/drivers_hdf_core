@@ -149,9 +149,9 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
     ASSERT_TRUE(devmgr != nullptr);
     HdfRegisterDumpFunc(nullptr);
 
-    int32_t illgealFd = -1;
-    std::vector<std::u16string> illgealArgs = {};
-    int ret = HdfDump(illgealFd, illgealArgs);
+    int32_t illegalFd = -1;
+    std::vector<std::u16string> illegalArgs = {};
+    int ret = HdfDump(illegalFd, illegalArgs);
     ASSERT_TRUE(ret != HDF_SUCCESS);
 }
 } // namespace OHOS
