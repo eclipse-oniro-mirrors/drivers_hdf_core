@@ -25,6 +25,7 @@
 #include "hdf_object_manager.h"
 #include "hdf_sbuf_ipc.h"
 #include "hdf_remote_adapter.h"
+#include "hdf_xcollie.h"
 
 #define HDF_LOG_TAG hdf_remote_adapter
 
@@ -268,27 +269,34 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     if (service == nullptr) {
         return HDF_ERR_INVALID_PARAM;
     }
-
-    auto saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    const int32_t waitTimes = 50;
-    const int32_t sleepInterval = 20000;
-    int32_t timeout = waitTimes;
-    while (saManager == nullptr && (timeout > 0)) {
-        HDF_LOGI("waiting for samgr...");
-        usleep(sleepInterval);
+    OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
+    {
+        OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_get_samgr",
+            OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        timeout--;
-    }
+        const int32_t waitTimes = 50;
+        const int32_t sleepInterval = 20000;
+        int32_t timeout = waitTimes;
+        while (saManager == nullptr && (timeout > 0)) {
+            HDF_LOGI("waiting for samgr...");
+            usleep(sleepInterval);
+            saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            timeout--;
+        }
 
-    if (saManager == nullptr) {
-        HDF_LOGE("failed to get sa manager, waiting timeot");
-        return HDF_FAILURE;
+        if (saManager == nullptr) {
+            HDF_LOGE("failed to get sa manager, waiting timeot");
+            return HDF_FAILURE;
+        }
     }
-    struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
-    int ret = saManager->AddSystemAbility(saId, holder->remote_);
-    (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
-    HDF_LOGI("add sa %{public}d, ret = %{public}s", saId, (ret == 0) ? "succ" : "fail");
-
+    {
+        OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
+            OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
+        struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+        int ret = saManager->AddSystemAbility(saId, holder->remote_);
+        (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
+        HDF_LOGI("add sa %{public}d, ret = %{public}s", saId, (ret == 0) ? "succ" : "fail");
+    }
     return HDF_SUCCESS;
 }
 

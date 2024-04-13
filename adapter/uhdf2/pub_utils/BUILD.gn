@@ -33,7 +33,10 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libpub_utils") {
-    include_dirs = [ "$hdf_framework_path/utils/include" ]
+    include_dirs = [
+      "$hdf_framework_path/utils/include",
+      "$hdf_uhdf_path/utils/include",
+    ]
     public_configs = [ ":lib_utils_pub_config" ]
     sources = [
       "$hdf_framework_path/support/posix/src/osal_mem.c",
@@ -41,12 +44,19 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/utils/src/hdf_cstring.c",
       "$hdf_framework_path/utils/src/hdf_sbuf.c",
       "$hdf_framework_path/utils/src/hdf_sbuf_impl_raw.c",
+      "$hdf_uhdf_path/utils/src/hdf_xcollie.cpp",
     ]
 
     external_deps = [
       "c_utils:utils",
       "hilog:libhilog",
     ]
+    defines = []
+    if (hicollie_enabled) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "HICOLLIE_ENABLE" ]
+    }
+
     install_images = [
       system_base_dir,
       "updater",
