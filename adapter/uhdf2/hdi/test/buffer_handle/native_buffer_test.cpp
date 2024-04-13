@@ -21,6 +21,7 @@
 #include "base/buffer_util.h"
 #include "base/native_buffer.h"
 #include "osal_mem.h"
+#include "hdf_log.h"
 
 using namespace testing::ext;
 using OHOS::MessageParcel;
@@ -362,4 +363,34 @@ HWTEST_F(NativeBufferTest, NativeBufferTest016, TestSize.Level1)
     sptr<NativeBuffer> destBuffer = NativeBuffer::Unmarshalling(parcel);
     ASSERT_EQ(destBuffer, nullptr);
     close(fd);
+}
+
+// test native buffer
+HWTEST_F(NativeBufferTest, NativeBufferTest017, TestSize.Level1)
+{
+    MessageParcel data;
+    sptr<NativeBuffer> srcBuffer = new NativeBuffer(nullptr);
+    std::string sbuffer = srcBuffer->Dump();
+    HDF_LOGI("srcBuffer : %{public}s", sbuffer.c_str()); 
+
+    BufferHandle *srcHandle = srcBuffer->Clone();
+    ASSERT_EQ(srcHandle, nullptr);
+    
+    bool ret = data.WriteStrongParcelable(srcBuffer);
+    ASSERT_TRUE(ret);
+
+    sptr<NativeBuffer> destBuffer = data.ReadStrongParcelable<NativeBuffer>();
+    ASSERT_NE(destBuffer, nullptr);
+
+    BufferHandle *destHandle = destBuffer->Clone();
+    ASSERT_EQ(destHandle, nullptr);
+
+    std::string dbuffer = destBuffer->Dump();
+    HDF_LOGI("destBuffer : %{public}s", dbuffer.c_str());
+
+    NativeBuffer native;
+    NativeBuffer buffer1(native);
+    NativeBuffer buffer2;
+    buffer2 = buffer1;
+    ASSERT_EQ(buffer2.GetBufferHandle(), nullptr);
 }
