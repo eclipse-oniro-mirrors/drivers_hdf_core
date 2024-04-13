@@ -371,7 +371,7 @@ HWTEST_F(NativeBufferTest, NativeBufferTest017, TestSize.Level1)
     MessageParcel data;
     sptr<NativeBuffer> srcBuffer = new NativeBuffer(nullptr);
     std::string sbuffer = srcBuffer->Dump();
-    HDF_LOGI("srcBuffer : %{public}s", sbuffer.c_str()); 
+    HDF_LOGI("srcBuffer : %{public}s", sbuffer.c_str());
 
     BufferHandle *srcHandle = srcBuffer->Clone();
     ASSERT_EQ(srcHandle, nullptr);
