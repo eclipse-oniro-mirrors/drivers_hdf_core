@@ -26,7 +26,8 @@ namespace OHOS {
     struct TestService {
     };
 
-    const std::u16string  interfaceName = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> {}.from_bytes("sample_driver");
+    const std::u16string  interfaceName = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,
+        char16_t> {}.from_bytes("sample_driver");
 
 
 class ObjectCollectorTest : public testing::Test {
