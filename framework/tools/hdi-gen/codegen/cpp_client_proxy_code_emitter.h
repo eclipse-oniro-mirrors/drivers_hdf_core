@@ -15,9 +15,17 @@ namespace OHOS {
 namespace HDI {
 class CppClientProxyCodeEmitter : public CppCodeEmitter {
 public:
-    CppClientProxyCodeEmitter() : CppCodeEmitter() {}
+    CppClientProxyCodeEmitter() : CppCodeEmitter()
+    {
+        devmgrDeathRecipientName_ = "IServiceManagerDeathRecipient";
+        devmgrVersionName_ = "OHOS::HDI::ServiceManager::V1_0";
+    }
 
     ~CppClientProxyCodeEmitter() override = default;
+
+protected:
+    std::string devmgrDeathRecipientName_;
+    std::string devmgrVersionName_;
 
 private:
     bool ResolveDirectory(const std::string &targetDirectory) override;
@@ -91,6 +99,20 @@ private:
     void EmitProxyCastFromMethodImpl(const AutoPtr<ASTInterfaceType> interface, StringBuilder &sb,
         const std::string &prefix) const;
     void EmitProxyCastFromMethodImplTemplate(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyDevmgrDeathRecipient(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyPublicMembers(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyDevmgrDeathCallBack(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyReconnectMethodDecl(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyGetRemoteMethodDecl(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitGetInstanceMethodInitProxyImpl(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyCppReconnectMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS

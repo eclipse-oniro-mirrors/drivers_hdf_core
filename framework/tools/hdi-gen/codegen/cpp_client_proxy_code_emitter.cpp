@@ -92,6 +92,9 @@ void CppClientProxyCodeEmitter::EmitProxyHeaderInclusions(StringBuilder &sb)
 void CppClientProxyCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "iproxy_broker");
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        headerFiles.emplace(HeaderFileType::C_STD_HEADER_FILE, "unistd");
+    }
 }
 
 void CppClientProxyCodeEmitter::EmitProxyDecl(StringBuilder &sb, const std::string &prefix)
@@ -100,20 +103,68 @@ void CppClientProxyCodeEmitter::EmitProxyDecl(StringBuilder &sb, const std::stri
     sb.AppendFormat("class %s : public IProxyBroker<%s> {\n", proxyName_.c_str(),
         EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append("public:\n");
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        EmitProxyDevmgrDeathRecipient(sb, TAB);
+        sb.Append("\n");
+    }
     EmitProxyConstructor(sb, TAB);
     sb.Append("\n");
     EmitProxyMethodDecls(sb, TAB);
     sb.Append("\n");
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        EmitProxyPublicMembers(sb, TAB);
+    }
     sb.Append("private:\n");
     EmitProxyConstants(sb, TAB);
     sb.Append("};\n");
+}
+
+void CppClientProxyCodeEmitter::EmitProxyDevmgrDeathRecipient(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string doubleTab = prefix + TAB;
+    sb.Append(prefix).AppendFormat("class %s : public IRemoteObject::DeathRecipient {\n",
+        devmgrDeathRecipientName_.c_str());
+    sb.Append(prefix).Append("public:\n");
+    sb.Append(doubleTab).AppendFormat("%s(wptr<%s> proxy) : proxy_(proxy) {} \n", devmgrDeathRecipientName_.c_str(),
+        EmitDefinitionByInterface(interface_, proxyName_).c_str());
+    sb.Append(doubleTab).AppendFormat("~%s() override = default;\n", devmgrDeathRecipientName_.c_str());
+    EmitProxyDevmgrDeathCallBack(sb, doubleTab);
+    sb.Append(prefix).Append("private:\n");
+    sb.Append(doubleTab).AppendFormat("wptr<%s> proxy_;\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str());
+    sb.Append(prefix).Append("};\n");
+}
+
+void CppClientProxyCodeEmitter::EmitProxyDevmgrDeathCallBack(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string trebleTab = prefix + TAB;
+    sb.Append(prefix).Append("void OnRemoteDied(const wptr<IRemoteObject> &remote) override\n");
+    sb.Append(prefix).Append("{\n");
+    sb.Append(trebleTab).Append("int32_t result = HDF_FAILURE;\n");
+    sb.Append(trebleTab).Append("const int sleepInterval = 50000;\n");
+    sb.Append(trebleTab).Append("const int waitTimes = 20;\n");
+    sb.Append(trebleTab).Append("int currentTime = waitTimes;\n");
+    sb.Append(trebleTab).Append("do {\n");
+    sb.Append(trebleTab + TAB).Append("usleep(sleepInterval);\n");
+    sb.Append(trebleTab + TAB).Append("auto proxy = proxy_.promote();\n");
+    sb.Append(trebleTab + TAB).Append("if (proxy != nullptr) {\n");
+    sb.Append(trebleTab + TAB + TAB).AppendFormat("result = %s::Reconnect(proxy);\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str());
+    sb.Append(trebleTab + TAB).Append("}\n");
+    sb.Append(trebleTab + TAB).Append("--currentTime;\n");
+    sb.Append(trebleTab).Append("} while (result != HDF_SUCCESS && currentTime >0);\n");
+    sb.Append(prefix).Append("}\n");
 }
 
 void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("explicit %s(const sptr<IRemoteObject>& remote)", proxyName_.c_str());
     sb.AppendFormat(
-        " : IProxyBroker<%s>(remote) {}\n\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
+        " : IProxyBroker<%s>(remote) {\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        sb.Append(prefix + TAB).Append("reconnectRemote_ = nullptr;\n");
+    }
+    sb.Append(prefix).AppendFormat("}\n");
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", proxyName_.c_str());
 }
 
@@ -136,6 +187,12 @@ void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const st
     if (interface_->GetExtendsInterface() == nullptr) {
         sb.Append("\n");
         EmitProxyStaticMethodDecl(interface_->GetVersionMethod(), sb, prefix);
+    }
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        sb.Append("\n");
+        EmitProxyReconnectMethodDecl(sb, prefix);
+        sb.Append("\n");
+        EmitProxyGetRemoteMethodDecl(sb, prefix);
     }
 }
 
@@ -185,6 +242,28 @@ void CppClientProxyCodeEmitter::EmitProxyStaticMethodDecl(
         sb.Append(SpecificationParam(paramStr, prefix + TAB));
         sb.Append("\n");
     }
+}
+
+void CppClientProxyCodeEmitter::EmitProxyReconnectMethodDecl(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string doubleTab = prefix + TAB;
+    sb.Append(prefix).AppendFormat("static int32_t Reconnect(sptr<%s> proxy);\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str());
+}
+
+void CppClientProxyCodeEmitter::EmitProxyGetRemoteMethodDecl(StringBuilder &sb, const std::string &prefix) const
+{
+    sb.Append(prefix).Append("sptr<IRemoteObject> GetCurrentRemote() {\n");
+    sb.Append(prefix + TAB).Append("return isReconnected_ ? reconnectRemote_ : Remote();\n");
+    sb.Append(prefix).Append("}\n");
+}
+
+void CppClientProxyCodeEmitter::EmitProxyPublicMembers(StringBuilder &sb, const std::string &prefix) const
+{
+    sb.Append(prefix).Append("bool isReconnected_;\n");
+    sb.Append(prefix).Append("std::string serviceName_;\n");
+    sb.Append(prefix).AppendFormat("sptr<IRemoteObject> servMgr_;\n", devmgrVersionName_.c_str());
+    sb.Append(prefix).Append("sptr<IRemoteObject> reconnectRemote_;\n");
 }
 
 void CppClientProxyCodeEmitter::EmitProxyConstants(StringBuilder &sb, const std::string &prefix) const
@@ -280,6 +359,8 @@ void CppClientProxyCodeEmitter::EmitProxySourceFile()
         sb.Append("\n");
         EmitGetInstanceMethodImpl(sb, "");
         sb.Append("\n");
+        EmitProxyCppReconnectMethodImpl(sb, "");
+        sb.Append("\n");
     }
     EmitProxyCastFromMethodImpls(sb, "");
     EmitUtilMethods(sb, "", utilMethods, false);
@@ -372,15 +453,13 @@ void CppClientProxyCodeEmitter::EmitGetMethodImpl(StringBuilder &sb, const std::
 void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, const std::string &prefix)
 {
     std::string objName = "proxy";
-    std::string serMajorName = "serMajorVer";
-    std::string serMinorName = "serMinorVer";
     std::string interfaceNamespace = GetNameSpaceByInterface(interface_, interfaceName_);
     sb.Append(prefix).AppendFormat("sptr<%s> %s::Get(const std::string& serviceName, bool isStub)\n",
         EmitDefinitionByInterface(interface_, interfaceName_).c_str(),
         EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     sb.Append(prefix).Append("{\n");
     EmitProxyPassthroughtLoadImpl(sb, prefix + TAB);
-    sb.Append(prefix + TAB).Append("using namespace OHOS::HDI::ServiceManager::V1_0;\n");
+    sb.Append(prefix + TAB).AppendFormat("using namespace %s;\n", devmgrVersionName_.c_str());
     sb.Append(prefix + TAB).Append("auto servMgr = IServiceManager::Get();\n");
     sb.Append(prefix + TAB).Append("if (servMgr == nullptr) {\n");
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:get IServiceManager failed!\", __func__);\n");
@@ -393,7 +472,7 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
     sb.Append(prefix + TAB).AppendFormat("sptr<%s> %s = new %s(remote);\n",
-        EmitDefinitionByInterface(interface_, interfaceName_).c_str(), objName.c_str(),
+        EmitDefinitionByInterface(interface_, proxyName_).c_str(), objName.c_str(),
         (interfaceNamespace +
         (StringHelper::StartWith(interfaceName_, "I") ? interfaceName_.substr(1) : interfaceName_) +
         "Proxy").c_str());
@@ -401,6 +480,22 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"%{public}s:iface_cast failed!\", __func__);\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
+    EmitGetInstanceMethodInitProxyImpl(sb, prefix);
+}
+
+void CppClientProxyCodeEmitter::EmitGetInstanceMethodInitProxyImpl(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string objName = "proxy";
+    std::string serMajorName = "serMajorVer";
+    std::string serMinorName = "serMinorVer";
+    sb.Append(prefix + TAB).AppendFormat("%s->servMgr_ = ", objName.c_str());
+    sb.Append("OHOS::HDI::hdi_objcast<IServiceManager>(servMgr);\n");
+    sb.Append(prefix + TAB).AppendFormat("%s->servMgr_->AddDeathRecipient(\n", objName.c_str());
+    sb.Append(prefix + TAB + TAB).AppendFormat("new %s::%s(%s));\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str(),
+        devmgrDeathRecipientName_.c_str(), objName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s->isReconnected_ = false;\n", objName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s->serviceName_ = serviceName;\n", objName.c_str());
 
     sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", serMajorName.c_str());
     sb.Append(prefix + TAB).AppendFormat("uint32_t %s = 0;\n", serMinorName.c_str());
@@ -419,6 +514,45 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodImpl(StringBuilder &sb, con
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
     sb.Append(prefix + TAB).Append("}\n\n");
     sb.Append(prefix + TAB).AppendFormat("return %s;\n", objName.c_str());
+    sb.Append(prefix).Append("}\n");
+}
+
+void CppClientProxyCodeEmitter::EmitProxyCppReconnectMethodImpl(StringBuilder &sb, const std::string &prefix) const
+{
+    std::string doubleTab = prefix + TAB;
+    sb.Append(prefix).AppendFormat("int32_t %s::Reconnect(\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str());
+    sb.Append(doubleTab).AppendFormat("sptr<%s> proxy) \n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str());
+    sb.Append(prefix).Append("{\n");
+    sb.Append(doubleTab).Append("if (proxy == nullptr) {\n");
+    sb.Append(doubleTab + TAB).Append("HDF_LOGW(\"Reconnect failed : input proxy is null\");\n");
+    sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
+    sb.Append(doubleTab).Append("}\n");
+    sb.Append(doubleTab).AppendFormat("using namespace %s;\n", devmgrVersionName_.c_str());
+    sb.Append(doubleTab).Append("proxy->isReconnected_ = false;\n");
+    sb.Append(doubleTab).Append("auto iServMgr = IServiceManager::Get();\n");
+    sb.Append(doubleTab).Append("if (iServMgr == nullptr) {\n");
+    sb.Append(doubleTab + TAB).Append("HDF_LOGW(\"Reconnect failed : iServMgr is null\");\n");
+    sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
+    sb.Append(doubleTab).Append("};\n");
+    sb.Append(doubleTab).Append("proxy->reconnectRemote_ = ");
+    sb.Append("iServMgr->GetService(proxy->serviceName_.c_str());\n");
+    sb.Append(doubleTab).Append("if (proxy->reconnectRemote_ == nullptr) {\n");
+    sb.Append(doubleTab + TAB).Append("HDF_LOGW(\"Reconnect failed : reconnectRemote_ is null\");\n");
+    sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
+    sb.Append(doubleTab).Append("}\n");
+    sb.Append(doubleTab).Append("proxy->servMgr_ = ");
+    sb.Append("OHOS::HDI::hdi_objcast<IServiceManager>(iServMgr);\n");
+    sb.Append(doubleTab).Append("if (proxy->servMgr_ == nullptr) {\n");
+    sb.Append(doubleTab + TAB).Append("HDF_LOGE(\"%{public}s:get IServiceManager failed!\", __func__);\n");
+    sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
+    sb.Append(doubleTab).Append("}\n");
+    sb.Append(doubleTab).Append("proxy->servMgr_->AddDeathRecipient(\n");
+    sb.Append(doubleTab + TAB).AppendFormat("new %s::%s(proxy));\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str(), devmgrDeathRecipientName_.c_str());
+    sb.Append(doubleTab).Append("proxy->isReconnected_ = true;\n");
+    sb.Append(doubleTab).Append("return HDF_SUCCESS;\n");
     sb.Append(prefix).Append("}\n");
 }
 
@@ -623,7 +757,11 @@ void CppClientProxyCodeEmitter::EmitProxyMethodBody(const AutoPtr<ASTInterfaceTy
             sb.Append(", ");
         }
     }
-    sb.Append("Remote());\n");
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        sb.Append("GetCurrentRemote());\n");
+    } else {
+        sb.Append("Remote());\n");
+    }
     sb.Append(prefix).Append("}\n");
 }
 
