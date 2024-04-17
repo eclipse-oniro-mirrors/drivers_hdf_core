@@ -141,8 +141,8 @@ void CppClientProxyCodeEmitter::EmitProxyDevmgrDeathCallBack(StringBuilder &sb, 
     sb.Append(prefix).Append("void OnRemoteDied(const wptr<IRemoteObject> &remote) override\n");
     sb.Append(prefix).Append("{\n");
     sb.Append(trebleTab).Append("int32_t result = HDF_FAILURE;\n");
-    sb.Append(trebleTab).Append("const int sleepInterval = 50000;\n");
-    sb.Append(trebleTab).Append("const int waitTimes = 20;\n");
+    sb.Append(trebleTab).Append("const int sleepInterval = 500000;\n");
+    sb.Append(trebleTab).Append("const int waitTimes = 10;\n");
     sb.Append(trebleTab).Append("int currentTime = waitTimes;\n");
     sb.Append(trebleTab).Append("do {\n");
     sb.Append(trebleTab + TAB).Append("usleep(sleepInterval);\n");
