@@ -26,7 +26,7 @@ namespace OHOS {
     struct TestService {
     };
 
-    const std::u16string  interfaceName = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,
+    const std::u16string  INTERFACE_NAME = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,
         char16_t> {}.from_bytes("sample_driver");
 
 
@@ -41,7 +41,7 @@ public:
 
 HWTEST_F(ObjectCollectorTest, ObjectCollectorTest001, TestSize.Level1)
 {
-    sptr<IRemoteObject> object = HDI::ObjectCollector::GetInstance().NewObject(nullptr, interfaceName);
+    sptr<IRemoteObject> object = HDI::ObjectCollector::GetInstance().NewObject(nullptr, INTERFACE_NAME);
     ASSERT_EQ(object, nullptr);
 }
 } // namespace OHOS
