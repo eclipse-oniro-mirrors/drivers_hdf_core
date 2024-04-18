@@ -72,7 +72,6 @@ DevHandle ClockOpen(uint32_t number)
 
     if (!HdfSbufReadUint32(reply, &handle)) {
         HDF_LOGE("ClockOpen: read handle fail!");
-        ret = HDF_ERR_IO;
     }
 
     HdfSbufRecycle(data);
@@ -325,7 +324,6 @@ DevHandle ClockGetParent(DevHandle handle)
 
     if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
         HDF_LOGE("ClockGetParent: write handle fail!");
-        ret = HDF_ERR_IO;
         HdfSbufRecycle(data);
         HdfSbufRecycle(reply);
         return NULL;
@@ -341,7 +339,6 @@ DevHandle ClockGetParent(DevHandle handle)
 
     if (!HdfSbufReadUint32(reply, &parent)) {
         HDF_LOGE("ClockGetParent: read val fail!");
-        ret = HDF_ERR_IO;
     }
 
     HdfSbufRecycle(data);
