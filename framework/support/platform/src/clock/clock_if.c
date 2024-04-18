@@ -90,7 +90,6 @@ int32_t ClockDisable(DevHandle handle)
 
 int32_t ClockSetRate(DevHandle handle, uint32_t rate)
 {
-    int32_t ret;
     uint32_t number = 0;
     struct ClockDevice *device = NULL;
 
@@ -133,7 +132,6 @@ int32_t ClockGetRate(DevHandle handle, uint32_t *rate)
 
 DevHandle ClockGetParent(DevHandle handle)
 {
-    int32_t ret;
     uint32_t number = 0;
     struct ClockDevice *device = NULL;
     struct ClockDevice *parent = NULL;

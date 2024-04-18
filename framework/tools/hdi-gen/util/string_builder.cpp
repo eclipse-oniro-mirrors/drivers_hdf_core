@@ -146,11 +146,11 @@ bool StringBuilder::Grow(size_t size)
 
     if (buffer_ != nullptr) {
         int ret = memcpy_s(newBuffer, newSize, buffer_, capacity_);
+        free(buffer_);
         if (ret != 0) {
             Logger::E(TAG, "memcpy_s error ret = %d!", ret);
             return false;
         }
-        free(buffer_);
     }
     buffer_ = newBuffer;
     capacity_ = newSize;
