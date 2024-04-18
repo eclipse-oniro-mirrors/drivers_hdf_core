@@ -272,7 +272,7 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
         OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_get_samgr",
-            OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
+            OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         const int32_t waitTimes = 50;
         const int32_t sleepInterval = 20000;
@@ -291,7 +291,7 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     }
     {
         OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
-            OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
+            OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
         int ret = saManager->AddSystemAbility(saId, holder->remote_);
         (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
