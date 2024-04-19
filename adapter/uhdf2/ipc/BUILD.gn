@@ -23,6 +23,7 @@ config("libhdf_ipc_adapter_pub_config") {
   include_dirs = [
     "$hdf_interface_path/inner_api/ipc",
     "$hdf_interface_path/inner_api/core",
+    "$hdf_uhdf_path/utils/include",
   ]
 }
 if (defined(ohos_lite)) {
