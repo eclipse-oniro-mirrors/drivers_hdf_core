@@ -77,8 +77,10 @@ std::string ASTInterfaceType::Dump(const std::string &prefix)
     for (auto method : methods_) {
         std::string info = method->Dump(prefix + "  ");
         sb.Append(info);
-        if (method != methods_[methods_.size() - 1]) {
-            sb.Append('\n');
+        if (methods_.size() > 0) {
+            if (method != methods_[methods_.size() - 1]) {
+                sb.Append('\n');
+            }
         }
     }
     sb.Append(prefix).Append("}\n");

@@ -182,6 +182,10 @@ void Options::AddSourcesByDir(const std::string &dir)
 bool Options::AddPackagePath(const std::string &packagePath)
 {
     size_t index = packagePath.find(":");
+    if (packagePath.size() == 0 || (packagePath.size() - 1) >= SIZE_MAX) {
+        Logger::E(TAG, "invalid parameters '%s'.", packagePath.c_str());
+        return false;
+    }
     if (index == std::string::npos || index == packagePath.size() - 1) {
         Logger::E(TAG, "invalid option parameters '%s'.", packagePath.c_str());
         return false;
