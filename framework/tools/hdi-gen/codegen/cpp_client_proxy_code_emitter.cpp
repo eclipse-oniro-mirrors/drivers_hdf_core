@@ -163,6 +163,7 @@ void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const st
         " : IProxyBroker<%s>(remote) {\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
         sb.Append(prefix + TAB).Append("reconnectRemote_ = nullptr;\n");
+        sb.Append(prefix + TAB).Append("isReconnected_ = false;\n");
     }
     sb.Append(prefix).AppendFormat("}\n");
     sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", proxyName_.c_str());
