@@ -296,6 +296,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
         OsalMemFree(deviceObject);
         return status;
     }
+    OsalMemFree(deviceObject);
     return DevSvcManagerStartService();
 }
 

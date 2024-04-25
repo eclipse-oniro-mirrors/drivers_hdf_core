@@ -8,6 +8,7 @@
 
 #include "rtc_base.h"
 #include "platform_log.h"
+#define UINT_32_MAX 0xFFFFFFFFu
 
 #define HDF_LOG_TAG rtc_base
 
@@ -73,6 +74,10 @@ uint8_t RtcGetWeekDay(const struct RtcTime *time)
         days += RTC_YEAR_DAYS(year);
     }
 
+    if (days > UINT_32_MAX - (RTC_BEGIN_WEEKDAY - RTC_UNIT_DIFF)) {
+        HDF_LOGE("RtcGetWeekDay: days is invalid!");
+        return RTC_FALSE;
+    }
     return ((RTC_BEGIN_WEEKDAY + days - RTC_UNIT_DIFF) % RTC_MAX_WEEKDAY + RTC_UNIT_DIFF);
 }
 
