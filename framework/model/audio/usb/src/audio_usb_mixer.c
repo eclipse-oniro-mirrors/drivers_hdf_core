@@ -1484,7 +1484,7 @@ static void AudioUsbBuildFeatureCtlSub(
     }
 
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
-    if (kcontrol->name = NULL) {
+    if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
         return;
     }
@@ -1670,7 +1670,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
 
     kcontrol = &g_usbFeatureUnitCtl;
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
-    if (kcontrol->name = NULL) {
+    if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
         return;
     }
@@ -1925,7 +1925,7 @@ static int32_t AudioUsbParseSelectorUnit(struct UsbMixerBuild *state, int32_t un
 
     kcontrol = &g_mixerSelectUnitCtl;
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
-    if (kcontrol->name = NULL) {
+    if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
         return;
     }
