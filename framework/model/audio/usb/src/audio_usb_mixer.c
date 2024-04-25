@@ -1486,6 +1486,7 @@ static void AudioUsbBuildFeatureCtlSub(
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
     if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
+        OsalMemFree(mixElemInfo);
         return;
     }
     ret = AudioUsbSetKctlItermName(state, kcontrol, usbAudioTerm, featureControl);
@@ -1672,6 +1673,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
     if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
+        OsalMemFree(mixElemInfo);
         return;
     }
     kcontrol->privateValue = (unsigned long)(uintptr_t)(void *)mixElemInfo;
@@ -1927,6 +1929,7 @@ static int32_t AudioUsbParseSelectorUnit(struct UsbMixerBuild *state, int32_t un
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
     if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
+        OsalMemFree(mixElemInfo);
         return;
     }
     DListHeadInit(&kcontrol->list);
