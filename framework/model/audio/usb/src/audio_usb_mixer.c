@@ -1930,7 +1930,7 @@ static int32_t AudioUsbParseSelectorUnit(struct UsbMixerBuild *state, int32_t un
     if (kcontrol->name == NULL) {
         AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
         OsalMemFree(mixElemInfo);
-        return;
+        return HDF_ERR_MALLOC_FAIL;
     }
     DListHeadInit(&kcontrol->list);
 
