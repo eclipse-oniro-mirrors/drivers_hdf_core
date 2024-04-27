@@ -14,7 +14,7 @@
 #include "util/options.h"
 #include "util/common.h"
 #include "util/logger.h"
-#include "limits.h"
+#include <climits>
 
 namespace OHOS {
 namespace HDI {
@@ -49,11 +49,11 @@ bool Hash::FormatFile(const FileDetailMap &fileDetails, const std::string &fileP
         return false;
     }
 
-    char realPath[PATH_MAX];
+    char realPath[PATH_MAX] = {};
     char *p = realpath(filePath.c_str(), realPath);
     if (p == nullptr) {
-       Logger::E(TAG, "invalid filePath %s", filePath.c_str());
-       return false;
+        Logger::E(TAG, "invalid filePath %s", filePath.c_str());
+        return false;
     }
     std::ofstream hashFile(filePath, std::ios::out | std::ios ::binary);
     if (!hashFile.is_open()) {
@@ -87,11 +87,11 @@ std::vector<std::string> Hash::GetHashInfo(const FileDetailMap &fileDetails)
 
 bool Hash::GenFileHashKey(const std::string &path, size_t &hashKey)
 {
-    char realPath[PATH_MAX];
+    char realPath[PATH_MAX] = {};
     char *real = realpath(path.c_str(), realPath);
     if (real == nullptr) {
-       Logger::E(TAG, "invalid filePath %s", path.c_str());
-       return false;
+        Logger::E(TAG, "invalid filePath %s", path.c_str());
+        return false;
     }
     std::ifstream fs(path);
     if (!fs.is_open()) {
