@@ -63,9 +63,7 @@ int DeviceThreadAttach(struct DeviceThread *inst, struct IHdfDevice *device, str
     message->messageId = DEVICE_SERVICE_MESSAGE_LAUNCH;
     message->data[0] = (void *)device;
     message->data[1] = (void *)service;
-    int ret = task->SendMessage(task, message, true);
-    HdfMessageRecycle(message);
-    return ret;
+    return task->SendMessage(task, message, true);
 }
 
 void DeviceThreadMain(void *args)
