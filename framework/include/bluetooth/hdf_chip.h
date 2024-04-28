@@ -117,7 +117,8 @@ struct HdfVirtualDevice {
 struct HdfVirtualDevice *CreateVirtualDevice(const struct HdfChipConfig *config);
 void ReleaseVirtualDevice(struct HdfVirtualDevice *device);
 
-inline static int32_t HdfPowerOnVirtualDevice(struct HdfVirtualDevice *device) {
+inline static int32_t HdfPowerOnVirtualDevice(struct HdfVirtualDevice *device)
+{
     if (device == NULL) {
         return HDF_FAILURE;
     }
@@ -126,7 +127,8 @@ inline static int32_t HdfPowerOnVirtualDevice(struct HdfVirtualDevice *device) {
     }
     return device->power->ops->On(device->power);
 }
-inline static int32_t HdfPowerOffVirtualDevice(struct HdfVirtualDevice *device) {
+inline static int32_t HdfPowerOffVirtualDevice(struct HdfVirtualDevice *device)
+{
     if (device == NULL) {
         return HDF_FAILURE;
     }
@@ -135,7 +137,8 @@ inline static int32_t HdfPowerOffVirtualDevice(struct HdfVirtualDevice *device) 
     }
     return device->power->ops->Off(device->power);
 }
-inline static int32_t HdfResetVirtualDevice(struct HdfVirtualDevice *device) {
+inline static int32_t HdfResetVirtualDevice(struct HdfVirtualDevice *device)
+{
     int32_t ret;
     if (device == NULL) {
         return HDF_FAILURE;
