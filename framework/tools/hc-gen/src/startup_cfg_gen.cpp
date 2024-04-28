@@ -21,7 +21,6 @@ static constexpr const char *BOOT_CONFIG_TOP =
     "    \"jobs\" : [{\n"
     "            \"name\" : \"post-fs-data\",\n"
     "            \"cmds\" : [\n"
-    "                \"start hdf_devhost\"\n"
     "            ]\n"
     "        }\n"
     "    ],\n"
