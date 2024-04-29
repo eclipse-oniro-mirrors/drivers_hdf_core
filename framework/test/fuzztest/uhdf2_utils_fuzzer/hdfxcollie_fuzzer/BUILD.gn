@@ -19,15 +19,11 @@ ohos_fuzztest("HdfXCollieFuzzTest") {
   fuzz_config_file =
       "$hdf_framework_path/test/fuzztest/uhdf2_utils_fuzzer/hdfxcollie_fuzzer"
 
-  include_dirs = [
-    "$hdf_uhdf_path/utils/include",
-  ]
+  include_dirs = [ "$hdf_uhdf_path/utils/include" ]
 
   sources = [ "hdfxcollie_fuzzer.cpp" ]
 
-  deps = [
-    "$hdf_uhdf_path/pub_utils:libpub_utils",
-  ]
+  deps = [ "$hdf_uhdf_path/pub_utils:libpub_utils" ]
 
   external_deps = [
     "c_utils:utils",
