@@ -49,8 +49,6 @@ ohos_fuzztest("DeviceManagerStartFuzzTest") {
     "$hdf_framework_path/core/shared/src/hdf_device_info.c",
     "$hdf_framework_path/core/shared/src/hdf_object_manager.c",
     "$hdf_framework_path/core/shared/src/hdf_service_record.c",
-    "$hdf_uhdf_path/shared/src/dev_attribute_serialize.c",
-    "$hdf_uhdf_path/shared/src/hcb_config_entry.c",
     "$hdf_manager_src_path/devhost_service_proxy.c",
     "$hdf_manager_src_path/device_token_proxy.c",
     "$hdf_manager_src_path/devmgr_dump.c",
@@ -62,6 +60,8 @@ ohos_fuzztest("DeviceManagerStartFuzzTest") {
     "$hdf_manager_src_path/devsvc_manager_stub.c",
     "$hdf_manager_src_path/driver_installer_full.c",
     "$hdf_manager_src_path/servstat_listener_holder.c",
+    "$hdf_uhdf_path/shared/src/dev_attribute_serialize.c",
+    "$hdf_uhdf_path/shared/src/hcb_config_entry.c",
     "devicemanagerstart_fuzzer.cpp",
   ]
   deps = [

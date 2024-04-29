@@ -43,8 +43,8 @@ static int DeviceManagerStartServiceFuzzTest()
     (void)DevMgrUeventReceiveStart();
     DevMgrRegisterDumpFunc();
     if (status == HDF_SUCCESS) {
-        struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)instance;
-        struct HdfMessageLooper *looper = &fullService->looper;
+        struct DevmgrServiceFull *fullService = reinterpret_cast<struct DevmgrServiceFull *>(instance);
+	struct HdfMessageLooper *looper = &fullService->looper;
         if ((looper != NULL) && (looper->Start != NULL)) {
             HDF_LOGI("device manager fuzzer skip loop");
         }
