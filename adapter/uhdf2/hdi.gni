@@ -284,20 +284,39 @@ template("hdi") {
     }
   }
 
-  # only generate code and provide header file path
-  # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers" ]
-  # this target has been replaced by 'idl_headers_target', please use 'idl_headers_target'
-  group("$target_name" + "_idl_headers") {
-    public_configs = [ ":$idl_headers_config" ]
-    deps = [ ":hdi_gen" ]
-  }
+  if (mode == "ril") {
+    # only generate code and provide header file path
+    # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers" ]
+    # this target has been replaced by 'idl_headers_target', please use 'idl_headers_target'
+    ohos_shared_library("$target_name" + "_idl_headers") {
+      public_configs = [ ":$idl_headers_config" ]
+      deps = [ ":hdi_gen" ]
+    }
 
-  # only generate code and provide header file path
-  # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers_1.0" ]
-  idl_headers_target = target_name + "_idl_headers_" + hdi_build_info.version
-  group(idl_headers_target) {
-    public_configs = [ ":$idl_headers_config" ]
-    deps = [ ":hdi_gen" ]
-    public_deps = hdi_build_info.header_deps
+    # only generate code and provide header file path
+    # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers_1.0" ]
+    idl_headers_target = target_name + "_idl_headers_" + hdi_build_info.version
+    ohos_shared_library(idl_headers_target) {
+      public_configs = [ ":$idl_headers_config" ]
+      deps = [ ":hdi_gen" ]
+      public_deps = hdi_build_info.header_deps
+    }
+  } else {
+    # only generate code and provide header file path
+    # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers" ]
+    # this target has been replaced by 'idl_headers_target', please use 'idl_headers_target'
+    group("$target_name" + "_idl_headers") {
+      public_configs = [ ":$idl_headers_config" ]
+      deps = [ ":hdi_gen" ]
+    }
+
+    # only generate code and provide header file path
+    # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers_1.0" ]
+    idl_headers_target = target_name + "_idl_headers_" + hdi_build_info.version
+    group(idl_headers_target) {
+      public_configs = [ ":$idl_headers_config" ]
+      deps = [ ":hdi_gen" ]
+      public_deps = hdi_build_info.header_deps
+    }
   }
 }
