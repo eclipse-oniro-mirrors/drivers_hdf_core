@@ -8,16 +8,17 @@
 
 #include "devicemanagerstart_fuzzer.h"
 
+#include "hdf_base.h"
+#include "hdf_log.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "devmgr_dump.h"
 #include "devmgr_service.h"
 #include "devmgr_service_full.h"
 #include "devmgr_uevent.h"
-#include "hdf_base.h"
-#include "hdf_log.h"
-#include "devmgr_dump.h"
 
 #ifdef __cplusplus
 } // extern "C"
