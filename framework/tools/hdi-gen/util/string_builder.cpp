@@ -149,6 +149,8 @@ bool StringBuilder::Grow(size_t size)
         free(buffer_);
         if (ret != 0) {
             Logger::E(TAG, "memcpy_s error ret = %d!", ret);
+            free(newBuffer);
+            return false;
         }
     }
     buffer_ = newBuffer;
