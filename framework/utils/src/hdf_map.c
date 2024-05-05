@@ -14,11 +14,7 @@
 #endif
 #include "osal_mem.h"
 #include "securec.h"
-#define uint64_t std_uint64
-#define int64_t std_int64
-#include "stdint.h"
-#undef uint64_t
-#undef int64_t
+#define HDF_UINT32_MAX 0xffffffffu
 
 struct MapNode {
     uint32_t hash;
@@ -49,7 +45,7 @@ static uint32_t MapHash(const char *hashKey)
 
 static uint32_t MapHashIdx(const Map *map, uint32_t hash)
 {
-    if (map->bucketSize > UINT32_MAX) {
+    if (map->bucketSize > HDF_UINT32_MAX) {
         return 0;
     }
     return (hash & (map->bucketSize - 1));

@@ -10,11 +10,7 @@
 #define HCS_BLOB_IF_H
 
 #include "hdf_base.h"
-#define uint64_t std_uint64
-#define int64_t std_int64
-#include "stdint.h"
-#undef uint64_t
-#undef int64_t
+#define HDF_SIZE_MAX 0xffffffffu
 
 #define CONFIG_NODE 0x1
 #define CONFIG_ATTR 0x2
@@ -43,7 +39,7 @@ bool HcsIsByteAlign(void);
 #define HCS_ALIGN_SIZE 4
 static inline size_t HcsAlignSize(size_t size)
 {
-    if (size + HCS_ALIGN_SIZE == 0 || size > (SIZE_MAX - HCS_ALIGN_SIZE)) {
+    if (size + HCS_ALIGN_SIZE == 0 || size > (HDF_SIZE_MAX - HCS_ALIGN_SIZE)) {
         return 0;
     }
     return (size + HCS_ALIGN_SIZE - 1) & (~(HCS_ALIGN_SIZE - 1));
