@@ -41,7 +41,7 @@ static void SbufInterfaceAssign(struct HdfSBufImpl *inf);
 
 static size_t SbufRawImplGetAlignSize(size_t size)
 {
-    if (size + HDF_SBUF_ALIGN == 0 || size > (SIZE_MAX - HDF_SBUF_ALIGN)) {
+    if (size > (SIZE_MAX - HDF_SBUF_ALIGN)) {
         HDF_LOGE("Be careful of integer overflow!");
         return 0;
     }

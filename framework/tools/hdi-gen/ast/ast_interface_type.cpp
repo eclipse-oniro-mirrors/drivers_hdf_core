@@ -74,10 +74,10 @@ std::string ASTInterfaceType::Dump(const std::string &prefix)
     sb.Append(prefix);
     sb.Append(prefix).Append(attr_->Dump(prefix)).Append(" ");
     sb.AppendFormat("interface %s {\n", name_.c_str());
-    for (auto method : methods_) {
-        std::string info = method->Dump(prefix + "  ");
-        sb.Append(info);
-        if (methods_.size() > 0 && methods_.size() < SIZE_MAX) {
+    if (methods_.size() > 0 && methods_.size() < SIZE_MAX) {
+        for (auto method : methods_) {
+            std::string info = method->Dump(prefix + "  ");
+            sb.Append(info);
             if (method != methods_[methods_.size() - 1]) {
                 sb.Append('\n');
             }
