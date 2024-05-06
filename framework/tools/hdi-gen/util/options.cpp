@@ -163,6 +163,11 @@ void Options::AddSources(const std::string &sourceFile)
         return;
     }
 
+    if (!File::VerifyRealPath(realPath)) {
+        Logger::E(TAG, "verify path failed, path:%s", realPath.c_str());
+        return;
+    }
+    
     if (sourceFiles.insert(realPath).second == false) {
         Logger::E(TAG, "this idl file has been add:%s", sourceFile.c_str());
         return;

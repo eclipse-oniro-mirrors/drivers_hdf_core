@@ -78,7 +78,9 @@ static void DevMgrUeventReleaseKeyList(struct DListHead *keyList)
 {
     struct DevMgrMatchKey *matchKey = NULL;
     struct DevMgrMatchKey *matchKeyTmp = NULL;
+
     if (keyList == NULL) {
+        HDF_LOGE("keyList is null");
         return;
     }
     DLIST_FOR_EACH_ENTRY_SAFE(matchKey, matchKeyTmp, keyList, struct DevMgrMatchKey, entry) {
