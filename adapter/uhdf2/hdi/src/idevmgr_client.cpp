@@ -127,7 +127,7 @@ static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, M
         for (uint32_t i = 0; i < devCnt; i++) {
             if (reply.GetReadableBytes() == 0) {
                 HDF_LOGE("no enough data to read");
-                return HDF_ERR_INVALID_PARAM;
+                return false;
             }
 
             name = reply.ReadCString();
