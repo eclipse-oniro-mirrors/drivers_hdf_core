@@ -9,6 +9,7 @@
 #include "startup_cfg_gen.h"
 #include <algorithm>
 #include <string>
+
 #include "ast.h"
 #include "file.h"
 #include "logger.h"
@@ -20,7 +21,6 @@ static constexpr const char *BOOT_CONFIG_TOP =
     "    \"jobs\" : [{\n"
     "            \"name\" : \"post-fs-data\",\n"
     "            \"cmds\" : [\n"
-    "                \"start hdf_devhost\"\n"
     "            ]\n"
     "        }\n"
     "    ],\n"
@@ -96,45 +96,115 @@ bool StartupCfgGen::Initialize()
     return true;
 }
 
-void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
+void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
-
-    if (hostInfoMap_[name].dynamicLoad) {
+    // If the parameter is configured in initconfig, dynamicLoad info is generated in function EmitInitConfigInfo.
+    if (hostInfoMap_[name].dynamicLoad && (configedKeywords.find("preload") == configedKeywords.end())) {
         ofs_ << DYNAMIC_INFO;
     }
+}
 
+void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> &configedKeywords)
+{
     bool flag = false;
     if ((hostInfoMap_[name].processPriority != INVALID_PRIORITY) &&
         (hostInfoMap_[name].threadPriority != INVALID_PRIORITY)) {
         flag = true;
     }
-    if (flag) {
-        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
-            hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
-    } else {
-        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
+    if ((configedKeywords.find("path") == configedKeywords.end())) {
+        if (flag) {
+            ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
+                hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
+        } else {
+            ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
+        }
+    }
+}
+
+void StartupCfgGen::EmitIdInfo(const std::string &name, std::set<std::string> &configedKeywords)
+{
+   // If the parameter is configured in initconfig, uid and gid info is generated in function EmitInitConfigInfo.
+    if ((configedKeywords.find("uid") == configedKeywords.end())) {
+        ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
     }
 
-    ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID << "\",\n";
-    ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
+    if (configedKeywords.find("gid") == configedKeywords.end()) {
+        ofs_ << GID_INFO << hostInfoMap_[name].hostGID << "],\n";
+    }
+}
 
-    if (!hostInfoMap_[name].hostCaps.empty()) {
+void StartupCfgGen::EmitHostCapsInfo(const std::string &name, std::set<std::string> &configedKeywords)
+{
+   // If the parameter is configured in initconfig, hostCaps info is generated in function EmitInitConfigInfo.
+    if (!hostInfoMap_[name].hostCaps.empty() && configedKeywords.find("caps") == configedKeywords.end()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps << "],\n";
     }
+}
 
-    if (!hostInfoMap_[name].hostCritical.empty()) {
+void StartupCfgGen::EmitHostCriticalInfo(const std::string &name, std::set<std::string> &configedKeywords)
+{
+    // If the parameter is configured in initconfig, hostCritical info is generated in function EmitInitConfigInfo.
+    if (!hostInfoMap_[name].hostCritical.empty() && configedKeywords.find("critical") == configedKeywords.end()) {
         ofs_ << CRITICAL_INFO << hostInfoMap_[name].hostCritical << "],\n";
     }
+}
 
-    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX) {
+void StartupCfgGen::EmitSandBoxInfo(const std::string &name, std::set<std::string> &configedKeywords)
+{
+    // If the parameter is configured in initconfig, sandBox info is generated in function EmitInitConfigInfo.
+    if (hostInfoMap_[name].sandBox != INVALID_SAND_BOX && configedKeywords.find("sandbox") == configedKeywords.end()) {
         ofs_ << SAND_BOX_INFO << hostInfoMap_[name].sandBox << ",\n";
     }
+}
 
-    ofs_ << SECON_INFO << name << ":s0\"\n";
+void StartupCfgGen::EmitSeconInfo(const std::string &name, std::set<std::string> &configedKeywords)
+{
+    // If the parameter is configured in initconfig, secon info is generated in function EmitInitConfigInfo.
+    if (configedKeywords.find("secon") == configedKeywords.end()) {
+        ofs_ << SECON_INFO << name << ":s0\"";
+        if (!hostInfoMap_[name].initConfig.empty()) {
+            ofs_ << ",";
+        }
+        ofs_ << "\n";
+    }
+}
+
+void StartupCfgGen::EmitInitConfigInfo(const std::string &name)
+{
+    if (!hostInfoMap_[name].initConfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initConfig) {
+            ofs_ << TAB TAB TAB << info;
+            if (&info != &hostInfoMap_[name].initConfig.back()) {
+                ofs_ << ",";
+            }
+            ofs_ << "\n";
+        }
+    }
+}
+
+void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
+{
+    std::set<std::string> configedKeywords;
+    ofs_ << SERVICE_TOP << "\"" << name << "\",\n";
+
+    if (!hostInfoMap_[name].initConfig.empty()) {
+        for (auto &info : hostInfoMap_[name].initConfig) {
+            int firstQuotePos = info.find("\"");
+            int secondQuotePos = info.find("\"", firstQuotePos + 1);
+            configedKeywords.insert(info.substr(firstQuotePos + 1, secondQuotePos - (firstQuotePos + 1)));
+        }
+    }
+
+    EmitDynamicLoad(name, configedKeywords);
+    EmitPathInfo(name, configedKeywords);
+    EmitIdInfo(name, configedKeywords);
+    EmitHostCapsInfo(name, configedKeywords);
+    EmitHostCriticalInfo(name, configedKeywords);
+    EmitSandBoxInfo(name, configedKeywords);
+    EmitSeconInfo(name, configedKeywords);
+    EmitInitConfigInfo(name);
 
     ofs_ << TAB TAB << "}";
-
     if (!end) {
         ofs_<< ",";
     }
@@ -147,6 +217,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostCaps = "";
     hostData.hostUID = "";
     hostData.hostGID = "";
+    hostData.initConfig = {};
     hostData.hostPriority = 0;
     hostData.hostId = 0;
     hostData.hostCritical = "";
@@ -193,11 +264,13 @@ void StartupCfgGen::HostInfosOutput()
 void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
     if (term == nullptr) {
+        Logger().Debug() << "GetConfigArray term is null" << '\n';
         return;
     }
 
     std::shared_ptr<AstObject> arrayObj = term->Child();
     if (arrayObj == nullptr) {
+        Logger().Debug() << "GetConfigArray arrayObj is null" << '\n';
         return;
     }
 
@@ -219,11 +292,13 @@ void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::
 void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
     if (term == nullptr) {
+        Logger().Debug() << "GetConfigIntArray term is null" << '\n';
         return;
     }
 
     std::shared_ptr<AstObject> intArrayObj = term->Child();
     if (intArrayObj == nullptr) {
+        Logger().Debug() << "GetConfigIntArray intArrayObj is null" << '\n';
         return;
     }
 
@@ -238,6 +313,29 @@ void StartupCfgGen::GetConfigIntArray(const std::shared_ptr<AstObject> &term, st
 
         object = object->Next();
         arraySize--;
+    }
+}
+
+void StartupCfgGen::GetConfigVector(const std::shared_ptr<AstObject> &term, std::vector<std::string> &config)
+{
+    if (term == nullptr) {
+        Logger().Debug() << "GetConfigVector term is null" << '\n';
+        return;
+    }
+
+    std::shared_ptr<AstObject> arrayObj = term->Child();
+    if (arrayObj == nullptr) {
+        Logger().Debug() << "GetConfigVector arrayObj is null" << '\n';
+        return;
+    }
+
+    std::shared_ptr<AstObject> object = arrayObj->Child();
+    while (object != nullptr) {
+        if (!object->StringValue().empty()) {
+            config.push_back(object->StringValue());
+        }
+
+        object = object->Next();
     }
 }
 
@@ -359,6 +457,9 @@ bool StartupCfgGen::GetHostInfo()
         if (object != nullptr) {
             hostData.sandBox = object->Child()->IntegerValue();
         }
+
+        object = hostInfo->Lookup("initconfig", PARSEROP_CONFTERM);
+        GetConfigVector(object, hostData.initConfig);
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));

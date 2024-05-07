@@ -20,7 +20,7 @@ int32_t HdfDriverEntryConstruct(void)
     size_t *addrBegin = NULL;
     int32_t count = (int32_t)(((uint8_t *)(HDF_DRIVER_END()) - (uint8_t *)(HDF_DRIVER_BEGIN())) / sizeof(size_t));
     if (count <= 0) {
-        HDF_LOGE("%s: no hdf driver exist", __func__);
+        HDF_LOGE("%{public}s: no hdf driver exist", __func__);
         return HDF_FAILURE;
     }
 
@@ -28,7 +28,8 @@ int32_t HdfDriverEntryConstruct(void)
     for (i = 0; i < count; i++) {
         driverEntry = (struct HdfDriverEntry *)(*addrBegin);
         if (HdfRegisterDriverEntry(driverEntry) != HDF_SUCCESS) {
-            HDF_LOGE("failed to register driver %s, skip and try another", driverEntry ? driverEntry->moduleName : "");
+            HDF_LOGE("failed to register driver %{public}s, skip and try another",
+                driverEntry ? driverEntry->moduleName : "");
             continue;
         }
         addrBegin++;
@@ -39,7 +40,7 @@ int32_t HdfDriverEntryConstruct(void)
 struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
 {
     if (moduleName == NULL) {
-        HDF_LOGE("%s: failed to get device entry, moduleName is NULL", __func__);
+        HDF_LOGE("%{public}s: failed to get device entry, moduleName is NULL", __func__);
         return NULL;
     }
 

@@ -19,6 +19,8 @@
 #include <devmgr_hdi.h>
 #include <osal_time.h>
 #include <servmgr_hdi.h>
+#include "hdf_dump.h"
+#include "hdf_dump_reg.h"
 
 #define HDF_LOG_TAG   driver_manager
 
@@ -139,5 +141,17 @@ HWTEST_F(DevMgrTest, DriverTest, TestSize.Level1)
         }
         ASSERT_TRUE(sampleService == nullptr);
     }
+}
+
+HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
+{
+    ASSERT_TRUE(servmgr != nullptr);
+    ASSERT_TRUE(devmgr != nullptr);
+    HdfRegisterDumpFunc(nullptr);
+
+    int32_t illegalFd = -1;
+    std::vector<std::u16string> illegalArgs = {};
+    int ret = HdfDump(illegalFd, illegalArgs);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 }
 } // namespace OHOS

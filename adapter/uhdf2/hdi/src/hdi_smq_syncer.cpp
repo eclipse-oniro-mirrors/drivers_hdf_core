@@ -76,7 +76,7 @@ int SharedMemQueueSyncer::FutexWait(uint32_t bitset, int64_t timeoutNanoSec)
     }
     status = -errno;
     if (status != ETIMEDOUT) {
-        HDF_LOGE("failed to wait smq futex, %{publich}d", status);
+        HDF_LOGE("failed to wait smq futex, %{public}d", status);
     }
     return status;
 }

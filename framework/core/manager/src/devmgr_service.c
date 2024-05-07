@@ -342,7 +342,7 @@ static int DevmgrServiceStartDeviceHosts(struct DevmgrService *inst)
 
     HdfSListInit(&hostList);
     if (!HdfAttributeManagerGetHostList(&hostList)) {
-        HDF_LOGW("%s: host list is null", __func__);
+        HDF_LOGW("%{public}s: host list is null", __func__);
         return HDF_SUCCESS;
     }
     HdfSListIteratorInit(&it, &hostList);
@@ -403,10 +403,10 @@ int DevmgrServiceStartService(struct IDevmgrService *inst)
         return HDF_FAILURE;
     }
 
-    ret = DevSvcManagerStartService();
-    HDF_LOGI("start svcmgr result %{public}d", ret);
-
-    return DevmgrServiceStartDeviceHosts(dmService);
+    ret = DevmgrServiceStartDeviceHosts(dmService);
+    int startServiceRet = DevSvcManagerStartService();
+    HDF_LOGI("start svcmgr result %{public}d. Init DeviceHosts info result: %{public}d", startServiceRet, ret);
+    return ret;
 }
 
 int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum HdfPowerState powerState)
@@ -452,7 +452,7 @@ bool DevmgrServiceConstruct(struct DevmgrService *inst)
 {
     struct IDevmgrService *devMgrSvcIf = NULL;
     if (OsalMutexInit(&inst->devMgrMutex) != HDF_SUCCESS) {
-        HDF_LOGE("%s:failed to mutex init ", __func__);
+        HDF_LOGE("%{public}s:failed to mutex init ", __func__);
         return false;
     }
     devMgrSvcIf = (struct IDevmgrService *)inst;

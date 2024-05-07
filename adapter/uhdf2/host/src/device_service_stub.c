@@ -52,7 +52,7 @@ int DeviceServiceStubPublishService(struct HdfDeviceNode *service)
     struct DeviceServiceStub *fullService = (struct DeviceServiceStub *)service;
 
     if (service->servName == NULL) {
-        HDF_LOGE("device %x miss service name", service->devId);
+        HDF_LOGE("device %{public}x miss service name", service->devId);
         return HDF_ERR_INVALID_OBJECT;
     }
 

@@ -42,6 +42,7 @@ static constexpr const char *TEST_SERVICE_INTERFACE_DESC_VOID = "";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_NULL = nullptr;
 static constexpr int PAYLOAD_NUM = 1234;
 static constexpr int WAIT_LOAD_UNLOAD_TIME = 300;
+static constexpr int INVALID_DISPATCH_CODE = -1;
 class HdfServiceMangerHdiCTest : public testing::Test {
 public:
     static void SetUpTestCase()
@@ -723,6 +724,42 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest018, TestSize.Level1)
 
     HDIServiceManagerRelease(servmgr);
     HDIServiceManagerRelease(NULL);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, RemoteServiceTest001, TestSize.Level1) {
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService != nullptr);
+    struct HdfDeathRecipient* recipient = nullptr;
+    HdfRemoteServiceAddDeathRecipient(sampleService, recipient);
+    HdfRemoteServiceRemoveDeathRecipient(sampleService, recipient);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, RemoteServiceTest002, TestSize.Level1) {
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService != nullptr);
+    int deviceServiceManagerSAID = 5100;
+    int status = HdfRemoteServiceRegister(deviceServiceManagerSAID, sampleService);
+    ASSERT_TRUE(status == HDF_SUCCESS);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, RemoteServiceTest003, TestSize.Level1) {
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    ASSERT_TRUE(servmgr != nullptr);
+
+    struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
+    ASSERT_TRUE(sampleService != nullptr);
+
+    struct HdfSBuf *dataSbuf = HdfSbufTypedObtain(SBUF_IPC);
+    struct HdfSBuf *replySbuf = HdfSbufTypedObtain(SBUF_IPC);
+
+    int status = HdfRemoteServiceDefaultDispatch(sampleService, INVALID_DISPATCH_CODE, dataSbuf, replySbuf);
+    ASSERT_TRUE(status != HDF_SUCCESS);
 }
 
 HWTEST_F(HdfServiceMangerHdiCTest, DevMgrTest, TestSize.Level1)

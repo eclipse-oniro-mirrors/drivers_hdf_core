@@ -9,6 +9,7 @@
 #include "hdf_message_looper.h"
 #include "hdf_message_task.h"
 #include "osal_message.h"
+#include "hdf_log.h"
 
 void HdfMessageLooperStart(struct HdfMessageLooper *looper)
 {
@@ -20,6 +21,7 @@ void HdfMessageLooperStart(struct HdfMessageLooper *looper)
     while (true) {
         message = HdfMessageQueueNext(&looper->messageQueue);
         if (message != NULL) {
+            HDF_LOGD("%{public}s received message %{public}d", __func__, message->messageId);
             if (message->messageId == MESSAGE_STOP_LOOP) {
                 HdfMessageRecycle(message);
                 OsalMessageQueueDestroy(&looper->messageQueue);

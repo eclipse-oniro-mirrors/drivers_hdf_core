@@ -124,20 +124,21 @@ static void EventHandle(InfraredDriver *infraredDrv)
                 dataLen = 0;
             }
 
-            if (recvFlag == 1) {
-                recvData <<= 1;
-                recvData += dataBit;
-                if (dataLen >= MAX_DATA_LEN) {
-                    RecvDataHandle(infraredDrv, recvData);
-                    recvData = 0;
-                    recvFlag = 0;
-                    dataLen = 0;
-                    dataBit = 0;
-                    counter = 0;
-                    break;
-                }
-                dataLen++;
+            if (recvFlag != 1) {
+                continue;
             }
+            recvData <<= 1;
+            recvData += dataBit;
+            if (dataLen >= MAX_DATA_LEN) {
+                RecvDataHandle(infraredDrv, recvData);
+                recvData = 0;
+                recvFlag = 0;
+                dataLen = 0;
+                dataBit = 0;
+                counter = 0;
+                break;
+            }
+            dataLen++;
         }
     }
 }

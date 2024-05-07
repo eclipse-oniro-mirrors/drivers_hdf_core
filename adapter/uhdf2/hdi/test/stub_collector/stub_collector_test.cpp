@@ -35,7 +35,7 @@ namespace OHOS {
     }
     
 
-    const char *ifdesc = "test stub constructor";
+    const char *IFDESC = "test stub constructor";
 
     struct StubConstructor testConstructor = {
         .constructor = TestConstruct,
@@ -54,13 +54,13 @@ public:
 HWTEST_F(StubCollectorTest, StubCollectorTest001, TestSize.Level1)
 {
     StubConstructorRegister(nullptr, nullptr);
-    StubConstructorRegister(ifdesc, nullptr);
-    StubConstructorRegister(ifdesc, &testConstructor);
-    StubConstructorRegister(ifdesc, &testConstructor);
+    StubConstructorRegister(IFDESC, nullptr);
+    StubConstructorRegister(IFDESC, &testConstructor);
+    StubConstructorRegister(IFDESC, &testConstructor);
 
-    StubConstructorUnregister(ifdesc, &testConstructor);
+    StubConstructorUnregister(IFDESC, &testConstructor);
     StubConstructorUnregister(nullptr, nullptr);
-    StubConstructorUnregister(ifdesc, nullptr);
+    StubConstructorUnregister(IFDESC, nullptr);
 
     struct HdfRemoteService **remote = StubCollectorGetOrNewObject(nullptr, nullptr);
     ASSERT_EQ(remote, nullptr);
@@ -70,7 +70,7 @@ HWTEST_F(StubCollectorTest, StubCollectorTest002, TestSize.Level1)
 {
     struct TestService *service = (struct TestService *)OsalMemCalloc(sizeof(struct TestService));
     ASSERT_NE(service, nullptr);
-    struct HdfRemoteService **remote = StubCollectorGetOrNewObject(ifdesc, service);
+    struct HdfRemoteService **remote = StubCollectorGetOrNewObject(IFDESC, service);
     ASSERT_EQ(remote, nullptr);
     OsalMemFree(service);
 }
@@ -99,21 +99,21 @@ HWTEST_F(StubCollectorTest, StubCollectorTest004, TestSize.Level1)
 {
     struct TestService *service = (struct TestService *)OsalMemCalloc(sizeof(struct TestService));
     ASSERT_NE(service, nullptr);
-    StubConstructorRegister(ifdesc, &testConstructor);
-    struct HdfRemoteService **remote = StubCollectorGetOrNewObject(ifdesc, service);
+    StubConstructorRegister(IFDESC, &testConstructor);
+    struct HdfRemoteService **remote = StubCollectorGetOrNewObject(IFDESC, service);
     ASSERT_EQ(remote, nullptr);
-    StubConstructorUnregister(ifdesc, &testConstructor);
+    StubConstructorUnregister(IFDESC, &testConstructor);
     OsalMemFree(service);
 }
 
 HWTEST_F(StubCollectorTest, StubCollectorTest005, TestSize.Level1)
 {
     StubCollectorRemoveObject(nullptr, nullptr);
-    StubCollectorRemoveObject(ifdesc, nullptr);
+    StubCollectorRemoveObject(IFDESC, nullptr);
 
     struct TestService *service = (struct TestService *)OsalMemCalloc(sizeof(struct TestService));
     ASSERT_NE(service, nullptr);
-    StubCollectorRemoveObject(ifdesc, service);
+    StubCollectorRemoveObject(IFDESC, service);
     OsalMemFree(service);
 }
 

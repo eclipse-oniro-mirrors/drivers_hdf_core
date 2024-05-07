@@ -51,7 +51,11 @@ StringBuilder &StringBuilder::Append(const char *string)
         }
     }
 
-    (void)memcpy_s(buffer_ + position_, capacity_ - position_, string, len);
+    int ret = memcpy_s(buffer_ + position_, capacity_ - position_, string, len);
+    if (ret != 0) {
+        Logger::E(TAG, "memcpy_s error ret = %d!", ret);
+        return *this;
+    }
     position_ += len;
     return *this;
 }
@@ -69,7 +73,11 @@ StringBuilder &StringBuilder::Append(const std::string &string)
         }
     }
 
-    (void)memcpy_s(buffer_ + position_, capacity_ - position_, string.c_str(), len);
+    int ret = memcpy_s(buffer_ + position_, capacity_ - position_, string.c_str(), len);
+    if (ret != 0) {
+        Logger::E(TAG, "memcpy_s error ret = %d!", ret);
+        return *this;
+    }
     position_ += len;
     return *this;
 }
@@ -137,8 +145,12 @@ bool StringBuilder::Grow(size_t size)
     }
 
     if (buffer_ != nullptr) {
-        (void)memcpy_s(newBuffer, newSize, buffer_, capacity_);
+        int ret = memcpy_s(newBuffer, newSize, buffer_, capacity_);
         free(buffer_);
+        if (ret != 0) {
+            Logger::E(TAG, "memcpy_s error ret = %d!", ret);
+            return false;
+        }
     }
     buffer_ = newBuffer;
     capacity_ = newSize;

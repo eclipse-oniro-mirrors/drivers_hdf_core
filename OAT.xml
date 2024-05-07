@@ -67,6 +67,7 @@ Note:If the text contains special characters, please escape them according to th
                 <policyitem type="copyright" name="David Brownell" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kernel codes"/>
                 <policyitem type="copyright" name="Agilent Technologies" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kernel codes"/>
                 <policyitem type="copyright" name="Beijing OSWare Technology Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed By OSware"/>
+                <policyitem type="copyright" name="Archermind Technology (Nanjing) Co. Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed by Nanjing Archermind"/>
             </policy>
         </policylist>
         <filefilterlist>

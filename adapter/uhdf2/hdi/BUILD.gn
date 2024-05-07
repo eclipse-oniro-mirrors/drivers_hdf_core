@@ -35,8 +35,9 @@ if (defined(ohos_lite)) {
   ohos_shared_library("libhdi") {
     output_extension = "z.so"
 
+    defines = []
     if (target_cpu == "arm64" || target_cpu == "x86_64") {
-      defines = [ "__ARCH64__" ]
+      defines += [ "__ARCH64__" ]
     }
 
     include_dirs = [
@@ -51,7 +52,7 @@ if (defined(ohos_lite)) {
       "//third_party/bounds_checking_function:libsec_shared",
     ]
 
-    defines = [ "__USER__" ]
+    defines += [ "__USER__" ]
 
     # install_images = [ system_base_dir ]
     subsystem_name = "hdf"

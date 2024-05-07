@@ -34,6 +34,7 @@ int main()
 
     if (instance->StartService != NULL) {
         status = instance->StartService(instance);
+        HDF_LOGI("device manager start service success");
     }
     (void)DevMgrUeventReceiveStart();
     DevMgrRegisterDumpFunc();
@@ -41,6 +42,7 @@ int main()
         struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)instance;
         struct HdfMessageLooper *looper = &fullService->looper;
         if ((looper != NULL) && (looper->Start != NULL)) {
+            HDF_LOGI("device manager start loop");
             looper->Start(looper);
         }
     }

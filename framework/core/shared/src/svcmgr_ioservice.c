@@ -108,7 +108,7 @@ struct ISvcMgrIoservice *SvcMgrIoserviceGet(void)
 
     svcmgrInst->iosvc = HdfIoServiceBind(DEV_SVCMGR_NODE);
     if (svcmgrInst->iosvc == NULL) {
-        HDF_LOGE("ioserivce %s not exist", DEV_SVCMGR_NODE);
+        HDF_LOGE("ioserivce %{public}s not exist", DEV_SVCMGR_NODE);
         OsalMemFree(svcmgrInst);
         return NULL;
     }

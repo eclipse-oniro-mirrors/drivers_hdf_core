@@ -203,6 +203,8 @@ public:
 
     virtual std::string PascalName(const std::string &name) const;
 
+    virtual std::string GetNamespaceWithColon(AutoPtr<ASTNamespace> space, std::string name) const;
+
 protected:
     TypeKind typeKind_;
     bool isPod_;

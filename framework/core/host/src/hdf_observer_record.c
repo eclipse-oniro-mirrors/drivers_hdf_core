@@ -58,7 +58,7 @@ void HdfServiceObserverRecordNotifySubscribers(
 {
     struct HdfSListIterator it;
     if (record == NULL) {
-        HDF_LOGE("%s: record is null", __func__);
+        HDF_LOGE("%{public}s: record is null", __func__);
         return;
     }
 

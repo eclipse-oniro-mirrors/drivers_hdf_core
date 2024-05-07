@@ -119,7 +119,6 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/core/shared/include",
       "$hdf_framework_path/include/core/",
       "$hdf_uhdf_path/osal/include",
-      "$hdf_uhdf_path/utils/include",
     ]
     public_configs = [ ":libhdf_utils_public_config" ]
     sources = [

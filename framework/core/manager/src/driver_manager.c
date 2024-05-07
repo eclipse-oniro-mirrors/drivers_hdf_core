@@ -122,7 +122,7 @@ struct HdfDriver *HdfDriverManagerGetDriver(const char *driverName)
     }
 
     if (HdfSysEventSend != NULL) {
-        HDF_LOGI("%s:try to dynamic load driver %s", __func__, driverName);
+        HDF_LOGI("%{public}s:try to dynamic load driver %{public}s", __func__, driverName);
         if (HdfSysEventSend(HDF_SYSEVENT_CLASS_MODULE, KEVENT_MODULE_INSTALL, driverName, true) != HDF_SUCCESS) {
             return NULL;
         }
@@ -130,7 +130,7 @@ struct HdfDriver *HdfDriverManagerGetDriver(const char *driverName)
         driver = HdfDriverManagerFoundDriver(driverName);
     }
     if (driver == NULL) {
-        HDF_LOGE("%s:driver %s not found", __func__, driverName);
+        HDF_LOGE("%{public}s:driver %{public}s not found", __func__, driverName);
     }
     return driver;
 }

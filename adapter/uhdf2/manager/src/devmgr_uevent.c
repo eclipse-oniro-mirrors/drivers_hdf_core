@@ -150,7 +150,7 @@ static bool DevMgrUeventCheckRuleValid(const char *line)
     }
 
     if (strstr(line, PNP_EVENT_STR) == NULL) {
-        HDF_LOGE("%s invalid rule: %s", __func__, line);
+        HDF_LOGE("%{public}s invalid rule: %{public}s", __func__, line);
         return false;
     }
 
@@ -527,15 +527,18 @@ static int32_t DevMgrUeventThread(void *arg)
             OsalMSleep(DEVMGR_UEVENT_WAIT_TIME);
             continue;
         }
-        if (((uint32_t)fd.revents & POLLIN) == POLLIN) {
+        if (((uint32_t)fd.revents & (POLLIN | POLLERR)) != 0) {
+            int backErrno = errno;
             msgLen = DevMgrReadUeventMessage(sfd, msg, DEVMGR_UEVENT_MSG_SIZE);
+            if (((uint32_t)fd.revents & POLLERR) != 0) {
+                HDF_LOGE("%{public}s poll error", __func__);
+            }
             if (msgLen <= 0) {
+                HDF_LOGE("%{public}s recv errno: %{public}d", __func__, backErrno);
                 continue;
             }
             DevMgrParseUevent(msg, msgLen);
             (void)memset_s(&msg, sizeof(msg), 0, sizeof(msg));
-        } else if (((uint32_t)fd.revents & POLLERR) == POLLERR) {
-            HDF_LOGE("%{public}s poll error", __func__);
         }
     }
 

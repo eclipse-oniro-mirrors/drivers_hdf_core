@@ -50,11 +50,11 @@ static bool GetHostInfo(const struct DeviceResourceNode *hostNode, struct HdfHos
     uint16_t readNum = 0;
     if ((HcsGetString(hostNode, ATTR_HOST_NAME, &hostInfo->hostName, NULL) != HDF_SUCCESS) ||
         (strcmp(hostInfo->hostName, "") == 0)) {
-        HDF_LOGW("%s: get host name failed", __func__);
+        HDF_LOGW("%{public}s: get host name failed", __func__);
         return false;
     }
     if ((HcsGetUint16(hostNode, ATTR_DEV_PRIORITY, &readNum, 0) != HDF_SUCCESS) || (readNum > MAX_PRIORITY_NUM)) {
-        HDF_LOGW("%s: get host priority failed, priority is: %u", __func__, readNum);
+        HDF_LOGW("%{public}s: get host priority failed, priority is: %{public}u", __func__, readNum);
         return false;
     }
     hostInfo->priority = readNum;
@@ -72,7 +72,7 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
 
     hdfManagerNode = GetHdfManagerNode(HdfGetHcsRootNode());
     if (hdfManagerNode == NULL) {
-        HDF_LOGE("%s: get hdf manager node is null", __func__);
+        HDF_LOGE("%{public}s: get hdf manager node is null", __func__);
         return false;
     }
 
@@ -81,7 +81,7 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
         struct HdfHostInfo *hostInfo = HdfHostInfoNewInstance();
         if (hostInfo == NULL) {
             HdfSListFlush(hostList, HdfHostInfoDelete);
-            HDF_LOGE("%s: new hostInfo is null", __func__);
+            HDF_LOGE("%{public}s: new hostInfo is null", __func__);
             return false;
         }
         if (!GetHostInfo(hostNode, hostInfo)) {
@@ -139,17 +139,17 @@ static const struct DeviceResourceNode *GetHostNode(const char *inHostName)
 static bool CheckDeviceInfo(const struct HdfDeviceInfo *deviceNodeInfo)
 {
     if (deviceNodeInfo->policy >= SERVICE_POLICY_INVALID) {
-        HDF_LOGE("%s: policy %u is invalid", __func__, deviceNodeInfo->policy);
+        HDF_LOGE("%{public}s: policy %{public}u is invalid", __func__, deviceNodeInfo->policy);
         return false;
     }
 
     if (deviceNodeInfo->priority > MAX_PRIORITY_NUM) {
-        HDF_LOGE("%s: priority %u is invalid", __func__, deviceNodeInfo->priority);
+        HDF_LOGE("%{public}s: priority %{public}u is invalid", __func__, deviceNodeInfo->priority);
         return false;
     }
 
     if (deviceNodeInfo->preload >= DEVICE_PRELOAD_INVALID) {
-        HDF_LOGE("%s: preload %u is invalid", __func__, deviceNodeInfo->preload);
+        HDF_LOGE("%{public}s: preload %{public}u is invalid", __func__, deviceNodeInfo->preload);
         return false;
     }
 
@@ -165,12 +165,12 @@ static bool GetDeviceNodeInfo(const struct DeviceResourceNode *deviceNode, struc
     HcsGetString(deviceNode, ATTR_DEV_MATCHATTR, &deviceNodeInfo->deviceMatchAttr, NULL);
 
     if (HcsGetString(deviceNode, ATTR_DEV_MODULENAME, &deviceNodeInfo->moduleName, NULL) != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to get module name", __func__);
+        HDF_LOGE("%{public}s: failed to get module name", __func__);
         return false;
     }
 
     if (HcsGetString(deviceNode, ATTR_DEV_SVCNAME, &deviceNodeInfo->svcName, NULL) != HDF_SUCCESS) {
-        HDF_LOGE("%s: failed to get service name", __func__);
+        HDF_LOGE("%{public}s: failed to get service name", __func__);
         return false;
     }
     deviceNodeInfo->deviceName = deviceNode->name;
@@ -192,14 +192,15 @@ static bool GetDevcieNodeList(
         }
         if (!GetDeviceNodeInfo(devNodeResource, deviceNodeInfo)) {
             HdfDeviceInfoFreeInstance(deviceNodeInfo);
-            HDF_LOGE("%s: failed to parse device node info, ignore", __func__);
+            HDF_LOGE("%{public}s: failed to parse device node info, ignore", __func__);
             continue;
         }
 
         deviceNodeInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
         if (deviceNodeInfo->preload != DEVICE_PRELOAD_DISABLE) {
             if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &deviceNodeInfo->node, HdfDeviceListCompare)) {
-                HDF_LOGE("%s: failed to add device info to list %s", __func__, deviceNodeInfo->svcName);
+                HDF_LOGE("%{public}s: failed to add device info to list %{public}s",
+                    __func__, deviceNodeInfo->svcName);
                 HdfDeviceInfoFreeInstance(deviceNodeInfo);
                 continue;
             }

@@ -28,7 +28,9 @@
                 "init",
                 "ipc",
                 "samgr",
-                "selinux_adapter"
+                "selinux_adapter",
+                "hilog_lite",
+                "hicollie"
             ],
             "third_party": [
                 "bounds_checking_function"
