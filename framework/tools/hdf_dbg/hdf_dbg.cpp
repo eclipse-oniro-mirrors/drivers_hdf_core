@@ -98,7 +98,7 @@ static void PrintHelp()
 
 static int StrToInt(std::string tempstr)
 {
-    int32_t num = 0;
+    int32_t num = 5;
     if (std::all_of(tempstr.begin(), tempstr.end(), ::isdigit)) {
         num = std::stoi(tempstr);
     }
