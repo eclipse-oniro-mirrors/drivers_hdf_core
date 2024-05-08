@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -38,14 +38,14 @@ static struct DevmgrServiceStub *GetDevmgrServiceStubInstance()
 
     instance = reinterpret_cast<struct DevmgrServiceStub *>(DevmgrServiceStubCreate());
     if (instance == nullptr) {
-        HDF_LOGI("%{public}s:%{public}d: failed to create DevmgrServiceStub object", __func__, __LINE__);
+        HDF_LOGE("%{public}s:%{public}d: failed to create DevmgrServiceStub object", __func__, __LINE__);
         return nullptr;
     }
 
     struct HdfRemoteService *remoteService = HdfRemoteServiceObtain(
         reinterpret_cast<struct HdfObject *>(instance), &g_devmgrDispatcher);
     if (remoteService == nullptr) {
-        HDF_LOGI("%{public}s:%{public}d: failed to bind dispatcher", __func__, __LINE__);
+        HDF_LOGE("%{public}s:%{public}d: failed to bind dispatcher", __func__, __LINE__);
         return nullptr;
     }
     if (!HdfRemoteServiceSetInterfaceDesc(remoteService, g_devmgrInterfaceToken)) {
@@ -101,6 +101,11 @@ static bool AttachDeviceHostFuzzTest(int32_t code, const uint8_t *data, size_t s
     return true;
 }
 
+static void DevmgrServiceStubReleaseFuzzTest()
+{
+    DevmgrServiceStubRelease(nullptr);
+}
+
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     int32_t codeSize = sizeof(g_devMgrCode) / sizeof(g_devMgrCode[0]);
@@ -108,5 +113,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         int32_t code = g_devMgrCode[i];
         AttachDeviceHostFuzzTest(code, data, size);
     }
+
+    DevmgrServiceStubReleaseFuzzTest();
     return HDF_SUCCESS;
 }
