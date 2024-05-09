@@ -98,7 +98,7 @@ static void PrintHelp()
 
 static int StrToInt(std::string tempstr)
 {
-    int32_t num = 5;
+    int32_t num = GET_INFO_FUNC_NUMS;
     if (std::all_of(tempstr.begin(), tempstr.end(), ::isdigit)) {
         num = std::stoi(tempstr);
     }
