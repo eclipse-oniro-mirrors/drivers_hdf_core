@@ -23,6 +23,7 @@
 
 #include "securec.h"
 #include "parameter.h"
+#include "malloc.h"
 #include "devhost_dump.h"
 #include "devhost_service.h"
 #include "devhost_service_full.h"
@@ -31,13 +32,13 @@
 #include "hdf_power_manager.h"
 
 #define HDF_LOG_TAG                    hdf_device_host
-#define DEVHOST_INPUT_PARAM_NUM        3
-#define DEVHOST_PARAM_NUM_WITH_PRI     5
+#define DEVHOST_MIN_INPUT_PARAM_NUM    5
 #define DEVHOST_INPUT_PARAM_HOSTID_POS 1
 #define DEVHOST_HOST_NAME_POS          2
 #define DEVHOST_PROCESS_PRI_POS        3
 #define DEVHOST_THREAD_PRI_POS         4
 #define PARAM_BUF_LEN 128
+#define INVALID_PRIORITY "0"
 
 static void StartMemoryHook(const char* processName)
 {
@@ -116,9 +117,34 @@ static void HdfSetProcPriority(char **argv)
     }
 }
 
+static void SetMallopt(int argc, char **argv)
+{
+    for (int i = DEVHOST_MIN_INPUT_PARAM_NUM; i < argc - 1; i += 2) {
+        int32_t malloptKey = 0;
+        int32_t malloptValue = 0;
+        int ret = 0;
+        if (!HdfStringToInt(argv[i], &malloptKey)) {
+            HDF_LOGE("malloptKey parameter error:%{public}s", argv[i]);
+            continue;
+        }
+        if (!HdfStringToInt(argv[i + 1], &malloptValue)) {
+            HDF_LOGE("malloptValue parameter error:%{public}s", argv[i + 1]);
+            continue;
+        }
+        ret = mallopt(malloptKey, malloptValue);
+        if (ret != 1) {
+            HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
+                malloptKey, malloptValue, ret);
+            continue;
+        }
+        HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
+    }
+    return;
+}
+
 int main(int argc, char **argv)
 {
-    if ((argc != DEVHOST_INPUT_PARAM_NUM) && (argc != DEVHOST_PARAM_NUM_WITH_PRI)) {
+    if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
         HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -135,8 +161,12 @@ int main(int argc, char **argv)
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
     StartMemoryHook(hostName);
-    if (argc == DEVHOST_PARAM_NUM_WITH_PRI) {
+    if ((strcmp(argv[DEVHOST_PROCESS_PRI_POS], INVALID_PRIORITY) != 0) &&
+        (strcmp(argv[DEVHOST_THREAD_PRI_POS], INVALID_PRIORITY) != 0)) {
         HdfSetProcPriority(argv);
+    }
+    if (argc > DEVHOST_MIN_INPUT_PARAM_NUM) {
+        SetMallopt(argc, argv);
     }
 
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
