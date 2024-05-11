@@ -38,6 +38,7 @@
 #define DEVHOST_PROCESS_PRI_POS        3
 #define DEVHOST_THREAD_PRI_POS         4
 #define PARAM_BUF_LEN 128
+#define MALLOPT_PARA_CNT 2
 #define INVALID_PRIORITY "0"
 
 static void StartMemoryHook(const char* processName)
@@ -119,7 +120,7 @@ static void HdfSetProcPriority(char **argv)
 
 static void SetMallopt(int argc, char **argv)
 {
-    for (int i = DEVHOST_MIN_INPUT_PARAM_NUM; i < argc - 1; i += 2) {
+    for (int i = DEVHOST_MIN_INPUT_PARAM_NUM; i < argc - 1; i += MALLOPT_PARA_CNT) {
         int32_t malloptKey = 0;
         int32_t malloptValue = 0;
         int ret = 0;
@@ -193,7 +194,6 @@ int main(int argc, char **argv)
         HDF_LOGI("%{public}s start loop", hostName);
         looper->Start(looper);
     }
-
 
     HdfPowerManagerExit();
     DevHostDumpDeInit();

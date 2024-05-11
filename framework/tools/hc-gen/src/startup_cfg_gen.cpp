@@ -352,9 +352,10 @@ void StartupCfgGen::GetProcessPriority(const std::shared_ptr<AstObject> &term, H
     }
 }
 
-void StartupCfgGen::GetMallocOpt(const std::shared_ptr<AstObject> &term,
+void StartupCfgGen::GetMallocOpt(const std::shared_ptr<AstObject> &hostInfo,
     std::vector<std::pair<std::string, std::string>> &config)
 {
+    std::shared_ptr<AstObject> term = hostInfo->Lookup("mallocopt", PARSEROP_CONFTERM);
     std::vector<std::string> mallocOptions = {};
     GetConfigVector(term, mallocOptions);
     for (auto mallocOption : mallocOptions) {
@@ -472,8 +473,7 @@ bool StartupCfgGen::GetHostInfo()
         object = hostInfo->Lookup("initconfig", PARSEROP_CONFTERM);
         GetConfigVector(object, hostData.initConfig);
 
-        object = hostInfo->Lookup("mallocopt", PARSEROP_CONFTERM);
-        GetMallocOpt(object, hostData.mallocOpt);
+        GetMallocOpt(hostInfo, hostData.mallocOpt);
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));

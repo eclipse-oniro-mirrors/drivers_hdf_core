@@ -94,7 +94,7 @@ private:
 
     static void GetProcessPriority(const std::shared_ptr<AstObject> &term, HostInfo &hostData);
 
-    static void GetMallocOpt(const std::shared_ptr<AstObject> &term,
+    static void GetMallocOpt(const std::shared_ptr<AstObject> &hostInfo,
         std::vector<std::pair<std::string, std::string>> &config);
 
     std::ofstream ofs_;
