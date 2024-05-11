@@ -115,7 +115,7 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method) const
 std::string CodeEmitter::GetFileParentPath(const std::string &outDir) const
 {
     if (outDir.size() > SIZE_MAX) {
-        return NULL;
+        return "";
     }
     std::string outPath = StringHelper::EndWith(outDir, SEPARATOR) ? outDir.substr(0, outDir.size() - 1) : outDir;
     std::string subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());

@@ -74,7 +74,7 @@ uint8_t RtcGetWeekDay(const struct RtcTime *time)
         days += RTC_YEAR_DAYS(year);
     }
 
-    if (days > (HDF_UINT32_MAX -RTC_BEGIN_WEEKDAY)) {
+    if (days > (HDF_UINT32_MAX - RTC_BEGIN_WEEKDAY)) {
         HDF_LOGE("RtcGetWeekDay: days is invalid!");
         return RTC_FALSE;
     }
