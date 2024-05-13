@@ -38,6 +38,7 @@ static constexpr const char *CAPS_INFO     = "            \"caps\" : [";
 static constexpr const char *DYNAMIC_INFO  = "            \"ondemand\" : true,\n";
 static constexpr const char *SECON_INFO    = "            \"secon\" : \"u:r:";
 static constexpr const char *CRITICAL_INFO = "            \"critical\" : [";
+static constexpr uint32_t DEFAULT_PROCESS_PRIORITY = 0;
 static constexpr uint32_t INVALID_PRIORITY = 0;
 static constexpr const char *SAND_BOX_INFO = "            \"sandbox\" : ";
 static constexpr uint32_t INVALID_SAND_BOX = 0xffffffff;
@@ -218,7 +219,7 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostPriority = 0;
     hostData.hostId = 0;
     hostData.hostCritical = "";
-    hostData.processPriority = INVALID_PRIORITY; // -20(high) - 19(low), default 0
+    hostData.processPriority = DEFAULT_PROCESS_PRIORITY; // -20(high) - 19(low), default 0
     hostData.threadPriority = INVALID_PRIORITY; // 1(low) - 99(high)
     hostData.sandBox = INVALID_SAND_BOX;
 }
