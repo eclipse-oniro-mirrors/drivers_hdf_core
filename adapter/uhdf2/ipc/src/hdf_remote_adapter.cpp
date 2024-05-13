@@ -26,11 +26,13 @@
 #include "hdf_sbuf_ipc.h"
 #include "hdf_remote_adapter.h"
 #include "hdf_xcollie.h"
+#include <pthread.h>
 
 #define HDF_LOG_TAG hdf_remote_adapter
 
 static constexpr int32_t THREAD_POOL_BASE_THREAD_COUNT = 5;
 static int32_t g_remoteThreadMax = THREAD_POOL_BASE_THREAD_COUNT;
+static pthread_rwlock_t g_rwlock = PTHREAD_RWLOCK_INITIALIZER;
 
 HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
     : IPCObjectStub(std::u16string(u"")), service_(service)
@@ -41,6 +43,8 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
     (void)option;
+    //add read lock
+    pthread_rwlock_rdlock(&g_rwlock);
     if (service_ == nullptr) {
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -55,6 +59,8 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     } else {
         HDF_LOGE("dispatcher or dispatcher->Dispatch is null, flags is: %{public}d", option.GetFlags());
     }
+    //unlock
+    pthread_rwlock_unlock(&g_rwlock);
 
     HdfSbufRecycle(dataSbuf);
     HdfSbufRecycle(replySbuf);
@@ -63,6 +69,10 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+}
+void HdfRemoteServiceStub::FreeService() 
+{
+    service_ = nullptr;
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
@@ -220,11 +230,17 @@ struct HdfRemoteService *HdfRemoteAdapterObtain(void)
 
 void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
+    //add write lock
+    pthread_rwlock_wrlock(&g_rwlock);
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(holder->remote_.GetRefPtr());
+        stub->FreeService();
         holder->remote_ = nullptr;
         delete holder;
     }
+    //unlock
+    pthread_rwlock_unlock(&g_rwlock);
 }
 
 int HdfRemoteAdapterAddService(const char *name, struct HdfRemoteService *service)
