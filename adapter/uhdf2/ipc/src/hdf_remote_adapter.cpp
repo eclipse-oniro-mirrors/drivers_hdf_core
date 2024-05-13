@@ -70,7 +70,8 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
 }
-void HdfRemoteServiceStub::FreeService() 
+
+void HdfRemoteServiceStub::FreeService()
 {
     service_ = nullptr;
 }
