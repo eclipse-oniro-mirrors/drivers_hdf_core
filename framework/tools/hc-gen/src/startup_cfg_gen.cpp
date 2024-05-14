@@ -38,9 +38,11 @@ static constexpr const char *CAPS_INFO     = "            \"caps\" : [";
 static constexpr const char *DYNAMIC_INFO  = "            \"ondemand\" : true,\n";
 static constexpr const char *SECON_INFO    = "            \"secon\" : \"u:r:";
 static constexpr const char *CRITICAL_INFO = "            \"critical\" : [";
-static constexpr uint32_t INVALID_PRIORITY = 0xffffffff;
+static constexpr uint32_t DEFAULT_PROCESS_PRIORITY = 0;
+static constexpr uint32_t INVALID_PRIORITY = 0;
 static constexpr const char *SAND_BOX_INFO = "            \"sandbox\" : ";
 static constexpr uint32_t INVALID_SAND_BOX = 0xffffffff;
+static constexpr const char *MALLOPT_SEPARATOR = ":";
 StartupCfgGen::StartupCfgGen(const std::shared_ptr<Ast> &ast) : Generator(ast)
 {
 }
@@ -106,18 +108,13 @@ void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::strin
 
 void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
-    bool flag = false;
-    if ((hostInfoMap_[name].processPriority != INVALID_PRIORITY) &&
-        (hostInfoMap_[name].threadPriority != INVALID_PRIORITY)) {
-        flag = true;
-    }
     if ((configedKeywords.find("path") == configedKeywords.end())) {
-        if (flag) {
-            ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
-                hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority << "\"],\n";
-        } else {
-            ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\"],\n";
+        ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name << "\", \"" <<
+            hostInfoMap_[name].processPriority << "\", \"" << hostInfoMap_[name].threadPriority;
+        for (auto iter : hostInfoMap_[name].mallocOpt) {
+            ofs_ << "\", \"" << iter.first << "\", \"" << iter.second;
         }
+        ofs_ << "\"],\n";
     }
 }
 
@@ -218,11 +215,12 @@ void StartupCfgGen::InitHostInfo(HostInfo &hostData)
     hostData.hostUID = "";
     hostData.hostGID = "";
     hostData.initConfig = {};
+    hostData.mallocOpt = {};
     hostData.hostPriority = 0;
     hostData.hostId = 0;
     hostData.hostCritical = "";
-    hostData.processPriority = INVALID_PRIORITY;
-    hostData.threadPriority = INVALID_PRIORITY;
+    hostData.processPriority = DEFAULT_PROCESS_PRIORITY; // -20(high) - 19(low), default 0
+    hostData.threadPriority = INVALID_PRIORITY; // 1(low) - 99(high)
     hostData.sandBox = INVALID_SAND_BOX;
 }
 
@@ -355,6 +353,21 @@ void StartupCfgGen::GetProcessPriority(const std::shared_ptr<AstObject> &term, H
     }
 }
 
+void StartupCfgGen::GetMallocOpt(const std::shared_ptr<AstObject> &hostInfo,
+    std::vector<std::pair<std::string, std::string>> &config)
+{
+    std::shared_ptr<AstObject> term = hostInfo->Lookup("mallocopt", PARSEROP_CONFTERM);
+    std::vector<std::string> mallocOptions = {};
+    GetConfigVector(term, mallocOptions);
+    for (auto mallocOption : mallocOptions) {
+        int separatorPos = mallocOption.find(MALLOPT_SEPARATOR);
+        std::string malloptKey = mallocOption.substr(0, separatorPos);
+        std::string malloptValue = mallocOption.substr(separatorPos + 1,
+            mallocOption.length() - (separatorPos + 1));
+        config.push_back({malloptKey, malloptValue});
+    }
+}
+
 void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, HostInfo &hostData)
 {
     uint32_t preload;
@@ -460,6 +473,8 @@ bool StartupCfgGen::GetHostInfo()
 
         object = hostInfo->Lookup("initconfig", PARSEROP_CONFTERM);
         GetConfigVector(object, hostData.initConfig);
+
+        GetMallocOpt(hostInfo, hostData.mallocOpt);
 
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));
