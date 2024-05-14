@@ -66,7 +66,7 @@ HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
 }
 
-void HdfRemoteServiceStub::FreeService()
+void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
 {
     service_ = nullptr;
 }
@@ -229,7 +229,7 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
         HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(holder->remote_.GetRefPtr());
-        stub->FreeService();
+        stub->HdfRemoteStubClearHolder();
         holder->remote_ = nullptr;
         delete holder;
     }
