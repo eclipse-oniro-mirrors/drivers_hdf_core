@@ -42,6 +42,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 {
     (void)option;
     if (service_ == nullptr) {
+        HDF_LOGE("service_ is nullptr");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -63,6 +64,11 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+}
+
+void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
+{
+    service_ = nullptr;
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
@@ -222,6 +228,8 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(holder->remote_.GetRefPtr());
+        stub->HdfRemoteStubClearHolder();
         holder->remote_ = nullptr;
         delete holder;
     }
