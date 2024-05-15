@@ -79,7 +79,7 @@ static void HdmiDfmBaseInfoInit(struct HdmiDfmInfo *info, const struct HdmiDfmPa
         return;
     }
 
-    /* 2. Determine the minimum Video Line period. */
+    /* 2. Determine the minimum Video Line period. the coefficient for converting from Mbps to bps. 1000000000000*/
     info->lineMinTime = (uint64_t)info->htotal * 1000000000000 / info->maxPixelClk;
     info->lineMaxTime = (uint64_t)info->htotal * 1000000000000 / info->minPixelClk;
 
