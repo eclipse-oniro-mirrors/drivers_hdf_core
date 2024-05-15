@@ -163,6 +163,11 @@ void Options::AddSources(const std::string &sourceFile)
         return;
     }
 
+    if (!File::VerifyRealPath(realPath)) {
+        Logger::E(TAG, "verify path failed, path:%s", realPath.c_str());
+        return;
+    }
+    
     if (sourceFiles.insert(realPath).second == false) {
         Logger::E(TAG, "this idl file has been add:%s", sourceFile.c_str());
         return;
@@ -182,6 +187,10 @@ void Options::AddSourcesByDir(const std::string &dir)
 bool Options::AddPackagePath(const std::string &packagePath)
 {
     size_t index = packagePath.find(":");
+    if (packagePath.size() == 0 || packagePath.size() >= SIZE_MAX) {
+        Logger::E(TAG, "invalid parameters '%s'.", packagePath.c_str());
+        return false;
+    }
     if (index == std::string::npos || index == packagePath.size() - 1) {
         Logger::E(TAG, "invalid option parameters '%s'.", packagePath.c_str());
         return false;

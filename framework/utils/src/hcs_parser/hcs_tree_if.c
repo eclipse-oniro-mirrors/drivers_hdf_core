@@ -213,8 +213,7 @@ int32_t HcsGetUint64ArrayElem(const struct DeviceResourceNode *node, const char 
         (ret) = HDF_ERR_INVALID_OBJECT;                                \
         HDF_LOGE("%s failed, the result is %d", __func__, (result));   \
         continue;                                                      \
-    }                                                                  \
-    if ((result) != HDF_SUCCESS) {                                     \
+    } else if ((result) != HDF_SUCCESS) {                              \
         HDF_LOGE("%s failed, the result is %d", __func__, (result));   \
         return result;                                                 \
     }                                                                  \
