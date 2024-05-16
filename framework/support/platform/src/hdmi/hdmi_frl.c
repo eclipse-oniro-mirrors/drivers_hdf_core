@@ -157,11 +157,11 @@ static bool HdmiFrlCheckFrlCapability(struct HdmiFrl *frl)
         cntlr->cap.baseCap.bits.frl == 0 ||
         sinkScdcVerion == 0) {
         frl->info.maxFrlRate = 0;
-        return HDF_ERR_NOT_SUPPORT;
+        return false;
     }
     sinkMaxFrlRate = HdmiEdidGetMaxFrlRate(cntlr->hdmi);
     frl->info.maxFrlRate = (sinkMaxFrlRate > cntlr->cap.maxFrlRate) ? cntlr->cap.maxFrlRate : sinkMaxFrlRate;
-    return HDF_SUCCESS;
+    return true;
 }
 
 static bool HdmiFrlCheckFrlStrategy(enum HdmiFrlStrategyMode strategy, uint32_t pixelClock,
@@ -806,10 +806,10 @@ int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
     }
 
     ret = HdmiFrlCheckFrlCapability(frl);
-    if (ret != HDF_SUCCESS) {
+    if (!ret) {
         HDF_LOGD("frl check capability fail, change to TMDS.");
         frl->info.mode = HDMI_FRL_MODE_TMDS;
-        return ret;
+        return HDF_ERR_NOT_SUPPORT;
     } else {
         if (HdnmiFrlCheckFrlMode(frl) == true) {
             HDF_LOGD("frl check frl mode succ.");
