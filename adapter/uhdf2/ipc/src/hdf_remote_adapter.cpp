@@ -66,11 +66,6 @@ HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
 }
 
-void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
-{
-    service_ = nullptr;
-}
-
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
 {
     return HdfDump(fd, args);
@@ -228,8 +223,6 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
-        HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(holder->remote_.GetRefPtr());
-        stub->HdfRemoteStubClearHolder();
         holder->remote_ = nullptr;
         delete holder;
     }
