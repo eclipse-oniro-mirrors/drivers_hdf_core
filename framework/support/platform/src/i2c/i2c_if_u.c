@@ -63,7 +63,7 @@ static struct I2cHandle *I2cHandleInstance(struct I2cManagerService *manager)
     if (handle->data == NULL || handle->reply == NULL) {
         HDF_LOGE("I2cHandleInstance: fail to obtain data or reply!");
         I2cHandleRelease(handle);
-	return NULL;
+        return NULL;
     }
     handle->i2cManager = manager;
     return handle;
