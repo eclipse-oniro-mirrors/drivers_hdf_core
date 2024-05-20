@@ -797,7 +797,6 @@ void HdmiFrlEnable(struct HdmiFrl *frl, bool enable)
 
 int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
 {
-    bool frlCapCheck = false;
     struct HdmiCntlr *cntlr = NULL;
     struct HdmiVideoAttr *videoAttr = NULL;
 
@@ -805,8 +804,7 @@ int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    frlCapCheck = HdmiFrlCheckFrlCapability(frl);
-    if (!frlCapCheck) {
+    if (HdmiFrlCheckFrlCapability(frl) == false) {
         HDF_LOGD("frl check capability fail, change to TMDS.");
         frl->info.mode = HDMI_FRL_MODE_TMDS;
         return HDF_ERR_NOT_SUPPORT;
