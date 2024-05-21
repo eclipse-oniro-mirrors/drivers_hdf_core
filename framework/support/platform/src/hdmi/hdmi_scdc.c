@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -275,7 +275,7 @@ bool HdmiScdcSinkSupport(struct HdmiScdc *scdc)
     int32_t ret;
 
     if (scdc == NULL) {
-        return HDF_ERR_INVALID_PARAM;
+        return false;
     }
 
     for (i = 0; i < HDMI_SCDC_READ_SOURCE_VERSION_TIMES; i++) {
