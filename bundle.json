@@ -18,7 +18,7 @@
             "hdf_core_platform_rtc_test_support",
             "hdf_core_feature_config"
         ],
-        "adapted_system_type": ["standard", "small"],
+        "adapted_system_type": ["standard", "small", "mini"],
         "rom": "735KB",
         "ram": "1350KB",
         "deps": {

@@ -247,7 +247,6 @@ void CppClientProxyCodeEmitter::EmitProxyStaticMethodDecl(
 
 void CppClientProxyCodeEmitter::EmitProxyReconnectMethodDecl(StringBuilder &sb, const std::string &prefix) const
 {
-    std::string doubleTab = prefix + TAB;
     sb.Append(prefix).AppendFormat("static int32_t Reconnect(sptr<%s> proxy);\n",
         EmitDefinitionByInterface(interface_, proxyName_).c_str());
 }
