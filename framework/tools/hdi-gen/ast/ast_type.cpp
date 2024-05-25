@@ -270,11 +270,10 @@ void ASTType::EmitCppUnMarshalling(const std::string &parcelName, const std::str
 }
 
 void ASTType::EmitMemoryRecycle(
-    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
+    const std::string &name, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     // only std::string, Array, List, struct and union type need recycle memory
     (void)name;
-    (void)isClient;
     (void)ownership;
     (void)sb;
     (void)prefix;

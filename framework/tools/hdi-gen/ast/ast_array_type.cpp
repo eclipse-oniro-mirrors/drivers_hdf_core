@@ -544,11 +544,9 @@ void ASTArrayType::EmitCppUnMarshalling(const std::string &parcelName, const std
 }
 
 void ASTArrayType::EmitMemoryRecycle(
-    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
+    const std::string &name, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     std::string varName = name;
-    std::string lenName =
-        isClient ? StringHelper::Format("*%sLen", name.c_str()) : StringHelper::Format("%sLen", name.c_str());
     sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", varName.c_str());
     auto elementTypeNeedFree = [this]() -> bool {
         if (elementType_->IsPod()) {
@@ -562,18 +560,18 @@ void ASTArrayType::EmitMemoryRecycle(
     };
     if (elementTypeNeedFree()) {
         if (Options::GetInstance().DoGenerateKernelCode()) {
-            sb.Append(prefix + TAB).AppendFormat("for (i = 0; i < %s; i++) {\n", lenName.c_str());
+            sb.Append(prefix + TAB).AppendFormat("for (i = 0; i < %sLen; i++) {\n", name.c_str());
         } else {
-            sb.Append(prefix + TAB).AppendFormat("for (uint32_t i = 0; i < %s; i++) {\n", lenName.c_str());
+            sb.Append(prefix + TAB).AppendFormat("for (uint32_t i = 0; i < %sLen; i++) {\n", name.c_str());
         }
 
         std::string elementName = StringHelper::Format("%s[i]", varName.c_str());
-        elementType_->EmitMemoryRecycle(elementName, false, false, sb, prefix + TAB + TAB);
+        elementType_->EmitMemoryRecycle(elementName, false, sb, prefix + TAB + TAB);
         sb.Append(prefix + TAB).Append("}\n");
     }
 
     sb.Append(prefix + TAB).AppendFormat("OsalMemFree(%s);\n", varName.c_str());
-    if (isClient) {
+    if (!ownership) {
         sb.Append(prefix + TAB).AppendFormat("%s = NULL;\n", varName.c_str());
     }
     sb.Append(prefix).Append("}\n");

@@ -184,7 +184,7 @@ public:
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const;
 
     virtual void EmitMemoryRecycle(
-        const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const;
+        const std::string &name, bool ownership, StringBuilder &sb, const std::string &prefix) const;
 
     virtual void EmitJavaWriteVar(
         const std::string &parcelName, const std::string &name, StringBuilder &sb, const std::string &prefix) const;

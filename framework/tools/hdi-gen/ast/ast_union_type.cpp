@@ -278,13 +278,12 @@ void ASTUnionType::EmitCppUnMarshalling(const std::string &parcelName, const std
 }
 
 void ASTUnionType::EmitMemoryRecycle(
-    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
+    const std::string &name, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     if (ownership) {
-        std::string varName = isClient ? StringHelper::Format("*%s", name.c_str()) : name;
-        sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", varName.c_str());
-        sb.Append(prefix + TAB).AppendFormat("OsalMemFree(%s);\n", varName.c_str());
-        sb.Append(prefix + TAB).AppendFormat("%s = NULL;\n", varName.c_str());
+        sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("OsalMemFree(%s);\n", name.c_str());
+        sb.Append(prefix + TAB).AppendFormat("%s = NULL;\n", name.c_str());
         sb.Append(prefix).Append("}\n");
     }
 }

@@ -101,7 +101,7 @@ void CCodeEmitter::EmitErrorHandle(const AutoPtr<ASTMethod> &method, const std::
         for (size_t i = 0; i < method->GetParameterNumber(); i++) {
             AutoPtr<ASTParameter> param = method->GetParameter(i);
             AutoPtr<ASTType> paramType = param->GetType();
-            paramType->EmitMemoryRecycle(param->GetName(), isClient, true, sb, prefix + TAB);
+            paramType->EmitMemoryRecycle(param->GetName(), true, sb, prefix + TAB);
         }
         return;
     }

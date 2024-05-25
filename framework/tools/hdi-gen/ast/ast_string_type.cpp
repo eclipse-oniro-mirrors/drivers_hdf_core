@@ -213,7 +213,7 @@ void ASTStringType::EmitCppUnMarshalling(const std::string &parcelName, const st
 }
 
 void ASTStringType::EmitMemoryRecycle(
-    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
+    const std::string &name, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     sb.Append(prefix).AppendFormat("if (%s != NULL) {\n", name.c_str());
     sb.Append(prefix + TAB).AppendFormat("OsalMemFree(%s);\n", name.c_str());
