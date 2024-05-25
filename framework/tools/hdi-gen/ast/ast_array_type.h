@@ -76,7 +76,7 @@ public:
     void EmitCppUnMarshalling(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, bool emitType, unsigned int innerLevel = 0) const override;
 
-    void EmitMemoryRecycle(const std::string &name, bool isClient, bool ownership, StringBuilder &sb,
+    void EmitMemoryRecycle(const std::string &name, bool ownership, StringBuilder &sb,
         const std::string &prefix) const override;
 
     void EmitJavaWriteVar(const std::string &parcelName,
