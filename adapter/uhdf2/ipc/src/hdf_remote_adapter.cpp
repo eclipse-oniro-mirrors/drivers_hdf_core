@@ -232,7 +232,7 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
     if (holder != nullptr) {
         holder->service_.target = nullptr;
         holder->service_.dispatcher = nullptr;
-        holder->descriptor_ = NULL;
+        holder->descriptor_.clear();
         holder->remote_ = nullptr;
         delete holder;
     }
