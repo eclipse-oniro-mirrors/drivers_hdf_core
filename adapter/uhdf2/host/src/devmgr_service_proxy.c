@@ -28,7 +28,6 @@
 int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hostId, struct IDevHostService *service)
 {
     int status = HDF_FAILURE;
-    int32_t attachRes = HDF_FAILURE;
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     struct HdfSBuf *reply = HdfSbufTypedObtain(SBUF_IPC);
     struct HdfRemoteDispatcher *dipatcher = NULL;
@@ -52,18 +51,13 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
             goto FINISHED;
         }
         status = dipatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE_HOST, data, reply);
-        if (!HdfSbufReadInt32(reply, &attachRes)) {
-            // reply will be empty when AttachDeviceHost succeed
-            attachRes = HDF_SUCCESS;
-        }
-        HDF_LOGD("current attachRes is %{public}d", attachRes);
+        HDF_LOGD("current status is %{public}d", status);
         HdfSbufFlush(data);
         HdfSbufFlush(reply);
         timeout--;
         usleep(sleepInterval);
-    } while ((status != HDF_SUCCESS || attachRes != HDF_SUCCESS) && (timeout > 0));
-    HDF_LOGI("Attach device host dispatch finish, status is %{public}d, attachRes is %{public}d",
-        status, attachRes);
+    } while ((status != HDF_SUCCESS) && (timeout > 0));
+    HDF_LOGI("Attach device host dispatch finish, status is %{public}d", status);
 FINISHED:
     HdfSbufRecycle(reply);
     HdfSbufRecycle(data);
