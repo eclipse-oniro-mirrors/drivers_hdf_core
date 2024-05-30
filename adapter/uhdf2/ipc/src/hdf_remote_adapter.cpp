@@ -40,7 +40,7 @@ HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
 int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
-    HDF_LOGI("OnRemoteRequest enter");
+    HDF_LOGD("OnRemoteRequest enter");
     (void)option;
     if (service_ == nullptr) {
         HDF_LOGE("service_ is nullptr");

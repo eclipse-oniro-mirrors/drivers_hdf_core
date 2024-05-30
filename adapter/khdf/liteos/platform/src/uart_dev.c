@@ -194,8 +194,6 @@ static int32_t UartDevIoctl(struct file *filep, int32_t cmd, unsigned long arg)
     }
     return ret;
 }
-extern void poll_wait(struct file *filp,
-                      wait_queue_head_t *wait_address, poll_table *p);
 static int uartdev_poll(struct file *filep, poll_table *table)
 {
     struct UartHost *host = NULL;
