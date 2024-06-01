@@ -58,6 +58,7 @@
                             "ipc/hdf_dump_reg.h",
                             "ipc/hdf_remote_service.h",
                             "ipc/hdf_sbuf_ipc.h",
+			    "ipc/iproxy_broker.h",
                             "core/hdf_object.h"
                         ],
                         "header_base": "//drivers/hdf_core/interfaces/inner_api"
