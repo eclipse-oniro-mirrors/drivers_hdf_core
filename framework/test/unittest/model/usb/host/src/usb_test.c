@@ -395,7 +395,7 @@ static int32_t CheckHostSdkIfOpenInterface001(void)
 
 static int32_t CheckHostSdkIfCloseInterface001(void)
 {
-    int32_t ret = UsbCloseInterface(g_acm->data_devHandle);
+    int32_t ret = UsbCloseInterface(g_acm->data_devHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
@@ -415,7 +415,7 @@ static int32_t CheckHostSdkIfOpenInterface002(void)
 
 static int32_t CheckHostSdkIfCloseInterface002(void)
 {
-    int32_t ret = UsbCloseInterface(g_acm->int_devHandle close);
+    int32_t ret = UsbCloseInterface(g_acm->int_devHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
@@ -435,7 +435,7 @@ static int32_t CheckHostSdkIfOpenInterface003(void)
 
 static int32_t CheckHostSdkIfCloseInterface003(void)
 {
-    int32_t ret = UsbCloseInterface(g_acm->ctrl_devHandle);
+    int32_t ret = UsbCloseInterface(g_acm->ctrl_devHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
@@ -468,7 +468,7 @@ static int32_t CheckHostSdkIfOpenInterface005(void)
 static int32_t CheckHostSdkIfCloseInterface005(void)
 {
     for (int32_t i = 0; i < USB_LOOP_NUM; i++) {
-        int32_t ret = UsbCloseInterface(g_acmDataDevHandle[i]);
+        int32_t ret = UsbCloseInterface(g_acmDataDevHandle[i], false);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
@@ -1658,27 +1658,27 @@ static int32_t CheckHostSdkIfAddInterface003(void)
 
 static int32_t CheckHostSdkIfCloseInterface006(void)
 {
-    int32_t ret = UsbCloseInterface(g_ecmIntDevHandle);
+    int32_t ret = UsbCloseInterface(g_ecmIntDevHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    ret = UsbCloseInterface(g_ecmDataDevHandle);
+    ret = UsbCloseInterface(g_ecmDataDevHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    ret = UsbCloseInterface(g_acm->ctrl_devHandle);
+    ret = UsbCloseInterface(g_acm->ctrl_devHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    ret = UsbCloseInterface(g_acm->int_devHandle);
+    ret = UsbCloseInterface(g_acm->int_devHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
-    ret = UsbCloseInterface(g_acm->data_devHandle);
+    ret = UsbCloseInterface(g_acm->data_devHandle, false);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
