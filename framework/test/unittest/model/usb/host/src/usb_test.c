@@ -415,7 +415,7 @@ static int32_t CheckHostSdkIfOpenInterface002(void)
 
 static int32_t CheckHostSdkIfCloseInterface002(void)
 {
-    int32_t ret = UsbCloseInterface(g_acm->int_devHandle);
+    int32_t ret = UsbCloseInterface(g_acm->int_devHandle close);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
