@@ -65,12 +65,12 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
-    HDF_LOGI("~HdfRemoteServiceStub");
+    HDF_LOGD("~HdfRemoteServiceStub");
 }
 
 HdfRemoteServiceHolder::~HdfRemoteServiceHolder()
 {
-    HDF_LOGI("~HdfRemoteServiceHolder");
+    HDF_LOGD("~HdfRemoteServiceHolder");
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
