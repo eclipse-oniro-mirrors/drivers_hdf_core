@@ -114,7 +114,7 @@ void JavaClientProxyCodeEmitter::EmitProxyImpl(StringBuilder &sb)
     EmitProxyConstants(sb, TAB);
     sb.Append("\n");
     sb.Append(TAB).AppendFormat(
-        "private static final HiLogLabel TAG = new HiLogLabel(HiLog.LOG_CORE, 0xD001510, \"%s\");\n",
+        "private static final HiLogLabel TAG = new HiLogLabel(HiLog.LOG_CORE, 0xD002510, \"%s\");\n",
         interfaceFullName_.c_str());
     sb.Append(TAB).Append("private final IRemoteObject remote;\n");
     sb.Append(TAB).Append("private static final int ERR_OK = 0;\n");
