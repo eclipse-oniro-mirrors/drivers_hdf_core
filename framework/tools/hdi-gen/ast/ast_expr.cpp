@@ -98,7 +98,7 @@ std::string ASTNumExpr::Dump(const std::string &prefix)
     sb.AppendFormat("%s", value_.c_str());
 
     if (isParenExpr) {
-        sb.Append("(");
+        sb.Append(")");
     }
 
     return sb.ToString();
@@ -115,7 +115,7 @@ std::string ASTEnumExpr::Dump(const std::string &prefix)
     sb.AppendFormat("%s", value_.c_str());
 
     if (isParenExpr) {
-        sb.Append("(");
+        sb.Append(")");
     }
 
     return sb.ToString();
