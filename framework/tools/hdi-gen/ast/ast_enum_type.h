@@ -110,7 +110,7 @@ public:
         return members_[index];
     }
 
-    inline bool HasMember(const std::string memberName)
+    inline bool HasMember(const std::string &memberName)
     {
         for (size_t i = 0; i < members_.size(); i++) {
             if (members_[i]->GetName() == memberName) {
