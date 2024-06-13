@@ -11,6 +11,8 @@
 #include <devmgr_hdi.h>
 #include <osal_time.h>
 #include <servmgr_hdi.h>
+#include <idevmgr_hdi.h>
+#include <iproxy_broker.h>
 
 using namespace testing::ext;
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
@@ -204,4 +206,23 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
         // expect:confirm that the service is unavailable
         ASSERT_TRUE(sampleService == nullptr);
     }
+}
+
+HWTEST_F(DevmgrUeventTest, HdiProxyBrokerTest001, TestSize.Level1)
+{
+    class IFooInterface : public OHOS::HDI::HdiBase {
+    public:
+        IFooInterface() = default;
+        virtual ~IFooInterface() = default;
+    };
+    class FooInterfaceProxy : public OHOS::HDI::IProxyBroker<IFooInterface> {
+    public:
+        explicit FooInterfaceProxy(const OHOS::sptr<OHOS::IRemoteObject> &impl) : IProxyBroker<IFooInterface>(impl) {}
+        ~FooInterfaceProxy() {}
+    };
+    FooInterfaceProxy *proxy = new FooInterfaceProxy(nullptr);
+    OHOS::sptr<OHOS::IRemoteObject> remote = proxy->AsObject();
+    ASSERT_EQ(remote, nullptr);
+    OHOS::sptr<IFooInterface> intf = proxy->AsInterface();
+    ASSERT_NE(intf, nullptr);
 }

@@ -194,9 +194,11 @@ ohos_unittest("hdf_adapter_uhdf_test_uevent") {
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
+      "hdf_core:libhdf_ipc_adapter",
       "hdf_core:libhdf_utils",
       "hdf_core:libhdi",
       "hilog:libhilog",
+      "ipc:ipc_single",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]
