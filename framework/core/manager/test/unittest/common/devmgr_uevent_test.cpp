@@ -215,12 +215,12 @@ HWTEST_F(DevmgrUeventTest, HdiProxyBrokerTest001, TestSize.Level1)
         IFooInterface() = default;
         virtual ~IFooInterface() = default;
     };
-    class FooIntterfaceProxy : public OHOS::HDI::IProxyBroker<IFooInterface> {
+    class FooInterfaceProxy : public OHOS::HDI::IProxyBroker<IFooInterface> {
     public:
-        explicit FooIntterfaceProxy(const OHOS::sptr<OHOS::IRemoteObject> &impl) : IProxyBroker<IFooInterface>(impl) {}
-        ~FooIntterfaceProxy() {}
+        explicit FooInterfaceProxy(const OHOS::sptr<OHOS::IRemoteObject> &impl) : IProxyBroker<IFooInterface>(impl) {}
+        ~FooInterfaceProxy() {}
     };
-    FooIntterfaceProxy *proxy = new FooIntterfaceProxy(nullptr);
+    FooInterfaceProxy *proxy = new FooInterfaceProxy(nullptr);
     OHOS::sptr<OHOS::IRemoteObject> remote = proxy->AsObject();
     ASSERT_EQ(remote, nullptr);
     OHOS::sptr<IFooInterface> intf = proxy->AsInterface();
