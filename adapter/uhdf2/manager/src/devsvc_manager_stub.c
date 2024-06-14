@@ -36,8 +36,10 @@ static int32_t AddServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfAddServiceCheck(callingPid, servName) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"add service\" permission to %{public}s", callingPid, servName);
+    const char *callingSid = HdfRemoteGetCallingSid();
+    if (HdfAddServiceCheck(callingSid, servName) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"add service\" permission to %{public}s",
+            callingSid, callingPid, servName);
         return HDF_ERR_NOPERM;
     }
 #endif
@@ -48,8 +50,10 @@ static int32_t GetServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfGetServiceCheck(callingPid, servName) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"get service\" permission to %{public}s", callingPid, servName);
+    const char *callingSid = HdfRemoteGetCallingSid();
+    if (HdfGetServiceCheck(callingSid, servName) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"get service\" permission to %{public}s",
+            callingSid, callingPid, servName);
         return HDF_ERR_NOPERM;
     }
 #endif
@@ -61,8 +65,9 @@ static int32_t ListServicePermCheck(void)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfListServiceCheck(callingPid) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"list service\" permission", callingPid);
+    const char *callingSid = HdfRemoteGetCallingSid();
+    if (HdfListServiceCheck(callingSid) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"list service\" permission", callingSid, callingPid);
         return HDF_ERR_NOPERM;
     }
 #endif

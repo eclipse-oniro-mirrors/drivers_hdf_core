@@ -430,6 +430,11 @@ pid_t HdfRemoteGetCallingUid(void)
     return OHOS::IPCSkeleton::GetCallingUid();
 }
 
+const char *HdfRemoteGetCallingSid(void)
+{
+    return OHOS::IPCSkeleton::GetCallingSid().c_str();
+}
+
 int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
     int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
