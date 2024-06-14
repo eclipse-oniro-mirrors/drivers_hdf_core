@@ -42,6 +42,7 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/ipc:libhdf_ipc_adapter",
       "$hdf_adapter_path/uhdf2/manager:hdf_devmgr",
       "$hdf_adapter_path/uhdf2/manager:hdf_devmgr.cfg",
+      "$hdf_adapter_path/uhdf2/manager:hdf_devmgr.para.dac",
       "$hdf_adapter_path/uhdf2/manager:hdf_pnp.cfg",
       "$hdf_adapter_path/uhdf2/platform:libhdf_platform",
       "$hdf_adapter_path/uhdf2/pub_utils:libpub_utils",
