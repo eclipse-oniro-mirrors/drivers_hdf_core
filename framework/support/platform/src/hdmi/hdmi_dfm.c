@@ -91,7 +91,7 @@ static void HdmiDfmBaseInfoInit(struct HdmiDfmInfo *info, const struct HdmiDfmPa
     info->minFrlCharRate = info->minBitRate / 18;
     info->maxFrlCharRate = info->maxBitRate / 18;
 
-    /* 5. Determine the Total FRL Characters per line Period.  */
+    /* 5. Determine the Total FRL Characters per line Period.  the coefficient for converting from Mbps to bps. 1000000000000*/
     info->minFrlCharsPerLine = (uint32_t)(info->lineMinTime * info->minFrlCharRate * param->laneNum / 1000000000000);
     info->maxFrlCharsPerLine = (uint32_t)(info->lineMaxTime * info->maxFrlCharRate * param->laneNum / 1000000000000);
 
