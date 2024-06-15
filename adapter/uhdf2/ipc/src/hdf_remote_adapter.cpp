@@ -302,7 +302,7 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     }
     {
         OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
-        OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
+            OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
         OHOS::sptr<OHOS::IRemoteObject> remote = holder->remote_;
         OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(remote.GetRefPtr());
