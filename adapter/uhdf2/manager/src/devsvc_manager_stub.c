@@ -36,10 +36,18 @@ static int32_t AddServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfAddServiceCheck(callingPid, servName) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"add service\" permission to %{public}s", callingPid, servName);
+    char *callingSid = HdfRemoteGetCallingSid();
+    if (callingSid == NULL) {
+        HDF_LOGE("%{public}s: sid of %{public}d is null", __func__, callingPid);
         return HDF_ERR_NOPERM;
     }
+    if (HdfAddServiceCheck(callingSid, servName) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"add service\" permission to %{public}s",
+            callingSid, callingPid, servName);
+        free(callingSid);
+        return HDF_ERR_NOPERM;
+    }
+    free(callingSid);
 #endif
     return HDF_SUCCESS;
 }
@@ -48,10 +56,18 @@ static int32_t GetServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfGetServiceCheck(callingPid, servName) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"get service\" permission to %{public}s", callingPid, servName);
+    char *callingSid = HdfRemoteGetCallingSid();
+    if (callingSid == NULL) {
+        HDF_LOGE("%{public}s: sid of %{public}d is null", __func__, callingPid);
         return HDF_ERR_NOPERM;
     }
+    if (HdfGetServiceCheck(callingSid, servName) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"get service\" permission to %{public}s",
+            callingSid, callingPid, servName);
+        free(callingSid);
+        return HDF_ERR_NOPERM;
+    }
+    free(callingSid);
 #endif
 
     return HDF_SUCCESS;
@@ -61,10 +77,17 @@ static int32_t ListServicePermCheck(void)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfListServiceCheck(callingPid) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"list service\" permission", callingPid);
+    char *callingSid = HdfRemoteGetCallingSid();
+    if (callingSid == NULL) {
+        HDF_LOGE("%{public}s: sid of %{public}d is null", __func__, callingPid);
         return HDF_ERR_NOPERM;
     }
+    if (HdfListServiceCheck(callingSid) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"list service\" permission", callingSid, callingPid);
+        free(callingSid);
+        return HDF_ERR_NOPERM;
+    }
+    free(callingSid);
 #endif
 
     return HDF_SUCCESS;
