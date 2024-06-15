@@ -174,7 +174,7 @@ pid_t HdfRemoteGetCallingUid(void);
  *
  * @return The caller's SID.
  */
-const char* HdfRemoteGetCallingSid(void);
+char* HdfRemoteGetCallingSid(void);
 
 /**
  * @brief Default command distribution for invoking ipc.
