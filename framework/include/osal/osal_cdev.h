@@ -15,10 +15,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#ifndef __user
-#define __user
-#endif
-
 struct OsalCdev;
 struct file;
 
