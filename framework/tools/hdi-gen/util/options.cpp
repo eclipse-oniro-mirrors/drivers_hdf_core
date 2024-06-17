@@ -180,12 +180,12 @@ std::string Options::CheckOutPutFile(const std::string &sourceFile)
     std::string realPath = File::AdapterRealPath(sourceFile);
     if (realPath.empty()) {
         Logger::E(TAG, "invalid idl file path:%s", sourceFile.c_str());
-        return;
+        return "";
     }
 
     if (!File::VerifyRealPath(realPath)) {
         Logger::E(TAG, "verify path failed, path:%s", realPath.c_str());
-        return;
+        return "";
     }
     return realPath;
 }
