@@ -24,6 +24,7 @@
 #include <linux/poll.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
+#include <linux/compiler.h>
 
 #endif /* OSAL_CDEV_ADAPTER_DEF_H */
 
