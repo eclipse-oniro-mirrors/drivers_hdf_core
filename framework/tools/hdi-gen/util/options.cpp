@@ -86,7 +86,7 @@ bool Options::Parse(int argc, char *argv[])
                 ret = AddPackagePath(optarg);
                 break;
             case 'o':
-                outPutFile = optarg;
+                outPutFile = CheckOutPutFile(optarg);
                 break;
             default:
                 doShowUsage = true;
@@ -173,6 +173,21 @@ void Options::AddSources(const std::string &sourceFile)
         return;
     }
     doCompile = true;
+}
+
+std::string Options::CheckOutPutFile(const std::string &sourceFile)
+{
+    std::string realPath = File::AdapterRealPath(sourceFile);
+    if (realPath.empty()) {
+        Logger::E(TAG, "invalid idl file path:%s", sourceFile.c_str());
+        return;
+    }
+
+    if (!File::VerifyRealPath(realPath)) {
+        Logger::E(TAG, "verify path failed, path:%s", realPath.c_str());
+        return;
+    }
+    return realPath;
 }
 
 void Options::AddSourcesByDir(const std::string &dir)
