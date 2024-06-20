@@ -1135,21 +1135,8 @@ static int32_t AudioUsbCtlGetMinMaxValSub(struct UsbMixerElemInfo *mixElemInfo)
     return HDF_SUCCESS;
 }
 
-static int32_t AudioUsbCtlGetMinMaxVal(
-    struct UsbMixerElemInfo *mixElemInfo, int32_t default_min, struct AudioKcontrol *kcontrol)
+static int32_t MixElemInfoGetMinMaxVal(struct UsbMixerElemInfo *mixElemInfo)
 {
-    /* for failsafe */
-    mixElemInfo->min = default_min;
-    mixElemInfo->max = mixElemInfo->min + 1;
-    mixElemInfo->res = USB_MIXER_DEF_RES_VAL;
-    mixElemInfo->dBMin = mixElemInfo->dBMax = 0;
-
-    if (mixElemInfo->valType == USB_MIXER_BOOLEAN || mixElemInfo->valType == USB_MIXER_INV_BOOLEAN) {
-        mixElemInfo->initialized = 1;
-    } else {
-        AudioUsbCtlGetMinMaxValSub(mixElemInfo);
-    }
-
     mixElemInfo->dBMin = (AudioUsbConvertSignedValue(mixElemInfo, mixElemInfo->min) * USB_DESCRIPTIONS_CONTAIN_100DB) /
         USB_DESCRIPTIONS_CONTAIN_256DB;
     mixElemInfo->dBMax = (AudioUsbConvertSignedValue(mixElemInfo, mixElemInfo->max) * USB_DESCRIPTIONS_CONTAIN_100DB) /
@@ -1178,8 +1165,25 @@ static int32_t AudioUsbCtlGetMinMaxVal(
             mixElemInfo->dBMin = mixElemInfo->dBMax = 0;
         }
     }
-
     return HDF_SUCCESS;
+}
+
+static int32_t AudioUsbCtlGetMinMaxVal(
+    struct UsbMixerElemInfo *mixElemInfo, int32_t default_min, struct AudioKcontrol *kcontrol)
+{
+    /* for failsafe */
+    mixElemInfo->min = default_min;
+    mixElemInfo->max = mixElemInfo->min + 1;
+    mixElemInfo->res = USB_MIXER_DEF_RES_VAL;
+    mixElemInfo->dBMin = mixElemInfo->dBMax = 0;
+
+    if (mixElemInfo->valType == USB_MIXER_BOOLEAN || mixElemInfo->valType == USB_MIXER_INV_BOOLEAN) {
+        mixElemInfo->initialized = 1;
+    } else {
+        AudioUsbCtlGetMinMaxValSub(mixElemInfo);
+    }
+    
+    return MixElemInfoGetMinMaxVal(mixElemInfo);
 }
 
 /* get a feature/mixer unit info */
