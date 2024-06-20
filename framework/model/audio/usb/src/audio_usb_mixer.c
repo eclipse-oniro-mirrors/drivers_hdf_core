@@ -1331,25 +1331,11 @@ static const struct AudioUsbFeatureControlInfo *AudioUsbGetFeatureControlInfo(in
     return NULL;
 }
 
-static int32_t AudioUsbFeatureCtlInit(struct UsbMixerInterface *mixer, struct AudioKcontrol **kcontrol,
-    struct UsbMixerElemInfo *mixElemInfo, struct AudioUsbFeatureControl *featureControl)
+static void MixElemGetInfo(struct UsbMixerInterface *mixer, struct UsbMixerElemInfo *mixElemInfo,
+    const struct AudioUsbFeatureControlInfo *ctlInfo, struct AudioUsbFeatureControl *featureControl)
 {
-    const struct AudioUsbFeatureControlInfo *ctlInfo = NULL;
     int32_t i;
     int32_t channel = 0;
-
-    AudioUsbMixerElemInitStd(&mixElemInfo->head, mixer, featureControl->unitId);
-    mixElemInfo->control = featureControl->control;
-    mixElemInfo->cmask = featureControl->ctlMask;
-
-    ctlInfo = AudioUsbGetFeatureControlInfo(featureControl->control);
-    if (ctlInfo == NULL) {
-        OsalMemFree(mixElemInfo->privateData);
-        OsalMemFree(mixElemInfo);
-        AUDIO_DEVICE_LOG_ERR("AudioUsbGetFeatureControlInfo failed.");
-        return HDF_FAILURE;
-    }
-
     if (mixer->protocol == UAC_VERSION_1) {
         mixElemInfo->valType = ctlInfo->type;
     } else { /* UAC_VERSION_2 */
@@ -1367,6 +1353,25 @@ static int32_t AudioUsbFeatureCtlInit(struct UsbMixerInterface *mixer, struct Au
         mixElemInfo->channels = channel;
         mixElemInfo->chReadOnly = featureControl->readOnlyMask;
     }
+}
+
+static int32_t AudioUsbFeatureCtlInit(struct UsbMixerInterface *mixer, struct AudioKcontrol **kcontrol,
+    struct UsbMixerElemInfo *mixElemInfo, struct AudioUsbFeatureControl *featureControl)
+{
+    const struct AudioUsbFeatureControlInfo *ctlInfo = NULL;
+
+    AudioUsbMixerElemInitStd(&mixElemInfo->head, mixer, featureControl->unitId);
+    mixElemInfo->control = featureControl->control;
+    mixElemInfo->cmask = featureControl->ctlMask;
+
+    ctlInfo = AudioUsbGetFeatureControlInfo(featureControl->control);
+    if (ctlInfo == NULL) {
+        OsalMemFree(mixElemInfo->privateData);
+        OsalMemFree(mixElemInfo);
+        AUDIO_DEVICE_LOG_ERR("AudioUsbGetFeatureControlInfo failed.");
+        return HDF_FAILURE;
+    }
+    MixElemGetInfo(mixer, mixElemInfo, ctlInfo, featureControl);
 
     if (mixElemInfo->channels == featureControl->readOnlyMask) {
         *kcontrol = &g_usbFeatureUnitCtlRo;
