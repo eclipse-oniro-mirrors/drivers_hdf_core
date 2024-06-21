@@ -1695,7 +1695,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
     /* get min/max values */
     AudioUsbCtlGetMinMaxVal(mixElemInfo, 0, NULL);
 
-    UsbBuildMixerUnitCtlInitKcontrol(mixElemInfo);
+    UsbBuildMixerUnitCtlInitKcontrol(kcontrol, mixElemInfo);
     len = AudioUsbCheckMappedName(map, kcontrol->name, KCTL_NAME_LEN);
     if (len == 0 && AudioUsbGetTermName(state->audioUsbDriver, usbAudioTerm, kcontrol->name, KCTL_NAME_LEN, 0) == 0) {
         (void)sprintf_s(kcontrol->name, KCTL_NAME_LEN, "Mixer Source %d", mixCtlParam->itemChannels + 1);
