@@ -1644,7 +1644,7 @@ static bool AudioUsbMixerBitmapOverflow(
     return ctlTem > hdrTem;
 }
 
-static void UsbBuildMixerUnitCtlInitKcontrol(struct UsbMixerElemInfo *mixElemInfo)
+static void UsbBuildMixerUnitCtlInitKcontrol(struct AudioKcontrol *kcontrol, struct UsbMixerElemInfo *mixElemInfo)
 {
     kcontrol = &g_usbFeatureUnitCtl;
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
