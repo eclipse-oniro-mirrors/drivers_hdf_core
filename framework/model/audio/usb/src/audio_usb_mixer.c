@@ -1710,7 +1710,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
         OsalMemFree(kcontrol->name);
         return;
     }
-    DListInsertHead(&kcontrol->list, &audioCard->controls); 
+    DListInsertHead(&kcontrol->list, &audioCard->controls);
 }
 
 static bool AudioUsbParseMixerUnitSub(int32_t itemChannels, struct UsbMixerBuild *state,
