@@ -61,7 +61,7 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
         return NULL;
     }
 
-    void *handle = dlopen(realPath, RTLD_LAZY);
+    void *handle = dlopen(moduleName, RTLD_LAZY);
     if (handle == NULL) {
         HDF_LOGE("get driver entry failed, %{public}s load fail, %{public}s", realPath, dlerror());
         OsalMemFree(driver);
