@@ -19,7 +19,6 @@
 #include "hdf_log.h"
 #include "osal_mem.h"
 #include "service_control.h"
-#include "osal_time.h"
 
 #define HDF_LOG_TAG driver_installer_full
 #define MAX_CMD_LEN 256
@@ -36,11 +35,9 @@ int DriverInstallerFullStartDeviceHost(uint32_t devHostId, const char* devHostNa
     return HDF_SUCCESS;
 }
 
-#define WAIT_DFX_SLEEP_TIME 1000 // ms
 int DriverInstallerFullStopDeviceHost(uint32_t devHostId, const char* devHostName)
 {
     int ret;
-    OsalMSleep(WAIT_DFX_SLEEP_TIME); // wait dfx catch faultlog
     ret = ServiceControlWithExtra(devHostName, STOP, NULL, 0);
     HDF_LOGI("%{public}s %{public}s %{public}d %{public}d", __func__, devHostName, devHostId, ret);
     return ret;
