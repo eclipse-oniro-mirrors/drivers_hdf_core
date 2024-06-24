@@ -1149,7 +1149,7 @@ static int32_t AudioUsbCtlGetMinMaxVal(
     } else {
         AudioUsbCtlGetMinMaxValSub(mixElemInfo);
     }
-    
+
     mixElemInfo->dBMin = (AudioUsbConvertSignedValue(mixElemInfo, mixElemInfo->min) * USB_DESCRIPTIONS_CONTAIN_100DB) /
         USB_DESCRIPTIONS_CONTAIN_256DB;
     mixElemInfo->dBMax = (AudioUsbConvertSignedValue(mixElemInfo, mixElemInfo->max) * USB_DESCRIPTIONS_CONTAIN_100DB) /
@@ -1344,7 +1344,7 @@ static int32_t AudioUsbFeatureCtlInit(struct UsbMixerInterface *mixer, struct Au
         AUDIO_DEVICE_LOG_ERR("AudioUsbGetFeatureControlInfo failed.");
         return HDF_FAILURE;
     }
-    
+
     if (mixer->protocol == UAC_VERSION_1) {
         mixElemInfo->valType = ctlInfo->type;
     } else { /* UAC_VERSION_2 */
