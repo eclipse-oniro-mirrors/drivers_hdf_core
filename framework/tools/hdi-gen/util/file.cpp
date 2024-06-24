@@ -339,5 +339,16 @@ size_t File::GetHashKey()
 
     return std::hash<std::string>()(fileStr.ToString());
 }
+
+bool File::VerifyRealPath(const std::string &path) {
+    if (path.empty()) {
+        return false;
+    }
+    if (path.find("hdi-gen") || path.find("hdf_core/interface")) {
+        return true;
+    }
+    Logger::E(TAG, "failed to Verify_file, path:%s", path.c_str());
+    return false;
+}
 } // namespace HDI
 } // namespace OHOS

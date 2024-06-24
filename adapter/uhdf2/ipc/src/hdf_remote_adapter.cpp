@@ -40,8 +40,10 @@ HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
 int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
+    HDF_LOGD("OnRemoteRequest enter");
     (void)option;
     if (service_ == nullptr) {
+        HDF_LOGE("service_ is nullptr");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -63,6 +65,12 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+    HDF_LOGD("~HdfRemoteServiceStub");
+}
+
+HdfRemoteServiceHolder::~HdfRemoteServiceHolder()
+{
+    HDF_LOGD("~HdfRemoteServiceHolder");
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
@@ -222,6 +230,9 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        holder->service_.target = nullptr;
+        holder->service_.dispatcher = nullptr;
+        holder->descriptor_.clear();
         holder->remote_ = nullptr;
         delete holder;
     }
@@ -293,6 +304,9 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
             OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+        OHOS::sptr<OHOS::IRemoteObject> remote = holder->remote_;
+        OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(remote.GetRefPtr());
+        stub->SetRequestSidFlag(true);
         int ret = saManager->AddSystemAbility(saId, holder->remote_);
         (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
         HDF_LOGI("add sa %{public}d, ret = %{public}s", saId, (ret == 0) ? "succ" : "fail");
@@ -417,6 +431,11 @@ pid_t HdfRemoteGetCallingPid(void)
 pid_t HdfRemoteGetCallingUid(void)
 {
     return OHOS::IPCSkeleton::GetCallingUid();
+}
+
+char *HdfRemoteGetCallingSid(void)
+{
+    return strdup(OHOS::IPCSkeleton::GetCallingSid().c_str());
 }
 
 int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,

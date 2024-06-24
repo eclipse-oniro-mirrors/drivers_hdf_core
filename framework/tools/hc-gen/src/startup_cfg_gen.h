@@ -24,6 +24,7 @@ struct HostInfo {
     std::string hostGID;
     std::string hostCritical;
     std::vector<std::string> initConfig;
+    std::vector<std::pair<std::string, std::string>> mallocOpt;
     uint32_t hostPriority;
     int32_t processPriority;
     int32_t threadPriority;
@@ -92,6 +93,9 @@ private:
     static void GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name);
 
     static void GetProcessPriority(const std::shared_ptr<AstObject> &term, HostInfo &hostData);
+
+    static void GetMallocOpt(const std::shared_ptr<AstObject> &hostInfo,
+        std::vector<std::pair<std::string, std::string>> &config);
 
     std::ofstream ofs_;
     std::string outFileName_;

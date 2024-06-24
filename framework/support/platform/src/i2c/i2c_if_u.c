@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -63,6 +63,7 @@ static struct I2cHandle *I2cHandleInstance(struct I2cManagerService *manager)
     if (handle->data == NULL || handle->reply == NULL) {
         HDF_LOGE("I2cHandleInstance: fail to obtain data or reply!");
         I2cHandleRelease(handle);
+        return NULL;
     }
     handle->i2cManager = manager;
     return handle;

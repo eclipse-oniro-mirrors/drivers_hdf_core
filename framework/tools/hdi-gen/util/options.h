@@ -160,6 +160,8 @@ private:
 
     void AddSources(const std::string &sourceFile);
 
+    std::string CheckOutPutFile(const std::string &sourceFile);
+
     void AddSourcesByDir(const std::string &dir);
 
     void SetOutDir(const std::string &dir);

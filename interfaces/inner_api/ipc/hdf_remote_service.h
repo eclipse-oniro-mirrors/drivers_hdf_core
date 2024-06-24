@@ -170,6 +170,13 @@ pid_t HdfRemoteGetCallingPid(void);
 pid_t HdfRemoteGetCallingUid(void);
 
 /**
+ * @brief Get the caller's SID.
+ *
+ * @return The caller's SID.
+ */
+char* HdfRemoteGetCallingSid(void);
+
+/**
  * @brief Default command distribution for invoking ipc.
  *
  * @param service Indicates the pointer to the service.

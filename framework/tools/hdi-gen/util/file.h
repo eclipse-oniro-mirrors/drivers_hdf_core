@@ -73,6 +73,8 @@ public:
 
     static std::set<std::string> FindFiles(const std::string &rootDir);
 
+    static bool VerifyRealPath(const std::string &path);
+
     size_t GetHashKey();
 
     static constexpr unsigned int READ = 0x1;
