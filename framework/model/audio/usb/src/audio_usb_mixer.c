@@ -1972,7 +1972,7 @@ static int32_t AudioUsbParseSelectorUnit(struct UsbMixerBuild *state, int32_t un
         OsalMemFree(mixElemInfo);
         return err;
     }
-    
+
     return UsbParseSelectorUnitInitKcontrol(state, desc, map, mixElemInfo);
 }
 
