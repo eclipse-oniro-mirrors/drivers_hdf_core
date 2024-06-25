@@ -39,6 +39,7 @@ HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
 int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
+    HDF_LOGD("OnRemoteRequest enter");
     (void)option;
     if (service_ == nullptr) {
         return HDF_ERR_INVALID_OBJECT;
@@ -62,6 +63,12 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+    HDF_LOGD("~HdfRemoteServiceStub");
+}
+
+HdfRemoteServiceHolder::~HdfRemoteServiceHolder()
+{
+    HDF_LOGD("~HdfRemoteServiceHolder");
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
@@ -221,6 +228,9 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        holder->service_.target = nullptr;
+        holder->service_.dispatcher = nullptr;
+        holder->descriptor_.clear();
         holder->remote_ = nullptr;
         delete holder;
     }
