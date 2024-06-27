@@ -236,12 +236,10 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
         auto remote = holder->remote_;
-        if (remote != nullptr) {
-            if (!remote->IsProxyObject()) {
-                HdfRemoteServiceStub *stub = dynamic_cast<HdfRemoteServiceStub *>(remote.GetRefPtr());
-                if (stub != nullptr) {
-                    stub->HdfRemoteStubClearHolder();
-                }
+        if (remote != nullptr && !remote->IsProxyObject()) {
+            HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(remote.GetRefPtr());
+            if (stub != nullptr) {
+                stub->HdfRemoteStubClearHolder();
             }
         }
         holder->service_.target = nullptr;
