@@ -63,6 +63,11 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     return ret;
 }
 
+void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
+{
+    service_ = nullptr;
+}
+
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
     HDF_LOGD("~HdfRemoteServiceStub");
@@ -230,6 +235,15 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        auto remote = holder->remote_;
+        if (remote != nullptr) {
+            if (!remote->IsProxyObject()) {
+                HdfRemoteServiceStub *stub = dynamic_cast<HdfRemoteServiceStub *>(remote.GetRefPtr());
+                if (stub != nullptr) {
+                    stub->HdfRemoteStubClearHolder();
+                }
+            }
+        }
         holder->service_.target = nullptr;
         holder->service_.dispatcher = nullptr;
         holder->descriptor_.clear();

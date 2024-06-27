@@ -34,6 +34,7 @@ public:
         OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option) override;
     ~HdfRemoteServiceStub();
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
+    void HdfRemoteStubClearHolder();
 private:
     struct HdfRemoteService *service_;
 };
