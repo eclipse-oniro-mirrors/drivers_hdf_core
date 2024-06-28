@@ -47,6 +47,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    std::shared_lock lock(mutex_);
     int ret = HDF_FAILURE;
     struct HdfSBuf *dataSbuf = ParcelToSbuf(&data);
     struct HdfSBuf *replySbuf = ParcelToSbuf(&reply);
@@ -65,6 +66,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
 {
+    std::unique_lock lock(mutex_);
     service_ = nullptr;
 }
 
