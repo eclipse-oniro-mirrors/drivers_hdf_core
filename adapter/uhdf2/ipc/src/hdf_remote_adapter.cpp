@@ -42,16 +42,16 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 {
     HDF_LOGD("OnRemoteRequest enter");
     (void)option;
-    if (service_ == nullptr) {
-        HDF_LOGE("service_ is nullptr");
-        return HDF_ERR_INVALID_OBJECT;
-    }
 
-    std::shared_lock lock(mutex_);
     int ret = HDF_FAILURE;
     struct HdfSBuf *dataSbuf = ParcelToSbuf(&data);
     struct HdfSBuf *replySbuf = ParcelToSbuf(&reply);
 
+    std::shared_lock lock(mutex_);
+    if (service_ == nullptr) {
+        HDF_LOGE("service_ is nullptr");
+        return HDF_ERR_INVALID_OBJECT;
+    }
     struct HdfRemoteDispatcher *dispatcher = service_->dispatcher;
     if (dispatcher != nullptr && dispatcher->Dispatch != nullptr) {
         ret = dispatcher->Dispatch(reinterpret_cast<HdfRemoteService *>(service_->target), code, dataSbuf, replySbuf);
