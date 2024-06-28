@@ -22,6 +22,7 @@
 
 #include "hdf_remote_adapter_if.h"
 #include "hdf_remote_service.h"
+#include <shared_mutex>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,8 +35,10 @@ public:
         OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option) override;
     ~HdfRemoteServiceStub();
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
+    void HdfRemoteStubClearHolder();
 private:
     struct HdfRemoteService *service_;
+    std::shared_mutex mutex_;
 };
 
 class HdfDeathNotifier : public OHOS::IRemoteObject::DeathRecipient {

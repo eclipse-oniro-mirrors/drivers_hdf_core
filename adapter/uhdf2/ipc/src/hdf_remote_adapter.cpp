@@ -41,14 +41,16 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 {
     HDF_LOGD("OnRemoteRequest enter");
     (void)option;
-    if (service_ == nullptr) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
 
     int ret = HDF_FAILURE;
     struct HdfSBuf *dataSbuf = ParcelToSbuf(&data);
     struct HdfSBuf *replySbuf = ParcelToSbuf(&reply);
 
+    std::shared_lock lock(mutex_);
+    if (service_ == nullptr) {
+        HDF_LOGE("service_ is nullptr");
+        return HDF_ERR_INVALID_OBJECT;
+    }
     struct HdfRemoteDispatcher *dispatcher = service_->dispatcher;
     if (dispatcher != nullptr && dispatcher->Dispatch != nullptr) {
         ret = dispatcher->Dispatch(reinterpret_cast<HdfRemoteService *>(service_->target), code, dataSbuf, replySbuf);
@@ -59,6 +61,12 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     HdfSbufRecycle(dataSbuf);
     HdfSbufRecycle(replySbuf);
     return ret;
+}
+
+void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
+{
+    std::unique_lock lock(mutex_);
+    service_ = nullptr;
 }
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
@@ -228,6 +236,13 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        auto remote = holder->remote_;
+        if (remote != nullptr && !remote->IsProxyObject()) {
+            HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(remote.GetRefPtr());
+            if (stub != nullptr) {
+                stub->HdfRemoteStubClearHolder();
+            }
+        }
         holder->service_.target = nullptr;
         holder->service_.dispatcher = nullptr;
         holder->descriptor_.clear();
