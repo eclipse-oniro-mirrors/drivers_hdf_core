@@ -18,6 +18,7 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/fs.h>
+#include <linux/version.h>
 #include "osal_cdev.h"
 #include "hdf_log.h"
 #include "osal_file.h"
@@ -58,7 +59,11 @@ static const char* StringRfindChar(const char* str, char chr)
     return NULL;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
 static char* hdfDevnode(struct device* dev, umode_t* mode)
+#else
+static char* hdfDevnode(const struct device* dev, unsigned short* mode)
+#endif
 {
     (void)mode;
     return kasprintf(GFP_KERNEL, "hdf/%s", dev_name(dev));

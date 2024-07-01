@@ -173,7 +173,12 @@ static int32_t SpiAdapterTransferOneMsg(struct SpiCntlr *cntlr, struct SpiMsg *m
     transfer->len = msg->len;
     transfer->speed_hz = msg->speed;
     transfer->cs_change = msg->keepCs; // yes! cs_change will keep the last cs active ...
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     transfer->delay_usecs = msg->delayUs;
+#else
+    transfer->delay.value = msg->delayUs;
+    transfer->delay.unit = SPI_DELAY_UNIT_USECS;
+#endif
     spi_message_add_tail(transfer, &xfer);
 
     ret = spi_sync(dev->priv, &xfer);
@@ -235,8 +240,15 @@ static int32_t SpiAdapterTransferDifferent(struct SpiCntlr *cntlr, struct SpiMsg
             transfer[i].speed_hz = msg[i].speed;
         if (msg[i].keepCs != 0)
             transfer[i].cs_change = msg[i].keepCs;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         if (msg[i].delayUs != 0)
             transfer[i].delay_usecs = msg[i].delayUs;
+#else
+        if (msg[i].delayUs != 0) {
+            transfer[i].delay.value = msg[i].delayUs;
+            transfer[i].delay.unit = SPI_DELAY_UNIT_USECS;
+        }
+#endif
         spi_message_add_tail(&transfer[i], &xfer);
     }
 

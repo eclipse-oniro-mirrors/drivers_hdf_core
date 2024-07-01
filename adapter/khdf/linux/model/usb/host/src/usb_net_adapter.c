@@ -26,7 +26,11 @@
 #endif
 
 #include <net/ip.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
 #include <stddef.h>
+#else
+#include <linux/stddef.h>
+#endif
 #include "osal_mem.h"
 #include "securec.h"
 
@@ -116,8 +120,13 @@ static void RxComplete(WorkStruct *work)
         stats64->tx_packets, stats64->tx_bytes);
     
     flags = u64_stats_update_begin_irqsave(&stats64->syncp);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     stats64->rx_packets++;
     stats64->rx_bytes += usbNet->rxLen;
+#else
+    u64_stats_inc(&stats64->rx_packets);
+    u64_stats_add(&stats64->rx_bytes, usbNet->rxLen);
+#endif
     u64_stats_update_end_irqrestore(&stats64->syncp, flags);
 
     HARCH_NET_INFO_PRINT("rx_complete stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
@@ -544,8 +553,13 @@ static void TxComplete(WorkStruct *work)
         stats64->tx_packets, stats64->tx_bytes);
 
     flags = u64_stats_update_begin_irqsave(&stats64->syncp);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     stats64->tx_packets++;
     stats64->tx_bytes += usbNet->txLen;
+#else
+    u64_stats_inc(&stats64->tx_packets);
+    u64_stats_add(&stats64->tx_bytes, usbNet->txLen);
+#endif
     u64_stats_update_end_irqrestore(&stats64->syncp, flags);
 
     HARCH_NET_INFO_PRINT ("tx_complete stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
