@@ -72,23 +72,20 @@ OHOS::sptr<OHOS::IRemoteObject> ObjectCollector::GetOrNewObject(
     if (interface == nullptr) {
         return nullptr;
     }
-    mutex_.lock();
+
 RETRY:
+    std::lock_guard<std::mutex> lock(mutex_);
     auto it = interfaceObjectCollector_.find(interface.GetRefPtr());
     if (it != interfaceObjectCollector_.end()) {
         if (it->second->GetSptrRefCount() == 0) {
             // may object is releasing, yield to sync
-            mutex_.unlock();
             OsalMSleep(1);
-            mutex_.lock();
             goto RETRY;
         }
-        mutex_.unlock();
         return it->second;
     }
     sptr<IRemoteObject> object = NewObjectLocked(interface, interfaceName);
     interfaceObjectCollector_[interface.GetRefPtr()] = object.GetRefPtr();
-    mutex_.unlock();
     return object;
 }
 
