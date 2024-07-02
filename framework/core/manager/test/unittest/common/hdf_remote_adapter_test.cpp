@@ -104,6 +104,10 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
     ASSERT_TRUE(ret > 0);
     ret = HdfRemoteGetCallingUid();
     ASSERT_TRUE(ret >= 0);
+#ifdef WITH_SELINUX
+    char *callingSid = HdfRemoteGetCallingSid();
+    ASSERT_TRUE(callingSid != nullptr);
+#endif
 }
 
 /*

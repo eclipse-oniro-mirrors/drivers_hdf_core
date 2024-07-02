@@ -318,9 +318,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
             OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+#ifdef WITH_SELINUX
         OHOS::sptr<OHOS::IRemoteObject> remote = holder->remote_;
         OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(remote.GetRefPtr());
         stub->SetRequestSidFlag(true);
+#endif
         int ret = saManager->AddSystemAbility(saId, holder->remote_);
         (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
         HDF_LOGI("add sa %{public}d, ret = %{public}s", saId, (ret == 0) ? "succ" : "fail");
