@@ -301,16 +301,18 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         const int32_t waitTimes = 50;
         const int32_t sleepInterval = 20000;
-        int32_t timeout = waitTimes;
-        while (saManager == nullptr && (timeout > 0)) {
-            HDF_LOGI("waiting for samgr...");
-            usleep(sleepInterval);
+        for (uint32_t cnt = 1; cnt <= waitTimes; ++cnt) {
+            HDF_LOGI("waiting for samgr... %{public}d", cnt);
             saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-            timeout--;
+            if (saManager != nullptr) {
+                HDF_LOGI("GetSystemAbilityManager success");
+                break;
+            }
+            HDF_LOGI("GetSystemAbilityManager failed, retry");
+            usleep(sleepInterval);
         }
-
         if (saManager == nullptr) {
-            HDF_LOGE("failed to get sa manager, waiting timeot");
+            HDF_LOGE("failed to get sa manager, waiting timeout");
             return HDF_FAILURE;
         }
     }
