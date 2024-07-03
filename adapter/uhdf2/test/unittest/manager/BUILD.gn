@@ -159,6 +159,9 @@ ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
   } else {
     external_deps = [ "hilog:libhilog" ]
   }
+  if (build_selinux) {
+    cflags = [ "-DWITH_SELINUX" ]
+  }
 }
 module_output_path = "hdf_core/shared"
 ohos_unittest("hdf_adapter_uhdf_test_core_shared") {
