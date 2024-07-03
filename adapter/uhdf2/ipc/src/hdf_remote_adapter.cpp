@@ -301,7 +301,7 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         const int32_t waitTimes = 50;
         const int32_t sleepInterval = 20000;
-        for (int32_t cnt = 1; cnt <= waitTimes; ++cnt) {
+        for (uint32_t cnt = 1; cnt <= waitTimes; ++cnt) {
             HDF_LOGI("waiting for samgr... %{public}d", cnt);
             saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (saManager != nullptr) {
