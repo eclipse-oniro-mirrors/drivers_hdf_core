@@ -84,8 +84,8 @@ static bool AddAttrInNode(const char *start, struct DeviceResourceNode *parentNo
 static int32_t ParseByteCode(const char *treeStart, int32_t offset, char **treeMem,
     struct TreeStack **treeStack, int32_t *treeLayerOrMemLen)
 {
-    if (**treeMem == NULL) {
-        HDF_LOGE("params invalid **treeMem");
+    if (treeMem == NULL) {
+        HDF_LOGE("params invalid treeMem");
         return HDF_ERR_INVALID_PARAM;
     }
     int32_t termOffset = HcsGetNodeOrAttrLength(treeStart + offset);

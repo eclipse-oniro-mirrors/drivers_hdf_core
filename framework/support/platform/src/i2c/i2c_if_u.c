@@ -71,8 +71,8 @@ static struct I2cHandle *I2cHandleInstance(struct I2cManagerService *manager)
 
 static int32_t I2cHandleSbufCheckResize(struct HdfSBuf **sbuf)
 {
-    if (**sbuf == NULL) {
-        HDF_LOGE("params invalid **sbuf");
+    if (sbuf == NULL ) {
+        HDF_LOGE("params invalid sbuf");
         return HDF_ERR_INVALID_PARAM;
     }
     struct HdfSBuf *buf = *sbuf;

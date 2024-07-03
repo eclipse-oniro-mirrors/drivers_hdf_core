@@ -67,7 +67,7 @@ static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
         }
     }
 
-    if (*devid == NULL) {
+    if (devid == NULL) {
         HDF_LOGE("params invalid *devid");
         return HDF_ERR_INVALID_PARAM;
     }
