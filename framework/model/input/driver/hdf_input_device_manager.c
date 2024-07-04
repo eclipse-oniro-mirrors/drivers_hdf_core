@@ -57,6 +57,7 @@ static struct HdfDeviceObject *HidRegisterHdfDevice(InputDevice *inputDev)
         HDF_LOGE("%s: snprintf_s failed", __func__);
         return NULL;
     }
+    HDF_LOGE("test_%s: enter devName=%s, devType=%u, devId=%u", __func__, inputDev->devName, inputDev->devType, inputDev->devId);
 
     hdfDev = HdfDeviceObjectAlloc(g_inputManager->hdfDevObj, moduleName);
     if (hdfDev == NULL) {
