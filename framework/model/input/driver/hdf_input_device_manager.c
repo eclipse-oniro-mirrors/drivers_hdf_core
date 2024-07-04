@@ -38,6 +38,7 @@ static bool IsHidDevice(InputDevice *inputDev)
         return true;
 #ifdef CONFIG_ARCH_ROCKCHIP
     } else if (strncmp(inputDev->devName, "hid-powerkey", strlen("hid-powerkey")) == 0) {
+        HDF_LOGE("test_%s: enter def CONFIG_ARCH_ROCKCHIP", __func__);
         return true;
 #endif
     }
@@ -110,11 +111,11 @@ static int32_t CreateDeviceNode(InputDevice *inputDev)
 {
     static bool existNonHid = false ;
     if (IsHidDevice(inputDev)) {
-        if (!existNonHid) {
-            CacheHid(inputDev);
-            HDF_LOGI("%s: is first hid dev add cache, devId is %d ", __func__, inputDev->devId);
-            return HDF_SUCCESS;
-        }
+        // if (!existNonHid) {
+        //     CacheHid(inputDev);
+        //     HDF_LOGI("%s: is first hid dev add cache, devId is %d ", __func__, inputDev->devId);
+        //     return HDF_SUCCESS;
+        // }
         HDF_LOGI("%s: prepare to register hdf device", __func__);
         inputDev->hdfDevObj = HidRegisterHdfDevice(inputDev);
         if (inputDev->hdfDevObj == NULL) {
@@ -334,6 +335,7 @@ int32_t RegisterInputDevice(InputDevice *inputDev)
         HDF_LOGE("%s: dev manager is null or initialized failed", __func__);
         return HDF_FAILURE;
     }
+    HDF_LOGE("test_%s: enter devName=%s, devType=%u, devId=%u", __func__, inputDev->devName, inputDev->devType, inputDev->devId);
 
     OsalMutexLock(&g_inputManager->mutex);
     ret = AllocDeviceID(inputDev);

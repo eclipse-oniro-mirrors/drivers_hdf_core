@@ -52,6 +52,7 @@ static bool HaveHidCache(void)
 
 static void LoadCachedHid(void)
 {
+    HDF_LOGE("test_%s: start", __func__);
     int32_t i = 0;
     int32_t ret;
     if (!HaveHidCache()) {
@@ -242,8 +243,10 @@ void* HidRegisterHdfInputDev(HidInfo *info)
     }
 
     if (InputDriverLoaded()) {
+        HDF_LOGE("test_%s: DoRegisterInputDev", __func__);
         DoRegisterInputDev(inputDev);
     } else {
+        HDF_LOGE("test_%s: CacheHid", __func__);
         CacheHid(inputDev);
     }
     return inputDev;
