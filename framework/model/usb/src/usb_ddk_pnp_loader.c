@@ -1031,7 +1031,7 @@ int32_t UsbDdkPnpLoaderEventReceived(void *usbPnpManagerPtr, uint32_t id, struct
             break;
     }
 
-    HDF_LOGI("%s:%d ret=%d DONE", __func__, __LINE__, ret);
+    HDF_LOGD("%s:%d ret=%d DONE", __func__, __LINE__, ret);
 
     return ret;
 }
