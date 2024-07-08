@@ -57,7 +57,6 @@ static struct HdfDeviceObject *HidRegisterHdfDevice(InputDevice *inputDev)
         HDF_LOGE("%s: snprintf_s failed", __func__);
         return NULL;
     }
-    HDF_LOGE("test_%s: enter devName=%s, devType=%u, devId=%u", __func__, inputDev->devName, inputDev->devType, inputDev->devId);
 
     hdfDev = HdfDeviceObjectAlloc(g_inputManager->hdfDevObj, moduleName);
     if (hdfDev == NULL) {
@@ -109,21 +108,13 @@ static void HotPlugNotify(const InputDevice *inputDev, uint32_t status)
 
 static int32_t CreateDeviceNode(InputDevice *inputDev)
 {
-    static bool existNonHid = false ;
     if (IsHidDevice(inputDev)) {
-        if (!existNonHid) {
-            CacheHid(inputDev);
-            HDF_LOGI("%s: is first hid dev add cache, devId is %d ", __func__, inputDev->devId);
-            return HDF_SUCCESS;
-        }
         HDF_LOGI("%s: prepare to register hdf device", __func__);
         inputDev->hdfDevObj = HidRegisterHdfDevice(inputDev);
         if (inputDev->hdfDevObj == NULL) {
             return HDF_DEV_ERR_NO_DEVICE;
         }
         inputDev->hdfDevObj->priv = (void *)inputDev;
-    } else {
-        existNonHid = true ;
     }
 
     HDF_LOGI("%s: create node succ, devId is %d ", __func__, inputDev->devId);
@@ -335,6 +326,7 @@ int32_t RegisterInputDevice(InputDevice *inputDev)
         HDF_LOGE("%s: dev manager is null or initialized failed", __func__);
         return HDF_FAILURE;
     }
+    HDF_LOGI("%s: enter devName=%s, devType=%u", __func__, inputDev->devName, inputDev->devType);
 
     OsalMutexLock(&g_inputManager->mutex);
     ret = AllocDeviceID(inputDev);

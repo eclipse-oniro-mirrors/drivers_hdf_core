@@ -52,9 +52,15 @@ static bool HaveHidCache(void)
 
 static void LoadCachedHid(void)
 {
-    HDF_LOGE("test_%s: start", __func__);
+    HDF_LOGI("%s: start", __func__);
     int32_t i = 0;
     int32_t ret;
+    static bool repeatLoadCache = false;
+    if (repeatLoadCache) {
+        HDF_LOGE("%s: no need repeat load cache", __func__);
+        return;
+    }
+    repeatLoadCache = true;
     if (!HaveHidCache()) {
         HDF_LOGI("%s: exit", __func__);
         return;
@@ -222,6 +228,7 @@ static void DoRegisterInputDev(InputDevice* inputDev)
 
 void CacheHid(InputDevice* inputDev)
 {
+    HDF_LOGI("%s: Cache hid device", __func__);
     int32_t i = 0;
     while ((i < MAX_INPUT_DEV_NUM) && (cachedHid[i] != NULL)) {
         i++;
@@ -242,7 +249,9 @@ void* HidRegisterHdfInputDev(HidInfo *info)
         return NULL;
     }
 
+    HDF_LOGI("%s: enter devName=%s, devType=%u", __func__, info->devName, info->devType);
     if (InputDriverLoaded()) {
+        LoadCachedHid();
         DoRegisterInputDev(inputDev);
     } else {
         CacheHid(inputDev);
@@ -313,12 +322,9 @@ void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t 
 
 static int32_t HdfHIDDriverInit(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: Hid adapter init", __func__);
     (void)device;
-    static bool cachedHidRegistered = false;
-    if (!cachedHidRegistered) {
-        cachedHidRegistered = true;
-        LoadCachedHid();
-    }
+    LoadCachedHid();
     return HDF_SUCCESS;
 }
 
