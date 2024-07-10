@@ -173,6 +173,10 @@ static int32_t DevMgrUeventParseMatchKey(char *subStr, struct DListHead *matchKe
         HDF_LOGE("%{public}s OsalMemCalloc matchKey failed", __func__);
         return HDF_FAILURE;
     }
+    if (matchKey->value == NULL || matchKey->key == NULL) {
+        HDF_LOGE("%{public}s OsalMemCalloc matchKey->value or matchKey->key failed", __func__);
+        return HDF_FAILURE;
+    }
     DListHeadInit(&matchKey->entry);
 
     if (DevMgrUeventParseKeyValue(subStr, matchKey, KEY_VALUE_DELIMITER) == HDF_SUCCESS) {
@@ -248,6 +252,10 @@ static int32_t DevMgrUeventParseRule(char *line)
     struct DevMgrUeventRuleCfg *ruleCfg = (struct DevMgrUeventRuleCfg *)OsalMemCalloc(sizeof(*ruleCfg));
     if (ruleCfg == NULL) {
         HDF_LOGE("%{public}s OsalMemCalloc ruleCfg failed", __func__);
+        return HDF_FAILURE;
+    }
+    if (ruleCfg->serviceName == NULL) {
+        HDF_LOGE("%{public}s OsalMemCalloc ruleCfg->serviceName failed", __func__);
         return HDF_FAILURE;
     }
     DListHeadInit(&ruleCfg->matchKeyList);
