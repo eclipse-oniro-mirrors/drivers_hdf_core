@@ -117,8 +117,7 @@ struct HdfDeviceInfo *DeviceAttributeDeserialize(struct HdfSBuf *sbuf)
     }
 
     if (attribute->deviceMatchAttr == NULL) {
-        HDF_LOGE("OsalMemCalloc failed, attribute->deviceMatchAttr is null");
-        return NULL;
+        HDF_LOGW("OsalMemCalloc failed, attribute->deviceMatchAttr is null");
     }
 
     if (!HdfSbufReadUint32(sbuf, &attribute->deviceId) || !HdfSbufReadUint16(sbuf, &attribute->policy)) {
