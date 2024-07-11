@@ -82,10 +82,10 @@ RETRY:
             OsalMSleep(1);
             goto RETRY;
         }
-        return it->second;
+        return it->second.GetRefPtr();
     }
     sptr<IRemoteObject> object = NewObjectLocked(interface, interfaceName);
-    interfaceObjectCollector_[interface.GetRefPtr()] = object.GetRefPtr();
+    interfaceObjectCollector_[interface.GetRefPtr()] = object;
     return object;
 }
 
