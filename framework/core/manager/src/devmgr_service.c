@@ -277,7 +277,7 @@ static int DevmgrServiceDetachDevice(struct IDevmgrService *inst, devid_t devid)
     }
     tokenClntNode = HdfSListSearch(&hostClnt->devices, devid, HdfSListHostSearchDeviceTokenComparer);
     if (tokenClntNode == NULL) {
-        HDF_LOGE("devmgr detach device %{public}x not found", devid);
+        HDF_LOGE("devmgr detach device %x not found", devid);
         return HDF_DEV_ERR_NO_DEVICE;
     }
     tokenClnt = CONTAINER_OF(tokenClntNode, struct DeviceTokenClnt, node);
