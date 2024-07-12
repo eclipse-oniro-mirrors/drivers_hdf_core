@@ -330,6 +330,7 @@ void CppServiceStubCodeEmitter::EmitStubConstructorImpl(StringBuilder &sb, const
     sb.Append(prefix).AppendFormat(
         "%s::~%s()\n", EmitDefinitionByInterface(interface_, stubName_).c_str(), stubName_.c_str());
     sb.Append(prefix).Append("{\n");
+    sb.Append(prefix + TAB).Append("HDF_LOGI(\"%{public}s enter\", __func__);\n");
     sb.Append(prefix + TAB).Append("ObjectCollector::GetInstance().RemoveObject(impl_);\n");
     sb.Append(prefix).Append("}\n");
 }
