@@ -111,8 +111,8 @@ int HdfDeviceDetach(struct IHdfDevice *devInst, struct HdfDeviceNode *devNode)
 
     device = CONTAINER_OF(devInst, struct HdfDevice, super);
     if (DEVICEID(device->deviceId) != DEVICEID(devNode->devId)) {
-        HDF_LOGE("%{public}s: device %x detach unknown devnode %x",
-            __func__, device->deviceId, devNode->devId);
+        HDF_LOGE("%{public}s: device detach unknown devnode ",
+            __func__);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
@@ -143,7 +143,7 @@ static int HdfDeviceDetachWithDevid(struct IHdfDevice *device, devid_t devid)
     struct HdfDevice *dev = CONTAINER_OF(device, struct HdfDevice, super);
     struct HdfDeviceNode *devNode = HdfDeviceGetDeviceNode(device, devid);
     if (devNode == NULL) {
-        HDF_LOGE("detach device node %x not in device %x", devid, dev->deviceId);
+        HDF_LOGE("devNode is NULL");
         return HDF_DEV_ERR_NO_DEVICE;
     }
 

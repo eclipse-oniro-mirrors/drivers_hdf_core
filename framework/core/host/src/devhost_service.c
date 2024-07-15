@@ -47,7 +47,7 @@ static struct HdfDevice *DevHostServiceQueryOrAddDevice(struct DevHostService *i
 {
     struct HdfDevice *device = DevHostServiceFindDevice(inst, deviceId);
     if (device == NULL) {
-        HDF_LOGD("%{public}s can't find device %d, try to create", __func__, deviceId);
+        HDF_LOGD("%{public}s can't find device, try to create", __func__);
         device = HdfDeviceNewInstance();
         if (device == NULL) {
             HDF_LOGE("Dev host service failed to create driver instance");
@@ -55,7 +55,7 @@ static struct HdfDevice *DevHostServiceQueryOrAddDevice(struct DevHostService *i
         }
         device->deviceId = MK_DEVID(inst->hostId, deviceId, 0);
         DListInsertHead(&device->node, &inst->devices);
-        HDF_LOGD("%{public}s add device %d complete", __func__, deviceId);
+        HDF_LOGD("%{public}s add device complete", __func__);
     }
     return device;
 }
@@ -76,12 +76,12 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
 
     device = DevHostServiceQueryOrAddDevice(hostService, DEVICEID(deviceInfo->deviceId));
     if (device == NULL || device->super.Attach == NULL) {
-        HDF_LOGE("failed to add device %d, device or Attach func is null", deviceInfo->deviceId);
+        HDF_LOGE("failed to add device, device or Attach func is null");
         return HDF_DEV_ERR_NO_DEVICE;
     }
     devNode = device->super.GetDeviceNode(&device->super, deviceInfo->deviceId);
     if (devNode != NULL) {
-        HDF_LOGE("failed to add device %d, device already exist", deviceInfo->deviceId);
+        HDF_LOGE("failed to add device, device already exist");
         return HDF_ERR_DEVICE_BUSY;
     }
     driver = driverLoader->GetDriver(deviceInfo->moduleName);
@@ -93,7 +93,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
 
     devNode = HdfDeviceNodeNewInstance(deviceInfo, driver);
     if (devNode == NULL) {
-        HDF_LOGE("failed to add device %d, create devNode failed", deviceInfo->deviceId);
+        HDF_LOGE("failed to add device, create devNode failed");
         driverLoader->ReclaimDriver(driver);
         return HDF_DEV_ERR_NO_MEMORY;
     }
@@ -103,11 +103,11 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     devNode->driver = driver;
     ret = device->super.Attach(&device->super, devNode);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to add device %d, attach devNode failed", deviceInfo->deviceId);
+        HDF_LOGE("failed to add device, attach devNode failed");
         HdfDeviceNodeFreeInstance(devNode);
         goto ERROR;
     }
-    HDF_LOGD("%{public}s add device %d success", __func__, deviceInfo->deviceId);
+    HDF_LOGD("%{public}s add device success", __func__);
     return HDF_SUCCESS;
 
 ERROR:
@@ -132,17 +132,17 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
 
     devNode = device->super.GetDeviceNode(&device->super, devId);
     if (devNode == NULL) {
-        HDF_LOGI("failed to del device %u, not exist", devId);
+        HDF_LOGI("failed to del device, not exist");
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
     if (device->super.Detach == NULL) {
-        HDF_LOGE("failed to del device %u, invalid device", devId);
+        HDF_LOGE("failed to del device, invalid device");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (device->super.Detach(&device->super, devNode) != HDF_SUCCESS) {
-        HDF_LOGE("failed to detach device %u", devId);
+        HDF_LOGE("failed to detach device");
         return HDF_FAILURE;
     }
     HdfDeviceNodeFreeInstance(devNode);
@@ -150,7 +150,7 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
     if (DListIsEmpty(&device->devNodes)) {
         DevHostServiceFreeDevice(hostService, device);
     }
-    HDF_LOGD("%{public}s add device %u success", __func__, devId);
+    HDF_LOGD("%{public}s add device success", __func__);
     return HDF_SUCCESS;
 }
 

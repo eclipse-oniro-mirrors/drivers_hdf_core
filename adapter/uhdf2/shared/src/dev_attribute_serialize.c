@@ -99,6 +99,10 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
             return false;
         }
         attribute->deviceMatchAttr = strdup(deviceMatchAttr);
+        if (attribute->deviceMatchAttr == NULL) {
+        HDF_LOGE("Read from sbuf failed, strdup deviceMatchAttr fail");
+        return false;
+        }
     }
 
     return true;

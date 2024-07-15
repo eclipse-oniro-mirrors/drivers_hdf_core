@@ -41,7 +41,6 @@ static int DispatchAddDevice(struct IDevHostService *serviceIf, struct HdfSBuf *
         HDF_LOGE("Dispatch failed, attribute is null");
         return HDF_FAILURE;
     }
-    HDF_LOGI("add device 0x%x", attribute->deviceId);
     int ret = serviceIf->AddDevice(serviceIf, attribute);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("Dispatch failed, add service failed and ret is %{public}d", ret);
@@ -63,7 +62,6 @@ static int DispatchDelDevice(struct IDevHostService *serviceIf, struct HdfSBuf *
         return HDF_FAILURE;
     }
 
-    HDF_LOGI("del device 0x%x", deviceId);
     int ret = serviceIf->DelDevice(serviceIf, deviceId);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("del service failed, ret is %{public}d", ret);
