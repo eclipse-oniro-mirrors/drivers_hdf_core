@@ -141,6 +141,7 @@ static struct HdfDeviceNode *HdfDeviceGetDeviceNode(struct IHdfDevice *device, d
 static int HdfDeviceDetachWithDevid(struct IHdfDevice *device, devid_t devid)
 {
     struct HdfDevice *dev = CONTAINER_OF(device, struct HdfDevice, super);
+    (void)dev;
     struct HdfDeviceNode *devNode = HdfDeviceGetDeviceNode(device, devid);
     if (devNode == NULL) {
         HDF_LOGE("devNode is NULL");
