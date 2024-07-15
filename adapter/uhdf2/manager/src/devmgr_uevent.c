@@ -143,6 +143,10 @@ static int32_t DevMgrUeventParseKeyValue(char *str, struct DevMgrMatchKey *match
     HDF_LOGD("key:%{public}s,value:[%{public}s]", str, value);
     matchKey->key = strdup(str);
     matchKey->value = strdup(value);
+    if (matchKey->key == NULL || matchKey->value == NULL) {
+        HDF_LOGE("invalid param : matchKey->key or matchKey->value");
+        return HDF_FAILURE;
+    }
 
     return HDF_SUCCESS;
 }
@@ -234,6 +238,10 @@ static int32_t DevMgrUeventParseHdfEvent(char *subStr, struct DevMgrUeventRuleCf
 
     HDF_LOGD("event:%{public}s:%{public}d\n", event, ruleCfg->action);
     ruleCfg->serviceName = strdup(event);
+    if (ruleCfg->serviceName == NULL) {
+        HDF_LOGE("ruleCfg->serviceName is NULL");
+        return HDF_FAILURE;
+    }
     if (DListGetCount(&ruleCfg->matchKeyList) == 0) {
         HDF_LOGE("parse failed, no match key");
         return HDF_FAILURE;
