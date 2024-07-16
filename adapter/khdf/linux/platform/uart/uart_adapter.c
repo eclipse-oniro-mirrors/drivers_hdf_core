@@ -20,6 +20,7 @@
 #include <asm/ioctls.h>
 #include <linux/serial.h>
 #include <linux/fs.h>
+#include <linux/version.h>
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
@@ -40,7 +41,9 @@ static int32_t UartAdapterInit(struct UartHost *host)
 {
     char name[UART_PATHNAME_LEN] = {0};
     struct file *fp = NULL;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterInit: host is null!");
@@ -49,15 +52,21 @@ static int32_t UartAdapterInit(struct UartHost *host)
     if (sprintf_s(name, UART_PATHNAME_LEN - 1, "/dev/%s%d", g_driverName, host->num) < 0) {
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     fp = filp_open(name, O_RDWR | O_NOCTTY | O_NDELAY, 0600); /* 0600 : file mode */
     if (IS_ERR(fp)) {
         HDF_LOGE("UartAdapterInit: filp_open %s fail!", name);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         set_fs(oldfs);
+#endif
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     host->priv = fp;
     return HDF_SUCCESS;
 }
@@ -65,19 +74,26 @@ static int32_t UartAdapterInit(struct UartHost *host)
 static int32_t UartAdapterDeInit(struct UartHost *host)
 {
     struct file *fp = NULL;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterDeInit: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
+
     fp = (struct file *)host->priv;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     if (!IS_ERR(fp) && fp) {
         filp_close(fp, NULL);
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     host->priv = NULL;
     return HDF_SUCCESS;
 }
@@ -88,7 +104,9 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
     int ret;
     struct file *fp = NULL;
     char *p = (char *)data;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
     uint32_t tmp = 0;
 
     if (host == NULL || host->priv == NULL || data == NULL || size == 0) {
@@ -97,8 +115,10 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
     }
 
     fp = (struct file *)host->priv;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     while (size >= tmp) {
         ret = vfs_read(fp, p + tmp, 1, &pos);
         if (ret < 0) {
@@ -107,7 +127,9 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
         }
         tmp++;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     return tmp;
 }
 
@@ -117,7 +139,9 @@ static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t s
     int ret;
     struct file *fp = NULL;
     char *p = (char *)data;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
 
     if (host == NULL || host->priv == NULL || data == NULL || size == 0) {
         HDF_LOGE("UartAdapterWrite: invalid parameters!");
@@ -125,33 +149,45 @@ static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t s
     }
 
     fp = (struct file *)host->priv;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     ret = vfs_write(fp, p, size, &pos);
     if (ret < 0) {
         HDF_LOGE("UartAdapterWrite: vfs_write fail, ret: %d!", ret);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         set_fs(oldfs);
+#endif
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     return HDF_SUCCESS;
 }
 
 static int UartAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long arg)
 {
     int ret = HDF_FAILURE;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
 
     if (fp == NULL) {
         HDF_LOGE("UartAdapterIoctlInner: fp is null!");
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     if (fp->f_op->unlocked_ioctl != NULL) {
         ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     return ret;
 }
 

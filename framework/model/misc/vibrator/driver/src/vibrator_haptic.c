@@ -324,7 +324,7 @@ int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
     return HDF_SUCCESS;
 }
 
-int32_t StopHaptic()
+int32_t StopHaptic(void)
 {
     int32_t ret;
     struct VibratorHapticData *hapticData = GetHapticData();
@@ -398,7 +398,7 @@ static void FreeHapticConfig(void)
     (void)OsalMutexUnlock(&hapticData->mutex);
 }
 
-int32_t DestroyVibratorHaptic()
+int32_t DestroyVibratorHaptic(void)
 {
     struct VibratorHapticData *hapticData = GetHapticData();
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(hapticData, HDF_FAILURE);

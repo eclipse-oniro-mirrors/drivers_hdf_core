@@ -17,7 +17,12 @@
 #include "osal_file.h"
 #include "osal_mem.h"
 #include "securec.h"
+#include <linux/version.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
 #include "stdarg.h"
+#else
+#include <linux/stdarg.h>
+#endif
 #include <asm/uaccess.h>
 #include <linux/fs.h>
 
@@ -112,7 +117,9 @@ static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t lengt
 {
     ssize_t ret;
     loff_t pos;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t org_fs;
+#endif
     struct file *fp = NULL;
 
     if (file == NULL || IS_ERR_OR_NULL(file->realFile) || string == NULL) {
@@ -121,11 +128,15 @@ static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t lengt
     }
     fp = (struct file *)file->realFile;
     pos = fp->f_pos;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     org_fs = get_fs();
     set_fs(KERNEL_DS);
+#endif
 
     ret = vfs_write(fp, string, length, &pos);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(org_fs);
+#endif
     if (ret < 0) {
         HDF_LOGE("TraceFileWrite: write file length %d fail, ret: %d!", length, ret);
         return HDF_FAILURE;
@@ -137,7 +148,9 @@ static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t lengt
 static ssize_t TraceFileRead(OsalFile *file, char *buf, uint32_t length)
 {
     ssize_t ret;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t org_fs;
+#endif
     loff_t pos;
     struct file *fp = NULL;
 
@@ -146,12 +159,16 @@ static ssize_t TraceFileRead(OsalFile *file, char *buf, uint32_t length)
         return HDF_ERR_INVALID_PARAM;
     }
     fp = (struct file *)file->realFile;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     org_fs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     pos = fp->f_pos;
 
     ret = vfs_read(fp, buf, length, &pos);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(org_fs);
+#endif
     if (ret < 0) {
         HDF_LOGE("TraceFileRead: read file length %d fail, ret: %d!", length, ret);
         return HDF_FAILURE;

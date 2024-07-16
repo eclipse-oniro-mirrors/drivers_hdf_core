@@ -98,7 +98,7 @@ void OsalMDelay(uint32_t ms)
 }
 EXPORT_SYMBOL(OsalMDelay);
 
-uint64_t OsalGetSysTimeMs()
+uint64_t OsalGetSysTimeMs(void)
 {
 	OsalTimespec time;
 
