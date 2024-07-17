@@ -26,6 +26,10 @@ group("hdf_framework_fuzztest") {
     "servmgr_c_fuzzer/listservicebyinterfacedesc_fuzzer:ListServiceByInterfaceDescFuzzTest",
     "servmgr_cpp_fuzzer/servstatlistenerstub_fuzzer:ServStatListenerStubFuzzTest",
     "servmgr_cpp_fuzzer/unregisterservicestatuslistener_fuzzer:UnregisterServiceStatusListenerFuzzTest",
+    "syscall_fuzzer/syscall_fuzzer:SyscallFuzzTest",
+    "uhdf2_hdi_fuzzer/collector_fuzzer:CollectionFuzzTest",
+    "uhdf2_ipc_fuzzer/ipc_fuzzer:HdfIpcFuzzTest",
+    "uhdf2_shared_fuzzer/shared_fuzzer:SharedFuzzTest",
     "uhdf2_utils_fuzzer/hdfxcollie_fuzzer:HdfXCollieFuzzTest",
     "uhdf2_utils_fuzzer/inner_api_utils_fuzzer:HdfInnerApiUtilsFuzzTest",
   ]

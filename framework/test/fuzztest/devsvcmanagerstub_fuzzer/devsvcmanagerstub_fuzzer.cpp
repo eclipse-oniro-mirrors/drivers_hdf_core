@@ -68,6 +68,7 @@ static bool DevsvcManagerFuzzTest(int32_t code, const uint8_t *data, size_t size
         HDF_LOGE("%{public}s:%{public}d: failed to get DevSvcManagerStub object", __func__, __LINE__);
         return false;
     }
+    instance->recipient.OnRemoteDied(nullptr, nullptr);
 
     struct HdfSBuf *dataBuf = HdfSbufTypedObtain(SBUF_IPC);
     if (dataBuf == nullptr) {
