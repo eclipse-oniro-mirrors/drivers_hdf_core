@@ -31,7 +31,7 @@ ohos_fuzztest("CollectionFuzzTest") {
 
   deps = [ 
     "../../../../../adapter/uhdf2/utils:libhdf_utils",
-    "hdf_uhdf_path/hdi:libhdi",
+    "../../../../../adapter/uhdf2/hdi:libhdi",
   ]
 
   external_deps = [
