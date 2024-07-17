@@ -43,7 +43,6 @@ ohos_fuzztest("SharedFuzzTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_single",
-    "init:libbegetutil",
   ]
 }
 
