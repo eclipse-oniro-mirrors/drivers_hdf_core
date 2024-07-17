@@ -29,9 +29,9 @@ ohos_fuzztest("CollectionFuzzTest") {
 
   sources = [ "collector_fuzzer.cpp" ]
 
-  deps = [ 
-    "../../../../../adapter/uhdf2/utils:libhdf_utils",
+  deps = [
     "../../../../../adapter/uhdf2/hdi:libhdi",
+    "../../../../../adapter/uhdf2/utils:libhdf_utils",
   ]
 
   external_deps = [
