@@ -26,10 +26,9 @@ static void CollectionFuzzTest(const uint8_t *data, size_t size)
     parcel.WriteBuffer(data, size);
     const std::u16string INTERFACE_NAME = OHOS::Str8ToStr16(parcel.ReadString());
     HDI::HdiBase *service = (HDI::HdiBase *)OsalMemCalloc(sizeof(HDI::HdiBase));
-    HDI::ObjectCollector *collector = (HDI::ObjectCollector *)OsalMemCalloc(sizeof(HDI::ObjectCollector));
-    collector->NewObject(service, INTERFACE_NAME);
-    collector->GetOrNewObject(service, INTERFACE_NAME);
-    collector->RemoveObject(service);
+    HDI::ObjectCollector::GetInstance().NewObject(service, INTERFACE_NAME);
+    HDI::ObjectCollector::GetInstance().GetOrNewObject(service, INTERFACE_NAME);
+    HDI::ObjectCollector::GetInstance().RemoveObject(service);
     OsalMemFree(service);
 }
 }

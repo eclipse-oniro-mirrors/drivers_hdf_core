@@ -22,7 +22,6 @@ ohos_fuzztest("SyscallFuzzTest") {
 
   include_dirs = [
     "$hdf_uhdf_path/manager/include",
-    "//commonlibrary/c_utils/base/include",
     "$hdf_framework_path/core/adapter/syscall/include",
     "$hdf_interfaces_path/inner_api/osal/shared",
   ]
