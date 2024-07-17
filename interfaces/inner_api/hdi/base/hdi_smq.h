@@ -466,7 +466,6 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
         if (ret == 0) {
             break;
         }
-        HDF_LOGE("failed to write %{public}zu, retry", count);
     }
 
     if (ret == 0) {
