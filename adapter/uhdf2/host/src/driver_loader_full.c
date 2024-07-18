@@ -27,32 +27,12 @@
 
 #define DRIVER_DESC "driverDesc"
 #define HDF_LOG_TAG driver_loader_full
-#ifdef __ARCH64__
-#define DRIVER_PATH HDF_LIBRARY_DIR"64/"
-#else
-#define DRIVER_PATH HDF_LIBRARY_DIR"/"
-#endif
 
 static struct DriverLoaderFull *g_fullLoader = NULL;
 
 struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
 {
-    char realPath[PATH_MAX] = {0};
-    char driverPath[PATH_MAX] = {0};
     if (moduleName == NULL) {
-        return NULL;
-    }
-
-    if (strcat_s(driverPath, sizeof(driverPath) - 1, DRIVER_PATH) != EOK) {
-        return NULL;
-    }
-
-    if (strcat_s(driverPath, (sizeof(driverPath) - 1 - sizeof(DRIVER_PATH)), moduleName) != EOK) {
-        return NULL;
-    }
-
-    if (realpath(driverPath, realPath) == NULL) {
-        HDF_LOGE("%{public}s no valid, errno:%{public}d", driverPath, errno);
         return NULL;
     }
 
@@ -63,14 +43,14 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
 
     void *handle = dlopen(moduleName, RTLD_LAZY);
     if (handle == NULL) {
-        HDF_LOGE("get driver entry failed, %{public}s load fail, %{public}s", realPath, dlerror());
+        HDF_LOGE("get driver handle, %{public}s dlopen failed, %{public}s", moduleName, dlerror());
         OsalMemFree(driver);
         return NULL;
     }
 
     struct HdfDriverEntry **driverEntry = (struct HdfDriverEntry **)dlsym(handle, DRIVER_DESC);
     if (driverEntry == NULL) {
-        HDF_LOGE("driver entry %{public}s dlsym failed", realPath);
+        HDF_LOGE("get driver entry %{public}s dlsym failed", moduleName);
         dlclose(handle);
         OsalMemFree(driver);
         return NULL;
