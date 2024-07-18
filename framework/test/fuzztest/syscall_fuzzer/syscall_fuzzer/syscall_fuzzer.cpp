@@ -42,19 +42,15 @@ static void SyscallFuzzTest(const uint8_t *data, size_t size)
             HdfIoServiceRecycle(serv);
         }
     }
-    OsalMemFree(listener);
-    HdfIoServiceRecycle(serv);
-    void *para = static_cast<void *>(data);
-    HdfDevEventListenTask(para);
-    struct HdfDevListenerThread *thread = reinterpret_cast<struct HdfDevListenerThread *>(data);
-    HdfDevEventReadAndDispatch(thread);
-    GetListenerCount(thread);
-    HdfAdapterStopListenIoctl(0);
-    HdfAdapterExitListenIoctl(0);
-    struct HdfSyscallAdapterGroup *group = reinterpret_cast<struct HdfSyscallAdapterGroup *>(data);
-    HdfIoServiceGroupThreadStart(group, 0);
+    HdfIoserviceGetListenerCount(serv);
+    struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
+    HdfIoServiceGroupAddService(group, serv);
     HdfIoserviceGroupGetListenerCount(group);
     HdfIoserviceGroupGetServiceCount(group);
+    HdfIoServiceGroupRemoveService(group, serv);
+    HdfIoServiceGroupRecycle(group);
+    OsalMemFree(listener);
+    HdfIoServiceRecycle(serv);
 }
 }
 
