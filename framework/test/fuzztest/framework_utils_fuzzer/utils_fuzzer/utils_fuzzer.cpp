@@ -18,8 +18,8 @@
 #include "hdf_sbuf_impl.h"
 
 namespace OHOS {
-    const int num = 23;
-    const static char *g_hdfSecStrArray[num] = {
+    const int NUM = 23;
+    const static char *g_hdfSecStrArray[NUM] = {
     "i2c",
     "spi",
     "gpio",
@@ -56,7 +56,7 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     Map testMap1;
     MapInit(&testMap);
     MapDelete(&testMap);
-    for (int i = 0; i < num; ++i) {
+    for (int i = 0; i < NUM; ++i) {
         MapSet(&testMap1, g_hdfSecStrArray[i], &i, sizeof(int *));
     }
     const char *name = "i2c";
@@ -105,7 +105,7 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     impl->readUint32(impl, &value5);
     impl->readUint16(impl, &value6);
     impl->readUint8(impl, &value7);
-    struct HdfSBufImpl *implCopy =impl->copy(impl);
+    struct HdfSBufImpl *implCopy = impl->copy(impl);
     impl->setDataSize(implCopy, size);
     impl->getDataSize(implCopy);
     impl->getCapacity(implCopy);

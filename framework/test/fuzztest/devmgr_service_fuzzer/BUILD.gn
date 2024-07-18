@@ -10,7 +10,7 @@ import("//build/test.gni")
 
 module_output_path = "hdf_core/hdf_core"
 
-hdf_framework_path = "../../../"
+hdf_framework_path = "../../../../framework"
 hdf_interfaces_path = "../../../../interfaces"
 hdf_manager_src_path = "../../../../adapter/uhdf2/manager/src"
 hdf_uhdf_path = "../../../../adapter/uhdf2"
