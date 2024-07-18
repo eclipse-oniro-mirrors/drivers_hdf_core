@@ -11,13 +11,12 @@
 #include "hdf_xcollie.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
-
 #define HDF_LOG_TAG hdfxcollie_fuzzer
 
 static int HdfXCollieFuzzTest()
 {
-    OHOS::HdfXCollie hdfXCollieObj("hdfxcollie_fuzzer", OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS,
-        nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
+    ::OHOS::HdfXCollie& inst = ::OHOS::HdfXCollie::GetInstance();
+    (void)inst;
     return HDF_SUCCESS;
 }
 
