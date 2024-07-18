@@ -7,11 +7,9 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/hdf_core/uhdf2_utils_fuzzer"
-
-hdf_framework_path = "../../../../../framework"
-hdf_uhdf_path = "../../../../../adapter/uhdf2"
 
 ohos_fuzztest("HdfXCollieFuzzTest") {
   module_out_path = module_output_path
@@ -29,6 +27,10 @@ ohos_fuzztest("HdfXCollieFuzzTest") {
     "c_utils:utils",
     "hilog:libhilog",
   ]
+
+  if (hicollie_enabled) {
+    defines = [ "HDFHICOLLIE_ENABLE" ]
+  }
 }
 
 group("fuzztest") {
