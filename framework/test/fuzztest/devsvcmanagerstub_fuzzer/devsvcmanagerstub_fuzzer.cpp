@@ -102,12 +102,10 @@ static bool DevsvcManagerFuzzTest(int32_t code, const uint8_t *data, size_t size
 
     HdfSbufRecycle(dataBuf);
     HdfSbufRecycle(replyBuf);
-    struct DevSvcManagerStub *stub = reinterpret_cast<DevSvcManagerStub *>(instance->remote->target);
-    struct IDevSvcManager *super = reinterpret_cast<IDevSvcManager *>(stub->super);
-    ReleaseServiceObject(instance, reinterpret_cast<HdfDeviceObject *>(data));
-    CheckServiceObjectValidNoLock(instance, reinterpret_cast<HdfDeviceObject *>(data));
+    ReleaseServiceObject(instance, reinterpret_cast<HdfDeviceObject *>(const_cast<uint8_t *>(data)));
+    CheckServiceObjectValidNoLock(instance, reinterpret_cast<HdfDeviceObject *>(const_cast<uint8_t *>(data)));
     CheckRemoteObjectValidNoLock(instance, instance->remote);
-    struct HdfDeathRecipient *recipient = reinterpret_cast<HdfDeathRecipient *>(data);
+    struct HdfDeathRecipient *recipient = reinterpret_cast<HdfDeathRecipient *>(const_cast<uint8_t *>(data));
     DevSvcManagerOnServiceDied(recipient, instance->remote);
     return true;
 }
