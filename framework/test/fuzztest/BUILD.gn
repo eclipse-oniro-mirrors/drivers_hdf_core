@@ -32,5 +32,7 @@ group("hdf_framework_fuzztest") {
     "uhdf2_shared_fuzzer/shared_fuzzer:SharedFuzzTest",
     "uhdf2_utils_fuzzer/hdfxcollie_fuzzer:HdfXCollieFuzzTest",
     "uhdf2_utils_fuzzer/inner_api_utils_fuzzer:HdfInnerApiUtilsFuzzTest",
+    "devmgr_service_fuzzer:ServiceFuzzTest",
+    "framework_utils_fuzzer/utils_fuzzer:HdfUtilsFuzzTest",
   ]
 }
