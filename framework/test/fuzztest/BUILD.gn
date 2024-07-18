@@ -12,9 +12,11 @@ group("hdf_framework_fuzztest") {
     "devmgr_c_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTest",
     "devmgr_cpp_fuzzer/loaddevice_fuzzer:LoadDeviceFuzzTest",
     "devmgr_cpp_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTest",
+    "devmgr_service_fuzzer:ServiceFuzzTest",
     "devmgrservicestub_fuzzer:DevmgrServiceStubFuzzTest",
     "devsvcmanagerstub_fuzzer:DevSvcManagerStubFuzzTest",
     "framework_fuzzer/hcs_fuzzer:HdfHcsFuzzTest",
+    "framework_utils_fuzzer/utils_fuzzer:HdfUtilsFuzzTest",
     "ioservice_fuzzer/ioserviceadapterobtain_fuzzer:IoserviceAdapterObtainFuzzTest",
     "ioservice_fuzzer/ioservicebind_fuzzer:IoserviceBindFuzzTest",
     "ioservice_fuzzer/ioservicegrouplisten_fuzzer:IoserviceGroupListenFuzzTest",
@@ -32,7 +34,5 @@ group("hdf_framework_fuzztest") {
     "uhdf2_shared_fuzzer/shared_fuzzer:SharedFuzzTest",
     "uhdf2_utils_fuzzer/hdfxcollie_fuzzer:HdfXCollieFuzzTest",
     "uhdf2_utils_fuzzer/inner_api_utils_fuzzer:HdfInnerApiUtilsFuzzTest",
-    "devmgr_service_fuzzer:ServiceFuzzTest",
-    "framework_utils_fuzzer/utils_fuzzer:HdfUtilsFuzzTest",
   ]
 }
