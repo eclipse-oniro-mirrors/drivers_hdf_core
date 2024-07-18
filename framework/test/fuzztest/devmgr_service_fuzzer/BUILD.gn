@@ -17,8 +17,7 @@ hdf_uhdf_path = "../../../../adapter/uhdf2"
 
 ohos_fuzztest("ServiceFuzzTest") {
   module_out_path = module_output_path
-  fuzz_config_file =
-      "$hdf_framework_path/test/fuzztest/devmgr_service_fuzzer"
+  fuzz_config_file = "$hdf_framework_path/test/fuzztest/devmgr_service_fuzzer"
 
   defines = [ "__USER__" ]
   include_dirs = [
