@@ -216,7 +216,8 @@ OUT:
 static void UsbPnpNotifyAddInterfaceInitInfo(struct UsbPnpDeviceInfo *deviceInfo, union UsbPnpDeviceInfoData infoData,
     struct UsbPnpNotifyMatchInfoTable *infoTable)
 {
-    for (uint8_t i = 0; i < deviceInfo->info.numInfos; i++) {
+    uint8_t i;
+    for (i = 0; i < deviceInfo->info.numInfos; i++) {
         if ((infoData.infoData->interfaceClass == deviceInfo->info.interfaceInfo[i].interfaceClass) &&
             (infoData.infoData->interfaceSubClass == deviceInfo->info.interfaceInfo[i].interfaceSubClass) &&
             (infoData.infoData->interfaceProtocol == deviceInfo->info.interfaceInfo[i].interfaceProtocol) &&
