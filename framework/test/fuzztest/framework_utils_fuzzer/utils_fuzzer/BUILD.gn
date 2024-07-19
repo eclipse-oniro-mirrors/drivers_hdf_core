@@ -32,7 +32,8 @@ ohos_fuzztest("HdfUtilsFuzzTest") {
   sources = [
     "$hdf_framework_path/utils/src/hdf_sbuf.c",
     "$hdf_framework_path/utils/src/hdf_sbuf_impl_raw.c",
-    "utils_fuzzer.cpp",
+    "$hdf_framework_path/utils/src/hdf_cstring.c",
+    "utils_fuzzer.cpp", 
   ]
 
   deps = [
