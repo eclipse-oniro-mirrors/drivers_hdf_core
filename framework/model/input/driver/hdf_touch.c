@@ -606,7 +606,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         ChipReset(chipDev);
     }
     CHECK_RETURN_VALUE(ret);
-
+	
 #if GTP_ESD_PROTECT
     gt1x_workqueue = create_singlethread_workqueue("gt1x_workthread");
     if (gt1x_workqueue == NULL) {
@@ -699,14 +699,8 @@ static int32_t DeviceBindDriver(ChipDevice *chipDev)
     return HDF_SUCCESS;
 }
 
-#if defined(CONFIG_ARCH_ROCKCHIP)
-static int DoRegisterTouchChipDevice(void * data)
+int32_t RegisterTouchChipDevice(ChipDevice *chipDev)
 {
-    ChipDevice *chipDev = (ChipDevice *) data;
-#else
-static int32_t DoRegisterTouchChipDevice(ChipDevice *chipDev)
-{
-#endif
     int32_t ret;
     InputDevice *inputDev = NULL;
     if ((chipDev == NULL) || (chipDev->chipCfg == NULL)) {
@@ -742,17 +736,6 @@ EXIT1:
 EXIT:
     chipDev->driver->device = NULL;
     return HDF_FAILURE;
-}
-
-int32_t RegisterTouchChipDevice(ChipDevice *chipDev)
-{
-#if defined(CONFIG_ARCH_ROCKCHIP)
-    struct task_struct *task;
-    task = kthread_run(DoRegisterTouchChipDevice, chipDev, "RegisterTouchChipDevicThread");
-    return HDF_SUCCESS;
-#else
-    return DoRegisterTouchChipDevice(chipDev);
-#endif
 }
 
 static int32_t TouchGetDevType(TouchDriver *driver, struct HdfSBuf *reply)
@@ -1255,4 +1238,5 @@ struct HdfDriverEntry g_hdfTouchEntry = {
     .Init = HdfTouchDriverProbe,
     .Release = HdfTouchDriverRelease,
 };
+
 HDF_INIT(g_hdfTouchEntry);
