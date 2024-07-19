@@ -81,10 +81,10 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     HdfSbufGetData(copy);
     struct HdfSBufImpl *impl = HdfSbufGetImpl(copy);
     if (impl == nullptr) {
-       impl = (struct HdfSBufImpl *)OsalMemCalloc(sizeof(struct HdfSBufImpl));
-    } 
+        impl = (struct HdfSBufImpl *)OsalMemCalloc(sizeof(struct HdfSBufImpl));
+    }
     HdfSbufMove(copy);
-    HdfSbufTransDataOwnership(copy);  
+    HdfSbufTransDataOwnership(copy);
     HdfSbufTypedObtainInplace(static_cast<uint32_t>(size), impl);
     HdfSbufFlush(copy);
     HdfSbufGetCapacity(copy);
