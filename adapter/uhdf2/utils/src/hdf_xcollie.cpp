@@ -20,6 +20,12 @@ namespace OHOS {
 #ifdef HDFHICOLLIE_ENABLE
 #else
 #define HDFXCOLLIE_SUCCESS 0
+HdfXCollie::HdfXCollie()
+{
+}
+HdfXCollie::~HdfXCollie()
+{
+}
 // NULL impl
 int HdfXCollie::SetTimer(const std::string &name, unsigned int timeout,
     std::function<void (void *)> func, void *arg, unsigned int flag)
