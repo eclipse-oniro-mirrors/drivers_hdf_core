@@ -61,13 +61,15 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     if (impl == nullptr) {
         impl = (struct HdfSBufImpl *)OsalMemCalloc(sizeof(struct HdfSBufImpl));
     }
-    HdfSbufMove(copy);
+    struct HdfSBuf *newCopy = HdfSbufMove(copy);
     HdfSbufTransDataOwnership(copy);
     HdfSbufTypedObtainInplace(static_cast<uint32_t>(size), impl);
+    impl->recycle(impl);
     HdfSbufFlush(copy);
     HdfSbufGetCapacity(copy);
     HdfSbufRecycle(sbuf);
     HdfSbufRecycle(copy);
+    HdfSbufRecycle(newCopy);
     sbuf = nullptr;
     copy = nullptr;
 }
