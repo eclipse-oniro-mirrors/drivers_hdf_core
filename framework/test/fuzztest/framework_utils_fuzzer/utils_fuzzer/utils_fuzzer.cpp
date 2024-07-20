@@ -21,48 +21,22 @@
 #include "osal_message.h"
 
 namespace OHOS {
-    const int NUM = 23;
-    const static char *g_hdfSecStrArray[NUM] = {
-    "i2c",
-    "spi",
-    "gpio",
-    "pinctl",
-    "clock",
-    "regulator",
-    "mipi",
-    "uart",
-    "sdio",
-    "mdio",
-    "apb",
-    "pcie",
-    "pcm",
-    "i2s",
-    "pwm",
-    "dma",
-    "efuse",
-    "flash",
-    "emmc",
-    "rtc",
-    "adc",
-    "wdt",
-    "i3c",
-    };
 static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
 {
     if (data == nullptr) {
         HDF_LOGE("%{public}s: data is nullptr!", __func__);
     }
-    Parcel parcel;
-    parcel.WriteBuffer(data, size);
-    const std::u16string INTERFACE_NAME = OHOS::Str8ToStr16(parcel.ReadString());
     Map testMap;
     Map testMap1;
     MapInit(&testMap);
+    MapInit(&testMap1);
     MapDelete(&testMap);
-    for (int i = 0; i < NUM; ++i) {
-        MapSet(&testMap1, g_hdfSecStrArray[i], &i, sizeof(int *));
-    }
+    int NUM = 0;
+    int NUM_NEXT = 1;
     const char *name = "i2c";
+    const char *name1 = "rtc";
+    MapSet(&testMap1, name, &NUM, sizeof(int *));
+    MapSet(&testMap1, name1, &NUM_NEXT, sizeof(int *));
     MapGet(&testMap1, "");
     MapGet(&testMap1, name);
     MapErase(&testMap1, "");
@@ -94,6 +68,8 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     HdfSbufGetCapacity(copy);
     HdfSbufRecycle(sbuf);
     HdfSbufRecycle(copy);
+    sbuf = nullptr;
+    copy = nullptr;
 }
 }
 
