@@ -31,12 +31,12 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     MapInit(&testMap);
     MapInit(&testMap1);
     MapDelete(&testMap);
-    int NUM = 0;
-    int NUM_NEXT = 1;
+    int num = 0;
+    int num1 = 1;
     const char *name = "i2c";
     const char *name1 = "rtc";
-    MapSet(&testMap1, name, &NUM, sizeof(int *));
-    MapSet(&testMap1, name1, &NUM_NEXT, sizeof(int *));
+    MapSet(&testMap1, name, &num, sizeof(int *));
+    MapSet(&testMap1, name1, &num1, sizeof(int *));
     MapGet(&testMap1, "");
     MapGet(&testMap1, name);
     MapErase(&testMap1, "");
