@@ -42,6 +42,14 @@ static void SyscallFuzzTest(const uint8_t *data, size_t size)
             HdfIoServiceRecycle(serv);
         }
     }
+    HdfIoserviceGetListenerCount(serv);
+    struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
+    HdfIoServiceGroupAddService(nullptr, nullptr);
+    HdfIoServiceGroupAddService(group, serv);
+    HdfIoserviceGroupGetListenerCount(group);
+    HdfIoserviceGroupGetServiceCount(group);
+    HdfIoServiceGroupRemoveService(group, serv);
+    HdfIoServiceGroupRecycle(group);
     OsalMemFree(listener);
     HdfIoServiceRecycle(serv);
 }

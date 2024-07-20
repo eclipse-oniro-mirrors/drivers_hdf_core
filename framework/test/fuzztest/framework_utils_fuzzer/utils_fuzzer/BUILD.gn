@@ -8,26 +8,33 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-module_output_path = "hdf_core/hdf_core/uhdf2_hdi_fuzzer"
+module_output_path = "hdf_core/hdf_core/framework_utils_fuzzer"
 
 hdf_framework_path = "../../../../../framework"
 hdf_uhdf_path = "../../../../../adapter/uhdf2"
 hdf_interfaces_path = "../../../../interfaces"
 
-ohos_fuzztest("CollectionFuzzTest") {
+ohos_fuzztest("HdfUtilsFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file =
-      "$hdf_framework_path/test/fuzztest/uhdf2_hdi_fuzzer/collector_fuzzer"
+      "$hdf_framework_path/test/fuzztest/framework_utils_fuzzer/utils_fuzzer"
 
   include_dirs = [
     "$hdf_uhdf_path/utils/include",
     "$hdf_uhdf_path/hdi/include",
     "$hdf_framework_path/include",
+    "$hdf_framework_path/utils/include",
     "$hdf_interfaces_path/inner_api/hdi",
+    "$hdf_interfaces_path/inner_api/utils",
   ]
 
-  sources = [ "collector_fuzzer.cpp" ]
+  sources = [
+    "$hdf_framework_path/utils/src/hdf_sbuf.c",
+    "$hdf_framework_path/utils/src/hdf_sbuf_impl_raw.c",
+    "$hdf_framework_path/utils/src/hdf_cstring.c",
+    "utils_fuzzer.cpp", 
+  ]
 
   deps = [
     "../../../../../adapter/uhdf2/hdi:libhdi",
@@ -43,5 +50,5 @@ ohos_fuzztest("CollectionFuzzTest") {
 
 group("fuzztest") {
   testonly = true
-  deps = [ ":CollectionFuzzTest" ]
+  deps = [ ":HdfUtilsFuzzTest" ]
 }

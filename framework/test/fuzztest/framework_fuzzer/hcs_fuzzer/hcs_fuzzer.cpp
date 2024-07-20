@@ -43,7 +43,7 @@ void FuncHcsGetBool(const uint8_t *data, size_t size)
     }
 
     struct DeviceResourceNode *node = (struct DeviceResourceNode *)data;
-    char *attrName = (char *)(data + sizeof(struct DeviceResourceNode));
+    const char *attrName = "nothing";
     HcsGetBool(node, attrName);
     return;
 }

@@ -6,9 +6,9 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef HDI_COLLECTION_FUZZER_H
-#define HDI_COLLECTION_FUZZER_H
+#ifndef DEVICE_MANAGER_START_FUZZER_H
+#define DEVICE_MANAGER_START_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "shared_fuzzer"
+#define FUZZ_PROJECT_NAME "devicemanagerstart_fuzzer"
 
-#endif // HDI_COLLECTION_FUZZER_H
+#endif // DEVICE_MANAGER_START_FUZZER_H

@@ -102,6 +102,8 @@ static bool DevsvcManagerFuzzTest(int32_t code, const uint8_t *data, size_t size
 
     HdfSbufRecycle(dataBuf);
     HdfSbufRecycle(replyBuf);
+    HdfObject *object = DevSvcManagerStubCreate();
+    DevSvcManagerStubRelease(object);
     return true;
 }
 
