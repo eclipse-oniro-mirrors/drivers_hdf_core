@@ -44,6 +44,7 @@ static void SyscallFuzzTest(const uint8_t *data, size_t size)
     }
     HdfIoserviceGetListenerCount(serv);
     struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
+    HdfIoServiceGroupAddService(nullptr, nullptr);
     HdfIoServiceGroupAddService(group, serv);
     HdfIoserviceGroupGetListenerCount(group);
     HdfIoserviceGroupGetServiceCount(group);

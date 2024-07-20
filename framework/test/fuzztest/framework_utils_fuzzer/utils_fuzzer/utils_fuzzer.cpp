@@ -18,6 +18,7 @@
 #include "hdf_sbuf_impl.h"
 #include "hdf_cstring.h"
 #include "hdf_thread_ex.h"
+#include "osal_message.h"
 
 namespace OHOS {
     const int NUM = 23;
@@ -67,6 +68,9 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     MapErase(&testMap1, "");
     MapErase(&testMap1, name);
     MapDelete(&testMap1);
+
+    struct HdfMessage *message = HdfMessageObtain(size);
+    HdfMessageDelete(reinterpret_cast<HdfSListNode *>(message));
 
     const char *str = "123";
     struct HdfCString *cstr = HdfCStringObtain(str);

@@ -70,8 +70,8 @@ void FuncOsalMemAllocAlign(const uint8_t *data, size_t size)
     if (mem != nullptr) {
         OsalMemFree(mem);
     }
-
-    sz = 4;
+    const size_t NUM = 4;
+    sz = NUM;
     mem = (uint8_t *)OsalMemAllocAlign(alignment, sz);
     if (mem != nullptr) {
         OsalMemFree(mem);
@@ -104,8 +104,9 @@ void FuncOsalSpinLock(const uint8_t *data, size_t size)
     OsalSpinInit(NULL);
     OsalSpinlock spinlock;
     OsalSpinInit(&spinlock);
+    const uint32_t SLEEPTIME = 2000;
     std::thread thrd([&spinlock] {
-        OsalMSleep(2000);
+        OsalMSleep(SLEEPTIME);
         OsalSpinUnlock(&spinlock);
     });
     OsalSpinLock(&spinlock);
