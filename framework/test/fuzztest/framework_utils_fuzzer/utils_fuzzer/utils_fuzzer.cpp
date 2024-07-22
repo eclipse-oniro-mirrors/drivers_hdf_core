@@ -21,48 +21,22 @@
 #include "osal_message.h"
 
 namespace OHOS {
-    const int NUM = 23;
-    const static char *g_hdfSecStrArray[NUM] = {
-    "i2c",
-    "spi",
-    "gpio",
-    "pinctl",
-    "clock",
-    "regulator",
-    "mipi",
-    "uart",
-    "sdio",
-    "mdio",
-    "apb",
-    "pcie",
-    "pcm",
-    "i2s",
-    "pwm",
-    "dma",
-    "efuse",
-    "flash",
-    "emmc",
-    "rtc",
-    "adc",
-    "wdt",
-    "i3c",
-    };
 static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
 {
     if (data == nullptr) {
         HDF_LOGE("%{public}s: data is nullptr!", __func__);
     }
-    Parcel parcel;
-    parcel.WriteBuffer(data, size);
-    const std::u16string INTERFACE_NAME = OHOS::Str8ToStr16(parcel.ReadString());
     Map testMap;
     Map testMap1;
     MapInit(&testMap);
+    MapInit(&testMap1);
     MapDelete(&testMap);
-    for (int i = 0; i < NUM; ++i) {
-        MapSet(&testMap1, g_hdfSecStrArray[i], &i, sizeof(int *));
-    }
+    int num = 0;
+    int num1 = 1;
     const char *name = "i2c";
+    const char *name1 = "rtc";
+    MapSet(&testMap1, name, &num, sizeof(int *));
+    MapSet(&testMap1, name1, &num1, sizeof(int *));
     MapGet(&testMap1, "");
     MapGet(&testMap1, name);
     MapErase(&testMap1, "");
@@ -87,13 +61,17 @@ static void HdfUtilsFuzzTest(const uint8_t *data, size_t size)
     if (impl == nullptr) {
         impl = (struct HdfSBufImpl *)OsalMemCalloc(sizeof(struct HdfSBufImpl));
     }
-    HdfSbufMove(copy);
+    struct HdfSBuf *newCopy = HdfSbufMove(copy);
     HdfSbufTransDataOwnership(copy);
     HdfSbufTypedObtainInplace(static_cast<uint32_t>(size), impl);
+    impl->recycle(impl);
     HdfSbufFlush(copy);
     HdfSbufGetCapacity(copy);
     HdfSbufRecycle(sbuf);
     HdfSbufRecycle(copy);
+    HdfSbufRecycle(newCopy);
+    sbuf = nullptr;
+    copy = nullptr;
 }
 }
 
