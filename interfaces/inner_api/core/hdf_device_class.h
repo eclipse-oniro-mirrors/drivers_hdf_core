@@ -42,7 +42,8 @@ typedef enum {
     DEVICE_CLASS_CAMERA   = 0x1 << 6,    /** Camera device */
     DEVICE_CLASS_USB      = 0x1 << 7,    /** USB device */
     DEVICE_CLASS_USERAUTH = 0x1 << 8,    /** User authentication device */
-    DEVICE_CLASS_MAX      = 0x1 << 9,    /** Maximum value of the device class */
+    DEVICE_CLASS_HIMEDIACOMM = 0X1 << 9, /** Mediacomm device */
+    DEVICE_CLASS_MAX      = 0x1 << 10,    /** Maximum value of the device class */
 } DeviceClass;
 
 #endif /* HDF_DEVICE_CLASS_H */
