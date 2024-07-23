@@ -33,12 +33,14 @@ ohos_unittest("hdf_adapter_uhdf_test_platform") {
   defines = [ "__USER__" ]
   sources = [
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_adc_test.cpp",
+    "$hdf_framework_path/support/platform/test/unittest/common/hdf_clock_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_gpio_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_i2c_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_pwm_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_rtc_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_uart_test.cpp",
     "$hdf_framework_path/test/unittest/platform/common/adc_test.c",
+    "$hdf_framework_path/test/unittest/platform/common/clock_test.c",
     "$hdf_framework_path/test/unittest/platform/common/gpio_test.c",
     "$hdf_framework_path/test/unittest/platform/common/i2c_test.c",
     "$hdf_framework_path/test/unittest/platform/common/pwm_test.c",
