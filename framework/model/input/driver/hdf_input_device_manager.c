@@ -13,7 +13,6 @@
 #include "hdf_device_object.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
-#include "hdf_hid_adapter.h"
 
 #define NODE_MODE            0660
 #define SERVICE_NAME_LEN     24
