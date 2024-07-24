@@ -226,7 +226,7 @@ static void DoRegisterInputDev(InputDevice* inputDev)
     }
 }
 
-void CacheHid(InputDevice* inputDev)
+static void CacheHid(InputDevice* inputDev)
 {
     HDF_LOGI("%s: Cache hid device", __func__);
     int32_t i = 0;
