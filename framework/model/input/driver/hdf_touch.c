@@ -247,7 +247,7 @@ static int32_t HandleSeqArray(SeqArray *src, PowerEventHandler eventHandler, Chi
         return HDF_FAILURE;
     }
     if ((pwrTiming.buf == NULL) || (pwrTiming.count == 0)) {
-        HDF_LOGE("%s: obj config is invalid", __func__);
+        HDF_LOGE("%s: pwrTiming config is invalid", __func__);
         return HDF_FAILURE;
     }
     for (i = 0; i < pwrTiming.count / PWR_CELL_LEN; i++) {
