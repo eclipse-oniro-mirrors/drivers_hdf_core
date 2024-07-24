@@ -353,7 +353,6 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     if (remoteService != NULL) {
         HdfSbufWriteRemoteService(reply, remoteService);
         ret = HDF_SUCCESS;
-        HDF_LOGI("StubGetService service %{public}s found", name);
     } else {
         HDF_LOGE("StubGetService %{public}s remoteService is null", name);
         ret = HDF_FAILURE;
