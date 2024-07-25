@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "devsvc_listener_holder.h": "c",
+        "hdf_remote_service.h": "c"
+    }
+}

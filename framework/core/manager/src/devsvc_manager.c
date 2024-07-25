@@ -122,7 +122,7 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
     }
     OsalMutexLock(&devSvcManager->mutex);
     DListInsertTail(&record->entry, &devSvcManager->services);
-    NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_START);
+    NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_START, false);
     OsalMutexUnlock(&devSvcManager->mutex);
     return HDF_SUCCESS;
 }
@@ -157,7 +157,7 @@ int DevSvcManagerUpdateService(struct IDevSvcManager *inst,
     record->value = service;
     record->devClass = servInfo->devClass;
     record->devId = servInfo->devId;
-    NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_CHANGE);
+    NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_CHANGE, true);
     OsalMutexUnlock(&devSvcManager->mutex);
     return HDF_SUCCESS;
 }
@@ -198,7 +198,7 @@ void DevSvcManagerRemoveService(struct IDevSvcManager *inst, const char *svcName
         return;
     }
     if (devObj == NULL || (uintptr_t)devObj == (uintptr_t)serviceRecord->value) {
-        NotifyServiceStatusLocked(devSvcManager, serviceRecord, SERVIE_STATUS_STOP);
+        NotifyServiceStatusLocked(devSvcManager, serviceRecord, SERVIE_STATUS_STOP, true);
         DListRemove(&serviceRecord->entry);
         removeFlag = true;
     }
