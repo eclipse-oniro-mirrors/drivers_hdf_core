@@ -39,7 +39,7 @@ static struct DevSvcRecord *DevSvcManagerSearchServiceLocked(struct IDevSvcManag
 }
 
 static void NotifyServiceStatusLocked(
-    struct DevSvcManager *devSvcManager, const struct DevSvcRecord *record, uint32_t status)
+    struct DevSvcManager *devSvcManager, const struct DevSvcRecord *record, uint32_t status, bool flag)
 {
     struct ServStatListenerHolder *holder = NULL;
     struct ServStatListenerHolder *tmp = NULL;
@@ -51,7 +51,7 @@ static void NotifyServiceStatusLocked(
     };
     DLIST_FOR_EACH_ENTRY_SAFE(holder, tmp, &devSvcManager->svcstatListeners, struct ServStatListenerHolder, node) {
         if ((holder->listenClass & record->devClass) && holder->NotifyStatus != NULL) {
-            if (holder->NotifyStatus(holder, &svcstat) == HDF_FAILURE) {
+            if (holder->NotifyStatus(holder, &svcstat, flag) == HDF_FAILURE) {
                 DListRemove(&holder->node);
                 if (holder->Recycle != NULL) {
                     holder->Recycle(holder);
