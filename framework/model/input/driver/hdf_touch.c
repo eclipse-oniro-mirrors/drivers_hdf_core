@@ -270,6 +270,7 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
     uint32_t intPinValue;
     TouchDriver *driver = chipDev->driver;
     PowerEventHandler eventHandler;
+    SeqArray *src = NULL;
 
     rstPinAddr = driver->boardCfg->pins.rstPinReg[0];
     rstPinValue = driver->boardCfg->pins.rstPinReg[1];
@@ -287,7 +288,7 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
         __func__, rstPinAddr, rstPinValue, intPinAddr, intPinValue);
 
     HDF_LOGE("%s: enable = %d", __func__, enable);
-    SeqArray *src = enable ? &chipDev->chipCfg->pwrSeq.pwrOn : &chipDev->chipCfg->pwrSeq.pwrOff;
+    src = enable ? &chipDev->chipCfg->pwrSeq.pwrOn : &chipDev->chipCfg->pwrSeq.pwrOff;
     eventHandler = enable ? HandleResetEvent : HandlePowerEvent;
     ret = HandleSeqArray(src, eventHandler, chipDev);
     CHECK_RETURN_VALUE(ret);
