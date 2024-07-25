@@ -76,7 +76,7 @@ static void NotifyServiceStatusOnRegisterLocked(
             .info = record->servInfo,
         };
         if (listenerHolder->NotifyStatus != NULL) {
-            listenerHolder->NotifyStatus(listenerHolder, &svcstat);
+            listenerHolder->NotifyStatus(listenerHolder, &svcstat, true);
         }
     }
 }
