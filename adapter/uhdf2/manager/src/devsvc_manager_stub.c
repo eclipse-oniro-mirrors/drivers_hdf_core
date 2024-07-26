@@ -481,7 +481,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     if (ret != HDF_SUCCESS) {
         ServStatListenerHolderRelease(listenerHolder);
     } else {
-        HDF_LOGD("register servstat listener success");
+        HDF_LOGI("register servstat listener success, pid = %{public}d", HdfRemoteGetCallingPid());
     }
 
     return HDF_SUCCESS;
