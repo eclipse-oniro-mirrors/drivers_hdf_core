@@ -16,7 +16,7 @@ struct ServStatListenerHolder {
     uint16_t listenClass;
     struct DListHead node;
     uint64_t index;
-    int32_t (*NotifyStatus)(struct ServStatListenerHolder *holder, struct ServiceStatus *status, bool flag);
+    int32_t (*NotifyStatus)(struct ServStatListenerHolder *holder, struct ServiceStatus *status, bool isPrintLog);
     void (*Recycle)(struct ServStatListenerHolder *holder);
 };
 

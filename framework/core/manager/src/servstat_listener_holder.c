@@ -37,9 +37,9 @@ void ServStatListenerHolderinit(void)
 }
 
 int32_t KServStatListenerHolderNotifyStatus(struct ServStatListenerHolder *holder,
-    struct ServiceStatus *status, bool flag)
+    struct ServiceStatus *status, bool isPrintLog)
 {
-    (void)flag;
+    (void)isPrintLog;
     if (holder == NULL || status == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
