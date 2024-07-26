@@ -353,7 +353,7 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     if (remoteService != NULL) {
         HdfSbufWriteRemoteService(reply, remoteService);
         ret = HDF_SUCCESS;
-        HDF_LOGI("StubGetService service %{public}s found", name);
+        HDF_LOGD("StubGetService service %{public}s found", name);
     } else {
         HDF_LOGE("StubGetService %{public}s remoteService is null", name);
         ret = HDF_FAILURE;
@@ -481,7 +481,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     if (ret != HDF_SUCCESS) {
         ServStatListenerHolderRelease(listenerHolder);
     } else {
-        HDF_LOGI("register servstat listener success");
+        HDF_LOGI("register servstat listener success, pid = %{public}d", HdfRemoteGetCallingPid());
     }
 
     return HDF_SUCCESS;
