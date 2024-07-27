@@ -63,7 +63,7 @@ static void UServStatListenerHolderListListAdd(struct UServStatListenerHolder *h
 }
 
 int32_t UServStatListenerHolderNotifyStatus(struct ServStatListenerHolder *holder,
-    struct ServiceStatus *status, bool isPrintLog)
+    struct ServiceStatus *status)
 {
     if (holder == NULL || status == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -73,9 +73,12 @@ int32_t UServStatListenerHolderNotifyStatus(struct ServStatListenerHolder *holde
         HDF_LOGE("failed to notify service status, invalid holder");
         return HDF_ERR_INVALID_PARAM;
     }
-    if (isPrintLog) {
+    if (status->status == SERVIE_STATUS_REGISTER) {
+        status->status = SERVIE_STATUS_START;
+    } else {
         HDF_LOGI("notify service status %{public}s, %{public}d", status->serviceName, status->status);
     }
+    
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     if (data == NULL) {
         HDF_LOGE("failed to notify service status, oom");
