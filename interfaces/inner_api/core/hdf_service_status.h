@@ -47,7 +47,7 @@ enum ServiceStatusType {
     SERVIE_STATUS_CHANGE,
     /** The service is stopped. */
     SERVIE_STATUS_STOP,
-    /** register service status. */
+    /** register service listener status. */
     SERVIE_STATUS_REGISTER,
     /** Maximum value of the service status. */
     SERVIE_STATUS_MAX,
