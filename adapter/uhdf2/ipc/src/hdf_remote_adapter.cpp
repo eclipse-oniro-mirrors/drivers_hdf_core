@@ -50,6 +50,8 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     std::shared_lock lock(mutex_);
     if (service_ == nullptr) {
         HDF_LOGE("service_ is nullptr");
+        HdfSbufRecycle(dataSbuf);
+        HdfSbufRecycle(replySbuf);
         return HDF_ERR_INVALID_OBJECT;
     }
     struct HdfRemoteDispatcher *dispatcher = service_->dispatcher;

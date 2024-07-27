@@ -51,7 +51,7 @@ static void NotifyServiceStatusLocked(
     };
     DLIST_FOR_EACH_ENTRY_SAFE(holder, tmp, &devSvcManager->svcstatListeners, struct ServStatListenerHolder, node) {
         if ((holder->listenClass & record->devClass) && holder->NotifyStatus != NULL) {
-            if (holder->NotifyStatus(holder, &svcstat, true) == HDF_FAILURE) {
+            if (holder->NotifyStatus(holder, &svcstat) == HDF_FAILURE) {
                 DListRemove(&holder->node);
                 if (holder->Recycle != NULL) {
                     holder->Recycle(holder);
@@ -72,11 +72,11 @@ static void NotifyServiceStatusOnRegisterLocked(
         struct ServiceStatus svcstat = {
             .deviceClass = record->devClass,
             .serviceName = record->servName,
-            .status = SERVIE_STATUS_START,
+            .status = SERVIE_STATUS_REGISTER,
             .info = record->servInfo,
         };
         if (listenerHolder->NotifyStatus != NULL) {
-            listenerHolder->NotifyStatus(listenerHolder, &svcstat, false);
+            listenerHolder->NotifyStatus(listenerHolder, &svcstat);
         }
     }
 }
