@@ -52,7 +52,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
         HDF_LOGE("service_ is nullptr");
         HdfSbufRecycle(dataSbuf);
         HdfSbufRecycle(replySbuf);
-        return HDF_ERR_INVALID_OBJECT;   
+        return HDF_ERR_INVALID_OBJECT;
     }
     struct HdfRemoteDispatcher *dispatcher = service_->dispatcher;
     if (dispatcher != nullptr && dispatcher->Dispatch != nullptr) {
