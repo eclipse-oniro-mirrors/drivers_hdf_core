@@ -23,14 +23,16 @@ enum FuncId {
 
 void FuncdListInsertHead(const uint8_t *data, size_t size)
 {
+    (void)data;
     constexpr uint16_t cnt = 2;
     if (size < sizeof(struct DListHead) * cnt) {
         return;
     }
 
-    struct DListHead *entry = (struct DListHead *)data;
-    struct DListHead *head = (struct DListHead *)(data + sizeof(struct DListHead));
-    DListInsertHead(entry, head);
+    struct DListHead entry;
+    struct DListHead head;
+    DListHeadInit(&head);
+    DListInsertHead(&entry, &head);
     return;
 }
 
