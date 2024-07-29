@@ -34,7 +34,7 @@ StringBuilder &StringBuilder::Append(char c)
     }
 
     if (buffer_ == nullptr) {
-        Logger::E(TAG, "buffer_ is nullptr!", ret);
+        Logger::E(TAG, "buffer_ is nullptr!");
         return *this;
     }
     buffer_[position_] = c;
