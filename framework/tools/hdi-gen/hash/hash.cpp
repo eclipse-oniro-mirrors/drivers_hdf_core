@@ -90,6 +90,7 @@ bool Hash::GenFileHashKey(const std::string &path, size_t &hashKey)
     buffer << fs.rdbuf();
 
     hashKey = std::hash<std::string>()(buffer.str());
+    fs.close();
     return true;
 }
 } // namespace HDI

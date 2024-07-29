@@ -67,6 +67,7 @@ void HdfDriverLoaderFullReclaimDriver(struct HdfDriver *driver)
     if (driver == NULL) {
         return;
     }
+    dlclose(driver->priv);
 
     OsalMemFree(driver);
 }
