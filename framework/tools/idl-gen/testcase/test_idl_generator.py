@@ -29,15 +29,15 @@ class IDLGeneratorTestCase(unittest.TestCase):
 
         generator._idl = ""
         generator._install_package(".\\h\\audio\\test")
-        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package("C:\\h\\audio\\test")
-        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
         generator._idl = ""
         generator._install_package("./h/audio/test")
-        self.assertEqual("".join(generator._idl),  "package h.audio.test;\n\n")
+        self.assertEqual("".join(generator._idl), "package h.audio.test;\n\n")
 
     def test_install_import_interface(self):
         generator = IDLGenerator()
