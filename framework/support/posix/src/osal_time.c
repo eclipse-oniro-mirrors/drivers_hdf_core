@@ -51,7 +51,8 @@ int32_t OsalDiffTime(const OsalTimespec *start, const OsalTimespec *end, OsalTim
         usec = (HDF_KILO_UNIT * HDF_KILO_UNIT);
         sec = 1;
     }
-    if (end->sec - start->sec > UINT64_MAX  - sec) {
+
+    if (end->sec - start->sec - sec < 0 || end->sec > UINT64_MAX - sec - start->sec) {
         HDF_LOGE("%s end time invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
