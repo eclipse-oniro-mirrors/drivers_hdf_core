@@ -45,7 +45,7 @@ static uint32_t MapHash(const char *hashKey)
 
 static uint32_t MapHashIdx(const Map *map, uint32_t hash)
 {
-    if (map->bucketSize > HDF_UINT32_MAX) {
+    if (map->bucketSize < 1 || map->bucketSize > HDF_UINT32_MAX) {
         return 0;
     }
     return (hash & (map->bucketSize - 1));

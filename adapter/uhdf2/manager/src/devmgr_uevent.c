@@ -113,6 +113,10 @@ static void DevMgrUeventReplaceLineFeed(char *str, const char *subStr, char c)
     while ((ptr = strstr(str, subStr)) != NULL) {
         ptr[0] = c;
         uint32_t i = 1;
+        if (strlen(ptr) < 1 || strlen(ptr) > SIZE_MAX) {
+            HDF_LOGE("strlen(ptr) overflows");
+            return;
+        }
         const size_t len = strlen(ptr) - 1;
         for (; i < len; i++) {
             ptr[i] = ptr[i + 1];
