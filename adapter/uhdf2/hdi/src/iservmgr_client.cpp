@@ -83,6 +83,10 @@ int32_t ServiceManagerProxy::RegisterServiceStatusListener(
     }
 
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(
         static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_REGISTER_SVCLISTENER), data, reply, option);
     lock.unlock();
@@ -103,6 +107,10 @@ int32_t ServiceManagerProxy::UnregisterServiceStatusListener(::OHOS::sptr<IServS
     }
 
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(
         static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_UNREGISTER_SVCLISTENER), data, reply,
         option);
@@ -123,6 +131,10 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
 
     MessageOption option;
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(
         static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_GET_SERVICE), data, reply, option);
     lock.unlock();
@@ -160,6 +172,10 @@ int32_t ServiceManagerProxy::ListAllService(std::vector<HdiServiceInfo> &service
 
     MessageOption option;
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(
         static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_LIST_ALL_SERVICE), data, reply, option);
     lock.unlock();
@@ -188,6 +204,10 @@ int32_t ServiceManagerProxy::ListServiceByInterfaceDesc(
 
     MessageOption option;
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(
         static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC), data, reply,
         option);
