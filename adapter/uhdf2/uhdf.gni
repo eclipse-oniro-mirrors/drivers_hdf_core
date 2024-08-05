@@ -19,4 +19,5 @@ declare_args() {
       !defined(global_parts_info.hiviewdfx_hicollie)) {
     hicollie_enabled = false
   }
+  with_sample = false
 }

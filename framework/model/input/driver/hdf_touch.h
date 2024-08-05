@@ -109,4 +109,6 @@ typedef struct {
 
 int32_t RegisterTouchChipDevice(ChipDevice *chipDev);
 
+typedef int32_t (*PowerEventHandler)(ChipDevice *chipDev, uint32_t *timing, uint32_t length);
+
 #endif
