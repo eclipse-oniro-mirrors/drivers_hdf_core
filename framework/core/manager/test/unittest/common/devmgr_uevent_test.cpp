@@ -15,10 +15,12 @@
 #include <iproxy_broker.h>
 
 using namespace testing::ext;
+#ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
-static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 static constexpr const char *ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 static constexpr const char *REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
+#endif
+static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 
 class DevmgrUeventTest : public testing::Test {
 public:
