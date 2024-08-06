@@ -194,6 +194,10 @@ ohos_unittest("hdf_adapter_uhdf_test_uevent") {
   defines = [ "__USER__" ]
   sources = [ "$hdf_framework_path/core/manager/test/unittest/common/devmgr_uevent_test.cpp" ]
 
+  if (with_sample) {
+    defines += [ "SAMPLE_DRIVER" ]
+  }
+
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",

@@ -33,6 +33,10 @@ ohos_unittest("HdiSmqTest") {
     "$hdf_uhdf_path/utils/include",
   ]
 
+  if (with_sample) {
+    defines = [ "SAMPLE_DRIVER" ]
+  }
+
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",

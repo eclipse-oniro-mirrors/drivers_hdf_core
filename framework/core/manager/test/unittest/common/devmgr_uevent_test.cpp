@@ -55,6 +55,7 @@ void DevmgrUeventTest::SetUp() {}
 
 void DevmgrUeventTest::TearDown() {}
 
+#ifdef SAMPLE_DRIVER
 /**
  * @tc.name: DevmgrUeventTestAdd
  * @tc.desc: trigger add uevent
@@ -207,6 +208,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
         ASSERT_TRUE(sampleService == nullptr);
     }
 }
+#endif
 
 HWTEST_F(DevmgrUeventTest, HdiProxyBrokerTest001, TestSize.Level1)
 {
