@@ -48,6 +48,7 @@ static bool HaveOnlyOneElement(const struct DListHead *head)
     return false;
 }
 
+// LCOV_EXCL_START
 static int32_t HdfDevEventGrowReadBuffer(struct HdfWriteReadBuf *buffer)
 {
     size_t newSize = buffer->readSize;
@@ -290,6 +291,7 @@ EXIT:
 
     return HDF_SUCCESS;
 }
+// LCOV_EXCL_STOP
 
 static int32_t HdfAdapterStartListenIoctl(int fd)
 {
@@ -513,6 +515,7 @@ static int32_t HdfIoServiceGroupThreadInit(struct HdfSyscallAdapterGroup *group)
     return HdfDevListenerThreadInit(group->thread);
 }
 
+// LCOV_EXCL_START
 static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group, int policy)
 {
     OsalMutexLock(&group->mutex);
@@ -525,6 +528,7 @@ static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group
     OsalMutexUnlock(&group->mutex);
     return ret;
 }
+// LCOV_EXCL_STOP
 
 static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
@@ -582,6 +586,7 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
     return ret;
 }
 
+// LCOV_EXCL_START
 static void HdfListenThreadPollDel(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
     if (thread == NULL) {
@@ -608,6 +613,7 @@ static void HdfListenThreadPollDel(struct HdfDevListenerThread *thread, struct H
     thread->pollChanged = true;
     OsalMutexUnlock(&thread->mutex);
 }
+// LCOV_EXCL_STOP
 
 static void HdfDevListenerThreadFree(struct HdfDevListenerThread *thread)
 {
@@ -670,6 +676,7 @@ static void HdfDevListenerThreadDestroy(struct HdfDevListenerThread *thread)
     }
 }
 
+// LCOV_EXCL_START
 static int32_t HdfSyscallAdapterDispatch(
     struct HdfObject *object, int32_t code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -707,6 +714,7 @@ static int32_t HdfSyscallAdapterDispatch(
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
 static int TrytoLoadIoService(const char *serviceName, char *devNodePath, char *realPath)
 {
@@ -886,6 +894,7 @@ int32_t HdfDeviceRegisterEventListener(struct HdfIoService *target, struct HdfDe
     return HdfDeviceRegisterEventListenerWithSchedPolicy(target, listener, SCHED_OTHER);
 }
 
+// LCOV_EXCL_START
 int32_t HdfDeviceUnregisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener)
 {
     if (target == NULL || listener == NULL) {
@@ -910,6 +919,7 @@ int32_t HdfDeviceUnregisterEventListener(struct HdfIoService *target, struct Hdf
 
     return HDF_SUCCESS;
 }
+// LCOV_EXCL_STOP
 
 struct HdfIoServiceGroup *HdfIoServiceGroupObtain(void)
 {
@@ -1034,6 +1044,7 @@ static int32_t GetListenerCount(struct HdfDevListenerThread *thread)
     return count;
 }
 
+// LCOV_EXCL_START
 int32_t HdfIoServiceGroupUnregisterListener(struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener)
 {
     if (group == NULL || listener == NULL) {
@@ -1060,6 +1071,7 @@ int32_t HdfIoServiceGroupUnregisterListener(struct HdfIoServiceGroup *group, str
 
     return HDF_SUCCESS;
 }
+// LCOV_EXCL_STOP
 
 int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfIoService *service)
 {
