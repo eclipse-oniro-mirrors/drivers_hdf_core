@@ -133,7 +133,7 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
     std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
-        return HDF_ERR_INVALID_PARAM;
+        return nullptr;
     }
     int status = Remote()->SendRequest(
         static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVSVC_MANAGER_GET_SERVICE), data, reply, option);
