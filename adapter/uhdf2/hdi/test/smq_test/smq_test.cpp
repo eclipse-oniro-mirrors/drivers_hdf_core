@@ -37,14 +37,18 @@ using OHOS::HDI::Base::SharedMemQueueMeta;
 using OHOS::HDI::Base::SmqType;
 using OHOS::HDI::DeviceManager::V1_0::IDeviceManager;
 using OHOS::HDI::ServiceManager::V1_0::IServiceManager;
+
+#ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_HOST_NAME = "sample_host";
 static constexpr const char *SERVICE_NAME = "sample_driver_service";
 static constexpr const char16_t *TEST_SERVICE_INTERFACE_DESC = u"hdf.test.sampele_service";
 static constexpr int SMQ_TEST_QUEUE_SIZE = 10;
 static constexpr uint32_t HOST_PID_BUFF_SIZE = 20;
 static constexpr uint32_t CMD_RESULT_BUFF_SIZE = 1024;
+#endif
 } // namespace
 
+#ifdef SAMPLE_DRIVER
 static std::vector<std::string> Split(const std::string &src, const std::string &limit)
 {
     std::vector<std::string> result;
@@ -169,31 +173,37 @@ static void PrintFds(const std::string &info, const std::set<int> &fds)
     }
     std::cout << std::endl;
 }
+#endif
 
 class SmqTest : public testing::Test {
 public:
     static void SetUpTestCase()
     {
+#ifdef SAMPLE_DRIVER
         auto devmgr = IDeviceManager::Get();
         if (devmgr != nullptr) {
             HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
             devmgr->LoadDevice(SERVICE_NAME);
         }
+#endif
     }
 
     static void TearDownTestCase()
     {
+#ifdef SAMPLE_DRIVER
         auto devmgr = IDeviceManager::Get();
         if (devmgr != nullptr) {
             HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
             devmgr->UnloadDevice(SERVICE_NAME);
         }
+#endif
     }
 
     void SetUp() {};
     void TearDown() {};
 };
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(SmqTest, SmqTest001, TestSize.Level1)
 {
     std::set<int> fds1;
@@ -296,3 +306,4 @@ HWTEST_F(SmqTest, SmqTest002, TestSize.Level1)
         PrintFds("sample_host unclosed fds:", servHostUnclosedFds);
     }
 }
+#endif
