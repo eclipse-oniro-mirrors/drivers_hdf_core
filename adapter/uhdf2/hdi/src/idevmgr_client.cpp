@@ -68,6 +68,10 @@ int32_t DeviceManagerProxy::LoadDevice(const std::string &serviceName)
     }
 
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LOAD_DEVICE, data, reply, option);
     lock.unlock();
     if (status != HDF_SUCCESS) {
@@ -90,6 +94,10 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
     }
 
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(DEVMGR_SERVICE_UNLOAD_DEVICE, data, reply, option);
     lock.unlock();
     if (status != HDF_SUCCESS) {
@@ -157,6 +165,10 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
 
     MessageOption option;
     std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int status = Remote()->SendRequest(DEVMGR_SERVICE_LIST_ALL_DEVICE, data, reply, option);
     lock.unlock();
     if (status != HDF_SUCCESS) {
