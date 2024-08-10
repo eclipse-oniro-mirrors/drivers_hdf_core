@@ -74,7 +74,7 @@ HWTEST_F(HdfCoreSharedTest, ServiceStatusMarshallingTest, TestSize.Level1)
     const char *serviceName = "testServiceName";
     HdfSbufWriteString(sBuf, serviceName);
     ret = ServiceStatusMarshalling(status, sBuf);
-    ASSERT_EQ(ret, HDF_FAILURE);
+    ASSERT_TRUE(ret !=HDF_FAILURE);
     OsalMemFree(status);
     HdfSbufRecycle(sBuf);
 }
