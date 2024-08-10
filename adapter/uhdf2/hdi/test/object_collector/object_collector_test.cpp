@@ -50,7 +50,7 @@ HWTEST_F(ObjectCollectorTest, ObjectCollectorTest001, TestSize.Level1)
     object = HDI::ObjectCollector::GetInstance().GetOrNewObject(nullptr, INTERFACE_NAME);
     ASSERT_EQ(object, nullptr);
     bool remove = false;
-    if(!TestRemove()){
+    if (!TestRemove()) {
         remove = true;
     }
     ASSERT_EQ(remove, true);
