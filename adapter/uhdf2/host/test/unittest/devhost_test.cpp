@@ -275,6 +275,7 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest2, TestSize.Level1)
     struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode != nullptr);
     HdfDeviceNodeConstruct(devNode);
+    devNode->hostService = nullptr;
     struct IDeviceNode *nodeIf = &devNode->super;
     int32_t ret = nodeIf->LaunchNode(devNode);
 
@@ -283,13 +284,15 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest2, TestSize.Level1)
     devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode != nullptr);
     HdfDeviceNodeConstruct(devNode);
-    nodeIf = &devNode->super;
+    nodeIf = &devNode->super;\
+    devNode->hostService = nullptr;
     ret = nodeIf->LaunchNode(devNode);
 
     entry.Init = nullptr;
     devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode != nullptr);
     HdfDeviceNodeConstruct(devNode);
+    devNode->hostService = nullptr;
     nodeIf = &devNode->super;
     ret = nodeIf->LaunchNode(devNode);
     ASSERT_TRUE(ret != HDF_SUCCESS);

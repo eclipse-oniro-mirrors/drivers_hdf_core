@@ -21,6 +21,8 @@
 #include <servmgr_hdi.h>
 #include "hdf_dump.h"
 #include "hdf_dump_reg.h"
+#include "hcs_tree_if.h"
+#include "hcs_dm_parser.h"
 
 #define HDF_LOG_TAG   driver_manager
 
@@ -148,15 +150,45 @@ HWTEST_F(DevMgrTest, DriverTest, TestSize.Level1)
 }
 #endif
 
+static int TestDump(struct HdfSBuf *, struct HdfSBuf *)
+{
+    return HDF_SUCCESS;
+}
+
 HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
 {
     ASSERT_TRUE(servmgr != nullptr);
     ASSERT_TRUE(devmgr != nullptr);
     HdfRegisterDumpFunc(nullptr);
+    int32_t fd = 0;
+    HdfRegisterDumpFunc(TestDump);
+    const std::vector<std::u16string> vcr = {u"123", u"456"};
+    const std::vector<std::u16string> vcr1 = {
+        u"1", u"2", u"3", u"4", u"5", u"6", u"7", u"8", u"9", u"10",
+        u"11", u"12", u"13", u"14", u"15", u"16", u"17", u"18", u"19", u"20",
+        u"21", u"22", u"23", u"24"
+    };
+    int ret = HdfDump(fd, vcr);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    fd = 1;
+    ret = HdfDump(fd, vcr1);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 
     int32_t illegalFd = -1;
     std::vector<std::u16string> illegalArgs = {};
-    int ret = HdfDump(illegalFd, illegalArgs);
+    ret = HdfDump(illegalFd, illegalArgs);
     ASSERT_TRUE(ret != HDF_SUCCESS);
+}
+
+HWTEST_F(DevMgrTest, HdfUtilsTest, TestSize.Level1)
+{
+    std::string CONFIGPATH = "/system/etc/hdfconfig/default";
+    std::string CONFIGPATH1 = "/system/etc/hdfconfig/default.hcb";
+    SetHcsBlobPath(CONFIGPATH.c_str());
+    const struct DeviceResourceNode *node = HcsGetRootNode();
+    ASSERT_TRUE(node == nullptr);
+    SetHcsBlobPath(CONFIGPATH1.c_str());
+    const struct DeviceResourceNode *node1 = HcsGetRootNode();
+    ASSERT_TRUE(node1 == nullptr);
 }
 } // namespace OHOS

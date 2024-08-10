@@ -70,7 +70,13 @@ HWTEST_F(HdfCoreSharedTest, ServiceStatusMarshallingTest, TestSize.Level1)
     ASSERT_NE(status, nullptr);
     ret = ServiceStatusMarshalling(status, nullptr);
     ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    const char *serviceName = "testServiceName";
+    HdfSbufWriteString(sBuf, serviceName);
+    ret = ServiceStatusMarshalling(status, sBuf);
+    ASSERT_EQ(ret, HDF_FAILURE);
     OsalMemFree(status);
+    HdfSbufRecycle(sBuf);
 }
 
 HWTEST_F(HdfCoreSharedTest, ServiceStatusUnMarshallingTest, TestSize.Level1)

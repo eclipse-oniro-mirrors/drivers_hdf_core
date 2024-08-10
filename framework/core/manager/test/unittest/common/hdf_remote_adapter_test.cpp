@@ -21,6 +21,7 @@
 #include "hdf_remote_adapter.h"
 #include "hdf_remote_adapter_if.h"
 #include "hdf_sbuf_ipc.h"
+#include "hdf_dump.h"
 
 namespace OHOS {
 using namespace testing::ext;
