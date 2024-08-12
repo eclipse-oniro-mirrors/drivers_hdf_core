@@ -42,6 +42,7 @@ using OHOS::HDI::Base::SmqType;
 using OHOS::HDI::DeviceManager::V1_0::IDeviceManager;
 using OHOS::HDI::ServiceManager::V1_0::IServiceManager;
 
+static constexpr const uint32_t TEST_NUM = 300;
 #ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_HOST_NAME = "sample_host";
 static constexpr const char *SERVICE_NAME = "sample_driver_service";
@@ -315,7 +316,7 @@ HWTEST_F(SmqTest, SmqTest002, TestSize.Level1)
 static uintptr_t MapMemZone(uint32_t zoneType)
 {
     std::shared_ptr<SharedMemQueueMeta<uint8_t>> meta_ =
-        std::make_shared<SharedMemQueueMeta<uint8_t>>(300, SmqType::SYNCED_SMQ);
+        std::make_shared<SharedMemQueueMeta<uint8_t>>(TEST_NUM, SmqType::SYNCED_SMQ);
     auto memzone = meta_->GetMemZone(zoneType);
     if (memzone == nullptr) {
         HDF_LOGE("invalid smq mem zone type %{public}u", zoneType);
