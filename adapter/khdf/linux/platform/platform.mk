@@ -52,4 +52,5 @@ ccflags-$(CONFIG_DRIVERS_HDF_PLATFORM) +=-I$(srctree)/drivers/hdf/framework/incl
    -I$(srctree)/drivers/hdf/inner_api/utils \
    -I$(srctree)/drivers/hdf/inner_api/core \
    -I$(srctree)/drivers/hdf/inner_api/host/shared \
-   -I$(srctree)/bounds_checking_function/include
+   -I$(srctree)/bounds_checking_function/include \
+   -I$(srctree)/include/linux
