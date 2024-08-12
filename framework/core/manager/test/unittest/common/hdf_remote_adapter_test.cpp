@@ -21,6 +21,7 @@
 #include "hdf_remote_adapter.h"
 #include "hdf_remote_adapter_if.h"
 #include "hdf_sbuf_ipc.h"
+#include "hdf_dump.h"
 
 namespace OHOS {
 using namespace testing::ext;
@@ -60,6 +61,13 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
     const char *name = "";
     ret = HdfRemoteAdapterAddService(name, NULL);
     ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
+
+    const char *serviceName = "test_service";
+    HdfRemoteService *remoteService = HdfRemoteAdapterObtain();
+    ret = HdfRemoteAdapterAddService(serviceName, remoteService);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = HdfRemoteAdapterAddSa(-1, remoteService);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 
     HdfRemoteService *remote = HdfRemoteAdapterGetService(NULL);
     ASSERT_EQ(remote, nullptr);

@@ -21,6 +21,7 @@
 #include <hdf_sbuf.h>
 #include <hdf_service_status.h>
 #include <osal_time.h>
+#include <osal_mem.h>
 #include <servmgr_hdi.h>
 #include <shared_mem.h>
 #include <string>
@@ -28,6 +29,8 @@
 
 #include "sample_hdi.h"
 #include "hdi_support.h"
+#include <hdf_service_status_inner.h>
+#include <hdf_dlist.h>
 
 #define HDF_LOG_TAG service_manager_test
 
@@ -804,5 +807,21 @@ HWTEST_F(HdfServiceMangerHdiCTest, HdiSupportTest, TestSize.Level1)
 {
     ASSERT_EQ(LoadHdiImpl(NULL, NULL), nullptr);
     UnloadHdiImpl(NULL, NULL, NULL);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest019, TestSize.Level1)
+{
+    struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
+    HdiServiceStatusListenerFree(nullptr);
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    int ret = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ret = servmgr->UnregisterServiceStatusListener(servmgr, listener);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    struct HdiServiceSet *serviceSet = (struct HdiServiceSet *)OsalMemAlloc(sizeof(struct HdiServiceSet));
+    serviceSet->count = 20;
+    ret = HdiServiceSetRelease(serviceSet);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    HdiServiceStatusListenerFree(listener);
 }
 } // namespace OHOS

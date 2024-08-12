@@ -33,6 +33,7 @@ ohos_unittest("HdiServiceManagerTest") {
   include_dirs = [
     "$hdf_uhdf_path/host/test/unittest/sample_driver",
     "$hdf_uhdf_path/utils/include",
+    "$hdf_framework_path/core/shared/include",
   ]
 
   if (with_sample) {
