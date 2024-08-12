@@ -813,6 +813,15 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest019, TestSize.Level1)
 {
     struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
     HdiServiceStatusListenerFree(nullptr);
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    int ret = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ret = servmgr->UnregisterServiceStatusListener(servmgr, listener);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    struct HdiServiceSet *serviceSet = (struct HdiServiceSet *)OsalMemAlloc(sizeof(struct HdiServiceSet));
+    serviceSet->count = 20;
+    ret = HdiServiceSetRelease(serviceSet);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
     HdiServiceStatusListenerFree(listener);
 }
 } // namespace OHOS

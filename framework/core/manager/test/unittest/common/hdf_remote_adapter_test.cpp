@@ -62,6 +62,13 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
     ret = HdfRemoteAdapterAddService(name, NULL);
     ASSERT_EQ(ret, HDF_ERR_INVALID_PARAM);
 
+    const char *serviceName = "test_service";
+    HdfRemoteService *remoteService = HdfRemoteAdapterObtain();
+    ret = HdfRemoteAdapterAddService(serviceName, remoteService);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ret = HdfRemoteAdapterAddSa(-1, remoteService);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+
     HdfRemoteService *remote = HdfRemoteAdapterGetService(NULL);
     ASSERT_EQ(remote, nullptr);
     remote = HdfRemoteAdapterGetService(name);
