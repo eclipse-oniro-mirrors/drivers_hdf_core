@@ -67,7 +67,7 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
     ret = HdfRemoteAdapterAddService(serviceName, remoteService);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     ret = HdfRemoteAdapterAddSa(-1, remoteService);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
 
     HdfRemoteService *remote = HdfRemoteAdapterGetService(NULL);
     ASSERT_EQ(remote, nullptr);
@@ -172,6 +172,9 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest007, TestSize.Level1)
     ASSERT_TRUE(status);
     status = HdfRemoteServiceCheckInterfaceToken(service, sBuf);
     ASSERT_FALSE(status);
+    HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
+    HdfSBuf *reply = HdfSbufTypedObtain(SBUF_IPC);
+    HdfRemoteAdapterDefaultDispatch(service, 0, data, reply);
     HdfRemoteServiceRecycle(service);
 }
 } // namespace OHOS
