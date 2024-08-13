@@ -49,6 +49,7 @@ static void NotifyServiceStatusLocked(
         .status = status,
         .info = record->servInfo,
     };
+    HDF_LOGI("notify service status %{public}s, %{public}d", svcstat.serviceName, svcstat.status);
     DLIST_FOR_EACH_ENTRY_SAFE(holder, tmp, &devSvcManager->svcstatListeners, struct ServStatListenerHolder, node) {
         if ((holder->listenClass & record->devClass) && holder->NotifyStatus != NULL) {
             if (holder->NotifyStatus(holder, &svcstat) == HDF_FAILURE) {
@@ -72,7 +73,7 @@ static void NotifyServiceStatusOnRegisterLocked(
         struct ServiceStatus svcstat = {
             .deviceClass = record->devClass,
             .serviceName = record->servName,
-            .status = SERVIE_STATUS_REGISTER,
+            .status = SERVIE_STATUS_START,
             .info = record->servInfo,
         };
         if (listenerHolder->NotifyStatus != NULL) {
