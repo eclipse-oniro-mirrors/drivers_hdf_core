@@ -58,7 +58,7 @@ static void CommonVmOpen(struct vm_area_struct *vma)
         return;
     }
     struct VmareaHandler *handler = vma->vm_private_data;
-    if (handler == NULL || handler->refCount) {
+    if (handler == NULL || handler->refCount == NULL) {
         return;
     }
 
