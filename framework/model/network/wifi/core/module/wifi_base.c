@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 #include "wifi_base.h"
-#include "../hdf_wifi_core.h"
+#include "hdf_wifi_core.h"
 #include "eapol.h"
 #include "hdf_wifi_event.h"
 #include "hdf_wlan_chipdriver_manager.h"

@@ -24,18 +24,13 @@ ohos_unittest("OsalTest") {
   sources = [ "unittest/common/osal_slist_test.cpp" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
     "$hdf_framework_path/include/osal",
     "$hdf_framework_path/include/utils",
     "$hdf_framework_path/utils/include",
     "unittest/common/",
   ]
 
-  deps = [
-    "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "$hdf_uhdf_path/utils:libhdf_utils" ]
 
   if (is_standard_system) {
     external_deps = [
@@ -45,6 +40,11 @@ ohos_unittest("OsalTest") {
   } else {
     external_deps = [ "hilog:libhilog" ]
   }
+
+  external_deps += [
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+  ]
 }
 
 ###########################end###########################
