@@ -58,6 +58,9 @@ static void CommonVmOpen(struct vm_area_struct *vma)
         return;
     }
     struct VmareaHandler *handler = vma->vm_private_data;
+    if (handler == NULL || handler->refCount == NULL) {
+        return;
+    }
 
     refcount_inc(handler->refCount);
 }
@@ -68,6 +71,10 @@ static void CommonVmClose(struct vm_area_struct *vma)
         return;
     }
     struct VmareaHandler *handler = vma->vm_private_data;
+
+    if (handler == NULL || handler->arg == NULL) {
+        return;
+    }
 
     handler->free(handler->arg);
 }
