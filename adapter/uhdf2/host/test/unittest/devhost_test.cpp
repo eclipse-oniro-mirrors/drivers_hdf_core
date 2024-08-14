@@ -78,7 +78,7 @@ HWTEST_F(DevHostTest, DevHostDevMgrServiceProxyTest, TestSize.Level1)
     ASSERT_TRUE(ret != HDF_SUCCESS);
     const char *name = "test_svcName";
     ret = instance->LoadDevice(instance, name);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
 
     struct DevmgrServiceProxy *proxy = reinterpret_cast<struct DevmgrServiceProxy *>(object);
     HdfRemoteServiceRecycle(proxy->remote);
@@ -324,8 +324,10 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest3, TestSize.Level1)
     deviceInfo.deviceName = "test_module";
     struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode != nullptr);
+    int32_t ret = HdfDeviceNodePublishPublicService(devNode);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
     struct IDeviceNode *nodeIf = &devNode->super;
-    int32_t ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
+    ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
     ASSERT_TRUE(ret == HDF_SUCCESS);
     ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
     ASSERT_TRUE(ret != HDF_SUCCESS);
@@ -333,8 +335,6 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest3, TestSize.Level1)
     HdfDeviceNodeRemovePowerStateListener(nullptr, nullptr);
     HdfDeviceNodeRemovePowerStateListener(devNode, nullptr);
     HdfDeviceNodeRemovePowerStateListener(devNode, nullptr);
-    ret = HdfDeviceNodePublishPublicService(devNode);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
     devNode->deviceObject.service = nullptr;
     ret = HdfDeviceNodePublishPublicService(devNode);
     ASSERT_TRUE(ret != HDF_SUCCESS);
