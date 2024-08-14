@@ -812,6 +812,10 @@ HWTEST_F(HdfServiceMangerHdiCTest, HdiSupportTest, TestSize.Level1)
 HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest019, TestSize.Level1)
 {
     struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
+    struct ServstatListenerStub *stub = CONTAINER_OF(listener, struct ServstatListenerStub, listener);
+    struct HdfSBuf *dataSbuf = HdfSbufTypedObtain(SBUF_IPC);
+    struct HdfSBuf *replySbuf = HdfSbufTypedObtain(SBUF_IPC);
+    stub->remote->dispatcher->Dispatch(nullptr, -1, dataSbuf, replySbuf);
     HdiServiceStatusListenerFree(nullptr);
     struct HDIServiceManager *servmgr = HDIServiceManagerGet();
     int ret = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
