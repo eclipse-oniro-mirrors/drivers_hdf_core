@@ -328,10 +328,10 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest3, TestSize.Level1)
     deviceInfo.deviceName = "test_module";
     struct HdfDeviceNode *devNode = HdfDeviceNodeNewInstance(&deviceInfo, &driver);
     ASSERT_TRUE(devNode != nullptr);
-    ret = HdfDeviceNodePublishPublicService(devNode);
+    int32_t ret = HdfDeviceNodePublishPublicService(devNode);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     struct IDeviceNode *nodeIf = &devNode->super;
-    int32_t ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
+    ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
     ASSERT_TRUE(ret == HDF_SUCCESS);
     ret = HdfDeviceNodeAddPowerStateListener(devNode, nullptr);
     ASSERT_TRUE(ret != HDF_SUCCESS);
