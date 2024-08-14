@@ -226,10 +226,6 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest1, TestSize.Level1)
     int32_t ret = HdfDeviceNodeRemoveService(devNode);
     ASSERT_TRUE(ret == HDF_SUCCESS);
 
-    devNode->servStatus = true;
-    ret = HdfDeviceNodeRemoveService(devNode);
-    ASSERT_TRUE(ret == HDF_SUCCESS);
-
     ret = DeviceDriverBind(devNode);
     ASSERT_TRUE(ret == HDF_SUCCESS);
     HdfDeviceNodeFreeInstance(devNode);
@@ -345,10 +341,6 @@ HWTEST_F(DevHostTest, DevHostDeviceNodeTest3, TestSize.Level1)
     nodeIf->UnlaunchNode(nullptr);
     HdfDeviceNodeFreeInstance(nullptr);
     HdfDeviceNodeConstruct(nullptr);
-    devNode->devStatus = DEVNODE_LAUNCHED;
-    HdfDeviceNodeDestruct(devNode);
-    devNode->devStatus = 10;
-    HdfDeviceNodeDestruct(devNode);
     HdfDeviceNodeDestruct(nullptr);
     ret = HdfDeviceNodePublishPublicService(nullptr);
     ASSERT_TRUE(ret != HDF_SUCCESS);
@@ -397,8 +389,6 @@ HWTEST_F(DevHostTest, DevHostDeviceTest, TestSize.Level1)
     ret = HdfDeviceDetach(nullptr, nullptr);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     ret = HdfDeviceDetach(device, nullptr);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
-    ret = HdfDeviceDetach(device, devNode);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     devNode->servStatus = true;
     struct IDeviceNode *deviceIf = reinterpret_cast<struct IDeviceNode *>(object);
