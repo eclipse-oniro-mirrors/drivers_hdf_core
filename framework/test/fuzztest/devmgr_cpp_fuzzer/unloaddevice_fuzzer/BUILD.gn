@@ -22,7 +22,6 @@ ohos_fuzztest("UnloadDeviceFuzzTest") {
     "$hdf_adapter_path/uhdf2/include/hdi",
     "$hdf_adapter_path/uhdf2/osal/include",
     "$hdf_framework_path/include/utils",
-    "//commonlibrary/c_utils/base/include",
   ]
   sources = [ "unloaddevice_fuzzer.cpp" ]
 

@@ -27,7 +27,6 @@ ohos_unittest("DevMgrTest") {
   ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
     "$hdf_framework_path/include/osal",
     "$hdf_framework_path/include/utils",
     "$hdf_framework_path/utils/include",
@@ -41,8 +40,6 @@ ohos_unittest("DevMgrTest") {
   deps = [
     "$hdf_uhdf_path/hdi:libhdi",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   if (with_sample) {
@@ -58,6 +55,11 @@ ohos_unittest("DevMgrTest") {
   } else {
     external_deps = [ "hilog:libhilog" ]
   }
+
+  external_deps += [
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+  ]
 }
 
 ohos_unittest("DevHostTest") {
@@ -80,8 +82,6 @@ ohos_unittest("DevHostTest") {
     "$hdf_uhdf_path/host:libhdf_host",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   if (is_standard_system) {
@@ -92,6 +92,11 @@ ohos_unittest("DevHostTest") {
   } else {
     external_deps = [ "hilog:libhilog" ]
   }
+
+  external_deps += [
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+  ]
 }
 
 ###########################end###########################
