@@ -294,12 +294,12 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     if (service == nullptr) {
         return HDF_ERR_INVALID_PARAM;
     }
+
+    const int32_t waitTimes = 50;
+    const int32_t sleepInterval = 20000;
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
-        saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        const int32_t waitTimes = 50;
-        const int32_t sleepInterval = 20000;
-        for (uint32_t cnt = 1; cnt <= waitTimes; ++cnt) {
+        for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for samgr... %{public}d", cnt);
             saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (saManager != nullptr) {
@@ -321,9 +321,23 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(remote.GetRefPtr());
         stub->SetRequestSidFlag(true);
 #endif
-        int ret = saManager->AddSystemAbility(saId, holder->remote_);
+        int ret = HDF_FAILURE;
+        for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
+            HDF_LOGI("waiting for addSa... %{public}d", cnt);
+            ret = saManager->AddSystemAbility(saId, holder->remote_);
+            if (ret == HDF_SUCCESS) {
+                HDF_LOGI("addsa %{public}d, success", saId);
+                break;
+            }
+            HDF_LOGI("AddSystemAbility failed, retry");
+            usleep(sleepInterval);
+        }
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("failed to addSa, waiting timeout");
+            return ret;
+        }
+    
         (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
-        HDF_LOGI("add sa %{public}d, ret = %{public}s", saId, (ret == 0) ? "succ" : "fail");
     }
     return HDF_SUCCESS;
 }
