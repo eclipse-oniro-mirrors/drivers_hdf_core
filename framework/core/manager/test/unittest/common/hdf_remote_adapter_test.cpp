@@ -67,7 +67,7 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest002, TestSize.Level1)
     ret = HdfRemoteAdapterAddService(serviceName, remoteService);
     ASSERT_TRUE(ret != HDF_SUCCESS);
     ret = HdfRemoteAdapterAddSa(-1, remoteService);
-    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 
     HdfRemoteService *remote = HdfRemoteAdapterGetService(NULL);
     ASSERT_EQ(remote, nullptr);
