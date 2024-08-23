@@ -98,6 +98,9 @@ static int MtdCharClose(FAR struct file *filep)
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
     mtd_partition *partition = (mtd_partition *)drv->priv;
     struct MtdFileInfo *mfi = (struct MtdFileInfo *)(filep->f_priv);
+    if (mfi == NULL) {
+        return EFAIL;
+    }
 
     (void)LOS_MuxLock(&partition->lock, LOS_WAIT_FOREVER);
 

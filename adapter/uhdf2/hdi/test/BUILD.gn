@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("./../../../../adapter/uhdf2/uhdf.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/srvmgr"
 
@@ -26,13 +26,12 @@ ohos_unittest("HdiServiceManagerTest") {
     "$hdf_uhdf_path/hdi:libhdi",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   include_dirs = [
     "$hdf_uhdf_path/host/test/unittest/sample_driver",
     "$hdf_uhdf_path/utils/include",
+    "$hdf_framework_path/core/shared/include",
   ]
 
   if (with_sample) {
@@ -41,6 +40,8 @@ ohos_unittest("HdiServiceManagerTest") {
 
   external_deps = [
     "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_single",
   ]
@@ -61,12 +62,12 @@ ohos_unittest("HdiServiceManagerTestCC") {
   deps = [
     "$hdf_uhdf_path/hdi:libhdi",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_single",
     "samgr:samgr_proxy",

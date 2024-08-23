@@ -18,11 +18,7 @@
 #include "osal_mem.h"
 #include "securec.h"
 #include <linux/version.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
 #include "stdarg.h"
-#else
-#include <linux/stdarg.h>
-#endif
 #include <asm/uaccess.h>
 #include <linux/fs.h>
 

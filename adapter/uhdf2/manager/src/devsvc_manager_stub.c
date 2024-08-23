@@ -93,6 +93,7 @@ static int32_t ListServicePermCheck(void)
     return HDF_SUCCESS;
 }
 
+// LCOV_EXCL_START
 static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfDeviceObject *service)
 {
     if (service == NULL) {
@@ -214,6 +215,7 @@ static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDevic
 
     OsalMutexUnlock(&stub->devSvcStubMutex);
 }
+// LCOV_EXCL_STOP
 
 static int32_t DevSvcMgrStubGetPara(
     struct HdfSBuf *data, struct HdfServiceInfo *info, struct HdfRemoteService **service)
@@ -353,7 +355,7 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     if (remoteService != NULL) {
         HdfSbufWriteRemoteService(reply, remoteService);
         ret = HDF_SUCCESS;
-        HDF_LOGI("StubGetService service %{public}s found", name);
+        HDF_LOGD("StubGetService service %{public}s found", name);
     } else {
         HDF_LOGE("StubGetService %{public}s remoteService is null", name);
         ret = HDF_FAILURE;
@@ -481,7 +483,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     if (ret != HDF_SUCCESS) {
         ServStatListenerHolderRelease(listenerHolder);
     } else {
-        HDF_LOGI("register servstat listener success");
+        HDF_LOGI("register servstat listener success, pid = %{public}d", HdfRemoteGetCallingPid());
     }
 
     return HDF_SUCCESS;
@@ -554,6 +556,7 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
     return ret;
 }
 
+// LCOV_EXCL_START
 void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfRemoteService *remote)
 {
     struct DevSvcManagerStub *stub =
@@ -593,6 +596,7 @@ void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfR
     ReleaseServiceObject(stub, serviceObject);
     OsalMemFree(serviceName);
 }
+// LCOV_EXCL_STOP
 
 int DevSvcManagerStubStart(struct IDevSvcManager *svcmgr)
 {
@@ -665,6 +669,7 @@ struct HdfObject *DevSvcManagerStubCreate(void)
     return (struct HdfObject *)instance;
 }
 
+// LCOV_EXCL_START
 static void DevObjHolderListReleaseNoLock(struct DevSvcManagerStub *stub)
 {
     struct HdfSListIterator it;
@@ -693,3 +698,4 @@ void DevSvcManagerStubRelease(struct HdfObject *object)
         OsalMutexDestroy(&instance->devSvcStubMutex);
     }
 }
+// LCOV_EXCL_STOP

@@ -14,6 +14,10 @@
  */
 
 #include <base/hdi_smq.h>
+#include <base/hdi_smq_meta.h>
+#include <base/hdi_smq_syncer.h>
+#include "osal_mem.h"
+#include <sys/mman.h>
 #include <gtest/gtest.h>
 #include <idevmgr_hdi.h>
 #include <iservmgr_hdi.h>
@@ -38,6 +42,7 @@ using OHOS::HDI::Base::SmqType;
 using OHOS::HDI::DeviceManager::V1_0::IDeviceManager;
 using OHOS::HDI::ServiceManager::V1_0::IServiceManager;
 
+static constexpr const uint32_t TEST_NUM = 300;
 #ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_HOST_NAME = "sample_host";
 static constexpr const char *SERVICE_NAME = "sample_driver_service";
@@ -307,3 +312,40 @@ HWTEST_F(SmqTest, SmqTest002, TestSize.Level1)
     }
 }
 #endif
+
+static uintptr_t MapMemZone(uint32_t zoneType)
+{
+    std::shared_ptr<SharedMemQueueMeta<uint8_t>> meta_ =
+        std::make_shared<SharedMemQueueMeta<uint8_t>>(TEST_NUM, SmqType::SYNCED_SMQ);
+    auto memzone = meta_->GetMemZone(zoneType);
+    if (memzone == nullptr) {
+        HDF_LOGE("invalid smq mem zone type %{public}u", zoneType);
+        return reinterpret_cast<uintptr_t>(nullptr);
+    }
+
+    int offset = (static_cast<int>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    int length = static_cast<int>(memzone->offset) - offset + static_cast<int>(memzone->size);
+
+    void *ptr = mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, meta_->GetFd(), offset);
+    if (ptr == MAP_FAILED) {
+        HDF_LOGE(
+            "failed to map memzone %{public}u, size %{public}u, offset %{public}u , fd %{public}d, errnor=%{public}d",
+            zoneType, length, offset, meta_->GetFd(), errno);
+        unsigned int num = 20;
+        unsigned int *uptr = &num;
+        return reinterpret_cast<uintptr_t>(uptr);
+    }
+    return (reinterpret_cast<uintptr_t>(ptr) + (static_cast<int>(memzone->offset) - offset));
+}
+
+HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
+{
+    std::atomic<uint32_t> *syncerPtr_ =
+        reinterpret_cast<std::atomic<uint32_t> *>(MapMemZone(SharedMemQueueMeta<uint8_t>::MEMZONE_SYNCER));
+    std::unique_ptr<OHOS::HDI::Base::SharedMemQueueSyncer> syncer_ =
+        std::make_unique<OHOS::HDI::Base::SharedMemQueueSyncer>(syncerPtr_);
+    syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
+    syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
+    syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
+    syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
+}

@@ -42,7 +42,7 @@ int32_t OsalDiffTime(const OsalTimespec *start, const OsalTimespec *end, OsalTim
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (start->sec > end->sec) {
+    if ((start->sec > end->sec) || ((end->sec == start->sec) && (end->usec < start->usec))) {
         HDF_LOGE("%s start time later then end time", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
@@ -51,7 +51,9 @@ int32_t OsalDiffTime(const OsalTimespec *start, const OsalTimespec *end, OsalTim
         usec = (HDF_KILO_UNIT * HDF_KILO_UNIT);
         sec = 1;
     }
-    if (end->sec - start->sec > UINT64_MAX  - sec) {
+
+    if ((start->sec + sec > UINT64_MAX) || (usec + end->usec > UINT64_MAX) ||
+        (end->sec < start->sec + sec) || (end->usec + usec < start->usec)) {
         HDF_LOGE("%s end time invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
