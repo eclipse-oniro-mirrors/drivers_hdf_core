@@ -108,6 +108,14 @@ public:
      * @return Returns <b>HDF_SUCCESS</b> if the operation is successful; otherwise, the operation fails.
      */
     virtual int32_t ListAllDevice(std::vector<HdiDevHostInfo> &deviceInfos) = 0;
+
+    /**
+     * @brief Obtains pid about all hosts.
+     *
+     * @param pidList Indicates information about all hosts.
+     * @return Returns <b>HDF_SUCCESS</b> if the operation is successful; otherwise, the operation fails.
+     */
+    virtual int32_t ListAllHost(std::vector<int> &pidList) = 0;
 };
 } // namespace V1_0
 } // namespace DeviceManager

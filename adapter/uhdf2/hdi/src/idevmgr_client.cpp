@@ -49,6 +49,7 @@ public:
     int32_t LoadDevice(const std::string &serviceName) override;
     int32_t UnloadDevice(const std::string &serviceName) override;
     int32_t ListAllDevice(std::vector<HdiDevHostInfo> &deviceInfos) override;
+    int32_t ListAllHost(std::vector<int> &pidList) override;
 
 private:
     static inline BrokerDelegator<DeviceManagerProxy> delegator_;
@@ -181,6 +182,11 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
         return HDF_ERR_INVALID_PARAM;
     }
     return status;
+}
+
+int32_t DeviceManagerProxy::ListAllHost(std::vector<int> &pidList)
+{
+    return HDF_SUCCESS;
 }
 
 sptr<IDeviceManager> IDeviceManager::Get()
