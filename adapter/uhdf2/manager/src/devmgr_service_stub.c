@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "devhost_service_proxy.h"
+#include "devhost_service_clnt.h"
 #include "device_token_proxy.h"
 #include "devmgr_query_device.h"
 #include "devsvc_manager.h"
@@ -35,6 +36,24 @@
 
 #define HDF_LOG_TAG devmgr_service_stub
 
+static void DevmgrServicehostClntGetPid(struct IDevmgrService *devmgrSvc, uint16_t hostId)
+{
+    struct DevmgrService *dmService = (struct DevmgrService *)devmgrSvc;
+    if (dmService == NULL) {
+        return;
+    }
+
+    struct DevHostServiceClnt *hostClnt = NULL;
+    DLIST_FOR_EACH_ENTRY(hostClnt, &dmService->hosts, struct DevHostServiceClnt, node) {
+        if (hostClnt->hostId == hostId) {
+            hostClnt->hostProcessId = HdfRemoteGetCallingPid();
+            break;
+        }
+    }
+
+    return;
+}
+
 static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
 {
     uint32_t hostId = 0;
@@ -44,6 +63,7 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
     }
     struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
+    DevmgrServicehostClntGetPid(devmgrSvc, hostId);
     return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
 }
 

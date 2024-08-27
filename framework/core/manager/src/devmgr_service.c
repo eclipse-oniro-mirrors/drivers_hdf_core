@@ -19,7 +19,6 @@
 #include "hdf_log.h"
 #include "hdf_object_manager.h"
 #include "osal_time.h"
-#include "hdf_remote_service.h"
 
 #define HDF_LOG_TAG devmgr_service
 #define INVALID_PID (-1)
@@ -300,8 +299,6 @@ static int DevmgrServiceAttachDeviceHost(
         HDF_LOGE("failed to attach device host, hostService is null");
         return HDF_FAILURE;
     }
-
-    hostClnt->hostProcessId = HdfRemoteGetCallingPid();
 
     (void)OsalMutexLock(&hostClnt->hostLock);
     hostClnt->hostService = hostService;
