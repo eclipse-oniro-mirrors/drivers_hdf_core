@@ -406,7 +406,7 @@ static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfS
 
     HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1);
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
-        HdfSbufWriteInt32(reply, hostClnt->hostProcessId);                    
+        HdfSbufWriteInt32(reply, hostClnt->hostProcessId);
     }
 
     return HDF_SUCCESS;

@@ -107,14 +107,14 @@ static int32_t HdfDumpIpcStatGet(std::string& result)
 
 bool HdfDumpIpcStat(int32_t fd, const char *cmd)
 {
-    if (cmd == NULL) {
+    if (cmd == nullptr) {
         HDF_LOGE("%{public}s cmd is null", __func__);
         return HDF_FAILURE;
     }
 
     bool ret = false;
     std::string result;
-	HDF_LOGI("%{public}s %{public}d", cmd, fd);
+    HDF_LOGI("%{public}s %{public}d", cmd, fd);
     if (strcmp(cmd, "--start-stat") == 0) {
         ret = HdfDumpIpcStatStart(result);
     } else if (strcmp(cmd, "--stop-stat") == 0) {
@@ -139,6 +139,11 @@ void HdfRegisterDumpFunc(DevHostDumpFunc dump)
 
 int32_t HdfDump(int32_t fd, const std::vector<std::u16string> &args)
 {
+    if (fd < 0) {
+        HDF_LOGE("fd is %{public}d",  fd);
+        return HDF_FAILURE;
+    }
+
     if (g_dump == nullptr) {
         HDF_LOGE("%{public}s g_dump is null",  __func__);
         return HDF_FAILURE;

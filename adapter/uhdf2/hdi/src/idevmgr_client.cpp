@@ -191,9 +191,9 @@ static void HdfDevMgrFillPidList(std::vector<int> &pidList, MessageParcel &reply
     reply.ReadUint32(count);
 
     int pid = -1;
-    for(uint32_t i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         reply.ReadInt32(pid);
-        pidList.push_back(pid);                    
+        pidList.push_back(pid);
     }
 
     return;

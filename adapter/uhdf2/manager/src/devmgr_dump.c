@@ -312,7 +312,7 @@ static int32_t DevMgrDumpIpc(int32_t fd, struct HdfSBuf *data, struct HdfSBuf *r
         return DevMgrDumpAllHostIpcStat(fd, dumpCmd, reply);
     } else {
         int32_t pid = atoi(value);
-        if (pid == getpid()){
+        if (pid == getpid()) {
             HdfDumpIpcStat(fd, dumpCmd);
         } else {
             DevMgrDumpSingleHostIpcStat(pid, fd, dumpCmd, reply);
