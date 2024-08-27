@@ -122,7 +122,6 @@ int32_t DevHostRegisterDumpHost(DevHostDumpFunc dump)
 
 void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    HDF_LOGI("%{public}s enter", __func__);
     if (data == NULL || reply == NULL) {
         return;
     }
@@ -159,8 +158,7 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
             (void)HdfSbufWriteString(reply, "The service does not register dump function\n");
         }
     } else if (strcmp(option, "--ipc") == 0) {
-        int32_t fd = -1;
-        HdfSbufReadInt32(data, &fd);
+        int32_t fd = HdfSbufReadFileDescriptor(data);
         HDF_LOGI("%{public}s %{public}d", option, fd);
         const char *dumpCmd = HdfSbufReadString(data);
         if (dumpCmd == NULL) {

@@ -225,7 +225,7 @@ static int32_t DevMgrDumpAllHostIpcStat(int32_t fd, const char *cmd, struct HdfS
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufWriteInt32(ipcData, fd)) {
+    if (!HdfSbufWriteFileDescriptor(ipcData, fd)) {
         HdfSbufRecycle(ipcData);
         return HDF_FAILURE;
     }
@@ -250,13 +250,13 @@ static int32_t DevMgrDumpSingleHostIpcStats(int32_t pid, struct HdfSBuf *data, s
     struct DevHostServiceClnt *hostClnt = NULL;
     int32_t ret = HDF_FAILURE;
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
-        HDF_LOGI("%{public}s hostName:%{public}s %{public}d %{public}d", __func__,
-            hostClnt->hostName, hostClnt->hostProcessId, pid);
         if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
             HDF_LOGI("The host does not start\n");
             continue;
         }
         if (hostClnt->hostProcessId == pid) {
+            HDF_LOGI("%{public}s hostName:%{public}s %{public}d %{public}d", __func__,
+                hostClnt->hostName, hostClnt->hostProcessId, pid);
             ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
             break;
         }
@@ -277,7 +277,7 @@ static int32_t DevMgrDumpSingleHostIpcStat(int32_t pid, int32_t fd, const char *
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufWriteInt32(ipcData, fd)) {
+    if (!HdfSbufWriteFileDescriptor(ipcData, fd)) {
         HdfSbufRecycle(ipcData);
         return HDF_FAILURE;
     }
@@ -600,8 +600,7 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_FAILURE;
     }
 
-    int32_t fd = -1;
-    HdfSbufReadInt32(data, &fd);
+    int32_t fd = HdfSbufReadFileDescriptor(data);
 
     uint32_t argv = 0;
     HdfSbufReadUint32(data, &argv);

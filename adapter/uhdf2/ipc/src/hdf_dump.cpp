@@ -41,7 +41,7 @@ static constexpr int32_t MAX_PARA_NUM = 22;
 
 static bool HdfDumpIpcStatStart(std::string& result)
 {
-    result = std::string("HdfDumperIpcStatStart pid:") + std::to_string(getpid());
+    result = std::string("HdfDumpIpcStatStart pid:") + std::to_string(getpid());
     bool ret = IPCPayloadStatistics::StartStatistics();
     result += ret ? HDF_DUMP_SUCCESS_STR : HDF_DUMP_FAIL_STR;
     return ret;
@@ -49,7 +49,7 @@ static bool HdfDumpIpcStatStart(std::string& result)
 
 static int32_t HdfDumpIpcStatStop(std::string& result)
 {
-    result = std::string("HdfDumperIpcStatStop pid:") + std::to_string(getpid());
+    result = std::string("HdfDumpIpcStatStop pid:") + std::to_string(getpid());
     bool ret = IPCPayloadStatistics::StopStatistics();
     result += ret ? HDF_DUMP_SUCCESS_STR : HDF_DUMP_FAIL_STR;
     return ret;
@@ -166,7 +166,7 @@ int32_t HdfDump(int32_t fd, const std::vector<std::u16string> &args)
         goto FINISHED;
     }
 
-    if (!HdfSbufWriteInt32(data, fd)) {
+    if (!HdfSbufWriteFileDescriptor(data, fd)) {
         goto FINISHED;
     }
 
