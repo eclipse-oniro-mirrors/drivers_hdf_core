@@ -109,6 +109,16 @@ static int32_t DevmgrServiceStubDispatchListAllDevice(struct IDevmgrService *dev
     return devmgrSvc->ListAllDevice(devmgrSvc, reply);
 }
 
+static int32_t DevmgrServiceStubListAllHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *reply)
+{
+    if (reply == NULL) {
+        HDF_LOGE("%{public}s:service name is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    HDF_LOGD("%{public}s:get all device info", __func__);
+    return devmgrSvc->ListAllHost(devmgrSvc, reply);
+}
+
 int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret = HDF_FAILURE;
@@ -144,6 +154,9 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
             break;
         case DEVMGR_SERVICE_LIST_ALL_DEVICE:
             ret = DevmgrServiceStubDispatchListAllDevice(super, reply);
+            break;
+        case DEVMGR_SERVICE_LIST_ALL_HOST:
+            ret = DevmgrServiceStubListAllHost(super, data, reply);
             break;
         default:
             return HdfRemoteServiceDefaultDispatch(serviceStub->remote, code, data, reply);

@@ -40,6 +40,7 @@ enum DevmgrCmdId : uint32_t {
     DEVMGR_SERVICE_UNLOAD_DEVICE,
     DEVMGR_SERVICE_QUERY_DEVICE,
     DEVMGR_SERVICE_LIST_ALL_DEVICE,
+    DEVMGR_SERVICE_LIST_ALL_HOST,
 };
 
 class DeviceManagerProxy : public IProxyBroker<IDeviceManager> {
@@ -184,9 +185,45 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
     return status;
 }
 
+static void HdfDevMgrFillPidList(std::vector<int> &pidList, MessageParcel &reply)
+{
+    uint32_t count = 0;
+    HdfSbufReadUint32(reply, &count);
+
+    int pid = -1;
+    for(uint32_t i = 0; i < count; ++i) {
+        HdfSbufReadInt32(reply, &pid);
+        pidList.push_back(pid);                    
+    }
+
+    return;
+}
+
 int32_t DeviceManagerProxy::ListAllHost(std::vector<int> &pidList)
 {
-    return HDF_SUCCESS;
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return HDF_FAILURE;
+    }
+
+    MessageOption option;
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
+    if (Remote() == nullptr) {
+        HDF_LOGE("invalid param Remote()");
+        return HDF_ERR_INVALID_PARAM;
+    }
+    int status = Remote()->SendRequest(
+        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVMGR_SERVICE_LIST_ALL_HOST), data, reply, option);
+    lock.unlock();
+    if (status != HDF_SUCCESS) {
+        HDF_LOGE("list all service info failed, %{public}d", status);
+        return status;
+    } else {
+        HdfDevMgrFillPidList(pidList, reply);
+    }
+    HDF_LOGD("get all service info success");
+    return status;
 }
 
 sptr<IDeviceManager> IDeviceManager::Get()

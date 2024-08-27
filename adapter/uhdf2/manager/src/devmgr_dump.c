@@ -29,7 +29,7 @@
 #include "devmgr_dump.h"
 
 #define HDF_LOG_TAG devmgr_dump
- 
+
 static const char *HELP_COMMENT =
     " usage:\n"
     " -help  :display help information\n"
@@ -190,6 +190,136 @@ static int32_t DevMgrDumpService(uint32_t argv, struct HdfSBuf *data, struct Hdf
     int32_t ret = DevMgrDumpServiceFindHost(servName, servData, reply);
     HdfSbufRecycle(servData);
     return ret;
+}
+
+static int32_t DevMgrDumpAllHostIpcStats(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    struct DevmgrService *devMgrSvc = (struct DevmgrService *)DevmgrServiceGetInstance();
+    if (devMgrSvc == NULL) {
+        return HDF_FAILURE;
+    }
+
+    struct DevHostServiceClnt *hostClnt = NULL;
+    int32_t ret = HDF_FAILURE;
+    DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
+        HDF_LOGI("%{public}s hostName:%{public}s", __func__, hostClnt->hostName);
+        if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
+            HDF_LOGI("The host does not start\n");
+            continue;
+        }
+        ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
+    }
+
+    return ret;
+}
+
+static int32_t DevMgrDumpAllHostIpcStat(int32_t fd, const char *cmd, struct HdfSBuf *reply)
+{
+    struct HdfSBuf *ipcData = HdfSbufTypedObtain(SBUF_IPC);
+    if (ipcData == NULL) {
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteString(ipcData, "--ipc")) {
+        HdfSbufRecycle(ipcData);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(ipcData, fd)) {
+        HdfSbufRecycle(ipcData);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteString(ipcData, cmd)) {
+        HdfSbufRecycle(ipcData);
+        return HDF_FAILURE;
+    }
+
+    int32_t ret = DevMgrDumpAllHostIpcStats(ipcData, reply);
+    HdfSbufRecycle(ipcData);
+    return ret;
+}
+
+static int32_t DevMgrDumpSingleHostIpcStats(int32_t pid, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    struct DevmgrService *devMgrSvc = (struct DevmgrService *)DevmgrServiceGetInstance();
+    if (devMgrSvc == NULL) {
+        return HDF_FAILURE;
+    }
+
+    struct DevHostServiceClnt *hostClnt = NULL;
+    int32_t ret = HDF_FAILURE;
+    DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
+        HDF_LOGI("%{public}s hostName:%{public}s %{public}d %{public}d", __func__,
+            hostClnt->hostName, hostClnt->hostProcessId, pid);
+        if (hostClnt->hostService == NULL || hostClnt->hostService->Dump == NULL) {
+            HDF_LOGI("The host does not start\n");
+            continue;
+        }
+        if (hostClnt->hostProcessId == pid) {
+            ret = hostClnt->hostService->Dump(hostClnt->hostService, data, reply);
+            break;
+        }
+    }
+
+    return ret;
+}
+
+static int32_t DevMgrDumpSingleHostIpcStat(int32_t pid, int32_t fd, const char *cmd, struct HdfSBuf *reply)
+{
+    struct HdfSBuf *ipcData = HdfSbufTypedObtain(SBUF_IPC);
+    if (ipcData == NULL) {
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteString(ipcData, "--ipc")) {
+        HdfSbufRecycle(ipcData);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteInt32(ipcData, fd)) {
+        HdfSbufRecycle(ipcData);
+        return HDF_FAILURE;
+    }
+
+    if (!HdfSbufWriteString(ipcData, cmd)) {
+        HdfSbufRecycle(ipcData);
+        return HDF_FAILURE;
+    }
+
+    int32_t ret = DevMgrDumpSingleHostIpcStats(pid, ipcData, reply);
+    HdfSbufRecycle(ipcData);
+    return ret;
+}
+
+static int32_t DevMgrDumpIpc(int32_t fd, struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    const char *value = HdfSbufReadString(data);
+    if (value == NULL) {
+        HDF_LOGE("%{public}s value is null", __func__);
+        return HDF_FAILURE;
+    }
+
+    const char *dumpCmd = HdfSbufReadString(data);
+    if (dumpCmd == NULL) {
+        HDF_LOGE("%{public}s dumpCmd is null", __func__);
+        return HDF_FAILURE;
+    }
+
+    HDF_LOGI("%{public}s %{public}s fd:%{public}d", value, dumpCmd, fd);
+    if (strcmp(value, "all") == 0) {
+        HdfDumpIpcStat(fd, dumpCmd);
+        return DevMgrDumpAllHostIpcStat(fd, dumpCmd, reply);
+    } else {
+        int32_t pid = stoi(value);
+        if (pid == getpid()){
+            HdfDumpIpcStat(fd, dumpCmd);
+        } else {
+            DevMgrDumpSingleHostIpcStat(pid, fd, dumpCmd, reply);
+        }
+    }
+
+    return HDF_SUCCESS;
 }
 
 static int32_t DevMgrFillDeviceHostInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -470,6 +600,9 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_FAILURE;
     }
 
+    int32_t fd = -1;
+    HdfSbufReadInt32(data, &fd);
+
     uint32_t argv = 0;
     HdfSbufReadUint32(data, &argv);
 
@@ -501,6 +634,8 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
             return DevMgrDumpHost(argv - 1, data, reply);
         } else if (strcmp(value, "-service") == 0) {
             return DevMgrDumpService(argv - 1, data, reply);
+        } else if (strcmp(value, "--ipc") == 0) {
+            return DevMgrDumpIpc(fd, data, reply);
         } else {
             (void)HdfSbufWriteString(reply, HELP_COMMENT);
             return HDF_SUCCESS;
