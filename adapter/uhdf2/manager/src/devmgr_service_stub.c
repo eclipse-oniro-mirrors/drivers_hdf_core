@@ -136,7 +136,10 @@ static int32_t DevmgrServiceStubListAllHost(struct IDevmgrService *devmgrSvc, st
         return HDF_ERR_INVALID_PARAM;
     }
     HDF_LOGD("%{public}s:get all device info", __func__);
-    return devmgrSvc->ListAllHost(devmgrSvc, reply);
+
+    int32_t ret = devmgrSvc->ListAllHost(devmgrSvc, reply);
+    HdfSbufWriteInt32(reply, getpid());
+    return ret;
 }
 
 int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)

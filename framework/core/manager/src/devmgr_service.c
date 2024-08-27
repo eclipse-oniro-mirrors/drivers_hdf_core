@@ -6,8 +6,6 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include <unistd.h>
-
 #include "devmgr_service.h"
 #include "devhost_service_clnt.h"
 #include "device_token_clnt.h"
@@ -407,7 +405,6 @@ static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfS
     }
 
     HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1);
-    HdfSbufWriteInt32(reply, getpid());
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSbufWriteInt32(reply, hostClnt->hostProcessId);                    
     }
