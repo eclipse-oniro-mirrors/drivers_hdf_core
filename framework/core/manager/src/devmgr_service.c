@@ -6,6 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <unistd.h>
+
 #include "devmgr_service.h"
 #include "devhost_service_clnt.h"
 #include "device_token_clnt.h"
@@ -17,6 +19,7 @@
 #include "hdf_log.h"
 #include "hdf_object_manager.h"
 #include "osal_time.h"
+#include "hdf_remote_service.h"
 
 #define HDF_LOG_TAG devmgr_service
 #define INVALID_PID (-1)

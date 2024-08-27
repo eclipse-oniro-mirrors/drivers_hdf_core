@@ -188,11 +188,11 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
 static void HdfDevMgrFillPidList(std::vector<int> &pidList, MessageParcel &reply)
 {
     uint32_t count = 0;
-    HdfSbufReadUint32(reply, &count);
+    reply.ReadUint32(count);
 
     int pid = -1;
     for(uint32_t i = 0; i < count; ++i) {
-        HdfSbufReadInt32(reply, &pid);
+        reply.ReadInt32(pid);
         pidList.push_back(pid);                    
     }
 
@@ -214,7 +214,7 @@ int32_t DeviceManagerProxy::ListAllHost(std::vector<int> &pidList)
         return HDF_ERR_INVALID_PARAM;
     }
     int status = Remote()->SendRequest(
-        static_cast<uint32_t>(HdfDeviceManagerInterfaceCode::DEVMGR_SERVICE_LIST_ALL_HOST), data, reply, option);
+        static_cast<uint32_t>(DEVMGR_SERVICE_LIST_ALL_HOST), data, reply, option);
     lock.unlock();
     if (status != HDF_SUCCESS) {
         HDF_LOGE("list all service info failed, %{public}d", status);

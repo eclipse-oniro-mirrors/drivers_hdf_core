@@ -156,7 +156,7 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
             ret = DevmgrServiceStubDispatchListAllDevice(super, reply);
             break;
         case DEVMGR_SERVICE_LIST_ALL_HOST:
-            ret = DevmgrServiceStubListAllHost(super, data, reply);
+            ret = DevmgrServiceStubListAllHost(super, reply);
             break;
         default:
             return HdfRemoteServiceDefaultDispatch(serviceStub->remote, code, data, reply);

@@ -311,7 +311,7 @@ static int32_t DevMgrDumpIpc(int32_t fd, struct HdfSBuf *data, struct HdfSBuf *r
         HdfDumpIpcStat(fd, dumpCmd);
         return DevMgrDumpAllHostIpcStat(fd, dumpCmd, reply);
     } else {
-        int32_t pid = stoi(value);
+        int32_t pid = atoi(value);
         if (pid == getpid()){
             HdfDumpIpcStat(fd, dumpCmd);
         } else {
