@@ -394,6 +394,24 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
     return HDF_SUCCESS;
 }
 
+static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfSBuf *reply)
+{
+    struct DevmgrService *devMgrSvc = (struct DevmgrService *)inst;
+    struct DevHostServiceClnt *hostClnt = NULL;
+
+    if (devMgrSvc == NULL || reply == NULL) {
+        HDF_LOGE("%{public}s failed, parameter is null", __func__);
+        return HDF_FAILURE;
+    }
+
+    HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1);
+    DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
+        HdfSbufWriteInt32(reply, hostClnt->hostProcessId);
+    }
+
+    return HDF_SUCCESS;
+}
+
 int DevmgrServiceStartService(struct IDevmgrService *inst)
 {
     int ret;
@@ -469,6 +487,7 @@ bool DevmgrServiceConstruct(struct DevmgrService *inst)
         devMgrSvcIf->StartService = DevmgrServiceStartService;
         devMgrSvcIf->PowerStateChange = DevmgrServicePowerStateChange;
         devMgrSvcIf->ListAllDevice = DevmgrServiceListAllDevice;
+        devMgrSvcIf->ListAllHost = DevmgrServiceListAllHost;
         DListHeadInit(&inst->hosts);
         return true;
     } else {
