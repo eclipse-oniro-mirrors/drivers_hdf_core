@@ -139,13 +139,8 @@ void HdfRegisterDumpFunc(DevHostDumpFunc dump)
 
 int32_t HdfDump(int32_t fd, const std::vector<std::u16string> &args)
 {
-    if (fd < 0) {
-        HDF_LOGE("fd is %{public}d",  fd);
-        return HDF_FAILURE;
-    }
-
-    if (g_dump == nullptr) {
-        HDF_LOGE("%{public}s g_dump is null",  __func__);
+    if (g_dump == nullptr || fd < 0) {
+        HDF_LOGE("%{public}s g_dump fd:%{public}d",  __func__, fd);
         return HDF_FAILURE;
     }
 
