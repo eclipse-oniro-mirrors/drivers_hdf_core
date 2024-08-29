@@ -13,10 +13,12 @@
 
 import("//build/ohos.gni")
 
-ohos_prebuilt_etc("hdf_peripheral.cfg") {
-  source = "hdf_peripheral.cfg"
-  relative_install_dir = "init"
-  install_images = [ chipset_base_dir ]
-  subsystem_name = "hdf"
-  part_name = "hdf_core"
+if (hdf_core_default_peripheral_config) {
+  ohos_prebuilt_etc("hdf_peripheral.cfg") {
+    source = "hdf_peripheral.cfg"
+    relative_install_dir = "init"
+    install_images = [ chipset_base_dir ]
+    subsystem_name = "hdf"
+    part_name = "hdf_core"
+  }
 }

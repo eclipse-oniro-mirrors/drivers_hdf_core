@@ -20,4 +20,5 @@ declare_args() {
     hicollie_enabled = false
   }
   with_sample = false
+  hdf_core_default_peripheral_config = true
 }
