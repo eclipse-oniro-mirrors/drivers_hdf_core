@@ -450,6 +450,10 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
 
 bool DevmgrServiceConstruct(struct DevmgrService *inst)
 {
+    if (inst == NULL) {
+        HDF_LOGE("%{public}s:inst is null ", __func__);
+        return false;
+    }
     struct IDevmgrService *devMgrSvcIf = NULL;
     if (OsalMutexInit(&inst->devMgrMutex) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s:failed to mutex init ", __func__);
