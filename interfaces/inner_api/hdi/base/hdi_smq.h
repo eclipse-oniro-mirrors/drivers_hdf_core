@@ -401,7 +401,7 @@ bool SharedMemQueue<T>::IsGood()
 template <typename T>
 size_t SharedMemQueue<T>::Align(size_t num, size_t alignSize)
 {
-    if ((num + alignSize) < 1 || num > (SIZE_MAX - alignSize) || alignSize > (SIZE_MAX - num)) {
+    if (alignSize < 1 || num > (SIZE_MAX - alignSize)) {
         HDF_LOGE("Invalid parameter num or alignSize");
         return 0;
     }
