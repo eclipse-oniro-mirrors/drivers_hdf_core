@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 if (hdf_core_default_peripheral_config) {
   ohos_prebuilt_etc("hdf_peripheral.cfg") {
