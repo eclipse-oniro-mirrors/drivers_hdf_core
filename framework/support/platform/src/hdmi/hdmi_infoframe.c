@@ -471,7 +471,7 @@ static void HdmiFillAviInfoFrame(struct HdmiAviInfoFrame *avi,
     bool enable3d = true;
     if (avi == NULL) {
         HDF_LOGE("invalid param: avi.");
-        return; 
+        return;
     }
 
     if (memset_s(avi, sizeof(struct HdmiAviInfoFrame), 0, sizeof(struct HdmiAviInfoFrame)) != EOK) {
@@ -528,7 +528,7 @@ static void HdmiFillAudioInfoFrame(struct HdmiAudioInfoFrame *audio, const struc
 {
     if (audio == NULL) {
         HDF_LOGE("invalid param: audio.");
-        return; 
+        return;
     }
     if (memset_s(audio, sizeof(struct HdmiAudioInfoFrame), 0, sizeof(struct HdmiAudioInfoFrame)) != EOK) {
         HDF_LOGE("fill vsif, memset_s fail.");
