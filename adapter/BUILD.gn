@@ -33,7 +33,7 @@ if (defined(ohos_lite)) {
 } else {
   group("uhdf_entry") {
     hdf_framework_path = "./../framework"
-    hdf_peripheral_path = "./uhdf2/host/peripheral"
+
     deps = [
       "$hdf_adapter_path/uhdf2/hdi:libhdi",
       "$hdf_adapter_path/uhdf2/host:hdf_devhost",
@@ -50,7 +50,7 @@ if (defined(ohos_lite)) {
     ]
 
     if (hdf_core_default_peripheral_config) {
-      deps += [ "$hdf_peripheral_path:hdf_peripheral.cfg", ]
+      deps += [ "./uhdf2/host/peripheral:hdf_peripheral.cfg", ]
     }
 
     if (with_sample) {
