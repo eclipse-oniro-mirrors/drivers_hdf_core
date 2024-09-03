@@ -89,7 +89,7 @@ static int32_t SgAllocCompacted(struct SgDmaBuffer *buf, gfp_t gfpFlags)
         for (i = 0; i < (1 << order); i++) {
             buf->pages[lastPage++] = &pages[i];
         }
-        if (size < PAGE_SIZE << order) {
+        if (size < (PAGE_SIZE << order)) {
             HDF_LOGE("%s: size invalid", __func__);
             return -EINVAL;
         }
