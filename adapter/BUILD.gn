@@ -50,7 +50,7 @@ if (defined(ohos_lite)) {
     ]
 
     if (hdf_core_default_peripheral_config) {
-      deps += [ "./uhdf2/host/peripheral:hdf_peripheral.cfg", ]
+      deps += [ "./uhdf2/host/peripheral:hdf_peripheral.cfg" ]
     }
 
     if (with_sample) {
