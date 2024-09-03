@@ -31,6 +31,10 @@ static bool DevmgrServiceDynamicDevInfoFound(
     if (devMgrSvc == NULL) {
         return false;
     }
+    if (targetHostClnt == NULL || targetDeviceInfo == NULL) {
+        HDF_LOGE("invalid params");
+        return false;
+    }
 
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&itDeviceInfo, &hostClnt->dynamicDevInfos);

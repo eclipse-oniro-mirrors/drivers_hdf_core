@@ -35,7 +35,10 @@ static int DevmgrPmSuspend(void)
 
     if (devmgrService->PowerStateChange(devmgrService, POWER_STATE_SUSPEND) != HDF_SUCCESS) {
         HDF_LOGE("%s drivers suspend failed", __func__);
-        devmgrService->PowerStateChange(devmgrService, POWER_STATE_RESUME);
+        int ret = devmgrService->PowerStateChange(devmgrService, POWER_STATE_RESUME);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s drivers resume failed", __func__);
+        }
         return HDF_FAILURE;
     }
 
