@@ -38,6 +38,10 @@ static unsigned long GetContiguousSize(struct sg_table *sgt)
     dma_addr_t expected = sg_dma_address(sgt->sgl);
     uint32_t i;
     unsigned long size = 0;
+    if (sgt == NULL) {
+        HDF_LOGE("sgt is NULL!");
+        return size;
+    }
 
     for_each_sgtable_dma_sg(sgt, slist, i) {
         if (sg_dma_address(slist) != expected) {
