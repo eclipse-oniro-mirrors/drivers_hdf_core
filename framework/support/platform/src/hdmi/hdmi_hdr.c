@@ -36,6 +36,10 @@ static void HdmiHdrZeroDrmInfoFrameTimerSet(struct HdmiCntlr *cntlr, bool start)
 {
     struct HdmiHdrInfo *hdrInfo = &(cntlr->hdr->info);
     struct HdmiHdrAttr *hdrAttr = &(cntlr->attr.hdrAttr);
+    if (hdrInfo == NULL || hdrAttr == NULL) {
+        HDF_LOGE("invalid params");
+        return;
+    }
 
     hdrInfo->zeroDrmIfTimer.start = false;
     hdrInfo->zeroDrmIfTimer.timerType = HDMI_HDR_TIMER_ZERO_DRMIF;

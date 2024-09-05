@@ -163,10 +163,20 @@ void CppClientProxyCodeEmitter::EmitProxyConstructor(StringBuilder &sb, const st
         " : IProxyBroker<%s>(remote) {\n", EmitDefinitionByInterface(interface_, interfaceName_).c_str());
     if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
         sb.Append(prefix + TAB).Append("reconnectRemote_ = nullptr;\n");
+        sb.Append(prefix + TAB).Append("servMgr_ = nullptr;\n");
+        sb.Append(prefix + TAB).Append("deathRecipient_ = nullptr;\n");
         sb.Append(prefix + TAB).Append("isReconnected_ = false;\n");
     }
     sb.Append(prefix).AppendFormat("}\n");
-    sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", proxyName_.c_str());
+    if (!interface_->IsSerializable() && (!interface_->IsCallback())) {
+        sb.Append(prefix).AppendFormat("virtual ~%s() {\n", proxyName_.c_str());
+        sb.Append(prefix + TAB).AppendFormat("if (servMgr_ != nullptr && deathRecipient_ != nullptr) {\n");
+        sb.Append(prefix + TAB + TAB).AppendFormat("servMgr_->RemoveDeathRecipient(deathRecipient_);\n");
+        sb.Append(prefix + TAB).AppendFormat("}\n");
+        sb.Append(prefix).AppendFormat("}\n");
+    } else {
+        sb.Append(prefix).AppendFormat("virtual ~%s() = default;\n", proxyName_.c_str());
+    }
 }
 
 void CppClientProxyCodeEmitter::EmitProxyMethodDecls(StringBuilder &sb, const std::string &prefix) const
@@ -247,7 +257,6 @@ void CppClientProxyCodeEmitter::EmitProxyStaticMethodDecl(
 
 void CppClientProxyCodeEmitter::EmitProxyReconnectMethodDecl(StringBuilder &sb, const std::string &prefix) const
 {
-    std::string doubleTab = prefix + TAB;
     sb.Append(prefix).AppendFormat("static int32_t Reconnect(sptr<%s> proxy);\n",
         EmitDefinitionByInterface(interface_, proxyName_).c_str());
 }
@@ -264,6 +273,9 @@ void CppClientProxyCodeEmitter::EmitProxyPublicMembers(StringBuilder &sb, const 
     sb.Append(prefix).Append("bool isReconnected_;\n");
     sb.Append(prefix).Append("std::string serviceName_;\n");
     sb.Append(prefix).AppendFormat("sptr<IRemoteObject> servMgr_;\n", devmgrVersionName_.c_str());
+    sb.Append(prefix).AppendFormat("sptr<%s::%s> deathRecipient_;\n",
+        EmitDefinitionByInterface(interface_, proxyName_).c_str(),
+        devmgrDeathRecipientName_.c_str());
     sb.Append(prefix).Append("sptr<IRemoteObject> reconnectRemote_;\n");
 }
 
@@ -491,10 +503,11 @@ void CppClientProxyCodeEmitter::EmitGetInstanceMethodInitProxyImpl(StringBuilder
     std::string serMinorName = "serMinorVer";
     sb.Append(prefix + TAB).AppendFormat("%s->servMgr_ = ", objName.c_str());
     sb.Append("OHOS::HDI::hdi_objcast<IServiceManager>(servMgr);\n");
-    sb.Append(prefix + TAB).AppendFormat("%s->servMgr_->AddDeathRecipient(\n", objName.c_str());
-    sb.Append(prefix + TAB + TAB).AppendFormat("new %s::%s(%s));\n",
+    sb.Append(prefix + TAB).AppendFormat("%s->deathRecipient_ = new %s::%s(%s);\n", objName.c_str(),
         EmitDefinitionByInterface(interface_, proxyName_).c_str(),
         devmgrDeathRecipientName_.c_str(), objName.c_str());
+    sb.Append(prefix + TAB).AppendFormat("%s->servMgr_->AddDeathRecipient(%s->deathRecipient_);\n",
+        objName.c_str(), objName.c_str());
     sb.Append(prefix + TAB).AppendFormat("%s->isReconnected_ = false;\n", objName.c_str());
     sb.Append(prefix + TAB).AppendFormat("%s->serviceName_ = serviceName;\n", objName.c_str());
 

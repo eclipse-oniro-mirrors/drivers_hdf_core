@@ -28,6 +28,7 @@ struct IDevmgrService {
     int (*StartService)(struct IDevmgrService *);
     int (*PowerStateChange)(struct IDevmgrService *, enum HdfPowerState pEvent);
     int (*ListAllDevice)(struct IDevmgrService *, struct HdfSBuf *);
+    int (*ListAllHost)(struct IDevmgrService *, struct HdfSBuf *);
 };
 
 #endif /* DEVMGR_SERVICE_IF_H */

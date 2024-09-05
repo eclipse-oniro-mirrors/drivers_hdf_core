@@ -99,6 +99,10 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
             return false;
         }
         attribute->deviceMatchAttr = strdup(deviceMatchAttr);
+        if (attribute->deviceMatchAttr == NULL) {
+        HDF_LOGE("Read from sbuf failed, strdup deviceMatchAttr fail");
+        return false;
+        }
     }
 
     return true;
@@ -114,6 +118,10 @@ struct HdfDeviceInfo *DeviceAttributeDeserialize(struct HdfSBuf *sbuf)
     if (attribute == NULL) {
         HDF_LOGE("OsalMemCalloc failed, attribute is null");
         return NULL;
+    }
+
+    if (attribute->deviceMatchAttr == NULL) {
+        HDF_LOGW("OsalMemCalloc failed, attribute->deviceMatchAttr is null");
     }
 
     if (!HdfSbufReadUint32(sbuf, &attribute->deviceId) || !HdfSbufReadUint16(sbuf, &attribute->policy)) {

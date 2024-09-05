@@ -31,6 +31,10 @@ static bool DevmgrServiceDynamicDevInfoFound(
     if (devMgrSvc == NULL) {
         return false;
     }
+    if (targetHostClnt == NULL || targetDeviceInfo == NULL) {
+        HDF_LOGE("invalid params");
+        return false;
+    }
 
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&itDeviceInfo, &hostClnt->dynamicDevInfos);
@@ -277,7 +281,7 @@ static int DevmgrServiceDetachDevice(struct IDevmgrService *inst, devid_t devid)
     }
     tokenClntNode = HdfSListSearch(&hostClnt->devices, devid, HdfSListHostSearchDeviceTokenComparer);
     if (tokenClntNode == NULL) {
-        HDF_LOGE("devmgr detach device %{public}x not found", devid);
+        HDF_LOGE("devmgr detach devic not found");
         return HDF_DEV_ERR_NO_DEVICE;
     }
     tokenClnt = CONTAINER_OF(tokenClntNode, struct DeviceTokenClnt, node);
@@ -394,6 +398,24 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
     return HDF_SUCCESS;
 }
 
+static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfSBuf *reply)
+{
+    struct DevmgrService *devMgrSvc = (struct DevmgrService *)inst;
+    struct DevHostServiceClnt *hostClnt = NULL;
+
+    if (devMgrSvc == NULL || reply == NULL) {
+        HDF_LOGE("%{public}s failed, parameter is null", __func__);
+        return HDF_FAILURE;
+    }
+
+    HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1);
+    DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
+        HdfSbufWriteInt32(reply, hostClnt->hostProcessId);
+    }
+
+    return HDF_SUCCESS;
+}
+
 int DevmgrServiceStartService(struct IDevmgrService *inst)
 {
     int ret;
@@ -450,6 +472,10 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
 
 bool DevmgrServiceConstruct(struct DevmgrService *inst)
 {
+    if (inst == NULL) {
+        HDF_LOGE("%{public}s:inst is null ", __func__);
+        return false;
+    }
     struct IDevmgrService *devMgrSvcIf = NULL;
     if (OsalMutexInit(&inst->devMgrMutex) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s:failed to mutex init ", __func__);
@@ -465,6 +491,7 @@ bool DevmgrServiceConstruct(struct DevmgrService *inst)
         devMgrSvcIf->StartService = DevmgrServiceStartService;
         devMgrSvcIf->PowerStateChange = DevmgrServicePowerStateChange;
         devMgrSvcIf->ListAllDevice = DevmgrServiceListAllDevice;
+        devMgrSvcIf->ListAllHost = DevmgrServiceListAllHost;
         DListHeadInit(&inst->hosts);
         return true;
     } else {

@@ -288,7 +288,6 @@ NetBuf *NetBufAlloc(uint32_t size)
 #else
     nb = (NetBuf *)LOS_MemAlloc(m_aucSysMem0, sizeof(*nb));
 #endif
-
     if (nb == NULL) {
         HDF_LOGE("%s alloc net buf fail", __func__);
         return NULL;
@@ -299,7 +298,6 @@ NetBuf *NetBufAlloc(uint32_t size)
 #else
     data = (uint8_t *)LOS_MemAlloc(m_aucSysMem0, size);
 #endif
-
     if (data == NULL) {
         HDF_LOGE("%s alloc data fail, size:%u", __func__, size);
         LOS_MemFree(m_aucSysMem0, nb);
@@ -629,7 +627,6 @@ struct pbuf *NetBuf2Pbuf(const NetBuf *nb)
     struct pbuf *p  = NULL;
     struct eth_hdr *hdr = NULL;
     uint32_t len = NetBufGetDataLen(nb);
-
     if ((len + ETH_PAD_SIZE) > MAX_CONVERSION_LEN) {
         HDF_LOGE("%s netbuf len exceeds the maximum length of the pbuf!", __func__);
         return NULL;

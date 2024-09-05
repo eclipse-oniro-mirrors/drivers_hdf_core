@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -157,11 +157,11 @@ static bool HdmiFrlCheckFrlCapability(struct HdmiFrl *frl)
         cntlr->cap.baseCap.bits.frl == 0 ||
         sinkScdcVerion == 0) {
         frl->info.maxFrlRate = 0;
-        return HDF_ERR_NOT_SUPPORT;
+        return false;
     }
     sinkMaxFrlRate = HdmiEdidGetMaxFrlRate(cntlr->hdmi);
     frl->info.maxFrlRate = (sinkMaxFrlRate > cntlr->cap.maxFrlRate) ? cntlr->cap.maxFrlRate : sinkMaxFrlRate;
-    return HDF_SUCCESS;
+    return true;
 }
 
 static bool HdmiFrlCheckFrlStrategy(enum HdmiFrlStrategyMode strategy, uint32_t pixelClock,
@@ -797,7 +797,6 @@ void HdmiFrlEnable(struct HdmiFrl *frl, bool enable)
 
 int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
 {
-    int32_t ret;
     struct HdmiCntlr *cntlr = NULL;
     struct HdmiVideoAttr *videoAttr = NULL;
 
@@ -805,11 +804,10 @@ int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = HdmiFrlCheckFrlCapability(frl);
-    if (ret != HDF_SUCCESS) {
+    if (HdmiFrlCheckFrlCapability(frl) == false) {
         HDF_LOGD("frl check capability fail, change to TMDS.");
         frl->info.mode = HDMI_FRL_MODE_TMDS;
-        return ret;
+        return HDF_ERR_NOT_SUPPORT;
     } else {
         if (HdnmiFrlCheckFrlMode(frl) == true) {
             HDF_LOGD("frl check frl mode succ.");

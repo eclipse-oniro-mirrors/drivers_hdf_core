@@ -13,7 +13,7 @@ ohos_executable("hdf_dbg") {
   if (is_standard_system) {
     deps = [
       "../../../adapter/uhdf2/hdi:libhdi",
-      "../../../adapter/uhdf2/utils/:libhdf_utils",
+      "../../../adapter/uhdf2/utils:libhdf_utils",
     ]
     external_deps = [
       "c_utils:utils",

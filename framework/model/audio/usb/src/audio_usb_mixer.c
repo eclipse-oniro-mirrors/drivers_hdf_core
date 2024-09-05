@@ -1164,6 +1164,7 @@ static int32_t AudioUsbCtlGetMinMaxVal(
         if (mixElemInfo->dBMin > mixElemInfo->dBMax) {
             /* totally crap, return an error */
             AUDIO_DRIVER_LOG_ERR("mixElemInfo is invalid.");
+            OsalMemFree(mixElemInfo->privateData);
             OsalMemFree(mixElemInfo);
             return HDF_FAILURE;
         }
@@ -1177,7 +1178,6 @@ static int32_t AudioUsbCtlGetMinMaxVal(
             mixElemInfo->dBMin = mixElemInfo->dBMax = 0;
         }
     }
-
     return HDF_SUCCESS;
 }
 
@@ -1339,6 +1339,7 @@ static int32_t AudioUsbFeatureCtlInit(struct UsbMixerInterface *mixer, struct Au
 
     ctlInfo = AudioUsbGetFeatureControlInfo(featureControl->control);
     if (ctlInfo == NULL) {
+        OsalMemFree(mixElemInfo->privateData);
         OsalMemFree(mixElemInfo);
         AUDIO_DEVICE_LOG_ERR("AudioUsbGetFeatureControlInfo failed.");
         return HDF_FAILURE;
@@ -1456,11 +1457,25 @@ static int32_t AudioUsbSetKctlItermName(struct UsbMixerBuild *state, struct Audi
     return HDF_SUCCESS;
 }
 
+static void UsbBuildFeatureCtlSubInitKcontrol(struct AudioCard *audioCard, struct AudioKcontrol *kcontrol,
+    struct UsbMixerElemInfo *mixElemInfo)
+{
+    struct AudioKcontrol *kControl = NULL;
+    kControl = AudioAddControl(audioCard, kcontrol);
+    if (kControl == NULL) {
+        OsalMemFree(mixElemInfo->privateData);
+        OsalMemFree(mixElemInfo);
+        OsalMemFree(kcontrol->name);
+        return;
+    }
+
+    DListInsertHead(&kControl->list, &audioCard->controls);
+}
+
 static void AudioUsbBuildFeatureCtlSub(
     struct UsbMixerBuild *state, struct UsbAudioTerm *usbAudioTerm, struct AudioUsbFeatureControl *featureControl)
 {
     struct AudioKcontrol *kcontrol = NULL;
-    struct AudioKcontrol *kControl = NULL;
     struct UsbMixerElemInfo *mixElemInfo = NULL;
     struct AudioCard *audioCard = NULL;
     int ret;
@@ -1479,13 +1494,21 @@ static void AudioUsbBuildFeatureCtlSub(
     ret = AudioUsbFeatureCtlInit(state->mixer, &kcontrol, mixElemInfo, featureControl);
     if (ret != HDF_SUCCESS || kcontrol == NULL) {
         AUDIO_DEVICE_LOG_INFO("AudioUsbFeatureCtlInit fail or kcontrol  is null");
+        OsalMemFree(mixElemInfo->privateData);
         OsalMemFree(mixElemInfo);
         return;
     }
 
     kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
+    if (kcontrol->name == NULL) {
+        AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
+        OsalMemFree(mixElemInfo->privateData);
+        OsalMemFree(mixElemInfo);
+        return;
+    }
     ret = AudioUsbSetKctlItermName(state, kcontrol, usbAudioTerm, featureControl);
     if (ret != HDF_SUCCESS) {
+        OsalMemFree(mixElemInfo->privateData);
         OsalMemFree(mixElemInfo);
         OsalMemFree(kcontrol->name);
         return;
@@ -1495,6 +1518,7 @@ static void AudioUsbBuildFeatureCtlSub(
     ret = AudioUsbCtlGetMinMaxVal(mixElemInfo, 0, kcontrol);
     if (ret != HDF_SUCCESS || mixElemInfo->max <= mixElemInfo->min) {
         AUDIO_DEVICE_LOG_INFO("AudioUsbCtlGetMinMaxVal fail or mixElemInfo->min error");
+        OsalMemFree(mixElemInfo->privateData);
         OsalMemFree(mixElemInfo);
         OsalMemFree(kcontrol->name);
         return;
@@ -1503,14 +1527,7 @@ static void AudioUsbBuildFeatureCtlSub(
     audioCard = state->mixer->audioUsbDriver->audioCard;
     kcontrol->privateValue = (unsigned long)(uintptr_t)(void *)mixElemInfo;
 
-    kControl = AudioAddControl(audioCard, kcontrol);
-    if (kControl == NULL) {
-        OsalMemFree(mixElemInfo);
-        OsalMemFree(kcontrol->name);
-        return;
-    }
-
-    DListInsertHead(&kControl->list, &audioCard->controls);
+    UsbBuildFeatureCtlSubInitKcontrol(audioCard, kcontrol, mixElemInfo);
 }
 
 static void AudioUsbBuildFeatureCtl(struct UsbMixerBuild *state, void *rawDesc, struct UsbAudioTerm *usbAudioTerm,
@@ -1627,6 +1644,20 @@ static bool AudioUsbMixerBitmapOverflow(
     return ctlTem > hdrTem;
 }
 
+static void UsbBuildMixerUnitCtlInitKcontrol(struct AudioKcontrol *kcontrol, struct UsbMixerElemInfo *mixElemInfo)
+{
+    kcontrol = &g_usbFeatureUnitCtl;
+    kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
+    if (kcontrol->name == NULL) {
+        AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
+        OsalMemFree(mixElemInfo->privateData);
+        OsalMemFree(mixElemInfo);
+        return;
+    }
+    kcontrol->privateValue = (unsigned long)(uintptr_t)(void *)mixElemInfo;
+    DListHeadInit(&kcontrol->list);
+}
+
 static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mixer_unit_descriptor *desc,
     struct MixerUnitCtlParam *mixCtlParam, int32_t unitId, struct UsbAudioTerm *usbAudioTerm)
 {
@@ -1664,11 +1695,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
     /* get min/max values */
     AudioUsbCtlGetMinMaxVal(mixElemInfo, 0, NULL);
 
-    kcontrol = &g_usbFeatureUnitCtl;
-    kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
-    kcontrol->privateValue = (unsigned long)(uintptr_t)(void *)mixElemInfo;
-    DListHeadInit(&kcontrol->list);
-
+    UsbBuildMixerUnitCtlInitKcontrol(kcontrol, mixElemInfo);
     len = AudioUsbCheckMappedName(map, kcontrol->name, KCTL_NAME_LEN);
     if (len == 0 && AudioUsbGetTermName(state->audioUsbDriver, usbAudioTerm, kcontrol->name, KCTL_NAME_LEN, 0) == 0) {
         (void)sprintf_s(kcontrol->name, KCTL_NAME_LEN, "Mixer Source %d", mixCtlParam->itemChannels + 1);
@@ -1678,6 +1705,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
     audioCard = state->audioUsbDriver->audioCard;
 
     if (AudioAddControl(audioCard, kcontrol) == NULL) {
+        OsalMemFree(mixElemInfo->privateData);
         OsalMemFree(mixElemInfo);
         OsalMemFree(kcontrol->name);
         return;
@@ -1876,15 +1904,44 @@ static void AudioUsbSetCtlName(struct UsbMixerBuild *state, struct AudioKcontrol
     }
 }
 
+static int32_t UsbParseSelectorUnitInitKcontrol(struct UsbMixerBuild *state,
+    struct uac_selector_unit_descriptor *desc, const struct UsbMixerNameMap *map,
+    struct UsbMixerElemInfo *mixElemInfo)
+{
+    struct AudioKcontrol *kcontrol = NULL;
+    struct AudioCard *audioCard = NULL;
+    kcontrol = &g_mixerSelectUnitCtl;
+    kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
+    if (kcontrol->name == NULL) {
+        AUDIO_DEVICE_LOG_ERR("OsalMemCalloc name is failed");
+        OsalMemFree(mixElemInfo->privateData);
+        OsalMemFree(mixElemInfo);
+        return HDF_ERR_MALLOC_FAIL;
+    }
+    DListHeadInit(&kcontrol->list);
+
+    AudioUsbSetCtlName(state, kcontrol, desc, map);
+    audioCard = state->audioUsbDriver->audioCard;
+    kcontrol->privateValue = (unsigned long)(uintptr_t)(void *)mixElemInfo;
+
+    if (AudioAddControl(audioCard, kcontrol) == NULL) {
+        OsalMemFree(mixElemInfo->privateData);
+        OsalMemFree(mixElemInfo);
+        OsalMemFree(kcontrol->name);
+        return HDF_FAILURE;
+    }
+
+    DListInsertHead(&kcontrol->list, &audioCard->controls);
+    return HDF_SUCCESS;
+}
+
 static int32_t AudioUsbParseSelectorUnit(struct UsbMixerBuild *state, int32_t unitId, void *rawDesc)
 {
     struct uac_selector_unit_descriptor *desc = rawDesc;
     uint32_t i;
     int32_t err;
     struct UsbMixerElemInfo *mixElemInfo = NULL;
-    struct AudioKcontrol *kcontrol = NULL;
     const struct UsbMixerNameMap *map = NULL;
-    struct AudioCard *audioCard = NULL;
 
     for (i = 0; i < desc->bNrInPins; i++) {
         err = AudioUsbParseUnit(state, desc->baSourceID[i]);
@@ -1911,26 +1968,12 @@ static int32_t AudioUsbParseSelectorUnit(struct UsbMixerBuild *state, int32_t un
 
     err = AudioUsbSetTermName(state, rawDesc, mixElemInfo, unitId);
     if (err != HDF_SUCCESS) {
+        OsalMemFree(mixElemInfo->privateData);
         OsalMemFree(mixElemInfo);
         return err;
     }
 
-    kcontrol = &g_mixerSelectUnitCtl;
-    kcontrol->name = (char *)OsalMemCalloc(KCTL_NAME_LEN);
-    DListHeadInit(&kcontrol->list);
-
-    AudioUsbSetCtlName(state, kcontrol, desc, map);
-    audioCard = state->audioUsbDriver->audioCard;
-    kcontrol->privateValue = (unsigned long)(uintptr_t)(void *)mixElemInfo;
-
-    if (AudioAddControl(audioCard, kcontrol) == NULL) {
-        OsalMemFree(mixElemInfo);
-        OsalMemFree(kcontrol->name);
-        return HDF_FAILURE;
-    }
-
-    DListInsertHead(&kcontrol->list, &audioCard->controls);
-    return HDF_SUCCESS;
+    return UsbParseSelectorUnitInitKcontrol(state, desc, map, mixElemInfo);
 }
 
 /* parse an audio unit recursively */

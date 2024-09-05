@@ -21,6 +21,10 @@ void *OsalMemAlloc(size_t size)
         HDF_LOGE("%s invalid param", __func__);
         return NULL;
     }
+    if (size > SIZE_MAX) {
+        HDF_LOGE("%s invalid param : size", __func__);
+        return NULL;
+    }
 
     buf = malloc(size);
 
@@ -33,6 +37,10 @@ void *OsalMemCalloc(size_t size)
 
     if (size == 0) {
         HDF_LOGE("%s invalid param", __func__);
+        return NULL;
+    }
+    if (size > SIZE_MAX) {
+        HDF_LOGE("%s invalid param : size", __func__);
         return NULL;
     }
 

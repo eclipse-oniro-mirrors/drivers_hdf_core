@@ -111,6 +111,7 @@ int32_t WatchdogCntlrGetStatus(struct WatchdogCntlr *cntlr, int32_t *status)
     ret = cntlr->ops->getStatus(cntlr, status);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("WatchdogCntlrGetStatus: getStatus fail!");
+        (void)OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
         return ret;
     }
     (void)OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);

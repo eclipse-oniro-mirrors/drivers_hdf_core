@@ -86,7 +86,7 @@ bool Options::Parse(int argc, char *argv[])
                 ret = AddPackagePath(optarg);
                 break;
             case 'o':
-                outPutFile = optarg;
+                outPutFile = CheckOutPutFile(optarg);
                 break;
             default:
                 doShowUsage = true;
@@ -163,11 +163,31 @@ void Options::AddSources(const std::string &sourceFile)
         return;
     }
 
+    if (!File::VerifyRealPath(realPath)) {
+        Logger::E(TAG, "verify path failed, path:%s", realPath.c_str());
+        return;
+    }
+    
     if (sourceFiles.insert(realPath).second == false) {
         Logger::E(TAG, "this idl file has been add:%s", sourceFile.c_str());
         return;
     }
     doCompile = true;
+}
+
+std::string Options::CheckOutPutFile(const std::string &sourceFile)
+{
+    std::string realPath = File::AdapterRealPath(sourceFile);
+    if (realPath.empty()) {
+        Logger::E(TAG, "invalid idl file path:%s", sourceFile.c_str());
+        return "";
+    }
+
+    if (!File::VerifyRealPath(realPath)) {
+        Logger::E(TAG, "verify path failed, path:%s", realPath.c_str());
+        return "";
+    }
+    return realPath;
 }
 
 void Options::AddSourcesByDir(const std::string &dir)
@@ -182,6 +202,10 @@ void Options::AddSourcesByDir(const std::string &dir)
 bool Options::AddPackagePath(const std::string &packagePath)
 {
     size_t index = packagePath.find(":");
+    if (packagePath.size() == 0 || packagePath.size() >= SIZE_MAX) {
+        Logger::E(TAG, "invalid parameters '%s'.", packagePath.c_str());
+        return false;
+    }
     if (index == std::string::npos || index == packagePath.size() - 1) {
         Logger::E(TAG, "invalid option parameters '%s'.", packagePath.c_str());
         return false;

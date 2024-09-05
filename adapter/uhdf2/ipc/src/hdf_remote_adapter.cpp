@@ -40,15 +40,20 @@ HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
 int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
+    HDF_LOGD("OnRemoteRequest enter");
     (void)option;
-    if (service_ == nullptr) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
 
     int ret = HDF_FAILURE;
     struct HdfSBuf *dataSbuf = ParcelToSbuf(&data);
     struct HdfSBuf *replySbuf = ParcelToSbuf(&reply);
 
+    std::shared_lock lock(mutex_);
+    if (service_ == nullptr) {
+        HDF_LOGE("service_ is nullptr");
+        HdfSbufRecycle(dataSbuf);
+        HdfSbufRecycle(replySbuf);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     struct HdfRemoteDispatcher *dispatcher = service_->dispatcher;
     if (dispatcher != nullptr && dispatcher->Dispatch != nullptr) {
         ret = dispatcher->Dispatch(reinterpret_cast<HdfRemoteService *>(service_->target), code, dataSbuf, replySbuf);
@@ -61,8 +66,20 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     return ret;
 }
 
+void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
+{
+    std::unique_lock lock(mutex_);
+    service_ = nullptr;
+}
+
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+    HDF_LOGD("~HdfRemoteServiceStub");
+}
+
+HdfRemoteServiceHolder::~HdfRemoteServiceHolder()
+{
+    HDF_LOGD("~HdfRemoteServiceHolder");
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
@@ -222,6 +239,16 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
 {
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(object);
     if (holder != nullptr) {
+        auto remote = holder->remote_;
+        if (remote != nullptr && !remote->IsProxyObject()) {
+            HdfRemoteServiceStub *stub = reinterpret_cast<HdfRemoteServiceStub *>(remote.GetRefPtr());
+            if (stub != nullptr) {
+                stub->HdfRemoteStubClearHolder();
+            }
+        }
+        holder->service_.target = nullptr;
+        holder->service_.dispatcher = nullptr;
+        holder->descriptor_.clear();
         holder->remote_ = nullptr;
         delete holder;
     }
@@ -269,33 +296,50 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     if (service == nullptr) {
         return HDF_ERR_INVALID_PARAM;
     }
+
+    const int32_t waitTimes = 50;
+    const int32_t sleepInterval = 20000;
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
-        OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_get_samgr",
-            OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
-        saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        const int32_t waitTimes = 50;
-        const int32_t sleepInterval = 20000;
-        int32_t timeout = waitTimes;
-        while (saManager == nullptr && (timeout > 0)) {
-            HDF_LOGI("waiting for samgr...");
-            usleep(sleepInterval);
+        for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
+            HDF_LOGI("waiting for samgr... %{public}d", cnt);
             saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-            timeout--;
+            if (saManager != nullptr) {
+                HDF_LOGI("GetSystemAbilityManager success");
+                break;
+            }
+            HDF_LOGI("GetSystemAbilityManager failed, retry");
+            usleep(sleepInterval);
         }
-
         if (saManager == nullptr) {
-            HDF_LOGE("failed to get sa manager, waiting timeot");
+            HDF_LOGE("failed to get sa manager, waiting timeout");
             return HDF_FAILURE;
         }
     }
     {
-        OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
-            OHOS::HdfXCollie::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HdfXCollie::HDF_XCOLLIE_FLAG_RECOVERY);
         struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
-        int ret = saManager->AddSystemAbility(saId, holder->remote_);
+#ifdef WITH_SELINUX
+        OHOS::sptr<OHOS::IRemoteObject> remote = holder->remote_;
+        OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(remote.GetRefPtr());
+        stub->SetRequestSidFlag(true);
+#endif
+        int ret = HDF_FAILURE;
+        for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
+            HDF_LOGI("waiting for addSa... %{public}d", cnt);
+            ret = saManager->AddSystemAbility(saId, holder->remote_);
+            if (ret == HDF_SUCCESS) {
+                HDF_LOGI("addsa %{public}d, success", saId);
+                break;
+            }
+            HDF_LOGI("AddSystemAbility failed, retry");
+            usleep(sleepInterval);
+        }
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("failed to addSa, waiting timeout");
+            return ret;
+        }
+    
         (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
-        HDF_LOGI("add sa %{public}d, ret = %{public}s", saId, (ret == 0) ? "succ" : "fail");
     }
     return HDF_SUCCESS;
 }
@@ -417,6 +461,11 @@ pid_t HdfRemoteGetCallingPid(void)
 pid_t HdfRemoteGetCallingUid(void)
 {
     return OHOS::IPCSkeleton::GetCallingUid();
+}
+
+char *HdfRemoteGetCallingSid(void)
+{
+    return strdup(OHOS::IPCSkeleton::GetCallingSid().c_str());
 }
 
 int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,

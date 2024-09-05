@@ -33,6 +33,10 @@ StringBuilder &StringBuilder::Append(char c)
         }
     }
 
+    if (buffer_ == nullptr) {
+        Logger::E(TAG, "buffer_ is nullptr!");
+        return *this;
+    }
     buffer_[position_] = c;
     position_ += 1;
     return *this;
@@ -146,11 +150,12 @@ bool StringBuilder::Grow(size_t size)
 
     if (buffer_ != nullptr) {
         int ret = memcpy_s(newBuffer, newSize, buffer_, capacity_);
-        free(buffer_);
         if (ret != 0) {
             Logger::E(TAG, "memcpy_s error ret = %d!", ret);
+            free(newBuffer);
             return false;
         }
+        free(buffer_);
     }
     buffer_ = newBuffer;
     capacity_ = newSize;
@@ -159,6 +164,10 @@ bool StringBuilder::Grow(size_t size)
 
 std::string StringBuilder::ToString() const
 {
+    if (buffer_ == nullptr) {
+        Logger::E(TAG, "buffer_ is nullptr");
+        return "";
+    }
     return std::string(buffer_, position_);
 }
 } // namespace HDI

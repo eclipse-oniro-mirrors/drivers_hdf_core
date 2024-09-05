@@ -11,12 +11,16 @@
 #include <devmgr_hdi.h>
 #include <osal_time.h>
 #include <servmgr_hdi.h>
+#include <idevmgr_hdi.h>
+#include <iproxy_broker.h>
 
 using namespace testing::ext;
+#ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
-static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 static constexpr const char *ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 static constexpr const char *REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
+#endif
+static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 
 class DevmgrUeventTest : public testing::Test {
 public:
@@ -53,6 +57,7 @@ void DevmgrUeventTest::SetUp() {}
 
 void DevmgrUeventTest::TearDown() {}
 
+#ifdef SAMPLE_DRIVER
 /**
  * @tc.name: DevmgrUeventTestAdd
  * @tc.desc: trigger add uevent
@@ -204,4 +209,24 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
         // expect:confirm that the service is unavailable
         ASSERT_TRUE(sampleService == nullptr);
     }
+}
+#endif
+
+HWTEST_F(DevmgrUeventTest, HdiProxyBrokerTest001, TestSize.Level1)
+{
+    class IFooInterface : public OHOS::HDI::HdiBase {
+    public:
+        IFooInterface() = default;
+        virtual ~IFooInterface() = default;
+    };
+    class FooInterfaceProxy : public OHOS::HDI::IProxyBroker<IFooInterface> {
+    public:
+        explicit FooInterfaceProxy(const OHOS::sptr<OHOS::IRemoteObject> &impl) : IProxyBroker<IFooInterface>(impl) {}
+        ~FooInterfaceProxy() {}
+    };
+    FooInterfaceProxy *proxy = new FooInterfaceProxy(nullptr);
+    OHOS::sptr<OHOS::IRemoteObject> remote = proxy->AsObject();
+    ASSERT_EQ(remote, nullptr);
+    OHOS::sptr<IFooInterface> intf = proxy->AsInterface();
+    ASSERT_NE(intf, nullptr);
 }

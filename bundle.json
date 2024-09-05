@@ -15,10 +15,9 @@
         "features": [
             "hdf_core_khdf_test_support",
             "hdf_core_platform_test_support",
-            "hdf_core_platform_rtc_test_support",
-            "hdf_core_feature_config"
+            "hdf_core_platform_rtc_test_support"
         ],
-        "adapted_system_type": ["standard", "small"],
+        "adapted_system_type": ["standard", "small", "mini"],
         "rom": "735KB",
         "ram": "1350KB",
         "deps": {
@@ -58,6 +57,7 @@
                             "ipc/hdf_dump_reg.h",
                             "ipc/hdf_remote_service.h",
                             "ipc/hdf_sbuf_ipc.h",
+                            "ipc/iproxy_broker.h",
                             "core/hdf_object.h"
                         ],
                         "header_base": "//drivers/hdf_core/interfaces/inner_api"

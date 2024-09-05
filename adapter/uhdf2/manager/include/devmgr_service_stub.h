@@ -40,6 +40,7 @@ enum {
     DEVMGR_SERVICE_UNLOAD_DEVICE,
     DEVMGR_SERVICE_QUERY_DEVICE,
     DEVMGR_SERVICE_LIST_ALL_DEVICE,
+    DEVMGR_SERVICE_LIST_ALL_HOST,
 };
 
 struct HdfObject *DevmgrServiceStubCreate(void);

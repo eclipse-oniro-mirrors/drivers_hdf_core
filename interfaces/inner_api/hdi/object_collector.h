@@ -79,7 +79,7 @@ private:
     /** Define the mapping between the interface name and the constructor. */
     std::map<const std::u16string, const Constructor> constructorMapper_;
     /** Define the mapping between the interface implementation and the object. */
-    std::map<HdiBase *, IRemoteObject *> interfaceObjectCollector_;
+    std::map<HdiBase *, wptr<IRemoteObject>> interfaceObjectCollector_;
     /** Define a mutex to support concurrent access to the ObjectCollector. */
     std::mutex mutex_;
 };

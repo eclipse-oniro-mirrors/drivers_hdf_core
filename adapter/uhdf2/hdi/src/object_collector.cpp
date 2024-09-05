@@ -15,7 +15,7 @@
 
 #include "object_collector.h"
 #include <iremote_object.h>
-
+#include <thread>
 #include "hdf_base.h"
 #include "hdf_log.h"
 #include "osal_time.h"
@@ -72,23 +72,21 @@ OHOS::sptr<OHOS::IRemoteObject> ObjectCollector::GetOrNewObject(
     if (interface == nullptr) {
         return nullptr;
     }
-    mutex_.lock();
+
 RETRY:
+    std::unique_lock<std::mutex> lock(mutex_);
     auto it = interfaceObjectCollector_.find(interface.GetRefPtr());
     if (it != interfaceObjectCollector_.end()) {
         if (it->second->GetSptrRefCount() == 0) {
             // may object is releasing, yield to sync
-            mutex_.unlock();
-            OsalMSleep(1);
-            mutex_.lock();
+            lock.unlock();
+            std::this_thread::yield();
             goto RETRY;
         }
-        mutex_.unlock();
-        return it->second;
+        return it->second.GetRefPtr();
     }
     sptr<IRemoteObject> object = NewObjectLocked(interface, interfaceName);
-    interfaceObjectCollector_[interface.GetRefPtr()] = object.GetRefPtr();
-    mutex_.unlock();
+    interfaceObjectCollector_[interface.GetRefPtr()] = object;
     return object;
 }
 

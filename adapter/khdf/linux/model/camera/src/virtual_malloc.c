@@ -24,6 +24,9 @@ struct VmallocBuffer {
 static void VmallocMmapFree(void *bufPriv)
 {
     struct VmallocBuffer *buf = bufPriv;
+    if (buf == NULL) {
+        return;
+    }
 
     if (refcount_dec_and_test(&buf->refCount) != 0) {
         vfree(buf->vaddr);

@@ -19,8 +19,11 @@
 #include "hdf_base.h"
 #include "hdf_log.h"
 #include "devmgr_dump.h"
+#include "parameter.h"
 
 #define HDF_LOG_TAG hdf_device_manager
+
+const char *BOOTEVENT_HDF_DEVMGR_READY = "bootevent.hdf_devmgr.ready";
 
 int main()
 {
@@ -39,6 +42,7 @@ int main()
     (void)DevMgrUeventReceiveStart();
     DevMgrRegisterDumpFunc();
     if (status == HDF_SUCCESS) {
+        SetParameter(BOOTEVENT_HDF_DEVMGR_READY, "true");
         struct DevmgrServiceFull *fullService = (struct DevmgrServiceFull *)instance;
         struct HdfMessageLooper *looper = &fullService->looper;
         if ((looper != NULL) && (looper->Start != NULL)) {

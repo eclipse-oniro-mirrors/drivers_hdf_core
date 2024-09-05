@@ -159,6 +159,9 @@ ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
   } else {
     external_deps = [ "hilog:libhilog" ]
   }
+  if (build_selinux) {
+    cflags = [ "-DWITH_SELINUX" ]
+  }
 }
 module_output_path = "hdf_core/shared"
 ohos_unittest("hdf_adapter_uhdf_test_core_shared") {
@@ -191,12 +194,18 @@ ohos_unittest("hdf_adapter_uhdf_test_uevent") {
   defines = [ "__USER__" ]
   sources = [ "$hdf_framework_path/core/manager/test/unittest/common/devmgr_uevent_test.cpp" ]
 
+  if (with_sample) {
+    defines += [ "SAMPLE_DRIVER" ]
+  }
+
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
+      "hdf_core:libhdf_ipc_adapter",
       "hdf_core:libhdf_utils",
       "hdf_core:libhdi",
       "hilog:libhilog",
+      "ipc:ipc_single",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]

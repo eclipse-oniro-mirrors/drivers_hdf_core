@@ -13,42 +13,40 @@
  * limitations under the License.
  */
 #include <unistd.h>
-
 #include "hdf_xcollie.h"
 #include "hdf_log.h"
 
-#ifdef HICOLLIE_ENABLE
-#include "xcollie/xcollie.h"
-#endif
-
 namespace OHOS {
-HdfXCollie::HdfXCollie(const std::string& tag, uint32_t timeoutSeconds,
-    std::function<void(void *)> func, void* arg, uint32_t flag)
-{
-    tag_ = tag;
-#ifdef HICOLLIE_ENABLE
-    id_ = HiviewDFX::XCollie::GetInstance().SetTimer(tag_, timeoutSeconds, func, arg, flag);
+#ifdef HDFHICOLLIE_ENABLE
 #else
-    id_ = -1;
-#endif
-    isCanceled_ = false;
-    HDF_LOGD("start HdfXCollie, tag:%{public}s,timeout:%{public}u,flag:%{public}u,id:%{public}d",
-        tag_.c_str(), timeoutSeconds, flag, id_);
+#define HDFXCOLLIE_SUCCESS 0
+HdfXCollie::HdfXCollie()
+{
 }
-
 HdfXCollie::~HdfXCollie()
 {
-    CancelHdfXCollie();
+}
+// NULL impl
+int HdfXCollie::SetTimer(const std::string &name, unsigned int timeout,
+    std::function<void (void *)> func, void *arg, unsigned int flag)
+{
+    return HDFXCOLLIE_SUCCESS;
 }
 
-void HdfXCollie::CancelHdfXCollie()
+// NULL impl
+void HdfXCollie::CancelTimer(int id)
 {
-    if (!isCanceled_) {
-#ifdef HICOLLIE_ENABLE
-        HiviewDFX::XCollie::GetInstance().CancelTimer(id_);
-#endif
-        isCanceled_ = true;
-        HDF_LOGD("cancel HdfXCollie, tag:%{public}s,id:%{public}d", tag_.c_str(), id_);
-    }
 }
+
+// NULL impl
+int HdfXCollie::SetTimerCount(const std::string &name, unsigned int timeLimit, int countLimit)
+{
+    return HDFXCOLLIE_SUCCESS;
+}
+
+// NULL impl
+void HdfXCollie::TriggerTimerCount(const std::string &name, bool bTrigger, const std::string &message)
+{
+}
+#endif
 }

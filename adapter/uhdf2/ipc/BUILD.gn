@@ -63,6 +63,10 @@ if (defined(ohos_lite)) {
       ]
     }
 
+    if (build_selinux) {
+      cflags = [ "-DWITH_SELINUX" ]
+    }
+
     innerapi_tags = [
       "chipsetsdk",
       "platformsdk_indirect",

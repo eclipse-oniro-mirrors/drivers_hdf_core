@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-adapter/ @time_zhang
-framework/ @time_zhang
+adapter/ @Danny_liuXu
+framework/ @Danny_liuXu
 framework/model/input/ @time_zhang
 framework/model/audio/ @whoselettlelion
 framework/include/audio/ @whoselettlelion

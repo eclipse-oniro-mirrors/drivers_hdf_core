@@ -36,10 +36,18 @@ static int32_t AddServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfAddServiceCheck(callingPid, servName) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"add service\" permission to %{public}s", callingPid, servName);
+    char *callingSid = HdfRemoteGetCallingSid();
+    if (callingSid == NULL) {
+        HDF_LOGE("%{public}s: sid of %{public}d is null", __func__, callingPid);
         return HDF_ERR_NOPERM;
     }
+    if (HdfAddServiceCheck(callingSid, servName) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"add service\" permission to %{public}s",
+            callingSid, callingPid, servName);
+        free(callingSid);
+        return HDF_ERR_NOPERM;
+    }
+    free(callingSid);
 #endif
     return HDF_SUCCESS;
 }
@@ -48,10 +56,18 @@ static int32_t GetServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfGetServiceCheck(callingPid, servName) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"get service\" permission to %{public}s", callingPid, servName);
+    char *callingSid = HdfRemoteGetCallingSid();
+    if (callingSid == NULL) {
+        HDF_LOGE("%{public}s: sid of %{public}d is null", __func__, callingPid);
         return HDF_ERR_NOPERM;
     }
+    if (HdfGetServiceCheck(callingSid, servName) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"get service\" permission to %{public}s",
+            callingSid, callingPid, servName);
+        free(callingSid);
+        return HDF_ERR_NOPERM;
+    }
+    free(callingSid);
 #endif
 
     return HDF_SUCCESS;
@@ -61,15 +77,23 @@ static int32_t ListServicePermCheck(void)
 {
 #ifdef WITH_SELINUX
     pid_t callingPid = HdfRemoteGetCallingPid();
-    if (HdfListServiceCheck(callingPid) != 0) {
-        HDF_LOGE("[selinux] %{public}d haven't \"list service\" permission", callingPid);
+    char *callingSid = HdfRemoteGetCallingSid();
+    if (callingSid == NULL) {
+        HDF_LOGE("%{public}s: sid of %{public}d is null", __func__, callingPid);
         return HDF_ERR_NOPERM;
     }
+    if (HdfListServiceCheck(callingSid) != 0) {
+        HDF_LOGE("[selinux] %{public}s %{public}d haven't \"list service\" permission", callingSid, callingPid);
+        free(callingSid);
+        return HDF_ERR_NOPERM;
+    }
+    free(callingSid);
 #endif
 
     return HDF_SUCCESS;
 }
 
+// LCOV_EXCL_START
 static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfDeviceObject *service)
 {
     if (service == NULL) {
@@ -191,6 +215,7 @@ static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDevic
 
     OsalMutexUnlock(&stub->devSvcStubMutex);
 }
+// LCOV_EXCL_STOP
 
 static int32_t DevSvcMgrStubGetPara(
     struct HdfSBuf *data, struct HdfServiceInfo *info, struct HdfRemoteService **service)
@@ -330,7 +355,7 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     if (remoteService != NULL) {
         HdfSbufWriteRemoteService(reply, remoteService);
         ret = HDF_SUCCESS;
-        HDF_LOGI("StubGetService service %{public}s found", name);
+        HDF_LOGD("StubGetService service %{public}s found", name);
     } else {
         HDF_LOGE("StubGetService %{public}s remoteService is null", name);
         ret = HDF_FAILURE;
@@ -458,7 +483,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     if (ret != HDF_SUCCESS) {
         ServStatListenerHolderRelease(listenerHolder);
     } else {
-        HDF_LOGI("register servstat listener success");
+        HDF_LOGI("register servstat listener success, pid = %{public}d", HdfRemoteGetCallingPid());
     }
 
     return HDF_SUCCESS;
@@ -531,6 +556,7 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
     return ret;
 }
 
+// LCOV_EXCL_START
 void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfRemoteService *remote)
 {
     struct DevSvcManagerStub *stub =
@@ -570,6 +596,7 @@ void DevSvcManagerOnServiceDied(struct HdfDeathRecipient *recipient, struct HdfR
     ReleaseServiceObject(stub, serviceObject);
     OsalMemFree(serviceName);
 }
+// LCOV_EXCL_STOP
 
 int DevSvcManagerStubStart(struct IDevSvcManager *svcmgr)
 {
@@ -642,6 +669,7 @@ struct HdfObject *DevSvcManagerStubCreate(void)
     return (struct HdfObject *)instance;
 }
 
+// LCOV_EXCL_START
 static void DevObjHolderListReleaseNoLock(struct DevSvcManagerStub *stub)
 {
     struct HdfSListIterator it;
@@ -670,3 +698,4 @@ void DevSvcManagerStubRelease(struct HdfObject *object)
         OsalMutexDestroy(&instance->devSvcStubMutex);
     }
 }
+// LCOV_EXCL_STOP

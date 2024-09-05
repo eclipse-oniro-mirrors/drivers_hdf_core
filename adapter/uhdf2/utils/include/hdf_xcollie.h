@@ -17,22 +17,32 @@
 #define HDF_UHDF_UTILS_INCLUDE_HDF_XCOLLIE_H
 
 #include <string>
+#ifdef HDFHICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#else
+#include "singleton.h"
+#endif
 
 namespace OHOS {
-class HdfXCollie {
+#ifdef HDFHICOLLIE_ENABLE
+using HdfXCollie = ::OHOS::HiviewDFX::XCollie;
+#else
+class HdfXCollie : public Singleton<HdfXCollie> {
+    DECLARE_SINGLETON(HdfXCollie);
 public:
-    HdfXCollie(const std::string& tag, uint32_t timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-        std::function<void(void *)> func = nullptr, void* arg = nullptr, uint32_t flag = HDF_XCOLLIE_FLAG_LOG);
-    ~HdfXCollie();
+    // NULL impl
+    int SetTimer(const std::string &name, unsigned int timeout,
+        std::function<void (void *)> func, void *arg, unsigned int flag);
 
-    void CancelHdfXCollie();
-    static const uint32_t HDF_XCOLLIE_FLAG_LOG = 1; // generate log file
-    static const uint32_t HDF_XCOLLIE_FLAG_RECOVERY = 2; // die when timeout
-    static const uint32_t DEFAULT_TIMEOUT_SECONDS = 10;
-private:
-    int32_t id_;
-    std::string tag_;
-    bool isCanceled_;
+    // NULL impl
+    void CancelTimer(int id);
+
+    // NULL impl
+    int SetTimerCount(const std::string &name, unsigned int timeLimit, int countLimit);
+
+    // NULL impl
+    void TriggerTimerCount(const std::string &name, bool bTrigger, const std::string &message);
 };
+#endif
 }
 #endif // HDF_UHDF_UTILS_INCLUDE_HDF_XCOLLIE_H

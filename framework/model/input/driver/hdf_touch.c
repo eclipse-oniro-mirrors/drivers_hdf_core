@@ -237,20 +237,40 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 }
 #endif
 
+static int32_t HandleSeqArray(SeqArray *src, PowerEventHandler eventHandler, ChipDevice *chipDev)
+{
+    int32_t i;
+    SeqArray pwrTiming = {0};
+    int32_t ret = memcpy_s(&pwrTiming, sizeof(SeqArray), src, sizeof(SeqArray));
+    if (ret != EOK) {
+        HDF_LOGE("%s: memcpy_s failed", __func__);
+        return HDF_FAILURE;
+    }
+    if ((pwrTiming.buf == NULL) || (pwrTiming.count == 0)) {
+        HDF_LOGE("%s: pwrTiming config is invalid", __func__);
+        return HDF_FAILURE;
+    }
+    for (i = 0; i < pwrTiming.count / PWR_CELL_LEN; i++) {
+        ret = eventHandler(chipDev, pwrTiming.buf, PWR_CELL_LEN);
+        CHECK_RETURN_VALUE(ret);
+        pwrTiming.buf = pwrTiming.buf + PWR_CELL_LEN;
+    }
+    return HDF_SUCCESS;
+}
+
 static int32_t SetTiming(ChipDevice *chipDev, bool enable)
 {
 #if defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
 #endif
-    int32_t i;
     int32_t ret;
     uint32_t rstPinAddr;
     uint32_t rstPinValue;
     uint32_t intPinAddr;
     uint32_t intPinValue;
-    SeqArray pwrOnTiming = {0};
-    SeqArray pwroffTiming = {0};
     TouchDriver *driver = chipDev->driver;
+    PowerEventHandler eventHandler;
+    SeqArray *src = NULL;
 
     rstPinAddr = driver->boardCfg->pins.rstPinReg[0];
     rstPinValue = driver->boardCfg->pins.rstPinReg[1];
@@ -268,37 +288,10 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
         __func__, rstPinAddr, rstPinValue, intPinAddr, intPinValue);
 
     HDF_LOGE("%s: enable = %d", __func__, enable);
-    if (enable) {
-        ret = memcpy_s(&pwrOnTiming, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOn, sizeof(SeqArray));
-        if (ret != EOK) {
-            HDF_LOGE("%s: memcpy_s failed", __func__);
-            return HDF_FAILURE;
-        }
-        if ((pwrOnTiming.buf == NULL) || (pwrOnTiming.count == 0)) {
-            HDF_LOGE("%s: pwrOnTiming config is invalid", __func__);
-            return HDF_FAILURE;
-        }
-        for (i = 0; i < pwrOnTiming.count / PWR_CELL_LEN; i++) {
-            ret = HandleResetEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
-            CHECK_RETURN_VALUE(ret);
-            pwrOnTiming.buf = pwrOnTiming.buf + PWR_CELL_LEN;
-        }
-    } else {
-        ret = memcpy_s(&pwroffTiming, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOff, sizeof(SeqArray));
-        if (ret != EOK) {
-            HDF_LOGE("%s: memcpy_s failed", __func__);
-            return HDF_FAILURE;
-        }
-        if ((pwroffTiming.buf == NULL) || (pwroffTiming.count == 0)) {
-            HDF_LOGE("%s: pwroffTiming config is invalid", __func__);
-            return HDF_FAILURE;
-        }
-        for (i = 0; i < pwroffTiming.count / PWR_CELL_LEN; i++) {
-            ret = HandlePowerEvent(chipDev, pwroffTiming.buf, PWR_CELL_LEN);
-            CHECK_RETURN_VALUE(ret);
-            pwroffTiming.buf = pwroffTiming.buf + PWR_CELL_LEN;
-        }
-    }
+    src = enable ? &chipDev->chipCfg->pwrSeq.pwrOn : &chipDev->chipCfg->pwrSeq.pwrOff;
+    eventHandler = enable ? HandleResetEvent : HandlePowerEvent;
+    ret = HandleSeqArray(src, eventHandler, chipDev);
+    CHECK_RETURN_VALUE(ret);
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
     ret = SetResetStatus(driver);

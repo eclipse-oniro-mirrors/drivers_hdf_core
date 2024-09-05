@@ -401,6 +401,10 @@ bool SharedMemQueue<T>::IsGood()
 template <typename T>
 size_t SharedMemQueue<T>::Align(size_t num, size_t alignSize)
 {
+    if (alignSize < 1 || num > (SIZE_MAX - alignSize)) {
+        HDF_LOGE("Invalid parameter num or alignSize");
+        return 0;
+    }
     return (num + alignSize - 1) & ~(alignSize - 1);
 }
 
@@ -462,7 +466,6 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
         if (ret == 0) {
             break;
         }
-        HDF_LOGE("failed to write %{public}zu, retry", count);
     }
 
     if (ret == 0) {

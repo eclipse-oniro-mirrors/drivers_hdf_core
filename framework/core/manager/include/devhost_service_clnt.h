@@ -25,6 +25,7 @@ struct DevHostServiceClnt {
     uint16_t devCount;
     uint16_t hostId;
     int hostPid;
+    int hostProcessId;
     const char *hostName;
     bool stopFlag;
 };

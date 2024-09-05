@@ -544,7 +544,7 @@ void CCustomTypesCodeEmitter::EmitCustomTypeMemoryRecycle(
             case TypeKind::TYPE_STRUCT:
             case TypeKind::TYPE_ARRAY:
             case TypeKind::TYPE_LIST:
-                memberType->EmitMemoryRecycle(varName, false, false, sb, prefix);
+                memberType->EmitMemoryRecycle(varName, false, sb, prefix);
                 sb.Append("\n");
                 break;
             default:

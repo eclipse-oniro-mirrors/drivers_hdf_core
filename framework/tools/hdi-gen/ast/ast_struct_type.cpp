@@ -247,7 +247,7 @@ void ASTStructType::EmitCppUnMarshalling(const std::string &parcelName, const st
 }
 
 void ASTStructType::EmitMemoryRecycle(
-    const std::string &name, bool isClient, bool ownership, StringBuilder &sb, const std::string &prefix) const
+    const std::string &name, bool ownership, StringBuilder &sb, const std::string &prefix) const
 {
     std::string varName = name;
     if (ownership) {

@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "devhost_service_proxy.h"
+#include "devhost_service_clnt.h"
 #include "device_token_proxy.h"
 #include "devmgr_query_device.h"
 #include "devsvc_manager.h"
@@ -35,6 +36,24 @@
 
 #define HDF_LOG_TAG devmgr_service_stub
 
+static void DevmgrServicehostClntGetPid(struct IDevmgrService *devmgrSvc, uint16_t hostId)
+{
+    struct DevmgrService *dmService = (struct DevmgrService *)devmgrSvc;
+    if (dmService == NULL) {
+        return;
+    }
+
+    struct DevHostServiceClnt *hostClnt = NULL;
+    DLIST_FOR_EACH_ENTRY(hostClnt, &dmService->hosts, struct DevHostServiceClnt, node) {
+        if (hostClnt->hostId == hostId) {
+            hostClnt->hostProcessId = HdfRemoteGetCallingPid();
+            break;
+        }
+    }
+
+    return;
+}
+
 static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
 {
     uint32_t hostId = 0;
@@ -44,6 +63,7 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
     }
     struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
+    DevmgrServicehostClntGetPid(devmgrSvc, hostId);
     return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
 }
 
@@ -109,6 +129,19 @@ static int32_t DevmgrServiceStubDispatchListAllDevice(struct IDevmgrService *dev
     return devmgrSvc->ListAllDevice(devmgrSvc, reply);
 }
 
+static int32_t DevmgrServiceStubListAllHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *reply)
+{
+    if (reply == NULL) {
+        HDF_LOGE("%{public}s:service name is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    HDF_LOGD("%{public}s:get all device info", __func__);
+
+    int32_t ret = devmgrSvc->ListAllHost(devmgrSvc, reply);
+    HdfSbufWriteInt32(reply, getpid());
+    return ret;
+}
+
 int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret = HDF_FAILURE;
@@ -145,15 +178,17 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
         case DEVMGR_SERVICE_LIST_ALL_DEVICE:
             ret = DevmgrServiceStubDispatchListAllDevice(super, reply);
             break;
+        case DEVMGR_SERVICE_LIST_ALL_HOST:
+            ret = DevmgrServiceStubListAllHost(super, reply);
+            break;
         default:
             return HdfRemoteServiceDefaultDispatch(serviceStub->remote, code, data, reply);
     }
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%{public}s devmgr service stub dispach failed, cmd id is %{public}d, ret = %{public}d", __func__,
             code, ret);
-        HdfSbufWriteInt32(reply, ret);
     }
-    return ret;
+    return HDF_SUCCESS;
 }
 
 static void RemoveModule(const char *module)

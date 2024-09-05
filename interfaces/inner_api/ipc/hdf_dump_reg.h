@@ -44,6 +44,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+bool HdfDumpIpcStat(int32_t fd, const char *cmd);
+
 /**
  * @brief Implements IPC dump.
  *
