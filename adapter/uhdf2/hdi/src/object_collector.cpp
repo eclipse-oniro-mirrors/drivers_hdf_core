@@ -16,7 +16,6 @@
 #include "object_collector.h"
 #include <iremote_object.h>
 #include <thread>
-
 #include "hdf_base.h"
 #include "hdf_log.h"
 #include "osal_time.h"
