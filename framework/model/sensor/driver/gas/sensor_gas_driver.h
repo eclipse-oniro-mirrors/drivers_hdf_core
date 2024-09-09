@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ *
+ * HDF is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
+ */
+
 #ifndef SENSOR_GAS_DRIVER_H
 #define SENSOR_GAS_DRIVER_H
 
@@ -24,17 +32,18 @@ enum GasClaPart {
 struct GasData {
     union {
         struct {
-            uint32_t gasResitance;
-            uint32_t heatSource;
-            int16_t temperature;
-            uint32_t humidity;
-            uint32_t pressure;
+			uint32_t gasResitance;
+			uint32_t heatSource;  
+			int16_t temperature;
+			uint32_t humidity;
+			uint32_t pressure;
         };
         float iaq;
     };
 };
 
-struct GasFieldData {
+struct GasFieldData
+{
     uint8_t status;         /*! Contains new_data, gasm_valid & heat_stab */
     uint8_t gas_index;      /*! The index of the heater profile used */
     uint8_t meas_index;     /*! Measurement index to track order */
@@ -47,7 +56,8 @@ struct GasFieldData {
     uint32_t gas_resistance;   /*! Gas resistance in Ohms */
 };
 
-struct gasCfg {
+struct GasCfg
+{
     uint8_t humOs;
     uint8_t tempOs;
     uint8_t presOs;

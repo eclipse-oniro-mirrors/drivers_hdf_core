@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ *
+ * HDF is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
+ */
+
 #include "sensor_gas_driver.h"
 #include <securec.h>
 #include "hdf_base.h"
@@ -163,6 +171,7 @@ static int32_t SetGasDisable(void)
 static int32_t SetGasBatch(int64_t samplingInterval, int64_t interval)
 {
     (void)interval;
+
     struct GasDrvData *drvData = NULL;
 
     drvData = GasGetDrvData();
@@ -203,6 +212,7 @@ static int32_t DispatchGas(struct HdfDeviceIoClient *client,
 int32_t GasBindDriver(struct HdfDeviceObject *device)
 {
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
+
     struct GasDrvData *drvData = (struct GasDrvData *)OsalMemCalloc(sizeof(*drvData));
     if (drvData == NULL) {
         HDF_LOGE("%s: Malloc gas drv data fail!", __func__);
