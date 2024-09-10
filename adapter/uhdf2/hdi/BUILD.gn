@@ -60,6 +60,7 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libhdi") {
+    branch_protector_ret = "pac_ret"
     if (target_cpu == "arm64" || target_cpu == "x86_64") {
       defines = [ "__ARCH64__" ]
     }
