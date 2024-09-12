@@ -22,6 +22,7 @@
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
+#include <unistd.h>
 
 #define HDF_LOG_TAG devsvc_manager_proxy
 
@@ -223,6 +224,7 @@ static void DevSvcManagerProxyOnRemoteDied(struct HdfDeathRecipient *recipient, 
     if ((looper != NULL) && (looper->Stop != NULL)) {
         looper->Stop(looper);
     }
+    _exit(0);
 }
 
 void DevSvcManagerProxyConstruct(struct DevSvcManagerProxy *inst, struct HdfRemoteService *remote)
