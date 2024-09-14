@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("./../../../../uhdf.gni")
+
 if (with_sample) {
   group("sample_driver") {
     deps = [ ":libsample_driver" ]
