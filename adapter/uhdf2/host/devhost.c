@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
 #include "securec.h"
 #include "parameter.h"
@@ -165,5 +166,8 @@ int main(int argc, char **argv)
     HdfPowerManagerExit();
     DevHostDumpDeInit();
     HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
+    if (strcmp(hostName, "camera_host") == 0) {
+        _exit(status);
+    }
     return status;
 }
