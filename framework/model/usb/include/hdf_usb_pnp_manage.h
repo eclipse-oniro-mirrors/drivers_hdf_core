@@ -54,7 +54,6 @@ enum {
 };
 
 struct UsbPnpNotifyServiceInfo {
-    uint8_t curInterfaceNumber;
     uint32_t length;
 
     int32_t devNum;

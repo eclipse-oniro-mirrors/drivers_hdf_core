@@ -35,6 +35,10 @@ ohos_unittest("HdiServiceManagerTest") {
     "$hdf_uhdf_path/utils/include",
   ]
 
+  if (with_sample) {
+      defines = [ "SAMPLE_DRIVER" ]
+    }
+
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
@@ -49,6 +53,10 @@ ohos_unittest("HdiServiceManagerTestCC") {
     "$hdf_uhdf_path/host/test/unittest/sample_driver",
   ]
   sources = [ "servmgr/service_manager_hdi_test.cpp" ]
+
+  if (with_sample) {
+      defines = [ "SAMPLE_DRIVER" ]
+    }
 
   deps = [
     "$hdf_uhdf_path/hdi:libhdi",

@@ -62,6 +62,7 @@ void DevMgrTest::TearDown()
 {
 }
 
+#ifdef SAMPLE_DRIVER
 /*
 * @tc.name: DriverLoaderTest
 * @tc.desc: driver load test
@@ -86,6 +87,8 @@ HWTEST_F(DevMgrTest, DriverLoaderTest, TestSize.Level1)
 
     ASSERT_TRUE(sampleService != nullptr);
 }
+#endif
+
 /*
 * @tc.name: DriverUnLoaderTest
 * @tc.desc: driver unload test
@@ -111,6 +114,7 @@ HWTEST_F(DevMgrTest, DriverUnLoaderTest, TestSize.Level1)
     ASSERT_TRUE(sampleService == nullptr);
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(DevMgrTest, DriverTest, TestSize.Level1)
 {
     ASSERT_TRUE(servmgr != nullptr);
@@ -142,6 +146,7 @@ HWTEST_F(DevMgrTest, DriverTest, TestSize.Level1)
         ASSERT_TRUE(sampleService == nullptr);
     }
 }
+#endif
 
 HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
 {

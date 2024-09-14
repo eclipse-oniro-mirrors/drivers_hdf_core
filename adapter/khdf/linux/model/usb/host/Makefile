@@ -13,9 +13,6 @@ USB_PNP_NOTIFY_ROOT_DIR = ./
 obj-$(CONFIG_DRIVERS_HDF_USB_PNP_NOTIFY) += \
          $(USB_PNP_NOTIFY_ROOT_DIR)/src/usb_pnp_notify.o
 
-obj-$(CONFIG_DRIVERS_HDF_USB_NET_ADAPTER) += \
-         $(USB_PNP_NOTIFY_ROOT_DIR)/src/usb_net_adapter.o
-
 ccflags-y += -Wno-incompatible-pointer-types-discards-qualifiers
 ccflags-y += -lm -lc -lgcc \
             -I$(srctree)/drivers/hdf/khdf/model/usb/host/include \

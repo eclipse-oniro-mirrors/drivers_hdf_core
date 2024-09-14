@@ -15,10 +15,12 @@
 #include <iproxy_broker.h>
 
 using namespace testing::ext;
+#ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
-static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 static constexpr const char *ADD_EVENT_CMD = "echo \"add\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 static constexpr const char *REMOVE_EVENT_CMD = "echo \"remove\" > /sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
+#endif
+static constexpr const char *TEST_DEV_NODE = "/sys/devices/virtual/hdf/hdf_uevent_ut/uevent";
 
 class DevmgrUeventTest : public testing::Test {
 public:
@@ -55,6 +57,7 @@ void DevmgrUeventTest::SetUp() {}
 
 void DevmgrUeventTest::TearDown() {}
 
+#ifdef SAMPLE_DRIVER
 /**
  * @tc.name: DevmgrUeventTestAdd
  * @tc.desc: trigger add uevent
@@ -207,6 +210,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
         ASSERT_TRUE(sampleService == nullptr);
     }
 }
+#endif
 
 HWTEST_F(DevmgrUeventTest, HdiProxyBrokerTest001, TestSize.Level1)
 {
