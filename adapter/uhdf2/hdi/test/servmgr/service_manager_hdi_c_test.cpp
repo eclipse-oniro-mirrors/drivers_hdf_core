@@ -56,8 +56,8 @@ public:
         if (devmgr != nullptr) {
             devmgr->LoadDevice(devmgr, TEST_SERVICE_NAME);
         }
-    }
 #endif
+    }
     static void TearDownTestCase()
     {
 #ifdef SAMPLE_DRIVER
