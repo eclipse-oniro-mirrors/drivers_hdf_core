@@ -107,6 +107,7 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest004, TestSize.Level1)
 #ifdef WITH_SELINUX
     char *callingSid = HdfRemoteGetCallingSid();
     ASSERT_TRUE(callingSid != nullptr);
+    delete callingSid;
 #endif
 }
 

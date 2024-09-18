@@ -46,17 +46,21 @@ using OHOS::HDI::ServiceManager::V1_0::ServiceStatus;
 using OHOS::HDI::ServiceManager::V1_0::ServStatListenerStub;
 using OHOS::HDI::DeviceManager::V1_0::HdiDevHostInfo;
 using OHOS::HDI::ServiceManager::V1_0::HdiServiceInfo;
+#ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
 static constexpr const char *TEST1_SERVICE_NAME = "sample1_driver_service";
 static constexpr const char16_t *TEST_SERVICE_INTERFACE_DESC = u"hdf.test.sampele_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_N = "hdf.test.sampele_service";
+#endif
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "___";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_VOID = "";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC_NULL = nullptr;
+#ifdef SAMPLE_DRIVER
 static constexpr int PAYLOAD_NUM = 1234;
 static constexpr int SMQ_TEST_QUEUE_SIZE = 10;
 static constexpr int SMQ_TEST_WAIT_TIME = 100;
 static constexpr int WAIT_LOAD_UNLOAD_TIME = 300;
+#endif
 static constexpr int DEVICE_SERVICE_MANAGER_SA_ID = 5100;
 static constexpr int INVALID_CODE = 100;
 static constexpr int ERROR_CODE_WITH_INVALID_CODE = 305;
@@ -65,19 +69,23 @@ class HdfServiceMangerHdiTest : public testing::Test {
 public:
     static void SetUpTestCase()
     {
+#ifdef SAMPLE_DRIVER
         auto devmgr = IDeviceManager::Get();
         if (devmgr != nullptr) {
             HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
             devmgr->LoadDevice(TEST_SERVICE_NAME);
         }
+#endif
     }
     static void TearDownTestCase()
     {
+#ifdef SAMPLE_DRIVER
         auto devmgr = IDeviceManager::Get();
         if (devmgr != nullptr) {
             HDF_LOGI("%{public}s:%{public}d", __func__, __LINE__);
             devmgr->UnloadDevice(TEST_SERVICE_NAME);
         }
+#endif
     }
     void TestServiceListenerStop(const sptr<IDeviceManager>& devmgr, const sptr<IServiceManager>& servmgr);
     void TestSampleService(sptr<IRemoteObject>& sampleService, const sptr<IDeviceManager>& devmgr,
@@ -92,6 +100,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest001, TestSize.Level1)
     ASSERT_TRUE(servmgr != nullptr);
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest002, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
@@ -278,6 +287,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest007, TestSize.Level1)
     sampleService = servmgr->GetService(TEST_SERVICE_NAME);
     ASSERT_TRUE(sampleService == nullptr);
 }
+#endif
 
 class ServStatListener : public OHOS::HDI::ServiceManager::V1_0::ServStatListenerStub {
 public:
@@ -293,6 +303,7 @@ private:
     StatusCallback callback_;
 };
 
+#ifdef SAMPLE_DRIVER
 /*
  * Test service start status listener
  */
@@ -676,6 +687,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest001, TestSize.Le
     ASSERT_FALSE(serviceNames.empty());
     ASSERT_TRUE(serviceNames.front().compare(TEST_SERVICE_NAME) == 0);
 }
+#endif
 
 HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest002, TestSize.Level1)
 {
@@ -707,6 +719,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest004, TestSize.Le
     ASSERT_TRUE(serviceNames.empty());
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest005, TestSize.Level1)
 {
     auto devmgr = IDeviceManager::Get();
@@ -731,6 +744,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListServiceByInterfaceDescTest005, TestSize.Le
     ret = devmgr->UnloadDevice(TEST1_SERVICE_NAME);
     ASSERT_EQ(ret, HDF_SUCCESS);
 }
+#endif
 
 HWTEST_F(HdfServiceMangerHdiTest, ListAllServiceTest, TestSize.Level1)
 {
@@ -754,6 +768,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListAllDeviceTest, TestSize.Level1)
     ASSERT_TRUE(deviceInfos.size() != 0);
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
 {
     auto servmgr = IServiceManager::Get();
@@ -859,6 +874,7 @@ HWTEST_F(HdfServiceMangerHdiTest, InjectPmTest, TestSize.Level1)
     ret = devmgr->UnloadDevice(TEST_SERVICE_NAME);
     ASSERT_TRUE(ret == HDF_SUCCESS);
 }
+#endif
 
 HWTEST_F(HdfServiceMangerHdiTest, ListenerTest001, TestSize.Level1)
 {
