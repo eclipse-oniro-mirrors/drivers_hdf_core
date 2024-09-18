@@ -32,6 +32,7 @@ if (defined(ohos_lite)) {
   }
 } else {
   ohos_shared_library("libhdf_ipc_adapter") {
+    branch_protector_ret = "pac_ret"
     include_dirs = [
       "include",
       "$hdf_framework_path/utils/include",
