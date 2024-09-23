@@ -180,6 +180,30 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
     ASSERT_TRUE(ret != HDF_SUCCESS);
 }
 
+HWTEST_F(DevMgrTest, DevMgrDumpTest, TestSize.Level1)
+{
+    int32_t ret;
+    int32_t fd;
+    constexpr int loop = 100;
+
+    for (int i = 0; i < loop; i++) {
+        fd = 10;
+        const std::vector<std::u16string> vcr = {u"--ipc", u"all", u"--start-stat"};
+        ret = HdfDump(fd, vcr);
+        ASSERT_TRUE(ret == HDF_SUCCESS);
+
+        fd = 11;
+        const std::vector<std::u16string> vcr1 = {u"--ipc", u"all", u"--stop-stat"};
+        ret = HdfDump(fd, vcr1);
+        ASSERT_TRUE(ret == HDF_SUCCESS);
+
+        fd = 12;
+        const std::vector<std::u16string> vcr2 = {u"--ipc", u"all", u"--stat"};
+        ret = HdfDump(fd, vcr2);
+        ASSERT_TRUE(ret == HDF_SUCCESS);
+    }
+}
+
 HWTEST_F(DevMgrTest, HdfUtilsTest, TestSize.Level1)
 {
     std::string CONFIGPATH = "/system/etc/hdfconfig/default";
