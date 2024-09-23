@@ -32,11 +32,11 @@ enum GasClaPart {
 struct GasData {
     union {
         struct {
-			uint32_t gasResitance;
-			uint32_t heatSource;  
-			int16_t temperature;
-			uint32_t humidity;
-			uint32_t pressure;
+            uint32_t gasResitance;
+            uint32_t heatSource;
+            int16_t temperature;
+            uint32_t humidity;
+            uint32_t pressure;
         };
         float iaq;
     };
@@ -56,8 +56,7 @@ struct GasFieldData
     uint32_t gas_resistance;   /*! Gas resistance in Ohms */
 };
 
-struct GasCfg
-{
+struct GasCfg {
     uint8_t humOs;
     uint8_t tempOs;
     uint8_t presOs;
