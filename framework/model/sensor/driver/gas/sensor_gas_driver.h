@@ -42,18 +42,17 @@ struct GasData {
     };
 };
 
-struct GasFieldData
-{
-    uint8_t status;         /*! Contains new_data, gasm_valid & heat_stab */
-    uint8_t gas_index;      /*! The index of the heater profile used */
-    uint8_t meas_index;     /*! Measurement index to track order */
-    uint8_t res_heat;       /*! Heater resistance */
-    uint8_t idac;           /*! Current DAC */
-    uint8_t gas_wait;       /*! Gas wait period */
-    int16_t temperature;       /*! Temperature in degree celsius */
-    uint32_t pressure;         /*! Pressure in Pascal */
-    uint32_t humidity;         /*! Humidity in % relative humidity x1000 */
-    uint32_t gas_resistance;   /*! Gas resistance in Ohms */
+struct GasFieldData {
+    uint8_t status;          /*! Contains new_data, gasm_valid & heat_stab */
+    uint8_t gas_index;       /*! The index of the heater profile used */
+    uint8_t meas_index;      /*! Measurement index to track order */
+    uint8_t res_heat;        /*! Heater resistance */
+    uint8_t idac;            /*! Current DAC */
+    uint8_t gas_wait;        /*! Gas wait period */
+    int16_t temperature;     /*! Temperature in degree celsius */
+    uint32_t pressure;       /*! Pressure in Pascal */
+    uint32_t humidity;       /*! Humidity in % relative humidity x1000 */
+    uint32_t gas_resistance; /*! Gas resistance in Ohms */
 };
 
 struct GasCfg {
