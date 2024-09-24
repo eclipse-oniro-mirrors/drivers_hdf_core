@@ -389,7 +389,7 @@ static int32_t UsbPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObje
     OsalMutexUnlock(&deviceInfo->lock);
 
 OUT:
-    if ((ret != HDF_SUCCESS) || (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_DEVICE)) {
+    if (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_DEVICE) {
         if (UsbPnpNotifyDestroyInfo(deviceInfo) != HDF_SUCCESS) {
             HDF_LOGE("%s:%d UsbPnpNotifyDestroyInfo fail", __func__, __LINE__);
         }
