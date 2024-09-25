@@ -780,6 +780,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListAllHostTest, TestSize.Level1)
         ret = devmgr->ListAllHost(pidList);
         ASSERT_TRUE(ret == HDF_SUCCESS);
         ASSERT_TRUE(pidList.size() != 0);
+        pidList.clear();
     }
 }
 
