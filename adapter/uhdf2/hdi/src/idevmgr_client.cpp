@@ -30,6 +30,8 @@ namespace OHOS {
 namespace HDI {
 namespace DeviceManager {
 namespace V1_0 {
+#define HDF_MAX_HOST_COUNT 0xFF
+
 std::mutex g_remoteMutex;
 
 enum DevmgrCmdId : uint32_t {
@@ -185,18 +187,29 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
     return status;
 }
 
-static void HdfDevMgrFillPidList(std::vector<int> &pidList, MessageParcel &reply)
+static int32_t HdfDevMgrFillPidList(std::vector<int> &pidList, MessageParcel &reply)
 {
-    uint32_t count = 0;
-    reply.ReadUint32(count);
+    uint32_t pidCount = 0;
+    if (!reply.ReadUint32(pidCount)) {
+        HDF_LOGE("failed to read pid count");
+        return HDF_FAILURE;
+    }
+
+    if (pidCount >= HDF_MAX_HOST_COUNT) {
+        HDF_LOGE("invalid host count, %{public}d", pidCount);
+        return HDF_ERR_OUT_OF_RANGE;
+    }
 
     int pid = -1;
-    for (uint32_t i = 0; i < count; ++i) {
-        reply.ReadInt32(pid);
+    for (uint32_t i = 0; i < pidCount; ++i) {
+        if (!reply.ReadUint32(pid)) {
+            HDF_LOGE("failed to read pid");
+            return HDF_FAILURE;
+        }
         pidList.push_back(pid);
     }
 
-    return;
+    return HDF_SUCCESS;
 }
 
 int32_t DeviceManagerProxy::ListAllHost(std::vector<int> &pidList)
@@ -217,13 +230,16 @@ int32_t DeviceManagerProxy::ListAllHost(std::vector<int> &pidList)
         static_cast<uint32_t>(DEVMGR_SERVICE_LIST_ALL_HOST), data, reply, option);
     lock.unlock();
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("list all service info failed, %{public}d", status);
+        HDF_LOGE("list all host failed, %{public}d", status);
         return status;
-    } else {
-        HdfDevMgrFillPidList(pidList, reply);
     }
-    HDF_LOGD("get all service info success");
-    return status;
+
+    int32_t ret = HdfDevMgrFillPidList(pidList, reply);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("fill pid list failed");
+    }
+
+    return ret;
 }
 
 sptr<IDeviceManager> IDeviceManager::Get()

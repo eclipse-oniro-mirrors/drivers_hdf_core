@@ -158,12 +158,19 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
             (void)HdfSbufWriteString(reply, "The service does not register dump function\n");
         }
     } else if (strcmp(option, "--ipc") == 0) {
-        int32_t fd = HdfSbufReadFileDescriptor(data);
-        HDF_LOGI("%{public}s %{public}d", option, fd);
-        const char *dumpCmd = HdfSbufReadString(data);
-        if (dumpCmd == NULL) {
+        int fd = HdfSbufReadFileDescriptor(data);
+        if (fd < 0) {
+            HDF_LOGE("invalid fd %{public}d", fd);
             return;
         }
+        HDF_LOGI("%{public}s %{public}d", option, fd);
+
+        const char *dumpCmd = HdfSbufReadString(data);
+        if (dumpCmd == NULL) {
+            HDF_LOGE("ipc dumpCmd is NULL");
+            return;
+        }
+
         HdfDumpIpcStat(fd, dumpCmd);
     } else {
         HDF_LOGE("%{public}s invalid parameter %{public}s", __func__, option);

@@ -408,9 +408,15 @@ static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfS
         return HDF_FAILURE;
     }
 
-    HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1);
+    if (!HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1)) {
+        HDF_LOGE("Sbuf Write host count failed");
+        return HDF_FAILURE;
+    }
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
-        HdfSbufWriteInt32(reply, hostClnt->hostProcessId);
+        if (!HdfSbufWriteInt32(reply, hostClnt->hostProcessId)) {
+            HDF_LOGE("%{public}s: Sbuf Write host pid failed", __func__);
+            return HDF_FAILURE;
+        }
     }
 
     return HDF_SUCCESS;
