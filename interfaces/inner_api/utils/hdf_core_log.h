@@ -12,9 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "hdf_log.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * @brief Defines the log domain of the HDF.
  */
 #undef LOG_DOMAIN
 #define LOG_DOMAIN 0xD002510
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
