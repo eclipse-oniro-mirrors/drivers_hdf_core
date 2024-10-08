@@ -31,7 +31,7 @@
 #include "osal_mutex.h"
 #include "los_mux.h"
 #include "los_sys.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG osal_mutex

@@ -21,7 +21,7 @@
 
 #include "devmgr_service.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG devmgr_pm
 

@@ -20,7 +20,7 @@
 #include <linux/platform_device.h>
 #include <linux/of_device.h>
 #include "devmgr_service_start.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 static int __init DeviceManagerInit(void)
 {

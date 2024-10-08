@@ -18,7 +18,7 @@
 
 #include <linux/mmc/host.h>
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG mmc_adapter_c
 

@@ -16,7 +16,7 @@
 #include "device_service_stub.h"
 #include "devsvc_manager_clnt.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 

@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <vector>
 #include <gtest/gtest.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_slist.h"
 #include "osal_mem.h"
 #include "securec.h"

@@ -29,7 +29,7 @@
  */
 
 #include "osal_thread.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "prt_sys_external.h"
 #include "prt_task.h"
 #include "osal_mem.h"

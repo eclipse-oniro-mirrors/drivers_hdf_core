@@ -16,7 +16,7 @@
 #include <mutex>
 
 #include <hdf_base.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <iproxy_broker.h>
 #include <iremote_stub.h>
 #include <iservice_registry.h>

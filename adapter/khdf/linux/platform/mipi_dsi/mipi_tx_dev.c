@@ -31,7 +31,7 @@
 #include <linux/seq_file.h>
 #include <linux/version.h>
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mipi_dsi_core.h"
 #include "mipi_tx_reg.h"
 #include "osal_io.h"

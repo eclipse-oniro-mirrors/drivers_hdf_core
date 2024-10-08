@@ -8,7 +8,7 @@
 
 #include <securec.h>
 #include "lite_lcdkit.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define PARSE_PANEL_SYMBOL(node, ops, symbol, out) do { \
     if ((ops)->GetUint32((node), (symbol), (out), 0)) { \

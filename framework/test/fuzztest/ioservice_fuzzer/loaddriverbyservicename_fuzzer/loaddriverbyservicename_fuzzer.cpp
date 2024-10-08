@@ -11,7 +11,7 @@
 
 #include "hdf_base.h"
 #include "hdf_io_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "parcel.h"
 #include "loaddriverbyservicename_fuzzer.h"
 

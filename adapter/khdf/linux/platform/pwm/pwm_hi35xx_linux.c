@@ -22,7 +22,7 @@
 #include <linux/of_platform.h>
 #include <linux/pwm.h>
 #include <linux/version.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG pwm_hi35xx_linux
 #define PWM_ENABLE_MASK 0x1

@@ -17,7 +17,7 @@
 #include <functional>
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <hdf_service_status_inner.h>
 #include <idevmgr_hdi.h>
 #include <iostream>

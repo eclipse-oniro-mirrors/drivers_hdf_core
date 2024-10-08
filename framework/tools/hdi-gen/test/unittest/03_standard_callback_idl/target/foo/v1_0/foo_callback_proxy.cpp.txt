@@ -1,6 +1,6 @@
 #include "v1_0/foo_callback_proxy.h"
 #include <hdf_base.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <hdi_support.h>
 #include <message_option.h>
 #include <message_parcel.h>

@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 #include "timer_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "timer_core.h"
 
 DevHandle HwTimerOpen(const uint32_t number)

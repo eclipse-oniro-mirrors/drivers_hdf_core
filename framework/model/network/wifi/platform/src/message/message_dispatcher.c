@@ -10,7 +10,7 @@
 #include "osal_mutex.h"
 #include "osal_thread.h"
 #include "osal_time.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_wlan_priority_queue.h"
 #include "message_dispatcher.h"
 #include "message_router_inner.h"

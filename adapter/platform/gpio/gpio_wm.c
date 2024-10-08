@@ -11,7 +11,7 @@
 #include "gpio_if.h"
 #include "device_resource_if.h"
 #include "osal_irq.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "wm_io.h"
 #include "wm_gpio.h"
 

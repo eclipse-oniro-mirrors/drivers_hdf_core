@@ -16,7 +16,7 @@
 #include <devhost_dump_reg.h>
 #include <hdf_device_desc.h>
 #include <hdf_device_object.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include "sample_hdi.h"
 
 #define HDF_LOG_TAG sample_driver

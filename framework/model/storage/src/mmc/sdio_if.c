@@ -8,7 +8,7 @@
 
 #include "sdio_if.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mmc_sdio.h"
 #include "osal_mem.h"
 #include "securec.h"

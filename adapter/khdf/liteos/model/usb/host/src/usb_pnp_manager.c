@@ -32,7 +32,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_io_service_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "usb_ddk_pnp_loader.h"
 
 #define HDF_LOG_TAG usb_pnp_manager

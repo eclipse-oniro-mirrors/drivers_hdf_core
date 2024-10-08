@@ -9,7 +9,7 @@
 #include <securec.h>
 #include "gpio_if.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mipi_dsi_if.h"
 #include "osal.h"
 #include "pwm_if.h"

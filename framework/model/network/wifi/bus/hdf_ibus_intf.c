@@ -9,7 +9,7 @@
 #include "osal_mem.h"
 #include "securec.h"
 #include "wifi_inc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_wlan_config.h"
 #include "hdf_base.h"
 #include "hdf_ibus_intf.h"

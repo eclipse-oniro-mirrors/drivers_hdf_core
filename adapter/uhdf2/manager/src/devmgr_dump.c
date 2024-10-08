@@ -24,7 +24,7 @@
 #include "hdf_dlist.h"
 #include "hdf_dump_reg.h"
 #include "hdf_io_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "devmgr_dump.h"
 

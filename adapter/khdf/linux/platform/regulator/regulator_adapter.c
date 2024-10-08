@@ -19,7 +19,7 @@
 #include <linux/regulator/consumer.h>
 #include "device_resource_if.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG regulator_linux_adapter

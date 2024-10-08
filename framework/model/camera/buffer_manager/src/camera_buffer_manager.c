@@ -7,7 +7,7 @@
  */
 
 #include <securec.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <osal_mem.h>
 #include "osal_uaccess.h"
 #include "buffer_queue.h"

@@ -31,7 +31,7 @@
 #include <stdio.h>
 
 #include "gpio_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "prt_task.h"
 #include "stm32f4xx_exti.h"
 #include "gpio_test.h"

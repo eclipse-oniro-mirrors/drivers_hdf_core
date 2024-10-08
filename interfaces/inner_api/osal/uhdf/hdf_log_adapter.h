@@ -43,12 +43,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @brief Defines the log domain of the HDF.
- */
-#undef LOG_DOMAIN
-#define LOG_DOMAIN 0xD002510
-
-/**
  * @brief Defines the default log label of the HDF.
  */
 #ifndef LOG_TAG

@@ -14,7 +14,7 @@
 #include "device_resource_if.h"
 #endif
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2c_core.h"
 #include "i2c_if.h"
 #include "osal_mutex.h"

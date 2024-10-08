@@ -10,7 +10,7 @@
 #include "osal_time.h"
 #include "osal_sem.h"
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "wm_gpio_afsel.h"
 #include "uart_if.h"
 #include "uart_core.h"

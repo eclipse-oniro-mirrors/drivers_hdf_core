@@ -16,7 +16,7 @@
 #include "base/native_buffer.h"
 #include <sstream>
 #include "base/buffer_util.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG native_buffer
 

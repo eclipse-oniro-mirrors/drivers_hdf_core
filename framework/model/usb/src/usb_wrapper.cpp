@@ -8,7 +8,7 @@
 
 #include "usb_wrapper.h"
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_usb_pnp_manage.h"
 
 #ifdef USB_ENABLE_HISYSEVENT

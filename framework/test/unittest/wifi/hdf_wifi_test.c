@@ -9,7 +9,7 @@
 #include "hdf_wifi_test.h"
 #include "flow_control_test.h"
 #include "hdf_module_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_message_test.h"
 #include "hdf_netbuf_test.h"
 #include "net_device_test.h"

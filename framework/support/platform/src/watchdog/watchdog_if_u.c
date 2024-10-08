@@ -9,7 +9,7 @@
 #include "watchdog_if.h"
 #include "securec.h"
 #include "hdf_io_service_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG watchdog_if_u
 

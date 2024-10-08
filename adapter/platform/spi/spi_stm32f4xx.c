@@ -18,7 +18,7 @@
 #include "hdf_config_macro.h"
 #else
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #endif
 #include "hdf_base_hal.h"
 

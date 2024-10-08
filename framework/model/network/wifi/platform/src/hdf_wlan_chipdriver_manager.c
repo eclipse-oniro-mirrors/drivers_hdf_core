@@ -9,7 +9,7 @@
 #include "hdf_wlan_chipdriver_manager.h"
 #include "gpio_if.h"
 #include "osal_mem.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "wifi_module.h"
 #include "securec.h"
 

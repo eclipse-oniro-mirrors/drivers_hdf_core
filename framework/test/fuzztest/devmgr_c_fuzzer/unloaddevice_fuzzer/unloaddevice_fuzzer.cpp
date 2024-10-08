@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <hdf_base.h>
 #include "devmgr_hdi.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "parcel.h"
 
 namespace OHOS {

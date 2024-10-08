@@ -8,7 +8,7 @@
 
 #include "flow_control_test.h"
 #include "flow_control.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 #include "osal_time.h"
 

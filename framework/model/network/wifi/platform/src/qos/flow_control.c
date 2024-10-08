@@ -10,7 +10,7 @@
 
 #include "flow_control_task.h"
 #include "securec.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "net_device.h"
 #include "net_device_adapter.h"

@@ -7,7 +7,7 @@
  */
 
 #include "hdf_timer_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "timer_test.h"
 
 #define HDF_LOG_TAG hdf_timer_entry_test

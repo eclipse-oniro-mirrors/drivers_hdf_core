@@ -7,7 +7,7 @@
  */
 
 #include "platform_listener_u.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "platform_listener_common.h"
 #include "securec.h"

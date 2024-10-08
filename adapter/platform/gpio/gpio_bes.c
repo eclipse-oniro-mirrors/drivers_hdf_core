@@ -10,7 +10,7 @@
 #include "gpio_core.h"
 #include "hal_gpio.h"
 #include "hal_iomux.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_irq.h"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #include "hcs_macro.h"

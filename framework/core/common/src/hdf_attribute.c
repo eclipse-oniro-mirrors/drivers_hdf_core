@@ -11,7 +11,7 @@
 #include "hdf_attribute_manager.h"
 #include "hdf_device_desc.h"
 #include "hdf_host_info.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef LOSCFG_DRIVERS_HDF_USB_PNP_NOTIFY
 #include "usb_pnp_manager.h"
 #endif

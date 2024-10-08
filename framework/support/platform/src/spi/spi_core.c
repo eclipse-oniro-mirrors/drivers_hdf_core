@@ -7,7 +7,7 @@
  */
 
 #include "spi_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "spi_if.h"
 #include "spi_service.h"

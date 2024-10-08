@@ -9,7 +9,7 @@
 #include "buf_fifo.h"
 #include "device_resource_if.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hisoc/uart.h"
 #include "osal_io.h"
 #include "osal_mem.h"

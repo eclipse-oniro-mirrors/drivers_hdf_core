@@ -22,7 +22,7 @@ dev  ---+-> Regulator-1(voltage) -+-> Regulator-2(voltage) -+-> Regulator-3(volt
 */
 
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "regulator/regulator_core.h"
 

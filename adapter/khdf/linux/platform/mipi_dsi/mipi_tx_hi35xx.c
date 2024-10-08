@@ -20,7 +20,7 @@
 #include <linux/io.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 #include "osal_time.h"
 #include "osal_io.h"

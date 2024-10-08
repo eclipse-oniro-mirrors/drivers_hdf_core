@@ -15,7 +15,7 @@
 
 #include "base/buffer_util.h"
 #include <unistd.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 

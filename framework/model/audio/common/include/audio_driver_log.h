@@ -8,7 +8,7 @@
 
 #ifndef AUDIO_DRIVER_LOG_H
 #define AUDIO_DRIVER_LOG_H
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #ifdef __cplusplus
 #if __cplusplus

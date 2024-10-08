@@ -8,7 +8,7 @@
 
 #include "dac_if.h"
 #include "dac_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #define HDF_LOG_TAG dac_if_c
 #define DAC_SERVICE_NAME "HDF_PLATFORM_DAC_MANAGER"
 

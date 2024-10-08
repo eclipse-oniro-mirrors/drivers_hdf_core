@@ -11,7 +11,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_disp.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_io.h"
 #include "pwm_if.h"
 

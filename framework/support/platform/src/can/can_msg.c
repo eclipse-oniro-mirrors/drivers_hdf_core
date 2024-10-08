@@ -8,7 +8,7 @@
 
 #include "can/can_msg.h"
 #include "hdf_dlist.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_atomic.h"
 #include "osal_mem.h"
 #include "osal_time.h"

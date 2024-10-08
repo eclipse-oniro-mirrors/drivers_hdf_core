@@ -20,7 +20,7 @@
 #include "devsvc_manager_clnt.h"
 #include "hdf_device_object.h"
 #include "hdf_driver_module.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_pm.h"
 #include "osal_file.h"
 #include "osal_mem.h"

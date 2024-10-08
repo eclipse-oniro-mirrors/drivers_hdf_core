@@ -26,7 +26,7 @@
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/version.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mipi_csi_core.h"
 
 #define HDF_LOG_TAG          mipi_v4l2_adapter

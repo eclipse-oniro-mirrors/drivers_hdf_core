@@ -10,7 +10,7 @@
 #include "hdf_base.h"
 #include "hdf_bl.h"
 #include "hdf_disp.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_types.h"
 #include "osal.h"
 #include "pwm_if.h"

@@ -8,7 +8,7 @@
 
 #include "device_resource_if.h"
 #include "hcs_tree_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 static void HcsIfaceConstruct(struct DeviceResourceIface *instance)
 {

@@ -11,7 +11,7 @@
 #include "hdf_wifi_core.h"
 #include "devsvc_manager_clnt.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_wifi_cmd.h"
 #include "osal_mem.h"
 #include "osal_time.h"

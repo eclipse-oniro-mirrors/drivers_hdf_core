@@ -7,7 +7,7 @@
  */
 
 #include "platform_trace_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "platform_trace.h"
 
 #define HDF_LOG_TAG platform_trace_test

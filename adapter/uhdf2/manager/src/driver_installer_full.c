@@ -16,7 +16,7 @@
 #include "driver_installer_full.h"
 #include "hdf_base.h"
 #include "hdf_driver_installer.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "service_control.h"
 

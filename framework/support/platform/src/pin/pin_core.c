@@ -7,7 +7,7 @@
  */
 
 #include "pin/pin_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "pin_if.h"
 #include "platform_trace.h"

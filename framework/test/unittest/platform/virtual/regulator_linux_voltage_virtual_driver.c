@@ -15,7 +15,7 @@
 #include <linux/regulator/machine.h>
 #include <linux/regmap.h>
 #include <linux/sysfs.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_base.h"
 
 #define HDF_LOG_TAG regulator_virtual

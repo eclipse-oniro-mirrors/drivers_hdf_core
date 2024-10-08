@@ -23,7 +23,7 @@
 
 #include "hdf_base.h"
 #include "hdf_dump_reg.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "securec.h"
 

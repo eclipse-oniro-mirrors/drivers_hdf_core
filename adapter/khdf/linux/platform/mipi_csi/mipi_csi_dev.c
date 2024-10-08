@@ -21,7 +21,7 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/version.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mipi_csi_core.h"
 #include "osal_mem.h"
 #include "securec.h"

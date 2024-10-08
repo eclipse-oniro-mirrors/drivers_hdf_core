@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "message_dispatcher.h"
 #include "message_router_inner.h"
 #include "osal_mutex.h"

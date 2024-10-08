@@ -22,7 +22,7 @@
 #include <linux/rtc.h>
 #include <linux/string.h>
 #include <linux/timekeeping.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_math.h"
 #include "securec.h"
 

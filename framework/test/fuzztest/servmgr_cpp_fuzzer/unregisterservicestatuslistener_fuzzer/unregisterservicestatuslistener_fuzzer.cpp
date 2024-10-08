@@ -13,7 +13,7 @@
 #include <hdi_base.h>
 #include <iremote_broker.h>
 #include <refbase.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "iservmgr_hdi.h"
 #include "iservstat_listener_hdi.h"
 #include "parcel.h"

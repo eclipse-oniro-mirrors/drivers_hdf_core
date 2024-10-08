@@ -9,7 +9,7 @@
 #include "pwm_test.h"
 #include "device_resource_if.h"
 #include "hdf_io_service_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_time.h"
 #include "securec.h"

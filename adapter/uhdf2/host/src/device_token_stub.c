@@ -16,7 +16,7 @@
 #include "osal_mem.h"
 #include "device_token_stub.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG device_token_stub
 

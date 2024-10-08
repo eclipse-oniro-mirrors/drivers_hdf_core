@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hcs_macro.h"
 #include "hdf_macro_test.h"
 

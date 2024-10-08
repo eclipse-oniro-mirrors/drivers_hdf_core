@@ -7,7 +7,7 @@
  */
 
 #include "hdmi_dispatch.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdmi_core.h"
 #include "hdmi_if.h"
 

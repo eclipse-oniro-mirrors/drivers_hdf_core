@@ -14,7 +14,7 @@
 #include <securec.h>
 #include "devsvc_manager_clnt.h"
 #include "hdf_device_node_ext.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 
 #define HDF_LOG_TAG          hdf_vnode

@@ -7,7 +7,7 @@
  */
 
 #include "devsvc_manager_clnt.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 
 #define HDF_LOG_TAG devsvc_manager_clnt

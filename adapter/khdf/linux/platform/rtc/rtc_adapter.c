@@ -19,7 +19,7 @@
 #include <linux/rtc.h>
 #include "device_resource_if.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "rtc_core.h"
 
 #define HDF_LOG_TAG RTC_ADAPTER

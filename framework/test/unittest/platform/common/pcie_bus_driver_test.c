@@ -10,7 +10,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_ibus_intf.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "pcie_bus_test.h"
 
 static struct PcieBusTestConfig g_config;

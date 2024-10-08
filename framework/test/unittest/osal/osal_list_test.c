@@ -8,7 +8,7 @@
 
 #include "securec.h"
 #include "hdf_dlist.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_case_cmd_test.h"
 #include "osal_work_test.h"
 #include "osal_sem.h"

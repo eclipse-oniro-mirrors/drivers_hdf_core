@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_queue.h"
 #include "osal_mem.h"
 #include "hdf_wlan_queue.h"

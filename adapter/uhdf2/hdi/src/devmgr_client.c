@@ -20,7 +20,7 @@
  */
 #include <devmgr_service_stub.h>
 #include <hdf_base.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <hdf_remote_service.h>
 #include <osal_mem.h>
 #include <servmgr_hdi.h>

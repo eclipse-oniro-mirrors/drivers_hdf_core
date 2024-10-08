@@ -9,7 +9,7 @@
 #include "wlan_param_monitor.h"
 
 #include "hdf_dsoftbus_driver.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "module_manager.h"
 #include "osal_time.h"
 

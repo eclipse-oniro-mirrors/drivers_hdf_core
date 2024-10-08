@@ -1,5 +1,5 @@
 #include "hdf_device_desc.h"  // Header file that describes the APIs provided by the HDF to the driver.
-#include "hdf_log.h"          // Header file that describes the log APIs provided by the HDF.
+#include "hdf_core_log.h"          // Header file that describes the log APIs provided by the HDF.
 
 #define HDF_LOG_TAG ${driver_lower_case}_driver   // Tag contained in logs. If no tag is not specified, the default HDF_TAG is used.
 

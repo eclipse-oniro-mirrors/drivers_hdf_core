@@ -10,7 +10,7 @@
 
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hcs_parser_test.h"
 #include "osal_test_entry.h"
 

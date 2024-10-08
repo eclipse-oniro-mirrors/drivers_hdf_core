@@ -9,7 +9,7 @@
 #include "osal_mutex.h"
 #include <pthread.h>
 #include "securec.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG osal_mutex

@@ -9,7 +9,7 @@
 #include "osal_mem.h"
 #include <stdlib.h>
 #include "securec.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_mem
 

@@ -7,7 +7,7 @@
  */
 
 #include "hdf_io_service_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "adc_if.h"
 
 #define HDF_LOG_TAG adc_if_u_c

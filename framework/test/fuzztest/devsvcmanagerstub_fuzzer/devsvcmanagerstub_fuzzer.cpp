@@ -9,7 +9,7 @@
 #include "devsvcmanagerstub_fuzzer.h"
 #include "devsvc_manager_proxy.h"
 #include "devsvc_manager_stub.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 extern "C" int DevSvcManagerStubDispatch(
     struct HdfRemoteService *service, int code, struct HdfSBuf *data, struct HdfSBuf *reply);

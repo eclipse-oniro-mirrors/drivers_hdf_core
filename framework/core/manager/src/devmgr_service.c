@@ -14,7 +14,7 @@
 #include "hdf_base.h"
 #include "hdf_driver_installer.h"
 #include "hdf_host_info.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_time.h"
 

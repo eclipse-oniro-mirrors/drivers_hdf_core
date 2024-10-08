@@ -10,7 +10,7 @@
 #include "message/message_types.h"
 #include "message/message_router.h"
 #include "message/sidecar.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_time.h"
 

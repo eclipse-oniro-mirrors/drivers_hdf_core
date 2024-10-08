@@ -19,7 +19,7 @@
 #endif
 #include "hal_trace.h"
 #include "hal_cache.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 
 #define HDF_UART_TMO OSAL_WAIT_FOREVER

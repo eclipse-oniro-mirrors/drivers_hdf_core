@@ -7,7 +7,7 @@
  */
 
 #include "hdf_sbuf.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf_impl.h"
 #include "osal_mem.h"
 

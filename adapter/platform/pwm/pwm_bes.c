@@ -13,7 +13,7 @@
 #include "hal_trace.h"
 #include "hal_timer.h"
 #include "pwm_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #include "hcs_macro.h"
 #include "hdf_config_macro.h"

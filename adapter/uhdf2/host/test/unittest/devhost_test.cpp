@@ -29,7 +29,7 @@
 #include "hdf_device.h"
 #include "hdf_device_node.h"
 #include "hdf_remote_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 #include "hdf_device_object.h"

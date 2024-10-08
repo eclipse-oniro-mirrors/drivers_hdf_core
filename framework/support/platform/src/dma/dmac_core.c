@@ -8,7 +8,7 @@
 
 #include "dmac_core.h"
 #include <string.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_io.h"
 #include "osal_irq.h"
 #include "osal_mem.h"

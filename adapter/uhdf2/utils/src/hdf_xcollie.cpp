@@ -14,7 +14,7 @@
  */
 #include <unistd.h>
 #include "hdf_xcollie.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 namespace OHOS {
 #ifdef HDFHICOLLIE_ENABLE

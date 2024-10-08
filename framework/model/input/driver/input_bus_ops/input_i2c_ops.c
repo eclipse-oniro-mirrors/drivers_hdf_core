@@ -7,7 +7,7 @@
  */
 
 #include <securec.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "input_i2c_ops.h"
 
 #define I2C_READ_MSG_NUM   2

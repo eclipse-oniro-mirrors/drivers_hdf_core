@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "rtc_if.h"
 
 int32_t RtcSetTimeZone(int32_t timeZone)

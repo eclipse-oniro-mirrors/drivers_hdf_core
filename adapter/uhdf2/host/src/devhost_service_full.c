@@ -18,7 +18,7 @@
 #include "hdf_base.h"
 #include "hdf_device_info.h"
 #include "hdf_device_node.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_message.h"
 #include "power_state_token.h"
 

@@ -21,7 +21,7 @@
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "clock_core.h"

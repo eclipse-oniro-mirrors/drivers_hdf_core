@@ -31,7 +31,7 @@
 #include "osal_time.h"
 #include <los_config.h>
 #include <time.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_task.h"
 
 #define HDF_LOG_TAG osal_time

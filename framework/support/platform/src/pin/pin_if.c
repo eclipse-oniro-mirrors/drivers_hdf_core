@@ -8,7 +8,7 @@
 
 #include "pin_if.h"
 #include "pin_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG pin_if
 

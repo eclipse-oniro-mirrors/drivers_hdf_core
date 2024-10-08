@@ -29,7 +29,7 @@
  */
 
 #include "osal_mutex.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_mux.h"
 
 #define HDF_LOG_TAG osal_mutex

@@ -7,7 +7,7 @@
  */
 
 #include "hdf_usb_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "usb_test.h"
 #include "usb_raw_test.h"
 

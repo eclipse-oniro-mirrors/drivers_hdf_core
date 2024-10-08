@@ -14,7 +14,7 @@
 #include "hdf_base.h"
 #include "hdf_device_node.h"
 #include "hdf_io_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_power_manager.h"
 #include "hdf_sbuf.h"
 

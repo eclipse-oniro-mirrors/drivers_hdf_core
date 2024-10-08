@@ -21,7 +21,7 @@
 #include "base/buffer_util.h"
 #include "base/native_buffer.h"
 #include "osal_mem.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 using namespace testing::ext;
 using OHOS::MessageParcel;

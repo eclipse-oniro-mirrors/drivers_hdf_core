@@ -13,7 +13,7 @@
 #include "hdf_cstring.h"
 #include "hdf_device_node.h"
 #include "hdf_driver_loader.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "hdf_power_manager.h"
 #include "hdf_service_observer.h"

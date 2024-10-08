@@ -8,7 +8,7 @@
 
 #include "hdf_emmc_entry_test.h"
 #include "emmc_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG hdf_emmc_entry_test
 

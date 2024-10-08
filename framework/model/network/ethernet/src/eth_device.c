@@ -12,7 +12,7 @@
 #include <string.h>
 #endif
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef __LITEOS__
 #include "los_vm_zone.h"
 #endif

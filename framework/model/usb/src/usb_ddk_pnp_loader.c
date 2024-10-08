@@ -15,7 +15,7 @@
 #include "hdf_cstring.h"
 #include "hdf_device_node.h"
 #include "hdf_device_object.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_dlist.h"
 #include "hdf_sbuf.h"
 #include "osal_file.h"

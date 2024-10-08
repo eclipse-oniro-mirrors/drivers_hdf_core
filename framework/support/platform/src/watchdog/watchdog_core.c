@@ -7,7 +7,7 @@
  */
 
 #include "watchdog_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "watchdog_if.h"
 #include "platform_trace.h"
 

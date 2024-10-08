@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "hdf_io_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_power_state.h"
 #include "hdf_sbuf.h"
 #include "hdf_uhdf_test.h"

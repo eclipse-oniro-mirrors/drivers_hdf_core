@@ -9,7 +9,7 @@
 #include "hdf_base.h"
 #include "hdf_dlist.h"
 #include "hdf_ibus_intf.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "pcie_if.h"
 #include "securec.h"

@@ -12,7 +12,7 @@
 #include <iostream>
 #include "watchdog_if.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define FUZZ_PROJECT_NAME "watchdog_fuzzer"
 

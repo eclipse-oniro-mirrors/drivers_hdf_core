@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include "device_resource_if.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "watchdog_if.h"
 #include "watchdog_core.h"
 #include "wm_regs.h"

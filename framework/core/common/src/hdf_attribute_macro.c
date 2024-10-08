@@ -13,7 +13,7 @@
 #include "hdf_config_macro.h"
 #include "hdf_device_desc.h"
 #include "hdf_host_info.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG hdf_attr_macro

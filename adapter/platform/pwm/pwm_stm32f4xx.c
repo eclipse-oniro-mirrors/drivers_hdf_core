@@ -16,7 +16,7 @@
 #endif
 #include "hdf_device_desc.h"
 #include "pwm_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_base_hal.h"
 #include "stm32f4xx_ll_tim.h"
 

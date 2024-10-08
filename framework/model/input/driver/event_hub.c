@@ -7,7 +7,7 @@
  */
 
 #include "osal_time.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "event_hub.h"
 
 #define SEC_TO_USEC    1000000

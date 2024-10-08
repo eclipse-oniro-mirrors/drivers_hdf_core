@@ -7,7 +7,7 @@
  */
 
 #include "net_device_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "net_device.h"
 #include <securec.h>
 

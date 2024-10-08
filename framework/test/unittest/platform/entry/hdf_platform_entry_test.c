@@ -9,7 +9,7 @@
 #include "hdf_platform_entry_test.h"
 
 #include "can_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "platform_device_test.h"
 #include "platform_dumper_test.h"
 #include "platform_event_test.h"

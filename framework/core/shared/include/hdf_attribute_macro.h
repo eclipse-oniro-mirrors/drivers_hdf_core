@@ -9,7 +9,7 @@
 #ifndef HDF_ATTRIBUTE_MACRO_H
 #define HDF_ATTRIBUTE_MACRO_H
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_dlist.h"
 
 struct HdfDevHostMgr {

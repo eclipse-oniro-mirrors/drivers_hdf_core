@@ -42,7 +42,7 @@
 #endif
 #include "hdf_base.h"
 #include "hdf_netbuf.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "net_device_types_adapter.h"
 
 #ifdef __cplusplus

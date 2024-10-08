@@ -7,7 +7,7 @@
  */
 
 #include "hdmi_dfm.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdmi_common.h"
 
 #define HDF_LOG_TAG hdmi_dfm_c

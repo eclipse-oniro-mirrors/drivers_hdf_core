@@ -17,7 +17,7 @@
 #include "dev_attribute_serialize.h"
 #include "devmgr_service_full.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 #include "osal_message.h"

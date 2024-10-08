@@ -11,7 +11,7 @@
 #include "hdmi_core.h"
 #endif
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #ifdef __USER__
 #include "hdf_io_service_if.h"

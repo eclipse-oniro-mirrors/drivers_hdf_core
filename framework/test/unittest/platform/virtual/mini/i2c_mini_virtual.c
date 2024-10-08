@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2c_if.h"
 
 int32_t I2cRead(DevHandle handle, uint8_t *buf, uint16_t len)

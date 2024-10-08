@@ -8,7 +8,7 @@
 
 #include "osal_test_entry.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_case_cmd_test.h"
 #include "osal_get_case_test.h"
 

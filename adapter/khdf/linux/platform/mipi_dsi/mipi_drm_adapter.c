@@ -21,7 +21,7 @@
 #include <linux/of.h>
 #include <video/mipi_display.h>
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mipi_dsi_core.h"
 #include "mipi_dsi_if.h"
 #include "osal_time.h"

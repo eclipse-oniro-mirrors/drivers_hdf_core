@@ -19,7 +19,7 @@
 #include "osal_irq.h"
 #include <linux/export.h>
 #include <linux/interrupt.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_irq
 

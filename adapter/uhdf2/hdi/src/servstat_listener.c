@@ -14,7 +14,7 @@
  */
 
 #include <hdf_dlist.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <hdf_remote_service.h>
 #include <hdf_service_status_inner.h>
 #include <osal_mem.h>

@@ -7,7 +7,7 @@
  */
 
 #include "mtd_spi_common.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 static void SpiFlashDumpDefualt(struct MtdDevice *mtdDevice)
 {

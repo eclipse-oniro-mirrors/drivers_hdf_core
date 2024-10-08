@@ -17,7 +17,7 @@
 #include "devmgr_service_stub.h"
 #include "devsvc_manager_stub.h"
 #include "driver_installer_full.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG devmgr_object_config
 

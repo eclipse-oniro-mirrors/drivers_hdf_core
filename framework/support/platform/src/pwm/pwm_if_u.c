@@ -7,7 +7,7 @@
  */
 
 #include "pwm_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_io_service_if.h"
 #include "securec.h"
 

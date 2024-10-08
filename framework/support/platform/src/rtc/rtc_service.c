@@ -9,7 +9,7 @@
 #include "devsvc_manager_clnt.h"
 #include "hdf_device_desc.h"
 #include "hdf_device_object.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "platform_listener_common.h"
 #include "rtc_core.h"

@@ -17,7 +17,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_device_object.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "power_state_token.h"
 
 #define HDF_LOG_TAG sample1_driver

@@ -33,7 +33,7 @@
 #include "unistd.h"
 #include "limits.h"
 #include "sys/stat.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_file
 

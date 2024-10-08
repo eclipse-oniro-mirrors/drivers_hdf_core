@@ -20,7 +20,7 @@
 #include <linux/mmc/card.h>
 #include <linux/mmc/host.h>
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "emmc_if.h"
 #include "mmc_corex.h"
 #include "mmc_emmc.h"

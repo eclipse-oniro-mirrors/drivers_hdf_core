@@ -7,7 +7,7 @@
  */
 
 #include "hdf_rtc_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "rtc_test.h"
 
 #define HDF_LOG_TAG hdf_rtc_entry_test

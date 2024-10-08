@@ -30,7 +30,7 @@
 
 #include "osal_time.h"
 #include <time.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "prt_config.h"
 #include "prt_tick.h"
 #include "prt_task.h"
