@@ -1,33 +1,16 @@
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * HDF is dual licensed: you can use it either under the terms of
- * the GPL, or the BSD license, at your option.
- * See the LICENSE file in the root of this repository for complete details.
- */
-
-/**
- * @addtogroup DriverUtils
- * @{
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * @brief Defines common macros and interfaces of the driver module.
- *
- * This module provides interfaces such as log printing, doubly linked list operations, and work queues.
- *
- * @since 1.0
- * @version 1.0
- */
-
-/**
- * @file hdf_core_log.h
- *
- * @brief Declares log printing functions of the driver module.
- * This module provides functions for printing logs at the verbose, debug, information, warning, and error levels.
- *
- * To use these functions, you must define <b>HDF_LOG_TAG</b>, for example, #define HDF_LOG_TAG evt.
- *
- * @since 1.0
- * @version 1.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #include "hdf_log.h"
 /**
