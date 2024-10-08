@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef HDF_CORE_LOG_H
+#define HDF_CORE_LOG_H
+
 #include "hdf_log.h"
 
 #ifdef __cplusplus
@@ -28,3 +31,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* HDF_CORE_LOG_H */
