@@ -202,7 +202,7 @@ static int32_t HdfDevMgrFillPidList(std::vector<int> &pidList, MessageParcel &re
 
     int pid = -1;
     for (uint32_t i = 0; i < pidCount; ++i) {
-        if (!reply.ReadUint32(pid)) {
+        if (!reply.ReadInt32(pid)) {
             HDF_LOGE("failed to read pid");
             return HDF_FAILURE;
         }

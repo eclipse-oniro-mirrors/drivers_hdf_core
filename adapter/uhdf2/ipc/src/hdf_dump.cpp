@@ -110,19 +110,18 @@ static void HdfDumpIpcStatGet(std::string& result)
     return;
 }
 
-uint32_t HdfDumpIpcStat(int32_t fd, const char *cmd)
+void HdfDumpIpcStat(int32_t fd, const char *cmd)
 {
     if (fd < 0) {
         HDF_LOGE("invalid fd %{public}d", fd);
-        return HDF_ERR_INVALID_PARAM;
+        return;
     }
 
     if (cmd == nullptr) {
         HDF_LOGE("%{public}s cmd is null", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        return;
     }
 
-    uint32_t ret = HDF_SUCCESS;
     std::string result;
     HDF_LOGI("%{public}s %{public}d", cmd, fd);
     if (strcmp(cmd, "--start-stat") == 0) {
@@ -133,15 +132,14 @@ uint32_t HdfDumpIpcStat(int32_t fd, const char *cmd)
         HdfDumpIpcStatGet(result);
     } else {
         HDF_LOGE("%{public}s invalid param", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        return;
     }
 
     if (!OHOS::SaveStringToFd(fd, result)) {
         HDF_LOGE("%{public}s SaveStringToFd failed", __func__);
-        return HDF_FAILURE;
     }
 
-    return HDF_SUCCESS;
+    return;
 }
 
 void HdfRegisterDumpFunc(DevHostDumpFunc dump)
