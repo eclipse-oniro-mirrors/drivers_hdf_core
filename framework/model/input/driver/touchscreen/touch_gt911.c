@@ -18,7 +18,7 @@
 #if defined(CONFIG_ARCH_ROCKCHIP)
 #define GT5688_FIRMWARE_VERSION    256
 #define GT911_FIRMWARE_VERSION     4192
-static bool GT5688 = false;
+static bool g_isGT5688 = false;
 #endif
 
 #define FOUR_BYTES 4
@@ -65,7 +65,7 @@ static int32_t ChipDetect(ChipDevice *device)
     switch (version) {
         case GT5688_FIRMWARE_VERSION:
             HDF_LOGI("%s:TOUCH IC is GT5688", __func__);
-            GT5688 = true;
+            g_isGT5688 = true;
             break;
         case GT911_FIRMWARE_VERSION:
             HDF_LOGI("%s:TOUCH IC is GT911", __func__);
@@ -124,7 +124,7 @@ static void ChipVersionDefault(ChipDevice *device, FrameData *frame, const uint8
                               ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
                               ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
-        if (GT5688) {
+        if (g_isGT5688) {
             if (frame->fingers[i].y < GT_Y_OFFSET_A)
                 frame->fingers[i].y += CORRECTION_VALUE_A;
             else if (frame->fingers[i].y < GT_Y_OFFSET_B)
