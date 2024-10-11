@@ -19,6 +19,9 @@
 #include "hdf_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
+#ifdef __USER__
+#include <pthread.h>
+#endif
 
 int DeviceServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -27,7 +30,14 @@ int DeviceServiceStubDispatch(
     struct IDeviceIoService *ioService = service->super.deviceObject.service;
     int ret = HDF_FAILURE;
 
+#ifdef __USER__
+    pthread_rwlock_rdlock(&service->super.deviceObject.mutex);
+#endif
+
     if (ioService == NULL) {
+#ifdef __USER__
+        pthread_rwlock_unlock(&service->super.deviceObject.mutex);
+#endif
         return HDF_FAILURE;
     }
 
@@ -39,6 +49,10 @@ int DeviceServiceStubDispatch(
     if (ioService->Dispatch != NULL) {
         ret = ioService->Dispatch(&client, code, data, reply);
     }
+
+#ifdef __USER__
+    pthread_rwlock_unlock(&service->super.deviceObject.mutex);
+#endif
     return ret;
 }
 
