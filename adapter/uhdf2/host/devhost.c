@@ -197,8 +197,5 @@ int main(int argc, char **argv)
     HdfPowerManagerExit();
     DevHostDumpDeInit();
     HDF_LOGI("hdf device host %{public}s %{public}d %{public}d exit", hostName, hostId, status);
-    if (strcmp(hostName, "camera_host") == 0) {
-        _exit(status);
-    }
     return status;
 }
