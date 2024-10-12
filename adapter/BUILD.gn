@@ -48,6 +48,8 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
       "$hdf_framework_path/tools/hdf_dbg:hdf_dbg",
       "$hdf_peripheral_path:hdf_peripheral.cfg",
+    ]
+
     if (with_sample) {
       deps += [
         "$hdf_adapter_path/uhdf2/host/test/unittest/sample1_driver:libsample1_driver",
