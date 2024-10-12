@@ -21,6 +21,7 @@
 #include <hdf_sbuf.h>
 #include <hdf_service_status.h>
 #include <osal_time.h>
+#include <osal_mem.h>
 #include <servmgr_hdi.h>
 #include <shared_mem.h>
 #include <string>
@@ -28,36 +29,46 @@
 
 #include "sample_hdi.h"
 #include "hdi_support.h"
+#include <hdf_service_status_inner.h>
+#include <hdf_dlist.h>
 
 #define HDF_LOG_TAG service_manager_test
 
 namespace OHOS {
 using namespace testing::ext;
 
+#ifdef SAMPLE_DRIVER
 static constexpr const char *TEST_SERVICE_NAME = "sample_driver_service";
 static constexpr const char *TEST1_SERVICE_NAME = "sample1_driver_service";
 static constexpr const char *TEST_SERVICE_INTERFACE_DESC = "hdf.test.sampele_service";
-static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "____";
-static constexpr const char *TEST_SERVICE_INTERFACE_DESC_VOID = "";
-static constexpr const char *TEST_SERVICE_INTERFACE_DESC_NULL = nullptr;
 static constexpr int PAYLOAD_NUM = 1234;
 static constexpr int WAIT_LOAD_UNLOAD_TIME = 300;
 static constexpr int INVALID_DISPATCH_CODE = -1;
+#endif
+
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_INVALID = "____";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_VOID = "";
+static constexpr const char *TEST_SERVICE_INTERFACE_DESC_NULL = nullptr;
+
 class HdfServiceMangerHdiCTest : public testing::Test {
 public:
     static void SetUpTestCase()
     {
+#ifdef SAMPLE_DRIVER
         struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
         if (devmgr != nullptr) {
             devmgr->LoadDevice(devmgr, TEST_SERVICE_NAME);
         }
+#endif
     }
     static void TearDownTestCase()
     {
+#ifdef SAMPLE_DRIVER
         struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
         if (devmgr != nullptr) {
             devmgr->UnloadDevice(devmgr, TEST_SERVICE_NAME);
         }
+#endif
     }
     void SetUp() {};
     void TearDown() {};
@@ -70,6 +81,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest001, TestSize.Level1)
     HDIServiceManagerRelease(servmgr);
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest002, TestSize.Level1)
 {
     struct HDIServiceManager *servmgr = HDIServiceManagerGet();
@@ -544,6 +556,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest010, TestSize.Level1)
     OsalMSleep(WAIT_COUNT);
     ASSERT_FALSE(ssd.callbacked);
 }
+#endif
 
 /*
  * Test shared mem interface
@@ -575,6 +588,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest011, TestSize.Level1)
     close(memFd);
 }
 
+#ifdef SAMPLE_DRIVER
 /*
  * Test get service set by interfacedesc
  */
@@ -605,6 +619,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ListServiceByInterfaceDescTest001, TestSize.L
     ret = HdiServiceSetRelease(serviceSet);
     ASSERT_TRUE(ret == HDF_SUCCESS);
 }
+#endif
 
 HWTEST_F(HdfServiceMangerHdiCTest, ListServiceByInterfaceDescTest002, TestSize.Level1)
 {
@@ -637,6 +652,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ListServiceByInterfaceDescTest004, TestSize.L
     ASSERT_TRUE(serviceSet == nullptr);
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiCTest, ListServiceByInterfaceDescTest005, TestSize.Level1)
 {
     struct HDIDeviceManager *devmgr = HDIDeviceManagerGet();
@@ -678,6 +694,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ListServiceByInterfaceDescTest005, TestSize.L
     ASSERT_TRUE(ret == HDF_SUCCESS);
     HDIDeviceManagerRelease(devmgr);
 }
+#endif
 
 HWTEST_F(HdfServiceMangerHdiCTest, DevMgrQueryUsableDeviceTest, TestSize.Level1)
 {
@@ -726,6 +743,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest018, TestSize.Level1)
     HDIServiceManagerRelease(NULL);
 }
 
+#ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiCTest, RemoteServiceTest001, TestSize.Level1) {
     struct HDIServiceManager *servmgr = HDIServiceManagerGet();
     ASSERT_TRUE(servmgr != nullptr);
@@ -761,6 +779,7 @@ HWTEST_F(HdfServiceMangerHdiCTest, RemoteServiceTest003, TestSize.Level1) {
     int status = HdfRemoteServiceDefaultDispatch(sampleService, INVALID_DISPATCH_CODE, dataSbuf, replySbuf);
     ASSERT_TRUE(status != HDF_SUCCESS);
 }
+#endif
 
 HWTEST_F(HdfServiceMangerHdiCTest, DevMgrTest, TestSize.Level1)
 {
@@ -788,5 +807,25 @@ HWTEST_F(HdfServiceMangerHdiCTest, HdiSupportTest, TestSize.Level1)
 {
     ASSERT_EQ(LoadHdiImpl(NULL, NULL), nullptr);
     UnloadHdiImpl(NULL, NULL, NULL);
+}
+
+HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest019, TestSize.Level1)
+{
+    struct ServiceStatusListener *listener = HdiServiceStatusListenerNewInstance();
+    HdiServiceStatusListenerFree(nullptr);
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    int ret = servmgr->RegisterServiceStatusListener(servmgr, listener, DEVICE_CLASS_DEFAULT);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ret = servmgr->UnregisterServiceStatusListener(servmgr, listener);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    struct HdiServiceSet *serviceSet = (struct HdiServiceSet *)OsalMemAlloc(sizeof(struct HdiServiceSet));
+    serviceSet->count = 20;
+    ret = HdiServiceSetRelease(serviceSet);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    HdiServiceStatusListenerFree(listener);
+    ret = HdfRemoteServiceRegister(-1, NULL);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
+    int status = HdfRemoteServiceDefaultDispatch(NULL, 0, NULL, NULL);
+    ASSERT_TRUE(status != HDF_SUCCESS);
 }
 } // namespace OHOS

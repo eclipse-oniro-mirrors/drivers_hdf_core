@@ -38,10 +38,21 @@ public:
     void SetUp() {};
     void TearDown() {};
 };
+static bool TestRemove()
+{
+    return HDI::ObjectCollector::GetInstance().RemoveObject(nullptr);
+}
 
 HWTEST_F(ObjectCollectorTest, ObjectCollectorTest001, TestSize.Level1)
 {
     sptr<IRemoteObject> object = HDI::ObjectCollector::GetInstance().NewObject(nullptr, INTERFACE_NAME);
     ASSERT_EQ(object, nullptr);
+    object = HDI::ObjectCollector::GetInstance().GetOrNewObject(nullptr, INTERFACE_NAME);
+    ASSERT_EQ(object, nullptr);
+    bool remove = false;
+    if (!TestRemove()) {
+        remove = true;
+    }
+    ASSERT_EQ(remove, true);
 }
 } // namespace OHOS
