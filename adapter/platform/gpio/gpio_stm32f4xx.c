@@ -16,7 +16,7 @@
 #include "device_resource_if.h"
 #endif
 #include "gpio_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_irq.h"
 
 #define HDF_LOG_TAG gpio_stm_c

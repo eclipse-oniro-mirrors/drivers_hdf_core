@@ -9,7 +9,7 @@
 #include "mtd_core.h"
 #include "securec.h"
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mtd_block.h"
 #include "mtd_char.h"
 #include "platform_core.h"

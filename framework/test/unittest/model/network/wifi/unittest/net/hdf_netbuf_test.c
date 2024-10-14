@@ -7,7 +7,7 @@
  */
 
 #include "hdf_netbuf.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_wifi_test.h"
 
 #define DEFAULT_NETBUF_SIZE     100

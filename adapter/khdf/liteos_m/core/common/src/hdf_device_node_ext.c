@@ -33,7 +33,7 @@
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_io_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 

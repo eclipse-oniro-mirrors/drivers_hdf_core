@@ -8,7 +8,7 @@
 
 #include "flow_control_task.h"
 #include "osal_time.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "flow_control.h"
 #include "securec.h"
 #define HDF_LOG_TAG HDF_WIFI_CORE

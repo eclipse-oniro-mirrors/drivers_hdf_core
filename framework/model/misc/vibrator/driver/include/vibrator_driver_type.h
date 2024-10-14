@@ -9,7 +9,7 @@
 #ifndef VIBRATOR_DRIVER_TYPE_H
 #define VIBRATOR_DRIVER_TYPE_H
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2c_if.h"
 
 #define CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(ptr, ret) do { \

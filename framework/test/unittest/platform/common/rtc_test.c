@@ -9,7 +9,7 @@
 #include "rtc_test.h"
 #include "hdf_base.h"
 #include "hdf_io_service_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_time.h"
 #include "rtc_base.h"

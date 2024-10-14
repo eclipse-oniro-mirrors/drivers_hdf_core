@@ -245,7 +245,7 @@ void CCustomTypesCodeEmitter::EmitSoucreInclusions(StringBuilder &sb)
 
 void CCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
-    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_core_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_sbuf");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "osal_mem");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");

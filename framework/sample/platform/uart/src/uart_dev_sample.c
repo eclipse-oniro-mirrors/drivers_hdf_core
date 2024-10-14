@@ -8,7 +8,7 @@
 
 #include "uart_dev_sample.h"
 #include "fs/fs.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "uart_pl011_sample.h"

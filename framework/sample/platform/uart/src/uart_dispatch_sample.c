@@ -7,7 +7,7 @@
  */
 
 #include "uart_dispatch_sample.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "uart_core.h"
 #include "uart_pl011_sample.h"

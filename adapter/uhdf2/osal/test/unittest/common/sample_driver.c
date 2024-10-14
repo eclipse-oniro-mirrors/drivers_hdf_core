@@ -15,7 +15,7 @@
 
 #include "sample_driver.h"
 #include <linux/ioctl.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 

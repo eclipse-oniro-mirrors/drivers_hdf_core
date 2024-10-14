@@ -11,7 +11,7 @@
 #include "random.h"
 #include "securec.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "pwm_if.h"
 
 using namespace std;

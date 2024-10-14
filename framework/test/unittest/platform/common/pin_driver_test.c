@@ -9,7 +9,7 @@
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "pin_test.h"
 #include "securec.h"
 #include "string.h"

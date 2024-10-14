@@ -8,7 +8,7 @@
 
 #include "uart_if.h"
 #include "devsvc_manager_clnt.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "uart_core.h"

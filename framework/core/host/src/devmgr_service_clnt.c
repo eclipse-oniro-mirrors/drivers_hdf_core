@@ -9,7 +9,7 @@
 #include "devmgr_service_clnt.h"
 #include "hdf_base.h"
 #include "hdf_device.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 
 #define HDF_LOG_TAG devmgr_service_clnt

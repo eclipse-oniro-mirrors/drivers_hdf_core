@@ -9,7 +9,7 @@
 #ifndef PLATFORM_LOG_H
 #define PLATFORM_LOG_H
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #if defined(__LITEOS__) || defined(__KERNEL__)
 #define PLAT_LOGV(fmt, arg...)

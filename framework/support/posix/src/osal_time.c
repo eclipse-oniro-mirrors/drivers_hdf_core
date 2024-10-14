@@ -12,7 +12,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "securec.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_time
 

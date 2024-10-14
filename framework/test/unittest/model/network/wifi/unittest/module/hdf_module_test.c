@@ -8,7 +8,7 @@
 
 #include "hdf_module_test.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_wifi_product.h"
 #include "ap.h"
 

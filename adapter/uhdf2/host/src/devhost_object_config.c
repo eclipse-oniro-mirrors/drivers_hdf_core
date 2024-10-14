@@ -19,7 +19,7 @@
 #include "devsvc_manager_proxy.h"
 #include "driver_loader_full.h"
 #include "device_service_stub.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 
 #define HDF_LOG_TAG devhost_object_config

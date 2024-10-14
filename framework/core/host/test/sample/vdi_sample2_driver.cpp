@@ -8,7 +8,7 @@
 
 #include "hdf_base.h"
 #include "hdf_load_vdi.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "vdi_sample2_driver.h"
 
 #define HDF_LOG_TAG vdi_sample2

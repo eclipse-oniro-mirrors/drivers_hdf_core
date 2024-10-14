@@ -8,7 +8,7 @@
 
 #include "i3c_if.h"
 #include "i3c_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG i3c_if_c
 

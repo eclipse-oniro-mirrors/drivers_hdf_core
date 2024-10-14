@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include "device_resource_if.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2s_if.h"
 #include "osal_file.h"
 #include "osal_mem.h"

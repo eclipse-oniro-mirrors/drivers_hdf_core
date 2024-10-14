@@ -10,7 +10,7 @@
 
 #include "can/can_core.h"
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG             can_virtual_c

@@ -7,7 +7,7 @@
  */
 
 #include "platform_queue.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_mutex.h"
 #include "osal_thread.h"

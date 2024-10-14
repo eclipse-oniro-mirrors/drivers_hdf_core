@@ -11,7 +11,7 @@
 #include "devsvc_manager_clnt.h"
 #include "hdf_device_desc.h"
 #include "hdf_device_node.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_pm.h"
 #include "hdf_power_manager.h"
 #include "hdf_task_queue.h"

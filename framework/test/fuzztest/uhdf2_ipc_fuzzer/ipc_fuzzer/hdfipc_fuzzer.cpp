@@ -8,7 +8,7 @@
 
 #include "hdfipc_fuzzer.h"
 #include "hdf_remote_adapter.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "parcel.h"
 #include <cstddef>
 #include <cstdint>

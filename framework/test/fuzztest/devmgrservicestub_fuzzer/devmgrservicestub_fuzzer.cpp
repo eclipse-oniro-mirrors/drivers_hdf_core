@@ -9,7 +9,7 @@
 #include "devmgrservicestub_fuzzer.h"
 #include "devmgr_service_stub.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 extern "C" int32_t DevmgrServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply);

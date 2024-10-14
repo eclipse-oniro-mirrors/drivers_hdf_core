@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <hdf_sbuf.h>
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_io_service_if.h"
 
 namespace OHOS {

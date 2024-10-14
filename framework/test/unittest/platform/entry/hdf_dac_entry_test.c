@@ -8,7 +8,7 @@
 
 #include "hdf_dac_entry_test.h"
 #include "dac_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG hdf_dac_entry_test
 

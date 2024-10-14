@@ -9,7 +9,7 @@
 #ifndef SENSOR_PLATFORM_IF_H
 #define SENSOR_PLATFORM_IF_H
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2c_if.h"
 #include "spi_if.h"
 #include "osal_thread.h"

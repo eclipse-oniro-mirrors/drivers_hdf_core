@@ -7,7 +7,7 @@
  */
 
 #include "emmc_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 int32_t EmmcGetCardState(DevHandle handle, uint8_t *state, uint32_t size)
 {

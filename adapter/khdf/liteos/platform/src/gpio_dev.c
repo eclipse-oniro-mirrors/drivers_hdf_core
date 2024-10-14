@@ -34,7 +34,7 @@
 #include "gpio_core.h"
 #include "gpio_if.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "user_copy.h"
 

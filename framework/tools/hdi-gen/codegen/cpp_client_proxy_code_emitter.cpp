@@ -327,7 +327,7 @@ void CppClientProxyCodeEmitter::EmitPassthroughProxySourceInclusions(StringBuild
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "string_ex");
     }
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_support");
-    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_core_log");
 
     for (const auto &file : headerFiles) {
         sb.AppendFormat("%s\n", file.ToString().c_str());
@@ -405,7 +405,7 @@ void CppClientProxyCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFi
         headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "iservmgr_hdi");
     }
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_base");
-    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
+    headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_core_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_option");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_parcel");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdi_support");

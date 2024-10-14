@@ -17,7 +17,7 @@
 #include "devmgr_service_full.h"
 #include "devmgr_uevent.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "devmgr_dump.h"
 #include "parameter.h"
 

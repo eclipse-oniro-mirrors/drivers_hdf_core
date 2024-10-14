@@ -31,7 +31,7 @@
 #include "fs/driver.h"
 #include "securec.h"
 #include "user_copy.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "spi_dev.h"
 

@@ -21,7 +21,7 @@
 
 #include "securec.h"
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_mem.h"
 

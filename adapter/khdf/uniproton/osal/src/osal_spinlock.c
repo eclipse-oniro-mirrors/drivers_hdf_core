@@ -29,7 +29,7 @@
  */
 
 #include "osal_spinlock.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "prt_sem.h"
 
 #define HDF_LOG_TAG osal_spinlock

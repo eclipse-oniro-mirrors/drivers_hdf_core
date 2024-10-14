@@ -18,7 +18,7 @@
 #include "hcs_blob_if.h"
 #include "hcs_blob_load.h"
 #include "hcs_parser.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG hcs_dm_parser

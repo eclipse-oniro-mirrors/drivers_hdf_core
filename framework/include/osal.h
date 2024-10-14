@@ -11,7 +11,7 @@
 
 #include "hdf_base.h"
 #include "hdf_dlist.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_firmware.h"
 #include "osal_irq.h"
 #include "osal_mem.h"

@@ -31,7 +31,7 @@
 #include <stdio.h>
 
 #include "i2c_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "prt_task.h"
 #include "i2c_test.h"
 

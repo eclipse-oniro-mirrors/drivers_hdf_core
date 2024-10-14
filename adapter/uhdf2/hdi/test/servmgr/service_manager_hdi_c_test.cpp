@@ -16,7 +16,7 @@
 #include <devmgr_hdi.h>
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <hdf_remote_service.h>
 #include <hdf_sbuf.h>
 #include <hdf_service_status.h>

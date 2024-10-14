@@ -7,7 +7,7 @@
  */
 
 #include "hdf_sdio_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "sdio_if.h"
 #include "sdio_test.h"
 

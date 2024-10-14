@@ -20,7 +20,7 @@
 #include <linux/export.h>
 #include <linux/firmware.h>
 #include <linux/string.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_fw
 

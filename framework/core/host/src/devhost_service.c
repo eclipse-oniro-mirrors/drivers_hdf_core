@@ -11,7 +11,7 @@
 #include "hdf_base.h"
 #include "hdf_driver.h"
 #include "hdf_driver_loader.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_mem.h"
 #include "power_state_token.h"

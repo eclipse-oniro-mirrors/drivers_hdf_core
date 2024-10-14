@@ -11,7 +11,7 @@
 #include "event_hub.h"
 #include "hdf_base.h"
 #include "hdf_device_object.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define NODE_MODE            0660

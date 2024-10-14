@@ -18,7 +18,7 @@
 #include <ctime>
 #include <datetime_ex.h>
 #include <hdf_base.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <base/hdi_smq_syncer.h>
 #include <sys/syscall.h>
 #include <unistd.h>

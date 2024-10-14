@@ -7,7 +7,7 @@
  */
 
 #include "securec.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_workqueue.h"
 #include "osal_atomic.h"
 #include "osal_file.h"

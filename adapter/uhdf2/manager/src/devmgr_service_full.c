@@ -18,7 +18,7 @@
 #include "devhost_service_proxy.h"
 #include "device_token_clnt.h"
 #include "hdf_driver_installer.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_message_looper.h"
 #include "osal_message.h"
 

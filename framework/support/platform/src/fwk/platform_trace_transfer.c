@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "platform_trace.h"
 static struct PlatformTraceModuleExplain g_traceModuleExplain[] = {
     {PLATFORM_TRACE_MODULE_I2S,                "PLATFORM_TRACE_MODULE_I2S"               },

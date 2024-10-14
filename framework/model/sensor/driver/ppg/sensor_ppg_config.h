@@ -13,7 +13,7 @@
 #include "hdf_device_desc.h"
 #include "spi_if.h"
 #include "gpio_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "sensor_device_type.h"
 #include "sensor_platform_if.h"
 #include "sensor_config_parser.h"

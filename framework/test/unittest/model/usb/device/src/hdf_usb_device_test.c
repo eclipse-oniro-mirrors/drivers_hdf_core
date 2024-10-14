@@ -7,7 +7,7 @@
  */
 #include "usb_device_lite_cdcacm_test.h"
 #include "hdf_module_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_message_test.h"
 #include "osal.h"
 #include "hdf_usb_device_test.h"

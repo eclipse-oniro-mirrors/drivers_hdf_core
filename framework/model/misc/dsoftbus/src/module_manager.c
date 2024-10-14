@@ -8,7 +8,7 @@
 
 #include "module_manager.h"
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef ENABLE_LWIP_MONITOR
 #include "softbus_lwip_monitor.h"
 #endif

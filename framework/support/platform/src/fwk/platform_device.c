@@ -7,7 +7,7 @@
  */
 
 #include "platform_device.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "platform_core.h"
 #include "securec.h"

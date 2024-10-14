@@ -29,7 +29,7 @@
  */
 
 #include "osal_mutex.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "prt_config.h"
 #include "prt_sem.h"
 

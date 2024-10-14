@@ -19,7 +19,7 @@
 #include "osal_file.h"
 #include <linux/fs.h>
 #include <asm/uaccess.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_file
 

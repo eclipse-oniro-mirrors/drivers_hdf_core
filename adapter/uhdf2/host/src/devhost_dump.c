@@ -18,7 +18,7 @@
 #include "hdf_base.h"
 #include "hdf_cstring.h"
 #include "hdf_dlist.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_mutex.h"
 #include "hdf_dump_reg.h"

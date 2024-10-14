@@ -7,7 +7,7 @@
  */
 
 #include "hdf_watchdog_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "watchdog_test.h"
 
 #define HDF_LOG_TAG hdf_watchdog_entry_test

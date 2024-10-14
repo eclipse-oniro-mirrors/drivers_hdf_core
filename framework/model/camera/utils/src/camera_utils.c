@@ -7,7 +7,7 @@
  */
 
 #include <securec.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include "camera_config_parser.h"
 #include "camera_device_manager.h"
 #include "camera_utils.h"

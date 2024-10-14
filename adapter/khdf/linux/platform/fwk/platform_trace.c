@@ -13,7 +13,7 @@
  */
 #include "platform_trace.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_file.h"
 #include "osal_mem.h"
 #include "securec.h"

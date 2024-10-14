@@ -22,7 +22,7 @@
 #include <linux/usb.h>
 
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "usb_pnp_notify.h"

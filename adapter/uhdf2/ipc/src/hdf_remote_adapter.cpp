@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "hdf_dump.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "hdf_sbuf_ipc.h"
 #include "hdf_remote_adapter.h"

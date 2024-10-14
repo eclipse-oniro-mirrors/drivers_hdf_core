@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "spi_core.h"
 #include "spi_if.h"
 #include "device_resource_if.h"

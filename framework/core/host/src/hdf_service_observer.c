@@ -9,7 +9,7 @@
 #include "hdf_service_observer.h"
 #include "hdf_base.h"
 #include "hdf_cstring.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_observer_record.h"
 #include "hdf_service_subscriber.h"
 

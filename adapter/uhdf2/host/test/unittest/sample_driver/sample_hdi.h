@@ -17,7 +17,7 @@
 #define SAMPLE_SERVICE_HDF_H
 
 #include <hdf_sbuf.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <osal_mem.h>
 #include <securec.h>
 #include <base/hdi_smq_meta.h>

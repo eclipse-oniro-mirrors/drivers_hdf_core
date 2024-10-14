@@ -7,7 +7,7 @@
  */
 
 #include "platform_manager.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_sem.h"
 #include "platform_core.h"

@@ -8,7 +8,7 @@
 
 #include "hdf_dlist.h"
 #include "hdf_driver.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_sysevent.h"
 

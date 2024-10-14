@@ -10,7 +10,7 @@
 
 #include "hdf_dlist.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;

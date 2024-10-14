@@ -7,7 +7,7 @@
  */
 
 #include "pwm_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG pwm_core

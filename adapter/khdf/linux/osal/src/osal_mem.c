@@ -21,7 +21,7 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/vmalloc.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG osal_mem

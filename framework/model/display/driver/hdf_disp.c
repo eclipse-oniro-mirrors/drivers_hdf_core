@@ -10,7 +10,7 @@
 #include <securec.h>
 #include "hdf_base.h"
 #include "hdf_bl.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal.h"
 
 #define OFFSET_TWO_BYTE    16

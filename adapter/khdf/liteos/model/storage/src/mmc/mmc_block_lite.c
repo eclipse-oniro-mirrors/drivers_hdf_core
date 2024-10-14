@@ -31,7 +31,7 @@
 #include "disk.h"
 #include "fs/fs.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mmc_block.h"
 #include "mmc_sd.h"
 #include "sys/ioctl.h"

@@ -10,7 +10,7 @@
 #include "wifi_inc.h"
 #include "hdf_base.h"
 #include "hdf_ibus_intf.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG HDF_WIFI_CORE

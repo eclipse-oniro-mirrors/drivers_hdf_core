@@ -8,7 +8,7 @@
 
 #include "hdf_base.h"
 #include "hdf_io_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 
 #define HDF_LOG_TAG hdf_devmgr_adapter

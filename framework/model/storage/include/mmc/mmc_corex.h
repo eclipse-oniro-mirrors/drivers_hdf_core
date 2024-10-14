@@ -11,7 +11,7 @@
 
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mmc_caps.h"
 #include "mmc_protocol.h"
 #include "osal_mem.h"

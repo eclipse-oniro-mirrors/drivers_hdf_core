@@ -14,7 +14,7 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_base.h"
 
 #define HDF_LOG_TAG adc_iio_virtual

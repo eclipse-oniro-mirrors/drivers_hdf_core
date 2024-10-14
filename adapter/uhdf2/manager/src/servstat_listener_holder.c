@@ -17,7 +17,7 @@
 #include "hdf_remote_service.h"
 #include "osal_mem.h"
 #include "osal_mutex.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG servstat
 

@@ -9,7 +9,7 @@
 #include "service_fuzzer.h"
 
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

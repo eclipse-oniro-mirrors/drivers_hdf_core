@@ -29,7 +29,7 @@
 #include "devhost_service.h"
 #include "devhost_service_full.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_power_manager.h"
 
 #define HDF_LOG_TAG                    hdf_device_host

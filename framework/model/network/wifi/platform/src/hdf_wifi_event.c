@@ -7,7 +7,7 @@
  */
 
 #include "hdf_wifi_event.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "hdf_slist.h"
 #include "hdf_wifi_product.h"

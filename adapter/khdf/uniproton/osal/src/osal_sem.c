@@ -31,7 +31,7 @@
 #include "osal_sem.h"
 #include "prt_sem.h"
 #include "prt_config.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_sem
 #define HDF_INVALID_SEM_ID UINT32_MAX

@@ -10,7 +10,7 @@
 #define REGULATOR_TREE_MGR_H
 
 #include "regulator_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_base.h"
 #include "osal_mutex.h"
 

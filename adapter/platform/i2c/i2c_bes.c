@@ -12,7 +12,7 @@
 #include "i2c_core.h"
 #include "i2c_if.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #include "hcs_macro.h"
 #include "hdf_config_macro.h"

@@ -16,7 +16,7 @@
 #include <devsvc_manager_proxy.h>
 #include <devsvc_manager_stub.h>
 #include <hdf_base.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <osal_mem.h>
 #include "hdf_cstring.h"
 #include "hdf_service_status.h"

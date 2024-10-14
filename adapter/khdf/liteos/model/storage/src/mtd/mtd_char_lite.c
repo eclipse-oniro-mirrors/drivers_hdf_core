@@ -36,7 +36,7 @@
 #include "string.h"
 #include "user_copy.h"
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mtd_char.h"
 #include "mtd_core.h"
 #include "mtd_legacy_lite.h"

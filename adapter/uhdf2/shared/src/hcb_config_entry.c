@@ -18,7 +18,7 @@
 #include "hcs_dm_parser.h"
 #include "hcs_tree_if.h"
 #include "hdf_attribute_manager.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG attribute_manager
 

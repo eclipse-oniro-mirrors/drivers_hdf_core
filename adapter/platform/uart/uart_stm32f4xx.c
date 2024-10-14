@@ -20,7 +20,7 @@
 #else
 #include "device_resource_if.h"
 #endif
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_UART_TMO 1000
 #define HDF_LOG_TAG uartDev

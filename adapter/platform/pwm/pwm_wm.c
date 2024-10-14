@@ -11,7 +11,7 @@
 #include "device_resource_if.h"
 #include "hdf_device_desc.h"
 #include "pwm_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "wm_pwm.h"
 
 struct PwmResource {

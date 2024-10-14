@@ -10,7 +10,7 @@
 #define HDF_NET_USB_ADAPTER_H
 
 #include "osal_mutex.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_usb_net_manager.h"
 
 #define MODULE_PARAM module_param

@@ -29,7 +29,7 @@
  */
 
 #include "osal_timer.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_interrupt.h"
 #include "los_swtmr.h"
 #include "osal_mem.h"

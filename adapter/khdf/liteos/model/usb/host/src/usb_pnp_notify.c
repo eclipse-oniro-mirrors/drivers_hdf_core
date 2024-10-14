@@ -36,7 +36,7 @@
 #include "devsvc_manager_clnt.h"
 #include "fs/fs.h"
 #include "hdf_device_object.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "implementation/global_implementation.h"
 #include "linux_usb.h"
 #include "osal_file.h"

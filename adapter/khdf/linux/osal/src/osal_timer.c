@@ -21,7 +21,7 @@
 #include <linux/export.h>
 #include <linux/signal.h>
 #include <linux/timer.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_mutex.h"
 

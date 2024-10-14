@@ -7,7 +7,7 @@
  */
 
 #include "mipi_csi_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_time.h"
 #include "securec.h"
 

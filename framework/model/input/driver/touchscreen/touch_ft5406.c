@@ -10,7 +10,7 @@
 #include "osal_mem.h"
 #include "osal_io.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_touch.h"
 #include "event_hub.h"
 #include "input_i2c_ops.h"

@@ -7,7 +7,7 @@
  */
 
 #include "hdf_power_manager.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_pm_reg.h"
 #include "osal_mem.h"
 #include "power_state_token.h"

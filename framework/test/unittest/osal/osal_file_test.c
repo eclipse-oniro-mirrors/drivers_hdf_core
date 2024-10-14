@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_file.h"
 #include "osal_test_case_def.h"
 #include "osal_test_type.h"

@@ -9,7 +9,7 @@
 #include "hdf_message_looper.h"
 #include "hdf_message_task.h"
 #include "osal_message.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 void HdfMessageLooperStart(struct HdfMessageLooper *looper)
 {

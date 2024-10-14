@@ -32,7 +32,7 @@
 #include "los_hwi.h"
 #include "los_swtmr.h"
 #include "los_swtmr_pri.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG osal_timer

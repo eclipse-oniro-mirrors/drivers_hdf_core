@@ -45,7 +45,7 @@
 #include <cerrno>
 #include <datetime_ex.h>
 #include <hdf_base.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <base/hdi_smq_meta.h>
 #include <base/hdi_smq_syncer.h>
 #include <memory>

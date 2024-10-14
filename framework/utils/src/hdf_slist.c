@@ -7,7 +7,7 @@
  */
 
 #include "hdf_slist.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG utils_slist
 

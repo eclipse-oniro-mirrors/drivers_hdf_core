@@ -8,7 +8,7 @@
 
 #include "hdf_clock_entry_test.h"
 #include "clock_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG hdf_clock_entry_test
 

@@ -10,7 +10,7 @@
 
 #include "hcs_tree_if.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 
 namespace OHOS {

@@ -8,7 +8,7 @@
 
 #include "osal_spinlock.h"
 #include <pthread.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG osal_spinlock

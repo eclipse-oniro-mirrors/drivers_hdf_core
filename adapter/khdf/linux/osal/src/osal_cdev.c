@@ -20,7 +20,7 @@
 #include <linux/fs.h>
 #include <linux/version.h>
 #include "osal_cdev.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_file.h"
 #include "osal_mem.h"
 #include "osal_uaccess.h"

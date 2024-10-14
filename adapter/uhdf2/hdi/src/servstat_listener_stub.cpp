@@ -14,7 +14,7 @@
  */
 
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_service_status_inner.h"
 #include "iservstat_listener_hdi.h"
 

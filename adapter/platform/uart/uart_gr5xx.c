@@ -11,7 +11,7 @@
 #include "uart_if.h"
 #include "device_resource_if.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_sem.h"
 #include "osal_mem.h"
 

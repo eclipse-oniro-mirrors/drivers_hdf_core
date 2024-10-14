@@ -29,7 +29,7 @@
  */
 
 #include <stdio.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_platform_entry_test.h"
 #include "platform_device_test.h"
 #include "platform_manager_test.h"

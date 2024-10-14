@@ -36,7 +36,7 @@
 #ifndef __LITEOS_M__
 #include "los_typedef.h"
 #endif
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_sem
 #define HDF_INVALID_SEM_ID UINT32_MAX

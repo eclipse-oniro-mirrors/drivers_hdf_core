@@ -7,7 +7,7 @@
  */
 
 #include "hdf_i2s_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2s_test.h"
 
 #define HDF_LOG_TAG hdf_i2s_entry_test

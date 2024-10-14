@@ -29,7 +29,7 @@
  */
 
 #include "osal_mem.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_memory.h"
 #include "osal_atomic_def.h"
 #include "securec.h"

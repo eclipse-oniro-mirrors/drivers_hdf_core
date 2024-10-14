@@ -30,7 +30,7 @@
 
 #include "devsvc_manager_clnt.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG USB_TEST_PNP_NOTIFY
 

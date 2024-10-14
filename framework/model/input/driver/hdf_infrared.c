@@ -11,7 +11,7 @@
 #include "input-event-codes.h"
 #include "osal_mem.h"
 #include "gpio_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_input_device_manager.h"
 #include "event_hub.h"
 

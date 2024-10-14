@@ -25,7 +25,7 @@
 #include "devmgr_query_device.h"
 #include "devsvc_manager.h"
 #include "hdf_cstring.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 #include "osal_sysevent.h"

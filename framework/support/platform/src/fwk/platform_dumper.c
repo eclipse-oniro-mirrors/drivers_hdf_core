@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 #include "platform_dumper.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_io.h"
 #include "osal_mem.h"
 #include "osal_sem.h"

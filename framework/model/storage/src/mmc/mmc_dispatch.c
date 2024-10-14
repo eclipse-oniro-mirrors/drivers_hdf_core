@@ -7,7 +7,7 @@
  */
 
 #include "mmc_dispatch.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mmc_corex.h"
 #include "mmc_emmc.h"
 #include "mmc_sdio.h"

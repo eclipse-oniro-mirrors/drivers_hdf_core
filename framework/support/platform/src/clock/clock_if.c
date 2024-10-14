@@ -8,7 +8,7 @@
 
 #include "clock_if.h"
 #include "clock_core.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 #define HDF_LOG_TAG clock_if_c

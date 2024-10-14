@@ -10,7 +10,7 @@
 #include "random.h"
 #include "securec.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "spi_if.h"
 #include "spi_fuzzer.h"
 

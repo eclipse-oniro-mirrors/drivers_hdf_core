@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 #include "regulator_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "regulator_core.h"
 
 DevHandle RegulatorOpen(const char *name)

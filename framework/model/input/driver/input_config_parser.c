@@ -8,7 +8,7 @@
 
 #include <securec.h>
 #include "osal_mem.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "input_config.h"
 
 #define CHECK_PARSER_RET(ret,  str) do { \

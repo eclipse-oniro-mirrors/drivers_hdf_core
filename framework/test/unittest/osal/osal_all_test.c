@@ -11,7 +11,7 @@
 #endif
 
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_case_cmd_test.h"
 #include "osal_file_test.h"
 #include "osal_firmware.h"

@@ -10,7 +10,7 @@
 #include "hdf_base.h"
 #include "hdf_device_node.h"
 #include "hdf_device_token.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_mem.h"
 

@@ -16,7 +16,7 @@
 #include "devhost_service_clnt.h"
 #include "devmgr_service.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 
 #define HDF_LOG_TAG devmgr_query_device

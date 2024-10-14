@@ -30,7 +30,7 @@
 
 #include "hdf_device_node_ext.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 
 #define HDF_LOG_TAG device_node_ext

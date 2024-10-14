@@ -8,7 +8,7 @@
 
 #include "platform_event_test.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_sem.h"
 #include "osal_spinlock.h"
 #include "osal_time.h"

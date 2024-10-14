@@ -29,7 +29,7 @@
  */
 #include "platform_trace.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "los_trace.h"
 
 int32_t PlatformTraceStart(void)

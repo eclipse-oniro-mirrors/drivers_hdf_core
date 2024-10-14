@@ -14,7 +14,7 @@
  */
 
 #include "hdf_device_thread.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_message.h"
 

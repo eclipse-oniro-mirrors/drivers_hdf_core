@@ -17,7 +17,7 @@
 #include <string>
 #include "hdf_sbuf_ipc.h"
 #include "hdf_sbuf_impl.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_remote_adapter.h"
 
 using namespace OHOS;

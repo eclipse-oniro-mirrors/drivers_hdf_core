@@ -14,7 +14,7 @@
  */
 
 #include "stub_collector.h"
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <map>
 #include <mutex>
 

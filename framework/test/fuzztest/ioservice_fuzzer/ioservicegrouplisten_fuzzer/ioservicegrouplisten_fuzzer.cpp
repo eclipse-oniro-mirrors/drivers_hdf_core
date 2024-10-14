@@ -8,7 +8,7 @@
 
 #include "ioservicegrouplisten_fuzzer.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_io_service.h"
 #include "osal_time.h"
 #include "parcel.h"

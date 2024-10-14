@@ -7,7 +7,7 @@
  */
 
 #include "mipi_dsi_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG mipi_dsi_test
 

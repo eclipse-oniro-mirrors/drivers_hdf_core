@@ -7,7 +7,7 @@
  */
 
 #include <securec.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_message_test.h"
 #include "hdf_wlan_priority_queue.h"
 #include "osal_thread.h"

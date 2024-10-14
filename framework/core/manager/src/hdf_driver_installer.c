@@ -8,7 +8,7 @@
 
 #include "hdf_driver_installer.h"
 #include "devhost_service.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 
 #define HDF_LOG_TAG driver_installer

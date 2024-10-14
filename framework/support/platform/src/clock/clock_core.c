@@ -8,7 +8,7 @@
 
 #include "clock_core.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_spinlock.h"
 #include "osal_time.h"

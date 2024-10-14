@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include "camera_config_parser.h"
 
 #define HDF_LOG_TAG HDF_CAMERA_PARSER

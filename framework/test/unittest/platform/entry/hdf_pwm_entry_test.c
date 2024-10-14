@@ -7,7 +7,7 @@
  */
 
 #include "hdf_pwm_entry_test.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "pwm_test.h"
 
 #define HDF_LOG_TAG hdf_pwm_entry_test

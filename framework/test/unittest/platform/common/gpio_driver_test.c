@@ -10,7 +10,7 @@
 #include "device_resource_if.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "securec.h"
 
 static struct GpioTestConfig g_config;

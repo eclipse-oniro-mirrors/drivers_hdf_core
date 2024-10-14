@@ -9,7 +9,7 @@
 #include "i2c_if.h"
 #include "devsvc_manager_clnt.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "i2c_core.h"
 #include "osal_mem.h"
 #include "securec.h"

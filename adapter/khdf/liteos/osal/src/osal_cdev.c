@@ -29,7 +29,7 @@
  */
 
 #include <linux/fs.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_io_service.h"
 #include "osal_cdev.h"
 #include "osal_file.h"

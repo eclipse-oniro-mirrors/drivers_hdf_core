@@ -12,7 +12,7 @@
 #include "hdf_device_desc.h"
 #include "hdf_touch.h"
 #include "input_i2c_ops.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "input_config.h"
 #include "hdf_input_device_manager.h"
 #include "hdf_types.h"

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <osal_mem.h>
 #include <unistd.h>
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "v1_0/i${peripheral_name}.h"
 #include "v1_0/types.h"
 #include "${peripheral_name}_callback_impl.h"

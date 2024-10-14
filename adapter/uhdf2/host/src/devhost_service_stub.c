@@ -18,7 +18,7 @@
 #include "devhost_dump.h"
 #include "devhost_service_proxy.h"
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 

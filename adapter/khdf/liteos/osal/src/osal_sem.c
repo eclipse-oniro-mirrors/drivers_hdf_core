@@ -32,7 +32,7 @@
 #include "los_hwi.h"
 #include "los_sem.h"
 #include "los_typedef.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG osal_sem
 #define HDF_INVALID_SEM_ID UINT32_MAX

@@ -9,7 +9,7 @@
 #include "securec.h"
 
 #include "hdf_base.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "mmc_block.h"
 
 #define HDF_LOG_TAG mmc_block_c

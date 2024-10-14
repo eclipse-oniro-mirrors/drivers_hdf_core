@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "uart_if.h"
 
 int32_t UartBlockWrite(DevHandle handle, uint8_t *data, uint32_t size)

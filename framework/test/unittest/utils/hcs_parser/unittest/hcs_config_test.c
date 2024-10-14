@@ -8,7 +8,7 @@
 
 #include "hcs_config_test.h"
 #include "device_resource_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG hcs_config_test
 

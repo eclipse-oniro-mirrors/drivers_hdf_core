@@ -12,7 +12,7 @@
 #include "spi_core.h"
 #include "hal_cache.h"
 #include "hal_trace.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #include "hcs_macro.h"
 #include "hdf_config_macro.h"

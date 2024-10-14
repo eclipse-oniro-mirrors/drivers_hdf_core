@@ -8,7 +8,7 @@
 
 #include "hcs_tree_if.h"
 #include "hcs_blob_if.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 
 #define HDF_LOG_TAG hcs_tree_if
 
