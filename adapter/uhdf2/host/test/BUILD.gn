@@ -78,6 +78,8 @@ ohos_unittest("DevHostTest") {
     "$hdf_uhdf_path/ipc/include",
   ]
 
+  defines = [ "__USER__" ]
+  
   deps = [
     "$hdf_uhdf_path/host:libhdf_host",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
