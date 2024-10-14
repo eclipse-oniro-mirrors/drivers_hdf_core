@@ -223,8 +223,8 @@ static void DevSvcManagerProxyOnRemoteDied(struct HdfDeathRecipient *recipient, 
     HDF_LOGW("%{public}s: DevSvcManager dead, host %{public}d stop", __func__, fullService->super.hostId);
     if ((looper != NULL) && (looper->Stop != NULL)) {
         looper->Stop(looper);
-        _exit(0);
     }
+    _exit(0);
 }
 
 void DevSvcManagerProxyConstruct(struct DevSvcManagerProxy *inst, struct HdfRemoteService *remote)
