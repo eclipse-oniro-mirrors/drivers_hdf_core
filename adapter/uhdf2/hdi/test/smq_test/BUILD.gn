@@ -24,8 +24,6 @@ ohos_unittest("HdiSmqTest") {
     "$hdf_uhdf_path/hdi:libhdi",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   include_dirs = [
@@ -33,8 +31,14 @@ ohos_unittest("HdiSmqTest") {
     "$hdf_uhdf_path/utils/include",
   ]
 
+  if (with_sample) {
+    defines = [ "SAMPLE_DRIVER" ]
+  }
+
   external_deps = [
     "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_single",
   ]

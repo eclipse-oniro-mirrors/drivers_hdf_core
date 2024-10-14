@@ -15,10 +15,7 @@ ohos_fuzztest("IoserviceRemoveFuzzTest") {
 
   fuzz_config_file = "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer"
 
-  include_dirs = [
-    "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer.h",
-    "//commonlibrary/c_utils/base/include",
-  ]
+  include_dirs = [ "$hdf_framework_path/test/fuzztest/ioservice_fuzzer/ioserviceremove_fuzzer.h" ]
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
