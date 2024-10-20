@@ -121,7 +121,7 @@ void SampleDriverRelease(struct HdfDeviceObject *deviceObject)
 }
 ```
 
-For details, see  [HDF Overview](https://gitee.com/openharmony/docs/blob/master/en/device-dev/driver/driver-hdf-development.md).
+For details, see  [HDF Overview](https://gitee.com/openharmony/docs/blob/master/en/device-dev/driver/driver-hdf-manage.md).
 
 ### Sensor<a name="section188637474417"></a>
 
