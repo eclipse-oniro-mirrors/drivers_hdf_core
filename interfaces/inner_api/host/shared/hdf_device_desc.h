@@ -33,6 +33,9 @@
 #include "hdf_io_service_if.h"
 #include "hdf_object.h"
 #include "hdf_sbuf.h"
+#ifdef __USER__
+#include <pthread.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -102,6 +105,11 @@ struct HdfDeviceObject {
     DeviceClass deviceClass;
     /** Pointer to the private data of the device */
     void *priv;
+
+#ifdef __USER__
+    /** lock for service, guarantee the service is valid in HDF */
+    pthread_rwlock_t mutex;
+#endif
 };
 
 /**

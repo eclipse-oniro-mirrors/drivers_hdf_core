@@ -65,6 +65,7 @@ public:
  * @param DESCRIPTOR Indicates the interface descriptor.
  */
 #define DECLARE_HDI_DESCRIPTOR(DESCRIPTOR)                             \
+    __attribute__((visibility("hidden")))                              \
     const static inline std::u16string metaDescriptor_ = {DESCRIPTOR}; \
     const static inline std::u16string &GetDescriptor()                \
     {                                                                  \
