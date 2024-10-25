@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
-#include <unistd.h>
 
 #include "securec.h"
 #include "parameter.h"
@@ -144,8 +143,23 @@ static void SetMallopt(int argc, char **argv)
     return;
 }
 
-static void SetHostProperties(int argc, char **argv, const char *hostName)
+int main(int argc, char **argv)
 {
+    if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
+        HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    prctl(PR_SET_PDEATHSIG, SIGKILL); // host process should exit with devmgr process
+
+    int hostId = 0;
+    if (!HdfStringToInt(argv[DEVHOST_INPUT_PARAM_HOSTID_POS], &hostId)) {
+        HDF_LOGE("Devhost main parameter error, argv[1]: %{public}s", argv[DEVHOST_INPUT_PARAM_HOSTID_POS]);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    const char *hostName = argv[DEVHOST_HOST_NAME_POS];
+    HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
     StartMemoryHook(hostName);
     if ((strcmp(argv[DEVHOST_PROCESS_PRI_POS], INVALID_PRIORITY) != 0) &&
@@ -155,29 +169,14 @@ static void SetHostProperties(int argc, char **argv, const char *hostName)
     if (argc > DEVHOST_MIN_INPUT_PARAM_NUM) {
         SetMallopt(argc, argv);
     }
-}
 
-int main(int argc, char **argv)
-{
-    if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
-        HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
-        return HDF_ERR_INVALID_PARAM;
-    }
-    prctl(PR_SET_PDEATHSIG, SIGKILL); // host process should exit with devmgr process
-    int hostId = 0;
-    if (!HdfStringToInt(argv[DEVHOST_INPUT_PARAM_HOSTID_POS], &hostId)) {
-        HDF_LOGE("Devhost main parameter error, argv[1]: %{public}s", argv[DEVHOST_INPUT_PARAM_HOSTID_POS]);
-        return HDF_ERR_INVALID_PARAM;
-    }
-    const char *hostName = argv[DEVHOST_HOST_NAME_POS];
-    HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
-    SetHostProperties(argc, argv, hostName);
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
     if (instance == NULL || instance->StartService == NULL) {
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
     }
     HDF_LOGD("create IDevHostService of %{public}s success", hostName);
+
     DevHostDumpInit();
     HDF_LOGD("%{public}s start device service begin", hostName);
     int status = instance->StartService(instance);
@@ -187,6 +186,7 @@ int main(int argc, char **argv)
         DevHostDumpDeInit();
         return status;
     }
+
     HdfPowerManagerInit();
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
@@ -194,8 +194,10 @@ int main(int argc, char **argv)
         HDF_LOGI("%{public}s start loop", hostName);
         looper->Start(looper);
     }
+
+    DevHostServiceFreeInstance(instance);
     HdfPowerManagerExit();
     DevHostDumpDeInit();
-    HDF_LOGI("hdf device host %{public}s %{public}d %{public}d exit", hostName, hostId, status);
+    HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
     return status;
 }
