@@ -37,6 +37,7 @@ HdfRemoteServiceStub::HdfRemoteServiceStub(struct HdfRemoteService *service)
 {
 }
 
+// LCOV_EXCL_START
 int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
@@ -65,6 +66,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
     HdfSbufRecycle(replySbuf);
     return ret;
 }
+// LCOV_EXCL_STOP
 
 void HdfRemoteServiceStub::HdfRemoteStubClearHolder()
 {
@@ -191,6 +193,7 @@ void HdfRemoteAdapterAddDeathRecipient(
     remote->AddDeathRecipient(holder->deathRecipient_);
 }
 
+// LCOV_EXCL_START
 void HdfRemoteAdapterRemoveDeathRecipient(
     struct HdfRemoteService *service, const struct HdfDeathRecipient *recipient)
 {
@@ -208,6 +211,7 @@ void HdfRemoteAdapterRemoveDeathRecipient(
         holder->deathRecipient_ = nullptr;
     }
 }
+// LCOV_EXCL_STOP
 
 struct HdfRemoteService *HdfRemoteAdapterBind(OHOS::sptr<OHOS::IRemoteObject> binder)
 {

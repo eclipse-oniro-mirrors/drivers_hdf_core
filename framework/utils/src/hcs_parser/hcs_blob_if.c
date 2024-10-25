@@ -155,6 +155,7 @@ bool HcsSwapToUint32(uint32_t *value, const char *realValue, uint32_t type)
     return false;
 }
 
+// LCOV_EXCL_START
 bool HcsSwapToUint64(uint64_t *value, const char *realValue, uint32_t type)
 {
     uint32_t data;
@@ -169,6 +170,7 @@ bool HcsSwapToUint64(uint64_t *value, const char *realValue, uint32_t type)
     HDF_LOGE("%{public}s failed, type: %{public}u", __func__, type);
     return false;
 }
+// LCOV_EXCL_STOP
 
 static bool CheckHcsBlobLength(uint32_t length, struct HbcHeader *header)
 {

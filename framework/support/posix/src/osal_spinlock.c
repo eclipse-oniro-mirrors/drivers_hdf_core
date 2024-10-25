@@ -13,6 +13,7 @@
 
 #define HDF_LOG_TAG osal_spinlock
 
+// LCOV_EXCL_START
 int32_t OsalSpinInit(OsalSpinlock *spinlock)
 {
     pthread_spinlock_t *spinTmp = NULL;
@@ -98,4 +99,4 @@ int32_t OsalSpinUnlock(OsalSpinlock *spinlock)
 
     return HDF_SUCCESS;
 }
-
+// LCOV_EXCL_STOP

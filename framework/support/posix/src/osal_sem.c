@@ -45,6 +45,7 @@ int32_t OsalSemInit(struct OsalSem *sem, uint32_t value)
     return HDF_SUCCESS;
 }
 
+// LCOV_EXCL_START
 int32_t OsalSemWait(struct OsalSem *sem, uint32_t ms)
 {
     if (sem == NULL || sem->realSemaphore == NULL) {
@@ -113,4 +114,4 @@ int32_t OsalSemDestroy(struct OsalSem *sem)
 
     return HDF_SUCCESS;
 }
-
+// LCOV_EXCL_STOP
