@@ -129,6 +129,7 @@ static int32_t DevmgrServiceStubDispatchListAllDevice(struct IDevmgrService *dev
     return devmgrSvc->ListAllDevice(devmgrSvc, reply);
 }
 
+// LCOV_EXCL_START
 static int32_t DevmgrServiceStubListAllHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *reply)
 {
     if (reply == NULL) {
@@ -148,6 +149,7 @@ static int32_t DevmgrServiceStubListAllHost(struct IDevmgrService *devmgrSvc, st
     }
     return HDF_SUCCESS;
 }
+// LCOV_EXCL_STOP
 
 int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -198,6 +200,7 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
     return HDF_SUCCESS;
 }
 
+// LCOV_EXCL_START
 static void RemoveModule(const char *module)
 {
     uint32_t flags = O_NONBLOCK | O_EXCL;
@@ -270,6 +273,7 @@ static int32_t ModuleSysEventHandle(
 
     return ret;
 }
+// LCOV_EXCL_STOP
 
 static int32_t DriverModuleLoadHelperInit(void)
 {

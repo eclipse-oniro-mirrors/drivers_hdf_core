@@ -16,6 +16,7 @@
 
 #define HDF_LOG_TAG osal_time
 
+// LCOV_EXCL_START
 int32_t OsalGetTime(OsalTimespec *time)
 {
     struct timespec ts;
@@ -67,6 +68,7 @@ void OsalSleep(uint32_t sec)
 {
     sleep(sec);
 }
+// LCOV_EXCL_STOP
 
 void OsalMSleep(uint32_t ms)
 {

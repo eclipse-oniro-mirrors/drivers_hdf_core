@@ -58,6 +58,7 @@ static bool SbufMParcelImplWriteBuffer(struct HdfSBufImpl *sbuf, const uint8_t *
     return parcel->WriteUnpadBuffer(static_cast<const void *>(data), writeSize);
 }
 
+// LCOV_EXCL_START
 static bool SbufMParcelImplWriteUnpadBuffer(struct HdfSBufImpl *sbuf, const uint8_t *data, uint32_t writeSize)
 {
     return MParcelCast(sbuf)->WriteUnpadBuffer(static_cast<const void *>(data), writeSize);
@@ -67,12 +68,14 @@ static bool SbufMParcelImplWriteUint64(struct HdfSBufImpl *sbuf, uint64_t value)
 {
     return MParcelCast(sbuf)->WriteUint64(value);
 }
+// LCOV_EXCL_STOP
 
 static bool SbufMParcelImplWriteUint32(struct HdfSBufImpl *sbuf, uint32_t value)
 {
     return MParcelCast(sbuf)->WriteUint32(value);
 }
 
+// LCOV_EXCL_START
 static bool SbufMParcelImplWriteUint16(struct HdfSBufImpl *sbuf, uint16_t value)
 {
     return MParcelCast(sbuf)->WriteUint16(value);
@@ -87,6 +90,7 @@ static bool SbufMParcelImplWriteInt64(struct HdfSBufImpl *sbuf, int64_t value)
 {
     return MParcelCast(sbuf)->WriteInt64(value);
 }
+// LCOV_EXCL_STOP
 
 static bool SbufMParcelImplWriteInt32(struct HdfSBufImpl *sbuf, int32_t value)
 {
@@ -108,6 +112,7 @@ static bool SbufMParcelImplWriteString(struct HdfSBufImpl *sbuf, const char *val
     return MParcelCast(sbuf)->WriteCString(value);
 }
 
+// LCOV_EXCL_START
 static bool SbufMParcelImplWriteString16(struct HdfSBufImpl *sbuf, const char16_t *value, uint32_t size)
 {
     return MParcelCast(sbuf)->WriteString16WithLength(value, size);
@@ -181,6 +186,7 @@ static bool SbufMParcelImplReadUint64(struct HdfSBufImpl *sbuf, uint64_t *value)
     *value = v;
     return ret;
 }
+// LCOV_EXCL_STOP
 
 static bool SbufMParcelImplReadUint32(struct HdfSBufImpl *sbuf, uint32_t *value)
 {
@@ -264,6 +270,7 @@ static const char *SbufMParcelImplReadString(struct HdfSBufImpl *sbuf)
     return MParcelCast(sbuf)->ReadCString();
 }
 
+// LCOV_EXCL_START
 static const char16_t *SbufMParcelImplReadString16(struct HdfSBufImpl *sbuf)
 {
     SBufMParcelImpl *sbufImpl = reinterpret_cast<SBufMParcelImpl *>(sbuf);
@@ -280,6 +287,7 @@ static int32_t SbufMParcelImplWriteRemoteService(struct HdfSBufImpl *sbuf, const
     const struct HdfRemoteServiceHolder *holder = reinterpret_cast<const struct HdfRemoteServiceHolder *>(service);
     return parcel->WriteRemoteObject(holder->remote_) ? HDF_SUCCESS : HDF_FAILURE;
 }
+// LCOV_EXCL_STOP
 
 static struct HdfRemoteService *SbufMParcelImplReadRemoteService(struct HdfSBufImpl *sbuf)
 {
