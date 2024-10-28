@@ -409,7 +409,7 @@ class IdlParser(object):
         token = lex.get_token()
         if not self.parse_version(token.value, cur_idl_detail):
             raise Exception("{}: failed to parse package name '{}'".format(
-                token.info(), token.vlaue))
+                token.info(), token.value))
 
     def parse_version(self, package_name, cur_idl_detail):
         result = re.findall(r'\w+(?:\.\w+)*\.[V|v](\d+)_(\d+)', package_name)
