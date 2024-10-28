@@ -202,6 +202,9 @@ HWTEST_F(DevMgrTest, DevMgrDumpTest, TestSize.Level1)
         ret = HdfDump(fd, vcr2);
         ASSERT_TRUE(ret == HDF_SUCCESS);
     }
+    std::string cmd = "123456";
+    HdfDumpIpcStat(0, nullptr);
+    HdfDumpIpcStat(1, cmd.c_str());
 }
 
 HWTEST_F(DevMgrTest, HdfUtilsTest, TestSize.Level1)
