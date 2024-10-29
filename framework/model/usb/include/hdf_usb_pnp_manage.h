@@ -34,7 +34,7 @@ enum UsbPnpNotifyServiceCmd {
     USB_PNP_DRIVER_GET_GADGET_LINK_STATUS,
     USB_ACCESSORY_START = 50,
     USB_ACCESSORY_STOP,
-    USB_ACCESSORY_SEND
+    USB_ACCESSORY_SEND,
 };
 
 enum UsbPnpNotifyRemoveType {
