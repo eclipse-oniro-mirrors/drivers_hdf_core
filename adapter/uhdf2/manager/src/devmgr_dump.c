@@ -613,41 +613,41 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     if (argv == 0) {
         (void)HdfSbufWriteString(reply, HELP_COMMENT);
+        close(fd);
         return HDF_SUCCESS;
     }
 
     const char *value = HdfSbufReadString(data);
     if (value == NULL) {
         HDF_LOGE("%{public}s arg is invalid", __func__);
+        close(fd);
         return HDF_FAILURE;
     }
 
     HDF_LOGI("%{public}s argv:%{public}d", value, argv);
+
+    int32_t ret = HDF_SUCCESS;
     if (argv == 1) {
         if (strcmp(value, "-help") == 0) {
             (void)HdfSbufWriteString(reply, HELP_COMMENT);
-            return HDF_SUCCESS;
         } else if (strcmp(value, "-query") == 0) {
             DevMgrQueryInfo(reply);
-            return HDF_SUCCESS;
         } else {
             (void)HdfSbufWriteString(reply, HELP_COMMENT);
-            return HDF_SUCCESS;
         }
     } else {
         if (strcmp(value, "-host") == 0) {
-            return DevMgrDumpHost(argv - 1, data, reply);
+            ret = DevMgrDumpHost(argv - 1, data, reply);
         } else if (strcmp(value, "-service") == 0) {
-            return DevMgrDumpService(argv - 1, data, reply);
+            ret = DevMgrDumpService(argv - 1, data, reply);
         } else if (strcmp(value, "--ipc") == 0) {
-            return DevMgrDumpIpc(fd, data, reply);
+            ret = DevMgrDumpIpc(fd, data, reply);
         } else {
             (void)HdfSbufWriteString(reply, HELP_COMMENT);
-            return HDF_SUCCESS;
         }
     }
-
-    return HDF_SUCCESS;
+    close(fd);
+    return ret;
 }
 
 void DevMgrRegisterDumpFunc(void)
