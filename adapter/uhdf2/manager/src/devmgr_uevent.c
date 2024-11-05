@@ -132,7 +132,7 @@ static int32_t DevMgrUeventParseKeyValue(char *str, struct DevMgrMatchKey *match
     char *subPtr = strstr(str, sep);
     if (subPtr == NULL) {
         if (strstr(str, "@/") == NULL) {
-            HDF_LOGE("parse Key value failed:[%{public}s]", str);
+            HDF_LOGD("parse Key value failed:[%{public}s]", str);
         }
         return HDF_FAILURE;
     }
