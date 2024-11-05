@@ -39,6 +39,10 @@ static int DeviceManagerStartServiceFuzzTest()
     if (instance->StartService != NULL) {
         status = instance->StartService(instance);
         HDF_LOGI("device manager fuzzer start service success");
+        status = instance->StartService(nullptr);
+        if (status == HDF_ERR_INVALID_PARAM) {
+            HDF_LOGI("device manager fuzzer start service FAILED");
+        }
     }
 
     (void)DevMgrUeventReceiveStart();

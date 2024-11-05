@@ -99,6 +99,10 @@ static bool DevsvcManagerFuzzTest(int32_t code, const uint8_t *data, size_t size
     (void)instance->remote->dispatcher->Dispatch(
         reinterpret_cast<HdfRemoteService *>(instance->remote->target), code, dataBuf, replyBuf);
 
+    int ret = instance->remote->dispatcher->Dispatch(nullptr, code, dataBuf, replyBuf);
+    if (ret == HDF_FAILURE) {
+        HDF_LOGE("%{public}s:%{public}d: Dispatch FAILED", __func__, __LINE__);
+    }
     HdfSbufRecycle(dataBuf);
     HdfSbufRecycle(replyBuf);
     return true;

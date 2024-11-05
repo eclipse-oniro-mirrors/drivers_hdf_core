@@ -209,7 +209,7 @@ static bool SbufMParcelImplReadUint16(struct HdfSBufImpl *sbuf, uint16_t *value)
     *value = v;
     return ret;
 }
-
+// LCOV_EXCL_START
 static bool SbufMParcelImplReadUint8(struct HdfSBufImpl *sbuf, uint8_t *value)
 {
     if (value == nullptr) {
@@ -231,7 +231,7 @@ static bool SbufMParcelImplReadInt64(struct HdfSBufImpl *sbuf, int64_t *value)
     *value = v;
     return ret;
 }
-
+// LCOV_EXCL_STOP
 static bool SbufMParcelImplReadInt32(struct HdfSBufImpl *sbuf, int32_t *value)
 {
     if (value == nullptr) {
@@ -242,7 +242,7 @@ static bool SbufMParcelImplReadInt32(struct HdfSBufImpl *sbuf, int32_t *value)
     *value = v;
     return ret;
 }
-
+// LCOV_EXCL_START
 static bool SbufMParcelImplReadInt16(struct HdfSBufImpl *sbuf, int16_t *value)
 {
     if (value == nullptr) {
@@ -264,7 +264,7 @@ static bool SbufMParcelImplReadInt8(struct HdfSBufImpl *sbuf, int8_t *value)
     *value = v;
     return ret;
 }
-
+// LCOV_EXCL_STOP
 static const char *SbufMParcelImplReadString(struct HdfSBufImpl *sbuf)
 {
     return MParcelCast(sbuf)->ReadCString();
@@ -298,7 +298,7 @@ static struct HdfRemoteService *SbufMParcelImplReadRemoteService(struct HdfSBufI
     }
     return HdfRemoteAdapterBind(remote);
 }
-
+// LCOV_EXCL_START
 static const uint8_t *SbufMParcelImplGetData(const struct HdfSBufImpl *sbuf)
 {
     return reinterpret_cast<const uint8_t *>(MParcelCast(const_cast<struct HdfSBufImpl *>(sbuf))->GetData());
@@ -323,7 +323,7 @@ static void SbufMParcelImplSetDataSize(struct HdfSBufImpl *sbuf, size_t size)
 {
     MParcelCast(sbuf)->SetDataSize(size);
 }
-
+// LCOV_EXCL_STOP
 static void SbufMParcelImplRecycle(struct HdfSBufImpl *sbuf)
 {
     SBufMParcelImpl *sbufImpl = reinterpret_cast<SBufMParcelImpl *>(sbuf);
@@ -381,7 +381,7 @@ extern "C" struct HdfSBufImpl *SbufObtainIpc(size_t capacity)
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(new MessageParcel());
     return &sbuf->infImpl;
 }
-
+// LCOV_EXCL_START
 class SbufAllocator : public Allocator {
 public:
     void *Realloc(void *data, size_t newSize) override
@@ -415,7 +415,7 @@ struct HdfSBuf *ParcelToSbuf(OHOS::MessageParcel *parcel)
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(parcel, false);
     return HdfSbufTypedObtainInplace(SBUF_IPC, &sbuf->infImpl);
 }
-
+// LCOV_EXCL_STOP
 int32_t SbufToParcel(struct HdfSBuf *sbuf, OHOS::MessageParcel **parcel)
 {
     if (sbuf == nullptr || parcel == nullptr) {

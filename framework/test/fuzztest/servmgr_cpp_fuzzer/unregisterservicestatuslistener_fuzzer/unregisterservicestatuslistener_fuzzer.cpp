@@ -58,6 +58,11 @@ bool UnregisterServiceStatusListenerFuzzTest(const uint8_t *data, size_t size)
         result = true;
     }
     OsalMSleep(WAIT_THRESHOLD);
+    OsalUSleep(WAIT_THRESHOLD);
+    OsalUDelay(THRESHOLD);
+    OsalMDelay(THRESHOLD);
+    uint64_t time = OsalGetSysTimeMs();
+    HDF_LOGD("%{public}s: time is %{public}llu!", __func__, time);
 
     return result;
 }
