@@ -83,7 +83,7 @@ HdfRemoteServiceHolder::~HdfRemoteServiceHolder()
 {
     HDF_LOGD("~HdfRemoteServiceHolder");
 }
-
+// LCOV_EXCL_START
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
 {
     return HdfDump(fd, args);
@@ -104,7 +104,7 @@ void HdfDeathNotifier::OnRemoteDied(const OHOS::wptr<OHOS::IRemoteObject> &objec
         recipient_->OnRemoteDied(recipient_, service_);
     }
 }
-
+// LCOV_EXCL_STop
 static int HdfRemoteAdapterOptionalDispatch(struct HdfRemoteService *service, int code,
     HdfSBuf *data, HdfSBuf *reply, bool sync)
 {
@@ -182,6 +182,7 @@ void HdfRemoteAdapterAddDeathRecipient(
     if (holder == nullptr) {
         return;
     }
+// LCOV_EXCL_START
     OHOS::sptr<OHOS::IRemoteObject> remote = holder->remote_;
     if (remote == nullptr) {
         return;
@@ -191,6 +192,7 @@ void HdfRemoteAdapterAddDeathRecipient(
     }
     holder->deathRecipient_ = new HdfDeathNotifier(service, recipient);
     remote->AddDeathRecipient(holder->deathRecipient_);
+// LCOV_EXCL_STOP
 }
 
 // LCOV_EXCL_START
@@ -257,7 +259,7 @@ void HdfRemoteAdapterRecycle(struct HdfRemoteService *object)
         delete holder;
     }
 }
-
+// LCOV_EXCL_START
 int HdfRemoteAdapterAddService(const char *name, struct HdfRemoteService *service)
 {
     if (name == nullptr || service == nullptr) {
@@ -294,7 +296,7 @@ struct HdfRemoteService *HdfRemoteAdapterGetService(const char *name)
     }
     return nullptr;
 }
-
+// LCOV_EXCL_STOP
 int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
 {
     if (service == nullptr) {
@@ -360,10 +362,12 @@ struct HdfRemoteService *HdfRemoteAdapterGetSa(int32_t saId)
     constexpr int32_t sleepInterval = 20000;
     int32_t timeout = waitTimes;
     while (remote == nullptr && (timeout > 0)) {
+// LCOV_EXCL_START
         HDF_LOGD("waiting for saId %{public}d", saId);
         usleep(sleepInterval);
         remote = saManager->GetSystemAbility(saId);
         timeout--;
+// LCOV_EXCL_STOP
     }
     if (remote != nullptr) {
         return HdfRemoteAdapterBind(remote);

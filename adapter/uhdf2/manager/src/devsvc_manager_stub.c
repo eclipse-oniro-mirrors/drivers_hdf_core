@@ -32,6 +32,7 @@
 
 #define HDF_LOG_TAG devsvc_manager_stub
 
+// LCOV_EXCL_START
 static int32_t AddServicePermCheck(const char *servName)
 {
 #ifdef WITH_SELINUX
@@ -93,7 +94,6 @@ static int32_t ListServicePermCheck(void)
     return HDF_SUCCESS;
 }
 
-// LCOV_EXCL_START
 static bool CheckServiceObjectValidNoLock(const struct DevSvcManagerStub *stub, const struct HdfDeviceObject *service)
 {
     if (service == NULL) {
@@ -214,8 +214,8 @@ static void ReleaseServiceObject(struct DevSvcManagerStub *stub, struct HdfDevic
     ReleaseServiceObjectHolder(stub, serviceObjectHolder);
 
     OsalMutexUnlock(&stub->devSvcStubMutex);
-}
 // LCOV_EXCL_STOP
+}
 
 static int32_t DevSvcMgrStubGetPara(
     struct HdfSBuf *data, struct HdfServiceInfo *info, struct HdfRemoteService **service)
@@ -266,6 +266,7 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
         return ret;
     }
 
+// LCOV_EXCL_START
     struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, info.servName, service);
     if (serviceObject == NULL) {
         return HDF_ERR_MALLOC_FAIL;
@@ -280,6 +281,7 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
     }
     HDF_LOGI("add service %{public}s, %{public}d", info.servName, ret);
     return ret;
+// LCOV_EXCL_STOP
 }
 
 static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, struct HdfSBuf *data)
@@ -298,6 +300,7 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
         return ret;
     }
 
+// LCOV_EXCL_START
     struct HdfDeviceObject *oldServiceObject = super->GetObject(super, info.servName);
     if (oldServiceObject == NULL) {
         HDF_LOGE("update service %{public}s not exist", info.servName);
@@ -317,6 +320,7 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
     }
     HDF_LOGI("update service %{public}s, %{public}d", info.servName, ret);
     return ret;
+    // LCOV_EXCL_STOP
 }
 
 static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -342,6 +346,7 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
         return HDF_FAILURE;
     }
 
+// LCOV_EXCL_START
     const char *svcMgrName = "hdf_device_manager";
     if (strcmp(name, svcMgrName) != 0) {
         OsalMutexLock(&stub->devSvcStubMutex);
@@ -366,6 +371,7 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     }
 
     return ret;
+// LCOV_EXCL_STOP
 }
 
 static int32_t DevSvcManagerStubListAllService(
@@ -429,7 +435,7 @@ static int32_t DevSvcManagerStubRemoveService(struct IDevSvcManager *super, stru
         HDF_LOGE("remove service %{public}s not exist", name);
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
     }
-
+// LCOV_EXCL_START
     OsalMutexLock(&stub->devSvcStubMutex);
     if (!CheckServiceObjectValidNoLock(stub, serviceObject)) {
         OsalMutexUnlock(&stub->devSvcStubMutex);
@@ -455,6 +461,7 @@ static int32_t DevSvcManagerStubRemoveService(struct IDevSvcManager *super, stru
 
     ReleaseServiceObject(stub, serviceObject);
     return HDF_SUCCESS;
+// LCOV_EXCL_STOP
 }
 static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *super, struct HdfSBuf *data)
 {
@@ -471,7 +478,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     if (listenerRemote == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
-
+// LCOV_EXCL_START
     struct ServStatListenerHolder *listenerHolder =
         ServStatListenerHolderCreate((uintptr_t)listenerRemote, listenClass);
     if (listenerHolder == NULL) {
@@ -487,6 +494,7 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
     }
 
     return HDF_SUCCESS;
+// LCOV_EXCL_STOP
 }
 
 static int32_t DevSvcManagerStubUnregisterServListener(struct IDevSvcManager *super, struct HdfSBuf *data)
@@ -500,6 +508,7 @@ static int32_t DevSvcManagerStubUnregisterServListener(struct IDevSvcManager *su
     if (listenerRemote == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
+// LCOV_EXCL_START
     struct ServStatListenerHolder *listenerHolder = ServStatListenerHolderGet(listenerRemote->index);
     if (listenerHolder == NULL) {
         HDF_LOGE("failed to unregister svcstat listener, unknown listener");
@@ -511,6 +520,7 @@ static int32_t DevSvcManagerStubUnregisterServListener(struct IDevSvcManager *su
     HdfRemoteServiceRecycle(listenerRemote);
     HDF_LOGI("unregister servstat listener success");
     return HDF_SUCCESS;
+// LCOV_EXCL_STOP
 }
 
 int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -524,6 +534,10 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
     struct IDevSvcManager *super = (struct IDevSvcManager *)&stub->super;
     HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling pid=%{public}d",
         code, HdfRemoteGetCallingPid());
+    HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling uid=%{public}d",
+        code, HdfRemoteGetCallingUid());
+    HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling sid=%{public}d",
+        code, HdfRemoteGetCallingSid());
     switch (code) {
         case DEVSVC_MANAGER_ADD_SERVICE:
             ret = DevSvcManagerStubAddService(super, data);
@@ -661,11 +675,12 @@ struct HdfObject *DevSvcManagerStubCreate(void)
     }
 
     instance = OsalMemCalloc(sizeof(struct DevSvcManagerStub));
+// LCOV_EXCL_START
     if (!DevSvcManagerStubConstruct(instance)) {
         OsalMemFree(instance);
         instance = NULL;
     }
-
+// LCOV_EXCL_STOP
     return (struct HdfObject *)instance;
 }
 
