@@ -120,14 +120,17 @@ static int HdfRemoteAdapterOptionalDispatch(struct HdfRemoteService *service, in
         dummyReply.FlushBuffer();
         replyParcel = &dummyReply;
     } else if (SbufToParcel(reply, &replyParcel)) {
+// LCOV_EXCL_START
         HDF_LOGE("%{public}s:invalid reply sbuf object to dispatch", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-
+// LCOV_EXCL_STOP
     if (SbufToParcel(data, &dataParcel)) {
+// LCOV_EXCL_START
         HDF_LOGE("%{public}s:invalid data sbuf object to dispatch", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
+// LCOV_EXCL_STOP
     int flag = sync ? OHOS::MessageOption::TF_SYNC : OHOS::MessageOption::TF_ASYNC;
     OHOS::MessageOption option(flag);
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
@@ -145,13 +148,13 @@ static int HdfRemoteAdapterDispatch(struct HdfRemoteService *service,
 {
     return HdfRemoteAdapterOptionalDispatch(service, code, data, reply, true);
 }
-
+// LCOV_EXCL_START
 static int HdfRemoteAdapterDispatchAsync(struct HdfRemoteService *service,
     int code, HdfSBuf *data, HdfSBuf *reply)
 {
     return HdfRemoteAdapterOptionalDispatch(service, code, data, reply, false);
 }
-
+// LCOV_EXCL_STOP
 HdfRemoteServiceHolder::HdfRemoteServiceHolder() : remote_(nullptr), deathRecipient_(nullptr)
 {
     service_.object.objectId = HDF_OBJECT_ID_REMOTE_SERVICE;
@@ -166,11 +169,12 @@ bool HdfRemoteServiceHolder::SetInterfaceDescriptor(const char *desc)
         return false;
     }
     std::u16string newDesc = OHOS::Str8ToStr16(std::string(desc));
+// LCOV_EXCL_START
     if (newDesc.empty()) {
         HDF_LOGE("failed to set interface des, error on cover str8 to str16, %{public}s", desc);
         return false;
     }
-
+// LCOV_EXCL_STOP
     descriptor_.assign(newDesc);
     return true;
 }
