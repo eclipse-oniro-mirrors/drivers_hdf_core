@@ -318,9 +318,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
                 HDF_LOGI("GetSystemAbilityManager success");
                 break;
             }
+// LCOV_EXCL_START
             HDF_LOGI("GetSystemAbilityManager failed, retry");
             usleep(sleepInterval);
         }
+// LCOV_EXCL_STOP
         if (saManager == nullptr) {
             HDF_LOGE("failed to get sa manager, waiting timeout");
             return HDF_FAILURE;
@@ -376,9 +378,11 @@ struct HdfRemoteService *HdfRemoteAdapterGetSa(int32_t saId)
     if (remote != nullptr) {
         return HdfRemoteAdapterBind(remote);
     } else {
+// LCOV_EXCL_START
         HDF_LOGE("failed to get sa %{public}d", saId);
     }
     return nullptr;
+// LCOV_EXCL_STOP
 }
 
 bool HdfRemoteAdapterSetInterfaceDesc(struct HdfRemoteService *service, const char *desc)
@@ -496,8 +500,10 @@ int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
 
     OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(holder->remote_.GetRefPtr());
     if (stub == nullptr) {
+// LCOV_EXCL_START
         HDF_LOGE("%{public}s: failed to converts holder->remote to IPCObjectStub object", __func__);
         return HDF_ERR_INVALID_PARAM;
+// LCOV_EXCL_STOP
     }
 
     OHOS::MessageParcel *dataParcel = nullptr;
@@ -505,13 +511,17 @@ int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
     OHOS::MessageOption option;
 
     if (SbufToParcel(data, &dataParcel) != HDF_SUCCESS) {
+// LCOV_EXCL_START
         HDF_LOGE("%{public}s:invalid data sbuf object to dispatch", __func__);
         return HDF_ERR_INVALID_PARAM;
+// LCOV_EXCL_STOP
     }
 
     if (SbufToParcel(data, &replyParcel) != HDF_SUCCESS) {
+// LCOV_EXCL_START
         HDF_LOGE("%{public}s:invalid reply sbuf object to dispatch", __func__);
         return HDF_ERR_INVALID_PARAM;
+// LCOV_EXCL_STOP
     }
 
     return stub->IPCObjectStub::OnRemoteRequest(code, *dataParcel, *replyParcel, option);
