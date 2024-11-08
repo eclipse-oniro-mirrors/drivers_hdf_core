@@ -7,9 +7,8 @@
  */
 
 #include "parser/parser.h"
-
+#include <algorithm>
 #include <regex>
-
 #include "ast/ast_array_type.h"
 #include "ast/ast_enum_type.h"
 #include "ast/ast_map_type.h"
@@ -177,8 +176,18 @@ bool Parser::ParserPackageInfo(const std::string &packageName)
     }
 
     ast_->SetPackageName(result.str(RE_PACKAGE_INDEX).c_str());
-    size_t majorVersion = std::stoul(result.str(RE_PACKAGE_MAJOR_VER_INDEX));
-    size_t minorVersion = std::stoul(result.str(RE_PACKAGE_MINOR_VER_INDEX));
+
+    const auto majorVersionStr = result.str(RE_PACKAGE_MAJOR_VER_INDEX);
+    const auto minorVersionStr = result.str(RE_PACKAGE_MINOR_VER_INDEX);
+
+    bool isNumeric = std::all_of(majorVersionStr.begin(), majorVersionStr.end(), ::isdigit);
+    isNumeric = isNumeric && std::all_of(minorVersionStr.begin(), minorVersionStr.end(), ::isdigit);
+    if (!isNumeric) {
+        return false;
+    }
+
+    size_t majorVersion = std::stoul(majorVersionStr);
+    size_t minorVersion = std::stoul(minorVersionStr);
     ast_->SetVersion(majorVersion, minorVersion);
     return true;
 }
