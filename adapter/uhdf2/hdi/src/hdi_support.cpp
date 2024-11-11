@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include "hdi_support.h"
 #include <dlfcn.h>
 #include <map>
@@ -106,8 +107,17 @@ static int32_t ParseInterface(
         return HDF_FAILURE;
     }
 
-    uint32_t versionMajor = std::stoul(result[INTERFACE_VERSION_MAJOR_INDEX]);
-    uint32_t versionMinor = std::stoul(result[INTERFACE_VERSION_MINOR_INDEX]);
+    const auto &majorVersion = result[INTERFACE_VERSION_MAJOR_INDEX].str();
+    const auto &minorVersion = result[INTERFACE_VERSION_MINOR_INDEX].str();
+
+    bool isNumeric = std::all_of(majorVersion.begin(), majorVersion.end(), ::isdigit);
+    isNumeric = isNumeric && std::all_of(minorVersion.begin(), minorVersion.end(), ::isdigit);
+    if (!isNumeric) {
+        return HDF_FAILURE;
+    }
+
+    uint32_t versionMajor = std::stoul(majorVersion);
+    uint32_t versionMinor = std::stoul(minorVersion);
     std::string interfaceName = result[INTERFACE_NAME_INDEX];
 
     interface = interfaceName[0] == 'I' ? interfaceName.substr(1) : interfaceName;

@@ -18,12 +18,16 @@ void *OsalMemAlloc(size_t size)
     void *buf = NULL;
 
     if (size == 0) {
+// LCOV_EXCL_START
         HDF_LOGE("%s invalid param", __func__);
         return NULL;
+// LCOV_EXCL_STOP
     }
     if (size > SIZE_MAX) {
+// LCOV_EXCL_START
         HDF_LOGE("%s invalid param : size", __func__);
         return NULL;
+// LCOV_EXCL_STOP
     }
 
     buf = malloc(size);
@@ -36,12 +40,16 @@ void *OsalMemCalloc(size_t size)
     void *buf = NULL;
 
     if (size == 0) {
+// LCOV_EXCL_START
         HDF_LOGE("%s invalid param", __func__);
         return NULL;
+// LCOV_EXCL_STOP
     }
     if (size > SIZE_MAX) {
+// LCOV_EXCL_START
         HDF_LOGE("%s invalid param : size", __func__);
         return NULL;
+// LCOV_EXCL_STOP
     }
 
     buf = OsalMemAlloc(size);
@@ -51,7 +59,7 @@ void *OsalMemCalloc(size_t size)
 
     return buf;
 }
-
+// LCOV_EXCL_START
 void *OsalMemAllocAlign(size_t alignment, size_t size)
 {
     void *buf = NULL;
@@ -70,7 +78,7 @@ void *OsalMemAllocAlign(size_t alignment, size_t size)
 
     return buf;
 }
-
+// LCOV_EXCL_STOP
 void OsalMemFree(void *mem)
 {
     if (mem != NULL) {

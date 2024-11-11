@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <base/hdi_smq.h>
 #include <base/hdi_smq_meta.h>
 #include <base/hdi_smq_syncer.h>
@@ -110,6 +111,9 @@ static bool QueryPidOfHostName(const std::string &hostName, int &hostPid)
         return false;
     }
 
+    if (!std::all_of(resBuf.begin(), resBuf.end(), ::isdigit)) {
+        return false;
+    }
     hostPid = std::stoi(resBuf);
     return true;
 }
@@ -138,6 +142,9 @@ static bool QueryOpendFdsByHostPid(int hostPid, std::set<int> &fds)
 
     std::vector<std::string> fdsResult = Split(resBuf, " ");
     for (const auto &fdStr : fdsResult) {
+        if (!std::all_of(fdStr.begin(), fdStr.end(), ::isdigit)) {
+            continue;
+        }
         int fd = std::stoi(fdStr);
         if (fd == resFd) {
             continue;
