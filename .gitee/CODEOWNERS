@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-adapter/ @Danny_liuXu
-framework/ @Danny_liuXu
+adapter/ @duwei-23
+framework/ @duwei-23
 framework/model/input/ @time_zhang
 framework/model/audio/ @whoselettlelion
 framework/include/audio/ @whoselettlelion
 framework/model/sensor/ @whoselettlelion
 framework/model/misc/ @whoselettlelion
 framework/model/display/ @whoselettlelion
-framework/model/camera/ @Danny_liuXu
-framework/include/camera/ @Danny_liuXu
-framework/model/wifi/ @Danny_liuXu
-framework/model/network/ @Danny_liuXu
-framework/model/usb/ @danny_liuxu
-framework/include/wifi/ @danny_liuxu
-framework/include/bluetooth/ @danny_liuxu
-framework/include/ethernet/ @danny_liuxu
-framework/include/net/ @danny_liuxu
+framework/model/camera/ @duwei-23
+framework/include/camera/ @duwei-23
+framework/model/wifi/ @duwei-23
+framework/model/network/ @duwei-23
+framework/model/usb/ @duwei-23
+framework/include/wifi/ @duwei-23
+framework/include/bluetooth/ @duwei-23
+framework/include/ethernet/ @duwei-23
+framework/include/net/ @duwei-23
 
 # any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan5
 interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
