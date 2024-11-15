@@ -131,6 +131,8 @@ HWTEST_F(HdfRemoteAdapterTest, HdfRemoteAdapterTest005, TestSize.Level1)
     HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
     ASSERT_NE(sBuf, nullptr);
     OHOS::MessageParcel *parcel = nullptr;
+    HdfSBuf *sBufPar = ParcelToSbuf(parcel);
+    ASSERT_NE(sBufPar, nullptr);
     int ret = SbufToParcel(sBuf, &parcel);
     ASSERT_EQ(ret, HDF_SUCCESS);
     status = parcel->WriteInterfaceToken(u"ohos.hdi.foo.v1_0.ifoo");
