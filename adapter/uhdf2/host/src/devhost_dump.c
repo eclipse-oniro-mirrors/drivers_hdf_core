@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include "devhost_dump.h"
 #include "devhost_dump_reg.h"
 #include "hdf_base.h"
@@ -132,10 +133,12 @@ static void DevHostDumpIpc(struct HdfSBuf *data)
     const char *dumpCmd = HdfSbufReadString(data);
     if (dumpCmd == NULL) {
         HDF_LOGE("ipc dumpCmd is NULL");
+        close(fd);
         return;
     }
 
     HdfDumpIpcStat(fd, dumpCmd);
+    close(fd);
     return;
 }
 
