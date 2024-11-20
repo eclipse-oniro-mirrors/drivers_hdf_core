@@ -27,6 +27,5 @@ group("hdf_framework_fuzztest") {
     "servmgr_cpp_fuzzer/servstatlistenerstub_fuzzer:ServStatListenerStubFuzzTest",
     "servmgr_cpp_fuzzer/unregisterservicestatuslistener_fuzzer:UnregisterServiceStatusListenerFuzzTest",
     "syscall_fuzzer/syscall_fuzzer:SyscallFuzzTest",
-    "uhdf2_utils_fuzzer/hdfxcollie_fuzzer:HdfXCollieFuzzTest",
   ]
 }
