@@ -10,6 +10,7 @@
 
 #include "hdf_base.h"
 #include "hdf_core_log.h"
+#include "hdf_sbuf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +20,6 @@ extern "C" {
 #include "devmgr_service.h"
 #include "devmgr_service_full.h"
 #include "devmgr_uevent.h"
-#include "hdf_sbuf.h"
 
 #ifdef __cplusplus
 } // extern "C"
