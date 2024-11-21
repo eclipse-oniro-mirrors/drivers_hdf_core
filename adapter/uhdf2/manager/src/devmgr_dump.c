@@ -614,6 +614,7 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
     if (argv == 0) {
         (void)HdfSbufWriteString(reply, HELP_COMMENT);
         close(fd);
+        fd = -1;
         return HDF_SUCCESS;
     }
 
@@ -621,6 +622,7 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
     if (value == NULL) {
         HDF_LOGE("%{public}s arg is invalid", __func__);
         close(fd);
+        fd = -1;
         return HDF_FAILURE;
     }
 
@@ -647,6 +649,7 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
         }
     }
     close(fd);
+    fd = -1;
     return ret;
 }
 
