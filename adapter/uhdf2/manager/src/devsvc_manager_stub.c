@@ -548,8 +548,6 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
         code, HdfRemoteGetCallingPid());
     HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling uid=%{public}d",
         code, HdfRemoteGetCallingUid());
-    HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling sid=%{public}s",
-        code, HdfRemoteGetCallingSid());
     switch (code) {
         case DEVSVC_MANAGER_ADD_SERVICE:
             ret = DevSvcManagerStubAddService(super, data);

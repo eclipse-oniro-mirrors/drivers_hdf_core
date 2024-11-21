@@ -240,6 +240,7 @@ SharedMemQueueMeta<T> &SharedMemQueueMeta<T>::operator=(const SharedMemQueueMeta
     if (this != &other) {
         if (ashmemFd_ >= 0) {
             close(ashmemFd_);
+            ashmemFd_ = -1;
         }
         ashmemFd_ = dup(other.ashmemFd_);
         size_ = other.size_;
@@ -301,6 +302,7 @@ SharedMemQueueMeta<T>::~SharedMemQueueMeta()
 {
     if (ashmemFd_ >= 0) {
         close(ashmemFd_);
+        ashmemFd_ = -1;
     }
     ashmemFd_ = -1;
 }
@@ -315,6 +317,7 @@ void SharedMemQueueMeta<T>::SetFd(int fd)
 {
     if (ashmemFd_ >= 0) {
         close(ashmemFd_);
+        ashmemFd_ = -1;
     }
     ashmemFd_ = fd;
 }
@@ -436,6 +439,7 @@ std::shared_ptr<SharedMemQueueMeta<T>> SharedMemQueueMeta<T>::UnMarshalling(Mess
     if (!parcel.ReadUint64(readElementCount)) {
         HDF_LOGE("read invalid elementCount of smq");
         close(fd);
+        fd = -1;
         return nullptr;
     }
     size_t elementCount = static_cast<size_t>(readElementCount);
@@ -444,6 +448,7 @@ std::shared_ptr<SharedMemQueueMeta<T>> SharedMemQueueMeta<T>::UnMarshalling(Mess
     if (!parcel.ReadUint32(typecode)) {
         HDF_LOGE("read invalid typecode of smq");
         close(fd);
+        fd = -1;
         return nullptr;
     }
     SmqType type = static_cast<SmqType>(typecode);

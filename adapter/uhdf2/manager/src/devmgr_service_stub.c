@@ -224,6 +224,7 @@ static int32_t InstallModule(const char *module)
     }
 
     close(fd);
+    fd = -1;
     return ret;
 }
 

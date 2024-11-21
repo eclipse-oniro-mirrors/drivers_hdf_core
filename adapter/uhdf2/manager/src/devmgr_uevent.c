@@ -367,6 +367,7 @@ static int32_t DevMgrUeventSocketInit(void)
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &buffSize, sizeof(buffSize)) != 0) {
         HDF_LOGE("setsockopt: SO_RCVBUF failed err = %{public}d", errno);
         close(sockfd);
+        sockfd = -1;
         return HDF_FAILURE;
     }
 
@@ -374,12 +375,14 @@ static int32_t DevMgrUeventSocketInit(void)
     if (setsockopt(sockfd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) != 0) {
         HDF_LOGE("setsockopt: SO_PASSCRED failed, err = %{public}d", errno);
         close(sockfd);
+        sockfd = -1;
         return HDF_FAILURE;
     }
 
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         HDF_LOGE("bind socket failed, err = %{public}d", errno);
         close(sockfd);
+        sockfd = -1;
         return HDF_FAILURE;
     }
 
@@ -566,6 +569,7 @@ static int32_t DevMgrUeventThread(void *arg)
 
     DevMgrUeventReleaseRuleCfgList();
     close(sfd);
+    sfd = -1;
     return HDF_SUCCESS;
 }
 
