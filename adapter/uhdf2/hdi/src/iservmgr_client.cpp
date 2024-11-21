@@ -123,6 +123,11 @@ int32_t ServiceManagerProxy::UnregisterServiceStatusListener(::OHOS::sptr<IServS
 
 sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
 {
+    if (nullptr == serviceName) {
+        HDF_LOGE("serviceName is nullptr");
+        return nullptr;
+    }
+
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor()) || !data.WriteCString(serviceName)) {
