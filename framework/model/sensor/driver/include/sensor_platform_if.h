@@ -85,13 +85,13 @@ struct SensorBusCfg {
     };
 };
 
-enum SENSORConfigValueIndex {
+enum SensorConfigValueIndex {
     SENSOR_ADDR_INDEX,
     SENSOR_VALUE_INDEX,
     SENSOR_VALUE_BUTT,
 };
 
-enum SENSORConfigShortValueIndex {
+enum SensorConfigShortValueIndex {
     SENSOR_SHORT_VALUE_INDEX0,
     SENSOR_SHORT_VALUE_INDEX1,
     SENSOR_SHORT_VALUE_INDEX2,

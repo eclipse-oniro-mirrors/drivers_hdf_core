@@ -409,13 +409,13 @@ extern "C" struct HdfSBufImpl *SbufBindIpc(uintptr_t base, size_t size)
     sbuf->realParcel_->ParseFrom(base, size);
     return &sbuf->infImpl;
 }
-
+// LCOV_EXCL_STOP
 struct HdfSBuf *ParcelToSbuf(OHOS::MessageParcel *parcel)
 {
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(parcel, false);
     return HdfSbufTypedObtainInplace(SBUF_IPC, &sbuf->infImpl);
 }
-// LCOV_EXCL_STOP
+
 int32_t SbufToParcel(struct HdfSBuf *sbuf, OHOS::MessageParcel **parcel)
 {
     if (sbuf == nullptr || parcel == nullptr) {
