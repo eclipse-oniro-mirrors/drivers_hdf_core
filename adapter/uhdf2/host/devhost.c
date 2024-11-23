@@ -195,6 +195,7 @@ int main(int argc, char **argv)
         looper->Start(looper);
     }
 
+    DevHostServiceFreeInstance(instance);
     HdfPowerManagerExit();
     DevHostDumpDeInit();
     HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);

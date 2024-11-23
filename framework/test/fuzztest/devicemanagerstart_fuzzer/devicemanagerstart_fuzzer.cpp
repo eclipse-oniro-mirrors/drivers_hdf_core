@@ -10,6 +10,7 @@
 
 #include "hdf_base.h"
 #include "hdf_core_log.h"
+#include "hdf_sbuf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +27,7 @@ extern "C" {
 
 #define HDF_LOG_TAG devicemanagerstart_fuzzer
 
-static int DeviceManagerStartServiceFuzzTest()
+static int DeviceManagerStartServiceFuzzTest(const uint8_t *data, size_t size)
 {
     HDF_LOGI("start hdf device manager fuzzer");
     int status = HDF_FAILURE;
@@ -54,6 +55,17 @@ static int DeviceManagerStartServiceFuzzTest()
             HDF_LOGI("device manager fuzzer skip loop");
         }
     }
+    struct HdfSBuf *dataBuf = HdfSbufTypedObtain(SBUF_IPC);
+    if (dataBuf == nullptr) {
+        HDF_LOGE("%{public}s:%{public}d: failed to create data buf", __func__, __LINE__);
+        return false;
+    }
+
+    if (!HdfSbufWriteBuffer(dataBuf, data, size)) {
+        HDF_LOGE("%{public}s:%{public}d: failed to write data", __func__, __LINE__);
+        HdfSbufRecycle(dataBuf);
+        return false;
+    }
 
     HDF_LOGI("end of hdf device manager fuzzer, status is %{public}d", status);
     return status;
@@ -66,7 +78,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return ret;
     }
 
-    ret = DeviceManagerStartServiceFuzzTest();
+    ret = DeviceManagerStartServiceFuzzTest(data, size);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("DeviceManagerStartServiceFuzzTest failed, ret is %{public}d", ret);
         return ret;

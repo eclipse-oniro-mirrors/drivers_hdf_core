@@ -77,6 +77,7 @@ int32_t OsalRequestFirmware(struct OsalFirmware *fwPara, const char *fwName, voi
     if (fstat(fd, &fwStat) == -1) {
         HDF_LOGE("%s fstat file fail %d", __func__, errno);
         close(fd);
+        fd = -1;
         return HDF_FAILURE;
     }
 
@@ -84,6 +85,7 @@ int32_t OsalRequestFirmware(struct OsalFirmware *fwPara, const char *fwName, voi
     if (base == NULL) {
         HDF_LOGE("%s malloc fail", __func__);
         close(fd);
+        fd = -1;
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -187,6 +189,7 @@ int32_t OsalReleaseFirmware(struct OsalFirmware *fwPara)
         HDF_LOGE("%s close fail %d",  __func__, errno);
         return HDF_FAILURE;
     }
+    fw->fd = -1;
     OsalMemFree(fwPara->para);
     fwPara->para = NULL;
 

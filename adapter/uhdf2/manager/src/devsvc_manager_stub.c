@@ -364,7 +364,7 @@ static int32_t DevSvcManagerStubGetService(struct IDevSvcManager *super, struct 
     if (remoteService != NULL) {
         HdfSbufWriteRemoteService(reply, remoteService);
         ret = HDF_SUCCESS;
-        HDF_LOGD("StubGetService service %{public}s found", name);
+        HDF_LOGD("StubGetService service %{public}s found!", name);
     } else {
         HDF_LOGE("StubGetService %{public}s remoteService is null", name);
         ret = HDF_FAILURE;
@@ -548,8 +548,6 @@ int DevSvcManagerStubDispatch(struct HdfRemoteService *service, int code, struct
         code, HdfRemoteGetCallingPid());
     HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling uid=%{public}d",
         code, HdfRemoteGetCallingUid());
-    HDF_LOGD("DevSvcManagerStubDispatch called: code=%{public}d, calling sid=%{public}s",
-        code, HdfRemoteGetCallingSid());
     switch (code) {
         case DEVSVC_MANAGER_ADD_SERVICE:
             ret = DevSvcManagerStubAddService(super, data);
