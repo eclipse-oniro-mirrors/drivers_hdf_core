@@ -291,6 +291,7 @@ static int32_t GetHapticSeqByEffect(struct VibratorEffectCfg *effectCfg)
 
 int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     uint32_t duration;
     struct VibratorHapticData *hapticData = GetHapticData();

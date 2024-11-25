@@ -122,6 +122,7 @@ static void VibratorWorkEntry(void *para)
 
 static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s_%d: in", __func__, __LINE__);
     uint32_t duration;
     int32_t ret;
     struct VibratorEffectCfg config;
@@ -150,7 +151,9 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     config.duration = duration;
     config.effect = NULL;
 
+    HDF_LOGI("%s_%d: ->StartHaptic start", __func__, __LINE__);
     ret = StartHaptic(&config);
+    HDF_LOGI("%s_%d: ->StartHaptic finish", __func__, __LINE__);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: start haptic failed!", __func__);
         return ret;
