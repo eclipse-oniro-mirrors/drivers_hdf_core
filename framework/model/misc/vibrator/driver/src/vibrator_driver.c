@@ -163,6 +163,25 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     return HDF_SUCCESS;
 }
 
+static int32_t IsVibratorRunning(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    (void)data;
+    struct VibratorDriverData *drvData;
+    drvData = GetVibratorDrvData();
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
+
+    int32_t state = drvData->mode == VIBRATOR_MODE_BUTT ? 0 : 1;
+    HDF_LOGI("%s: state %d", __func__, state);
+
+    if (!HdfSbufWriteInt32(reply, state)) {
+        HDF_LOGE("%s: write state failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret;
@@ -322,6 +341,7 @@ static struct VibratorCmdHandleList g_vibratorCmdHandle[] = {
     {VIBRATOR_DRV_IO_STOP, Stop},
     {VIBRATOR_DRV_IO_GET_INFO, GetVibratorInfo},
     {VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER, EnableModulationParameter},
+    {VIBRATOR_DRV_IO_IS_VIBRATOR_RUNNING, IsVibratorRunning},
 };
 
 static int32_t DispatchVibrator(struct HdfDeviceIoClient *client,
