@@ -137,8 +137,12 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     }
 
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
-        HDF_LOGI("%s: vibrater haptic is busy now, please stop first!", __func__);
-        return HDF_ERR_DEVICE_BUSY;
+        HDF_LOGI("%s: vibrater haptic is busy now, stop first!", __func__);
+        ret = StopHaptic();
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: stop haptic failed!", __func__);
+            return ret;
+        }
     }
 
     (void)OsalMutexLock(&drvData->mutex);
@@ -174,8 +178,12 @@ static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(effect, HDF_FAILURE);
 
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
-        HDF_LOGI("%s: vibrater haptic is busy now, please stop first!", __func__);
-        return HDF_ERR_DEVICE_BUSY;
+        HDF_LOGI("%s: vibrater haptic is busy now, stop first!", __func__);
+        ret = StopHaptic();
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: stop haptic failed!", __func__);
+            return ret;
+        }
     }
 
     (void)OsalMutexLock(&drvData->mutex);
