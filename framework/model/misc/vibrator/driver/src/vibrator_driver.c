@@ -166,8 +166,7 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t IsVibratorRunning(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)data;
-    struct VibratorDriverData *drvData;
-    drvData = GetVibratorDrvData();
+    struct VibratorDriverData *drvData = GetVibratorDrvData();
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
 
