@@ -137,8 +137,12 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     }
 
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
-        HDF_LOGI("%s: vibrater haptic is busy now, please stop first!", __func__);
-        return HDF_ERR_DEVICE_BUSY;
+        HDF_LOGI("%s: vibrater haptic is busy now, stop first!", __func__);
+        ret = StopHaptic();
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: stop haptic failed!", __func__);
+            return ret;
+        }
     }
 
     (void)OsalMutexLock(&drvData->mutex);
@@ -159,6 +163,24 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     return HDF_SUCCESS;
 }
 
+static int32_t IsVibratorRunning(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    (void)data;
+    struct VibratorDriverData *drvData = GetVibratorDrvData();
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
+
+    int32_t state = drvData->mode == VIBRATOR_MODE_BUTT ? 0 : 1;
+    HDF_LOGI("%s: state %d", __func__, state);
+
+    if (!HdfSbufWriteInt32(reply, state)) {
+        HDF_LOGE("%s: write state failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret;
@@ -174,8 +196,12 @@ static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(effect, HDF_FAILURE);
 
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
-        HDF_LOGI("%s: vibrater haptic is busy now, please stop first!", __func__);
-        return HDF_ERR_DEVICE_BUSY;
+        HDF_LOGI("%s: vibrater haptic is busy now, stop first!", __func__);
+        ret = StopHaptic();
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: stop haptic failed!", __func__);
+            return ret;
+        }
     }
 
     (void)OsalMutexLock(&drvData->mutex);
@@ -314,6 +340,7 @@ static struct VibratorCmdHandleList g_vibratorCmdHandle[] = {
     {VIBRATOR_DRV_IO_STOP, Stop},
     {VIBRATOR_DRV_IO_GET_INFO, GetVibratorInfo},
     {VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER, EnableModulationParameter},
+    {VIBRATOR_DRV_IO_IS_VIBRATOR_RUNNING, IsVibratorRunning},
 };
 
 static int32_t DispatchVibrator(struct HdfDeviceIoClient *client,

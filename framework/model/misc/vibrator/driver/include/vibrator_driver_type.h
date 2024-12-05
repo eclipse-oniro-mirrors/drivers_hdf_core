@@ -57,6 +57,7 @@ enum VibratorDrvIoCmd {
     VIBRATOR_DRV_IO_STOP                        = 2,
     VIBRATOR_DRV_IO_GET_INFO                    = 3,
     VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER = 4,
+    VIBRATOR_DRV_IO_IS_VIBRATOR_RUNNING         = 5,
     VIBRATOR_DRV_IO_END,
 };
 
