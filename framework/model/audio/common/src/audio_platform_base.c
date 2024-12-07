@@ -570,10 +570,6 @@ int32_t AudioPcmMmapWrite(const struct AudioCard *card, const struct AudioMmapDa
     data->mmapData.transferFrameSize = txMmapData->transferFrameSize;
     data->mmapLoopCount = 0;
 
-    AUDIO_DRIVER_LOG_DEBUG("*******offset=0x%x memoryAddress=0x%x totalBufferFrames=0x%x transferFrameSize=0x%x ",
-        data->mmapData.offset, data->mmapData.memoryAddress, data->mmapData.totalBufferFrames,
-        data->mmapData.transferFrameSize);
-
     ret = AudioMmapWriteTransfer(card);
     if (ret != HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("AudioMmapTransfer fail.");
