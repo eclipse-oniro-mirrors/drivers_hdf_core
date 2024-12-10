@@ -150,6 +150,9 @@
                         ],
                         "header_base": "//drivers/hdf_core/framework/include/platform"
                     }
+                },
+                {
+                    "name": "//drivers/hdf_core/framework/tools/hc-gen:hc_gen"
                 }
             ],
             "test": [

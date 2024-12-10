@@ -18,3 +18,11 @@ action("build_hc_gen") {
     "BUILD_DIR=" + rebase_path(target_out_dir),
   ]
 }
+
+copy("hc_gen") {
+  deps = [ ":build_hc_gen" ]
+  source = rebase_path(get_path_info(":build_hc_gen", "out_dir") + "/hc-gen")
+  sources = [ source ]
+  output = "$target_out_dir/bin/hc-gen"
+  outputs = [ output ]
+}
