@@ -896,7 +896,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest001, TestSize.Level1)
 {
     ::OHOS::sptr<ServStatListener> listener
         = new ServStatListener(
-            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+            ServStatListener::StatusCallback([&](const ::OHOS::HDI::ServiceManager::V1_0::ServiceStatus &status) {
                 HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
             }));
     
@@ -917,7 +917,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest002, TestSize.Level1)
 {
     ::OHOS::sptr<ServStatListener> listener
         = new ServStatListener(
-            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+            ServStatListener::StatusCallback([&](const ::OHOS::HDI::ServiceManager::V1_0::ServiceStatus &status) {
                 HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
             }));
     
@@ -935,7 +935,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest003, TestSize.Level1)
 {
     ::OHOS::sptr<ServStatListener> listener
         = new ServStatListener(
-            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+            ServStatListener::StatusCallback([&](const ::OHOS::HDI::ServiceManager::V1_0::ServiceStatus &status) {
                 HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
             }));
     
@@ -956,7 +956,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest004, TestSize.Level1)
 {
     ::OHOS::sptr<ServStatListener> listener
         = new ServStatListener(
-            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+            ServStatListener::StatusCallback([&](const ::OHOS::HDI::ServiceManager::V1_0::ServiceStatus &status) {
                 HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
             }));
     
@@ -977,7 +977,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest005, TestSize.Level1)
 {
     ::OHOS::sptr<ServStatListener> listener
         = new ServStatListener(
-            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+            ServStatListener::StatusCallback([&](const ::OHOS::HDI::ServiceManager::V1_0::ServiceStatus &status) {
                 HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
             }));
     
@@ -1001,7 +1001,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest006, TestSize.Level1)
 {
     ::OHOS::sptr<ServStatListener> listener
         = new ServStatListener(
-            ServStatListener::StatusCallback([&](const ServiceStatus &status) {
+            ServStatListener::StatusCallback([&](const ::OHOS::HDI::ServiceManager::V1_0::ServiceStatus &status) {
                 HDF_LOGI("service status callback, service is %{public}s", status.serviceName.data());
             }));
     
