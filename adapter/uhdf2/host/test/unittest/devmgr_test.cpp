@@ -186,7 +186,7 @@ HWTEST_F(DevMgrTest, DevMgrDumpTest, TestSize.Level1)
     int32_t ret;
     int32_t fd;
     constexpr int loop = 100;
-    int32_t fd = open("/dev/null", P_WRONLY);
+    int32_t fd = open("/dev/null", O_WRONLY);
     for (int i = 0; i < loop; i++) {
         const std::vector<std::u16string> vcr = {u"--ipc", u"all", u"--start-stat"};
         ret = HdfDump(fd, vcr);
