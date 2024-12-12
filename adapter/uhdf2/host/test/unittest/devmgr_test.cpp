@@ -161,7 +161,7 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
     ASSERT_TRUE(servmgr != nullptr);
     ASSERT_TRUE(devmgr != nullptr);
     HdfRegisterDumpFunc(nullptr);
-    int32_t fd = open("/dev/null", P_WRONLY);
+    int32_t fd = open("/dev/null", O_WRONLY);
     HdfRegisterDumpFunc(TestDump);
     const std::vector<std::u16string> vcr = {u"123", u"456"};
     const std::vector<std::u16string> vcr1 = {
