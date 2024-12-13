@@ -184,7 +184,6 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
 HWTEST_F(DevMgrTest, DevMgrDumpTest, TestSize.Level1)
 {
     int32_t ret;
-    int32_t fd;
     constexpr int loop = 100;
     int32_t fd = open("/dev/null", O_WRONLY);
     for (int i = 0; i < loop; i++) {
