@@ -40,7 +40,7 @@ constexpr size_t INTERFACE_MATCH_RESIZE = 4;
 constexpr size_t INTERFACE_VERSION_MAJOR_INDEX = 1;
 constexpr size_t INTERFACE_VERSION_MINOR_INDEX = 2;
 constexpr size_t INTERFACE_NAME_INDEX = 3;
-static const std::regex reInfDesc("[a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\."
+static const std::regex REINFDESC("[a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\."
                                   "[V|v]([0-9]+)_([0-9]+)\\."
                                   "([a-zA-Z_][a-zA-Z0-9_]*)");
 using HdiImplInstanceFunc = void *(*)(void);
@@ -99,7 +99,7 @@ static int32_t ParseInterface(
     const std::string &desc, std::string &interface, std::string &libName, const char *serviceName)
 {
     std::smatch result;
-    if (!std::regex_match(desc, result, reInfDesc)) {
+    if (!std::regex_match(desc, result, REINFDESC)) {
         return HDF_FAILURE;
     }
 
