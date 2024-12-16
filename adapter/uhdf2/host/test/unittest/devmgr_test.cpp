@@ -19,6 +19,7 @@
 #include <devmgr_hdi.h>
 #include <osal_time.h>
 #include <servmgr_hdi.h>
+#include <fcntl.h>
 #include "hdf_dump.h"
 #include "hdf_dump_reg.h"
 #include "hcs_tree_if.h"
@@ -160,7 +161,7 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
     ASSERT_TRUE(servmgr != nullptr);
     ASSERT_TRUE(devmgr != nullptr);
     HdfRegisterDumpFunc(nullptr);
-    int32_t fd = 0;
+    int32_t fd = open("/dev/null", O_WRONLY);
     HdfRegisterDumpFunc(TestDump);
     const std::vector<std::u16string> vcr = {u"123", u"456"};
     const std::vector<std::u16string> vcr1 = {
@@ -169,8 +170,8 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
         u"21", u"22", u"23", u"24"
     };
     int ret = HdfDump(fd, vcr);
-    ASSERT_TRUE(ret != HDF_SUCCESS);
-    fd = 1;
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    fd = -1;
     ret = HdfDump(fd, vcr1);
     ASSERT_TRUE(ret != HDF_SUCCESS);
 
@@ -183,21 +184,17 @@ HWTEST_F(DevMgrTest, DevMgrDumpErrorTest, TestSize.Level1)
 HWTEST_F(DevMgrTest, DevMgrDumpTest, TestSize.Level1)
 {
     int32_t ret;
-    int32_t fd;
     constexpr int loop = 100;
-
+    int32_t fd = open("/dev/null", O_WRONLY);
     for (int i = 0; i < loop; i++) {
-        fd = 10;
         const std::vector<std::u16string> vcr = {u"--ipc", u"all", u"--start-stat"};
         ret = HdfDump(fd, vcr);
         ASSERT_TRUE(ret == HDF_SUCCESS);
 
-        fd = 11;
         const std::vector<std::u16string> vcr1 = {u"--ipc", u"all", u"--stop-stat"};
         ret = HdfDump(fd, vcr1);
         ASSERT_TRUE(ret == HDF_SUCCESS);
 
-        fd = 12;
         const std::vector<std::u16string> vcr2 = {u"--ipc", u"all", u"--stat"};
         ret = HdfDump(fd, vcr2);
         ASSERT_TRUE(ret == HDF_SUCCESS);
