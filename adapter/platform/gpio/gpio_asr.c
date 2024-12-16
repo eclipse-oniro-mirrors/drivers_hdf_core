@@ -79,7 +79,7 @@ static void OemGpioIrqHdl(uint16_t *arg)
 {
     asr_gpio_dev_t *dev = NULL;
     uint16_t gpio = (uint16_t)arg;
-    if (gpio > ASR_GPIO_TOTAL_NUM) {
+    if (gpio >= ASR_GPIO_TOTAL_NUM) {
         HDF_LOGE("invalid gpio");
         return;
     }
