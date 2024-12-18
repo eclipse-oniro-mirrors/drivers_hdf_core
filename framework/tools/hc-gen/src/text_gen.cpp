@@ -566,14 +566,14 @@ bool TextGen::PrintArrayImplInSubClass(const std::shared_ptr<AstObject> &object,
 
 bool TextGen::HcsPrintArrayContent(const std::shared_ptr<AstObject> &object, uint32_t indent)
 {
-    constexpr uint32_t ELEMENT_PER_LINE = 16;
+    constexpr uint32_t elementPerLine = 16;
     auto element = object->Child();
     uint32_t elementCount = 0;
     while (element != nullptr) {
         if (!PrintBaseTypeValue(element)) {
             return false;
         }
-        if (elementCount++ >= ELEMENT_PER_LINE) {
+        if (elementCount++ >= elementPerLine) {
             ofs_ << "\n" << Indent(indent);
         }
         element = element->Next();

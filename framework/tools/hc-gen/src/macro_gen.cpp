@@ -119,13 +119,13 @@ bool MacroGen::GenArray(
     const std::string &arrName, uint32_t &arrSize, uint32_t type, const std::shared_ptr<AstObject> &node)
 {
     static uint32_t index = 0;
-    const uint32_t ELEMENT_PER_LINE = 8;
+    constexpr uint32_t elementPerLine = 8;
 
     if (index == 0) {
         ofs_ << "#define " << arrName << "_data {";
     }
 
-    if (index % ELEMENT_PER_LINE == 0) {
+    if (index % elementPerLine == 0) {
         ofs_ << " \\\n" << TAB;
     }
 
@@ -141,7 +141,7 @@ bool MacroGen::GenArray(
         arrSize = 0;
         ofs_ << " \\\n}\n";
     } else {
-        if (index % ELEMENT_PER_LINE == 0) {
+        if (index % elementPerLine == 0) {
             ofs_ << ",";
         } else {
             ofs_ << ", ";
