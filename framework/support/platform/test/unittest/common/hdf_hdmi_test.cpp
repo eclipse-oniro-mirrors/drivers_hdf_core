@@ -103,12 +103,12 @@ static void HdmiUserSetAttrCaseTest(DevHandle handle)
     }
 }
 
+constexpr uint32_t HDMI_EDID_DATA_LENGTH = 128;
 static void HdmiUserTest(void)
 {
     DevHandle handle = nullptr;
     int32_t ret;
     enum HdmiDeepColor color = HDMI_DEEP_COLOR_24BITS;
-    constexpr uint32_t HDMI_EDID_DATA_LENGTH = 128;
     uint8_t data[HDMI_EDID_DATA_LENGTH] = {0};
     struct HdmiHpdCallbackInfo callback;
 
