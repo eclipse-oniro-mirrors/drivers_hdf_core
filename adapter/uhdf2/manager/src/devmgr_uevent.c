@@ -144,7 +144,7 @@ static int32_t DevMgrUeventParseKeyValue(char *str, struct DevMgrMatchKey *match
 
     char *value = subPtr + strlen(sep);
     *subPtr = '\0';
-    HDF_LOGD("key:%{public}s,value:[%{public}s]", str, value);
+    HDF_LOGD("key:%{private}s,value:[%{private}s]", str, value);
     matchKey->key = strdup(str);
     matchKey->value = strdup(value);
     if (matchKey->key == NULL || matchKey->value == NULL) {
@@ -511,7 +511,7 @@ static int32_t DevMgrParseUevent(char *msg, ssize_t msgLen)
         }
  
         uint32_t subStrLen = (uint32_t)strlen(ptr) + 1;
-        HDF_LOGD("%{public}s %{public}d [%{public}s]", __func__, subStrLen, ptr);
+        HDF_LOGD("%{public}s %{public}d [%{private}s]", __func__, subStrLen, ptr);
         if (DevMgrUeventParseKeyValue(ptr, key, UEVENT_DELIMITER) == HDF_SUCCESS) {
             DListInsertHead(&key->entry, &keyList);
             key = NULL;
