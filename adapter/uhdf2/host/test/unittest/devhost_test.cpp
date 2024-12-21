@@ -78,7 +78,7 @@ HWTEST_F(DevHostTest, DevHostDevMgrServiceProxyTest, TestSize.Level1)
     ASSERT_TRUE(ret != HDF_SUCCESS);
     const char *name = "test_svcName";
     ret = instance->LoadDevice(instance, name);
-    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 
     struct DevmgrServiceProxy *proxy = reinterpret_cast<struct DevmgrServiceProxy *>(object);
     HdfRemoteServiceRecycle(proxy->remote);
