@@ -47,7 +47,7 @@ static bool DevmgrServiceDynamicDevInfoFound(
     return false;
 }
 
-#define WAIT_HOST_SLEEP_TIME    1 // ms
+#define WAIT_HOST_SLEEP_TIME    2 // ms
 #define WAIT_HOST_SLEEP_CNT     1000
 static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bool sync, bool dynamic)
 {
@@ -75,6 +75,9 @@ static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bo
 
     if (waitCount <= 0) {
         HDF_LOGE("wait host(%{public}s, %{public}d) attach timeout", hostClnt->hostName, hostClnt->hostId);
+        if (installer->StopDeviceHost != NULL) {
+            installer->StopDeviceHost(hostClnt->hostId, hostClnt->hostName);
+        }
         hostClnt->hostPid = -1;
         return HDF_ERR_TIMEOUT;
     }
