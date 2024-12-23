@@ -197,7 +197,7 @@ int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struc
         HDF_LOGE("%{public}s devmgr service stub dispach failed, cmd id is %{public}d, ret = %{public}d", __func__,
             code, ret);
     }
-    return HDF_SUCCESS;
+    return ret;
 }
 
 // LCOV_EXCL_START

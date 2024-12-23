@@ -104,7 +104,7 @@ HWTEST_F(DevMgrTest, DriverUnLoaderTest, TestSize.Level1)
     ASSERT_TRUE(devmgr != nullptr);
 
     int ret = devmgr->UnloadDevice(devmgr, TEST_SERVICE_NAME);
-    ASSERT_EQ(ret, HDF_SUCCESS);
+    ASSERT_TRUE(ret != HDF_SUCCESS);
 
     uint32_t cnt = 0;
     struct HdfRemoteService *sampleService = servmgr->GetService(servmgr, TEST_SERVICE_NAME);
