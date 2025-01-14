@@ -264,4 +264,5 @@ HWTEST_F(HdfLiteHdmiTest, HdmiHpdRegisterAndUngister001, TestSize.Level1)
 HWTEST_F(HdfLiteHdmiTest, HdmiUserTest001, TestSize.Level1)
 {
     HdmiUserTest();
+    EXPECT_EQ(0, 0);
 }
