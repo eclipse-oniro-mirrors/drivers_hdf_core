@@ -98,15 +98,6 @@ HWTEST_F(NativeBufferTest, NativeBufferTest002, TestSize.Level1)
 }
 
 // test copy construct
-HWTEST_F(NativeBufferTest, NativeBufferTest003, TestSize.Level1)
-{
-    NativeBuffer srcBuffer;
-    NativeBuffer destBuffer(srcBuffer);
-    std::cout << "srcBuffer:\n" << srcBuffer.Dump() << std::endl;
-    std::cout << "destBuffer:\n" << destBuffer.Dump() << std::endl;
-}
-
-// test copy construct
 HWTEST_F(NativeBufferTest, NativeBufferTest004, TestSize.Level1)
 {
     BufferHandle *srcHandle = CreateBufferHandle();
