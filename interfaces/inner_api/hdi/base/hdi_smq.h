@@ -537,7 +537,7 @@ template <typename T>
 int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
 {
     auto avalidWrite = GetAvalidWriteSize();
-    if (count >= avalidWrite && meta_->GetType() == SmqType::SYNCED_SMQ) {
+    if (count > avalidWrite && meta_->GetType() == SmqType::SYNCED_SMQ) {
         // synced smq can not overflow write
         return -E2BIG;
     }
