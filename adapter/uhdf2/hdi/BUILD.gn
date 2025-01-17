@@ -44,7 +44,7 @@ if (defined(ohos_lite)) {
       "$hdf_interface_path/inner_api/utils",
       "$hdf_interface_path/inner_api/osal/uhdf",
     ]
-    all_dependent_configs = [ ":libhdi_pub_config" ]
+    public_configs = [ ":libhdi_pub_config" ]
     sources = [ "src/hdi_support.cpp" ]
 
     deps = [
