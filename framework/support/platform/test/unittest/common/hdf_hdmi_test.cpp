@@ -244,25 +244,14 @@ HWTEST_F(HdfLiteHdmiTest, HdmiDeepColorSetAndGet001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: HdmiDeepColorSetAndGet001
-  * @tc.desc: test HdmiDeepColorSet/HdmiDeepColorGet interface in kernel status.
+  * @tc.name: HdmiDeepColorSetAndGet001 / HdmiUserTest001
+  * @tc.desc: test HdmiDeepColorSet/HdmiDeepColorGet/test hdmi  in kernel/user status.
   * @tc.type: FUNC
   * @tc.require: SR000G4490
   */
 HWTEST_F(HdfLiteHdmiTest, HdmiHpdRegisterAndUngister001, TestSize.Level1)
 {
     struct HdfTestMsg msg = { TEST_PAL_HDMI_TYPE, HDMI_HPD_REGISTER_AND_UNREGISTER_01, -1 };
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-}
-
-/**
-  * @tc.name: HdmiUserTest001
-  * @tc.desc: test hdmi all interface in user status.
-  * @tc.type: FUNC
-  * @tc.require: SR000G4490
-  */
-HWTEST_F(HdfLiteHdmiTest, HdmiUserTest001, TestSize.Level1)
-{
     HdmiUserTest();
-    EXPECT_EQ(0, 0);
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
