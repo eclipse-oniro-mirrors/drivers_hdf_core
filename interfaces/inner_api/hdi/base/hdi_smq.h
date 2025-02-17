@@ -546,23 +546,23 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
     auto rOffset = readOffset_->load(std::memory_order_acquire);
     uint64_t newWriteOffset;
     auto qCount = meta_->GetElementCount();
-    if (wOffset + count <= qCount) {
-        if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount - wOffset) * sizeof(T),
+    if (wOffset + count <= (qCount + 1)) {
+        if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount + 1 - wOffset) * sizeof(T),
             data, count * sizeof(T)) != EOK) {
             return HDF_FAILURE;
         };
-        newWriteOffset = (wOffset + count) % qCount;
+        newWriteOffset = (wOffset + count) % (qCount + 1);
     } else {
-        size_t firstPartSize = qCount - wOffset;
-        size_t secParcSize = count - firstPartSize;
-        if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount - wOffset) * sizeof(T),
+        size_t firstPartSize = qCount + 1 - wOffset;
+        size_t secPartSize = count - firstPartSize;
+        if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount + 1 - wOffset) * sizeof(T),
             data, firstPartSize * sizeof(T)) != EOK) {
             return HDF_FAILURE;
         }
-        if (memcpy_s(queueBuffer_, qCount * sizeof(T), data + firstPartSize, secParcSize * sizeof(T)) != EOK) {
+        if (memcpy_s(queueBuffer_, qCount * sizeof(T), data + firstPartSize, secPartSize * sizeof(T)) != EOK) {
             return HDF_FAILURE;
         }
-        newWriteOffset = secParcSize;
+        newWriteOffset = secPartSize;
     }
 
     writeOffset_->store(newWriteOffset, std::memory_order_release);
@@ -585,21 +585,22 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
 
     auto qCount = meta_->GetElementCount();
     auto rOffset = readOffset_->load(std::memory_order_acquire);
-    if (rOffset + count <= qCount) {
+    if (rOffset + count <= (qCount + 1)) {
         if (memcpy_s(data, count * sizeof(T), queueBuffer_ + (rOffset * sizeof(T)), count * sizeof(T)) != EOK) {
             return HDF_FAILURE;
         }
-        readOffset_->store((rOffset + count) % qCount, std::memory_order_release);
+        readOffset_->store((rOffset + count) % (qCount + 1), std::memory_order_release);
         return 0;
     }
 
-    size_t firstPartSize = qCount - rOffset;
+    size_t firstPartSize = qCount + 1 - rOffset;
     size_t secPartSize = count - firstPartSize;
 
-    if (memcpy_s(data, count * sizeof(T), queueBuffer_ + (rOffset * sizeof(T)), firstPartSize * sizeof(T)) != EOK) {
+    if (memcpy_s(data, firstPartSize * sizeof(T),
+        queueBuffer_ + (rOffset * sizeof(T)), firstPartSize * sizeof(T)) != EOK) {
         return HDF_FAILURE;
     }
-    if (memcpy_s(data + firstPartSize, (count - firstPartSize) * sizeof(T),
+    if (memcpy_s(data + firstPartSize, secPartSize * sizeof(T),
         queueBuffer_, secPartSize * sizeof(T)) != EOK) {
         return HDF_FAILURE;
     };
@@ -619,7 +620,7 @@ size_t SharedMemQueue<T>::GetAvalidReadSize()
 {
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
-    auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + meta_->GetElementCount() - rOffset);
+    auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + meta_->GetElementCount() + 1 - rOffset);
     return size;
 }
 
