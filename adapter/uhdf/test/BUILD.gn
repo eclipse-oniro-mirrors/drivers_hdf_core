@@ -16,9 +16,9 @@ import("//build/lite/config/test.gni")
 import("platform_test.gni")
 
 lite_component("hdf_test_uhdf") {
-  # add hdf subsystem unittest
-  unittest_path = "./unittest"
   if (ohos_build_type == "debug") {
+    # add hdf subsystem unittest
+    unittest_path = "./unittest"
     deps = [
       "$unittest_path/config:hdf_adapter_uhdf_test_config",
       "$unittest_path/manager:hdf_adapter_uhdf_test_door",
