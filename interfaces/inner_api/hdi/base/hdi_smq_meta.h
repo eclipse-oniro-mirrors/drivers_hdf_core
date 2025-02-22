@@ -263,7 +263,7 @@ SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType t
         return;
     }
 
-    size_t dataSize = elementCount_ * elementSize_;
+    size_t dataSize = (elementCount_ + 1) * elementSize_; // one more byte to differentiate empty/full status
     size_t memZoneSize[] = {
         sizeof(uint64_t), // read ptr
         sizeof(uint64_t), // write ptr
