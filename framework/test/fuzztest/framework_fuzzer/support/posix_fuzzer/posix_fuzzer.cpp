@@ -118,7 +118,9 @@ void FuncOsalSpinLock(const uint8_t *data, size_t size)
 void FuncOsalTime(const uint8_t *data, size_t size)
 {
     OsalGetTime(NULL);
-    OsalTimespec start, end, diff;
+    OsalTimespec start;
+    OsalTimespec end;
+    OsalTimespec diff;
     OsalGetTime(&start);
     OsalGetTime(&end);
     OsalDiffTime(&start, &end, &diff);
