@@ -20,7 +20,7 @@ hdf_interface_path = "./../../../../interface"
 
 ###########################palTest###########################
 ohos_unittest("DevMgrTest") {
-  module_out_path = "hdf_core/devmgr"
+  module_out_path = "hdf_core/hdf_core"
   sources = [
     "$hdf_uhdf_path/ipc/src/hdf_dump.cpp",
     "unittest/devmgr_test.cpp",
@@ -64,7 +64,7 @@ ohos_unittest("DevMgrTest") {
 }
 
 ohos_unittest("DevHostTest") {
-  module_out_path = "hdf_core/devhost"
+  module_out_path = "hdf_core/hdf_core"
   sources = [ "unittest/devhost_test.cpp" ]
 
   include_dirs = [
