@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-module_output_path = "hdf/utils"
+module_output_path = "hdf_core/hdf_core"
 ohos_unittest("ui2c_test") {
   module_out_path = module_output_path
   sources = [ "ui2c_test.cpp" ]
