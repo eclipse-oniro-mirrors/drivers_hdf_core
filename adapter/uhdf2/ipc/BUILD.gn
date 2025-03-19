@@ -56,6 +56,10 @@ if (defined(ohos_lite)) {
         "ipc:ipc_single",
         "samgr:samgr_proxy",
       ]
+
+      if (hicollie_enabled) {
+        external_deps += [ "hicollie:libhicollie" ]
+      }
     } else {
       external_deps = [
         "hilog:libhilog",

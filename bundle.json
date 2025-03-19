@@ -16,7 +16,8 @@
             "hdf_core_khdf_test_support",
             "hdf_core_platform_test_support",
             "hdf_core_platform_rtc_test_support",
-            "hdf_core_default_peripheral_config"
+            "hdf_core_default_peripheral_config",
+            "hdf_core_default_hicollie_config"
         ],
         "adapted_system_type": ["standard", "small", "mini"],
         "rom": "735KB",

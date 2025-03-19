@@ -14,11 +14,16 @@
 hdf_framework_path = "//drivers/hdf_core/framework"
 hdf_uhdf_path = "//drivers/hdf_core/adapter/uhdf2"
 declare_args() {
-  hicollie_enabled = true
-  if (defined(global_parts_info) &&
-      !defined(global_parts_info.hiviewdfx_hicollie)) {
-    hicollie_enabled = false
+  hdf_core_default_hicollie_config = false
+}
+
+declare_args() {
+  hicollie_enabled = false
+
+  if (hdf_core_default_hicollie_config) {
+    hicollie_enabled = hdf_core_default_hicollie_config
   }
+
   with_sample = false
   hdf_core_default_peripheral_config = true
 }

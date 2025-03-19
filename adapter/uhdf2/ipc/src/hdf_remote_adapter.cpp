@@ -311,6 +311,9 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     const int32_t sleepInterval = 20000;
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
+        OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_get_samgr",
+            OHOS::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HDF_XCOLLIE_FLAG_RECOVERY);
+
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for samgr... %{public}d", cnt);
             saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -329,6 +332,8 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         }
     }
     {
+        OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_add_sa",
+            OHOS::DEFAULT_TIMEOUT_SECONDS, nullptr, nullptr, OHOS::HDF_XCOLLIE_FLAG_RECOVERY);
         struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
 #ifdef WITH_SELINUX
         OHOS::sptr<OHOS::IRemoteObject> remote = holder->remote_;

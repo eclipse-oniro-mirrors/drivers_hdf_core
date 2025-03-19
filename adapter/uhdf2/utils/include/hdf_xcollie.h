@@ -24,24 +24,29 @@
 #endif
 
 namespace OHOS {
+constexpr uint32_t HDF_XCOLLIE_FLAG_LOG = 1; // generate log file
+constexpr uint32_t HDF_XCOLLIE_FLAG_RECOVERY = 2; // die when timeout
+constexpr uint32_t DEFAULT_TIMEOUT_SECONDS = 10;
 #ifdef HDFHICOLLIE_ENABLE
-using HdfXCollie = ::OHOS::HiviewDFX::XCollie;
+class HdfXCollie {
+    HdfXCollie(const std::string& tag, uint32_t timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+        std::function<void(void *)> func = nullptr, void* arg = nullptr, uint32_t flag = HDF_XCOLLIE_FLAG_LOG);
+    ~HdfXCollie();
+
+    void CancelHdfXCollie();
+
+private:
+    int32_t id_;
+    std::string tag_;
+    bool isCanceled_;
+};
+
 #else
-class HdfXCollie : public Singleton<HdfXCollie> {
-    DECLARE_SINGLETON(HdfXCollie);
+class HdfXCollie {
 public:
-    // NULL impl
-    int SetTimer(const std::string &name, unsigned int timeout,
-        std::function<void (void *)> func, void *arg, unsigned int flag);
-
-    // NULL impl
-    void CancelTimer(int id);
-
-    // NULL impl
-    int SetTimerCount(const std::string &name, unsigned int timeLimit, int countLimit);
-
-    // NULL impl
-    void TriggerTimerCount(const std::string &name, bool bTrigger, const std::string &message);
+    HdfXCollie(const std::string& tag, uint32_t timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+        std::function<void(void *)> func = nullptr, void* arg = nullptr, uint32_t flag = HDF_XCOLLIE_FLAG_LOG);
+    ~HdfXCollie();
 };
 #endif
 }
