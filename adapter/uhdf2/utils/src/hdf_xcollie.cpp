@@ -18,34 +18,37 @@
 
 namespace OHOS {
 #ifdef HDFHICOLLIE_ENABLE
-#else
-#define HDFXCOLLIE_SUCCESS 0
-HdfXCollie::HdfXCollie()
+HdfXCollie::HdfXCollie(const std::string& tag, uint32_t timeoutSeconds,
+    std::function<void(void *)> func, void* arg, uint32_t flag)
 {
+    tag_ = tag;
+    id_ = HiviewDFX::XCollie::GetInstance().SetTimer(tag_, timeoutSeconds, func, arg, flag);
+    isCanceled_ = false;
+    HDF_LOGD("start HdfXCollie, tag:%{public}s,timeout:%{public}u,flag:%{public}u,id:%{public}d",
+        tag_.c_str(), timeoutSeconds, flag, id_);
 }
+
 HdfXCollie::~HdfXCollie()
 {
-}
-// NULL impl
-int HdfXCollie::SetTimer(const std::string &name, unsigned int timeout,
-    std::function<void (void *)> func, void *arg, unsigned int flag)
-{
-    return HDFXCOLLIE_SUCCESS;
+    CancelHdfXCollie();
 }
 
-// NULL impl
-void HdfXCollie::CancelTimer(int id)
+void HdfXCollie::CancelHdfXCollie()
+{
+    if (!isCanceled_) {
+        HiviewDFX::XCollie::GetInstance().CancelTimer(id_);
+        isCanceled_ = true;
+        HDF_LOGD("cancel HdfXCollie, tag:%{public}s,id:%{public}d", tag_.c_str(), id_);
+    }
+}
+#else
+
+HdfXCollie::HdfXCollie(const std::string& tag, uint32_t timeoutSeconds,
+    std::function<void(void *)> func, void* arg, uint32_t flag)
 {
 }
 
-// NULL impl
-int HdfXCollie::SetTimerCount(const std::string &name, unsigned int timeLimit, int countLimit)
-{
-    return HDFXCOLLIE_SUCCESS;
-}
-
-// NULL impl
-void HdfXCollie::TriggerTimerCount(const std::string &name, bool bTrigger, const std::string &message)
+HdfXCollie::~HdfXCollie()
 {
 }
 #endif

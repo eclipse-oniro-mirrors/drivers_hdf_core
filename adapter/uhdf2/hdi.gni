@@ -12,7 +12,6 @@
 # limitations under the License..
 
 import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
 hdf_fwk_path = "//drivers/hdf_core/framework"
 idl_tool_path = "//foundation/ability/idl_tool/idl_tool_2"

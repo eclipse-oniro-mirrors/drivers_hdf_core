@@ -54,7 +54,7 @@ if (defined(ohos_lite)) {
     ]
     defines = []
     if (hicollie_enabled) {
-      public_external_deps = [ "hicollie:libhicollie" ]
+      external_deps += [ "hicollie:libhicollie" ]
       defines += [ "HDFHICOLLIE_ENABLE" ]
     }
 
