@@ -156,9 +156,15 @@ static int32_t HdfUpdateSecurityId(const char *id, uint64_t perms, int32_t isSet
         HDF_LOGE("file %{public}s is invalid", HDF_SECURE_PATH);
         return HDF_FAILURE;
     }
-    int32_t fd = open(path, O_WRONLY);
-    if (fd < 0) {
+    FILE *fp = fopen(path, "w");
+    if (fp == NULL) {
         HDF_LOGE("open %{public}s failed, errno is %{public}d", HDF_SECURE_PATH, errno);
+        return HDF_FAILURE;
+    }
+    int32_t fd = fileno(file);
+    if (fd < 0) {
+        HDF_LOGE("fileno %{public}s failed, errno is %{public}d", HDF_SECURE_PATH, errno);
+        fclose(file);
         return HDF_FAILURE;
     }
 
@@ -170,7 +176,7 @@ static int32_t HdfUpdateSecurityId(const char *id, uint64_t perms, int32_t isSet
         ret = ioctl(fd, HDF_SECURE_DELETE_INFO, &secInfo);
     }
 
-    close(fd);
+    fclose(file);
     fd = -1;
     if (ret != 0) {
         HDF_LOGE("%{public}s ioctl error, ret is %{public}d", __FUNCTION__, ret);
