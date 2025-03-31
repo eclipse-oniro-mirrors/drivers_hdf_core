@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("./../../../../../adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf_core/buffer_handle"
+module_output_path = "hdf_core/hdf_core"
 
 ohos_unittest("buffer_handle_test") {
   module_out_path = module_output_path

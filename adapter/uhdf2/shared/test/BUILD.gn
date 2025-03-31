@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("./../../../../adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf_core/dev_attribute_serialize"
+module_output_path = "hdf_core/hdf_core"
 hdf_uhdf_path = "./../.."
 hdf_framework_path = "./../../../../framework"
 
