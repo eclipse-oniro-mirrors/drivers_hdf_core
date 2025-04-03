@@ -362,11 +362,12 @@ static int32_t DevMgrUeventSocketInit(void)
         HDF_LOGE("create socket failed, err = %{public}d", errno);
         return HDF_FAILURE;
     }
+    fdsan_exchange_owner_tag(sockfd, 0, LOG_DOMAIN);
 
     int32_t buffSize = UEVENT_SOCKET_BUFF_SIZE;
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &buffSize, sizeof(buffSize)) != 0) {
         HDF_LOGE("setsockopt: SO_RCVBUF failed err = %{public}d", errno);
-        close(sockfd);
+        fdsan_close_with_tag(sockfd, LOG_DOMAIN);
         sockfd = -1;
         return HDF_FAILURE;
     }
@@ -374,14 +375,14 @@ static int32_t DevMgrUeventSocketInit(void)
     const int32_t on = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) != 0) {
         HDF_LOGE("setsockopt: SO_PASSCRED failed, err = %{public}d", errno);
-        close(sockfd);
+        fdsan_close_with_tag(sockfd, LOG_DOMAIN);
         sockfd = -1;
         return HDF_FAILURE;
     }
 
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         HDF_LOGE("bind socket failed, err = %{public}d", errno);
-        close(sockfd);
+        fdsan_close_with_tag(sockfd, LOG_DOMAIN);
         sockfd = -1;
         return HDF_FAILURE;
     }
@@ -568,7 +569,7 @@ static int32_t DevMgrUeventThread(void *arg)
     }
 
     DevMgrUeventReleaseRuleCfgList();
-    close(sfd);
+    fdsan_close_with_tag(sfd, LOG_DOMAIN);
     sfd = -1;
     return HDF_SUCCESS;
 }
