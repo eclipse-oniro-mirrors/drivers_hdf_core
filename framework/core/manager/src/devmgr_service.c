@@ -321,6 +321,7 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
 
     if (HdfAttributeManagerGetDeviceList(hostClnt) != HDF_SUCCESS) {
         HDF_LOGW("failed to get device list for host %{public}s", hostClnt->hostName);
+        DevHostServiceClntFreeInstance(hostClnt);
         return HDF_FAILURE;
     }
 
