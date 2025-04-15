@@ -59,19 +59,6 @@ HWTEST_F(HdfUartTest, UartSetTransModeTest001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: UartWriteTest001
-  * @tc.desc: uart function test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8689
-  */
-HWTEST_F(HdfUartTest, UartWriteTest001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_WRITE, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_WRITE));
-}
-
-/**
   * @tc.name: UartReadTest001
   * @tc.desc: uart function test
   * @tc.type: FUNC

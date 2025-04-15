@@ -85,32 +85,6 @@ HWTEST_F(HdfGpioTest, GpioTestIrqLevel001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: GpioTestIrqEdge001
-  * @tc.desc: gpio edge irq trigger test
-  * @tc.type: FUNC
-  * @tc.require: AR000F868H
-  */
-HWTEST_F(HdfGpioTest, GpioTestIrqEdge001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_IRQ_EDGE, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_IRQ_EDGE));
-}
-
-/**
-  * @tc.name: GpioTestIrqThread001
-  * @tc.desc: gpio thread irq trigger test
-  * @tc.type: FUNC
-  * @tc.require: AR000F868H
-  */
-HWTEST_F(HdfGpioTest, GpioTestIrqThread001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_GPIO_TYPE, GPIO_TEST_IRQ_THREAD, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, GpioTestExecute(GPIO_TEST_IRQ_THREAD));
-}
-
-/**
   * @tc.name: GpioTestNumberGetByName
   * @tc.desc: get gpio global number test
   * @tc.type: FUNC

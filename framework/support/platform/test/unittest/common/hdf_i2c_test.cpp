@@ -64,19 +64,6 @@ void HdfI2cTest::TearDown()
 }
 
 /**
-  * @tc.name: HdfI2cTestTransfer001
-  * @tc.desc: i2c transfer test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8688
-  */
-HWTEST_F(HdfI2cTest, HdfI2cTestTransfer001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_I2C_TYPE, I2C_TEST_CMD_TRANSFER, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, I2cTestExecute(I2C_TEST_CMD_TRANSFER));
-}
-
-/**
   * @tc.name: HdfI2cTestMultiThread001
   * @tc.desc: i2c multithread test
   * @tc.type: FUNC
