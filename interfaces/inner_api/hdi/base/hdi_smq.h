@@ -539,6 +539,8 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
     auto avalidWrite = GetAvalidWriteSize();
     if (count > avalidWrite && meta_->GetType() == SmqType::SYNCED_SMQ) {
         // synced smq can not overflow write
+        HDF_LOGE("No sufficient space to write, try to write %{public}zu data, but currently "
+            "maximum writen space is %{public}zu.", count, avalidWrite);
         return -E2BIG;
     }
 
@@ -576,10 +578,13 @@ template <typename T>
 int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
 {
     if (count == 0) {
+        HDF_LOGE("Try to read zero data from smq!");
         return -EINVAL;
     }
-
-    if (count > GetAvalidReadSize()) {
+    size_t availableRdsize = GetAvalidReadSize();
+    if (count > availableRdsize) {
+        HDF_LOGE("No sufficient data to read, try to read %{public}zu data, "
+            "but available rd size is %{public}zu.", count, availableRdsize);
         return -ENODATA;
     }
 
