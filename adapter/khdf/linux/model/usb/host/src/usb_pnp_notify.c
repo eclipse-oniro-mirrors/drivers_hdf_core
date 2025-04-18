@@ -787,9 +787,7 @@ static int32_t UsbPnpNotifyDispatch(
     HDF_LOGI("%s: received cmd = %d", __func__, cmd);
 
     OsalMutexLock(&g_usbSendEventLock);
-    if (USB_PNP_DRIVER_GETDEVICES != cmd && USB_PNP_DRIVER_GET_GADGET_LINK_STATUS != cmd) {
-        g_usbPnpNotifyCmdType = cmd;
-    }
+    g_usbPnpNotifyCmdType = cmd;
 
     switch (cmd) {
         case USB_PNP_NOTIFY_ADD_INTERFACE:
