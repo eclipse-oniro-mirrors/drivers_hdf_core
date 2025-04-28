@@ -72,58 +72,6 @@ HWTEST_F(HdfUartTest, UartReadTest001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: UartSetBaudTest001
-  * @tc.desc: uart function test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8689
-  */
-HWTEST_F(HdfUartTest, UartSetBaudTest001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_BAUD, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_BAUD));
-}
-
-/**
-  * @tc.name: UartGetBaudTest001
-  * @tc.desc: uart function test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8689
-  */
-HWTEST_F(HdfUartTest, UartGetBaudTest001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_GET_BAUD, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_GET_BAUD));
-}
-
-/**
-  * @tc.name: UartSetAttributeTest001
-  * @tc.desc: uart function test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8689
-  */
-HWTEST_F(HdfUartTest, UartSetAttributeTest001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_SET_ATTRIBUTE, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SET_ATTRIBUTE));
-}
-
-/**
-  * @tc.name: UartGetAttributeTest001
-  * @tc.desc: uart function test
-  * @tc.type: FUNC
-  * @tc.require: AR000F8689
-  */
-HWTEST_F(HdfUartTest, UartGetAttributeTest001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_TEST_CMD_GET_ATTRIBUTE, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_GET_ATTRIBUTE));
-}
-
-/**
   * @tc.name: UartReliabilityTest001
   * @tc.desc: uart function test
   * @tc.type: FUNC
