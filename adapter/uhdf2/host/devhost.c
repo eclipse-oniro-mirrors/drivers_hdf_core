@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
+#include <getopt.h>
 
 #include "securec.h"
 #include "parameter.h"
@@ -40,6 +41,15 @@
 #define PARAM_BUF_LEN 128
 #define MALLOPT_PARA_CNT 2
 #define INVALID_PRIORITY "0"
+
+typedef struct {
+    int hostId;
+    char *hostName;
+    int schedPriority;
+    int processPriority;
+    int malloptKey;
+    int malloptValue;
+} HostConfig;
 
 static void StartMemoryHook(const char* processName)
 {
@@ -143,32 +153,75 @@ static void SetMallopt(int argc, char **argv)
     return;
 }
 
+static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
+{
+    int opt;
+    while ((opt = getopt(argc, argv, "i:n:p:s:m:v:")) != -1) {
+        switch (opt) {
+            case 'i':
+                if (!HdfStringToInt(optarg, &config->hostId)) {
+                    HDF_LOGE("Invalid process ID: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 'n':
+                config->hostName = optarg;
+                break;
+            case 'p':
+                if (!HdfStringToInt(optarg, &config->schedPriority)) {
+                    HDF_LOGE("Invalid process priority: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 's':
+                if (!HdfStringToInt(optarg, &config->processPriority)) {
+                    HDF_LOGE("Invalid process priority: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 'm':
+                if (!HdfStringToInt(optarg, &config->malloptKey)) {
+                    HDF_LOGE("Invalid mallopt key: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 'v':
+                if (!HdfStringToInt(optarg, &config->malloptValue)) {
+                    HDF_LOGE("Invalid mallopt value: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            default:
+                HDF_LOGE("Unknown option: -%c", opt);
+                return HDF_ERR_INVALID_PARAM;
+        }
+    }
+    return HDF_SUCCESS;
+}
+
 int main(int argc, char **argv)
 {
-    if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
-        HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
+    HostConfig config = {0};
+    if (ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS) {
+        printf("ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS");
         return HDF_ERR_INVALID_PARAM;
     }
 
     prctl(PR_SET_PDEATHSIG, SIGKILL); // host process should exit with devmgr process
 
-    int hostId = 0;
-    if (!HdfStringToInt(argv[DEVHOST_INPUT_PARAM_HOSTID_POS], &hostId)) {
-        HDF_LOGE("Devhost main parameter error, argv[1]: %{public}s", argv[DEVHOST_INPUT_PARAM_HOSTID_POS]);
-        return HDF_ERR_INVALID_PARAM;
-    }
+    int hostId = config.hostId;
 
-    const char *hostName = argv[DEVHOST_HOST_NAME_POS];
+    const char *hostName = config.hostName;
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
     StartMemoryHook(hostName);
-    if ((strcmp(argv[DEVHOST_PROCESS_PRI_POS], INVALID_PRIORITY) != 0) &&
-        (strcmp(argv[DEVHOST_THREAD_PRI_POS], INVALID_PRIORITY) != 0)) {
-        HdfSetProcPriority(argv);
-    }
-    if (argc > DEVHOST_MIN_INPUT_PARAM_NUM) {
-        SetMallopt(argc, argv);
-    }
+//    if ((strcmp(argv[DEVHOST_PROCESS_PRI_POS], INVALID_PRIORITY) != 0) &&
+//        (strcmp(argv[DEVHOST_THREAD_PRI_POS], INVALID_PRIORITY) != 0)) {
+//        HdfSetProcPriority(argv);
+//    }
+//    if (argc > DEVHOST_MIN_INPUT_PARAM_NUM) {
+//        SetMallopt(argc, argv);
+//    }
 
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
     if (instance == NULL || instance->StartService == NULL) {
