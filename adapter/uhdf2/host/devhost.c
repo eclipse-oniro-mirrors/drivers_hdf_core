@@ -101,19 +101,19 @@ static void SetProcTitle(char **argv, const char *newTitle)
     prctl(PR_SET_NAME, newTitle);
 }
 
-static void HdfSetProcPriority(char **argv)
+static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
 {
-    int32_t schedPriority = 0;
-    int32_t procPriority = 0;
-
-    if (!HdfStringToInt(argv[DEVHOST_PROCESS_PRI_POS], &procPriority)) {
-        HDF_LOGE("procPriority parameter error: %{public}s", argv[DEVHOST_PROCESS_PRI_POS]);
-        return;
-    }
-    if (!HdfStringToInt(argv[DEVHOST_THREAD_PRI_POS], &schedPriority)) {
-        HDF_LOGE("schedPriority parameter error: %{public}s", argv[DEVHOST_THREAD_PRI_POS]);
-        return;
-    }
+//    int32_t schedPriority = 0;
+//    int32_t procPriority = 0;
+//
+//    if (!HdfStringToInt(argv[DEVHOST_PROCESS_PRI_POS], &procPriority)) {
+//        HDF_LOGE("procPriority parameter error: %{public}s", argv[DEVHOST_PROCESS_PRI_POS]);
+//        return;
+//    }
+//    if (!HdfStringToInt(argv[DEVHOST_THREAD_PRI_POS], &schedPriority)) {
+//        HDF_LOGE("schedPriority parameter error: %{public}s", argv[DEVHOST_THREAD_PRI_POS]);
+//        return;
+//    }
 
     if (setpriority(PRIO_PROCESS, 0, procPriority) != 0) {
         HDF_LOGE("host setpriority failed: %{public}d", errno);
@@ -128,29 +128,14 @@ static void HdfSetProcPriority(char **argv)
     }
 }
 
-static void SetMallopt(int argc, char **argv)
+static void SetMallopt(int32_t malloptKey, int32_t malloptValue)
 {
-    for (int i = DEVHOST_MIN_INPUT_PARAM_NUM; i < argc - 1; i += MALLOPT_PARA_CNT) {
-        int32_t malloptKey = 0;
-        int32_t malloptValue = 0;
-        int ret = 0;
-        if (!HdfStringToInt(argv[i], &malloptKey)) {
-            HDF_LOGE("malloptKey parameter error:%{public}s", argv[i]);
-            continue;
-        }
-        if (!HdfStringToInt(argv[i + 1], &malloptValue)) {
-            HDF_LOGE("malloptValue parameter error:%{public}s", argv[i + 1]);
-            continue;
-        }
-        ret = mallopt(malloptKey, malloptValue);
-        if (ret != 1) {
-            HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
-                malloptKey, malloptValue, ret);
-            continue;
-        }
-        HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
+    int ret = mallopt(malloptKey, malloptValue);
+    if (ret != 1) {
+        HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
+            malloptKey, malloptValue, ret);
     }
-    return;
+    HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
 }
 
 static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
@@ -215,13 +200,12 @@ int main(int argc, char **argv)
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
     StartMemoryHook(hostName);
-//    if ((strcmp(argv[DEVHOST_PROCESS_PRI_POS], INVALID_PRIORITY) != 0) &&
-//        (strcmp(argv[DEVHOST_THREAD_PRI_POS], INVALID_PRIORITY) != 0)) {
-//        HdfSetProcPriority(argv);
-//    }
-//    if (argc > DEVHOST_MIN_INPUT_PARAM_NUM) {
-//        SetMallopt(argc, argv);
-//    }
+    if ((config.processPriority != 0) && (config.schedPriority != 0)) {
+        HdfSetProcPriority(config.processPriority, config.schedPriority);
+    }
+    if ((config.malloptKey != 0) && (config.malloptValue != 0)) {
+        SetMallopt(config.malloptKey, config.malloptValue);
+    }
 
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
     if (instance == NULL || instance->StartService == NULL) {
