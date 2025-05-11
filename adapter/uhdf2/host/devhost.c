@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 {
     HostConfig config = {0};
     if (ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS) {
-        HDF_LOGI("ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS");
+        HDF_LOGE("ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS");
         return HDF_ERR_INVALID_PARAM;
     }
 
