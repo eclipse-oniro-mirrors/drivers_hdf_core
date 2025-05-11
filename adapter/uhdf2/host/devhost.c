@@ -103,18 +103,6 @@ static void SetProcTitle(char **argv, const char *newTitle)
 
 static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
 {
-//    int32_t schedPriority = 0;
-//    int32_t procPriority = 0;
-//
-//    if (!HdfStringToInt(argv[DEVHOST_PROCESS_PRI_POS], &procPriority)) {
-//        HDF_LOGE("procPriority parameter error: %{public}s", argv[DEVHOST_PROCESS_PRI_POS]);
-//        return;
-//    }
-//    if (!HdfStringToInt(argv[DEVHOST_THREAD_PRI_POS], &schedPriority)) {
-//        HDF_LOGE("schedPriority parameter error: %{public}s", argv[DEVHOST_THREAD_PRI_POS]);
-//        return;
-//    }
-
     if (setpriority(PRIO_PROCESS, 0, procPriority) != 0) {
         HDF_LOGE("host setpriority failed: %{public}d", errno);
     }
