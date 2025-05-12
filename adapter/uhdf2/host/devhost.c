@@ -172,38 +172,33 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
     return HDF_SUCCESS;
 }
 
-int main(int argc, char **argv)
+static int InitializeHost(const HostConfig *config, char **argv)
 {
-    HostConfig config = {0};
-    if (ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS) {
-        HDF_LOGE("ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS");
-        return HDF_ERR_INVALID_PARAM;
-    }
-
     prctl(PR_SET_PDEATHSIG, SIGKILL); // host process should exit with devmgr process
 
-    int hostId = config.hostId;
-
-    const char *hostName = config.hostName;
-    HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
-    SetProcTitle(argv, hostName);
-    StartMemoryHook(hostName);
-    if ((config.processPriority != 0) && (config.schedPriority != 0)) {
-        HdfSetProcPriority(config.processPriority, config.schedPriority);
+    HDF_LOGI("hdf device host %{public}s %{public}d start", config->hostName, config->hostId);
+    SetProcTitle(argv, config->hostName);
+    StartMemoryHook(config->hostName);
+    if ((config->processPriority != 0) && (config->schedPriority != 0)) {
+        HdfSetProcPriority(config->processPriority, config->schedPriority);
     }
-    if ((config.malloptKey != 0) && (config.malloptValue != 0)) {
-        SetMallopt(config.malloptKey, config.malloptValue);
+    if ((config->malloptKey != 0) && (config->malloptValue != 0)) {
+        SetMallopt(config->malloptKey, config->malloptValue);
     }
+    return HDF_SUCCESS;
+}
 
-    struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
+static int StartHostService(const HostConfig *config)
+{
+    struct IDevHostService *instance = DevHostServiceNewInstance(config->hostId, config->hostName);
     if (instance == NULL || instance->StartService == NULL) {
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
     }
-    HDF_LOGD("create IDevHostService of %{public}s success", hostName);
+    HDF_LOGD("create IDevHostService of %{public}s success", config->hostName);
 
     DevHostDumpInit();
-    HDF_LOGD("%{public}s start device service begin", hostName);
+    HDF_LOGD("%{public}s start device service begin", config->hostName);
     int status = instance->StartService(instance);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Devhost StartService fail, return: %{public}d", status);
@@ -216,13 +211,29 @@ int main(int argc, char **argv)
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {
-        HDF_LOGI("%{public}s start loop", hostName);
+        HDF_LOGI("%{public}s start loop", config->hostName);
         looper->Start(looper);
     }
 
     DevHostServiceFreeInstance(instance);
     HdfPowerManagerExit();
     DevHostDumpDeInit();
-    HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
+    return HDF_SUCCESS;
+}
+
+int main(int argc, char **argv)
+{
+    HostConfig config = {0};
+    if (ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS) {
+        HDF_LOGE("ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (InitializeHost(&config, argv) != HDF_SUCCESS) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    int status = StartHostService(&config);
+    HDF_LOGI("hdf device host %{public}s %{public}d exit", config.hostName, config.hostId);
     return status;
 }
