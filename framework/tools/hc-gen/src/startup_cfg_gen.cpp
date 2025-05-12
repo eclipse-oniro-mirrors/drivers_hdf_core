@@ -109,8 +109,8 @@ void StartupCfgGen::EmitDynamicLoad(const std::string &name, std::set<std::strin
 void StartupCfgGen::EmitPathInfo(const std::string &name, std::set<std::string> &configedKeywords)
 {
     if ((configedKeywords.find("path") == configedKeywords.end())) {
-        ofs_ << PATH_INFO << "\"" << "-i " << hostInfoMap_[name].hostId << "\", \"" << "-n " << name <<
-            "\", \"" <<  "-p " <<hostInfoMap_[name].processPriority << "\", \"" << "-s " <<
+        ofs_ << PATH_INFO << "\"" << "-i\", \"" << hostInfoMap_[name].hostId << "\", \"" << "-n\", \"" << name <<
+            "\", \"" <<  "-p\", \"" <<hostInfoMap_[name].processPriority << "\", \"" << "-s\", \"" <<
             hostInfoMap_[name].threadPriority;
         for (auto iter : hostInfoMap_[name].mallocOpt) {
             ofs_ << "\", \"" << iter.first << "\", \"" << iter.second;

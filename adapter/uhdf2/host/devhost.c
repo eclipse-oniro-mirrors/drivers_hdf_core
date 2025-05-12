@@ -88,17 +88,17 @@ bool HdfStringToInt(const char *str, int *value)
 
 static void SetProcTitle(char **argv, const char *newTitle)
 {
-    size_t len = strlen(argv[0]);
-    if (strlen(newTitle) > len) {
-        HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle);
-        return;
+    size_t len = strlen(argv[0]); // 获取原始进程标题的长度
+    if (strlen(newTitle) > len) { // 如果新标题的长度超过原始标题的长度
+        HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle); // 打印错误日志
+        return; // 退出函数
     }
-    (void)memset_s(argv[0], len, 0, len);
-    if (strcpy_s(argv[0], len + 1, newTitle) != EOK) {
-        HDF_LOGE("failed to set new process title");
-        return;
+    (void)memset_s(argv[0], len, 0, len); // 将原始标题的内存清零
+    if (strcpy_s(argv[0], len + 1, newTitle) != EOK) { // 将新标题复制到原始标题的位置
+        HDF_LOGE("failed to set new process title"); // 如果复制失败，打印错误日志
+        return; // 退出函数
     }
-    prctl(PR_SET_NAME, newTitle);
+    prctl(PR_SET_NAME, newTitle); // 使用 prctl 系统调用设置进程的名字
 }
 
 static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
@@ -141,13 +141,13 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
                 config->hostName = optarg;
                 break;
             case 'p':
-                if (!HdfStringToInt(optarg, &config->schedPriority)) {
+                if (!HdfStringToInt(optarg, &config->processPriority)) {
                     HDF_LOGE("Invalid process priority: %{public}s", optarg);
                     return HDF_ERR_INVALID_PARAM;
                 }
                 break;
             case 's':
-                if (!HdfStringToInt(optarg, &config->processPriority)) {
+                if (!HdfStringToInt(optarg, &config->schedPriority)) {
                     HDF_LOGE("Invalid process priority: %{public}s", optarg);
                     return HDF_ERR_INVALID_PARAM;
                 }
