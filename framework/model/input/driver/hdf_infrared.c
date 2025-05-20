@@ -85,6 +85,11 @@ static void RecvDataHandle(InfraredDriver *infraredDrv, uint32_t data)
             break;
         }
     }
+    if (i >= (sizeof(g_infraredKeyTable) / sizeof(g_infraredKeyTable[0]))) {
+        HDF_LOGE("%s: infrared data not found", __func__);
+        return;
+    }
+
     input_report_key(infraredDrv->inputDev, g_infraredKeyTable[i].infraredCode, 0);
     input_sync(infraredDrv->inputDev);
 }
