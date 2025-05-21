@@ -79,6 +79,14 @@ public:
      */
     int Wake(uint32_t bitset);
 
+    /**
+     * @brief Check the sync word.
+     *
+     * @param bitset Indicates the synchronization type.
+     * @return Returns <b>0</b> if the waiter is woken up.
+     */
+    int CheckSyncStatus(uint32_t bitset);
+
 private:
     /**
      * @brief Waits until a certain condition becomes true.
