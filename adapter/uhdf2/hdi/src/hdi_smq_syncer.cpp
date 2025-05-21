@@ -98,6 +98,15 @@ int SharedMemQueueSyncer::Wake(uint32_t bitset)
     return HDF_SUCCESS;
 }
 
+int SharedMemQueueSyncer::CheckSyncStatus(uint32_t bitset)
+{
+    uint32_t syncWordOld = std::atomic_load(syncAddr_);
+    if (syncWordOld & bitset) {
+        return HDF_SUCCESS;
+    }
+    return HDF_FAILURE;
+}
+
 void SharedMemQueueSyncer::TimeoutToRealtime(int64_t timeout, struct timespec &realtime)
 {
     constexpr int64_t nano = SEC_TO_NANOSEC;

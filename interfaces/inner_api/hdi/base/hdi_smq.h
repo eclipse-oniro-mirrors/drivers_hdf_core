@@ -197,6 +197,16 @@ public:
     int ReadNonBlocking(T *data, size_t count);
 
     /**
+     * @brief Reset all the status in SharedMemQueue.
+     *
+     * all the data in SMQ will be discard.
+     *
+     * @param.
+     * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+     */
+    int Reset();
+
+    /**
      * @brief Obtains the number of elements that can be written to the SMQ.
      *
      * @return Returns the number of elements that can be written to the SMQ.
@@ -475,6 +485,29 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
     }
 
     return ret;
+}
+
+template <typename T>
+int SharedMemQueue<T>::Reset()
+{
+    // do not invoke this function in multi-thread in same side
+    if (meta_->GetType() != SmqType::SYNCED_SMQ) {
+        HDF_LOGW("unsynecd smq reset status");
+        readOffset_->exchange(writeOffset_->load(std::memory_order_acquire));
+        return HDF_SUCCESS;
+    }
+    int ret = syncer_->CheckSyncStatus(SharedMemQueueSyncer::SYNC_WORD_READ);
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("Currently reset by read side, reset and wake write side.");
+        readOffset_->exchange(writeOffset_->load(std::memory_order_acquire));
+        syncer_->Wake(SharedMemQueueSyncer::SYNC_WORD_WRITE);
+        return HDF_SUCCESS;
+    } else {
+        HDF_LOGI("Currently reset by write side.");
+        readOffset_->exchange(writeOffset_->load(std::memory_order_acquire));
+    }
+
+    return HDF_SUCCESS;
 }
 
 template <typename T>
