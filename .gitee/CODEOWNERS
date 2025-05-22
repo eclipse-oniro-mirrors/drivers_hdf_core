@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-adapter/ @duwei-23
-framework/ @duwei-23
-framework/model/input/ @time_zhang
-framework/model/audio/ @whoselettlelion
-framework/include/audio/ @whoselettlelion
-framework/model/sensor/ @whoselettlelion
-framework/model/misc/ @whoselettlelion
-framework/model/display/ @whoselettlelion
-framework/model/camera/ @duwei-23
-framework/include/camera/ @duwei-23
-framework/model/wifi/ @duwei-23
-framework/model/network/ @duwei-23
-framework/model/usb/ @duwei-23
-framework/include/wifi/ @duwei-23
-framework/include/bluetooth/ @duwei-23
-framework/include/ethernet/ @duwei-23
-framework/include/net/ @duwei-23
+adapter/ @dufresne__andy
+framework/ @dufresne__andy
+framework/model/input/ @dufresne__andy
+framework/model/audio/ @dufresne__andy
+framework/include/audio/ @dufresne__andy
+framework/model/sensor/ @dufresne__andy
+framework/model/misc/ @dufresne__andy
+framework/model/display/ @dufresne__andy
+framework/model/camera/ @dufresne__andy
+framework/include/camera/ @dufresne__andy
+framework/model/wifi/ @dufresne__andy
+framework/model/network/ @dufresne__andy
+framework/model/usb/ @dufresne__andy
+framework/include/wifi/ @dufresne__andy
+framework/include/bluetooth/ @dufresne__andy
+framework/include/ethernet/ @dufresne__andy
+framework/include/net/ @dufresne__andy
 
 # any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan5
 interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan5
