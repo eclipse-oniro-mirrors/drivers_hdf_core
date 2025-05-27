@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
+#include <getopt.h>
 
 #include "securec.h"
 #include "parameter.h"
@@ -40,6 +41,15 @@
 #define PARAM_BUF_LEN 128
 #define MALLOPT_PARA_CNT 2
 #define INVALID_PRIORITY "0"
+
+typedef struct {
+    int hostId;
+    char *hostName;
+    int schedPriority;
+    int processPriority;
+    int malloptKey;
+    int malloptValue;
+} HostConfig;
 
 static void StartMemoryHook(const char* processName)
 {
@@ -78,33 +88,21 @@ bool HdfStringToInt(const char *str, int *value)
 
 static void SetProcTitle(char **argv, const char *newTitle)
 {
-    size_t len = strlen(argv[0]);
-    if (strlen(newTitle) > len) {
-        HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle);
-        return;
+    size_t len = strlen(argv[0]); // 获取原始进程标题的长度
+    if (strlen(newTitle) > len) { // 如果新标题的长度超过原始标题的长度
+        HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle); // 打印错误日志
+        return; // 退出函数
     }
-    (void)memset_s(argv[0], len, 0, len);
-    if (strcpy_s(argv[0], len + 1, newTitle) != EOK) {
-        HDF_LOGE("failed to set new process title");
-        return;
+    (void)memset_s(argv[0], len, 0, len); // 将原始标题的内存清零
+    if (strcpy_s(argv[0], len + 1, newTitle) != EOK) { // 将新标题复制到原始标题的位置
+        HDF_LOGE("failed to set new process title"); // 如果复制失败，打印错误日志
+        return; // 退出函数
     }
-    prctl(PR_SET_NAME, newTitle);
+    prctl(PR_SET_NAME, newTitle); // 使用 prctl 系统调用设置进程的名字
 }
 
-static void HdfSetProcPriority(char **argv)
+static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
 {
-    int32_t schedPriority = 0;
-    int32_t procPriority = 0;
-
-    if (!HdfStringToInt(argv[DEVHOST_PROCESS_PRI_POS], &procPriority)) {
-        HDF_LOGE("procPriority parameter error: %{public}s", argv[DEVHOST_PROCESS_PRI_POS]);
-        return;
-    }
-    if (!HdfStringToInt(argv[DEVHOST_THREAD_PRI_POS], &schedPriority)) {
-        HDF_LOGE("schedPriority parameter error: %{public}s", argv[DEVHOST_THREAD_PRI_POS]);
-        return;
-    }
-
     if (setpriority(PRIO_PROCESS, 0, procPriority) != 0) {
         HDF_LOGE("host setpriority failed: %{public}d", errno);
     }
@@ -118,67 +116,89 @@ static void HdfSetProcPriority(char **argv)
     }
 }
 
-static void SetMallopt(int argc, char **argv)
+static void SetMallopt(int32_t malloptKey, int32_t malloptValue)
 {
-    for (int i = DEVHOST_MIN_INPUT_PARAM_NUM; i < argc - 1; i += MALLOPT_PARA_CNT) {
-        int32_t malloptKey = 0;
-        int32_t malloptValue = 0;
-        int ret = 0;
-        if (!HdfStringToInt(argv[i], &malloptKey)) {
-            HDF_LOGE("malloptKey parameter error:%{public}s", argv[i]);
-            continue;
-        }
-        if (!HdfStringToInt(argv[i + 1], &malloptValue)) {
-            HDF_LOGE("malloptValue parameter error:%{public}s", argv[i + 1]);
-            continue;
-        }
-        ret = mallopt(malloptKey, malloptValue);
-        if (ret != 1) {
-            HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
-                malloptKey, malloptValue, ret);
-            continue;
-        }
-        HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
+    int ret = mallopt(malloptKey, malloptValue);
+    if (ret != 1) {
+        HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
+            malloptKey, malloptValue, ret);
     }
-    return;
+    HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
 }
 
-int main(int argc, char **argv)
+static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
 {
-    if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
-        HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
-        return HDF_ERR_INVALID_PARAM;
+    int opt;
+    while ((opt = getopt(argc, argv, "i:n:p:s:m:v:")) != -1) {
+        switch (opt) {
+            case 'i':
+                if (!HdfStringToInt(optarg, &config->hostId)) {
+                    HDF_LOGE("Invalid process ID: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 'n':
+                config->hostName = optarg;
+                break;
+            case 'p':
+                if (!HdfStringToInt(optarg, &config->processPriority)) {
+                    HDF_LOGE("Invalid process priority: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 's':
+                if (!HdfStringToInt(optarg, &config->schedPriority)) {
+                    HDF_LOGE("Invalid process priority: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 'm':
+                if (!HdfStringToInt(optarg, &config->malloptKey)) {
+                    HDF_LOGE("Invalid mallopt key: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            case 'v':
+                if (!HdfStringToInt(optarg, &config->malloptValue)) {
+                    HDF_LOGE("Invalid mallopt value: %{public}s", optarg);
+                    return HDF_ERR_INVALID_PARAM;
+                }
+                break;
+            default:
+                HDF_LOGE("Unknown option: -%c", opt);
+                return HDF_ERR_INVALID_PARAM;
+        }
     }
+    return HDF_SUCCESS;
+}
 
+static int InitializeHost(const HostConfig *config, char **argv)
+{
     prctl(PR_SET_PDEATHSIG, SIGKILL); // host process should exit with devmgr process
 
-    int hostId = 0;
-    if (!HdfStringToInt(argv[DEVHOST_INPUT_PARAM_HOSTID_POS], &hostId)) {
-        HDF_LOGE("Devhost main parameter error, argv[1]: %{public}s", argv[DEVHOST_INPUT_PARAM_HOSTID_POS]);
-        return HDF_ERR_INVALID_PARAM;
+    HDF_LOGI("hdf device host %{public}s %{public}d start", config->hostName, config->hostId);
+    SetProcTitle(argv, config->hostName);
+    StartMemoryHook(config->hostName);
+    if ((config->processPriority != 0) && (config->schedPriority != 0)) {
+        HdfSetProcPriority(config->processPriority, config->schedPriority);
     }
+    if ((config->malloptKey != 0) && (config->malloptValue != 0)) {
+        SetMallopt(config->malloptKey, config->malloptValue);
+    }
+    return HDF_SUCCESS;
+}
 
-    const char *hostName = argv[DEVHOST_HOST_NAME_POS];
-    HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
-    SetProcTitle(argv, hostName);
-    StartMemoryHook(hostName);
-    if ((strcmp(argv[DEVHOST_PROCESS_PRI_POS], INVALID_PRIORITY) != 0) &&
-        (strcmp(argv[DEVHOST_THREAD_PRI_POS], INVALID_PRIORITY) != 0)) {
-        HdfSetProcPriority(argv);
-    }
-    if (argc > DEVHOST_MIN_INPUT_PARAM_NUM) {
-        SetMallopt(argc, argv);
-    }
-
-    struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
+static int StartHostService(const HostConfig *config)
+{
+    struct IDevHostService *instance = DevHostServiceNewInstance(config->hostId, config->hostName);
     if (instance == NULL || instance->StartService == NULL) {
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
     }
-    HDF_LOGD("create IDevHostService of %{public}s success", hostName);
+    HDF_LOGD("create IDevHostService of %{public}s success", config->hostName);
 
     DevHostDumpInit();
-    HDF_LOGD("%{public}s start device service begin", hostName);
+    HDF_LOGD("%{public}s start device service begin", config->hostName);
     int status = instance->StartService(instance);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Devhost StartService fail, return: %{public}d", status);
@@ -191,13 +211,29 @@ int main(int argc, char **argv)
     struct DevHostServiceFull *fullService = (struct DevHostServiceFull *)instance;
     struct HdfMessageLooper *looper = &fullService->looper;
     if ((looper != NULL) && (looper->Start != NULL)) {
-        HDF_LOGI("%{public}s start loop", hostName);
+        HDF_LOGI("%{public}s start loop", config->hostName);
         looper->Start(looper);
     }
 
     DevHostServiceFreeInstance(instance);
     HdfPowerManagerExit();
     DevHostDumpDeInit();
-    HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
+    return HDF_SUCCESS;
+}
+
+int main(int argc, char **argv)
+{
+    HostConfig config = {0};
+    if (ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS) {
+        HDF_LOGE("ParseCommandLineArgs(argc, argv, &config) != HDF_SUCCESS");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (InitializeHost(&config, argv) != HDF_SUCCESS) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    int status = StartHostService(&config);
+    HDF_LOGI("hdf device host %{public}s %{public}d exit", config.hostName, config.hostId);
     return status;
 }
