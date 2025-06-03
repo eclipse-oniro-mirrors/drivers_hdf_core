@@ -286,6 +286,7 @@ HWTEST_F(SmqTest, SmqTest002, TestSize.Level1)
 
         int status = sampleService->SendRequest(SAMPLE_TRANS_SMQ, data, reply, option);
         ASSERT_EQ(status, 0);
+        ASSERT_EQ(smq->Reset(), HDF_SUCCESS);
     }
 
     // query fds of current host
@@ -355,4 +356,8 @@ HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
     syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
     syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
     syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
+
+    int ret1 = syncer_->CheckSyncStatus(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
+    int ret2 = syncer_->CheckSyncStatus(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_READ);
+    ASSERT_EQ((ret1 == HDF_SUCCESS) || (ret2 == HDF_SUCCESS), true);
 }
