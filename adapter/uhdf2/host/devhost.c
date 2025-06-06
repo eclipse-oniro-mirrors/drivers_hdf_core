@@ -88,6 +88,10 @@ bool HdfStringToInt(const char *str, int *value)
 
 static void SetProcTitle(char **argv, const char *newTitle)
 {
+    if (newTitle == NULL) {
+        HDF_LOGE("failed because newTitle is NULL");
+        return;
+    }
     size_t len = strlen(argv[0]); // 获取原始进程标题的长度
     if (strlen(newTitle) > len) { // 如果新标题的长度超过原始标题的长度
         HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle); // 打印错误日志
