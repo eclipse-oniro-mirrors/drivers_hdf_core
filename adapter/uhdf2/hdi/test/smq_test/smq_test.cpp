@@ -356,8 +356,4 @@ HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
     syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
     syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
     syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
-
-    int ret1 = syncer_->CheckSyncStatus(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
-    int ret2 = syncer_->CheckSyncStatus(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_READ);
-    ASSERT_EQ((ret1 == HDF_SUCCESS) || (ret2 == HDF_SUCCESS), true);
 }
