@@ -21,7 +21,10 @@ ohos_unittest("hdf_adapter_uhdf_test_config") {
   module_out_path = module_output_path
   include_dirs = [ "$hdf_core_path/framework/test/unittest/include" ]
 
-  sources = [ "$hdf_core_path/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp" ]
+  sources = [ 
+    "$hdf_core_path/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp",
+    "$hdf_core_path/framework/test/unittest/common/hdf_common_test.c"
+  ]
   resource_config_file =
       "$hdf_core_path/adapter/uhdf2/test/resource/config/ohos_test.xml"
   deps = [

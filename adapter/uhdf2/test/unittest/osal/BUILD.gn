@@ -36,9 +36,9 @@ ohos_unittest("hdf_adapter_uhdf_test_osal") {
   defines = [ "__USER__" ]
   sources = [
     "$hdf_framework_path/support/posix/test/unittest/common/hdf_osal_test.cpp",
+    "$hdf_framework_path/test/unittest/common/hdf_common_test.c"
   ]
   deps = [
-    "$hdf_adapter_path/build/test_common:libhdf_test_common",
     "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
   ]
   resource_config_file =

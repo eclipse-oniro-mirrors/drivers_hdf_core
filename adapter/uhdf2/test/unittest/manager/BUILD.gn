@@ -33,9 +33,11 @@ ohos_unittest("hdf_adapter_uhdf_test_manager") {
   ]
 
   defines = [ "__USER__" ]
-  sources = [ "$hdf_framework_path/core/manager/test/unittest/common/hdf_lite_manager_test.cpp" ]
+  sources = [
+    "$hdf_framework_path/core/manager/test/unittest/common/hdf_lite_manager_test.cpp",
+    "$hdf_framework_path/test/unittest/common/hdf_common_test.c"
+  ]
   deps = [
-    "$hdf_adapter_path/build/test_common:libhdf_test_common",
     "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
   ]
   resource_config_file =
