@@ -25,7 +25,7 @@
 
 #define HDF_LOG_TAG device_object
 
-#define SERVICE_INFO_LEN_MAX 128
+#define SERVICE_INFO_LEN_MAX 256
 
 int32_t HdfDeviceSubscribeService(
     struct HdfDeviceObject *deviceObject, const char *serviceName, struct SubscriberCallback callback)
