@@ -572,7 +572,7 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
     auto avalidWrite = GetAvalidWriteSize();
     if (count > avalidWrite && meta_->GetType() == SmqType::SYNCED_SMQ) {
         // synced smq can not overflow write
-        HDF_LOGE("No sufficient space to write, try to write %{public}zu data, but currently "
+        HDF_LOGD("No sufficient space to write, try to write %{public}zu data, but currently "
             "maximum writen space is %{public}zu.", count, avalidWrite);
         return -E2BIG;
     }

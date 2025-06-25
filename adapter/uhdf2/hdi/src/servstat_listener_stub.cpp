@@ -57,7 +57,7 @@ int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
     const char *info = data.ReadCString();
     status.info = (info == nullptr) ? "" : info;
 
-    HDF_LOGI("call OnReceive, %{public}s, %{public}d", status.serviceName.c_str(), status.status);
+    HDF_LOGD("call OnReceive, %{public}s, %{public}d", status.serviceName.c_str(), status.status);
     OnReceive(status);
     return HDF_SUCCESS;
 }
