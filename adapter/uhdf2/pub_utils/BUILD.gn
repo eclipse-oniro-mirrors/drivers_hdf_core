@@ -63,7 +63,7 @@ if (defined(ohos_lite)) {
       "updater",
     ]
     innerapi_tags = [
-      "chipsetsdk",
+      "chipsetsdk_sp",
       "platformsdk_indirect",
     ]
 

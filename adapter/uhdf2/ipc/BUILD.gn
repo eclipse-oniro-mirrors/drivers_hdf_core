@@ -73,7 +73,7 @@ if (defined(ohos_lite)) {
     }
 
     innerapi_tags = [
-      "chipsetsdk",
+      "chipsetsdk_sp",
       "platformsdk_indirect",
     ]
     install_images = [
