@@ -191,8 +191,8 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
 
     if (!hostInfoMap_[name].initConfig.empty()) {
         for (auto &info : hostInfoMap_[name].initConfig) {
-            int firstQuotePos = info.find("\"");
-            int secondQuotePos = info.find("\"", firstQuotePos + 1);
+            size_t firstQuotePos = info.find("\"");
+            size_t secondQuotePos = info.find("\"", firstQuotePos + 1);
             configedKeywords.insert(info.substr(firstQuotePos + 1, secondQuotePos - (firstQuotePos + 1)));
         }
     }
@@ -365,7 +365,7 @@ void StartupCfgGen::GetMallocOpt(const std::shared_ptr<AstObject> &hostInfo,
     std::vector<std::string> mallocOptions = {};
     GetConfigVector(term, mallocOptions);
     for (auto mallocOption : mallocOptions) {
-        int separatorPos = mallocOption.find(MALLOPT_SEPARATOR);
+        size_t separatorPos = mallocOption.find(MALLOPT_SEPARATOR);
         std::string malloptKey = mallocOption.substr(0, separatorPos);
         std::string malloptValue = mallocOption.substr(separatorPos + 1,
             mallocOption.length() - (separatorPos + 1));

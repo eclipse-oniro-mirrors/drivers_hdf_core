@@ -372,7 +372,7 @@ uint32_t TextGen::ImplementCloseBraceGen(const std::shared_ptr<AstObject> &objec
     if (object == ast_->GetAstRoot()) {
         ofs_ << "};\n";
     } else {
-        ofs_ << Indent(depth) << "},\n";
+        ofs_ << Indent(static_cast<uint32_t>(depth)) << "},\n";
     }
     return ofs_.good() ? NOERR : EOUTPUT;
 }

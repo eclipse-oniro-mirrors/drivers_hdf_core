@@ -383,7 +383,7 @@ public:
                     return false;
                 }
             } else {
-                uint32_t ret = forwardCallback(roundWalkObj, walkDepth);
+                auto ret = forwardCallback(roundWalkObj, walkDepth);
                 /* when callback return EASTWALKBREAK, not walk current's child */
                 if (ret && ret != EASTWALKBREAK) {
                     return false;

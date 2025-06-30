@@ -42,7 +42,7 @@ Option &Option::Parse(int argc, char **argv)
             break;
         }
 
-        if (optind >= argc) {
+        if (optind >= argc || optind < 0) {
             Logger().Error() << "Miss input file name";
             SetOptionError();
             break;
