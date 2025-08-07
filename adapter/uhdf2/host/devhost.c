@@ -44,29 +44,12 @@
 
 typedef struct {
     int hostId;
-    char *hostName;
+    const char *hostName;
     int schedPriority;
     int processPriority;
     int malloptKey;
     int malloptValue;
 } HostConfig;
-
-static void StartMemoryHook(const char* processName)
-{
-    const char defaultValue[PARAM_BUF_LEN] = { 0 };
-    const char targetPrefix[] = "startup:";
-    const int targetPrefixLen = strlen(targetPrefix);
-    char paramValue[PARAM_BUF_LEN] = { 0 };
-    int retParam = GetParameter("libc.hook_mode", defaultValue, paramValue, sizeof(paramValue));
-    if (retParam <= 0 || strncmp(paramValue, targetPrefix, targetPrefixLen) != 0) {
-        return;
-    }
-    if (strstr(paramValue + targetPrefixLen, processName) != NULL) {
-        const int hookSignal = 36; // 36: native memory hooked signal
-        HDF_LOGE("raise hook signal %{public}d to %{public}s", hookSignal, processName);
-        raise(hookSignal);
-    }
-}
 
 bool HdfStringToInt(const char *str, int *value)
 {
@@ -84,6 +67,246 @@ bool HdfStringToInt(const char *str, int *value)
 
     *value = (int)result;
     return true;
+}
+
+static void SetMallopt(int32_t malloptKey, int32_t malloptValue)
+{
+    int ret = mallopt(malloptKey, malloptValue);
+    if (ret != 1) {
+        HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
+            malloptKey, malloptValue, ret);
+            return;
+    }
+    HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
+}
+
+typedef int32_t (*CommandFunc)(const char *str, HostConfig *config);
+typedef struct CommandToFunc {
+    const char *opt;
+    CommandFunc func;
+}CommandToFunc;
+
+static int32_t CommandIFunc(const char *str, HostConfig *config)
+{
+    if (!HdfStringToInt(str, &config->hostId)) {
+        HDF_LOGE("Invalid process ID: %{public}s", str);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t CommandNFunc(const char *str, HostConfig *config)
+{
+    config->hostName = str;
+    return HDF_SUCCESS;
+}
+
+static int32_t CommandPFunc(const char *str, HostConfig *config)
+{
+    if (!HdfStringToInt(str, &config->processPriority)) {
+        HDF_LOGE("Invalid process ID: %{public}s", str);
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t CommandSFunc(const char *str, HostConfig *config)
+{
+    if (!HdfStringToInt(str, &config->schedPriority)) {
+        HDF_LOGE("Invalid process ID: %{public}s", str);
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t CommandMFunc(const char *str, HostConfig *config)
+{
+    if (!HdfStringToInt(str, &config->malloptKey)) {
+        HDF_LOGE("Invalid process ID: %{public}s", str);
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t CommandVFunc(const char *str, HostConfig *config)
+{
+    if (!HdfStringToInt(str, &config->malloptValue)) {
+        HDF_LOGE("Invalid process ID: %{public}s", str);
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1005Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1005", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1006Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1006", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1007Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1007", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1008Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1008", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1009Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1009", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1010Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1010", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1011Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1011", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1012Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1012", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1013Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1013", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static int32_t Command1014Func(const char *str, HostConfig *config)
+{
+    int32_t key = -1;
+    int32_t value = -1;
+    if (!HdfStringToInt(str, &value)) {
+        HDF_LOGE("Invalid value: %{public}d", value);
+    }
+    if (!HdfStringToInt("-1014", &key)) {
+        HDF_LOGE("Invalid key: %{public}d", value);
+    }
+    SetMallopt(key, value);
+    return HDF_SUCCESS;
+}
+
+static struct CommandToFunc commandFuncs[] = {
+    {"i", CommandIFunc},
+    {"n", CommandNFunc},
+    {"p", CommandPFunc},
+    {"s", CommandSFunc},
+    {"m", CommandMFunc},
+    {"v", CommandVFunc},
+    {"1005", Command1005Func},
+    {"1006", Command1006Func},
+    {"1007", Command1007Func},
+    {"1008", Command1008Func},
+    {"1009", Command1009Func},
+    {"1010", Command1010Func},
+    {"1011", Command1011Func},
+    {"1012", Command1012Func},
+    {"1013", Command1013Func},
+    {"1014", Command1014Func},
+};
+
+static void StartMemoryHook(const char* processName)
+{
+    const char defaultValue[PARAM_BUF_LEN] = { 0 };
+    const char targetPrefix[] = "startup:";
+    const int targetPrefixLen = strlen(targetPrefix);
+    char paramValue[PARAM_BUF_LEN] = { 0 };
+    int retParam = GetParameter("libc.hook_mode", defaultValue, paramValue, sizeof(paramValue));
+    if (retParam <= 0 || strncmp(paramValue, targetPrefix, targetPrefixLen) != 0) {
+        return;
+    }
+    if (strstr(paramValue + targetPrefixLen, processName) != NULL) {
+        const int hookSignal = 36; // 36: native memory hooked signal
+        HDF_LOGE("raise hook signal %{public}d to %{public}s", hookSignal, processName);
+        raise(hookSignal);
+    }
 }
 
 static void SetProcTitle(char **argv, const char *newTitle)
@@ -120,57 +343,31 @@ static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
     }
 }
 
-static void SetMallopt(int32_t malloptKey, int32_t malloptValue)
-{
-    int ret = mallopt(malloptKey, malloptValue);
-    if (ret != 1) {
-        HDF_LOGE("mallopt failed, malloptKey:%{public}d, malloptValue:%{public}d, ret:%{public}d",
-            malloptKey, malloptValue, ret);
+static int FindFunc(const char* opt_name, const char* value, HostConfig *config) {
+    for (size_t i = 0; i< sizeof(commandFuncs)/sizeof(commandFuncs[i]); ++i) {
+        if (strcmp(commandFuncs[i].opt, opt_name) == 0) {
+            return commandFuncs[i].func(value, config);
+        }
     }
-    HDF_LOGI("host set mallopt succeed, mallopt:%{public}d %{public}d", malloptKey, malloptValue);
+    HDF_LOGE("FindFunc failed: %{public}s", opt_name);
+    return HDF_ERR_INVALID_PARAM;
 }
 
 static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
 {
-    int opt;
-    while ((opt = getopt(argc, argv, "i:n:p:s:m:v:")) != -1) {
-        switch (opt) {
-            case 'i':
-                if (!HdfStringToInt(optarg, &config->hostId)) {
-                    HDF_LOGE("Invalid process ID: %{public}s", optarg);
-                    return HDF_ERR_INVALID_PARAM;
-                }
-                break;
-            case 'n':
-                config->hostName = optarg;
-                break;
-            case 'p':
-                if (!HdfStringToInt(optarg, &config->processPriority)) {
-                    HDF_LOGE("Invalid process priority: %{public}s", optarg);
-                    return HDF_ERR_INVALID_PARAM;
-                }
-                break;
-            case 's':
-                if (!HdfStringToInt(optarg, &config->schedPriority)) {
-                    HDF_LOGE("Invalid process priority: %{public}s", optarg);
-                    return HDF_ERR_INVALID_PARAM;
-                }
-                break;
-            case 'm':
-                if (!HdfStringToInt(optarg, &config->malloptKey)) {
-                    HDF_LOGE("Invalid mallopt key: %{public}s", optarg);
-                    return HDF_ERR_INVALID_PARAM;
-                }
-                break;
-            case 'v':
-                if (!HdfStringToInt(optarg, &config->malloptValue)) {
-                    HDF_LOGE("Invalid mallopt value: %{public}s", optarg);
-                    return HDF_ERR_INVALID_PARAM;
-                }
-                break;
-            default:
-                HDF_LOGE("Unknown option: -%c", opt);
-                return HDF_ERR_INVALID_PARAM;
+    for (int i =1; i < argc; ++i) {
+        const char* arg = argv[i];
+    
+        if (strncmp(arg, "-", 1) == 0) {
+            const char* opt_name = arg + 1;
+
+            if (i + 1 >= argc) {
+                HDF_LOGE("Missing argument for -%{public}s", opt_name);
+            }
+            const char* value = argv[++i];
+            if (FindFunc(opt_name, value, config) != HDF_SUCCESS) {
+                HDF_LOGE("argument Parse failed for -%s", opt_name);
+            }
         }
     }
     return HDF_SUCCESS;
