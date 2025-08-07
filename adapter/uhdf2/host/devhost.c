@@ -273,7 +273,7 @@ static int32_t Command1014Func(const char *str, HostConfig *config)
     return HDF_SUCCESS;
 }
 
-static struct CommandToFunc commandFuncs[] = {
+static struct CommandToFunc g_commandFuncs[] = {
     {"i", CommandIFunc},
     {"n", CommandNFunc},
     {"p", CommandPFunc},
@@ -343,30 +343,32 @@ static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
     }
 }
 
-static int FindFunc(const char* opt_name, const char* value, HostConfig *config) {
-    for (size_t i = 0; i< sizeof(commandFuncs)/sizeof(commandFuncs[i]); ++i) {
-        if (strcmp(commandFuncs[i].opt, opt_name) == 0) {
-            return commandFuncs[i].func(value, config);
+static int FindFunc(const char* optName, const char* value, HostConfig *config)
+{
+    for (size_t i = 0; i < sizeof(g_commandFuncs)/sizeof(g_commandFuncs[i]); ++i) {
+        if (strcmp(g_commandFuncs[i].opt, optName) == 0) {
+            return g_commandFuncs[i].func(value, config);
         }
     }
-    HDF_LOGE("FindFunc failed: %{public}s", opt_name);
+    HDF_LOGE("FindFunc failed: %{public}s", optName);
     return HDF_ERR_INVALID_PARAM;
 }
 
 static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
 {
-    for (int i =1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         const char* arg = argv[i];
     
         if (strncmp(arg, "-", 1) == 0) {
-            const char* opt_name = arg + 1;
+            const char* optName = arg + 1;
 
             if (i + 1 >= argc) {
-                HDF_LOGE("Missing argument for -%{public}s", opt_name);
+                HDF_LOGE("Missing argument for -%{public}s", optName);
             }
-            const char* value = argv[++i];
-            if (FindFunc(opt_name, value, config) != HDF_SUCCESS) {
-                HDF_LOGE("argument Parse failed for -%s", opt_name);
+            int next_i = i + 1; 
+            const char* value = argv[next_i];
+            if (FindFunc(optName, value, config) != HDF_SUCCESS) {
+                HDF_LOGE("argument Parse failed for -%s", optName);
             }
         }
     }
