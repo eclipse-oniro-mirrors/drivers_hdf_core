@@ -345,7 +345,7 @@ static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
 
 static int FindFunc(const char* optName, const char* value, HostConfig *config)
 {
-    for (size_t i = 0; i < sizeof(g_commandFuncs)/sizeof(g_commandFuncs[i]); ++i) {
+    for (size_t i = 0; i < sizeof(g_commandFuncs) / sizeof(g_commandFuncs[i]); ++i) {
         if (strcmp(g_commandFuncs[i].opt, optName) == 0) {
             return g_commandFuncs[i].func(value, config);
         }
@@ -365,8 +365,8 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
             if (i + 1 >= argc) {
                 HDF_LOGE("Missing argument for -%{public}s", optName);
             }
-            int next_i = i + 1; 
-            const char* value = argv[next_i];
+            int next = i + 1;
+            const char* value = argv[next];
             if (FindFunc(optName, value, config) != HDF_SUCCESS) {
                 HDF_LOGE("argument Parse failed for -%s", optName);
             }
