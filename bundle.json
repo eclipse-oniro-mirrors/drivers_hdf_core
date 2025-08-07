@@ -31,7 +31,8 @@
                 "samgr",
                 "selinux_adapter",
                 "hilog_lite",
-                "hicollie"
+                "hicollie",
+                "ffrt"
             ],
             "third_party": [
                 "bounds_checking_function"
