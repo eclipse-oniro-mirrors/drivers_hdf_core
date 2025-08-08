@@ -24,7 +24,7 @@ if (hdf_core_khdf_test_support) {
     deps = [
       "./../../../framework/test/fuzztest:hdf_framework_fuzztest",
       "fuzztest:hdf_platform_test",
-      "unittest/config:hdf_adapter_uhdf_test_config",
+#      "unittest/config:hdf_adapter_uhdf_test_config",
       "unittest/manager:hdf_adapter_uhdf_test_core_shared",
       "unittest/manager:hdf_adapter_uhdf_test_ioservice",
       "unittest/manager:hdf_adapter_uhdf_test_manager",
