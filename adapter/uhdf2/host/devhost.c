@@ -139,7 +139,7 @@ static int32_t CommandVFunc(const char *key, const char *value, HostConfig *conf
     return HDF_SUCCESS;
 }
 
-static int32_t CommandMathFunc(const char *key, const char *value, HostConfig *config)
+static int32_t CommandNumFunc(const char *key, const char *value, HostConfig *config)
 {
     int32_t malloptKey = 0;
     int32_t malloptValue = 0;
@@ -160,16 +160,16 @@ static struct CommandToFunc g_commandFuncs[] = {
     {"-s", CommandSFunc},
     {"-m", CommandMFunc},
     {"-v", CommandVFunc},
-    {"-1005", CommandMathFunc},
-    {"-1006", CommandMathFunc},
-    {"-1007", CommandMathFunc},
-    {"-1008", CommandMathFunc},
-    {"-1009", CommandMathFunc},
-    {"-1010", CommandMathFunc},
-    {"-1011", CommandMathFunc},
-    {"-1012", CommandMathFunc},
-    {"-1013", CommandMathFunc},
-    {"-1014", CommandMathFunc},
+    {"-1005", CommandNumFunc},
+    {"-1006", CommandNumFunc},
+    {"-1007", CommandNumFunc},
+    {"-1008", CommandNumFunc},
+    {"-1009", CommandNumFunc},
+    {"-1010", CommandNumFunc},
+    {"-1011", CommandNumFunc},
+    {"-1012", CommandNumFunc},
+    {"-1013", CommandNumFunc},
+    {"-1014", CommandNumFunc},
 };
 
 static void StartMemoryHook(const char* processName)
@@ -225,7 +225,7 @@ static void HdfSetProcPriority(int32_t procPriority, int32_t schedPriority)
 
 static int FindFunc(const char* arg, const char* value, HostConfig *config)
 {
-    for (size_t i = 0; i < sizeof(g_commandFuncs) / sizeof(g_commandFuncs[i]); ++i) {
+    for (size_t i = 0; i < sizeof(g_commandFuncs) / sizeof(g_commandFuncs[0]); ++i) {
         if (strcmp(g_commandFuncs[i].opt, arg) == 0) {
             return g_commandFuncs[i].func(arg, value, config);
         }
@@ -244,12 +244,12 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
             return HDF_ERR_INVALID_PARAM;
         }
 
-        int next = i + 1;
+        int valueIndex = i + 1;
         if (i + 1 >= argc) {
             HDF_LOGE("Missing argument for -%{public}s", arg);
             return HDF_FAILURE;
         }
-        const char* value = argv[next];
+        const char* value = argv[valueIndex];
         if (FindFunc(arg, value, config) != HDF_SUCCESS) {
             HDF_LOGE("argument Parse failed for -%s", arg);
         }
