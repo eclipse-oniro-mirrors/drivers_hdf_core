@@ -144,7 +144,7 @@ static int32_t CommandMathFunc(const char *key, const char *value, HostConfig *c
     if (!HdfStringToInt(key, &malloptKey)) {
         HDF_LOGE("Invalid key: %{public}s", key);
     }
-    SetMallopt(key, value);
+    SetMallopt(malloptKey, malloptValue);
     return HDF_SUCCESS;
 }
 
