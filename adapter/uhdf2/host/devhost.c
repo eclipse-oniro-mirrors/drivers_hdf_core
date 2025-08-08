@@ -240,16 +240,20 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
         const char* arg = argv[i];
 
         if (arg == NULL) {
-            HDF_LOGE("NULL argument");
-            return HDF_ERR_INVALID_PARAM;
+            HDF_LOGE("NULL argument:arg");
+            continue;
         }
 
         int valueIndex = i + 1;
-        if (i + 1 >= argc) {
+        if (valueIndex >= argc) {
             HDF_LOGE("Missing argument for -%{public}s", arg);
-            return HDF_FAILURE;
+            continue;
         }
         const char* value = argv[valueIndex];
+        if (value == NULL) {
+            HDF_LOGE("NULL argument: value");
+            continue;
+        }
         if (FindFunc(arg, value, config) != HDF_SUCCESS) {
             HDF_LOGE("argument Parse failed for -%s", arg);
         }
