@@ -244,11 +244,12 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
             return HDF_ERR_INVALID_PARAM;
         }
 
+        int next = i + 1;
         if (i + 1 >= argc) {
             HDF_LOGE("Missing argument for -%{public}s", arg);
             return HDF_FAILURE;
         }
-        const char* value = argv[i];
+        const char* value = argv[next];
         if (FindFunc(arg, value, config) != HDF_SUCCESS) {
             HDF_LOGE("argument Parse failed for -%s", arg);
         }
