@@ -88,6 +88,7 @@ typedef struct CommandToFunc {
 
 static int32_t CommandIFunc(const char *key, const char *value, HostConfig *config)
 {
+    (void)key;
     if (!HdfStringToInt(value, &config->hostId)) {
         HDF_LOGE("Invalid process ID: %{public}s", value);
         return HDF_ERR_INVALID_PARAM;
@@ -97,12 +98,14 @@ static int32_t CommandIFunc(const char *key, const char *value, HostConfig *conf
 
 static int32_t CommandNFunc(const char *key, const char *value, HostConfig *config)
 {
+    (void)key;
     config->hostName = value;
     return HDF_SUCCESS;
 }
 
 static int32_t CommandPFunc(const char *key, const char *value, HostConfig *config)
 {
+    (void)key;
     if (!HdfStringToInt(value, &config->processPriority)) {
         HDF_LOGE("Invalid process ID: %{public}s", value);
     }
@@ -111,6 +114,7 @@ static int32_t CommandPFunc(const char *key, const char *value, HostConfig *conf
 
 static int32_t CommandSFunc(const char *key, const char *value, HostConfig *config)
 {
+    (void)key;
     if (!HdfStringToInt(value, &config->schedPriority)) {
         HDF_LOGE("Invalid process ID: %{public}s", value);
     }
@@ -119,6 +123,7 @@ static int32_t CommandSFunc(const char *key, const char *value, HostConfig *conf
 
 static int32_t CommandMFunc(const char *key, const char *value, HostConfig *config)
 {
+    (void)key;
     if (!HdfStringToInt(value, &config->malloptKey)) {
         HDF_LOGE("Invalid process ID: %{public}s", value);
     }
@@ -127,6 +132,7 @@ static int32_t CommandMFunc(const char *key, const char *value, HostConfig *conf
 
 static int32_t CommandVFunc(const char *key, const char *value, HostConfig *config)
 {
+    (void)key;
     if (!HdfStringToInt(value, &config->malloptValue)) {
         HDF_LOGE("Invalid process ID: %{public}s", value);
     }
@@ -148,22 +154,22 @@ static int32_t CommandMathFunc(const char *key, const char *value, HostConfig *c
 }
 
 static struct CommandToFunc g_commandFuncs[] = {
-    {"i", CommandIFunc},
-    {"n", CommandNFunc},
-    {"p", CommandPFunc},
-    {"s", CommandSFunc},
-    {"m", CommandMFunc},
-    {"v", CommandVFunc},
-    {"1005", CommandMathFunc},
-    {"1006", CommandMathFunc},
-    {"1007", CommandMathFunc},
-    {"1008", CommandMathFunc},
-    {"1009", CommandMathFunc},
-    {"1010", CommandMathFunc},
-    {"1011", CommandMathFunc},
-    {"1012", CommandMathFunc},
-    {"1013", CommandMathFunc},
-    {"1014", CommandMathFunc},
+    {"-i", CommandIFunc},
+    {"-n", CommandNFunc},
+    {"-p", CommandPFunc},
+    {"-s", CommandSFunc},
+    {"-m", CommandMFunc},
+    {"-v", CommandVFunc},
+    {"-1005", CommandMathFunc},
+    {"-1006", CommandMathFunc},
+    {"-1007", CommandMathFunc},
+    {"-1008", CommandMathFunc},
+    {"-1009", CommandMathFunc},
+    {"-1010", CommandMathFunc},
+    {"-1011", CommandMathFunc},
+    {"-1012", CommandMathFunc},
+    {"-1013", CommandMathFunc},
+    {"-1014", CommandMathFunc},
 };
 
 static void StartMemoryHook(const char* processName)
@@ -230,7 +236,7 @@ static int FindFunc(const char* arg, const char* value, HostConfig *config)
 
 static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
 {
-    for (int i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; i += 2) {
         const char* arg = argv[i];
 
         if (arg == NULL) {
@@ -238,12 +244,11 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
             return HDF_ERR_INVALID_PARAM;
         }
 
-        int next = i + 1;
         if (i + 1 >= argc) {
             HDF_LOGE("Missing argument for -%{public}s", arg);
             return HDF_FAILURE;
         }
-        const char* value = argv[next];
+        const char* value = argv[i];
         if (FindFunc(arg, value, config) != HDF_SUCCESS) {
             HDF_LOGE("argument Parse failed for -%s", arg);
         }
