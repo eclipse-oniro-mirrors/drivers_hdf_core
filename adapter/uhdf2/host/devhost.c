@@ -41,6 +41,7 @@
 #define PARAM_BUF_LEN 128
 #define MALLOPT_PARA_CNT 2
 #define INVALID_PRIORITY "0"
+#define DEVHOST_ARGUMENT 2
 
 typedef struct {
     int hostId;
@@ -236,7 +237,7 @@ static int FindFunc(const char* arg, const char* value, HostConfig *config)
 
 static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
 {
-    for (int i = 1; i < argc; i += 2) {
+    for (int i = 1; i < argc; i += DEVHOST_ARGUMENT) {
         const char* arg = argv[i];
 
         if (arg == NULL) {
