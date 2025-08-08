@@ -51,17 +51,17 @@ typedef struct {
     int malloptValue;
 } HostConfig;
 
-bool HdfStringToInt(const char *value, int *value)
+bool HdfStringToInt(const char *str, int *value)
 {
-    if (value == NULL || value == NULL) {
+    if (str == NULL || value == NULL) {
         return false;
     }
 
     char *end = NULL;
     errno = 0;
     const int base = 10;
-    long result = strtol(value, &end, base);
-    if (end == value || end[0] != '\0' || errno == ERANGE || result > INT_MAX || result < INT_MIN) {
+    long result = strtol(str, &end, base);
+    if (end == str || end[0] != '\0' || errno == ERANGE || result > INT_MAX || result < INT_MIN) {
         return false;
     }
 
@@ -239,7 +239,7 @@ static int ParseCommandLineArgs(int argc, char **argv, HostConfig *config)
             return HDF_ERR_INVALID_PARAM;
         }
 
-        ++i;
+        int next = i + 1;
         if (i + 1 >= argc) {
             HDF_LOGE("Missing argument for -%{public}s", arg);
             return HDF_FAILURE;
@@ -304,8 +304,8 @@ static int StartHostService(const HostConfig *config)
 int main(int argc, char **argv)
 {
     if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
-       HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
-       return HDF_ERR_INVALID_PARAM;
+        HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
+        return HDF_ERR_INVALID_PARAM;
     }
 
     HostConfig config = {0};
