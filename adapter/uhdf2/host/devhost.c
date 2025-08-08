@@ -137,7 +137,6 @@ static int32_t CommandMathFunc(const char *key, const char *value, HostConfig *c
 {
     int32_t malloptKey = 0;
     int32_t malloptValue = 0;
-    int ret = 0;
     if (!HdfStringToInt(value, &malloptValue)) {
         HDF_LOGE("Invalid value: %{public}s", value);
     }
