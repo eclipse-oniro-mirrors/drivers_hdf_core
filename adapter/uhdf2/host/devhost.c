@@ -139,10 +139,10 @@ static int32_t CommandMathFunc(const char *key, const char *value, HostConfig *c
     int32_t malloptValue = 0;
     int ret = 0;
     if (!HdfStringToInt(value, &malloptValue)) {
-        HDF_LOGE("Invalid value: %{public}d", value);
+        HDF_LOGE("Invalid value: %{public}s", value);
     }
     if (!HdfStringToInt(key, &malloptKey)) {
-        HDF_LOGE("Invalid key: %{public}d", value);
+        HDF_LOGE("Invalid key: %{public}s", key);
     }
     SetMallopt(key, value);
     return HDF_SUCCESS;
