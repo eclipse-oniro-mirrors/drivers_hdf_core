@@ -53,6 +53,7 @@
 #include <cstdint>
 #include <cstring>
 #include <sys/mman.h>
+#include <cinttypes>
 
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 4096
@@ -471,7 +472,7 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
         }
         ret = syncer_->Wait(SharedMemQueueSyncer::SYNC_WORD_WRITE, waitTimeNanoSec);
         if (ret != 0 && ret != -ETIMEDOUT) {
-            HDF_LOGE("Write syncer wait failed, , data count: %{public}zu, ret: %{public}d.", count, ret);
+            HDF_LOGD("Write syncer wait failed, data count: %{public}zu, ret: %{public}d.", count, ret);
             break;
         }
 
@@ -542,7 +543,7 @@ int SharedMemQueue<T>::Read(T *data, size_t count, int64_t waitTimeNanoSec)
         }
         ret = syncer_->Wait(SharedMemQueueSyncer::SYNC_WORD_READ, waitTimeNanoSec);
         if (ret != 0 && ret != -ETIMEDOUT) {
-            HDF_LOGE("Read syncer wait failed, , data count: %{public}zu, ret: %{public}d.", count, ret);
+            HDF_LOGD("Read syncer wait failed, data count: %{public}zu, ret: %{public}d.", count, ret);
             break;
         }
 
@@ -590,7 +591,8 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
     if (wOffset + count <= (qCount + 1)) {
         if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount + 1 - wOffset) * sizeof(T),
             data, count * sizeof(T)) != EOK) {
-            HDF_LOGE("%s whole memcpy_s failed, data count: %{public}zu.", __func__, count);
+            HDF_LOGE("%s whole failed, dc: %{public}zu, wOffset: %{public}" PRIu64
+                ", rOffset: %{public}" PRIu64 ", qc: %{public}zu.", __func__, count, wOffset, rOffset, qCount);
             return HDF_FAILURE;
         };
         newWriteOffset = (wOffset + count) % (qCount + 1);
@@ -599,11 +601,13 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
         size_t secPartSize = count - firstPartSize;
         if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount + 1 - wOffset) * sizeof(T),
             data, firstPartSize * sizeof(T)) != EOK) {
-            HDF_LOGE("%s Twofold, first part memcpy_s failed, data count: %{public}zu.", __func__, count);
+            HDF_LOGE("%s Twofold, first failed, dc: %{public}zu, wOffset: %{public}" PRIu64
+                ", rOffset: %{public}" PRIu64 ", qc: %{public}zu.", __func__, count, wOffset, rOffset, qCount);
             return HDF_FAILURE;
         }
         if (memcpy_s(queueBuffer_, qCount * sizeof(T), data + firstPartSize, secPartSize * sizeof(T)) != EOK) {
-            HDF_LOGE("%s Twofold, second part memcpy_s failed, data count: %{public}zu.", __func__, count);
+            HDF_LOGE("%s Twofold, second failed, dc: %{public}zu, wOffset: %{public}" PRIu64
+                ", rOffset: %{public}" PRIu64 ", qc: %{public}zu.", __func__, count, wOffset, rOffset, qCount);
             return HDF_FAILURE;
         }
         newWriteOffset = secPartSize;
@@ -631,10 +635,12 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
     }
 
     auto qCount = meta_->GetElementCount();
+    auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
     if (rOffset + count <= (qCount + 1)) {
         if (memcpy_s(data, count * sizeof(T), queueBuffer_ + (rOffset * sizeof(T)), count * sizeof(T)) != EOK) {
-            HDF_LOGE("%s whole memcpy_s failed, data count: %{public}zu.", __func__, count);
+            HDF_LOGE("%s whole memcpy_s failed, dc: %{public}zu, wOffset: %{public}" PRIu64
+                ", rOffset: %{public}" PRIu64 ", qc: %{public}zu.", __func__, count, wOffset, rOffset, qCount);
             return HDF_FAILURE;
         }
         readOffset_->store((rOffset + count) % (qCount + 1), std::memory_order_release);
@@ -646,12 +652,14 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
 
     if (memcpy_s(data, firstPartSize * sizeof(T),
         queueBuffer_ + (rOffset * sizeof(T)), firstPartSize * sizeof(T)) != EOK) {
-        HDF_LOGE("%s Twofold, first part memcpy_s failed, data count: %{public}zu.", __func__, count);
+        HDF_LOGE("%s Twofold, first failed, dc: %{public}zu, wOffset: %{public}" PRIu64
+                ", rOffset: %{public}" PRIu64 ", qc: %{public}zu.", __func__, count, wOffset, rOffset, qCount);
         return HDF_FAILURE;
     }
     if (memcpy_s(data + firstPartSize, secPartSize * sizeof(T),
         queueBuffer_, secPartSize * sizeof(T)) != EOK) {
-        HDF_LOGE("%s Twofold, second part memcpy_s failed, data count: %{public}zu.", __func__, count);
+        HDF_LOGE("%s Twofold, second failed, dc: %{public}zu, wOffset: %{public}" PRIu64
+                ", rOffset: %{public}" PRIu64 ", qc: %{public}zu.", __func__, count, wOffset, rOffset, qCount);
         return HDF_FAILURE;
     };
     readOffset_->store(secPartSize, std::memory_order_release);
