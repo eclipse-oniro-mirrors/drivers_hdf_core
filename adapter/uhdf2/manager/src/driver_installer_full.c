@@ -38,7 +38,7 @@ int DriverInstallerFullStartDeviceHost(uint32_t devHostId, const char* devHostNa
 int DriverInstallerFullStopDeviceHost(uint32_t devHostId, const char* devHostName)
 {
     int ret;
-    ret = ServiceControlWithExtra(devHostName, STOP, NULL, 0);
+    ret = ServiceControlWithExtra(devHostName, TERM, NULL, 0);
     HDF_LOGI("%{public}s %{public}s %{public}d %{public}d", __func__, devHostName, devHostId, ret);
     return ret;
 }
