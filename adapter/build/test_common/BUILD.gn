@@ -23,7 +23,7 @@ config("hdf_test_common_pub_config") {
 }
 if (defined(ohos_lite)) {
   HDF_ADAPTER_PATH = "./../../../adapter"
-  ohos_shared_library("libhdf_test_common") {
+  ohos_static_library("libhdf_test_common") {
     subsystem_name = "hdf"
     part_name = "hdf_core"
     output_extension = "z.so"
@@ -53,14 +53,14 @@ if (defined(ohos_lite)) {
     public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   }
 } else {
-  ohos_shared_library("libhdf_test_common") {
+  ohos_static_library("libhdf_test_common") {
     public_configs = [ ":hdf_test_common_pub_config" ]
     sources = [ "$HDF_FRAMEWORK_PATH/test/unittest/common/hdf_common_test.c" ]
 
     include_dirs = [ "$HDF_FRAMEWORK_PATH/test/unittest/include" ]
 
     defines = [ "__OHOS__USER__" ]
-    install_images = [ chipset_base_dir ]
+
     subsystem_name = "hdf"
     part_name = "hdf_core"
     if (is_standard_system) {
