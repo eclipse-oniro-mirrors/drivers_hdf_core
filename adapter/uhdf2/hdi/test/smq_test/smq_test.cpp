@@ -364,5 +364,4 @@ HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
 
     waitResult = syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
     EXPECT_EQ(waitResult, true) << "Failed to wait for the syncer again";
-
 }
