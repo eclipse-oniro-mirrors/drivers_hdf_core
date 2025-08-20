@@ -355,10 +355,13 @@ HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
     
     bool wakeResult = syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
     EXPECT_EQ(wakeResult, true) << "Failed to wake the syncer";
+
     bool waitResult = syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
     EXPECT_EQ(waitResult, true) << "Failed to wait for the syncer";
+
     wakeResult = syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
     EXPECT_EQ(wakeResult, true) << "Failed to wake the syncer again";
+
     waitResult = syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
     EXPECT_EQ(waitResult, true) << "Failed to wait for the syncer again";
 
