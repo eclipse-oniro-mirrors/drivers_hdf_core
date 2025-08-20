@@ -67,8 +67,7 @@ void DevmgrUeventTest::TearDown() {}
 HWTEST_F(DevmgrUeventTest, DevmgrUeventTestAdd, TestSize.Level3)
 {
     if (!haveDevNode) {
-        ASSERT_TRUE(true);
-        return;
+        GTEST_SKIP();
     }
 
     ASSERT_TRUE(servmgr != nullptr);
@@ -113,8 +112,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventTestAdd, TestSize.Level3)
 HWTEST_F(DevmgrUeventTest, DevmgrUeventTestRemove, TestSize.Level3)
 {
     if (!haveDevNode) {
-        ASSERT_TRUE(true);
-        return;
+        GTEST_SKIP();
     }
 
     ASSERT_TRUE(servmgr != nullptr);
@@ -159,8 +157,7 @@ HWTEST_F(DevmgrUeventTest, DevmgrUeventTestRemove, TestSize.Level3)
 HWTEST_F(DevmgrUeventTest, DevmgrUeventStressTest, TestSize.Level3)
 {
     if (!haveDevNode) {
-        ASSERT_TRUE(true);
-        return;
+        GTEST_SKIP();
     }
 
     ASSERT_TRUE(servmgr != nullptr);
