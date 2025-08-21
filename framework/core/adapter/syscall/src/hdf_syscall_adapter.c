@@ -95,6 +95,11 @@ static int32_t HdfDevEventDispatchLocked(
     struct HdfDevEventlistener *listener = NULL;
     struct HdfSBuf *sbuf = NULL;
 
+    if (thread == NULL || adapter == NULL || bwr == NULL) {
+        HDF_LOGE("%{public}s: thread or adapter or bwr is NULL.", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     if (bwr->readConsumed > 0) {
         sbuf = HdfSbufBind(bwr->readBuffer, bwr->readConsumed);
     } else {
@@ -837,6 +842,12 @@ static int32_t HdfIoServiceStartListen(struct HdfSyscallAdapter *adapter, int po
 static bool AddListenerToAdapterLocked(struct HdfSyscallAdapter *adapter, struct HdfDevEventlistener *listener)
 {
     struct HdfDevEventlistener *it = NULL;
+
+    if (adapter == NULL || listener == NULL) {
+        HDF_LOGE("%{public}s: adapter or listener is NULL.", __func__);
+        return false;
+    }
+
     DLIST_FOR_EACH_ENTRY(it, &adapter->listenerList, struct HdfDevEventlistener, listNode) {
         if (it == listener) {
             HDF_LOGE("Add a listener for duplicate dev-event");
@@ -1024,6 +1035,11 @@ static int32_t GetListenerCount(struct HdfDevListenerThread *thread)
     struct HdfDevEventlistener *listener = NULL;
     int32_t count = 0;
 
+    if (thread == NULL) {
+        HDF_LOGE("%{public}s: thread is NULL.", __func__);
+        return count;
+    }
+
     OsalMutexLock(&thread->mutex);
     if (thread->listenerListPtr != NULL) {
         DLIST_FOR_EACH_ENTRY(listener, thread->listenerListPtr, struct HdfDevEventlistener, listNode) {
@@ -1032,12 +1048,15 @@ static int32_t GetListenerCount(struct HdfDevListenerThread *thread)
     }
 
     struct HdfSyscallAdapter *adapter = NULL;
-    DLIST_FOR_EACH_ENTRY(adapter, thread->adapterListPtr, struct HdfSyscallAdapter, listNode) {
-        OsalMutexLock(&adapter->mutex);
-        DLIST_FOR_EACH_ENTRY(listener, &adapter->listenerList, struct HdfDevEventlistener, listNode) {
-            count++;
+
+    if (thread->adapterListPtr != NULL) {
+        DLIST_FOR_EACH_ENTRY(adapter, thread->adapterListPtr, struct HdfSyscallAdapter, listNode) {
+            OsalMutexLock(&adapter->mutex);
+            DLIST_FOR_EACH_ENTRY(listener, &adapter->listenerList, struct HdfDevEventlistener, listNode) {
+                count++;
+            }
+            OsalMutexUnlock(&adapter->mutex);
         }
-        OsalMutexUnlock(&adapter->mutex);
     }
     OsalMutexUnlock(&thread->mutex);
 
