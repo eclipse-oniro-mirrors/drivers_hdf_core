@@ -26,6 +26,9 @@ config("libhdf_host_public_config") {
     "$hdf_interfaces_path/inner_api/osal/shared",
     "$hdf_interfaces_path/inner_api/host/shared",
     "$hdf_interfaces_path/inner_api/host/uhdf",
+    "$hdf_framework_path/core/manager/include",
+    "$hdf_framework_path/core/shared/include",
+    "include",
   ]
 }
 if (defined(ohos_lite)) {
