@@ -358,9 +358,10 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
     const uint32_t devNameAlign = 8;
     const uint32_t devIdAlign = 40;
     const uint32_t servNameAlign = 56;
-    uint32_t devCnt;
-    uint32_t devId;
+    uint32_t devCnt = 0;
+    uint32_t devId = 0;
     const uint32_t strEndLen = 2;
+    const uint32_t HOST_MAX = 100000;
 
     while (true) {
         if (DevMgrFillDeviceHostInfo(data, reply) != HDF_SUCCESS) {
