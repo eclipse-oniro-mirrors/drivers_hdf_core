@@ -370,7 +370,10 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
 
         (void)HdfSbufReadUint32(data, &devCnt);
         (*hostCnt)++;
-
+        if (devCnt <= 0 || devCnt >100000 ) {
+            HDF_LOGE("devCnt is over");
+            return;
+        }
         for (uint32_t i = 0; i < devCnt; i++) {
             // The line is a combination of multiple fields, and the fields are filled with blank characters
             (void)memset_s(line, sizeof(line), ' ', sizeof(line));
