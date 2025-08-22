@@ -9,9 +9,9 @@ group("hdf_framework_fuzztest") {
   deps = [
     "devicemanagerstart_fuzzer:DeviceManagerStartFuzzTest",
     "devmgr_c_fuzzer/queryusabledeviceInfo_fuzzer:QueryUsableDeviceInfoFuzzTest",
-    "devmgr_c_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTest",
+    "devmgr_c_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTestCC",
     "devmgr_cpp_fuzzer/loaddevice_fuzzer:LoadDeviceFuzzTest",
-    "devmgr_cpp_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTest",
+    "devmgr_cpp_fuzzer/unloaddevice_fuzzer:UnloadDeviceFuzzTestCXX",
     "devmgr_service_fuzzer:ServiceFuzzTest",
     "devmgrservicestub_fuzzer:DevmgrServiceStubFuzzTest",
     "devsvcmanagerstub_fuzzer:DevSvcManagerStubFuzzTest",

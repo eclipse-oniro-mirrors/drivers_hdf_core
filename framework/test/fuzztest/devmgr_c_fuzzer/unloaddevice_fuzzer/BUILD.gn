@@ -12,7 +12,7 @@ module_output_path = "hdf_core/hdf_core/devmgr_c"
 hdf_framework_path = "./../../../../../framework"
 hdf_adapter_path = "./../../../../../adapter"
 
-ohos_fuzztest("UnloadDeviceFuzzTest") {
+ohos_fuzztest("UnloadDeviceFuzzTestCC") {
   module_out_path = module_output_path
 
   fuzz_config_file = "$hdf_framework_path/test/fuzztest/devmgr_c_fuzzer"
@@ -36,5 +36,5 @@ ohos_fuzztest("UnloadDeviceFuzzTest") {
 
 group("fuzztest") {
   testonly = true
-  deps = [ ":UnloadDeviceFuzzTest" ]
+  deps = [ ":UnloadDeviceFuzzTestCC" ]
 }
