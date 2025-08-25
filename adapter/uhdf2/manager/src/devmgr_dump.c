@@ -361,7 +361,6 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
     uint32_t devCnt = 0;
     uint32_t devId = 0;
     const uint32_t strEndLen = 2;
-    const uint32_t HOST_MAX = 100000;
 
     while (true) {
         if (DevMgrFillDeviceHostInfo(data, reply) != HDF_SUCCESS) {
@@ -370,7 +369,7 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
 
         (void)HdfSbufReadUint32(data, &devCnt);
         (*hostCnt)++;
-        if (devCnt <= 0 || devCnt >100000 ) {
+        if (devCnt <= 0 || devCnt > 100000 ) {
             HDF_LOGE("devCnt is over");
             return;
         }
