@@ -30,8 +30,8 @@
 
 #define HDF_LOG_TAG devmgr_dump
 
-#ifndef DEVCNT_MAX
-#define DEVCNT_MAX             (100000)
+#ifndef UINT32_MAX
+#define UINT32_MAX             (4294967295U)
 #endif
 
 static const char *HELP_COMMENT =
@@ -373,7 +373,7 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
 
         (void)HdfSbufReadUint32(data, &devCnt);
         (*hostCnt)++;
-        if (devCnt <= 0 || devCnt > DEVCNT_MAX) {
+        if (devCnt <= 0 || devCnt > UINT32_MAX) {
             HDF_LOGE("devCnt is over");
             return;
         }
