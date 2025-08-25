@@ -14,7 +14,7 @@
  */
 
 #include "securec.h"
-#include "stdint.h"
+#include <stdint.h>
 #include "devmgr_service.h"
 #include "devhost_service_clnt.h"
 #include "devhost_service_proxy.h"
