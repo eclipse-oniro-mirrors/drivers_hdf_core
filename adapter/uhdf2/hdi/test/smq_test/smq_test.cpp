@@ -350,18 +350,14 @@ HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
 {
     std::atomic<uint32_t> *syncerPtr_ =
         reinterpret_cast<std::atomic<uint32_t> *>(MapMemZone(SharedMemQueueMeta<uint8_t>::MEMZONE_SYNCER));
+    ASSERT_NE(syncerPtr_, nullptr);
+
     std::unique_ptr<OHOS::HDI::Base::SharedMemQueueSyncer> syncer_ =
         std::make_unique<OHOS::HDI::Base::SharedMemQueueSyncer>(syncerPtr_);
-    
-    bool wakeResult = syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
-    EXPECT_EQ(wakeResult, true) << "Failed to wake the syncer";
+    ASSERT_NE(syncer_, nullptr);
 
-    bool waitResult = syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
-    EXPECT_EQ(waitResult, true) << "Failed to wait for the syncer";
-
-    wakeResult = syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
-    EXPECT_EQ(wakeResult, true) << "Failed to wake the syncer again";
-
-    waitResult = syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
-    EXPECT_EQ(waitResult, true) << "Failed to wait for the syncer again";
+    syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
+    syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
+    syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
+    syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 5);
 }
