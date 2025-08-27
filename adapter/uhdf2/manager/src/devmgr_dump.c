@@ -31,7 +31,7 @@
 #define HDF_LOG_TAG devmgr_dump
 
 #ifndef DEVCNT_MAX
-#define DEVCNT_MAX             UINT32_MAX
+#define DEVCNT_MAX             (200000)
 #endif
 
 static const char *HELP_COMMENT =
