@@ -14,7 +14,7 @@
  */
 
 #include "securec.h"
-
+#include <stdint.h>
 #include "devmgr_service.h"
 #include "devhost_service_clnt.h"
 #include "devhost_service_proxy.h"
@@ -29,6 +29,10 @@
 #include "devmgr_dump.h"
 
 #define HDF_LOG_TAG devmgr_dump
+
+#ifndef DEVCNT_MAX
+#define DEVCNT_MAX             (200000)
+#endif
 
 static const char *HELP_COMMENT =
     " usage:\n"
@@ -358,8 +362,8 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
     const uint32_t devNameAlign = 8;
     const uint32_t devIdAlign = 40;
     const uint32_t servNameAlign = 56;
-    uint32_t devCnt;
-    uint32_t devId;
+    uint32_t devCnt = 0;
+    uint32_t devId = 0;
     const uint32_t strEndLen = 2;
 
     while (true) {
@@ -369,7 +373,10 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
 
         (void)HdfSbufReadUint32(data, &devCnt);
         (*hostCnt)++;
-
+        if (devCnt <= 0 || devCnt > DEVCNT_MAX) {
+            HDF_LOGE("devCnt is over");
+            return;
+        }
         for (uint32_t i = 0; i < devCnt; i++) {
             // The line is a combination of multiple fields, and the fields are filled with blank characters
             (void)memset_s(line, sizeof(line), ' ', sizeof(line));
