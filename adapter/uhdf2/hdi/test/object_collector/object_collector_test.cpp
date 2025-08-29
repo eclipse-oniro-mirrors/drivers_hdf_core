@@ -46,13 +46,10 @@ static bool TestRemove()
 HWTEST_F(ObjectCollectorTest, ObjectCollectorTest001, TestSize.Level1)
 {
     sptr<IRemoteObject> object = HDI::ObjectCollector::GetInstance().NewObject(nullptr, INTERFACE_NAME);
-    ASSERT_EQ(object, nullptr);
+    EXPECT_EQ(object, nullptr);
     object = HDI::ObjectCollector::GetInstance().GetOrNewObject(nullptr, INTERFACE_NAME);
-    ASSERT_EQ(object, nullptr);
-    bool remove = false;
-    if (!TestRemove()) {
-        remove = true;
-    }
-    ASSERT_EQ(remove, true);
+    EXPECT_EQ(object, nullptr);
+    bool remove = TestRemove();
+    EXPECT_FALSE(remove);
 }
 } // namespace OHOS

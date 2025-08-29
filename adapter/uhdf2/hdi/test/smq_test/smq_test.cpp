@@ -350,8 +350,12 @@ HWTEST_F(SmqTest, SmqTest003, TestSize.Level1)
 {
     std::atomic<uint32_t> *syncerPtr_ =
         reinterpret_cast<std::atomic<uint32_t> *>(MapMemZone(SharedMemQueueMeta<uint8_t>::MEMZONE_SYNCER));
+    ASSERT_NE(syncerPtr_, nullptr);
+
     std::unique_ptr<OHOS::HDI::Base::SharedMemQueueSyncer> syncer_ =
         std::make_unique<OHOS::HDI::Base::SharedMemQueueSyncer>(syncerPtr_);
+    ASSERT_NE(syncer_, nullptr);
+
     syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
     syncer_->Wait(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE, 0);
     syncer_->Wake(OHOS::HDI::Base::SharedMemQueueSyncer::SYNC_WORD_WRITE);
