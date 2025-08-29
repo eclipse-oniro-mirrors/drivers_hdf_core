@@ -54,6 +54,7 @@ if (defined(ohos_lite)) {
         "c_utils:utils",
         "hilog:libhilog",
         "ipc:ipc_single",
+        "ipc:ipc_core",
         "samgr:samgr_proxy",
       ]
 
