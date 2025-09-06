@@ -576,7 +576,7 @@ static struct PanelInfo g_panelInfo = {
     .vbp = 15,              /* vertical back porch */
     .vfp = 10,              /* vertical front porch */
     .vsw = 36,               /* vertical sync width */
-    .clockFreq = 75000000,  /* clock */
+    .clockFreq = 65000000,  /* clock */
     .pWidth = 68,           /* physical width */
     .pHeight = 121,         /* physical height */
     .connectorType = DRM_MODE_CONNECTOR_DPI,   /* DRM_MODE_CONNECTOR_DPI=17 */
