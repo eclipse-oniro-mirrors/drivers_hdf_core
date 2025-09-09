@@ -573,10 +573,10 @@ static netdev_tx_t UsbnetAdapterStartXmit(SkBuff *skb, NetDevice *net)
 {
     HARCH_NET_INFO_PRINT ("netif_running=%d, netif_device_present=%d, netif_carrier_ok=%d", netif_running(net),
         netif_device_present(net), netif_carrier_ok(net));
-    HARCH_NET_INFO_PRINT ("skb->data = %x, len = %d", skb->data, skb->len);
     struct UsbnetAdapter *usbNet = netdev_priv(net);
     //1.time tamp
     if (skb) {
+        HARCH_NET_INFO_PRINT ("skb->data = %x, len = %d", skb->data, skb->len);
         skb_tx_timestamp(skb);
     }
     //2.fix up
