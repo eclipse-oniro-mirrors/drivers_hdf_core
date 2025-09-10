@@ -461,7 +461,8 @@ template <typename T>
 int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSec)
 {
     if (meta_ == nullptr) {
-        HDF_LOGE("Write, meta_ is nullptr, count: %{public}zu, waitTimeNanoSec: %{public}lld.", count, waitTimeNanoSec);
+        HDF_LOGE("Write, meta_ is nullptr, count: %{public}zu, waitTimeNanoSec: "
+            "%{public}" PRIi64 ".", count, waitTimeNanoSec);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (meta_->GetType() != SmqType::SYNCED_SMQ) {
@@ -540,7 +541,8 @@ template <typename T>
 int SharedMemQueue<T>::Read(T *data, size_t count, int64_t waitTimeNanoSec)
 {
     if (meta_ == nullptr) {
-        HDF_LOGE("Read, meta_ is nullptr, count: %{public}zu, waitTimeNanoSec: %{public}lld.", count, waitTimeNanoSec);
+        HDF_LOGE("Read, meta_ is nullptr, count: %{public}zu, waitTimeNanoSec: "
+            "%{public}" PRIi64 ".", count, waitTimeNanoSec);
         return HDF_ERR_INVALID_OBJECT;
     }
     if (meta_->GetType() != SmqType::SYNCED_SMQ) {
