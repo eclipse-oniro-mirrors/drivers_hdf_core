@@ -12,6 +12,7 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 #define DMA_TRANSFER_MAX_COUNT 12   // Support 96000 ~ 8000 sampling rate
+#define DMA_PCM_STOP 0x0F0F0000 // meanings dma stopped
 
 int32_t AudioDmaBufAlloc(struct PlatformData *data, enum AudioStreamType streamType)
 {
@@ -133,6 +134,7 @@ bool AudioDmaTransferStatusIsNormal(struct PlatformData *data, enum AudioStreamT
             data->renderBufInfo.trafCompCount++;
             if (data->renderBufInfo.trafCompCount > DMA_TRANSFER_MAX_COUNT) {
                 AUDIO_DRIVER_LOG_ERR("audio render send data to DMA too slow DMA will stop!");
+                data->renderBufInfo.runStatus |= DMA_PCM_STOP;
                 return false;
             }
         } else {
