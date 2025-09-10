@@ -278,6 +278,11 @@ SharedMemQueue<T>::SharedMemQueue(uint32_t elementCount, SmqType type)
     }
 
     meta_ = std::make_shared<SharedMemQueueMeta<T>>(elementCount, type);
+    if (meta_ == nullptr) {
+        HDF_LOGE("Create SharedMemQueueMeta failed,  meta_ is nullptr");
+        return;
+    }
+
     HDF_LOGI("create SharedMemQueue, count=%{public}u, size=%{public}zu", elementCount, meta_->GetSize());
     int ashmemFd = AshmemCreate("hdi_smq", Align(meta_->GetSize(), PAGE_SIZE));
     if (ashmemFd < 0) {
@@ -368,6 +373,11 @@ void SharedMemQueue<T>::Init(bool resetWriteOffset)
 template <typename T>
 uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("meta_ is nullptr, zoneType: %{public}u.", zoneType);
+        return reinterpret_cast<uintptr_t>(nullptr);
+    }
+
     auto memzone = meta_->GetMemZone(zoneType);
     if (memzone == nullptr) {
         HDF_LOGE("invalid smq mem zone type %{public}u", zoneType);
@@ -390,6 +400,10 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
 template <typename T>
 void SharedMemQueue<T>::UnMapMemZone(void *addr, uint32_t zoneType)
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("meta_ is nullptr, zoneType: %{public}u.", zoneType);
+        return;
+    }
     auto memzone = meta_->GetMemZone(zoneType);
     if (memzone == nullptr) {
         return;
@@ -446,6 +460,10 @@ int SharedMemQueue<T>::Read(T *data)
 template <typename T>
 int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSec)
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("Write, meta_ is nullptr, count: %{public}zu, waitTimeNanoSec: %{public}lld.", count, waitTimeNanoSec);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (meta_->GetType() != SmqType::SYNCED_SMQ) {
         HDF_LOGE("unsynecd smq not support blocking write");
         return HDF_ERR_NOT_SUPPORT;
@@ -494,6 +512,10 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
 template <typename T>
 int SharedMemQueue<T>::Reset()
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("meta_ is nullptr.");
+        return HDF_ERR_INVALID_OBJECT;
+    }
     // do not invoke this function in multi-thread in same side
     if (meta_->GetType() != SmqType::SYNCED_SMQ) {
         HDF_LOGW("unsynecd smq reset status");
@@ -517,6 +539,10 @@ int SharedMemQueue<T>::Reset()
 template <typename T>
 int SharedMemQueue<T>::Read(T *data, size_t count, int64_t waitTimeNanoSec)
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("Read, meta_ is nullptr, count: %{public}zu, waitTimeNanoSec: %{public}lld.", count, waitTimeNanoSec);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (meta_->GetType() != SmqType::SYNCED_SMQ) {
         HDF_LOGE("unsynecd smq not support blocking read");
         return HDF_ERR_NOT_SUPPORT;
@@ -576,6 +602,10 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data)
 template <typename T>
 int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("meta_ is nullptr, count: %{public}zu.", count);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     auto avalidWrite = GetAvalidWriteSize();
     if (count > avalidWrite && meta_->GetType() == SmqType::SYNCED_SMQ) {
         // synced smq can not overflow write
@@ -623,6 +653,10 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
 template <typename T>
 int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("meta_ is nullptr, count: %{public}zu.", count);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (count == 0) {
         HDF_LOGE("Try to read zero data from smq!");
         return -EINVAL;
@@ -670,12 +704,20 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
 template <typename T>
 size_t SharedMemQueue<T>::GetAvalidWriteSize()
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("GetAvalidWriteSize, meta_ is nullptr.");
+        return 0;
+    }
     return meta_->GetElementCount() - GetAvalidReadSize();
 }
 
 template <typename T>
 size_t SharedMemQueue<T>::GetAvalidReadSize()
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("GetAvalidReadSize, meta_ is nullptr.");
+        return 0;
+    }
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
     auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + meta_->GetElementCount() + 1 - rOffset);
@@ -685,6 +727,10 @@ size_t SharedMemQueue<T>::GetAvalidReadSize()
 template <typename T>
 size_t SharedMemQueue<T>::GetSize()
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("GetSize, meta_ is nullptr.");
+        return 0;
+    }
     return meta_->GetSize();
 }
 
