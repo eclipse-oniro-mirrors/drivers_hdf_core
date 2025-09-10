@@ -83,7 +83,7 @@ static void NetifStatusCallback(struct netif *netif, netif_nsc_reason_t reason,
     }
     dprintf("NetifStatusCallback(%s): nsc event: 0x%x\n", netif->full_name, (uint32_t)reason);
     if (strncpy_s(reportInfo.ifName, NETIF_NAME_LENGTH, netif->full_name, strlen(netif->full_name)) != EOK) {
-        dprintf("NetifStatusCallback(%s): copy netif full name fail: %s\n", netif->full_name);
+        dprintf("NetifStatusCallback(%s): copy netif full name fail.\n", netif->full_name);
         return;
     }
     switch (reason) {
