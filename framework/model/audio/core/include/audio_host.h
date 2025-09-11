@@ -114,6 +114,7 @@ enum CriBuffStatus {
     ENUM_CIR_BUFF_NORMAL    = -1,
     ENUM_CIR_BUFF_FULL      = -2,
     ENUM_CIR_BUFF_EMPTY     = -3,
+    ENUM_CIR_BUFF_STOP      = -4,
 };
 
 enum AudioStreamType {

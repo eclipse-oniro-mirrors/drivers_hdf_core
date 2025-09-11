@@ -19,6 +19,7 @@
 #define MAX_PERIOD_SIZE (8 * 1024)
 #define MIN_PERIOD_SIZE (2 * 1024)
 #define SECOND_TO_MILLISECOND  1000
+#define DMA_PCM_START_STOP 0x0f0f0002
 
 const int32_t PERIOD_COUNT = 4;
 const int32_t RENDER_TRAF_BUF_SIZE = 1024;
@@ -327,6 +328,9 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     status = AudioDmaBuffStatus(card, AUDIO_RENDER_STREAM);
     if (status != ENUM_CIR_BUFF_NORMAL) {
         txData->status = status;
+        if (data->renderBufInfo.runStatus == DMA_PCM_START_STOP) {
+            txData->status = ENUM_CIR_BUFF_STOP;
+        }
         return HDF_SUCCESS;
     }
 
