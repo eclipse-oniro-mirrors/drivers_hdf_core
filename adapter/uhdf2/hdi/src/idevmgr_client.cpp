@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,7 @@
 #include <iproxy_broker.h>
 #include <iservice_registry.h>
 #include <object_collector.h>
-#include "hdi_mutex.h"
+
 #include "idevmgr_hdi.h"
 #include "iservmgr_hdi.h"
 
@@ -32,7 +32,7 @@ namespace DeviceManager {
 namespace V1_0 {
 #define HDF_MAX_HOST_COUNT 0xFF
 
-mutex_t g_remoteMutex;
+std::mutex g_remoteMutex;
 
 enum DevmgrCmdId : uint32_t {
     DEVMGR_SERVICE_ATTACH_DEVICE_HOST = 1,
@@ -71,7 +71,7 @@ int32_t DeviceManagerProxy::LoadDevice(const std::string &serviceName)
         return HDF_FAILURE;
     }
 
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -97,7 +97,7 @@ int32_t DeviceManagerProxy::UnloadDevice(const std::string &serviceName)
         return HDF_FAILURE;
     }
 
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -168,7 +168,7 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
     }
 
     MessageOption option;
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -221,7 +221,7 @@ int32_t DeviceManagerProxy::ListAllHost(std::vector<int> &pidList)
     }
 
     MessageOption option;
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -250,7 +250,7 @@ sptr<IDeviceManager> IDeviceManager::Get()
         return nullptr;
     }
 
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = servmgr->GetService("hdf_device_manager");
     if (remote != nullptr) {
         return hdi_facecast<IDeviceManager>(remote);

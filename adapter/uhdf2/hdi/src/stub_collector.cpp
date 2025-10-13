@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,12 +17,11 @@
 #include <hdf_core_log.h>
 #include <map>
 #include <mutex>
-#include "hdi_mutex.h"
 
 static std::map<std::string, StubConstructor *> g_constructorMap;
 static std::map<void *, HdfRemoteService **> g_stubMap;
-static mutex_t g_consMapLock;
-static mutex_t g_stubMapLock;
+static std::mutex g_consMapLock;
+static std::mutex g_stubMapLock;
 
 void StubConstructorRegister(const char *ifDesc, struct StubConstructor *constructor)
 {
@@ -30,7 +29,7 @@ void StubConstructorRegister(const char *ifDesc, struct StubConstructor *constru
         return;
     }
 
-    const std::lock_guard<mutex_t> lock(g_consMapLock);
+    const std::lock_guard<std::mutex> lock(g_consMapLock);
     if (g_constructorMap.find(ifDesc) != g_constructorMap.end()) {
         HDF_LOGE("repeat registration stub constructor for if %{public}s", ifDesc);
         return;
@@ -45,7 +44,7 @@ void StubConstructorUnregister(const char *ifDesc, const struct StubConstructor 
         return;
     }
 
-    const std::lock_guard<mutex_t> lock(g_consMapLock);
+    const std::lock_guard<std::mutex> lock(g_consMapLock);
     g_constructorMap.erase(ifDesc);
     return;
 }
@@ -55,14 +54,14 @@ struct HdfRemoteService **StubCollectorGetOrNewObject(const char *ifDesc, void *
     if (ifDesc == nullptr || servPtr == nullptr) {
         return nullptr;
     }
-    const std::lock_guard<mutex_t> stublock(g_stubMapLock);
+    const std::lock_guard<std::mutex> stublock(g_stubMapLock);
     auto stub = g_stubMap.find(servPtr);
     if (stub != g_stubMap.end()) {
         return stub->second;
     }
 
     HDF_LOGI("g_constructorMap size %{public}zu", g_constructorMap.size());
-    const std::lock_guard<mutex_t> lock(g_consMapLock);
+    const std::lock_guard<std::mutex> lock(g_consMapLock);
     for (auto &consruct : g_constructorMap) {
         HDF_LOGI("g_constructorMap it: %{public}s", consruct.first.c_str());
     }
@@ -93,12 +92,12 @@ void StubCollectorRemoveObject(const char *ifDesc, void *servPtr)
         return;
     }
 
-    const std::lock_guard<mutex_t> stublock(g_stubMapLock);
+    const std::lock_guard<std::mutex> stublock(g_stubMapLock);
     auto stub = g_stubMap.find(servPtr);
     if (stub == g_stubMap.end()) {
         return;
     }
-    const std::lock_guard<mutex_t> lock(g_consMapLock);
+    const std::lock_guard<std::mutex> lock(g_consMapLock);
     auto constructor = g_constructorMap.find(ifDesc);
     if (constructor == g_constructorMap.end()) {
         HDF_LOGE("no stub constructor for %{public}s", ifDesc);

@@ -22,7 +22,7 @@
 #include <iservice_registry.h>
 #include <object_collector.h>
 #include <string_ex.h>
-#include "hdi_mutex.h"
+
 #include "hdf_device_manager_interface_code.h"
 #include "iservmgr_hdi.h"
 
@@ -35,7 +35,7 @@ namespace HDI {
 namespace ServiceManager {
 namespace V1_0 {
 constexpr int DEVICE_SERVICE_MANAGER_SA_ID = 5100;
-mutex_t g_remoteMutex;
+std::mutex g_remoteMutex;
 
 class ServiceManagerProxy : public IProxyBroker<IServiceManager> {
 public:
@@ -60,7 +60,7 @@ sptr<IServiceManager> IServiceManager::Get()
         return nullptr;
     }
 
-    std::lock_guard<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = saManager->GetSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID);
     if (remote != nullptr) {
         return new ServiceManagerProxy(remote);
@@ -82,7 +82,7 @@ int32_t ServiceManagerProxy::RegisterServiceStatusListener(
         return HDF_FAILURE;
     }
 
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -106,7 +106,7 @@ int32_t ServiceManagerProxy::UnregisterServiceStatusListener(::OHOS::sptr<IServS
         return HDF_FAILURE;
     }
 
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -135,7 +135,7 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
     }
 
     MessageOption option;
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return nullptr;
@@ -176,7 +176,7 @@ int32_t ServiceManagerProxy::ListAllService(std::vector<HdiServiceInfo> &service
     }
 
     MessageOption option;
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;
@@ -208,7 +208,7 @@ int32_t ServiceManagerProxy::ListServiceByInterfaceDesc(
     }
 
     MessageOption option;
-    std::unique_lock<mutex_t> lock(g_remoteMutex);
+    std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
         return HDF_ERR_INVALID_PARAM;

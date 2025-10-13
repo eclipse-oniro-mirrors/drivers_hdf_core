@@ -26,9 +26,4 @@ declare_args() {
 
   with_sample = false
   hdf_core_default_peripheral_config = true
-
-  with_ffrt = false
-  if (defined(global_parts_info) && defined(global_parts_info.resourceschedule_ffrt)) {
-    with_ffrt = true
-  }
 }
