@@ -23,7 +23,7 @@
 #include <securec.h>
 #include <string>
 #include <unistd.h>
-#include "hdi_mutex.h"
+
 #include "hdf_base.h"
 #include "hdf_core_log.h"
 
@@ -93,7 +93,7 @@ struct HdiImpl {
 };
 
 static std::map<std::string, HdiImpl> g_hdiConstructorMap;
-static mutex_t g_loaderMutex;
+static std::mutex g_loaderMutex;
 
 static int32_t ParseInterface(
     const std::string &desc, std::string &interface, std::string &libName, const char *serviceName)
@@ -152,7 +152,7 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
         return nullptr;
     }
 
-    std::lock_guard<mutex_t> lock(g_loaderMutex);
+    std::lock_guard<std::mutex> lock(g_loaderMutex);
     auto constructor = g_hdiConstructorMap.find(libName);
     if (constructor != g_hdiConstructorMap.end()) {
         return constructor->second.constructor();
@@ -200,7 +200,7 @@ void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
         HDF_LOGE("%{public}s: failed to parse hdi interface info from '%{public}s'", __func__, desc);
         return;
     }
-    std::lock_guard<mutex_t> lock(g_loaderMutex);
+    std::lock_guard<std::mutex> lock(g_loaderMutex);
     auto constructor = g_hdiConstructorMap.find(libName);
     if (constructor != g_hdiConstructorMap.end() && constructor->second.destructor != nullptr) {
         constructor->second.destructor(impl);
