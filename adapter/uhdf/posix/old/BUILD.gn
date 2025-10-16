@@ -17,10 +17,11 @@ shared_library("hdf_posix_osal") {
   hdf_framework_path = "./../../../../framework"
   hdf_core_path = "./../../../../../hdf_core"
   output_name = "hdf_osal"
-  deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//third_party/bounds_checking_function:libsec_shared",
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "hilog_lite:hilog_shared"
   ]
+
   sources = [
     "$hdf_framework_path/support/posix/src/osal_mem.c",
     "$hdf_framework_path/support/posix/src/osal_mutex.c",

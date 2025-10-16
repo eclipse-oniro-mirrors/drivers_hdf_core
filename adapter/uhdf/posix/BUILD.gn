@@ -40,9 +40,9 @@ if (defined(ohos_lite)) {
       "$framework_core_relative_path/osal_time.c",
     ]
 
-    deps = [
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-      "//third_party/bounds_checking_function:libsec_shared",
+    external_deps = [
+      "hilog_lite:hilog_shared",
+      "bounds_checking_function:libsec_shared"
     ]
 
     defines = [ "__USER__" ]

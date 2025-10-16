@@ -100,9 +100,11 @@ if (hdf_core_platform_test_support) {
       "$hdf_adapter_path/uhdf/manager:hdf_core",
       "$hdf_adapter_path/uhdf/platform:hdf_platform",
       "$hdf_adapter_path/uhdf/posix:hdf_posix_osal",
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     ]
-    public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+    external_deps = [
+      "hilog_lite:hilog_shared",
+      "bounds_checking_function:libsec_shared"
+    ]
     cflags = [
       "-Wall",
       "-Wextra",
@@ -153,9 +155,11 @@ if (hdf_core_platform_test_support) {
       "$hdf_adapter_path/uhdf/manager:hdf_core",
       "$hdf_adapter_path/uhdf/platform:hdf_platform",
       "$hdf_adapter_path/uhdf/posix:hdf_posix_osal",
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     ]
-    public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+    external_deps = [
+      "hilog_lite:hilog_shared",
+      "bounds_checking_function:libsec_shared"
+    ]
     cflags = [
       "-Wall",
       "-Wextra",

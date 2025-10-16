@@ -72,12 +72,12 @@ ohos_shared_library("hdf_platform") {
     "$hdf_framework_path/support/platform/src/watchdog/watchdog_if_u.c",
   ]
 
-  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
   public_deps = [ "$hdf_adapter_path/uhdf/manager:hdf_core" ]
 
   external_deps = [
     "hdf_core:hdf_posix_osal",
     "hilog_lite:hilog_shared",
+    "bounds_checking_function:libsec_shared"
   ]
 
   defines = [ "__USER__" ]

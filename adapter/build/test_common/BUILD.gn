@@ -48,9 +48,11 @@ if (defined(ohos_lite)) {
     deps = [
       "$HDF_ADAPTER_PATH/uhdf/manager:hdf_core",
       "$HDF_ADAPTER_PATH/uhdf/posix:hdf_posix_osal",
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     ]
-    public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+    external_deps = [
+      "hilog_lite:hilog_shared",
+      "bounds_checking_function:libsec_shared"
+    ]
   }
 } else {
   ohos_static_library("libhdf_test_common") {

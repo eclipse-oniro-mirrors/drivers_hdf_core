@@ -31,9 +31,7 @@
                 "samgr",
                 "selinux_adapter",
                 "hilog_lite",
-                "hicollie"
-            ],
-            "third_party": [
+                "hicollie",
                 "bounds_checking_function"
             ]
         },
@@ -154,6 +152,15 @@
                 },
                 {
                     "name": "//drivers/hdf_core/framework/tools/hc-gen:hc_gen"
+                },
+                {
+                    "name": "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi_base",
+                    "header": {
+                        "header_files": [
+                            "hdi/hdi_support.h"
+                        ],
+                        "header_base": "//drivers/hdf_core/interfaces/inner_api"
+                    }
                 }
             ],
             "test": [

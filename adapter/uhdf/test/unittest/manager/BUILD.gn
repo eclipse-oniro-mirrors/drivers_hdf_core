@@ -40,9 +40,12 @@ unittest("hdf_adapter_uhdf_test_manager") {
     "$hdf_core_path/adapter/build/test_common:libhdf_test_common",
     "$hdf_core_path/adapter/uhdf/manager:hdf_core",
     "$hdf_core_path/adapter/uhdf/posix:hdf_posix_osal",
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  external_deps = [
+    "hilog_lite:hilog_shared",
+    "bounds_checking_function:libsec_shared"
+  ]
 }
 
 unittest("hdf_adapter_uhdf_test_ioservice") {
@@ -70,9 +73,11 @@ unittest("hdf_adapter_uhdf_test_ioservice") {
     "$hdf_core_path/adapter/build/test_common:libhdf_test_common",
     "$hdf_core_path/adapter/uhdf/manager:hdf_core",
     "$hdf_core_path/adapter/uhdf/posix:hdf_posix_osal",
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  external_deps = [
+    "hilog_lite:hilog_shared",
+    "bounds_checking_function:libsec_shared"
+  ]
 }
 
 unittest("hdf_adapter_uhdf_test_sbuf") {
@@ -99,9 +104,11 @@ unittest("hdf_adapter_uhdf_test_sbuf") {
     "$hdf_core_path/adapter/build/test_common:libhdf_test_common",
     "$hdf_core_path/adapter/uhdf/manager:hdf_core",
     "$hdf_core_path/adapter/uhdf/posix:hdf_posix_osal",
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  external_deps = [
+    "hilog_lite:hilog_shared",
+    "bounds_checking_function:libsec_shared"
+  ]
 }
 
 unittest("hdf_adapter_uhdf_test_door") {
@@ -136,9 +143,11 @@ unittest("hdf_adapter_uhdf_test_door") {
     "$hdf_core_path/adapter/build/test_common:libhdf_test_common",
     "$hdf_core_path/adapter/uhdf/manager:hdf_core",
     "$hdf_core_path/adapter/uhdf/posix:hdf_posix_osal",
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  external_deps = [
+    "hilog_lite:hilog_shared",
+    "bounds_checking_function:libsec_shared"
+  ]
 }
 
 unittest("hdf_adapter_uhdf_test_pm") {
@@ -167,7 +176,9 @@ unittest("hdf_adapter_uhdf_test_pm") {
     "$hdf_core_path/adapter/build/test_common:libhdf_test_common",
     "$hdf_core_path/adapter/uhdf/manager:hdf_core",
     "$hdf_core_path/adapter/uhdf/posix:hdf_posix_osal",
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  external_deps = [
+    "hilog_lite:hilog_shared",
+    "bounds_checking_function:libsec_shared"
+  ]
 }
