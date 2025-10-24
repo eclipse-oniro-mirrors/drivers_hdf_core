@@ -23,6 +23,7 @@ ohos_unittest("stub_collector_test") {
 
   deps = [
     "$hdf_uhdf_path/hdi:libhdi",
+    "$hdf_uhdf_path/hdi:libhdi_base",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
   ]

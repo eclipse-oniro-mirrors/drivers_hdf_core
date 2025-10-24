@@ -52,12 +52,12 @@ ohos_shared_library("hdf_core") {
     "$hdf_frameworks_path/utils/src/hdf_sbuf_impl_raw.c",
   ]
 
-  deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//third_party/bounds_checking_function:libsec_shared",
+  external_deps = [
+    "hdf_core:hdf_posix_osal",
+    "bounds_checking_function:libsec_shared",
+    "hilog_lite:hilog_shared"
   ]
 
-  external_deps = [ "hdf_core:hdf_posix_osal" ]
   defines = [ "__USER__" ]
 
   # install_images = [ chipset_base_dir ]

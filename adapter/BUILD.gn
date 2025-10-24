@@ -22,6 +22,7 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf/posix:hdf_posix_osal",
       "$hdf_adapter_path/uhdf/posix/old:hdf_posix",
       "$hdf_adapter_path/uhdf2/hdi:libhdi",
+      "$hdf_adapter_path/uhdf2/hdi:libhdi_base",
     ]
   }
   group("uhdf_test_entry") {
@@ -36,6 +37,7 @@ if (defined(ohos_lite)) {
 
     deps = [
       "$hdf_adapter_path/uhdf2/hdi:libhdi",
+      "$hdf_adapter_path/uhdf2/hdi:libhdi_base",
       "$hdf_adapter_path/uhdf2/host:hdf_devhost",
       "$hdf_adapter_path/uhdf2/host:libhdf_host",
       "$hdf_adapter_path/uhdf2/ipc:libhdf_ipc_adapter",
