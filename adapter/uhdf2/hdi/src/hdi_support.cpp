@@ -158,11 +158,16 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
     }
 
     HdiImpl hdiImpl;
+    Dl_namespace ns_ps;
     hdiImpl.handler = dlopen(libName.c_str(), RTLD_LAZY);
+    if ((hdiImpl.handler == nullptr) && !dlns_get("passthrough", &ns_ps)) {
+        hdiImpl.handler = dlopen_ns(&ns_ps, libName.c_str(), RTLD_LAZY);
+    }
     if (hdiImpl.handler == nullptr) {
         HDF_LOGE("%{public}s failed to dlopen, %{public}s", __func__, dlerror());
         return nullptr;
     }
+
     std::string symName = interfaceName + "ImplGetInstance";
     hdiImpl.constructor = reinterpret_cast<HdiImplInstanceFunc>(dlsym(hdiImpl.handler, symName.data()));
     if (hdiImpl.constructor == nullptr) {
