@@ -35,6 +35,11 @@ void ServiceFuzzTest(const uint8_t *data, size_t size)
 
     Parcel parcel;
     parcel.WriteBuffer(data, size);
+    auto servicename = parcel.ReadCString();
+    struct HdfIoService *serv = HdfIoServiceBind(servicename);
+    if (serv == nullptr) {
+        HDF_LOGE("%{public}s: HdfIoServiceBind failed!", __func__);
+    }
     struct HdfObject *object = DevmgrServiceCreate();
     struct IDevmgrService *service = DevmgrServiceGetInstance();
     struct DevmgrService *dmService = reinterpret_cast<struct DevmgrService *>(service);
