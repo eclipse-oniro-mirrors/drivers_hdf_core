@@ -10,6 +10,7 @@
 #include "devsvc_manager_proxy.h"
 #include "devsvc_manager_stub.h"
 #include "hdf_core_log.h"
+#include <fuzzer/FuzzedDataProvider.h>
 
 extern "C" int DevSvcManagerStubDispatch(
     struct HdfRemoteService *service, int code, struct HdfSBuf *data, struct HdfSBuf *reply);
@@ -110,10 +111,15 @@ static bool DevsvcManagerFuzzTest(int32_t code, const uint8_t *data, size_t size
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    FuzzedDataProvider provider(data, size);
+
     int32_t codeSize = sizeof(servmgrCode) / sizeof(servmgrCode[0]);
     for (int32_t i = 0; i < codeSize; ++i) {
         int32_t code = servmgrCode[i];
-        DevsvcManagerFuzzTest(code, data, size);
+        std::string fuzzedData = provider.ConsumeRandomLengthString();
+        const uint8_t *fuzzedDataPtr = reinterpret_cast<const uint8_t *>(fuzzedData.c_str());
+        size_t fuzzedDataSize = fuzzedData.size();
+        DevsvcManagerFuzzTest(code, fuzzedDataPtr, fuzzedDataSize);
     }
     return HDF_SUCCESS;
 }

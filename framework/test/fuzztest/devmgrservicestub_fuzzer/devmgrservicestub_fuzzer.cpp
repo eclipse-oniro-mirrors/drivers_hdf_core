@@ -10,6 +10,7 @@
 #include "devmgr_service_stub.h"
 #include "hdf_base.h"
 #include "hdf_core_log.h"
+#include <fuzzer/FuzzedDataProvider.h>
 
 extern "C" int32_t DevmgrServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply);
@@ -108,10 +109,15 @@ static void DevmgrServiceStubReleaseFuzzTest()
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    FuzzedDataProvider provider(data, size);
+
     int32_t codeSize = sizeof(g_devMgrCode) / sizeof(g_devMgrCode[0]);
     for (int32_t i = 0; i < codeSize; ++i) {
         int32_t code = g_devMgrCode[i];
-        AttachDeviceHostFuzzTest(code, data, size);
+        std::string fuzzedData = provider.ConsumeRandomLengthString();
+        const uint8_t *fuzzedDataPtr = reinterpret_cast<const uint8_t *>(fuzzedData.c_str());
+        size_t fuzzedDataSize = fuzzedData.size();
+        AttachDeviceHostFuzzTest(code, fuzzedDataPtr, fuzzedDataSize);
     }
 
     DevmgrServiceStubReleaseFuzzTest();
