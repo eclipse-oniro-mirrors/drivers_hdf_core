@@ -36,6 +36,30 @@ struct DeviceTokenClnt *DeviceTokenClntNewInstance(struct IHdfDeviceToken *token
 void DeviceTokenClntFreeInstance(struct DeviceTokenClnt *tokenClnt)
 {
     if (tokenClnt != NULL) {
+        if (tokenClnt->tokenIf != NULL) {
+            if (tokenClnt->tokenIf->servName != NULL) {
+                OsalMemFree((void *)tokenClnt->tokenIf->servName);
+            }
+            if (tokenClnt->tokenIf->deviceName != NULL) {
+                OsalMemFree((void *)tokenClnt->tokenIf->deviceName);
+            }
+            OsalMemFree(tokenClnt->tokenIf);
+        }
+        if (tokenClnt->deviceInfo != NULL) {
+            if (tokenClnt->deviceInfo->moduleName != NULL) {
+                OsalMemFree((void *)tokenClnt->deviceInfo->moduleName);
+            }
+            if (tokenClnt->deviceInfo->svcName != NULL) {
+                OsalMemFree((void *)tokenClnt->deviceInfo->svcName);
+            }
+            if (tokenClnt->deviceInfo->deviceMatchAttr != NULL) {
+                OsalMemFree((void *)tokenClnt->deviceInfo->deviceMatchAttr);
+            }
+            if (tokenClnt->deviceInfo->deviceName != NULL) {
+                OsalMemFree((void *)tokenClnt->deviceInfo->deviceName);
+            }
+            OsalMemFree((void *)tokenClnt->deviceInfo);
+        }
         OsalMemFree(tokenClnt);
     }
 }

@@ -253,6 +253,8 @@ void OsalUnregisterCdev(struct OsalCdev* cdev)
 void OsalFreeCdev(struct OsalCdev* cdev)
 {
     if (cdev != NULL) {
+        OsalMemFree((void *)cdev->priv);
+        OsalMemFree((void *)cdev->opsImpl);
         OsalMemFree(cdev);
     }
 }

@@ -734,6 +734,7 @@ struct HdfIoService *HdfIoServiceAdapterRegCdev(struct HdfVNodeAdapter *vnodeAda
     }
     return &vnodeAdapter->ioService;
 ERROR:
+    OsalFreeCdev(vnodeAdapter->cdev);
     OsalMemFree(vnodeAdapter->vNodePath);
     OsalMemFree(vnodeAdapter);
     return NULL;
