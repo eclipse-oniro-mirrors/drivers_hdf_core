@@ -38,7 +38,7 @@
         }                                                       \
         HDF_LOGD("%{public}s, " fmt, __func__, ##__VA_ARGS__);  \
         return (ret);                                           \
-    } while(0)
+    } while (0)
 
 namespace {
 #ifdef __LITEOS__
