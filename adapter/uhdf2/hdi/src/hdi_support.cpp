@@ -225,7 +225,7 @@ private:
     HdiImplConstructorDelegate() = default;
     void *ConstructFromCache(const LibImplInfo& implInfo, bool &misMatch);
     void *SearchMatchedLibrary(const LibImplInfo& implInfo, const std::string &interfaceName);
-    void *SearchMatchedLibraryInDir(const LibImplInfo& implInfo, const std::string &interfaceName);
+    void *SearchMatchedLibraryInDirs(const LibImplInfo& implInfo, const std::string &interfaceName);
     bool RegexMatch(const std::string &fileName, const LibImplInfo &implInfo, LibImplInfo &fileImplInfo);
 private:
     std::vector<HdiImplConstructor> hdiImplConstructorVect;
@@ -314,10 +314,10 @@ void *HdiImplConstructorDelegate::SearchMatchedLibrary(const LibImplInfo& implIn
         return impl;
     }
 
-    return SearchMatchedLibraryInDir(implInfo, interfaceName);
+    return SearchMatchedLibraryInDirs(implInfo, interfaceName);
 }
 
-void *HdiImplConstructorDelegate::SearchMatchedLibraryInDir(const LibImplInfo& implInfo,
+void *HdiImplConstructorDelegate::SearchMatchedLibraryInDirs(const LibImplInfo& implInfo,
     const std::string &interfaceName)
 {
     const char * const paths[] = {
