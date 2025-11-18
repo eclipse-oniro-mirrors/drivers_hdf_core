@@ -29,17 +29,6 @@
 
 #define HDF_LOG_TAG load_hdi
 
-#define NOP
-
-#define CHECK_TRUE_AND_RETURN(cond, ret, fmt, ...)              \
-    do {                                                        \
-        if  (!(cond)) {                                         \
-            break;                                              \
-        }                                                       \
-        HDF_LOGD("%{public}s, " fmt, __func__, ##__VA_ARGS__);  \
-        return (ret);                                           \
-    } while (0)
-
 namespace {
 #ifdef __LITEOS__
 static constexpr const char *HDI_SO_EXTENSION = ".so";
@@ -226,6 +215,8 @@ private:
     void *ConstructFromCache(const LibImplInfo& implInfo, bool &misMatch);
     void *SearchMatchedLibrary(const LibImplInfo& implInfo, const std::string &interfaceName);
     void *SearchMatchedLibraryInDirs(const LibImplInfo& implInfo, const std::string &interfaceName);
+    void *SearchMatchedLibraryInDir(const LibImplInfo& implInfo,
+        const std::string &interfaceName, const char *directory, bool &misMatch);
     bool RegexMatch(const std::string &fileName, const LibImplInfo &implInfo, LibImplInfo &fileImplInfo);
 private:
     std::vector<HdiImplConstructor> hdiImplConstructorVect;
@@ -330,39 +321,57 @@ void *HdiImplConstructorDelegate::SearchMatchedLibraryInDirs(const LibImplInfo& 
     };
 
     // find matched library in the system
-    DIR *dir;
-    struct dirent *entry;
     for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); ++i) {
         const char *path = paths[i];
-        dir = opendir(path);
-        if (dir == nullptr) {
-            HDF_LOGW("%{public}s: failed to open %{public}s, error: %{public}s",
-                __func__, path, strerror(errno));
+        bool misMatch = false;
+        void *impl = SearchMatchedLibraryInDir(implInfo, interfaceName, path, misMatch);
+        if (impl != nullptr || misMatch) {
+            return impl;
+        }
+    }
+    return nullptr;
+}
+
+void *HdiImplConstructorDelegate::SearchMatchedLibraryInDir(const LibImplInfo& implInfo,
+    const std::string &interfaceName, const char *directory, bool &misMatch)
+{
+    misMatch = false;
+    struct dirent *entry;
+    if (directory == nullptr) {
+        return nullptr;
+    }
+
+    DIR *dir = opendir(directory);
+    if (dir == nullptr) {
+        HDF_LOGW("%{public}s: failed to open %{public}s, error: %{public}s",
+            __func__, directory, strerror(errno));
+        return nullptr;
+    }
+    while ((entry = readdir(dir)) != nullptr) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 || entry->d_type != DT_REG) {
             continue;
         }
-        while ((entry = readdir(dir)) != nullptr) {
-            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 || entry->d_type != DT_REG) {
-                continue;
-            }
-            std::string fileName = entry->d_name;
-            LibImplInfo fileImplInfo;
-            if (RegexMatch(fileName, implInfo, fileImplInfo)) {
-                HdiImpl hdiImplTmp(interfaceName, ToLibImplName(fileImplInfo));
-                struct HdiImplConstructor hdiImplConstructorTmp = {
-                    .libImplInfo = fileImplInfo,
-                    .hdiImpl = hdiImplTmp
-                };
-                hdiImplConstructorVect.push_back(std::move(hdiImplConstructorTmp));
+        std::string fileName = entry->d_name;
+        LibImplInfo fileImplInfo;
+        if (RegexMatch(fileName, implInfo, fileImplInfo)) {
+            HdiImpl hdiImplTmp(interfaceName, ToLibImplName(fileImplInfo));
+            struct HdiImplConstructor hdiImplConstructorTmp = {
+                .libImplInfo = fileImplInfo,
+                .hdiImpl = hdiImplTmp
+            };
+            hdiImplConstructorVect.push_back(std::move(hdiImplConstructorTmp));
 
-                closedir(dir);
-                CHECK_TRUE_AND_RETURN(implInfo.minorVersion > hdiImplConstructorVect.back().libImplInfo.minorVersion,
-                    nullptr, "cache load %{public}s, but try load %{public}s.",
+            closedir(dir);
+            if (implInfo.minorVersion > hdiImplConstructorVect.back().libImplInfo.minorVersion) {
+                HDF_LOGD("%{public}s, cache load %{public}s, but try load %{public}s.", __func__,
                     ToLibImplName(hdiImplConstructorVect.back().libImplInfo).c_str(), ToLibImplName(implInfo).c_str());
-                return hdiImplConstructorVect.back().hdiImpl.Construct();
+                misMatch = true;
+                return nullptr;
             }
+            return hdiImplConstructorVect.back().hdiImpl.Construct();
         }
-        closedir(dir);
     }
+    closedir(dir);
     return nullptr;
 }
 
