@@ -302,6 +302,7 @@ void *HdiImplConstructorDelegate::SearchMatchedLibrary(const LibImplInfo& implIn
         if (impl == nullptr) {
             hdiImplConstructor.hdiImpl.Unload();
         }
+        hdiImplConstructorVect.clear();
         return impl;
     }
 
@@ -366,9 +367,12 @@ void *HdiImplConstructorDelegate::SearchMatchedLibraryInDir(const LibImplInfo& i
                 HDF_LOGD("%{public}s, cache load %{public}s, but try load %{public}s.", __func__,
                     ToLibImplName(hdiImplConstructorVect.back().libImplInfo).c_str(), ToLibImplName(implInfo).c_str());
                 misMatch = true;
+                hdiImplConstructorVect.clear();
                 return nullptr;
             }
-            return hdiImplConstructorVect.back().hdiImpl.Construct();
+            void *impl = hdiImplConstructorVect.back().hdiImpl.Construct();
+            hdiImplConstructorVect.clear();
+            return impl;
         }
     }
     closedir(dir);
