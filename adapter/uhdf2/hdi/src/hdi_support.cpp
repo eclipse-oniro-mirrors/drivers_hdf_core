@@ -165,6 +165,7 @@ struct HdiImpl {
         }
         return impl;
     }
+    
     void Destruct(void *impl)
     {
         if (useCount > 0) {
