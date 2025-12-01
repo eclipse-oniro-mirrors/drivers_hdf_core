@@ -252,7 +252,8 @@ void HdiImplConstructorDelegate::Destruct(const LibImplInfo &implInfo, void *imp
                     elem.libImplInfo.majorVersion, elem.libImplInfo.minorVersion);
                 return;
             }
-            return elem.hdiImpl.Destruct(impl);
+            elem.hdiImpl.Destruct(impl);
+            return;
         }
     }
     return;
