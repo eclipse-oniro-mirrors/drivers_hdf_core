@@ -1,0 +1,40 @@
+commit 42564e30792b17af0cca63df232152973a7f42cf
+Author: chentao <chentao@beiqicloud.com>
+Date:   Mon Oct 13 17:22:37 2025 +0800
+
+    audio adm
+    
+    Change-Id: I2916b6573c1bf05dc26d796e076545e28980b083
+
+diff --git a/adapter/khdf/linux/model/audio/Kconfig b/adapter/khdf/linux/model/audio/Kconfig
+index 6e50f130..8d4401d7 100644
+--- a/adapter/khdf/linux/model/audio/Kconfig
++++ b/adapter/khdf/linux/model/audio/Kconfig
+@@ -56,6 +56,13 @@ config DRIVERS_HDF_AUDIO_RK3588
+     help
+         Answer Y to choice HDF Audio Codec driver For RK3588.
+ 
++config DRIVERS_HDF_AUDIO_BQ3588
++    bool "Enable HDF Audio Codec driver"
++    default n
++    depends on DRIVERS_HDF_AUDIO
++    help
++        Answer Y to choice HDF Audio Codec driver For BQ3588.
++
+ config DRIVERS_HDF_AUDIO_ANA_HEADSET_RK3566
+     bool "Audio Headset support"
+     default n
+diff --git a/adapter/khdf/linux/model/audio/Makefile b/adapter/khdf/linux/model/audio/Makefile
+index 745c6985..31f22cca 100644
+--- a/adapter/khdf/linux/model/audio/Makefile
++++ b/adapter/khdf/linux/model/audio/Makefile
+@@ -59,6 +59,9 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
+ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
+           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
+ 
++obj-$(CONFIG_DRIVERS_HDF_AUDIO_BQ3588) += \
++          $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/bearkey/bq3588/audio_drivers/
++
+ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3566) += \
+           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/
+ 
