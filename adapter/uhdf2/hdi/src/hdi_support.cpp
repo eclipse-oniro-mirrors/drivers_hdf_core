@@ -316,9 +316,11 @@ void *HdiImplConstructorDelegate::SearchMatchedLibraryInDirs(const LibImplInfo& 
         "/vendor/lib64",
         "/vendor/lib64/passthrough",
         "/chip_prod/lib64",
+        "/chip_prod/lib64/passthrough",
         "/vendor/lib",
         "/vendor/lib/passthrough",
-        "/chip_prod/lib"
+        "/chip_prod/lib",
+        "/chip_prod/lib/passthrough"
     };
 
     // find matched library in the system
