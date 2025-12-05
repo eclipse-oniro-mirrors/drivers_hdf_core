@@ -243,7 +243,7 @@ void SearchMatchedLibraryInDir(const LibImplInfo& implInfo,
 }
 
 static void *ConstructMatchedLibraryInDirs(const LibImplInfo& implInfo,
-                                            const std::string &interfaceName)
+    const std::string &interfaceName)
 {
     const char * const paths[] = {
         "/vendor/lib64",
@@ -377,6 +377,9 @@ void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
 
     constructor = g_hdiMaxConstructorMap.find(libInfo.libNameBase);
     if (constructor != g_hdiMaxConstructorMap.end() && constructor->second.destructor != nullptr) {
-        constructor->second.destructor(impl);
+        if (libInfo.majorVersion == constructor->second.libImplInfo.majorVersion &&
+            libInfo.minorVersion <= constructor->second.libImplInfo.minorVersion) {
+            constructor->second.destructor(impl);
+        }
     }
 }
