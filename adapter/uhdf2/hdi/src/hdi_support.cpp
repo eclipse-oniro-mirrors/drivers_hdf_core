@@ -105,6 +105,7 @@ struct HdiImpl {
     {
         if (handler != nullptr) {
             dlclose(handler);
+            handler = nullptr;
         }
     }
     void *handler;
