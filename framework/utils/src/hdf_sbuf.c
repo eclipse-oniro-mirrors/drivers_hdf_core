@@ -7,6 +7,12 @@
  */
 
 #include "hdf_sbuf.h"
+#ifndef __LITEOS__
+#ifndef __KERNEL__
+#include <pthread.h>
+#include <dlfcn.h>
+#endif
+#endif
 #include "hdf_core_log.h"
 #include "hdf_sbuf_impl.h"
 #include "osal_mem.h"
@@ -46,7 +52,7 @@ struct HdfSBufImpl *SbufBindIpc(uintptr_t base, size_t size) __attribute__((weak
 struct HdfSBufImpl *SbufObtainIpcHw(size_t capacity) __attribute__((weak));
 struct HdfSBufImpl *SbufBindRawIpcHw(uintptr_t base, size_t size) __attribute__((weak));
 
-static const struct HdfSbufConstructor g_sbufConstructorMap[SBUF_TYPE_MAX] = {
+static struct HdfSbufConstructor g_sbufConstructorMap[SBUF_TYPE_MAX] = {
     [SBUF_RAW] = {
         .obtain = SbufObtainRaw,
         .bind = SbufBindRaw,
@@ -61,12 +67,56 @@ static const struct HdfSbufConstructor g_sbufConstructorMap[SBUF_TYPE_MAX] = {
     },
 };
 
+#ifndef __LITEOS__
+#ifndef __KERNEL__
+#define SBUF_IPC_IMPL "libhdf_ipc_adapter.z.so"
+static void* g_libHandle = NULL;
+static pthread_mutex_t g_handleLock = PTHREAD_MUTEX_INITIALIZER;
+
+static void LoadIpcImpl()
+{
+    if (g_sbufConstructorMap[SBUF_IPC].bind != NULL && g_sbufConstructorMap[SBUF_IPC].obtain != NULL) {
+        return;
+    }
+    if (g_libHandle == NULL) {
+        g_libHandle = dlopen(SBUF_IPC_IMPL, RTLD_LAZY);
+    }
+    if (g_libHandle == NULL) {
+        HDF_LOGE("%{public}s dlopen failed", __func__);
+        return;
+    }
+    void* sbufBindIpcFunc = dlsym(g_libHandle, "SbufBindIpc");
+    if (sbufBindIpcFunc == NULL) {
+        HDF_LOGE("%{public}s dlsym SbufBindIpc failed", __func__);
+        return;
+    }
+    void* sbufObtainIpcFunc = dlsym(g_libHandle, "SbufObtainIpc");
+    if (sbufObtainIpcFunc == NULL) {
+        HDF_LOGE("%{public}s dlsym SbufObtainIpc failed", __func__);
+        return;
+    }
+    g_sbufConstructorMap[SBUF_IPC].bind = sbufBindIpcFunc;
+    g_sbufConstructorMap[SBUF_IPC].obtain = sbufObtainIpcFunc;
+    HDF_LOGI("%{public}s sbuf constructor reload success", __func__);
+}
+#endif
+#endif
+
 static const struct HdfSbufConstructor *HdfSbufConstructorGet(uint32_t type)
 {
     if (type >= SBUF_TYPE_MAX) {
         return NULL;
     }
-
+#ifndef __LITEOS__
+#ifndef __KERNEL__
+    if (type == SBUF_IPC &&
+        (g_sbufConstructorMap[SBUF_IPC].bind == NULL || g_sbufConstructorMap[SBUF_IPC].obtain == NULL)) {
+        pthread_mutex_lock(&g_handleLock);
+        LoadIpcImpl();
+        pthread_mutex_unlock(&g_handleLock);
+    }
+#endif
+#endif
     return &g_sbufConstructorMap[type];
 }
 
