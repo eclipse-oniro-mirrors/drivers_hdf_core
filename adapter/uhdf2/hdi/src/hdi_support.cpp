@@ -23,6 +23,7 @@
 #include <string>
 #include <unistd.h>
 
+#include <dirent.h>
 #include "hdf_base.h"
 #include "hdf_core_log.h"
 
@@ -42,6 +43,24 @@ constexpr size_t INTERFACE_NAME_INDEX = 3;
 using HdiImplInstanceFunc = void *(*)(void);
 using HdiImplReleaseFunc = void (*)(void *);
 } // namespace
+
+constexpr uint32_t INVALID_MINOR_VERSION = 0xFFFFFFFF;
+
+struct LibImplInfo {
+    std::string libNameBase;
+    uint32_t majorVersion;
+    uint32_t minorVersion;
+    std::string extension;
+    std::string libraryName;    // whole libname
+};
+
+static std::string ToLibImplName(const LibImplInfo& libImplInfo)
+{
+    std::ostringstream wholeLibName;
+    wholeLibName << libImplInfo.libNameBase << "_" <<
+        libImplInfo.majorVersion << "." << libImplInfo.minorVersion << libImplInfo.extension;
+    return wholeLibName.str();
+}
 
 static std::string TransFileName(const std::string &interfaceName)
 {
@@ -64,13 +83,19 @@ static std::string TransFileName(const std::string &interfaceName)
     return result;
 }
 
-static std::string ParseLibName(const std::string &interfaceName, const std::string &serviceName,
+static LibImplInfo ParseLibName(const std::string &interfaceName, const std::string &serviceName,
     uint32_t versionMajor, uint32_t versionMinor)
 {
-    std::ostringstream libName;
-    libName << "lib" << interfaceName << "_" << serviceName << "_" << versionMajor << "." << versionMinor;
-    libName << HDI_SO_EXTENSION;
-    return libName.str();
+    std::ostringstream libNameBase;
+    libNameBase << "lib" << interfaceName << "_" << serviceName;
+    LibImplInfo implInfo;
+    implInfo.libNameBase = libNameBase.str();
+    implInfo.majorVersion = versionMajor;
+    implInfo.minorVersion = versionMinor;
+    implInfo.extension = HDI_SO_EXTENSION;
+    libNameBase << "_" << versionMajor << "." << versionMinor << HDI_SO_EXTENSION;
+    implInfo.libraryName = libNameBase.str();
+    return implInfo;
 }
 
 struct HdiImpl {
@@ -80,19 +105,23 @@ struct HdiImpl {
     {
         if (handler != nullptr) {
             dlclose(handler);
+            handler = nullptr;
         }
     }
     void *handler;
     void *(*constructor)(void);
     void (*destructor)(void *);
     uint32_t useCount;
+    LibImplInfo libImplInfo;
 };
 
 static std::map<std::string, HdiImpl> g_hdiConstructorMap;
 static std::mutex g_loaderMutex;
 
+static std::map<std::string, HdiImpl> g_hdiMaxConstructorMap;
+
 static int32_t ParseInterface(
-    const std::string &desc, std::string &interface, std::string &libName, const char *serviceName)
+    const std::string &desc, std::string &interface, LibImplInfo &libInfo, const char *serviceName)
 {
     static const std::regex reInfDesc("[a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\."
                                     "[V|v]([0-9]+)_([0-9]+)\\."
@@ -124,8 +153,160 @@ static int32_t ParseInterface(
         return HDF_FAILURE;
     }
 
-    libName = ParseLibName(TransFileName(interface), serviceName, versionMajor, versionMinor);
+    libInfo = ParseLibName(TransFileName(interface), serviceName, versionMajor, versionMinor);
     return HDF_SUCCESS;
+}
+
+static int32_t OpenHdiServiceImpl(const LibImplInfo& libInfo, const std::string& interfaceName, HdiImpl &hdiImpl)
+{
+    const std::string &libName = libInfo.libraryName;
+    Dl_namespace ns_ps;
+    hdiImpl.handler = dlopen(libName.c_str(), RTLD_LAZY);
+    if ((hdiImpl.handler == nullptr) && !dlns_get("passthrough", &ns_ps)) {
+        hdiImpl.handler = dlopen_ns(&ns_ps, libName.c_str(), RTLD_LAZY);
+    }
+    if (hdiImpl.handler == nullptr) {
+        HDF_LOGE("%{public}s dlopen '%{public}s' failed.", __func__, libName.c_str());
+        return HDF_FAILURE;
+    }
+    
+    std::string symName = interfaceName + "ImplGetInstance";
+    hdiImpl.constructor = reinterpret_cast<HdiImplInstanceFunc>(dlsym(hdiImpl.handler, symName.data()));
+    if (hdiImpl.constructor == nullptr) {
+        HDF_LOGE("%{public}s failed to get symbol of '%{public}s', %{public}s", __func__, symName.c_str(), dlerror());
+        hdiImpl.Unload();
+        return HDF_FAILURE;
+    }
+    std::string desSymName = interfaceName + "ImplRelease";
+    hdiImpl.destructor = reinterpret_cast<HdiImplReleaseFunc>(dlsym(hdiImpl.handler, desSymName.data()));
+    if (hdiImpl.destructor == nullptr) {
+        HDF_LOGW("%{public}s failed to get symbol of '%{public}s', %{public}s",
+            __func__, desSymName.c_str(), dlerror());
+    }
+    hdiImpl.libImplInfo = libInfo;
+    return HDF_SUCCESS;
+}
+
+static void *LoadHdiImplDirectly(const LibImplInfo& libInfo, const std::string& interfaceName, HdiImpl &hdiImpl)
+{
+    const std::string libName = libInfo.libraryName;
+    void *implInstance = hdiImpl.constructor();
+    g_hdiConstructorMap.emplace(std::make_pair(libName, std::move(hdiImpl)));
+
+    return implInstance;
+}
+
+bool RegexMatch(const std::string &fileName,
+                const LibImplInfo &implInfo, LibImplInfo &pattenLibImplInfo)
+{
+    constexpr uint32_t libNameIndex = 0;
+    constexpr uint32_t minorIndex = 1;
+    std::ostringstream ss;
+    ss << implInfo.libNameBase << "_" << implInfo.majorVersion << "\\.(0|[1-9][0-9]*)" << implInfo.extension;
+    std::regex re = std::regex(ss.str());
+    std::smatch result;
+    if (!std::regex_match(fileName, result, re)) {
+        return false;
+    }
+    pattenLibImplInfo = implInfo;
+    pattenLibImplInfo.libraryName = result[libNameIndex].str();
+    pattenLibImplInfo.minorVersion = stoul(result[minorIndex]);
+    return true;
+}
+
+void SearchMatchedLibraryInDir(const LibImplInfo& implInfo,
+    const char *directory, uint32_t &maxMinorVersion)
+{
+    struct dirent *entry;
+    if (directory == nullptr) {
+        return;
+    }
+    DIR *dir = opendir(directory);
+    if (dir == nullptr) {
+        HDF_LOGW("%{public}s: failed to open %{public}s, error: %{public}s",
+            __func__, directory, strerror(errno));
+        return;
+    }
+    while ((entry = readdir(dir)) != nullptr) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 || entry->d_type != DT_REG) {
+            continue;
+        }
+        std::string libraryName = entry->d_name;
+        LibImplInfo pattenLibImplInfo;
+        if (RegexMatch(libraryName, implInfo, pattenLibImplInfo)) {
+            if (maxMinorVersion == INVALID_MINOR_VERSION ||
+                maxMinorVersion < pattenLibImplInfo.minorVersion) {
+                maxMinorVersion = pattenLibImplInfo.minorVersion;
+            }
+        }
+    }
+    closedir(dir);
+}
+
+static void *ConstructMatchedLibraryInDirs(const LibImplInfo& implInfo,
+    const std::string &interfaceName)
+{
+    const char * const paths[] = {
+        "/vendor/lib64",
+        "/vendor/lib64/passthrough",
+        "/chip_prod/lib64",
+        "/chip_prod/lib64/passthrough",
+        "/vendor/lib",
+        "/vendor/lib/passthrough",
+        "/chip_prod/lib",
+        "/chip_prod/lib/passthrough"
+    };
+
+    uint32_t maxMinorVersion = INVALID_MINOR_VERSION;
+    // find matched library(max minor version) in the system
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); ++i) {
+        const char *path = paths[i];
+        SearchMatchedLibraryInDir(implInfo, path, maxMinorVersion);
+    }
+    if (maxMinorVersion == INVALID_MINOR_VERSION) {
+        HDF_LOGE("%{public}s, no matched library, libbase: %{public}s, major version: %{public}d",
+            __func__, implInfo.libNameBase.c_str(), implInfo.majorVersion);
+        return nullptr;
+    }
+    LibImplInfo tmpLibImplInfo = implInfo;
+    tmpLibImplInfo.minorVersion = maxMinorVersion;
+    tmpLibImplInfo.libraryName = ToLibImplName(tmpLibImplInfo);
+
+    void *impl = nullptr;
+    auto it = g_hdiConstructorMap.find(tmpLibImplInfo.libraryName);
+    if (it != g_hdiConstructorMap.end()) {
+        impl = it->second.constructor();
+        g_hdiMaxConstructorMap.emplace(
+            std::make_pair(tmpLibImplInfo.libNameBase, std::move(it->second)));
+        g_hdiConstructorMap.erase(it);
+    } else {
+        HdiImpl hdiImpl;
+        if (OpenHdiServiceImpl(tmpLibImplInfo, interfaceName, hdiImpl) != HDF_SUCCESS) {
+            HDF_LOGE("%{public}s, OpenHdiServiceImpl failed, library: %{public}s.",
+                __func__, tmpLibImplInfo.libraryName.c_str());
+            return nullptr;
+        }
+
+        impl = hdiImpl.constructor();
+        g_hdiMaxConstructorMap.emplace(std::make_pair(tmpLibImplInfo.libNameBase, std::move(hdiImpl)));
+        if (tmpLibImplInfo.minorVersion < implInfo.minorVersion) {
+            return nullptr;
+        }
+    }
+    return impl;
+}
+
+static void *LoadHdiImplPatternly(const LibImplInfo& libImplInfo, const std::string& interfaceName)
+{
+    auto it = g_hdiMaxConstructorMap.find(libImplInfo.libNameBase);
+    if (it != g_hdiMaxConstructorMap.end()) {
+        if (libImplInfo.majorVersion != it->second.libImplInfo.majorVersion ||
+            libImplInfo.minorVersion > it->second.libImplInfo.minorVersion) {
+            return nullptr;
+        }
+        return it->second.constructor();
+    }
+    return ConstructMatchedLibraryInDirs(libImplInfo, interfaceName);
 }
 
 /*
@@ -145,51 +326,35 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
     }
 
     std::string interfaceName;
-    std::string libName;
-    if (ParseInterface(desc, interfaceName, libName, serviceName) != HDF_SUCCESS) {
+    LibImplInfo libInfo;
+    if (ParseInterface(desc, interfaceName, libInfo, serviceName) != HDF_SUCCESS) {
         HDF_LOGE("failed to parse hdi interface info from '%{public}s'", desc);
         return nullptr;
     }
 
     std::lock_guard<std::mutex> lock(g_loaderMutex);
-    auto constructor = g_hdiConstructorMap.find(libName);
+    auto constructor = g_hdiConstructorMap.find(libInfo.libraryName);
     if (constructor != g_hdiConstructorMap.end()) {
         return constructor->second.constructor();
     }
 
+    constructor = g_hdiMaxConstructorMap.find(libInfo.libNameBase);
+    if (constructor != g_hdiMaxConstructorMap.end()) {
+        if (libInfo.libraryName == constructor->second.libImplInfo.libraryName) {
+            return constructor->second.constructor();
+        }
+    }
+
     HdiImpl hdiImpl;
-    Dl_namespace ns_ps;
-    hdiImpl.handler = dlopen(libName.c_str(), RTLD_LAZY);
-    if ((hdiImpl.handler == nullptr) && !dlns_get("passthrough", &ns_ps)) {
-        hdiImpl.handler = dlopen_ns(&ns_ps, libName.c_str(), RTLD_LAZY);
-    }
+    auto ret = OpenHdiServiceImpl(libInfo, interfaceName, hdiImpl);
+    (void)ret;
+
     if (hdiImpl.handler == nullptr) {
-        HDF_LOGE("%{public}s failed to dlopen, %{public}s", __func__, dlerror());
-        return nullptr;
+        HDF_LOGW("%{public}s failed to dlopen, %{public}s", __func__, dlerror());
+        return LoadHdiImplPatternly(libInfo, interfaceName);
     }
 
-    std::string symName = interfaceName + "ImplGetInstance";
-    hdiImpl.constructor = reinterpret_cast<HdiImplInstanceFunc>(dlsym(hdiImpl.handler, symName.data()));
-    if (hdiImpl.constructor == nullptr) {
-        HDF_LOGE("%{public}s failed to get symbol of '%{public}s', %{public}s", __func__, symName.c_str(), dlerror());
-        hdiImpl.Unload();
-        return nullptr;
-    }
-    std::string desSymName = interfaceName + "ImplRelease";
-    hdiImpl.destructor = reinterpret_cast<HdiImplReleaseFunc>(dlsym(hdiImpl.handler, desSymName.data()));
-    if (hdiImpl.destructor == nullptr) {
-        HDF_LOGW("%{public}s failed to get symbol of '%{public}s', %{public}s",
-            __func__, desSymName.c_str(), dlerror());
-    }
-
-    void *implInstance = hdiImpl.constructor();
-    if (implInstance == nullptr) {
-        HDF_LOGE("%{public}s no full hdi implementation in %{public}s", __func__, libName.c_str());
-        hdiImpl.Unload();
-    } else {
-        g_hdiConstructorMap.emplace(std::make_pair(libName, std::move(hdiImpl)));
-    }
-    return implInstance;
+    return LoadHdiImplDirectly(libInfo, interfaceName, hdiImpl);
 }
 
 void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
@@ -199,14 +364,23 @@ void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
     }
 
     std::string interfaceName;
-    std::string libName;
-    if (ParseInterface(desc, interfaceName, libName, serviceName) != HDF_SUCCESS) {
+    LibImplInfo libInfo;
+    if (ParseInterface(desc, interfaceName, libInfo, serviceName) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: failed to parse hdi interface info from '%{public}s'", __func__, desc);
         return;
     }
     std::lock_guard<std::mutex> lock(g_loaderMutex);
-    auto constructor = g_hdiConstructorMap.find(libName);
+    auto constructor = g_hdiConstructorMap.find(libInfo.libraryName);
     if (constructor != g_hdiConstructorMap.end() && constructor->second.destructor != nullptr) {
         constructor->second.destructor(impl);
+        return;
+    }
+
+    constructor = g_hdiMaxConstructorMap.find(libInfo.libNameBase);
+    if (constructor != g_hdiMaxConstructorMap.end() && constructor->second.destructor != nullptr) {
+        if (libInfo.majorVersion == constructor->second.libImplInfo.majorVersion &&
+            libInfo.minorVersion <= constructor->second.libImplInfo.minorVersion) {
+            constructor->second.destructor(impl);
+        }
     }
 }
