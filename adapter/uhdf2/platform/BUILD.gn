@@ -60,6 +60,7 @@ if (is_standard_system) {
       deps = [ "../utils:libhdf_utils" ]
 
       external_deps = [
+        "bounds_checking_function:libsec_shared",
         "c_utils:utils",
         "hilog:libhilog",
       ]
