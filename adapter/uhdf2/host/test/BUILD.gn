@@ -49,6 +49,7 @@ ohos_unittest("DevMgrTest") {
 
   if (is_standard_system) {
     external_deps = [
+      "bounds_checking_function:libsec_shared",
       "c_utils:utils",
       "hilog:libhilog",
       "ipc:ipc_core",
