@@ -49,7 +49,6 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/core/common/include/host",
       "$hdf_uhdf_path/osal/include",
       "$hdf_uhdf_path/utils/include",
-      "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
     ]
     sources = [
       "$hdf_framework_path/core/adapter/syscall/src/hdf_devmgr_adapter.c",
@@ -82,10 +81,11 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/utils/src/hcs_parser/hcs_dm_parser.c",
     ]
 
-    public_deps =
-        [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
+    external_deps = [
+      "bounds_checking_function:libsec_shared",
+      "hilog_lite:hilog_shared"
+    ]
 
-    external_deps = [ "bounds_checking_function:libsec_shared" ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
   }
