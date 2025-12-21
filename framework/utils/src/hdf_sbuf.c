@@ -75,11 +75,16 @@ static pthread_mutex_t g_handleLock = PTHREAD_MUTEX_INITIALIZER;
 
 static void LoadIpcImpl()
 {
+    Dl_namespace ns_ps;
     if (g_sbufConstructorMap[SBUF_IPC].bind != NULL && g_sbufConstructorMap[SBUF_IPC].obtain != NULL) {
         return;
     }
+
     if (g_libHandle == NULL) {
         g_libHandle = dlopen(SBUF_IPC_IMPL, RTLD_LAZY);
+        if ((g_libHandle == NULL) && !dlns_get("default", &ns_ps)) {
+            g_libHandle = dlopen_ns(&ns_ps, SBUF_IPC_IMPL, RTLD_LAZY);
+        }
     }
     if (g_libHandle == NULL) {
         HDF_LOGE("%{public}s dlopen failed", __func__);

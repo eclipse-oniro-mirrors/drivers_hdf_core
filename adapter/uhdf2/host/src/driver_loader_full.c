@@ -41,7 +41,11 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
         return NULL;
     }
 
+    Dl_namespace ns_ps;
     void *handle = dlopen(moduleName, RTLD_LAZY);
+    if ((handle == NULL) && !dlns_get("default", &ns_ps)) {
+        handle = dlopen_ns(&ns_ps, moduleName, RTLD_LAZY);
+    }
     if (handle == NULL) {
         HDF_LOGE("get driver handle, %{public}s dlopen failed, %{public}s", moduleName, dlerror());
         OsalMemFree(driver);

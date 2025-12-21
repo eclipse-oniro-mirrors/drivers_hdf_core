@@ -42,6 +42,11 @@
 #define KEY_DELIMITER       "\","
 #define UEVENT_DELIMITER    "="
 
+#ifndef __LITEOS__
+#undef HDF_CONFIG_DIR
+#define HDF_CONFIG_DIR "/system/etc/hdfconfig"
+#endif
+
 enum DEVMGR_ACTION_TYPE {
     DEVMGR_ACTION_LOAD,
     DEVMGR_ACTION_UNLOAD,
