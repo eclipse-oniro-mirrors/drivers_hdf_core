@@ -425,6 +425,9 @@ bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struc
 
 static bool CheckInterfaceTokenIngoreVersion(const std::string &client, const std::string &stub)
 {
+    if (client.length() > 0 && client == stub) {
+        return true;
+    }
     std::vector<std::string> clientVec;
     OHOS::SplitStr(client, ".", clientVec);
     std::vector<std::string> stubVec;
