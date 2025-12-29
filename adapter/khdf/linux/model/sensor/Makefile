@@ -25,6 +25,8 @@ obj-$(CONFIG_DRIVERS_HDF_SENSOR_ACCEL_BMI160) += $(SENSOR_ROOT_CHIPSET)/chipset/
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_ACCEL_MXC6655XA) += $(SENSOR_ROOT_CHIPSET)/chipset/accel/accel_mxc6655xa.o
 
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_ACCEL_MIC6200) += $(SENSOR_ROOT_CHIPSET)/chipset/accel/accel_mic6200.o
+
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PPG) += $(SENSOR_ROOT_DIR)/ppg/sensor_ppg_driver.o \
                 $(SENSOR_ROOT_DIR)/ppg/sensor_ppg_config.o
 
@@ -38,13 +40,19 @@ obj-$(CONFIG_DRIVERS_HDF_SENSOR_ALS_BH1745) += $(SENSOR_ROOT_CHIPSET)/chipset/al
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_ALS_BH1750) += $(SENSOR_ROOT_CHIPSET)/chipset/als/als_bh1750.o
 
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_ALS_MN7991X) += $(SENSOR_ROOT_CHIPSET)/chipset/als/als_mn7991x.o
+
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PROXIMITY) += $(SENSOR_ROOT_DIR)/proximity/sensor_proximity_driver.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_PROXIMITY_APDS9960) += $(SENSOR_ROOT_CHIPSET)/chipset/proximity/proximity_apds9960.o
 
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_PROXIMITY_MN7991X) += $(SENSOR_ROOT_CHIPSET)/chipset/proximity/proximity_mn7991x.o
+
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_GYRO) += $(SENSOR_ROOT_DIR)/gyro/sensor_gyro_driver.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_GYRO_BMI160) += $(SENSOR_ROOT_CHIPSET)/chipset/gyro/gyro_bmi160.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_GYRO_MIC6200) += $(SENSOR_ROOT_CHIPSET)/chipset/gyro/gyro_mic6200.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_BAROMETER) += $(SENSOR_ROOT_DIR)/barometer/sensor_barometer_driver.o
 
@@ -63,6 +71,8 @@ obj-$(CONFIG_DRIVERS_HDF_SENSOR_HUMIDITY_SHT30) += $(SENSOR_ROOT_CHIPSET)/chipse
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_MAGNETIC) += $(SENSOR_ROOT_DIR)/magnetic/sensor_magnetic_driver.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_MAGNETIC_LSM303) += $(SENSOR_ROOT_CHIPSET)/chipset/magnetic/magnetic_lsm303.o
+
+obj-$(CONFIG_DRIVERS_HDF_SENSOR_MAGNETIC_MMC5617) += $(SENSOR_ROOT_CHIPSET)/chipset/magnetic/magnetic_mmc5617.o
 
 obj-$(CONFIG_DRIVERS_HDF_SENSOR_GRAVITY) += $(SENSOR_ROOT_DIR)/accel/sensor_gravity_driver.o
 
