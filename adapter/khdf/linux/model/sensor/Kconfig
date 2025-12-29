@@ -34,6 +34,12 @@ config DRIVERS_HDF_SENSOR_ACCEL_MXC6655XA
     depends on DRIVERS_HDF_SENSOR_ACCEL
     help
       Answer Y to enable HDF accel mxc6655xa sensor driver.
+config DRIVERS_HDF_SENSOR_ACCEL_MIC6200
+    bool "Enable HDF accel mic6200 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_ACCEL
+    help
+      Answer Y to enable HDF accel mic6200 sensor driver.
 config DRIVERS_HDF_SENSOR_PPG
     bool "Enable HDF ppg sensor driver"
     default n
@@ -64,6 +70,12 @@ config DRIVERS_HDF_SENSOR_ALS_BH1750
     depends on DRIVERS_HDF_SENSOR_ALS
     help
       Answer Y to enable HDF als bh1750 sensor driver.
+config DRIVERS_HDF_SENSOR_ALS_MN7991X
+    bool "Enable HDF als mn7991x sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_ALS
+    help
+      Answer Y to enable HDF als mn7991x sensor driver.
 config DRIVERS_HDF_SENSOR_GRAVITY
     bool "Enable HDF gravity sensor driver"
     default n
@@ -82,6 +94,12 @@ config DRIVERS_HDF_SENSOR_GYRO_BMI160
     depends on DRIVERS_HDF_SENSOR_GYRO
     help
       Answer Y to enable HDF gyro bmi160 sensor driver.
+config DRIVERS_HDF_SENSOR_GYRO_MIC6200
+    bool "Enable HDF gyro mic6200 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_GYRO
+    help
+      Answer Y to enable HDF gyro mic6200 sensor driver.
 config DRIVERS_HDF_SENSOR_PEDOMETER
     bool "Enable HDF pedometer sensor driver"
     default n
@@ -148,6 +166,12 @@ config DRIVERS_HDF_SENSOR_MAGNETIC_LSM303
     depends on DRIVERS_HDF_SENSOR_MAGNETIC
     help
       Answer Y to enable HDF magnetic lsm303 sensor driver.
+config DRIVERS_HDF_SENSOR_MAGNETIC_MMC5617
+    bool "Enable HDF magnetic mmc5617 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_MAGNETIC
+    help
+      Answer Y to enable HDF magnetic mmc5617 sensor driver.
 config DRIVERS_HDF_SENSOR_PROXIMITY
     bool "Enable HDF proximity sensor driver"
     default n
@@ -160,6 +184,12 @@ config DRIVERS_HDF_SENSOR_PROXIMITY_APDS9960
     depends on DRIVERS_HDF_SENSOR_PROXIMITY
     help
       Answer Y to enable HDF proximity apds9960 sensor driver.
+config DRIVERS_HDF_SENSOR_PROXIMITY_MN7991X
+    bool "Enable HDF proximity mn7991x sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_PROXIMITY
+    help
+      Answer Y to enable HDF proximity mn7991x sensor driver.
 config DRIVERS_HDF_SENSOR_TEMPERATURE
     bool "Enable HDF temperature sensor driver"
     default n

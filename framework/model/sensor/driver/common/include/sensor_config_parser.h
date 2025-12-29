@@ -16,7 +16,7 @@
 #include "sensor_platform_if.h"
 #include "spi_if.h"
 
-#define SENSOR_CONFIG_MAX_ITEM 100
+#define SENSOR_CONFIG_MAX_ITEM 512
 #define MAX_SENSOR_INDEX_NUM   48
 #define MAX_SENSOR_AXIS_NUM    3
 
