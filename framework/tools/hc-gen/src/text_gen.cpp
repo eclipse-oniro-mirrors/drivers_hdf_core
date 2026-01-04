@@ -245,6 +245,10 @@ uint32_t TextGen::GenNodeDefinition(const std::shared_ptr<AstObject> &node)
 
 std::string TextGen::GenConfigStructName(const std::shared_ptr<AstObject> &node)
 {
+    if (!node) {
+        Logger().Error() << "node is nullptr " << "\n";
+        return std::string();
+    }
     return ToUpperCamelString(prefix_).append(ToUpperCamelString(moduleName_)).append(ToUpperCamelString(node->Name()));
 }
 
@@ -589,7 +593,7 @@ std::string TextGen::HcsBuildObjectPath(std::shared_ptr<AstObject> object)
 {
     std::list<std::shared_ptr<AstObject>> pathList;
     auto p = object;
-    while (p != ast_->GetAstRoot()) {
+    while (p != ast_->GetAstRoot() && p != nullptr) {
         pathList.push_back(p);
         p = p->Parent();
     }
