@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("./../../../framework/tools/hc-gen/hc_gen.gni")
+import("//build/config/components/hc_gen/hc_gen.gni")
 
 template("hdf_hcb") {
   assert(defined(invoker.source), "the source must to be set")
