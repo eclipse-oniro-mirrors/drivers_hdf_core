@@ -40,6 +40,36 @@ config DRIVERS_HDF_SENSOR_ACCEL_MIC6200
     depends on DRIVERS_HDF_SENSOR_ACCEL
     help
       Answer Y to enable HDF accel mic6200 sensor driver.
+config DRIVERS_HDF_SENSOR_ACCEL_LSM6DS3TR
+    bool "Enable HDF accel LSM6DS3TR sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_ACCEL
+    help
+      Answer Y to enable HDF accel LSM6DS3TR sensor driver.
+config DRIVERS_HDF_SENSOR_GYRO_LSM6DS3TR
+    bool "Enable HDF gyro LSM6DS3TR sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_GYRO
+    help
+      Answer Y to enable HDF gyro LSM6DS3TR sensor driver.
+config DRIVERS_HDF_SENSOR_MAGNETIC_VCM1193L
+    bool "Enable HDF magnetic VCM1193L sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_MAGNETIC
+    help
+      Answer Y to enable HDF magnetic VCM1193L sensor driver.
+config DRIVERS_HDF_SENSOR_ALS_STK33562
+    bool "Enable HDF als stk33562 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_ALS
+    help
+      Answer Y to enable HDF als stk33562 sensor driver.
+config DRIVERS_HDF_SENSOR_PROXIMITY_STK33562
+    bool "Enable HDF proximity stk33562 sensor driver"
+    default n
+    depends on DRIVERS_HDF_SENSOR_PROXIMITY
+    help
+      Answer Y to enable HDF proximity stk33562 sensor driver.
 config DRIVERS_HDF_SENSOR_PPG
     bool "Enable HDF ppg sensor driver"
     default n
