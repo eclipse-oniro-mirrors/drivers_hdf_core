@@ -328,6 +328,7 @@ int32_t StopHaptic(void)
 {
     int32_t ret;
     struct VibratorHapticData *hapticData = GetHapticData();
+    HDF_LOGE("%s: in StopHaptic!", __func__);
 
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(hapticData, HDF_FAILURE);
 
