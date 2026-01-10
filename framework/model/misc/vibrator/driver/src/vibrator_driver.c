@@ -27,6 +27,7 @@ static struct VibratorDriverData *GetVibratorDrvData(void)
 
 int32_t RegisterVibratorOps(struct VibratorOps *ops)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(ops, HDF_FAILURE);
@@ -44,6 +45,7 @@ int32_t RegisterVibratorOps(struct VibratorOps *ops)
 
 int32_t RegisterVibratorInfo(struct VibratorInfo *vibratorInfo)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(vibratorInfo, HDF_FAILURE);
@@ -62,6 +64,7 @@ int32_t RegisterVibratorInfo(struct VibratorInfo *vibratorInfo)
 
 void StartVibrator(void)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
@@ -72,6 +75,7 @@ void StartVibrator(void)
 
 void StopVibrator(void)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = GetVibratorDrvData();
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
 
@@ -81,6 +85,7 @@ void StopVibrator(void)
 
 void SetEffectVibrator(uint32_t type)
 {
+    HDF_LOGI("%s: type %u", __func__, type);
     int32_t ret;
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
@@ -98,6 +103,7 @@ void SetEffectVibrator(uint32_t type)
 
 static void VibratorWorkEntry(void *para)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret = HDF_FAILURE;
     struct VibratorDriverData *drvData = (struct VibratorDriverData *)para;
 
@@ -122,6 +128,7 @@ static void VibratorWorkEntry(void *para)
 
 static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     uint32_t duration;
     int32_t ret;
     struct VibratorEffectCfg config;
@@ -165,6 +172,7 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t IsVibratorRunning(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     (void)data;
     struct VibratorDriverData *drvData = GetVibratorDrvData();
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
@@ -183,6 +191,7 @@ static int32_t IsVibratorRunning(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     const char *effect = NULL;
     struct VibratorEffectCfg config;
@@ -224,6 +233,7 @@ static int32_t StartEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t Stop(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     int32_t mode;
     struct VibratorDriverData *drvData = GetVibratorDrvData();
@@ -262,6 +272,7 @@ static int32_t Stop(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t GetVibratorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     (void)data;
     struct VibratorDriverData *drvData;
 
@@ -279,6 +290,7 @@ static int32_t GetVibratorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t EnableModulationParameter(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     (void)reply;
     struct VibratorEffectCfg config;
     struct VibratorDriverData *drvData;
@@ -346,6 +358,7 @@ static struct VibratorCmdHandleList g_vibratorCmdHandle[] = {
 static int32_t DispatchVibrator(struct HdfDeviceIoClient *client,
     int32_t cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: in", __func__);
     (void)client;
     int32_t loop;
 
@@ -360,6 +373,7 @@ static int32_t DispatchVibrator(struct HdfDeviceIoClient *client,
 
 int32_t BindVibratorDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = NULL;
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(device, HDF_FAILURE);
 
@@ -376,6 +390,7 @@ int32_t BindVibratorDriver(struct HdfDeviceObject *device)
 
 int32_t InitVibratorDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = NULL;
 
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(device, HDF_FAILURE);
@@ -410,6 +425,7 @@ int32_t InitVibratorDriver(struct HdfDeviceObject *device)
 
 void ReleaseVibratorDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorDriverData *drvData = NULL;
 
     if (device == NULL) {

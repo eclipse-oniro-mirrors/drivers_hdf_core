@@ -14,7 +14,7 @@
 #include "osal_mem.h"
 #include "vibrator_driver.h"
 
-#define HDF_LOG_TAG    khdf_vibrator_driver
+#define HDF_LOG_TAG    khdf_vibrator_haptic
 
 #define VIBRATOR_HAPTIC_STACK_SIZE    0x4000
 #define VIBRATOR_HAPTIC_SEQ_MAX       1024
@@ -31,6 +31,7 @@ static struct VibratorHapticData *GetHapticData(void)
 
 static struct VibratorEffectNode *MallocEffectNode(int32_t seqSize)
 {
+    HDF_LOGI("%s: seqSize %d", __func__, seqSize);
     uint32_t *seq = NULL;
     struct VibratorEffectNode *node = NULL;
 
@@ -118,6 +119,7 @@ EXIT:
 
 static int32_t ParserVibratorHapticConfig(const struct DeviceResourceNode *node)
 {
+    HDF_LOGI("%s: in", __func__);
     bool supportPresetFlag = false;
     struct DeviceResourceIface *parser = NULL;
     const struct DeviceResourceNode *vibratorAttrNode = NULL;
@@ -158,6 +160,7 @@ static int32_t ParserVibratorHapticConfig(const struct DeviceResourceNode *node)
 
 static uint32_t ProcessHapticTime(struct VibratorHapticData *hapticData)
 {
+    HDF_LOGI("%s: in", __func__);
     uint32_t duration;
     int32_t num = 2; // Determine whether the number is an even numner or an odd number.
 
@@ -184,6 +187,7 @@ static uint32_t ProcessHapticTime(struct VibratorHapticData *hapticData)
 
 static uint32_t ProcessHapticEffect(struct VibratorHapticData *hapticData)
 {
+    HDF_LOGI("%s: in", __func__);
     uint32_t effect;
     uint32_t duration;
 
@@ -211,6 +215,7 @@ static uint32_t ProcessHapticEffect(struct VibratorHapticData *hapticData)
 
 void HapticTimerEntry(uintptr_t para)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     struct VibratorHapticData *hapticData = NULL;
     uint32_t duration;
@@ -227,6 +232,7 @@ void HapticTimerEntry(uintptr_t para)
     }
 
     duration = ((duration > 0) && (duration < VIBRATOR_MIN_WAIT_TIME)) ? VIBRATOR_MIN_WAIT_TIME : duration;
+    HDF_LOGI("%s: OsalTimerSetTimeout duration %u", __func__, duration);
     if ((duration > 0) && (OsalTimerSetTimeout(&hapticData->timer, duration) == HDF_SUCCESS)) {
         return;
     }
@@ -243,6 +249,7 @@ void HapticTimerEntry(uintptr_t para)
 
 static int32_t GetHapticSeqByEffect(struct VibratorEffectCfg *effectCfg)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorHapticData *hapticData = NULL;
     struct VibratorEffectNode *pos = NULL;
     struct VibratorEffectNode *tmp = NULL;
@@ -291,6 +298,7 @@ static int32_t GetHapticSeqByEffect(struct VibratorEffectCfg *effectCfg)
 
 int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     uint32_t duration;
     struct VibratorHapticData *hapticData = GetHapticData();
@@ -311,6 +319,7 @@ int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
     duration = hapticData->currentEffectSeq[0] < VIBRATOR_MIN_WAIT_TIME ?
         VIBRATOR_MIN_WAIT_TIME : hapticData->currentEffectSeq[0];
 
+    HDF_LOGI("%s: OsalTimerCreate duration %u", __func__, duration);
     if (OsalTimerCreate(&hapticData->timer, duration, HapticTimerEntry, (uintptr_t)hapticData) != HDF_SUCCESS) {
         HDF_LOGE("%s: create vibrator timer fail!", __func__);
         return HDF_FAILURE;
@@ -326,6 +335,7 @@ int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
 
 int32_t StopHaptic(void)
 {
+    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     struct VibratorHapticData *hapticData = GetHapticData();
 
@@ -348,6 +358,7 @@ int32_t StopHaptic(void)
 
 int32_t CreateVibratorHaptic(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorHapticData *hapticData = NULL;
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(device, HDF_FAILURE);
 
@@ -377,6 +388,7 @@ EXIT:
 
 static void FreeHapticConfig(void)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorHapticData *hapticData = GetHapticData();
     struct VibratorEffectNode *pos = NULL;
     struct VibratorEffectNode *tmp = NULL;
@@ -400,6 +412,7 @@ static void FreeHapticConfig(void)
 
 int32_t DestroyVibratorHaptic(void)
 {
+    HDF_LOGI("%s: in", __func__);
     struct VibratorHapticData *hapticData = GetHapticData();
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(hapticData, HDF_FAILURE);
 
