@@ -59,7 +59,6 @@ static struct VibratorEffectNode *MallocEffectNode(int32_t seqSize)
 
 static int32_t ParserHapticEffect(struct DeviceResourceIface *parser, const struct DeviceResourceNode *hapticNode)
 {
-    HDF_LOGI("%s: in", __func__);
     int32_t ret;
     int32_t count;
     struct VibratorEffectNode *effectNode = NULL;
