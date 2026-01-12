@@ -20,7 +20,6 @@ unittest("hdf_adapter_uhdf_test_manager") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/platform",
     "$hdf_core_path/framework/include/core",
     "$hdf_core_path/framework/core/common/include/host",
@@ -53,7 +52,6 @@ unittest("hdf_adapter_uhdf_test_ioservice") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/platform",
     "$hdf_core_path/framework/include/core",
     "$hdf_core_path/framework/core/common/include/host",
@@ -85,7 +83,6 @@ unittest("hdf_adapter_uhdf_test_sbuf") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/osal",
     "$hdf_core_path/adapter/uhdf/posix/include",
     "$hdf_core_path/framework/include/utils",
@@ -116,7 +113,6 @@ unittest("hdf_adapter_uhdf_test_door") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/platform",
     "$hdf_core_path/framework/include/core",
     "$hdf_core_path/framework/core/common/include/host",
@@ -155,7 +151,6 @@ unittest("hdf_adapter_uhdf_test_pm") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/platform",
     "$hdf_core_path/framework/include/core",
     "$hdf_core_path/framework/core/common/include/host",

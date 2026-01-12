@@ -30,7 +30,6 @@ if (defined(ohos_lite)) {
     sources = [ "$HDF_FRAMEWORK_PATH/test/unittest/common/hdf_common_test.c" ]
 
     include_dirs = [
-      "//third_party/bounds_checking_function/include",
       "$HDF_FRAMEWORK_PATH/include/platform",
       "$HDF_FRAMEWORK_PATH/include/core",
       "$HDF_FRAMEWORK_PATH/include/osal",

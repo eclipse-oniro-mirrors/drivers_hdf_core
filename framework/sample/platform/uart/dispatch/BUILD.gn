@@ -23,7 +23,6 @@ executable("hello_uart_dispatch") {
     "$hdf_framework_path/utils/include",
     "$hdf_framework_path/include/osal",
     "$hdf_adapter_path/uhdf/posix/include",
-    "//third_party/bounds_checking_function/include",
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
