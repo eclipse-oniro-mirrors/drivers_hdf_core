@@ -77,6 +77,22 @@ int32_t GetGainByRegValue(uint8_t regValue, struct GainRegAddrValueMap *map, int
     return INVALID_VALUE;
 }
 
+
+int32_t GetRegGroupIndexByGain(uint32_t gainValue, struct GainRegAddrValueMap *map, int32_t itemNum)
+{
+    int32_t i;
+
+    CHECK_NULL_PTR_RETURN_VALUE(map, INVALID_VALUE);
+
+    for (i = 0; i < itemNum; i++) {
+        if (gainValue == map[i].gainValue) {
+            return i;
+        }
+    }
+
+    return INVALID_VALUE;
+}
+
 static int32_t GetExtendedAlsRegGroupNameIndex(const char *name)
 {
     int32_t index;

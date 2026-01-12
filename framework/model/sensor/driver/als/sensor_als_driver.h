@@ -91,4 +91,5 @@ void AlsReleaseCfgData(struct SensorCfgData *alsCfg);
 int32_t GetTimeByRegValue(uint8_t regValue, struct TimeRegAddrValueMap *map, int32_t itemNum);
 int32_t GetRegGroupIndexByTime(uint32_t timeValue, struct TimeRegAddrValueMap *map, int32_t itemNum);
 int32_t GetGainByRegValue(uint8_t regValue, struct GainRegAddrValueMap *map, int32_t itemNum);
+int32_t GetRegGroupIndexByGain(uint32_t gainValue, struct GainRegAddrValueMap *map, int32_t itemNum);
 #endif /* SENSOR_ALS_DRIVER_H */
