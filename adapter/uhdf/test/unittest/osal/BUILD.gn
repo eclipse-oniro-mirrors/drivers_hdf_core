@@ -20,7 +20,6 @@ unittest("hdf_adapter_uhdf_test_osal") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/platform",
     "$hdf_core_path/framework/include/core",
     "$hdf_core_path/framework/include/osal",
@@ -50,7 +49,6 @@ unittest("hdf_adapter_uhdf_test_osal_posix") {
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
     "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
     "$hdf_core_path/framework/include/platform",
     "$hdf_core_path/framework/include/core",
     "$hdf_core_path/framework/include/osal",

@@ -23,7 +23,6 @@ if (hdf_core_platform_test_support) {
     output_dir = "$root_out_dir/test/unittest/hdf"
     include_dirs = [
       "//third_party/googletest/googletest/include",
-      "//third_party/bounds_checking_function/include",
       "$hdf_framework_path/include/platform",
       "$hdf_framework_path/include/core",
       "$hdf_framework_path/include/osal",
@@ -120,7 +119,6 @@ if (hdf_core_platform_test_support) {
     output_dir = "$root_out_dir/test/unittest/hdf"
     include_dirs = [
       "//third_party/googletest/googletest/include",
-      "//third_party/bounds_checking_function/include",
       "$hdf_framework_path/include/platform",
       "$hdf_framework_path/include/core",
       "$hdf_framework_path/include/osal",
