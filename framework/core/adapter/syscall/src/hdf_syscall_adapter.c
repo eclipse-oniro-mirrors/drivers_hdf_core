@@ -18,6 +18,7 @@
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "hdf_base.h"
 #include "hdf_io_service.h"
@@ -38,6 +39,12 @@
 #define LOAD_IOSERVICE_WAIT_TIME    10     // ms
 #define LOAD_IOSERVICE_WAIT_COUNT   20     // ms
 #define THREAD_NAME_LEN_MAX         16
+
+#ifndef __LITEOS__
+#define FDSAN_TAG_A                 1
+#define DRIVER_HDF_CORE_FDSAN_TAG   0xC02510
+#define TAG_LEFT_SHIFT              32
+#endif
 
 static bool HaveOnlyOneElement(const struct DListHead *head)
 {
@@ -789,6 +796,10 @@ struct HdfIoService *HdfIoServiceAdapterObtain(const char *serviceName)
         OsalMemFree(adapter);
         goto OUT;
     }
+#ifndef __LITEOS__
+    uint64_t ownerTag = ((uint64_t)DRIVER_HDF_CORE_FDSAN_TAG << TAG_LEFT_SHIFT) | FDSAN_TAG_A;
+    fdsan_exchange_owner_tag(adapter->fd, 0, ownerTag);
+#endif
     ioService = &adapter->super;
     static struct HdfIoDispatcher dispatch = {
         .Dispatch = HdfSyscallAdapterDispatch,
@@ -807,6 +818,10 @@ void HdfIoServiceAdapterRecycle(struct HdfIoService *service)
         HdfDevListenerThreadDestroy(adapter->thread);
         adapter->thread = NULL;
         if (adapter->fd >= 0) {
+#ifndef __LITEOS__
+            uint64_t ownerTag = ((uint64_t)DRIVER_HDF_CORE_FDSAN_TAG << TAG_LEFT_SHIFT) | FDSAN_TAG_A;
+            fdsan_close_with_tag(adapter->fd, ownerTag);
+#endif
             close(adapter->fd);
             adapter->fd = -1;
         }
