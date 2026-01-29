@@ -48,7 +48,11 @@ struct HdfVdiObject *HdfLoadVdi(const char *libName)
         return NULL;
     }
 
+    Dl_namespace ns_ps;
     void *handler = dlopen(resolvedPath, RTLD_LAZY);
+    if ((handler == NULL) && !dlns_get("default", &ns_ps)) {
+        handler = dlopen_ns(&ns_ps, resolvedPath, RTLD_LAZY);
+    }
     if (handler == NULL) {
         HDF_LOGE("%{public}s dlopen failed %{public}s", __func__, dlerror());
         OsalMemFree(vdiObj);
