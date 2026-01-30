@@ -30,6 +30,7 @@ if (defined(ohos_lite)) {
       "$interfaces_folder_path/inner_api/osal/uhdf",
       "$interfaces_folder_path/inner_api/utils",
       "$interfaces_folder_path/inner_api/core",
+      "$hdf_framework_path/utils/include",
     ]
   }
 
@@ -41,7 +42,6 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/include/core",
       "$hdf_framework_path/include/osal",
       "$hdf_framework_path/include/utils",
-      "$hdf_framework_path/utils/include",
       "$hdf_framework_path/core/adapter/syscall/include",
       "$hdf_framework_path/core/adapter/vnode/include",
       "$hdf_framework_path/core/shared/include",
@@ -100,6 +100,7 @@ if (defined(ohos_lite)) {
       "$interfaces_folder_path/inner_api/core",
       "$interfaces_folder_path/inner_api/ipc",
       "$interfaces_folder_path/inner_api/hdi",
+      "$hdf_framework_path/utils/include",
     ]
     defines = [ "__OHOS_USER__" ]
 
@@ -115,7 +116,6 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/include/core",
       "$hdf_framework_path/include/osal",
       "$hdf_framework_path/include/utils",
-      "$hdf_framework_path/utils/include",
       "$hdf_framework_path/core/adapter/syscall/include",
       "$hdf_framework_path/core/adapter/vnode/include",
       "$hdf_framework_path/core/shared/include",
