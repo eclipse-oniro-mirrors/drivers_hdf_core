@@ -38,7 +38,6 @@ if (defined(ohos_lite)) {
     deps = [
       "$hdf_adapter_path/uhdf2/hdi:libhdi",
       "$hdf_adapter_path/uhdf2/hdi:libhdi_base",
-      "$hdf_adapter_path/uhdf2/host:hdf_devhost",
       "$hdf_adapter_path/uhdf2/host:libhdf_host",
       "$hdf_adapter_path/uhdf2/ipc:libhdf_ipc_adapter",
       "$hdf_adapter_path/uhdf2/manager:hdf_devmgr",

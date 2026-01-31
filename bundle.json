@@ -151,9 +151,6 @@
                     }
                 },
                 {
-                    "name": "//drivers/hdf_core/framework/tools/hc-gen:hc_gen"
-                },
-                {
                     "name": "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi_base",
                     "header": {
                         "header_files": [

@@ -28,6 +28,7 @@ config("libhdf_host_public_config") {
     "$hdf_interfaces_path/inner_api/host/uhdf",
     "$hdf_framework_path/core/manager/include",
     "$hdf_framework_path/core/shared/include",
+    "$hdf_framework_path/core/host/include",
     "include",
   ]
 }
@@ -46,7 +47,6 @@ if (defined(ohos_lite)) {
     public_configs = [ ":libhdf_host_public_config" ]
     include_dirs = [
       "$hdf_framework_path/core/manager/include",
-      "$hdf_framework_path/core/host/include",
       "$hdf_framework_path/core/shared/include",
       "$hdf_framework_path/utils/include",
       "$hdf_uhdf_path/include/host",
@@ -110,50 +110,6 @@ if (defined(ohos_lite)) {
     innerapi_tags = [ "chipsetsdk_sp" ]
 
     install_images = [ system_base_dir ]
-    subsystem_name = "hdf"
-    part_name = "hdf_core"
-  }
-
-  ohos_executable("hdf_devhost") {
-    include_dirs = [
-      "$hdf_framework_path/core/manager/include",
-      "$hdf_framework_path/core/host/include",
-      "$hdf_framework_path/core/shared/include",
-      "$hdf_framework_path/utils/include",
-      "$hdf_uhdf_path/include/host",
-      "$hdf_uhdf_path/shared/include",
-      "$hdf_uhdf_path/manager/include",
-      "$hdf_uhdf_path/osal/include",
-      "$hdf_interfaces_path/inner_api/core",
-      "include",
-    ]
-
-    sources = [ "devhost.c" ]
-
-    if (is_standard_system) {
-      deps = [
-        "../host:libhdf_host",
-        "../ipc:libhdf_ipc_adapter",
-        "../utils:libhdf_utils",
-      ]
-      external_deps = [
-        "bounds_checking_function:libsec_shared",
-        "c_utils:utils",
-        "hilog:libhilog",
-        "init:libbegetutil",
-      ]
-    } else {
-      external_deps = [ "hilog:libhilog" ]
-    }
-
-    # Ensure that the maximum page size is 4096 and the load section is aligned
-    ldflags = [
-      "-Wl,-z,max-page-size=4096",
-      "-Wl,-z,separate-code",
-    ]
-
-    install_enable = true
-    install_images = [ chipset_base_dir ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
   }
