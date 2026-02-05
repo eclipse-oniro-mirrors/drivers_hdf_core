@@ -42,8 +42,8 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
     }
 
     Dl_namespace ns_ps;
-    void *handle = dlopen(moduleName, RTLD_LAZY);
-    if ((handle == NULL) && !dlns_get("default", &ns_ps)) {
+    void *handle = NULL;
+    if (!dlns_get("default", &ns_ps)) {
         handle = dlopen_ns(&ns_ps, moduleName, RTLD_LAZY);
     }
     if (handle == NULL) {

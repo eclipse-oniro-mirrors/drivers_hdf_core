@@ -49,8 +49,8 @@ struct HdfVdiObject *HdfLoadVdi(const char *libName)
     }
 
     Dl_namespace ns_ps;
-    void *handler = dlopen(resolvedPath, RTLD_LAZY);
-    if ((handler == NULL) && !dlns_get("default", &ns_ps)) {
+    void *handler = NULL;
+    if (!dlns_get("default", &ns_ps)) {
         handler = dlopen_ns(&ns_ps, resolvedPath, RTLD_LAZY);
     }
     if (handler == NULL) {
