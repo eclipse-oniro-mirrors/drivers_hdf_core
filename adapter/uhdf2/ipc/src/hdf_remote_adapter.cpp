@@ -308,7 +308,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
     }
 
     const int32_t waitTimes = 50;
+#ifdef VERIFY_PLAT_FPGA
+    const int32_t sleepInterval = 600000;
+#else
     const int32_t sleepInterval = 20000;
+#endif
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
         OHOS::HdfXCollie hdfXCollie("HdfRemoteAdapterAddSa_" + OHOS::ToString(saId) + "_get_samgr",
