@@ -821,8 +821,9 @@ void HdfIoServiceAdapterRecycle(struct HdfIoService *service)
 #ifndef __LITEOS__
             uint64_t ownerTag = ((uint64_t)DRIVER_HDF_CORE_FDSAN_TAG << TAG_LEFT_SHIFT) | FDSAN_TAG_A;
             fdsan_close_with_tag(adapter->fd, ownerTag);
-#endif
+#else
             close(adapter->fd);
+#endif
             adapter->fd = -1;
         }
         OsalMutexDestroy(&adapter->mutex);
