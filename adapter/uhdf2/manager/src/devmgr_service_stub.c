@@ -64,12 +64,7 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
     struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
     DevmgrServicehostClntGetPid(devmgrSvc, hostId);
-    int32_t ret = devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
-    if (ret != HDF_SUCCESS) {
-        DevHostServiceProxyRecycle((struct DevHostServiceProxy *)hostIf);
-        HdfRemoteServiceRecycle(service);
-    }
-    return ret;
+    return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
 }
 
 static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
@@ -88,11 +83,7 @@ static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devm
     tokenClnt->super.devid = deviceId;
     tokenClnt->super.servName = HdfStringCopy(servName);
     tokenClnt->super.deviceName = HdfStringCopy(deviceName);
-    int32_t ret = devmgrSvc->AttachDevice(devmgrSvc, &tokenClnt->super);
-    if (ret != HDF_SUCCESS) {
-        HdfDevTokenProxyRecycle(tokenClnt);
-    }
-    return ret;
+    return devmgrSvc->AttachDevice(devmgrSvc, &tokenClnt->super);
 }
 
 static int32_t DevmgrServiceStubDispatchDetachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
