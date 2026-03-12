@@ -31,5 +31,5 @@
 /framework/include/ethernet/ @Dufree
 /framework/include/net/ @Dufree
 
-# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @leonchan
-interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @leonchan
+# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @Dufree
+interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @Dufree
