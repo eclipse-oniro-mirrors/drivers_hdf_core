@@ -26,7 +26,7 @@ const int32_t TIME_OUT_CONST = 50;
 const int32_t SLEEP_TIME = 5;
 #define AUDIO_PNP_MSG_LEN 256
 #define INTERLEAVED 1
-const int32_t MIN_PERIOD_SILENCE_THRESHOLD = (4 * 1024);
+const int32_t MIN_PERIOD_SILENCE_THRESHOLD = (3 * 1024);
 const int32_t MAX_PERIOD_SILENCE_THRESHOLD = (16 * 1024);
 
 uint32_t SysReadl(unsigned long addr)
