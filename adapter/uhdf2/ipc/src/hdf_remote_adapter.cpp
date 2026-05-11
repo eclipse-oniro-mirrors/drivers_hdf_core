@@ -529,7 +529,7 @@ int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
 // LCOV_EXCL_STOP
     }
 
-    if (SbufToParcel(data, &replyParcel) != HDF_SUCCESS) {
+    if (SbufToParcel(reply, &replyParcel) != HDF_SUCCESS) {
 // LCOV_EXCL_START
         HDF_LOGE("%{public}s:invalid reply sbuf object to dispatch", __func__);
         return HDF_ERR_INVALID_PARAM;
