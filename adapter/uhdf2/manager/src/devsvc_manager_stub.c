@@ -46,9 +46,11 @@ static int32_t AddServicePermCheck(const char *servName)
         HDF_LOGE("[selinux] %{public}s %{public}d haven't \"add service\" permission to %{public}s",
             callingSid, callingPid, servName);
         free(callingSid);
+        callingSid = NULL;
         return HDF_ERR_NOPERM;
     }
     free(callingSid);
+    callingSid = NULL;
 #endif
     return HDF_SUCCESS;
 }
@@ -66,9 +68,11 @@ static int32_t GetServicePermCheck(const char *servName)
         HDF_LOGE("[selinux] %{public}s %{public}d haven't \"get service\" permission to %{public}s",
             callingSid, callingPid, servName);
         free(callingSid);
+        callingSid = NULL;
         return HDF_ERR_NOPERM;
     }
     free(callingSid);
+    callingSid = NULL;
 #endif
 
     return HDF_SUCCESS;
@@ -86,9 +90,11 @@ static int32_t ListServicePermCheck(void)
     if (HdfListServiceCheck(callingSid) != 0) {
         HDF_LOGE("[selinux] %{public}s %{public}d haven't \"list service\" permission", callingSid, callingPid);
         free(callingSid);
+        callingSid = NULL;
         return HDF_ERR_NOPERM;
     }
     free(callingSid);
+    callingSid = NULL;
 #endif
 
     return HDF_SUCCESS;

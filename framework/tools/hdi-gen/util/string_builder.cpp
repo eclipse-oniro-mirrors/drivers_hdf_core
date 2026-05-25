@@ -22,6 +22,7 @@ StringBuilder::~StringBuilder()
 {
     if (buffer_ != nullptr) {
         free(buffer_);
+        buffer_ = nullptr;
     }
 }
 
@@ -153,9 +154,11 @@ bool StringBuilder::Grow(size_t size)
         if (ret != 0) {
             Logger::E(TAG, "memcpy_s error ret = %d!", ret);
             free(newBuffer);
+            newBuffer = nullptr;
             return false;
         }
         free(buffer_);
+        buffer_ = nullptr;
     }
     buffer_ = newBuffer;
     capacity_ = newSize;

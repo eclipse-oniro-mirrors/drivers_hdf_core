@@ -72,7 +72,7 @@ static void CommonVmClose(struct vm_area_struct *vma)
     }
     struct VmareaHandler *handler = vma->vm_private_data;
 
-    if (handler == NULL || handler->arg == NULL) {
+    if (handler == NULL || handler->arg == NULL || handler->free == NULL) {
         return;
     }
 

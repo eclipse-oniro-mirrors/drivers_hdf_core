@@ -164,6 +164,7 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
         g_dumpHostNode.dumpHost(data, reply);
     } else if (strcmp(option, "dumpService") == 0) {
         const char *servName = HdfSbufReadString(data);
+        if (servName == NULL) { return; }
         struct DumpServiceNode *pos = NULL;
         bool dumpFlag = false;
         OsalMutexLock(&g_dumpHostNode.mutex);

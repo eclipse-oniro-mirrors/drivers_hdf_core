@@ -40,15 +40,19 @@ static bool I2cFuzzTest(const uint8_t *data, size_t size)
     msg.buf = reinterpret_cast<uint8_t *>(malloc(BUF_LEN));
     if (msg.buf == nullptr) {
         HDF_LOGE("I2cFuzzTest: malloc buf fail!");
+        I2cClose(handle);
         return false;
     }
     if (memcpy_s(msg.buf, BUF_LEN, params->buf, BUF_LEN) != EOK) {
         HDF_LOGE("I2cFuzzTest :memcpy buf fail!");
         free(msg.buf);
+        msg.buf = nullptr;
+        I2cClose(handle);
         return false;
     }
     I2cTransfer(handle, &msg, 1);
     free(msg.buf);
+    msg.buf = nullptr;
     I2cClose(handle);
 
     return true;
