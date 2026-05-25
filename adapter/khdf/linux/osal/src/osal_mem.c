@@ -54,10 +54,14 @@ static void *osal_mem_alloc(size_t size, uint32_t *type)
 
 	if (size > (KMALLOC_SIZE - mng_size)) {
 		base = (char *)vmalloc(size + mng_size);
-		*type = TYPE_VMALLOC;
+		if (base != NULL) {
+			*type = TYPE_VMALLOC;
+		}
 	} else {
 		base = (char *)kmalloc(size + mng_size, GFP_KERNEL);
-		*type = TYPE_KMALLOC;
+		if (base != NULL) {
+			*type = TYPE_KMALLOC;
+		}
 	}
 
 	return base;

@@ -42,7 +42,12 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
     uint8_t **bufReply = NULL;
     struct I2cUserMsg *userMsgs = NULL;
     struct I2cMsg *msgs = NULL;
-    size_t msgSize = sizeof(struct I2cMsg) * count;
+    size_t msgSize;
+    if (count <= 0 || count > (INT16_MAX / (int16_t)sizeof(struct I2cMsg))) {
+        HDF_LOGE("RebuildMsgs: invalid count=%d!", count);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    msgSize = sizeof(struct I2cMsg) * count;
     uint8_t *buf = NULL;
 
     msgs = OsalMemCalloc(msgSize + sizeof(void *));

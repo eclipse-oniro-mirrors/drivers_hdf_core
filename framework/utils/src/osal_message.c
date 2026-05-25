@@ -11,7 +11,11 @@
 
 struct HdfMessage *HdfMessageObtain(size_t extendSize)
 {
-    size_t newSize = sizeof(struct HdfMessage) + extendSize;
+    size_t newSize;
+    if (extendSize > SIZE_MAX - sizeof(struct HdfMessage)) {
+        return NULL;
+    }
+    newSize = sizeof(struct HdfMessage) + extendSize;
     return (struct HdfMessage *)OsalMemCalloc(newSize);
 }
 

@@ -31,6 +31,10 @@ void *OsalMemAlloc(size_t size)
     }
 
     buf = malloc(size);
+    if (buf == NULL) {
+        HDF_LOGE("%s malloc failed, size=%zu", __func__, size);
+        return NULL;
+    }
 
     return buf;
 }
