@@ -247,7 +247,8 @@ static struct SpiMsg *SpiDevGetSpiMsgFromUser(struct SpiIocMsg *umsg)
         HDF_LOGE("SpiDevGetSpiMsgFromUser: invalid count=%d!", count);
         return NULL;
     }
-    if (count > (INT32_MAX / (int32_t)sizeof(struct SpiMsg)) / 2) {
+    #define SPI_MSG_ARRAY_COUNT 2  /* one for user msg array, one for kernel msg array */
+    if (count > (INT32_MAX / (int32_t)sizeof(struct SpiMsg)) / SPI_MSG_ARRAY_COUNT) {
         HDF_LOGE("SpiDevGetSpiMsgFromUser: count overflow!");
         return NULL;
     }
