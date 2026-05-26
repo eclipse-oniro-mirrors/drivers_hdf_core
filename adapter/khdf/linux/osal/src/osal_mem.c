@@ -59,7 +59,7 @@ static void *osal_mem_alloc(size_t size, uint32_t *type)
 		}
 	} else {
 		base = (char *)kmalloc(size + mng_size, GFP_KERNEL);
-		if (base != NULL) {
+        if (base != NULL) {
 			*type = TYPE_KMALLOC;
 		}
 	}
