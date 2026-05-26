@@ -1853,8 +1853,7 @@ static int32_t AudioUsbSetTermName(
         len = 0;
         nameList[i] = OsalMemCalloc(MAX_ITEM_NAME_LEN);
         if (nameList[i] == NULL) {
-            uint32_t j;
-            for (j = 0; j < i; j++) {
+            for (uint32_t j = 0; j < i; j++) {
                 OsalMemFree(nameList[j]);
             }
             OsalMemFree(nameList);
