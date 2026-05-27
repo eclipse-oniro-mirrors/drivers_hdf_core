@@ -30,7 +30,7 @@ static struct i2c_msg *CreateLinuxI2cMsgs(struct I2cMsg *msgs, int16_t count)
     int16_t i;
     struct i2c_msg *linuxMsgs = NULL;
 
-    if (count <= 0 || count > (INT16_MAX / (int16_t)sizeof(*linuxMsgs))) {
+    if (count <= 0 || count > (S16_MAX / (int16_t)sizeof(*linuxMsgs))) {
         HDF_LOGE("CreateLinuxI2cMsgs: invalid count=%d!", count);
         return NULL;
     }
