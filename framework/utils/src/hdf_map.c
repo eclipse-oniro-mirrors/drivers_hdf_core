@@ -65,7 +65,7 @@ static int32_t MapResize(Map *map, uint32_t size)
     struct MapNode **tmp = NULL;
     uint32_t i;
 
-    if (size == 0 || size > (UINT32_MAX / sizeof(*nodes))) {
+    if (size == 0 || size > (HDF_UINT32_MAX / sizeof(*nodes))) {
         return HDF_ERR_INVALID_PARAM;
     }
 

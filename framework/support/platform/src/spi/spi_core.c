@@ -195,10 +195,12 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
         HDF_LOGE("SpiTransferRebuildMsgs: read count fail!");
         return HDF_ERR_IO;
     }
-    if (count > (UINT32_MAX / sizeof(struct SpiMsg))) {
+    #define SPI_MAX_VALID_COUNT ((~0U) / sizeof(struct SpiMsg))
+    if (count > SPI_MAX_VALID_COUNT) {
         HDF_LOGE("SpiTransferRebuildMsgs: count overflow!");
         return HDF_ERR_INVALID_PARAM;
     }
+    #undef SPI_MAX_VALID_COUNT
 
     msgs = OsalMemCalloc(sizeof(struct SpiMsg) * count);
     if (msgs == NULL) {

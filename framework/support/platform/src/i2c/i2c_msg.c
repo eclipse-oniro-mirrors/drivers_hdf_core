@@ -43,7 +43,9 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
     struct I2cUserMsg *userMsgs = NULL;
     struct I2cMsg *msgs = NULL;
     size_t msgSize;
-    if (count <= 0 || count > (INT16_MAX / (int16_t)sizeof(struct I2cMsg))) {
+    #define I2C_MSG_MAX_COUNT 32767
+    if (count <= 0 || count > (I2C_MSG_MAX_COUNT / (int16_t)sizeof(struct I2cMsg))) {
+    #undef I2C_MSG_MAX_COUNT
         HDF_LOGE("RebuildMsgs: invalid count=%d!", count);
         return HDF_ERR_INVALID_PARAM;
     }

@@ -1040,7 +1040,7 @@ static int32_t WifiCmdGetValidFreqsWithBand(
         HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
-    if (num > (UINT32_MAX / sizeof(int32_t))) {
+    if (num > ((~0U) / sizeof(int32_t))) {
         HDF_LOGE("%s: num overflow!", __func__);
         return HDF_FAILURE;
     }

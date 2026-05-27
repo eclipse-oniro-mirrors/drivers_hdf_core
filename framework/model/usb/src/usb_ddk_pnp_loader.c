@@ -543,7 +543,7 @@ static struct UsbPnpMatchIdTable **UsbDdkPnpLoaderParseTableList(
     struct UsbPnpMatchIdTable **idTable = NULL;
     const struct DeviceResourceNode *tableNode = NULL;
 
-    if (idTabCount > (INT32_MAX - 1)) {
+    if (idTabCount > 0x7FFFFFFE) {
         HDF_LOGE("%s: idTabCount overflow!", __func__);
         return NULL;
     }
