@@ -350,7 +350,8 @@ static int32_t AudioUsbSetSyncEndpoint(struct AudioUsbDriver *audioUsbDriver, st
     const enum AudioStreamType streamType, struct usb_host_interface *alts, struct usb_interface_descriptor *altsd)
 {
     uint32_t isRender = streamType;
-    uint32_t epNum = 0, attr;
+    uint32_t epNum = 0;
+    uint32_t attr = 0;
     bool implicitFb;
     struct AudioUsbEndpoint *syncEndpoint = NULL;
     struct usb_endpoint_descriptor *epDesc = NULL;
