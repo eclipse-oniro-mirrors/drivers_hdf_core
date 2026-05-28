@@ -11,6 +11,8 @@
 #include "hdf_core_log.h"
 #include "input_config.h"
 
+#define MAX_ARRAY_LEN 1000000
+
 #define CHECK_PARSER_RET(ret,  str) do { \
     if ((ret) != HDF_SUCCESS) { \
         HDF_LOGE("%s: %s failed, ret = %d", __func__, str, ret); \
@@ -253,7 +255,7 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
 {
     int32_t ret;
     int32_t gotNum = parser->GetElemNum(seqNode, "powerOnSeq");
-    if (gotNum <= 0) {
+    if (gotNum <= 0 || gotNum > MAX_ARRAY_LEN) {
         HDF_LOGE("%s: GetElemNum powerOnSeq failed, ret=%d", __func__, gotNum);
         return HDF_FAILURE;
     }
@@ -267,7 +269,7 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     ret = parser->GetUint32Array(seqNode, "powerOnSeq", pwrSeq->pwrOn.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
     gotNum = parser->GetElemNum(seqNode, "suspendSeq");
-    if (gotNum <= 0) {
+    if (gotNum <= 0 || gotNum > MAX_ARRAY_LEN) {
         HDF_LOGE("%s: GetElemNum suspendSeq failed, ret=%d", __func__, gotNum);
         OsalMemFree(pwrSeq->pwrOn.buf);
         pwrSeq->pwrOn.buf = NULL;
