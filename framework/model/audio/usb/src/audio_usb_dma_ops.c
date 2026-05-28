@@ -312,6 +312,7 @@ static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct
 
     if ((isRender != 0 && (attr == USB_ENDPOINT_SYNC_SYNC || attr == USB_ENDPOINT_SYNC_ADAPTIVE)) ||
         (isRender == 0 && attr != USB_ENDPOINT_SYNC_ADAPTIVE)) {
+        *epNum = 0;
         return HDF_SUCCESS;
     }
 
@@ -349,7 +350,7 @@ static int32_t AudioUsbSetSyncEndpoint(struct AudioUsbDriver *audioUsbDriver, st
     const enum AudioStreamType streamType, struct usb_host_interface *alts, struct usb_interface_descriptor *altsd)
 {
     uint32_t isRender = streamType;
-    uint32_t epNum, attr;
+    uint32_t epNum = 0, attr;
     bool implicitFb;
     struct AudioUsbEndpoint *syncEndpoint = NULL;
     struct usb_endpoint_descriptor *epDesc = NULL;
