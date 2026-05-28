@@ -39,8 +39,11 @@ void SetHcsBlobPath(const char *path)
 {
     if (HCS_BLOB_PATH != NULL) {
         OsalMemFree((void *)HCS_BLOB_PATH);
+        HCS_BLOB_PATH = NULL;
     }
-    HCS_BLOB_PATH = strdup(path);
+    if (path != NULL) {
+        HCS_BLOB_PATH = strdup(path);
+    }
 }
 
 static bool CreateHcsToTree(void)

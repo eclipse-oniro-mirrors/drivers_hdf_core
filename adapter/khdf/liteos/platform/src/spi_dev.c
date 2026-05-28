@@ -243,6 +243,15 @@ static struct SpiMsg *SpiDevGetSpiMsgFromUser(struct SpiIocMsg *umsg)
     struct SpiMsg *msg = NULL;
 
     count = umsg->count;
+    if (count <= 0) {
+        HDF_LOGE("SpiDevGetSpiMsgFromUser: invalid count=%d!", count);
+        return NULL;
+    }
+    #define SPI_MSG_ARRAY_COUNT 2  /* one for user msg array, one for kernel msg array */
+    if (count > (INT32_MAX / (int32_t)sizeof(struct SpiMsg)) / SPI_MSG_ARRAY_COUNT) {
+        HDF_LOGE("SpiDevGetSpiMsgFromUser: count overflow!");
+        return NULL;
+    }
     msg = (struct SpiMsg *)OsalMemCalloc(sizeof(struct SpiMsg) * count + sizeof(struct SpiMsg) * count);
     if (msg == NULL) {
         HDF_LOGE("SpiDevGetSpiMsgFromUser: melloc msg error!");
@@ -267,6 +276,10 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
     uint8_t *rbuf = NULL;
 
     for (i = 0; i < count; i++) {
+        if (len > INT32_MAX - msg[i].len) {
+            HDF_LOGE("SpiDevRealTransfer: len overflow at msg[%d]!", i);
+            return HDF_ERR_INVALID_PARAM;
+        }
         len += msg[i].len;
     }
     if (len <= 0) {

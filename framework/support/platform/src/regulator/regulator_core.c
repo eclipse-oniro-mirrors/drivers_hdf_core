@@ -694,6 +694,8 @@ static int32_t RegulatorManagerBind(struct HdfDeviceObject *device)
 
     if (RegulatorTreeManagerInit() != HDF_SUCCESS) {
         HDF_LOGE("RegulatorManagerBind: RegulatorTreeManagerInit init fail!");
+        g_regulatorManager = NULL;
+        OsalMutexDestroy(&manager->lock);
         OsalMemFree(manager);
         return HDF_FAILURE;
     }

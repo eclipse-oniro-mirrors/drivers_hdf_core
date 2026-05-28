@@ -169,11 +169,19 @@ int32_t AudioUsbDmaBufAlloc(struct PlatformData *data, const enum AudioStreamTyp
         if (data->captureBufInfo.virtAddr == NULL) {
             preallocBufSize = data->captureBufInfo.cirBufMax;
             data->captureBufInfo.virtAddr = __vmalloc(preallocBufSize, GFP_KERNEL | __GFP_HIGHMEM);
+            if (data->captureBufInfo.virtAddr == NULL) {
+                AUDIO_DEVICE_LOG_ERR("__vmalloc captureBufInfo failed.");
+                return HDF_ERR_MALLOC_FAIL;
+            }
         }
     } else if (streamType == AUDIO_RENDER_STREAM) {
         if (data->renderBufInfo.virtAddr == NULL) {
             preallocBufSize = data->renderBufInfo.cirBufMax;
             data->renderBufInfo.virtAddr = __vmalloc(preallocBufSize, GFP_KERNEL | __GFP_HIGHMEM);
+            if (data->renderBufInfo.virtAddr == NULL) {
+                AUDIO_DEVICE_LOG_ERR("__vmalloc renderBufInfo failed.");
+                return HDF_ERR_MALLOC_FAIL;
+            }
         }
     } else {
         AUDIO_DEVICE_LOG_ERR("stream Type is invalude.");

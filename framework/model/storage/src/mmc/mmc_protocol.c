@@ -60,6 +60,10 @@ static uint32_t MmcParseBits(const uint32_t *data, uint32_t bitsLen, uint32_t st
         HDF_LOGE("MmcParseBits: not support!");
         return 0;
     }
+    if ((bitsLen / BITS_NUMBER_OF_4_BYTES) <= (start / BITS_NUMBER_OF_4_BYTES)) {
+        HDF_LOGE("MmcParseBits: start out of range for given bitsLen!");
+        return 0;
+    }
 
     index = (bitsLen / BITS_NUMBER_OF_4_BYTES) - (start / BITS_NUMBER_OF_4_BYTES) - 1;
     shift = start & (BITS_NUMBER_OF_4_BYTES - 1);

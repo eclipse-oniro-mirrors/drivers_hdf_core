@@ -1853,8 +1853,8 @@ static int32_t AudioUsbSetTermName(
         len = 0;
         nameList[i] = OsalMemCalloc(MAX_ITEM_NAME_LEN);
         if (nameList[i] == NULL) {
-            for (i = 0; i < desc->bNrInPins; i++) {
-                OsalMemFree(nameList[i]);
+            for (uint32_t j = 0; j < i; j++) {
+                OsalMemFree(nameList[j]);
             }
             OsalMemFree(nameList);
             return HDF_ERR_MALLOC_FAIL;
@@ -1867,6 +1867,10 @@ static int32_t AudioUsbSetTermName(
             sprintf_s(nameList[i], MAX_ITEM_NAME_LEN, "Input %u", i);
         }
     }
+    for (i = 0; i < desc->bNrInPins; i++) {
+        OsalMemFree(nameList[i]);
+    }
+    OsalMemFree(nameList);
     return HDF_SUCCESS;
 }
 

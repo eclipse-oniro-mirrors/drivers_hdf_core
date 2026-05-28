@@ -307,9 +307,9 @@ static int32_t CodecSetSapmConfigInfo(struct CodecData *codeData, struct AudioRe
     }
     for (index = 0; index < codeData->numSapmComponent; index++) {
         if (SapmCtrlToSapmComp(codeData->sapmComponents, sapmCompItem, index)) {
-            OsalMemFree(audioSapmControls);
             OsalMemFree(codeData->sapmComponents);
             codeData->sapmComponents = NULL;
+            OsalMemFree(audioSapmControls);
             return HDF_FAILURE;
         }
 
@@ -522,6 +522,7 @@ static int32_t CodecI2cMsgFill(struct I2cTransferParam *i2cTransferParam, const 
             msgBuf[I2C_MSG_BUF_SIZE_2] = (uint8_t)(regAttr->value & COMM_MASK_FF);    // Low 8 bit
         } else {
             AUDIO_DRIVER_LOG_ERR("i2cRegDataLen is invalid");
+            OsalMemFree(msgBuf);
             return HDF_FAILURE;
         }
         msgs[0].buf = msgBuf;

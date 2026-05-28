@@ -30,6 +30,10 @@ static struct i2c_msg *CreateLinuxI2cMsgs(struct I2cMsg *msgs, int16_t count)
     int16_t i;
     struct i2c_msg *linuxMsgs = NULL;
 
+    if (count <= 0 || count > (S16_MAX / (int16_t)sizeof(*linuxMsgs))) {
+        HDF_LOGE("CreateLinuxI2cMsgs: invalid count=%d!", count);
+        return NULL;
+    }
     linuxMsgs = (struct i2c_msg *)OsalMemCalloc(sizeof(*linuxMsgs) * count);
     if (linuxMsgs == NULL) {
         HDF_LOGE("CreateLinuxI2cMsgs: malloc linux msgs fail!");

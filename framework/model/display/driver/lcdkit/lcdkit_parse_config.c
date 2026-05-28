@@ -10,6 +10,8 @@
 #include "lite_lcdkit.h"
 #include "hdf_core_log.h"
 
+#define MAX_ARRAY_LEN 1000000
+
 #define PARSE_PANEL_SYMBOL(node, ops, symbol, out) do { \
     if ((ops)->GetUint32((node), (symbol), (out), 0)) { \
         HDF_LOGE("%s: get symbol:%s failed", __func__, (symbol)); \
@@ -98,6 +100,10 @@ static int32_t ParseCmdConfig(const struct DeviceResourceNode *node, struct Devi
     const char *name, struct PanelCmd *cmd)
 {
     int32_t len = drsOps->GetElemNum(node, name);
+    if (len <= 0 || len > MAX_ARRAY_LEN) {
+        HDF_LOGE("%s: GetElemNum failed, len=%d", __func__, len);
+        return HDF_FAILURE;
+    }
     uint8_t *array = (uint8_t *)OsalMemCalloc(len * sizeof(uint8_t));
     if (array == NULL) {
         HDF_LOGE("%s: OsalMemCalloc failed", __func__);
@@ -154,7 +160,7 @@ static int32_t ParsePowerSetting(const struct DeviceResourceNode *node, struct D
     struct PowerSetting *setting)
 {
     int32_t count = drsOps->GetElemNum(node, "powerSetting");
-    if ((count % POWER_SETTING_SIZE) != 0) {
+    if (count <= 0 || (count % POWER_SETTING_SIZE) != 0 || count > MAX_ARRAY_LEN) {
         HDF_LOGE("%s: count invalid", __func__);
         return HDF_FAILURE;
     }
@@ -191,7 +197,7 @@ static int32_t ParsePowerSequeue(const struct DeviceResourceNode *node, struct D
     const char *name, struct PowerSequeue *seq)
 {
     int32_t count = drsOps->GetElemNum(node, name);
-    if ((count % POWER_SEQUEUE_SIZE) != 0) {
+    if (count <= 0 || (count % POWER_SEQUEUE_SIZE) != 0 || count > MAX_ARRAY_LEN) {
         HDF_LOGE("%s: count invalid", __func__);
         return HDF_FAILURE;
     }

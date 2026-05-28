@@ -110,6 +110,10 @@ static int32_t I2cMsgsCreateFromUser(I2cIoctlWrap *wrap,
     struct I2cMsg *kMsgs = NULL;
     uint8_t *dataBuf = NULL;
 
+    if (wrap->nmsgs > INT32_MAX / (int32_t)(sizeof(*uMsgs) + sizeof(*kMsgs))) {
+        HDF_LOGE("I2cMsgsCreateFromUser: nmsgs overflow!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     uMsgs = (struct i2c_msg *)OsalMemCalloc((sizeof(*uMsgs) + sizeof(*kMsgs)) * wrap->nmsgs);
     if (uMsgs == NULL) {
         return HDF_ERR_MALLOC_FAIL;

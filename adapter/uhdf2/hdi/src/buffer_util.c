@@ -87,6 +87,13 @@ BufferHandle *CloneNativeBufferHandle(const BufferHandle *other)
         return handle;
     }
 
+    if (other->reserveInts > (UINT32_MAX / sizeof(int32_t)) ||
+        handle->reserveInts > (UINT32_MAX / sizeof(int32_t))) {
+        HDF_LOGE("CloneBufferHandle reserveInts overflow");
+        FreeNativeBufferHandle(handle);
+        return NULL;
+    }
+
     if (memcpy_s(&handle->reserve[handle->reserveFds], sizeof(int32_t) * handle->reserveInts,
                  &other->reserve[other->reserveFds], sizeof(int32_t) * other->reserveInts) != EOK) {
         HDF_LOGE("CloneBufferHandle memcpy_s failed");

@@ -11,6 +11,8 @@
 #include "hdf_core_log.h"
 #include "input_config.h"
 
+#define MAX_ARRAY_LEN 1000000
+
 #define CHECK_PARSER_RET(ret,  str) do { \
     if ((ret) != HDF_SUCCESS) { \
         HDF_LOGE("%s: %s failed, ret = %d", __func__, str, ret); \
@@ -252,7 +254,12 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     ChipPwrSeq *pwrSeq)
 {
     int32_t ret;
-    uint32_t num = (uint32_t)parser->GetElemNum(seqNode, "powerOnSeq");
+    int32_t gotNum = parser->GetElemNum(seqNode, "powerOnSeq");
+    if (gotNum <= 0 || gotNum > MAX_ARRAY_LEN) {
+        HDF_LOGE("%s: GetElemNum powerOnSeq failed, ret=%d", __func__, gotNum);
+        return HDF_FAILURE;
+    }
+    uint32_t num = (uint32_t)gotNum;
     pwrSeq->pwrOn.count = num;
     pwrSeq->pwrOn.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
     if (pwrSeq->pwrOn.buf == NULL) {
@@ -261,8 +268,15 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->pwrOn.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "powerOnSeq", pwrSeq->pwrOn.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-    pwrSeq->suspend.count = parser->GetElemNum(seqNode, "suspendSeq");
-    num = pwrSeq->suspend.count;
+    gotNum = parser->GetElemNum(seqNode, "suspendSeq");
+    if (gotNum <= 0 || gotNum > MAX_ARRAY_LEN) {
+        HDF_LOGE("%s: GetElemNum suspendSeq failed, ret=%d", __func__, gotNum);
+        OsalMemFree(pwrSeq->pwrOn.buf);
+        pwrSeq->pwrOn.buf = NULL;
+        return HDF_FAILURE;
+    }
+    pwrSeq->suspend.count = (uint32_t)gotNum;
+    num = (uint32_t)gotNum;
     pwrSeq->suspend.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
     if (pwrSeq->suspend.buf == NULL) {
         OsalMemFree(pwrSeq->pwrOn.buf);
@@ -272,8 +286,17 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->suspend.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "suspendSeq", pwrSeq->suspend.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-    pwrSeq->resume.count = parser->GetElemNum(seqNode, "resumeSeq");
-    num = pwrSeq->resume.count;
+    gotNum = parser->GetElemNum(seqNode, "resumeSeq");
+    if (gotNum <= 0) {
+        HDF_LOGE("%s: GetElemNum resumeSeq failed, ret=%d", __func__, gotNum);
+        OsalMemFree(pwrSeq->pwrOn.buf);
+        pwrSeq->pwrOn.buf = NULL;
+        OsalMemFree(pwrSeq->suspend.buf);
+        pwrSeq->suspend.buf = NULL;
+        return HDF_FAILURE;
+    }
+    pwrSeq->resume.count = (uint32_t)gotNum;
+    num = (uint32_t)gotNum;
     pwrSeq->resume.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
     if (pwrSeq->resume.buf == NULL) {
         OsalMemFree(pwrSeq->pwrOn.buf);
@@ -285,8 +308,19 @@ static int32_t ParsePowerSequence(struct DeviceResourceIface *parser, const stru
     (void)memset_s(pwrSeq->resume.buf, sizeof(uint32_t) * num, 0, sizeof(uint32_t) * num);
     ret = parser->GetUint32Array(seqNode, "resumeSeq", pwrSeq->resume.buf, num, 0);
     CHECK_PARSER_RET(ret, "GetUint32Array");
-    pwrSeq->pwrOff.count = parser->GetElemNum(seqNode, "powerOffSeq");
-    num = pwrSeq->pwrOff.count;
+    gotNum = parser->GetElemNum(seqNode, "powerOffSeq");
+    if (gotNum <= 0) {
+        HDF_LOGE("%s: GetElemNum powerOffSeq failed, ret=%d", __func__, gotNum);
+        OsalMemFree(pwrSeq->pwrOn.buf);
+        pwrSeq->pwrOn.buf = NULL;
+        OsalMemFree(pwrSeq->suspend.buf);
+        pwrSeq->suspend.buf = NULL;
+        OsalMemFree(pwrSeq->resume.buf);
+        pwrSeq->resume.buf = NULL;
+        return HDF_FAILURE;
+    }
+    pwrSeq->pwrOff.count = (uint32_t)gotNum;
+    num = (uint32_t)gotNum;
     pwrSeq->pwrOff.buf = (uint32_t *)OsalMemAlloc(sizeof(uint32_t) * num);
     if (pwrSeq->pwrOff.buf == NULL) {
         OsalMemFree(pwrSeq->pwrOn.buf);

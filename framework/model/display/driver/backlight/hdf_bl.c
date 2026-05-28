@@ -367,7 +367,7 @@ static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
     tmp = buffer;
     for (i = 0; i < blDevManager->devNum; i++) {
         devName = blDevManager->blDev[i]->name;
-        if ((tmp + MAX_DEST_STRING_LEN) > &buffer[NAME_BUFFER_LEN]) {
+        if ((tmp + MAX_DEST_STRING_LEN) >= &buffer[NAME_BUFFER_LEN]) {
             HDF_LOGE("%s: Memory out of bounds", __func__);
             break;
         }

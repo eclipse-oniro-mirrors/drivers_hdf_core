@@ -543,6 +543,10 @@ static struct UsbPnpMatchIdTable **UsbDdkPnpLoaderParseTableList(
     struct UsbPnpMatchIdTable **idTable = NULL;
     const struct DeviceResourceNode *tableNode = NULL;
 
+    if (idTabCount > 0x7FFFFFFE) {
+        HDF_LOGE("%s: idTabCount overflow!", __func__);
+        return NULL;
+    }
     idTable = (struct UsbPnpMatchIdTable **)OsalMemCalloc((idTabCount + 1) * sizeof(struct UsbPnpMatchIdTable *));
     if (idTable == NULL) {
         HDF_LOGE("%s: OsalMemCalloc failure!", __func__);
