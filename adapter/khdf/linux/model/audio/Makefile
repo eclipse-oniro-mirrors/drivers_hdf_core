@@ -59,8 +59,10 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
 
+ifneq ($(wildcard $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/Makefile),)
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3566) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/
+endif
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \
           $(KHDF_AUDIO_A311D_DIR)/codec/soc_codec/a311d_codec_adapter.o \

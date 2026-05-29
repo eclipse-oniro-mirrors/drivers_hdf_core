@@ -15,6 +15,7 @@ import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 hdf_adapter_path = "."
 
 if (defined(ohos_lite)) {
+  import("hdf_adapter.gni")
   group("uhdf_entry") {
     deps = [
       "$hdf_adapter_path/uhdf/manager:hdf_core",
@@ -24,6 +25,12 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/hdi:libhdi",
       "$hdf_adapter_path/uhdf2/hdi:libhdi_base",
     ]
+
+    if (hdf_core_lite_utils_config) {
+      deps += [
+        "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
+      ]
+    }
   }
   group("uhdf_test_entry") {
     deps = [
