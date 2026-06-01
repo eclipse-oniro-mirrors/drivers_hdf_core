@@ -16,9 +16,9 @@
 #include "hdf_types.h"
 #include "udk/log.h"
 
-#define NUMBER 2
-static const char *g_property[NUMBER] = { "%{private}", "%{public}" };
-static size_t g_property_len[NUMBER] = { 10, 9 };
+#define LOG_NUMBER 2
+static const char *g_property[LOG_NUMBER] = { "%{private}", "%{public}" };
+static size_t g_property_len[LOG_NUMBER] = { 10, 9 };
 
 bool DealFormat(const char *fmt, char *dest, size_t size)
 {
@@ -38,7 +38,7 @@ bool DealFormat(const char *fmt, char *dest, size_t size)
             ptrCur++;
             continue;
         }
-        for (i = 0; i < NUMBER; i++) {
+        for (i = 0; i < LOG_NUMBER; i++) {
             if (strncmp(ptrCur, g_property[i], g_property_len[i]) != 0) {
                 continue;
             }
@@ -54,7 +54,7 @@ bool DealFormat(const char *fmt, char *dest, size_t size)
             ptrCur = ptr;
             break;
         }
-        if (i == NUMBER) {
+        if (i == LOG_NUMBER) {
             ptrCur++;
         }
     }

@@ -13,16 +13,37 @@
  * limitations under the License.
  */
 
-#ifndef HDF_TYPES_H
-#define HDF_TYPES_H
+#ifndef OSAL_CDEV_ADAPTER_DEF_H
+#define OSAL_CDEV_ADAPTER_DEF_H
 
-#include <bits/ioctl.h>
-#include <hmkit/strict.h>
-#include <securec.h>
-#include <stdbool.h>
+#include "hdf_types.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
-#include <sys/types.h>
+#include <poll.h>
+#include <udk/char.h>
+#include <udk/poll.h>
 
-#endif /* HDF_TYPES_H */
+typedef struct udk_poll_wqueue wait_queue_head_t;
+
+typedef struct udk_poll_wevent poll_table;
+
+struct file {
+    void *private_data;
+};
+
+static inline void poll_wait(struct file *filp, wait_queue_head_t *queue, poll_table *p)
+{
+    udk_poll_wqueue_add(queue, p);
+}
+
+#define wake_up_interruptible(q) \
+do { \
+    udk_poll_wqueue_wakeup(q, 0U); \
+} while (0)
+
+#define init_waitqueue_head(q) \
+do { \
+    udk_poll_wqueue_init(q); \
+} while (0)
+
+#endif /* OSAL_CDEV_ADAPTER_DEF_H */

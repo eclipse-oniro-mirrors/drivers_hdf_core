@@ -13,16 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef HDF_TYPES_H
-#define HDF_TYPES_H
+#ifndef OSAL_MATH_H
+#define OSAL_MATH_H
 
-#include <bits/ioctl.h>
-#include <hmkit/strict.h>
-#include <securec.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
-#include <sys/types.h>
+#include "hdf_base.h"
 
-#endif /* HDF_TYPES_H */
+static inline int64_t OsalDivS64(int64_t dividend, int32_t divisor)
+{
+    if (divisor == 0) {
+        HDF_LOGW("%s: divisor is zero", __func__);
+        return 0;
+    }
+    return (dividend / divisor);
+}
+
+#endif /* OSAL_MATH_H */
