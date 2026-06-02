@@ -50,17 +50,25 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_USB) += \
           $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_validate_desc.o \
           $(KHDF_AUDIO_ROOT_DIR)/usb/src/audio_usb_mixer.o
 
+ifneq ($(filter y m,$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC)),)
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/hispark_taurus/audio_drivers/
+endif
 
+ifneq ($(filter y m,$(CONFIG_DRIVERS_HDF_AUDIO_RK3568)),)
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/rk3568/audio_drivers/
+endif
 
+ifneq ($(filter y m,$(CONFIG_DRIVERS_HDF_AUDIO_RK3588)),)
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
+endif
 
+ifneq ($(filter y m,$(CONFIG_DRIVERS_HDF_AUDIO_RK3566)),)
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3566) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/
+endif
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \
           $(KHDF_AUDIO_A311D_DIR)/codec/soc_codec/a311d_codec_adapter.o \
