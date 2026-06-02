@@ -388,7 +388,12 @@ static ProcessingResult LiteNetDevDataFilter(struct NetDeviceImpl *netDeviceImpl
     struct NetDevice *lwipNd = NULL;
 
     if (netDeviceImpl == NULL || buff == NULL) {
-        HDF_LOGE("%s fail : buff = null!", __func__);
+        HDF_LOGE("%{public}s fail : buff = null!", __func__);
+        return PROCESSING_ERROR;
+    }
+    if (NetBufGetDataLen(buff) < sizeof(struct EtherHeader)) {
+        HDF_LOGE("%{public}s: data len too small for ether header!", __func__);
+        NetBufFree(buff);
         return PROCESSING_ERROR;
     }
     lwipNd = netDeviceImpl->netDevice;
