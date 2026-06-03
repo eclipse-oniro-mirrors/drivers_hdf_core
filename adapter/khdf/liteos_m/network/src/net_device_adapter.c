@@ -388,12 +388,22 @@ static ProcessingResult LiteNetDevDataFilter(struct NetDeviceImpl *netDeviceImpl
     struct NetDevice *lwipNd = NULL;
 
     if (netDeviceImpl == NULL || buff == NULL) {
-        HDF_LOGE("%s fail : buff = null!", __func__);
+        HDF_LOGE("%{public}s fail : buff = null!", __func__);
+        return PROCESSING_ERROR;
+    }
+    if (NetBufGetDataLen(buff) < sizeof(struct EtherHeader)) {
+        HDF_LOGE("%{public}s: data len too small for ether header!", __func__);
+        NetBufFree(buff);
         return PROCESSING_ERROR;
     }
     lwipNd = netDeviceImpl->netDevice;
 
     struct EtherHeader *header = (struct EtherHeader *)NetBufGetAddress(buff, E_DATA_BUF);
+    if (header == NULL) {
+        HDF_LOGE("%{public}s: header is null!", __func__);
+        NetBufFree(buff);
+        return PROCESSING_ERROR;
+    }
     uint16_t etherType = ntohs(header->etherType);
     if ((lwipNd->linkLayerType == ETHERNET_LINK) || (etherType == ETHER_TYPE_IP) || (etherType == ETHER_TYPE_ARP) ||
         (etherType == ETHER_TYPE_RARP) || (etherType == ETHER_TYPE_IPV6) || (etherType == ETHER_TYPE_6LO) ||
