@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-/adapter/ @Dufree
-/framework/ @Dufree
-/framework/model/input/ @Dufree
-/framework/model/audio/ @Dufree
-/framework/include/audio/ @Dufree
-/framework/model/sensor/ @Dufree
-/framework/model/misc/ @Dufree
-/framework/model/display/ @Dufree
-/framework/model/camera/ @Dufree
-/framework/include/camera/ @Dufree
-/framework/model/wifi/ @Dufree
-/framework/model/network/ @Dufree
-/framework/model/usb/ @Dufree
-/framework/include/wifi/ @Dufree
-/framework/include/bluetooth/ @Dufree
-/framework/include/ethernet/ @Dufree
-/framework/include/net/ @Dufree
+/adapter/ @pxd2022
+/framework/ @pxd2022
+/framework/model/input/ @pxd2022
+/framework/model/audio/ @pxd2022
+/framework/include/audio/ @pxd2022
+/framework/model/sensor/ @pxd2022
+/framework/model/misc/ @pxd2022
+/framework/model/display/ @pxd2022
+/framework/model/camera/ @pxd2022
+/framework/include/camera/ @pxd2022
+/framework/model/wifi/ @pxd2022
+/framework/model/network/ @pxd2022
+/framework/model/usb/ @pxd2022
+/framework/include/wifi/ @pxd2022
+/framework/include/bluetooth/ @pxd2022
+/framework/include/ethernet/ @pxd2022
+/framework/include/net/ @pxd2022
 
-# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @Dufree
-interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @Dufree
+# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @pxd2022
+interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @pxd2022
