@@ -17,12 +17,18 @@
  */
 
 #include <linux/pwm.h>
+#include <linux/version.h>
 #include "device_resource_if.h"
 #include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "pwm_core.h"
 
 #define HDF_LOG_TAG pwm_adapter
+
+/* Kernel version bit positions for LINUX_VERSION_CODE */
+#define KERNEL_VERSION_MAJOR_SHIFT 16
+#define KERNEL_VERSION_MINOR_SHIFT 8
+#define KERNEL_VERSION_MASK 0xff
 
 static int32_t HdfPwmOpen(struct PwmDev *pwm)
 {
@@ -32,6 +38,13 @@ static int32_t HdfPwmOpen(struct PwmDev *pwm)
         HDF_LOGE("HdfPwmOpen: pwm is null!");
         return HDF_ERR_INVALID_PARAM;
     }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+    HDF_LOGE("HdfPwmOpen: pwm_request API is unavailable on kernel %u.%u.%u!",
+        (LINUX_VERSION_CODE >> KERNEL_VERSION_MAJOR_SHIFT) & KERNEL_VERSION_MASK,
+        (LINUX_VERSION_CODE >> KERNEL_VERSION_MINOR_SHIFT) & KERNEL_VERSION_MASK,
+        LINUX_VERSION_CODE & KERNEL_VERSION_MASK);
+    return HDF_ERR_NOT_SUPPORT;
+#else
     device = pwm_request(pwm->num, NULL);
     if (IS_ERR(device)) {
         HDF_LOGE("HdfPwmOpen: pwm_request pwm%d fail!", pwm->num);
@@ -43,6 +56,7 @@ static int32_t HdfPwmOpen(struct PwmDev *pwm)
     pwm->cfg.status = device->state.enabled ? PWM_ENABLE_STATUS : PWM_DISABLE_STATUS;
     pwm->priv = device;
     return HDF_SUCCESS;
+#endif
 }
 
 static int32_t HdfPwmClose(struct PwmDev *pwm)
@@ -51,7 +65,7 @@ static int32_t HdfPwmClose(struct PwmDev *pwm)
         HDF_LOGE("HdfPwmClose: pwm is null!");
         return HDF_ERR_INVALID_PARAM;
     }
-    pwm_free((struct pwm_device *)pwm->priv);
+    pwm_put((struct pwm_device *)pwm->priv);
     return HDF_SUCCESS;
 }
 

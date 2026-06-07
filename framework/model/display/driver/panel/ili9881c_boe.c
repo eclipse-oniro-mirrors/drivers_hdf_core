@@ -436,7 +436,7 @@ static struct Ili9881cBoeDev *ToIli9881cBoeDev(const struct PanelData *panel)
     return (struct Ili9881cBoeDev *)panel->object->priv;
 }
 
-static SetGpioState(uint16_t gpio, uint16_t dir, uint16_t level, uint32_t delay)
+static int32_t SetGpioState(uint16_t gpio, uint16_t dir, uint16_t level, uint32_t delay)
 {
     int32_t ret;
 

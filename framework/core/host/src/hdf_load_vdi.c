@@ -15,11 +15,7 @@
 
 #define HDF_LOG_TAG dev_load_vdi
 
-#ifdef __ARCH64__
-#define VDI_PATH HDF_LIBRARY_DIR"64/"
-#else
 #define VDI_PATH HDF_LIBRARY_DIR"/"
-#endif
 
 struct HdfVdiObject *HdfLoadVdi(const char *libName)
 {

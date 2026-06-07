@@ -37,14 +37,18 @@
 static int WdtAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long arg)
 {
     int ret = HDF_FAILURE;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
 
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     if (fp->f_op->unlocked_ioctl) {
         ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     return ret;
 }
 
@@ -52,7 +56,9 @@ static int32_t WdtOpenFile(struct WatchdogCntlr *wdt)
 {
     char name[WATCHDOG_NAME_LEN] = {0};
     struct file *fp = NULL;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
 
     if (wdt == NULL) {
         HDF_LOGE("WdtOpenFile: wdt is null!");
@@ -62,34 +68,45 @@ static int32_t WdtOpenFile(struct WatchdogCntlr *wdt)
         HDF_LOGE("WdtOpenFile: sprintf_s fail!");
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     fp = filp_open(name, O_RDWR, 0600); /* 0600 : for open mode */
     if (IS_ERR(fp)) {
         HDF_LOGE("WdtOpenFile: filp_open %s fail!", name);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+        set_fs(oldfs);
+#endif
         if (PTR_ERR(fp) == HDF_ERR_DEVICE_BUSY) {
-            set_fs(oldfs);
             return HDF_ERR_DEVICE_BUSY;
         }
-        set_fs(oldfs);
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     wdt->priv = fp;
     return HDF_SUCCESS;
 }
 
 static void WdtAdapterClose(struct WatchdogCntlr *wdt)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
+#endif
     struct file *fp = (struct file *)wdt->priv;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
     if (!IS_ERR(fp) && fp) {
         (void)filp_close(fp, NULL);
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
+#endif
     wdt->priv = NULL;
 }
 

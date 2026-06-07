@@ -12,6 +12,10 @@
 #include "hdf_disp.h"
 #include "osal.h"
 
+#ifndef MIPI_DSI_MODE_EOT_PACKET
+#define MIPI_DSI_MODE_EOT_PACKET 0
+#endif
+
 /* panel on command payload */
 static uint8_t g_payLoad0[] = { 0x11 };
 static uint8_t g_payLoad1[] = { 0xff, 0x98, 0x81, 0x03 };
