@@ -288,7 +288,7 @@ static int32_t LinuxSdioFlushData(struct SdioDevice *dev)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
     return mmc_sw_reset(func->card);
 #else
     return mmc_sw_reset(func->card->host);
