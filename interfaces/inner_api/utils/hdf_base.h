@@ -134,7 +134,11 @@ typedef enum {
 /**
  * @brief Declares the directory of the HDF module library.
  */
+#if (defined(__aarch64__) || defined(__x86_64__))
+#define HDF_LIBRARY_DIR "/vendor/lib64"
+#else
 #define HDF_LIBRARY_DIR "/vendor/lib"
+#endif
 
 /**
  * @brief Declares the directory of the HDF module configuration files.

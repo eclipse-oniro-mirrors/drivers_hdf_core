@@ -321,6 +321,7 @@ struct HdfRemoteService *HdfSbufReadRemoteService(struct HdfSBuf *sbuf)
     return sbuf->impl->readRemoteService(sbuf->impl);
 }
 
+#ifndef __KERNEL__
 bool HdfSbufWriteFloat(struct HdfSBuf *sbuf, float data)
 {
     HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeFloat, false);
@@ -332,6 +333,7 @@ bool HdfSbufWriteDouble(struct HdfSBuf *sbuf, double data)
     HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeDouble, false);
     return sbuf->impl->writeDouble(sbuf->impl, data);
 }
+#endif
 
 bool HdfSbufWriteFileDescriptor(struct HdfSBuf *sbuf, int fd)
 {
@@ -345,6 +347,7 @@ int HdfSbufReadFileDescriptor(struct HdfSBuf *sbuf)
     return sbuf->impl->readFileDescriptor(sbuf->impl);
 }
 
+#ifndef __KERNEL__
 bool HdfSbufReadDouble(struct HdfSBuf *sbuf, double *data)
 {
     HDF_SBUF_IMPL_CHECK_RETURN(sbuf, readDouble, false);
@@ -356,6 +359,7 @@ bool HdfSbufReadFloat(struct HdfSBuf *sbuf, float *data)
     HDF_SBUF_IMPL_CHECK_RETURN(sbuf, readFloat, false);
     return sbuf->impl->readFloat(sbuf->impl, data);
 }
+#endif
 
 struct HdfSBuf *HdfSbufTypedObtainCapacity(uint32_t type, size_t capacity)
 {

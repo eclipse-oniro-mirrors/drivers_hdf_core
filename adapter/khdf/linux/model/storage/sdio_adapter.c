@@ -20,6 +20,7 @@
 #include <linux/mmc/core.h>
 #include <linux/mmc/host.h>
 #include <linux/mmc/sdio_func.h>
+#include <linux/version.h>
 #include "device_resource_if.h"
 #include "mmc_corex.h"
 #include "mmc_sdio.h"
@@ -287,7 +288,11 @@ static int32_t LinuxSdioFlushData(struct SdioDevice *dev)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+    return mmc_sw_reset(func->card);
+#else
     return mmc_sw_reset(func->card->host);
+#endif
 }
 
 static int32_t LinuxSdioClaimHost(struct SdioDevice *dev)

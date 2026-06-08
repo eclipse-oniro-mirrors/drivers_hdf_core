@@ -231,7 +231,7 @@ static int32_t NetDevAdd(struct NetDeviceImpl *impl)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (memcpy_s(dev->dev_addr, ETH_ALEN, impl->netDevice->macAddr,
+    if (memcpy_s((void *)dev->dev_addr, ETH_ALEN, impl->netDevice->macAddr,
         MAC_ADDR_SIZE) != EOK) {
         HDF_LOGE("%s : memcpy fail!", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -400,11 +400,7 @@ static int32_t NetDevReceive(struct NetDeviceImpl *impl,
 
     buff->dev = dev;
     buff->protocol = eth_type_trans(buff, dev);
-    if (flag & IN_INTERRUPT) {
-        netif_rx(buff);
-    } else {
-        netif_rx_ni(buff);
-    }
+    netif_rx(buff);
     return HDF_SUCCESS;
 }
 
@@ -419,7 +415,7 @@ static int32_t NetDevChangeMacAddr(struct NetDeviceImpl *impl)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (memcpy_s(dev->dev_addr, ETH_ALEN, impl->netDevice->macAddr, MAC_ADDR_SIZE) != EOK) {
+    if (memcpy_s((void *)dev->dev_addr, ETH_ALEN, impl->netDevice->macAddr, MAC_ADDR_SIZE) != EOK) {
         HDF_LOGE("%s : memcpy fail!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
