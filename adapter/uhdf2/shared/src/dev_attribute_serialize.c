@@ -21,6 +21,7 @@
 
 #define ATTRIBUTE_PRIVATE_DATA_LENGTH_NULL 0
 #define ATTRIBUTE_PRIVATE_DATA_LENGTH_NORMAL 1
+#define MAX_DEVICE_SVC_NAME_LEN 256
 
 bool DeviceAttributeSerialize(const struct HdfDeviceInfo *attribute, struct HdfSBuf *sbuf)
 {
@@ -57,6 +58,10 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
     const char *svcName = HdfSbufReadString(sbuf);
     if (svcName == NULL) {
         HDF_LOGE("Read from sbuf failed, svcName is null");
+        return false;
+    }
+    if (strlen(svcName) > MAX_DEVICE_SVC_NAME_LEN) {
+        HDF_LOGE("svcName too long: %zu", strlen(svcName));
         return false;
     }
     attribute->svcName = strdup(svcName);
