@@ -108,6 +108,7 @@ static int MtdCharClose(FAR struct file *filep)
 
     (void)LOS_MuxUnlock(&partition->lock);
     free(mfi);
+    mfi = NULL;
     filep->f_priv = NULL;
 
     return ENOERR;

@@ -79,11 +79,14 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     if (msg.wbuf == nullptr) {
         HDF_LOGE("SpiFuzzTest: malloc wbuf fail!");
         free(msg.rbuf);
+        msg.rbuf = nullptr;
         return false;
     }
     if (memcpy_s(reinterpret_cast<void *>(msg.wbuf), SPI_BUF_SIZE, params->buf, SPI_BUF_SIZE) != EOK) {
         free(msg.rbuf);
+        msg.rbuf = nullptr;
         free(msg.wbuf);
+        msg.wbuf = nullptr;
         HDF_LOGE("SpiFuzzTest: memcpy buf fail!");
         return false;
     }
@@ -98,7 +101,9 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     }
     SpiFuzzDoTest(handle, &info, &msg, &cfg);
     free(msg.rbuf);
+    msg.rbuf = nullptr;
     free(msg.wbuf);
+    msg.wbuf = nullptr;
     SpiClose(handle);
     return true;
 }
