@@ -505,7 +505,7 @@ static int32_t DevMgrParseUevent(char *msg, ssize_t msgLen)
     struct DevMgrMatchKey *key = NULL;
 
     for (char *ptr = msg; ptr < (msg + msgLen);) {
-        if (*ptr == '0') {
+        if (*ptr == '\0') {
             ptr++;
             continue;
         }
