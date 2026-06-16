@@ -13,16 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef HDF_TYPES_H
-#define HDF_TYPES_H
+#ifndef OSAL_UACCESS_DEF_H
+#define OSAL_UACCESS_DEF_H
 
-#include <bits/ioctl.h>
-#include <hmkit/strict.h>
-#include <securec.h>
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
-#include <string.h>
-#include <sys/types.h>
+#include <udk/mm.h>
 
-#endif /* HDF_TYPES_H */
+static inline size_t CopyToUser(void *to, const void *from, size_t len)
+{
+    return (size_t)udk_copy_to_user(to, from, (unsigned long)len);
+}
+
+static inline size_t CopyFromUser(void *to, const void *from, size_t len)
+{
+    return (size_t)udk_copy_from_user(to, from, (unsigned long)len);
+}
+
+#endif /* OSAL_UACCESS_DEF_H */
