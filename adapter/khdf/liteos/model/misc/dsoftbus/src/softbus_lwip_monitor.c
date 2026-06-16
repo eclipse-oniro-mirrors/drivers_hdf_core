@@ -101,6 +101,8 @@ static void NetifStatusCallback(struct netif *netif, netif_nsc_reason_t reason,
             if (netif_is_up(netif)) {
                 reportInfo.event = EVENT_IFACE_STATUS_CHANGED;
                 reportInfo.extInfo.status = NETIF_STATUS_UP;
+            } else {
+                needReport = false;
             }
             break;
         case LWIP_NSC_NETIF_REMOVED:

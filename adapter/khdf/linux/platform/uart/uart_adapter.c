@@ -119,10 +119,12 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
     oldfs = get_fs();
     set_fs(KERNEL_DS);
 #endif
-    while (size >= tmp) {
+    while (size > tmp) {
         ret = vfs_read(fp, p + tmp, 1, &pos);
-        if (ret < 0) {
-            HDF_LOGE("UartAdapterRead: vfs_read fail ret: %d!", ret);
+        if (ret <= 0) {
+            if (ret < 0) {
+                HDF_LOGE("UartAdapterRead: vfs_read fail ret: %d!", ret);
+            }
             break;
         }
         tmp++;

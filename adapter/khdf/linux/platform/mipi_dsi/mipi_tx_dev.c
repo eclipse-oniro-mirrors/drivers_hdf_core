@@ -367,15 +367,6 @@ static int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *a
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (!access_ok(
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
-        VERIFY_WRITE,
-#endif
-        arg->payload, arg->dataLen)) {
-        HDF_LOGE("MipiDsiDevSetCmd: payload is illegal user space address!");
-        return HDF_ERR_INVALID_PARAM;
-    }
-
     size = sizeof(struct DsiCmdDesc);
     temp = (struct DsiCmdDesc *)OsalMemCalloc(size);
     if (temp == NULL) {
@@ -399,6 +390,17 @@ static int32_t MipiDsiDevSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *a
         temp = NULL;
         HDF_LOGE("MipiDsiDevSetCmd: illegal user space address!");
         return HDF_FAILURE;
+    }
+
+    if (!access_ok(
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
+        VERIFY_WRITE,
+#endif
+        temp->payload, temp->dataLen)) {
+        OsalMemFree(temp);
+        temp = NULL;
+        HDF_LOGE("MipiDsiDevSetCmd: payload is illegal user space address!");
+        return HDF_ERR_INVALID_PARAM;
     }
 
     ret = MipiDsiCntlrTx(cntlr, temp);
@@ -514,7 +516,10 @@ static long MipiDsiDevIoctl(struct file *filep, unsigned int cmd, unsigned long 
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    (void)SemaDownInterruptable(sem);
+    if (SemaDownInterruptable(sem) != 0) {
+        HDF_LOGE("MipiDsiDevIoctl: SemaDownInterruptable interrupted!");
+        return HDF_FAILURE;
+    }
     switch (cmd) {
         case HI_MIPI_TX_SET_DEV_CFG:
             ret = MipiDsiDevSetCfg(cntlr, (struct MipiCfg *)pArg);

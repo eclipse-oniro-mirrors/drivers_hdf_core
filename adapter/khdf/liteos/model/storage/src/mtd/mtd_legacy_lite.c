@@ -229,11 +229,19 @@ int hinand_yaffs_write(void *memaddr, unsigned long start, unsigned long size)
 
 int hinand_yaffs_nand_block_isbad(loff_t ofs)
 {
+    if (g_nandMtd == NULL) {
+        HDF_LOGE("hinand_yaffs_nand_block_isbad: g_nandMtd is null!");
+        return -ENODEV;
+    }
     return MtdDeviceIsBadBlock(g_nandMtd, ofs);
 }
 
 int hinand_yaffs_nand_block_markbad(loff_t ofs)
 {
+    if (g_nandMtd == NULL) {
+        HDF_LOGE("hinand_yaffs_nand_block_markbad: g_nandMtd is null!");
+        return -ENODEV;
+    }
     return MtdDeviceMarkBadBlock(g_nandMtd, ofs);
 }
 

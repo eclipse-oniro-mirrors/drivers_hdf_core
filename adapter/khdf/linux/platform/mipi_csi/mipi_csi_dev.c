@@ -20,6 +20,7 @@
 #include <linux/miscdevice.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#include <linux/uaccess.h>
 #include <linux/version.h>
 #include "hdf_core_log.h"
 #include "mipi_csi_core.h"
@@ -235,12 +236,22 @@ static long MipiRxIoctl(struct file *filep, unsigned int cmd, unsigned long arg)
     }
     (void)filep;
     switch (cmd) {
-        case HI_MIPI_SET_DEV_ATTR:
-            ret = MipiSetComboDevAttr(&g_vfsPara, (ComboDevAttr *)argp);
+        case HI_MIPI_SET_DEV_ATTR: {
+            ComboDevAttr devAttr;
+            if (copy_from_user(&devAttr, (void __user *)(uintptr_t)arg, sizeof(devAttr))) {
+                HDF_LOGE("MipiRxIoctl: copy_from_user devAttr fail!");
+                return HDF_ERR_IO;
+            }
+            ret = MipiSetComboDevAttr(&g_vfsPara, &devAttr);
             break;
+        }
         case HI_MIPI_SET_PHY_CMVMODE: {
-            PhyCmv *pPhyCmv = (PhyCmv *)argp;
-            ret = MipiSetPhyCmvmode(&g_vfsPara, pPhyCmv->devno, pPhyCmv->cmvMode);
+            PhyCmv phyCmv;
+            if (copy_from_user(&phyCmv, (void __user *)(uintptr_t)arg, sizeof(phyCmv))) {
+                HDF_LOGE("MipiRxIoctl: copy_from_user phyCmv fail!");
+                return HDF_ERR_IO;
+            }
+            ret = MipiSetPhyCmvmode(&g_vfsPara, phyCmv.devno, phyCmv.cmvMode);
             break;
         }
         case HI_MIPI_RESET_SENSOR:
@@ -278,9 +289,15 @@ static long MipiRxIoctl(struct file *filep, unsigned int cmd, unsigned long arg)
         case HI_MIPI_DISABLE_SENSOR_CLOCK:
             ret = MipiCsiCntlrDisableSensorClock(cntlr, (uint8_t)argp);
             break;
-        case HI_MIPI_SET_EXT_DATA_TYPE:
-            ret = MipiSetExtDataType(&g_vfsPara, (ExtDataType *)argp);
+        case HI_MIPI_SET_EXT_DATA_TYPE: {
+            ExtDataType extDataType;
+            if (copy_from_user(&extDataType, (void __user *)(uintptr_t)arg, sizeof(extDataType))) {
+                HDF_LOGE("MipiRxIoctl: copy_from_user extDataType fail!");
+                return HDF_ERR_IO;
+            }
+            ret = MipiSetExtDataType(&g_vfsPara, &extDataType);
             break;
+        }
         default:
             break;
     }

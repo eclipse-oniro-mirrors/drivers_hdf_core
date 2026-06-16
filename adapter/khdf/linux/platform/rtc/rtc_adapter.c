@@ -77,6 +77,7 @@ static int32_t HiRtcReadTime(struct RtcHost *host, struct RtcTime *hdfTime)
     ret = rtc_read_time(dev, &linuxTime);
     if (ret < 0) {
         HDF_LOGE("HiRtcReadTime: rtc_read_time error, ret is %d!", ret);
+        HdfPutRtcDevice(dev);
         return ret;
     }
     HdfPutRtcDevice(dev);
@@ -98,6 +99,7 @@ static int32_t HiRtcWriteTime(struct RtcHost *host, const struct RtcTime *hdfTim
     ret = rtc_set_time(dev, &linuxTime);
     if (ret < 0) {
         HDF_LOGE("HiRtcWriteTime: rtc_set_time error, ret is %d!", ret);
+        HdfPutRtcDevice(dev);
         return ret;
     }
 
@@ -119,6 +121,7 @@ static int32_t HiReadAlarm(struct RtcHost *host, enum RtcAlarmIndex alarmIndex, 
     ret = rtc_read_alarm(dev, &alarm);
     if (ret < 0) {
         HDF_LOGE("HiReadAlarm: rtc_read_alarm error, ret is %d!", ret);
+        HdfPutRtcDevice(dev);
         return ret;
     }
 
@@ -145,6 +148,7 @@ static int32_t HiWriteAlarm(struct RtcHost *host, enum RtcAlarmIndex alarmIndex,
     ret = rtc_set_alarm(dev, &alarm);
     if (ret < 0) {
         HDF_LOGE("HiWriteAlarm: rtc_read_alarm error, ret is %d!", ret);
+        HdfPutRtcDevice(dev);
         return ret;
     }
 
@@ -166,6 +170,7 @@ static int32_t HiAlarmInterruptEnable(struct RtcHost *host, enum RtcAlarmIndex a
     ret = rtc_alarm_irq_enable(dev, enable);
     if (ret < 0) {
         HDF_LOGE("HiAlarmInterruptEnable: rtc_read_alarm error, ret is %d!", ret);
+        HdfPutRtcDevice(dev);
         return ret;
     }
 

@@ -81,6 +81,13 @@ int32_t OsalRequestFirmware(struct OsalFirmware *fwPara, const char *fwName, voi
         return HDF_FAILURE;
     }
 
+    if (fwStat.st_size < 0 || fwStat.st_size > (off_t)UINT32_MAX) {
+        HDF_LOGE("%s invalid firmware size %lld", __func__, (long long)fwStat.st_size);
+        close(fd);
+        fd = -1;
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     base = (uint8_t *)OsalMemCalloc(sizeof(*fw) + HDF_FW_BLOCK_SIZE);
     if (base == NULL) {
         HDF_LOGE("%s malloc fail", __func__);

@@ -47,8 +47,14 @@ struct OsalCdev {
 
 static int OsalCdevOpen(struct file *filep)
 {
+    if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
     struct drv_data *drvData = (struct drv_data *)filep->f_vnode->data;
     struct OsalCdev *dev = (struct OsalCdev *)drvData->priv;
+    if (dev == NULL || dev->opsImpl == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
     return dev->opsImpl->open(dev, filep);
 }
 

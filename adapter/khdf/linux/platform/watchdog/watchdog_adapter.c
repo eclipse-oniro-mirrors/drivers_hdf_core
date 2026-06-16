@@ -133,9 +133,14 @@ static int32_t WdtAdapterStart(struct WatchdogCntlr *wdt)
 
 static int32_t WdtAdapterStop(struct WatchdogCntlr *wdt)
 {
-    struct file *fp = (struct file *)wdt->priv;
+    struct file *fp = NULL;
     unsigned long arg = WDIOS_DISABLECARD;
 
+    if (wdt == NULL) {
+        HDF_LOGE("WdtAdapterStop: wdt is null!");
+        return HDF_FAILURE;
+    }
+    fp = (struct file *)wdt->priv;
     if (fp == NULL) {
         HDF_LOGE("WdtAdapterStop: wdt is null!");
         return HDF_FAILURE;
@@ -151,6 +156,10 @@ static int32_t WdtAdapterFeed(struct WatchdogCntlr *wdt)
 {
     struct file *fp = NULL;
 
+    if (wdt == NULL) {
+        HDF_LOGE("WdtAdapterFeed: wdt is null!");
+        return HDF_FAILURE;
+    }
     if (wdt->priv == NULL) {
         HDF_LOGE("WdtAdapterFeed: wdt priv is null!");
         return HDF_FAILURE;
