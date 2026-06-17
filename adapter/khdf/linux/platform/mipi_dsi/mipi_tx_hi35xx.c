@@ -497,11 +497,11 @@ static void SetTimingConfig(const ComboDevCfgTag *cfg)
         return;
     }
     /* 125 from algorithm */
-    hsa = (unsigned int)((uint64_t)g_actualPhyDataRate * cfg->syncInfo.vidHsaPixels * 125 / cfg->pixelClk);
+    hsa = g_actualPhyDataRate * cfg->syncInfo.vidHsaPixels * 125 / cfg->pixelClk;
     /* 125 from algorithm */
-    hbp = (unsigned int)((uint64_t)g_actualPhyDataRate * cfg->syncInfo.vidHbpPixels * 125 / cfg->pixelClk);
+    hbp = g_actualPhyDataRate * cfg->syncInfo.vidHbpPixels * 125 / cfg->pixelClk;
     /* 125 from algorithm */
-    hline = (unsigned int)((uint64_t)g_actualPhyDataRate * cfg->syncInfo.vidHlinePixels * 125 / cfg->pixelClk);
+    hline = g_actualPhyDataRate * cfg->syncInfo.vidHlinePixels * 125 / cfg->pixelClk;
     g_mipiTxRegsVa->VID_HSA_TIME.u32 = hsa;
     g_mipiTxRegsVa->VID_HBP_TIME.u32 = hbp;
     g_mipiTxRegsVa->VID_HLINE_TIME.u32 = hline;
