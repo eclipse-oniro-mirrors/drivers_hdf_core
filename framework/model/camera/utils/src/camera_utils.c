@@ -274,8 +274,12 @@ struct UvcDevice *GetUvcDevice(const char *kernelDrvName, struct CameraDeviceDri
 struct StreamDevice *GetStreamDevice(const char *kernelDrvName, struct CameraDeviceDriver *regDev)
 {
     int32_t i;
+    if (kernelDrvName == NULL || regDev == NULL) {
+        return NULL;
+    }
+
     for (i = 0; i < DEVICE_NUM; i++) {
-        if (regDev->stream[i] == NULL) {
+        if (regDev->stream[i] == NULL || regDev->stream[i]->kernelDrvName == NULL) {
             continue;
         }
         if (strcmp(regDev->stream[i]->kernelDrvName, kernelDrvName) == 0) {
