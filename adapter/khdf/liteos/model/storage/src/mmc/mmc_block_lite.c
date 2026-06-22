@@ -227,6 +227,10 @@ static int32_t LiteosBlockIoctl(FAR struct Vnode *vnode, int cmd, unsigned long 
     }
 
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
+    if (mb == NULL) {
+        HDF_LOGE("LiteosBlockIoctl: mmc block is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     switch (cmd) {
         case RT_DEVICE_CTRL_BLK_GETGEOME:

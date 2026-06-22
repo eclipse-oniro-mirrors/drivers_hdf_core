@@ -552,7 +552,7 @@ int32_t NetBufResizeRoom(NetBuf *nb, uint32_t head, uint32_t tail)
 #if CACHE_ALIGNED_SIZE
     data = (uint8_t *)LOS_MemAllocAlign(m_aucSysMem0, size, CACHE_ALIGNED_SIZE);
 #else
-    data = (uint8_t *)LOS_MemAlloc(m_aucSysMem0, size, CACHE_ALIGNED_SIZE);
+    data = (uint8_t *)LOS_MemAlloc(m_aucSysMem0, size);
 #endif
     if (data == NULL) {
         HDF_LOGE("%s mem alloc fail, size:%u", __func__, size);

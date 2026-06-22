@@ -190,6 +190,11 @@ static ssize_t I2cFsRead(struct file *filep, char *buf, size_t count)
         return 0;
     }
 
+    if (count == 0 || count > UINT16_MAX) {
+        HDF_LOGE("I2cFsRead: invalid count:%u!", count);
+        return 0;
+    }
+
     kbuf = (uint8_t *)OsalMemCalloc(count);
     if (kbuf == NULL) {
         HDF_LOGE("I2cFsRead: malloc kbuf fail!");
@@ -232,6 +237,11 @@ static ssize_t I2cFsWrite(struct file *filep, const char *buf, size_t count)
 
     if (client == NULL) {
         HDF_LOGE("I2cFsWrite: client is null!");
+        return 0;
+    }
+
+    if (count == 0 || count > UINT16_MAX) {
+        HDF_LOGE("I2cFsWrite: invalid count:%u!", count);
         return 0;
     }
 
@@ -405,11 +415,16 @@ static ssize_t I2cFsMap(struct file* filep, LosVmMapRegion *region)
     size_t size = region->range.size;
 
     (void)filep;
+    if (region->pgOff > (((PADDR_T)-1) >> PAGE_SHIFT)) {
+        return -EINVAL;
+    }
     PADDR_T paddr = region->pgOff << PAGE_SHIFT;
+    PADDR_T paddrEnd = paddr + size;
     VADDR_T vaddr = region->range.base;
     LosVmSpace *space = LOS_SpaceGet(vaddr);
 
-    if ((space == NULL) || ((paddr >= SYS_MEM_BASE) && (paddr < SYS_MEM_END))) {
+    if ((space == NULL) || !(paddrEnd > paddr) ||
+        !((paddrEnd <= SYS_MEM_BASE) || (paddr >= SYS_MEM_END))) {
         return -EINVAL;
     }
 

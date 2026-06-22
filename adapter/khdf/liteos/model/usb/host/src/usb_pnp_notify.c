@@ -84,7 +84,7 @@ static bool UsbPnpNotifyFindDeviceList(struct usb_device *deviceObj, bool freeFl
             findFlag = true;
             if (freeFlag) {
                 DListRemove(&pnpNotifyDevicePos->deviceList);
-                OsalMemFree(&pnpNotifyDevicePos);
+                OsalMemFree(pnpNotifyDevicePos);
             }
             break;
         }
@@ -221,6 +221,11 @@ static int32_t UsbPnpNotifyAddInitInfo(struct UsbPnpDeviceInfo *deviceInfo, unio
         goto OUT;
     }
     deviceInfo->info.numInfos = infoData.usbDev->cdesc->bNumInterface;
+    if (deviceInfo->info.numInfos > USB_PNP_INFO_MAX_INTERFACES) {
+        HDF_LOGE("%s: numInfos %u exceeds max %d", __func__, deviceInfo->info.numInfos, USB_PNP_INFO_MAX_INTERFACES);
+        ret = HDF_ERR_INVALID_PARAM;
+        goto OUT;
+    }
     for (uint8_t i = 0; i < deviceInfo->info.numInfos; i++) {
         if (infoData.usbDev->ifaces[i].idesc == NULL) {
             HDF_LOGE("%s:%d interface[%hhu].idesc is NULL", __func__, __LINE__, i);
@@ -350,7 +355,7 @@ static int32_t UsbPnpNotifySendEventLoader(struct HdfSBuf *data)
 OUT:
     HdfIoServiceRecycle(loaderService);
 
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t UsbPnpNotifyGetDeviceInfo(

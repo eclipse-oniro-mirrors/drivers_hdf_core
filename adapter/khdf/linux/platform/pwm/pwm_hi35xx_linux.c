@@ -159,6 +159,7 @@ static int PwmProbe(struct platform_device *pdev)
     ret = pwmchip_add(&chip->chip);
     if (ret < 0) {
         dev_err(&pdev->dev, "failed to add PWM chip\n");
+        clk_disable_unprepare(chip->clk);
         devm_kfree(&pdev->dev, chip);
         return ret;
     }

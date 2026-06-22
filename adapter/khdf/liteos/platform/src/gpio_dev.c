@@ -122,6 +122,14 @@ static int GpioIoctl(struct file *filep, int cmd, unsigned long arg)
     if (ret != 0) {
         return -1;
     }
+    if (bitNum == 0 || info.bitnumber >= bitNum) {
+        HDF_LOGE("GpioIoctl: invalid bitnumber:%u or bitNum:%u!", info.bitnumber, bitNum);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (info.groupnumber > (UINT16_MAX - info.bitnumber) / bitNum) {
+        HDF_LOGE("GpioIoctl: gpio number overflow, gn:%u, bn:%u!", info.groupnumber, info.bitnumber);
+        return HDF_ERR_INVALID_PARAM;
+    }
     gpio = info.groupnumber * bitNum + info.bitnumber;
     PLAT_LOGV("GpioIoctl: gn:%u, bn:%u, gpio:%hu!", info.groupnumber, info.bitnumber, gpio);
 

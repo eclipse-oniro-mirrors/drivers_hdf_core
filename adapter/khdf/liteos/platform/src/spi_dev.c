@@ -41,8 +41,8 @@
 #ifdef LOSCFG_FS_VFS
 static struct SpiDev *SpiDevGetDevFromFilep(struct file *filep)
 {
-    if (filep == NULL) {
-        HDF_LOGE("SpiDevGetDevFromFilep: filep is invalid!");
+    if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
+        HDF_LOGE("SpiDevGetDevFromFilep: filep or f_vnode or data is invalid!");
         return NULL;
     }
 
@@ -286,6 +286,10 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
         HDF_LOGE("SpiDevRealTransfer: err, msg total len is %d!", len);
         return HDF_ERR_INVALID_PARAM;
     }
+    if (len > INT32_MAX / 2) {
+        HDF_LOGE("SpiDevRealTransfer: len too large, len=%d!", len);
+        return HDF_ERR_INVALID_PARAM;
+    }
     wbuf = (uint8_t *)OsalMemCalloc(sizeof(uint8_t) * (len + len));
     if (wbuf == NULL) {
         HDF_LOGE("SpiDevRealTransfer: melloc wbuf error!");
@@ -332,6 +336,14 @@ static int32_t SpiDevTransfer(struct SpiDev *dev, unsigned long arg)
 
     if (!LOS_IsUserAddressRange((vaddr_t)(uintptr_t)arg, sizeof(struct SpiIocMsg))) {
         umsg = (struct SpiIocMsg *)(uintptr_t)arg;
+        if (umsg->msg == NULL || umsg->count <= 0) {
+            HDF_LOGE("SpiDevTransfer: umsg msg or count is invalid!");
+            return HDF_ERR_INVALID_PARAM;
+        }
+        if (umsg->count > (INT32_MAX / (int32_t)sizeof(struct SpiMsg))) {
+            HDF_LOGE("SpiDevTransfer: umsg count overflow!");
+            return HDF_ERR_INVALID_PARAM;
+        }
         return SpiCntlrTransfer(dev->cntlr, dev->csNum, umsg->msg, umsg->count);
     }
     umsg = SpiDevGetIocMsgFromUser(arg);

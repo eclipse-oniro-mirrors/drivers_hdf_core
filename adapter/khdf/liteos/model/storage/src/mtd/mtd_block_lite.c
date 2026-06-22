@@ -120,7 +120,7 @@ int32_t MtdBlockOsInit(struct MtdDevice *mtdDevice)
     const char *devPath = NULL;
 
     if (mtdDevice == NULL) {
-        HDF_LOGE("MtdBlockOsInit: register block dev(%s) fail, ret: %d!", devPath, ret);
+        HDF_LOGE("MtdBlockOsInit: mtdDevice is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 

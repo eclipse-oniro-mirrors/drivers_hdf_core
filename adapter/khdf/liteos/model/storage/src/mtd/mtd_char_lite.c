@@ -95,8 +95,16 @@ static int MtdCharOpen(FAR struct file *filep)
  */
 static int MtdCharClose(FAR struct file *filep)
 {
+    if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
+        HDF_LOGE("MtdCharClose: filep or f_vnode or data is null!");
+        return -EINVAL;
+    }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
     mtd_partition *partition = (mtd_partition *)drv->priv;
+    if (partition == NULL) {
+        HDF_LOGE("MtdCharClose: partition is null!");
+        return -EINVAL;
+    }
     struct MtdFileInfo *mfi = (struct MtdFileInfo *)(filep->f_priv);
     if (mfi == NULL) {
         return EFAIL;
@@ -120,12 +128,26 @@ static int MtdCharClose(FAR struct file *filep)
 static ssize_t MtdCharRead(FAR struct file *filep, FAR char *buffer, size_t buflen)
 {
     ssize_t ret = 0;
-    off_t ppos = filep->f_pos;
+
+    if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
+        HDF_LOGE("MtdCharRead: filep or f_vnode or data is null!");
+        return -EINVAL;
+    }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
     mtd_partition *partition = (mtd_partition *)drv->priv;
+    if (partition == NULL || partition->mtd_info == NULL) {
+        HDF_LOGE("MtdCharRead: partition or mtd_info is null!");
+        return -EINVAL;
+    }
     struct MtdFileInfo *mfi = (struct MtdFileInfo *)filep->f_priv;
     struct MtdDev *mtdDev = (struct MtdDev *)(partition->mtd_info);
     struct MtdDevice *mtdDevice = (struct MtdDevice *)mtdDev->priv;
+    if (mtdDevice == NULL || mfi == NULL) {
+        HDF_LOGE("MtdCharRead: mtdDevice or mfi is null!");
+        return -EINVAL;
+    }
+
+    off_t ppos = filep->f_pos;
     size_t blockSize = mtdDevice->eraseSize;
     size_t partStart = partition->start_block * blockSize;
     size_t partSize = (partition->end_block + 1 - partition->start_block) * blockSize;
@@ -180,12 +202,26 @@ out1:
 static ssize_t MtdCharWrite(FAR struct file *filep, FAR const char *buffer, size_t buflen)
 {
     ssize_t ret = 0;
-    off_t ppos = filep->f_pos;
+
+    if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
+        HDF_LOGE("MtdCharWrite: filep or f_vnode or data is null!");
+        return -EINVAL;
+    }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
     mtd_partition *partition = (mtd_partition *)drv->priv;
+    if (partition == NULL || partition->mtd_info == NULL) {
+        HDF_LOGE("MtdCharWrite: partition or mtd_info is null!");
+        return -EINVAL;
+    }
     struct MtdFileInfo *mfi = (struct MtdFileInfo *)filep->f_priv;
     struct MtdDev *mtdDev = (struct MtdDev *)(partition->mtd_info);
     struct MtdDevice *mtdDevice = (struct MtdDevice *)mtdDev->priv;
+    if (mtdDevice == NULL || mfi == NULL) {
+        HDF_LOGE("MtdCharWrite: mtdDevice or mfi is null!");
+        return -EINVAL;
+    }
+
+    off_t ppos = filep->f_pos;
     size_t blockSize = mtdDevice->eraseSize;
     size_t partStart = partition->start_block * blockSize;
     size_t partSize = (partition->end_block + 1 - partition->start_block) * blockSize;
@@ -239,15 +275,22 @@ out1:
  */
 static off_t MtdCharLseek(FAR struct file *filep, off_t offset, int whence)
 {
+    if (filep == NULL || filep->f_vnode == NULL || filep->f_vnode->data == NULL) {
+        HDF_LOGE("MtdCharLseek: filep or f_vnode or data is null!");
+        return -EINVAL;
+    }
     struct drv_data *drv = (struct drv_data *)filep->f_vnode->data;
     mtd_partition *partition = (mtd_partition *)drv->priv;
-
-    (void)LOS_MuxLock(&partition->lock, LOS_WAIT_FOREVER);
-
+    if (partition == NULL || partition->mtd_info == NULL) {
+        HDF_LOGE("MtdCharLseek: partition or mtd_info is null!");
+        return -EINVAL;
+    }
     struct MtdDev *mtdDev = (struct MtdDev *)(partition->mtd_info);
     size_t blockSize = mtdDev->eraseSize;
     size_t endAddr = (partition->end_block + 1) * blockSize;
     size_t startAddr = partition->start_block * blockSize;
+
+    (void)LOS_MuxLock(&partition->lock, LOS_WAIT_FOREVER);
 
     switch (whence) {
         case SEEK_SET:
@@ -308,10 +351,8 @@ static int MtdCharIoctlGetInfo(const mtd_partition *part, const struct MtdDevice
     MtdCharGetMtdInfo(mtdDevice, &mtdInfo);
     startAddr = part->start_block * mtdDevice->eraseSize;
     endAddr = (part->end_block + 1) * mtdDevice->eraseSize;
+    mtdInfo.size = endAddr - startAddr;
     ret = LOS_CopyFromKernel((void *)(uintptr_t)arg, sizeof(mtdInfo), (void *)&mtdInfo, sizeof(mtdInfo));
-    if (ret == 0) {
-        ((struct MtdInfo *)(uintptr_t)arg)->size = endAddr - startAddr;
-    }
     return ret;
 }
 
@@ -329,7 +370,12 @@ static int MtdCharIoctlErase(const mtd_partition *part, struct MtdDevice *mtdDev
     }
 
     startAddr = part->start_block * mtdDevice->eraseSize;
-    return (int)MtdDeviceErase(mtdDevice, startAddr + erase.start, startAddr + erase.length, NULL);
+    if (erase.start >= (size_t)(part->end_block - part->start_block + 1) * mtdDevice->eraseSize ||
+        erase.length > (size_t)(part->end_block - part->start_block + 1) * mtdDevice->eraseSize - erase.start) {
+        HDF_LOGE("MtdCharIoctlErase: erase range out of partition!");
+        return -EINVAL;
+    }
+    return (int)MtdDeviceErase(mtdDevice, startAddr + erase.start, erase.length, NULL);
 }
 
 static int MtdCharIoctlGetBadBlock(const mtd_partition *part, struct MtdDevice *mtdDevice,

@@ -414,7 +414,7 @@ static int32_t LiteNetDevGetLinkStatus(struct NetDeviceImpl *netDeviceImpl, NetI
         HDF_LOGE("%s fail : status is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    if (netif_is_link_up(lwipNf) != HDF_SUCCESS) {
+    if (netif_is_link_up(lwipNf)) {
         *status = NETIF_LINK_UP;
     } else {
         *status = NETIF_LINK_DOWN;
