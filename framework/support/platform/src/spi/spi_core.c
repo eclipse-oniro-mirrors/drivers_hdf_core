@@ -13,6 +13,8 @@
 #include "spi_service.h"
 #include "platform_trace.h"
 
+#define SPI_MAX_MSG_COUNT          0x1000
+#define SPI_MAX_BUFFER_SIZE        0x100000
 #define SPI_TRACE_BASIC_PARAM_NUM  3
 #define SPI_TRACE_PARAM_GET_NUM    3
 #define HDF_LOG_TAG spi_core
@@ -195,6 +197,16 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
         HDF_LOGE("SpiTransferRebuildMsgs: read count fail!");
         return HDF_ERR_IO;
     }
+    if (count > SPI_MAX_MSG_COUNT) {
+        HDF_LOGE("SpiTransferRebuildMsgs: Invalid count %u (max %u)", count, SPI_MAX_MSG_COUNT);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    #define SPI_MAX_VALID_COUNT ((~0U) / sizeof(struct SpiMsg))
+    if (count > SPI_MAX_VALID_COUNT) {
+        HDF_LOGE("SpiTransferRebuildMsgs: count overflow!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+    #undef SPI_MAX_VALID_COUNT
 
     msgs = OsalMemCalloc(sizeof(struct SpiMsg) * count);
     if (msgs == NULL) {
@@ -204,13 +216,23 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
 
     if (SpiMsgsRwProcess(data, count, &tmpFlag, msgs, &lenReply) != HDF_SUCCESS) {
         HDF_LOGE("SpiTransferRebuildMsgs: SpiMsgsRwProcess fail!");
+        OsalMemFree(msgs);
+        msgs = NULL;
         return HDF_FAILURE;
     }
 
+    if (lenReply > SPI_MAX_BUFFER_SIZE) {
+        HDF_LOGE("SpiTransferRebuildMsgs: lenReply too large: %u", lenReply);
+        OsalMemFree(msgs);
+        msgs = NULL;
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (lenReply > 0) {
         bufReply = OsalMemCalloc(lenReply);
         if (bufReply == NULL) {
             HDF_LOGE("SpiTransferRebuildMsgs: memcalloc fail!");
+            OsalMemFree(msgs);
+            msgs = NULL;
             return HDF_ERR_MALLOC_FAIL;
         }
         for (i = 0, buf = bufReply; i < count && buf < (bufReply + lenReply); i++) {
