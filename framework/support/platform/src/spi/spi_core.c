@@ -193,9 +193,13 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
     uint8_t *bufReply = NULL;
     struct SpiMsg *msgs = NULL;
 
-    if (!HdfSbufReadUint32(data, &count) || (count == 0) || (count > SPI_MAX_MSG_COUNT)) {
-        HDF_LOGE("SpiTransferRebuildMsgs: Invalid count %u (max %u)", count, SPI_MAX_MSG_COUNT);
+    if (!HdfSbufReadUint32(data, &count) || (count == 0)) {
+        HDF_LOGE("SpiTransferRebuildMsgs: read count fail!");
         return HDF_ERR_IO;
+    }
+    if (count > SPI_MAX_MSG_COUNT) {
+        HDF_LOGE("SpiTransferRebuildMsgs: Invalid count %u (max %u)", count, SPI_MAX_MSG_COUNT);
+        return HDF_ERR_INVALID_PARAM;
     }
     #define SPI_MAX_VALID_COUNT ((~0U) / sizeof(struct SpiMsg))
     if (count > SPI_MAX_VALID_COUNT) {
@@ -204,10 +208,6 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
     }
     #undef SPI_MAX_VALID_COUNT
 
-    if (count > (UINT_MAX / sizeof(struct SpiMsg))) {
-        HDF_LOGE("SpiTransferRebuildMsgs: count %u too large!", count);
-        return HDF_ERR_INVALID_PARAM;
-    }
     msgs = OsalMemCalloc(sizeof(struct SpiMsg) * count);
     if (msgs == NULL) {
         HDF_LOGE("SpiTransferRebuildMsgs: memcalloc fail!");
@@ -232,9 +232,7 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
         if (bufReply == NULL) {
             HDF_LOGE("SpiTransferRebuildMsgs: memcalloc fail!");
             OsalMemFree(msgs);
-            OsalMemFree(bufReply);
             msgs = NULL;
-            bufReply = NULL;
             return HDF_ERR_MALLOC_FAIL;
         }
         for (i = 0, buf = bufReply; i < count && buf < (bufReply + lenReply); i++) {

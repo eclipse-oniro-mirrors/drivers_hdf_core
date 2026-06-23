@@ -271,7 +271,7 @@ static void HdfEncoderDriverRelease(struct HdfDeviceObject *device)
         driver->inputDev = NULL;
     }
 
-    if (driver->timer != NULL) {
+    if (driver->timer.realTimer != NULL) {
         OsalTimerDelete(&driver->timer);
     }
 
