@@ -270,6 +270,11 @@ static void HdfEncoderDriverRelease(struct HdfDeviceObject *device)
         UnregisterInputDevice(inputDev);
         driver->inputDev = NULL;
     }
+
+    if (driver->timer != NULL) {
+        OsalTimerDelete(&driver->timer);
+    }
+
     OsalMemFree(driver);
 }
 

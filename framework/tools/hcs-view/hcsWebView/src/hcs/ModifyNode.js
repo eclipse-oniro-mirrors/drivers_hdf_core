@@ -130,6 +130,7 @@ ModifyNode.getInheritList = function (root, node) {
     if (pp === null) {
       break;
     }
+    parent = pp;
     ps.splice(0, 0, pp);
   }
   let ptemp = null;
