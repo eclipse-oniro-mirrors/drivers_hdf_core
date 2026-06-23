@@ -379,7 +379,7 @@ static void HdfKeventDriverRelease(struct HdfDeviceObject *object)
     }
 
     unregister_pm_notifier(&keventModule->keventPmNotifier);
-    fb_unregister_client(&keventModule->keventPmNotifier);
+    fb_unregister_client(&keventModule->fbNotifier);
     OsalMutexDestroy(&keventModule->mutex);
     OsalMutexDestroy(&keventModule->clientMutex);
     OsalMemFree(keventModule);
