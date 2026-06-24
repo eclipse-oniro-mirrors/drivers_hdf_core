@@ -13,7 +13,6 @@
 #include "spi_service.h"
 #include "platform_trace.h"
 
-#define SPI_MAX_MSG_COUNT          0x1000
 #define SPI_MAX_BUFFER_SIZE        0x100000
 #define SPI_TRACE_BASIC_PARAM_NUM  3
 #define SPI_TRACE_PARAM_GET_NUM    3
@@ -196,10 +195,6 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
     if (!HdfSbufReadUint32(data, &count) || (count == 0)) {
         HDF_LOGE("SpiTransferRebuildMsgs: read count fail!");
         return HDF_ERR_IO;
-    }
-    if (count > SPI_MAX_MSG_COUNT) {
-        HDF_LOGE("SpiTransferRebuildMsgs: Invalid count %u (max %u)", count, SPI_MAX_MSG_COUNT);
-        return HDF_ERR_INVALID_PARAM;
     }
     #define SPI_MAX_VALID_COUNT ((~0U) / sizeof(struct SpiMsg))
     if (count > SPI_MAX_VALID_COUNT) {
