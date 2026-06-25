@@ -44,7 +44,7 @@ void PlatformTraceAddMsg(const char *module, const char *moduleFun, const char *
     }
 
     va_start(argList, fmt);
-    length = vsprintf_s(messages + length - 1, PLATFORM_TRACE_MSG_MAX_LEN, fmt, argList);
+    length = vsprintf_s(messages + length - 1, PLATFORM_TRACE_MSG_MAX_LEN - (length - 1), fmt, argList);
     va_end(argList);
     if (length < 0) {
         HDF_LOGE("PlatformTraceAddMsg[%s][%s]: generate messages fail[%d]!", module, moduleFun, length);

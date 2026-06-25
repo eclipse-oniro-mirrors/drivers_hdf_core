@@ -320,8 +320,9 @@ static int32_t TimerIoSet(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    if (!HdfSbufReadBuffer(data, (const void **)&cfg, &len) || cfg == NULL) {
-        HDF_LOGE("TimerIoSet: read buffer fail!");
+    if (!HdfSbufReadBuffer(data, (const void **)&cfg, &len) || cfg == NULL ||
+        len < sizeof(struct TimerConfig)) {
+        HDF_LOGE("TimerIoSet: read buffer fail or invalid size!");
         return HDF_ERR_IO;
     }
 
@@ -350,8 +351,9 @@ static int32_t TimerIoSetOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    if (!HdfSbufReadBuffer(data, (const void **)&cfg, &len) || cfg == NULL) {
-        HDF_LOGE("TimerIoSetOnce: read buffer fail!");
+    if (!HdfSbufReadBuffer(data, (const void **)&cfg, &len) || cfg == NULL ||
+        len < sizeof(struct TimerConfig)) {
+        HDF_LOGE("TimerIoSetOnce: read buffer fail or invalid size!");
         return HDF_ERR_IO;
     }
 
