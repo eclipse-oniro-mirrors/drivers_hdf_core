@@ -375,10 +375,10 @@ static bool SbufRawImplReadBuffer(struct HdfSBufImpl *impl, const uint8_t **data
         return false;
     }
 
-    if (buffSize == 0) {
+    if (buffSize <= 0) {
         *data = NULL;
         *readSize = 0;
-        return true;
+        return (buffSize == 0);
     }
     alignSize = SbufRawImplGetAlignSize(buffSize);
     if (alignSize > SbufRawImplGetLeftReadSize(sbuf)) {
