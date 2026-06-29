@@ -199,8 +199,9 @@ static int32_t TurnOnLight(uint32_t lightId, struct HdfSBuf *data, struct HdfSBu
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufReadBuffer(data, (const void **)&buf, &len)) {
-        HDF_LOGE("%s: light read data failed", __func__);
+    if (!HdfSbufReadBuffer(data, (const void **)&buf, &len) ||
+        len < sizeof(struct LightEffect)) {
+        HDF_LOGE("%s: light read data failed or invalid size", __func__);
         return HDF_FAILURE;
     }
 

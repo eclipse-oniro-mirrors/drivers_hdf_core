@@ -76,8 +76,8 @@ static int32_t HdmiCmdAvmuteSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data, s
     size_t size;
     (void)reply;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&enable, &size)) {
-        HDF_LOGE("HdmiCmdAvmuteSet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&enable, &size) || size < sizeof(bool)) {
+        HDF_LOGE("HdmiCmdAvmuteSet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     HdmiCntlrAvmuteSet(cntlr, *enable);
@@ -90,8 +90,8 @@ static int32_t HdmiCmdDeepColorSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data
     size_t size;
     (void)reply;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&color, &size)) {
-        HDF_LOGE("HdmiCmdDeepColorSet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&color, &size) || size < sizeof(enum HdmiDeepColor)) {
+        HDF_LOGE("HdmiCmdDeepColorSet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     return HdmiCntlrDeepColorSet(cntlr, *color);
@@ -125,8 +125,9 @@ static int32_t HdmiCmdVideoAttrSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data
     size_t size;
     (void)reply;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&attr, &size)) {
-        HDF_LOGE("HdmiCmdVideoAttrSet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&attr, &size) ||
+        size < sizeof(struct HdmiVideoAttr)) {
+        HDF_LOGE("HdmiCmdVideoAttrSet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     return HdmiCntlrSetVideoAttribute(cntlr, attr);
@@ -138,8 +139,9 @@ static int32_t HdmiCmdAudioAttrSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data
     size_t size;
     (void)reply;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&attr, &size)) {
-        HDF_LOGE("HdmiCmdAudioAttrSet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&attr, &size) ||
+        size < sizeof(struct HdmiAudioAttr)) {
+        HDF_LOGE("HdmiCmdAudioAttrSet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     return HdmiCntlrSetAudioAttribute(cntlr, attr);
@@ -151,8 +153,9 @@ static int32_t HdmiCmdHdrAttrSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data, 
     size_t size;
     (void)reply;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&attr, &size)) {
-        HDF_LOGE("HdmiCmdHdrAttrSet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&attr, &size) ||
+        size < sizeof(struct HdmiHdrAttr)) {
+        HDF_LOGE("HdmiCmdHdrAttrSet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     return HdmiCntlrSetHdrAttribute(cntlr, attr);
@@ -231,8 +234,8 @@ static int32_t HdmiCmdRegisterHpdCallbackFunc(struct HdmiCntlr *cntlr, struct Hd
     size_t size;
     (void)reply;
 
-    if (!HdfSbufReadBuffer(data, (const void **)&addr, &size)) {
-        HDF_LOGE("HdmiCmdRegisterHpdCallbackFunc: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&addr, &size) || size < sizeof(uint32_t)) {
+        HDF_LOGE("HdmiCmdRegisterHpdCallbackFunc: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     return HdmiCntlrRegisterHpdCallbackFunc(cntlr, (struct HdmiHpdCallbackInfo *)(uintptr_t)(*addr));

@@ -477,7 +477,7 @@ int32_t CameraStreamEnumDevice(struct CommonDevice *comDev)
     isFailed |= !HdfSbufWriteUint32(rspData, rootConfig->deviceConfig[camId].stream.stream[num].frameRateMaxNum);
     isFailed |= !HdfSbufWriteUint32(rspData, rootConfig->deviceConfig[camId].stream.stream[num].bufferTypeNum);
     isFailed |= !HdfSbufWriteUint8(rspData, rootConfig->deviceConfig[camId].stream.stream[num].bufferCount);
-    for (i = 0; i <= rootConfig->deviceConfig[camId].stream.stream[num].bufferTypeNum; i++) {
+    for (i = 0; i < rootConfig->deviceConfig[camId].stream.stream[num].bufferTypeNum; i++) {
         isFailed |= !HdfSbufWriteUint32(rspData, rootConfig->deviceConfig[camId].stream.stream[num].bufferType[i]);
     }
     CHECK_RETURN_RET(isFailed);
