@@ -180,6 +180,13 @@ static struct HdfDeviceObject *ObtainServiceObject(
         return NULL;
     }
 
+    if (service == NULL) {
+        HDF_LOGE("%{public}s: service is null", __func__);
+        OsalMemFree(serviceObjectHolder->serviceName);
+        OsalMemFree(serviceObjectHolder);
+        return NULL;
+    }
+
     struct HdfDeviceObject *serviceObject = &serviceObjectHolder->devObj;
     serviceObject->priv = (void *)HdfStringCopy(name);
     if (serviceObject->priv == NULL) {
@@ -294,6 +301,10 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
 {
     int ret = HDF_FAILURE;
     struct DevSvcManagerStub *stub = (struct DevSvcManagerStub *)super;
+    if (stub->remote == NULL) {
+        HDF_LOGE("%{public}s: remote is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (!HdfRemoteServiceCheckInterfaceToken(stub->remote, data)) {
         HDF_LOGE("%{public}s: invalid interface token", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -406,6 +417,10 @@ static int32_t DevSvcManagerStubListServiceByInterfaceDesc(
 {
     int ret;
     struct DevSvcManagerStub *stub = (struct DevSvcManagerStub *)super;
+    if (stub == NULL) {
+        HDF_LOGE("%{public}s: super is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (!HdfRemoteServiceCheckInterfaceToken(stub->remote, data)) {
 // LCOV_EXCL_START
         HDF_LOGE("%{public}s: invalid interface token", __func__);
@@ -517,7 +532,15 @@ static int32_t DevSvcManagerStubRegisterServListener(struct IDevSvcManager *supe
 
 static int32_t DevSvcManagerStubUnregisterServListener(struct IDevSvcManager *super, struct HdfSBuf *data)
 {
+    if (super == NULL) {
+        HDF_LOGE("Unregister service listener failed, super is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct DevSvcManagerStub *stub = (struct DevSvcManagerStub *)super;
+    if (stub->remote == NULL) {
+        HDF_LOGE("Unregister service listener failed, remote is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (!HdfRemoteServiceCheckInterfaceToken(stub->remote, data)) {
         HDF_LOGE("%{public}s: invalid interface token", __func__);
         return HDF_ERR_INVALID_PARAM;

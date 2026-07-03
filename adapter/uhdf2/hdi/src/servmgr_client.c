@@ -110,7 +110,12 @@ struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
         if (serviceSet == NULL) {
             break;
         }
-        HdiServiceSetUnMarshalling(reply, serviceSet);
+        int32_t ret = HdiServiceSetUnMarshalling(reply, serviceSet);
+        if (ret != HDF_SUCCESS) {
+            HdiServiceSetRelease(serviceSet);
+            serviceSet = NULL;
+            break;
+        }
     } while (0);
 
     HdfSbufRecycle(reply);

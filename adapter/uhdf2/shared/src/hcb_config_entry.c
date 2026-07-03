@@ -53,7 +53,7 @@ static bool GetConfigFilePath(const char *productName, char *configPath, size_t 
         if (access(configPath, F_OK | R_OK) == 0) {
             return true;
         }
-        HDF_LOGD("invalid config file path or permission:%{public}s", configPath);
+        HDF_LOGD("invalid config file path or permission:%{private}s", configPath);
     }
     return false;
 }

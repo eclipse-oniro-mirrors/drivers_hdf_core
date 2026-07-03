@@ -65,6 +65,10 @@ static void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, ui
 {
     struct DevHostServiceClnt *hostClnt = NULL;
     struct DevHostServiceClnt *hostClntTmp = NULL;
+    if (service == NULL) {
+        HDF_LOGE("%{public}s: service is null", __func__);
+        return;
+    }
     if (inst == NULL) {
         return;
     }
@@ -93,6 +97,10 @@ int32_t DevmgrServiceFullDispatchMessage(struct HdfMessageTask *task, struct Hdf
     if (msg->messageId == DEVMGR_MESSAGE_DEVHOST_DIED) {
         int hostId = (int)(uintptr_t)msg->data[0];
         struct HdfRemoteService *service = (struct HdfRemoteService *)msg->data[1];
+        if (service == NULL) {
+            HDF_LOGE("service in msg data is null");
+            return HDF_ERR_INVALID_PARAM;
+        }
         DevmgrServiceFullOnDeviceHostDied(fullService, hostId, service);
     } else {
         HDF_LOGE("wrong message(%{public}u)", msg->messageId);

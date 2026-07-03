@@ -38,6 +38,10 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
         HDF_LOGE("DevmgrServiceProxyAttachDeviceHost failed, host id is %{public}u", hostId);
         goto FINISHED;
     }
+    if (hostStub->remote == NULL) {
+        HDF_LOGE("DevmgrServiceProxyAttachDeviceHost failed, hostStub->remote is NULL");
+        goto FINISHED;
+    }
     remoteService = serviceProxy->remote;
     dipatcher = remoteService->dispatcher;
     const int waitTimes = 100;
@@ -82,7 +86,13 @@ int DevmgrServiceProxyAttachDevice(struct IDevmgrService *inst, struct IHdfDevic
         goto FINISHED;
     }
 
-    status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE, data, reply);
+    if (remoteService->dispatcher != NULL && remoteService->dispatcher->Dispatch != NULL) {
+        status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE, data, reply);
+    } else {
+        HDF_LOGE("DevmgrServiceProxyAttachDevice failed, dispatcher is null");
+        goto FINISHED;
+    }
+
 FINISHED:
     HdfSbufRecycle(reply);
     HdfSbufRecycle(data);

@@ -176,10 +176,15 @@ static bool DevMgrUeventCheckRuleValid(const char *line)
 
 static int32_t DevMgrUeventParseMatchKey(char *subStr, struct DListHead *matchKeyList)
 {
-    if (subStr == NULL || strlen(subStr) == 0) {
-        HDF_LOGE("match key invalid [%{public}s]", subStr);
+    if (subStr == NULL) {
+        HDF_LOGE("match key is NULL");
         return HDF_FAILURE;
     }
+
+    if (strlen(subStr) == 0) {
+        HDF_LOGE("match key is empty");
+         return HDF_FAILURE;
+     }
 
     struct DevMgrMatchKey *matchKey = (struct DevMgrMatchKey *)OsalMemCalloc(sizeof(*matchKey));
     if (matchKey == NULL) {
@@ -253,6 +258,8 @@ static int32_t DevMgrUeventParseHdfEvent(char *subStr, struct DevMgrUeventRuleCf
     }
     if (DListGetCount(&ruleCfg->matchKeyList) == 0) {
         HDF_LOGE("parse failed, no match key");
+        OsalMemFree(ruleCfg->serviceName);
+        ruleCfg->serviceName = NULL;
         return HDF_FAILURE;
     }
 
@@ -528,7 +535,7 @@ static int32_t DevMgrParseUevent(char *msg, ssize_t msgLen)
         ptr += subStrLen;
     }
 
-    HDF_LOGD("%{public}s {%{public}s} %{public}zd", __func__, msg, msgLen);
+    HDF_LOGD("%{public}s {%{private}s} %{public}zd", __func__, msg, msgLen);
     DevMgrUeventMatchRules(&keyList, DevMgrUeventRuleCfgList());
     DevMgrUeventReleaseKeyList(&keyList);
 

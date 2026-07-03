@@ -62,9 +62,24 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
         return HDF_FAILURE;
     }
     struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
+    if (service == NULL) {
+        HDF_LOGE("failed to read remote service from sbuf");
+        return HDF_FAILURE;
+    }
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
+    if (hostIf == NULL) {
+        HDF_LOGE("%{public}s: failed to obtain host service proxy", __func__);
+        return HDF_ERR_MALLOC_FAIL;
+    }
     DevmgrServicehostClntGetPid(devmgrSvc, hostId);
-    return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
+    int32_t ret = devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: attach device host failed, release hostIf", __func__);
+        DevHostServiceProxyRecycle(hostIf);
+        return ret;
+    }
+
+    return HDF_SUCCESS;
 }
 
 static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
@@ -83,7 +98,13 @@ static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devm
     tokenClnt->super.devid = deviceId;
     tokenClnt->super.servName = HdfStringCopy(servName);
     tokenClnt->super.deviceName = HdfStringCopy(deviceName);
-    return devmgrSvc->AttachDevice(devmgrSvc, &tokenClnt->super);
+    int32_t ret = devmgrSvc->AttachDevice(devmgrSvc, &tokenClnt->super);
+    if (ret != HDF_SUCCESS) {
+        HdfDevTokenProxyRecycle(tokenClnt);
+        return ret;
+    }
+
+    return HDF_SUCCESS;
 }
 
 static int32_t DevmgrServiceStubDispatchDetachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
@@ -306,6 +327,9 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     struct HdfRemoteService *remoteService = HdfRemoteServiceObtain((struct HdfObject *)inst, &g_devmgrDispatcher);
     if (serviceManager == NULL || remoteService == NULL) {
         HDF_LOGE("Start service failed, get service manager failed or remoteService obtain err");
+        if (remoteService != NULL) {
+            HdfRemoteServiceRecycle(remoteService);
+        }
         return HDF_FAILURE;
     }
 
@@ -339,7 +363,9 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     status = DevmgrServiceStartService((struct IDevmgrService *)&fullService->super);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: failed to start service", __func__);
+        DevSvcManagerRemoveService(serviceManager, DEVICE_MANAGER_SERVICE);
         HdfRemoteServiceRecycle(remoteService);
+        fullService->remote = NULL;
         OsalMemFree(deviceObject);
         return status;
     }

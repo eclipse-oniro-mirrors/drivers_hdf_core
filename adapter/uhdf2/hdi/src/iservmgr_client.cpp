@@ -160,8 +160,12 @@ static void HdfDevMgrDbgFillServiceInfo(std::vector<HdiServiceInfo> &serviceInfo
             break;
         }
         info.serviceName = servName;
-        info.devClass = reply.ReadUint16();
-        info.devId = reply.ReadUint32();
+        if (!reply.ReadUint16(info.devClass)) {
+            break;
+        }
+        if (!reply.ReadUint32(info.devId)) {
+            break;
+        }
         serviceInfos.push_back(info);
     }
     return;

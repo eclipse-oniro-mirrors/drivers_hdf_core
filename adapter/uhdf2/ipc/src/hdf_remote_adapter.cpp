@@ -221,6 +221,11 @@ void HdfRemoteAdapterRemoveDeathRecipient(
 
 struct HdfRemoteService *HdfRemoteAdapterBind(OHOS::sptr<OHOS::IRemoteObject> binder)
 {
+    if (binder == nullptr) {
+        HDF_LOGE("%{public}s: binder is nullptr", __func__);
+        return nullptr;
+    }
+
     struct HdfRemoteService *remoteService = nullptr;
     static HdfRemoteDispatcher dispatcher = {
         .Dispatch = HdfRemoteAdapterDispatch,
@@ -276,6 +281,10 @@ int HdfRemoteAdapterAddService(const char *name, struct HdfRemoteService *servic
         return HDF_FAILURE;
     }
     struct HdfRemoteServiceHolder *holder = reinterpret_cast<struct HdfRemoteServiceHolder *>(service);
+    if (holder->remote_ == nullptr) {
+        HDF_LOGE("failed to add service, remote_ is nullptr");
+        return HDF_FAILURE;
+    }
     int ret = sr->AddService(OHOS::Str8ToStr16(name), holder->remote_);
     if (ret == 0) {
         (void)OHOS::IPCSkeleton::GetInstance().SetMaxWorkThreadNum(g_remoteThreadMax++);
@@ -416,6 +425,10 @@ bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struc
         return false;
     }
 
+    if (parcel == nullptr) {
+        HDF_LOGE("failed to write interface token, parcel is nullptr after SbufToParcel");
+        return false;
+    }
     if (holder->remote_ == nullptr) {
         HDF_LOGE("failed to write interface token, holder->remote is nullptr");
         return false;
@@ -510,6 +523,10 @@ int HdfRemoteAdapterDefaultDispatch(struct HdfRemoteService *service,
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (holder->remote_->IsProxyObject()) {
+        HDF_LOGE("%{public}s: remote object is a proxy, expected a stub", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     OHOS::IPCObjectStub *stub = reinterpret_cast<OHOS::IPCObjectStub *>(holder->remote_.GetRefPtr());
     if (stub == nullptr) {
 // LCOV_EXCL_START

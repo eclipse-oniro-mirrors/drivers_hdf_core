@@ -23,14 +23,18 @@ namespace OHOS {
 namespace HDI {
 namespace ServiceManager {
 namespace V1_0 {
+#define HDF_MAX_SERVINFO_LEN 1024
+
 int ServStatListenerStub::OnRemoteRequest(
     uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
-    if (code == SERVIE_STATUS_LISTENER_NOTIFY) {
-        return ServStatListenerStubOnReceive(data, reply, option);
+    switch (code) {
+        case SERVICE_STATUS_LISTENER_NOTIFY:
+            return ServStatListenerStubOnReceive(data, reply, option);
+        default:
+            HDF_LOGE("%{public}s: unknown request code %{public}u", __func__, code);
+            return HDF_ERR_NOT_SUPPORT;
     }
-
-    return HDF_ERR_NOT_SUPPORT;
 }
 
 int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
@@ -43,7 +47,11 @@ int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
     }
 
     const char *name = data.ReadCString();
-    status.serviceName = (name == nullptr) ? "" : name;
+    if (name == nullptr) {
+        HDF_LOGE("failed to read serviceName in ServiceStatus, name is null");
+        return HDF_FAILURE;
+    }
+    status.serviceName = name;
     if (status.serviceName.empty()) {
         HDF_LOGE("failed to read serviceName in ServiceStatus");
         return HDF_FAILURE;
@@ -55,7 +63,11 @@ int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
     }
 
     const char *info = data.ReadCString();
-    status.info = (info == nullptr) ? "" : info;
+    if (info == nullptr || strlen(info) > HDF_MAX_SERVINFO_LEN) {
+        HDF_LOGE("failed to read info in ServiceStatus, info is null or too long");
+        return HDF_FAILURE;
+    }
+    status.info = info;
 
     HDF_LOGD("call OnReceive, %{public}s, %{public}d", status.serviceName.c_str(), status.status);
     OnReceive(status);

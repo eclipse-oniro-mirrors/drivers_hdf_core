@@ -154,6 +154,11 @@ static int32_t DevMgrDumpServiceFindHost(const char *servName, struct HdfSBuf *d
 
 static int32_t DevMgrDumpService(uint32_t argv, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    if (argv == 0) {
+        HDF_LOGE("%{public}s: invalid argv, argv is 0", __func__);
+        return HDF_FAILURE;
+    }
+
     const char *servName = HdfSbufReadString(data);
     if (servName == NULL) {
         HDF_LOGE("%{public}s serviceName is null", __func__);
@@ -373,7 +378,7 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
 
         (void)HdfSbufReadUint32(data, &devCnt);
         (*hostCnt)++;
-        if (devCnt <= 0 || devCnt > DEVCNT_MAX) {
+        if (devCnt == 0 || devCnt > DEVCNT_MAX) {
             HDF_LOGE("devCnt is over");
             return;
         }
@@ -389,7 +394,10 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
             }
             HDF_LOGI("%{public}s devName:%{public}s", __func__, devName);
 
-            (void)HdfSbufReadUint32(data, &devId);
+            if (!HdfSbufReadUint32(data, &devId)) {
+                HDF_LOGE("%{public}s: read devId failed", __func__);
+                return;
+            }
             int32_t devIdLen = sprintf_s(&line[devIdAlign], sizeof(line) - devIdAlign - 1, ":0x%x", devId);
             if (devIdLen == -1) {
                 HDF_LOGE("%{public}s sprintf_s devId fail", __func__);
@@ -417,11 +425,15 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
 
 static void DevMgrFillServiceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, uint32_t *servCnt)
 {
+    if (data == NULL || reply == NULL || servCnt == NULL) {
+        return;
+    }
+
     char line[LINE_SIZE];
     const uint32_t devClassAlign = 32;
     const uint32_t devIdAlign = 48;
     const char *servName = NULL;
-    uint32_t devClass;
+    uint32_t devClass = 0;
     uint32_t devId;
 
     while (true) {
@@ -438,7 +450,10 @@ static void DevMgrFillServiceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, u
         }
         HDF_LOGI("%{public}s servName:%{public}s", __func__, servName);
 
-        (void)HdfSbufReadUint32(data, &devClass);
+        if (!HdfSbufReadUint32(data, &devClass)) {
+            HDF_LOGE("%{public}s: read devClass failed", __func__);
+            return;
+        }
         int32_t devClassLen = sprintf_s(&line[devClassAlign], sizeof(line) - devClassAlign - 1, ":0x%x", devClass);
         if (devClassLen == -1) {
             HDF_LOGE("%{public}s sprintf_s devClass fail", __func__);
@@ -446,7 +461,10 @@ static void DevMgrFillServiceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, u
         }
         line[devClassAlign + devClassLen] = ' '; // Clear the string terminator added by sprintf_s
 
-        (void)HdfSbufReadUint32(data, &devId);
+        if (!HdfSbufReadUint32(data, &devId)) {
+            HDF_LOGE("%{public}s: read devId failed", __func__);
+            return;
+        }
         if (sprintf_s(&line[devIdAlign], sizeof(line) - devIdAlign, ":0x%x\n", devId) == -1) {
             HDF_LOGE("%{public}s sprintf_s devId fail", __func__);
             return;

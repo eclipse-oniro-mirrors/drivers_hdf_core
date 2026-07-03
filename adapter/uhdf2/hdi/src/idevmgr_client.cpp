@@ -253,7 +253,11 @@ sptr<IDeviceManager> IDeviceManager::Get()
     std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = servmgr->GetService("hdf_device_manager");
     if (remote != nullptr) {
-        return hdi_facecast<IDeviceManager>(remote);
+        auto result = hdi_facecast<IDeviceManager>(remote);
+        if (result != nullptr) {
+            return result;
+        }
+        HDF_LOGE("failed to facecast to IDeviceManager");
     }
 
     HDF_LOGE("hdf device manager not exist");

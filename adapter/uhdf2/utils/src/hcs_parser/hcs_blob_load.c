@@ -34,17 +34,16 @@ static bool IsHcbFile(const char *fname)
 
 uint32_t OpenHcsBlobFile(const char *hcsBlobPath, char **hcsBlob)
 {
-    // the 0 is error.
-    int32_t length = 0;
+    size_t length = 0;
     if ((hcsBlobPath == NULL) || (hcsBlob == NULL) || !IsHcbFile(hcsBlobPath)) {
         HDF_LOGE("%{public}s failed, pls check the param", __func__);
-        return length;
+        return 0;
     }
 
     char path[PATH_MAX] = { 0 };
     if (realpath(hcsBlobPath, path) == NULL) {
         HDF_LOGE("file %{public}s is invalid", hcsBlobPath);
-        return length;
+        return 0;
     }
     FILE *fp = fopen(path, "rb");
     do {
@@ -53,12 +52,20 @@ uint32_t OpenHcsBlobFile(const char *hcsBlobPath, char **hcsBlob)
             break;
         }
         (void)fseek(fp, 0, SEEK_END);
-        length = (int32_t)ftell(fp);
-        if ((length <= 0) || (length >= HBC_BLOB_MAX_LENGTH)) {
+        long fileSizeLong = ftell(fp);
+        if (fileSizeLong < 0) {
             length = 0;
-            HDF_LOGE("%{public}s failed, the HcsBlob file length is %{public}d",  __func__, length);
+            HDF_LOGE("%{public}s failed, ftell error", __func__);
             break;
         }
+
+        length = (size_t)fileSizeLong;
+        if ((length == 0) || (length >= HBC_BLOB_MAX_LENGTH)) {
+            length = 0;
+            HDF_LOGE("%{public}s failed, the HcsBlob file length is %{public}zu",  __func__, length);
+            break;
+        }
+
         *hcsBlob = (char *)OsalMemCalloc(length + 1);
         if ((*hcsBlob) == NULL) {
             length = 0;
@@ -66,10 +73,18 @@ uint32_t OpenHcsBlobFile(const char *hcsBlobPath, char **hcsBlob)
             break;
         }
         (void)fseek(fp, 0, SEEK_SET);
-        (void)fread((void *)(*hcsBlob), (size_t)length, 1, fp);
+        size_t readCount = fread((void *)(*hcsBlob), length, 1, fp);
+        if (readCount == 1) {
+            (*hcsBlob)[length] = '\0';
+        } else {
+            HDF_LOGE("%{public}s failed, fread error", __func__);
+            OsalMemFree(*hcsBlob);
+            *hcsBlob = NULL;
+            length = 0;
+        }
     } while (0);
     if (fp != NULL) {
         fclose(fp);
     }
-    return (length > 0) ? length : 0;
+    return (length > 0) ? (uint32_t)length : 0;
 }

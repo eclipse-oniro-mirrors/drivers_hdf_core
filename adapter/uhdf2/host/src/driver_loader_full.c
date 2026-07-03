@@ -59,6 +59,12 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
         OsalMemFree(driver);
         return NULL;
     }
+    if (*driverEntry == NULL) {
+        HDF_LOGE("driver entry is null for %{public}s", moduleName);
+        dlclose(handle);
+        OsalMemFree(driver);
+        return NULL;
+    }
 
     driver->entry = *driverEntry;
     driver->priv = handle;
