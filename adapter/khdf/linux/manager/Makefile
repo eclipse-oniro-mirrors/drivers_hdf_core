@@ -68,6 +68,9 @@ obj-y += \
         ./src/hdf_kevent.o \
         $(SEC_FUNCTION_OBJECTS)
 
+CFLAGS_REMOVE_$(HDF_FRAMEWORK_SRC_DIR)/framework/utils/src/hdf_sbuf.o += -mgeneral-regs-only
+KBUILD_CFLAGS += -mno-outline-atomics
+
 ccflags-y += \
        -I$(srctree)/drivers/hdf/framework/include \
        -I$(srctree)/drivers/hdf/framework/include/osal \
