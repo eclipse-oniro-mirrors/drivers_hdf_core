@@ -163,11 +163,11 @@ static void DevmgrFreeQueryDeviceList(struct HDIDeviceManager *self, struct Devi
 
 static int32_t DevmgrProcessLoad(struct HDIDeviceManager *iDevMgr, const char *serviceName, int32_t id)
 {
-    int32_t status = HDF_FAILURE;
-    struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     if (iDevMgr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
+    int32_t status = HDF_FAILURE;
+    struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
 
     do {
         if (data == NULL) {

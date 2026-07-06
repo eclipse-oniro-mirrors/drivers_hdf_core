@@ -75,7 +75,7 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
     int32_t ret = devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: attach device host failed, release hostIf", __func__);
-        DevHostServiceProxyRecycle(hostIf);
+        DevHostServiceProxyRecycle((struct DevHostServiceProxy *)hostIf);
         return ret;
     }
 

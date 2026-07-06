@@ -183,8 +183,8 @@ static int32_t DevMgrUeventParseMatchKey(char *subStr, struct DListHead *matchKe
 
     if (strlen(subStr) == 0) {
         HDF_LOGE("match key is empty");
-         return HDF_FAILURE;
-     }
+        return HDF_FAILURE;
+    }
 
     struct DevMgrMatchKey *matchKey = (struct DevMgrMatchKey *)OsalMemCalloc(sizeof(*matchKey));
     if (matchKey == NULL) {

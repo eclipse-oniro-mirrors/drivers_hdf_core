@@ -37,7 +37,7 @@ int32_t HdfLoadDriverByServiceName(const char *serviceName)
         goto OUT;
     }
     if (ioService == NULL || ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
-        HDF_LOGE(""dispatcher is null"");
+        HDF_LOGE("dispatcher is null");
         ret = HDF_ERR_INVALID_OBJECT;
         goto OUT;
     }
