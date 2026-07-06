@@ -13,8 +13,10 @@
 #include "ast.h"
 #include "file.h"
 #include "logger.h"
+#include <filesystem>
 
 using namespace OHOS::Hardware;
+namespace fs = std::filesystem;
 
 static constexpr const char *BOOT_CONFIG_TOP =
     "{\n"
@@ -43,7 +45,16 @@ static constexpr uint32_t INVALID_PRIORITY = 0;
 static constexpr const char *SAND_BOX_INFO = "            \"sandbox\" : ";
 static constexpr uint32_t INVALID_SAND_BOX = 0xffffffff;
 static constexpr const char *MALLOPT_SEPARATOR = ":";
-StartupCfgGen::StartupCfgGen(const std::shared_ptr<Ast> &ast) : Generator(ast)
+static constexpr const char *IMPORT_CONFIG_TOP =
+    "{\n"
+    "   \"import\" : [\n";
+static constexpr const char *IMPORT_CONFIG_BOTTOM =
+    "    ]\n"
+    "}\n";
+
+static const std::string ABSOLUTE_INSTALL_PATH = "/chip_prod/etc/init/";
+StartupCfgGen::StartupCfgGen(const std::shared_ptr<Ast> &ast) : Generator(ast), \
+                                                                option(Option::Instance())
 {
 }
 
@@ -58,6 +69,36 @@ void StartupCfgGen::HeaderBottomOutput()
     ofs_.close();
 }
 
+void StartupCfgGen::ImportFileHeaderTopOutput()
+{
+    // separate mode must generate import file
+    // ensure the directories exist, generate file in directory
+    if (!CreatePreDirectory()) {
+        Logger().Error() << "create generated directories failed" << '\n';
+        return;
+    }
+
+    std::string fileName = outFileName_ + ".cfg";
+
+    importFile_.open(fileName, std::ofstream::out | std::ofstream::binary);
+    if (!importFile_.is_open()) {
+        Logger().Error() << "failed to create import file.";
+        return;
+    }
+    importFile_ << IMPORT_CONFIG_TOP;
+}
+
+void StartupCfgGen::ImportFileHeaderBottomOutput()
+{
+    importFile_ << IMPORT_CONFIG_BOTTOM;
+    importFile_.close();
+}
+
+void StartupCfgGen::InsertImportFilePath(const std::string& filePath)
+{
+    importFile_ << "        \"" << filePath << "\"";
+}
+
 bool StartupCfgGen::Output()
 {
     if (!Initialize()) {
@@ -66,34 +107,24 @@ bool StartupCfgGen::Output()
     if (!TemplateNodeSeparate()) {
         return false;
     }
-    HeaderTopOutput();
 
     if (!GetHostInfo()) {
         return false;
     }
     HostInfosOutput();
 
-    HeaderBottomOutput();
-
     return true;
 }
 
 bool StartupCfgGen::Initialize()
 {
-    std::string outFileName = Option::Instance().GetOutputName();
-    if (outFileName.empty()) {
-        outFileName = Option::Instance().GetSourceNameBase();
+    outFileName_ = option.GetOutputName();
+    if (outFileName_.empty()) {
+        outFileName_ = option.GetSourceNameBase();
     }
-    outFileName = Util::File::StripSuffix(outFileName).append(".cfg");
-    outFileName_ = Util::File::FileNameBase(outFileName);
+    outFileName_ = Util::File::StripSuffix(outFileName_);
 
-    ofs_.open(outFileName, std::ofstream::out | std::ofstream::binary);
-    if (!ofs_.is_open()) {
-        Logger().Error() << "failed to open output file: " << outFileName;
-        return false;
-    }
-
-    Logger().Debug() << "output: " << outFileName << outFileName_ << '\n';
+    Logger().Debug() << "outFileName: " << outFileName_ << '\n';
 
     return true;
 }
@@ -255,13 +286,102 @@ void StartupCfgGen::HostInfosOutput()
             (p1.second.hostId < p2.second.hostId) : (p1.second.hostPriority < p2.second.hostPriority);
     });
 
-    std::vector<std::pair<std::string, HostInfo>>::iterator it = vect.begin();
-    for (; it != vect.end(); ++it, ++cnt) {
+    bool isSeparate = option.ShouldGenSeparateConfig();
+    if (isSeparate) {
+        Logger().Debug() << "separate output";
+        HostConfigSeparateOutput(vect);
+    } else {
+        HostConfigWholeOutput(vect);
+    }
+}
+
+void StartupCfgGen::HostConfigWholeOutput(const std::vector<std::pair<std::string, HostInfo>> &vect)
+{
+    bool end = false;
+    uint32_t cnt = 1;
+    const uint32_t size = hostInfoMap_.size();
+
+    // treate as file name
+    fs::path path = fs::path(outFileName_);
+    if (!path.parent_path().empty() && !fs::exists(path.parent_path())) {
+        if (!fs::create_directories(path.parent_path())) {
+            Logger().Error() << "create parent path failed." << path.parent_path().string();
+            return;
+        }
+    }
+    std::string outPutFile = outFileName_.append(".cfg");
+
+    // Initialize output file
+    ofs_.open(outPutFile, std::ofstream::out | std::ofstream::binary);
+    if (!ofs_.is_open()) {
+        Logger().Error() << "failed to open output file: " << outPutFile;
+        return;
+    }
+
+    HeaderTopOutput();
+    std::vector<std::pair<std::string, HostInfo>>::const_iterator it = vect.cbegin();
+    for (; it != vect.cend(); ++it, ++cnt) {
         if (cnt == size) {
             end = true;
         }
         HostInfoOutput(it->first, end);
     }
+    HeaderBottomOutput();
+}
+
+void StartupCfgGen::HostConfigSeparateOutput(const std::vector<std::pair<std::string, HostInfo>> &vect)
+{
+    // generate import file
+    ImportFileHeaderTopOutput();
+    size_t count = 0;
+    // generate separate config files
+    for (auto it = vect.cbegin(); it != vect.cend(); ++it) {
+        ++count;
+        std::string fileName = outFileName_.empty() ? it->first : \
+            outFileName_ + OS_SEPARATOR + it->first;
+
+        fileName = Util::File::StripSuffix(fileName).append(".cfg");
+        ofs_.open(fileName, std::ofstream::out | std::ofstream::binary);
+        if (!ofs_.is_open()) {
+            Logger().Error() << "generate " << fileName << " failed";
+            continue;
+        }
+        HeaderTopOutput();
+        HostInfoOutput(it->first, true);
+        HeaderBottomOutput();
+
+        std::string relativePath;
+        if (fs::path(outFileName_).parent_path().empty()) {
+            relativePath = fileName;
+        } else {
+            relativePath = fs::relative(fileName, fs::path(outFileName_).parent_path()).string();
+        }
+
+        if (relativePath.empty()) {
+            continue;
+        }
+
+        InsertImportFilePath(ABSOLUTE_INSTALL_PATH + relativePath);
+        if (count != vect.size()) {
+            importFile_ << ",";
+        }
+        importFile_ << "\n";
+    }
+    // import file end
+    ImportFileHeaderBottomOutput();
+}
+
+bool StartupCfgGen::CreatePreDirectory()
+{
+    // generate files in directory
+    fs::path outPutDir = outFileName_;
+    if (!outPutDir.empty() && !fs::exists(outPutDir)) {
+        if (!fs::create_directories(outPutDir)) {
+            Logger().Error() << "create generated directories failed, dir: " << outPutDir;
+            return false;
+        }
+    }
+    return true;
 }
 
 void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)

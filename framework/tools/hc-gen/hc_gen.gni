@@ -56,6 +56,10 @@ template("hc_gen") {
       output_suffix = ".hcb"
     }
 
+    if (defined(invoker.extra_flags)) {
+      hc_flags += invoker.extra_flags
+    }
+
     if (defined(invoker.outputs)) {
       outputs = invoker.outputs
     } else {
@@ -68,6 +72,21 @@ template("hc_gen") {
       src = rebase_path(sources[0], root_build_dir)
     } else {
       src = "{{source}}"
+    }
+    if (defined(invoker.hc_gen_start_cfg) && invoker.hc_gen_start_cfg) {
+      is_separate = false
+      foreach (f, hc_flags) {
+        if (f == "--separate") {
+          is_separate = true
+        }
+      }
+      if (is_separate) {
+        outputs = []
+        foreach(o, invoker.outputs) {
+          outputs += [ string_replace(o, ".cfg", "") ]
+        }
+        outputs += invoker.outputs
+      }
     }
 
     args = [ rebase_path(

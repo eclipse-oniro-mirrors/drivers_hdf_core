@@ -44,6 +44,8 @@ public:
 
     bool ShouldGenStartConfig() const;
 
+    bool ShouldGenSeparateConfig() const;
+
     bool ShouldGenHexDump() const;
 
     bool ShouldDecompile() const;
@@ -81,6 +83,7 @@ private:
     bool shouldDecompile_ = false;
     bool verboseLog_ = false;
     bool optionError_ = false;
+    bool isCfgSeperate_ = false;
     std::string symbolNamePrefix_;
     std::string sourceName_;
     std::string sourceNameBase_;

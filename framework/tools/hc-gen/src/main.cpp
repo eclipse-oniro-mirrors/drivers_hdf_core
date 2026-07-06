@@ -18,7 +18,7 @@ using namespace OHOS::Hardware;
 
 int main(int argc, char *argv[])
 {
-    auto option = Option::Instance().Parse(argc, argv);
+    auto& option = Option::Instance().Parse(argc, argv);
     if (option.OptionError()) {
         return EFAIL;
     }
