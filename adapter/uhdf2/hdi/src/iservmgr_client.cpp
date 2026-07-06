@@ -134,7 +134,7 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
         return nullptr;
     }
 
-    MessageOption option;
+    MessageOption option{ MessageOption::TF_IMAGE };
     std::unique_lock<std::mutex> lock(g_remoteMutex);
     if (Remote() == nullptr) {
         HDF_LOGE("invalid param Remote()");
