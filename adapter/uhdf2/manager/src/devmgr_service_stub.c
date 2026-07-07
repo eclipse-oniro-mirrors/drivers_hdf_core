@@ -363,7 +363,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
     status = DevmgrServiceStartService((struct IDevmgrService *)&fullService->super);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: failed to start service", __func__);
-        DevSvcManagerRemoveService(serviceManager, DEVICE_MANAGER_SERVICE);
+        DevSvcManagerRemoveService(serviceManager, DEVICE_MANAGER_SERVICE, deviceObject);
         HdfRemoteServiceRecycle(remoteService);
         fullService->remote = NULL;
         OsalMemFree(deviceObject);
