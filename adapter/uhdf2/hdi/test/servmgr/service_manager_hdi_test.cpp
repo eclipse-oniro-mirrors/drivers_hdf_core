@@ -905,11 +905,11 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest001, TestSize.Level1)
     MessageOption option;
 
     // invalid code
-    int32_t ret = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_MAX, data, reply, option);
+    int32_t ret = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_MAX, data, reply, option);
     ASSERT_NE(ret, HDF_SUCCESS);
 
     // empty data
-    ret = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    ret = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_NE(ret, HDF_SUCCESS);
 }
 
@@ -927,7 +927,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest002, TestSize.Level1)
 
     bool ret = data.WriteInterfaceToken(IServStatListener::GetDescriptor());
     ASSERT_TRUE(ret);
-    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    int32_t reqRet = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_NE(reqRet, HDF_SUCCESS);
 }
 
@@ -948,7 +948,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest003, TestSize.Level1)
     ret = data.WriteCString("");
     ASSERT_TRUE(ret);
 
-    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    int32_t reqRet = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_NE(reqRet, HDF_SUCCESS);
 }
 
@@ -969,7 +969,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest004, TestSize.Level1)
     ret = data.WriteCString("test_service");
     ASSERT_TRUE(ret);
 
-    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    int32_t reqRet = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_NE(reqRet, HDF_SUCCESS);
 }
 
@@ -993,7 +993,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest005, TestSize.Level1)
     ret = data.WriteUint16(DeviceClass::DEVICE_CLASS_DEFAULT);
     ASSERT_TRUE(ret);
 
-    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    int32_t reqRet = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_NE(reqRet, HDF_SUCCESS);
 }
 
@@ -1020,7 +1020,7 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest006, TestSize.Level1)
     ret = data.WriteUint16(ServiceStatusType::SERVIE_STATUS_START);
     ASSERT_TRUE(ret);
 
-    int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
+    int32_t reqRet = listener->OnRemoteRequest(SERVICE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_EQ(reqRet, HDF_SUCCESS);
 }
 

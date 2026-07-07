@@ -30,6 +30,10 @@ static int WriteServiceInfo(
     struct HdfSBuf *data, struct HdfDeviceObject *service, const struct HdfServiceInfo *servInfo)
 {
     int ret = HDF_FAILURE;
+    if (service == NULL) {
+        HDF_LOGE("%{public}s: service is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (!HdfSbufWriteString(data, servInfo->servName)) {
         HDF_LOGE("Add service failed, failed to write service name");
         return ret;
@@ -45,6 +49,11 @@ static int WriteServiceInfo(
     }
     struct HdfDeviceNode *devNode =
         HDF_SLIST_CONTAINER_OF(struct HdfDeviceObject, service, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("%{public}s: devNode is null", __func__);
+        return ret;
+    }
+
     struct DeviceServiceStub *deviceFullService = (struct DeviceServiceStub *)devNode;
     if (deviceFullService->remote == NULL) {
         HDF_LOGE("%{public}s: device service is broken", __func__);
@@ -99,6 +108,10 @@ static int DevSvcManagerProxyAddService(
             WriteServiceInfo(data, service, servInfo) != HDF_SUCCESS) {
             break;
         }
+        if (serviceProxy->remote->dispatcher == NULL) {
+            HDF_LOGE("Add service failed, dispatcher is null");
+            break;
+        }
         status =
             serviceProxy->remote->dispatcher->Dispatch(serviceProxy->remote, DEVSVC_MANAGER_ADD_SERVICE, data, reply);
         HDF_LOGI("servmgr add service %{public}s, result is %{public}d", servInfo->servName, status);
@@ -139,6 +152,10 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
             WriteServiceInfo(data, service, servInfo) != HDF_SUCCESS) {
             break;
         }
+        if (serviceProxy->remote->dispatcher == NULL) {
+            HDF_LOGE("update service failed, dispatcher is null");
+            break;
+        }
         status = serviceProxy->remote->dispatcher->Dispatch(
             serviceProxy->remote, DEVSVC_MANAGER_UPDATE_SERVICE, data, reply);
         HDF_LOGI("servmgr update service %{public}s, result is %{public}d", servInfo->servName, status);
@@ -157,12 +174,21 @@ struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, cons
     struct HdfRemoteDispatcher *dispatcher = NULL;
     struct HdfRemoteService *remoteService = NULL;
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
+    if (serviceProxy == NULL) {
+        HDF_LOGE("Get service failed, serviceProxy is null");
+        return NULL;
+    }
+
     do {
         if ((serviceProxy->remote == NULL) || (data == NULL) || (reply == NULL)) {
             HDF_LOGE("Get service failed, serviceProxy->remote or data or reply is null");
             break;
         }
         dispatcher = serviceProxy->remote->dispatcher;
+        if (dispatcher == NULL) {
+            HDF_LOGE("Get service failed, dispatcher is null");
+            break;
+        }
         if (!HdfRemoteServiceWriteInterfaceToken(serviceProxy->remote, data) || !HdfSbufWriteString(data, svcName)) {
             break;
         }
@@ -198,6 +224,10 @@ void DevSvcManagerProxyRemoveService(struct IDevSvcManager *inst, const char *sv
         }
         remoteService = serviceProxy->remote;
         dispatcher = remoteService->dispatcher;
+        if (dispatcher == NULL || dispatcher->Dispatch == NULL) {
+            HDF_LOGE("Remove service failed, dispatcher is null");
+            break;
+        }
         if (!HdfRemoteServiceWriteInterfaceToken(serviceProxy->remote, data) || !HdfSbufWriteString(data, svcName)) {
             break;
         }

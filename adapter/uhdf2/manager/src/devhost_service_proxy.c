@@ -30,8 +30,8 @@ static int32_t DevHostServiceProxyOpsDevice(
     int status = HDF_FAILURE;
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     struct DevHostServiceProxy *hostClnt = (struct DevHostServiceProxy *)inst;
-    if (hostClnt->remote == NULL || data == NULL) {
-        HDF_LOGE("Adding device failed, hostClnt->remote or data or reply is null");
+    if (hostClnt->remote == NULL || hostClnt->remote->dispatcher == NULL || data == NULL) {
+        HDF_LOGE("Adding device failed, hostClnt->remote or dispatcher or data is null");
         goto FINISHED;
     }
 
@@ -54,8 +54,8 @@ static int32_t DevHostServiceProxyDelDevice(
     int status = HDF_FAILURE;
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     struct DevHostServiceProxy *hostClnt = (struct DevHostServiceProxy *)inst;
-    if (hostClnt->remote == NULL || data == NULL) {
-        HDF_LOGE("Del device failed, hostClnt->remote or data is null");
+    if (hostClnt->remote == NULL || hostClnt->remote->dispatcher == NULL || data == NULL) {
+        HDF_LOGE("Del device failed, hostClnt->remote or dispatcher or data is null");
         goto FINISHED;
     }
 
@@ -92,9 +92,14 @@ void DevHostServiceProxyOnRemoteDied(struct HdfDeathRecipient *recipient, struct
 
 static int32_t DevHostServicProxyDump(struct IDevHostService *inst, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    if (inst == NULL) {
+        HDF_LOGE("dump host failed, inst is null");
+        return HDF_FAILURE;
+    }
+
     struct DevHostServiceProxy *hostClnt = (struct DevHostServiceProxy *)inst;
-    if (hostClnt->remote == NULL || data == NULL || reply == NULL) {
-        HDF_LOGE("dump host failed, hostClnt->remote or data or reply is null");
+    if (hostClnt->remote == NULL || hostClnt->remote->dispatcher == NULL || data == NULL || reply == NULL) {
+        HDF_LOGE("dump host failed, hostClnt->remote or dispatcher or data or reply is null");
         return HDF_FAILURE;
     }
 

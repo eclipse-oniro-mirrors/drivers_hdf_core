@@ -124,6 +124,9 @@ static int OnKEventReceived(
 
 static int InitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *notifier)
 {
+    if (notifier->ioServiceListener.onReceive != NULL) {
+        return HDF_SUCCESS;
+    }
     if (notifier->keventIoService == NULL) {
         notifier->keventIoService = HdfIoServiceBind(KEVENT_IOSERVICE_NAME);
     }

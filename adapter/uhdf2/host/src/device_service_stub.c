@@ -61,6 +61,11 @@ static struct HdfRemoteDispatcher g_deviceServiceDispatcher = {
 
 int DeviceServiceStubPublishService(struct HdfDeviceNode *service)
 {
+    if (service == NULL) {
+        HDF_LOGE("%{public}s: service is NULL", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
     int status = HDF_FAILURE;
     struct DeviceServiceStub *fullService = (struct DeviceServiceStub *)service;
 
@@ -116,7 +121,9 @@ int DeviceServiceStubRemoveService(struct HdfDeviceNode *deviceNode)
     if (serviceManager == NULL || deviceNode == NULL) {
         return HDF_FAILURE;
     }
-    DevSvcManagerClntRemoveService(deviceNode->servName);
+    if (deviceNode->servName != NULL) {
+        DevSvcManagerClntRemoveService(deviceNode->servName);
+    }
     struct DeviceServiceStub *instance = (struct DeviceServiceStub *)deviceNode;
     HdfRemoteServiceRecycle(instance->remote);
     instance->remote = NULL;

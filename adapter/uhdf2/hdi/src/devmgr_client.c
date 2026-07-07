@@ -33,7 +33,7 @@ static void DevmgrFreeQueryDeviceListImpl(struct DeviceInfoList *list);
 static int32_t DeviceManagerHdiCall(struct HDIDeviceManager *iDevMgr, int32_t id,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    if (iDevMgr->remote == NULL || iDevMgr->remote->dispatcher == NULL ||
+    if (iDevMgr == NULL || iDevMgr->remote == NULL || iDevMgr->remote->dispatcher == NULL ||
         iDevMgr->remote->dispatcher->Dispatch == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -46,7 +46,7 @@ static int32_t HdfObtainDeviceInfo(struct DeviceInfoList *list, struct HdfSBuf *
     struct DeviceInfoNode *node = NULL;
     const char *svrName = NULL;
     char *base = NULL;
-    int32_t deviceType;
+    int32_t deviceType = 0;
 
     while ((svrName = HdfSbufReadString(reply))) {
         const size_t svrNameLen = strlen(svrName) + 1;
@@ -63,7 +63,11 @@ static int32_t HdfObtainDeviceInfo(struct DeviceInfoList *list, struct HdfSBuf *
             continue;
         }
         HDF_LOGD("%{public}s %{public}s", __func__, svrName);
-        HdfSbufReadInt32(reply, &deviceType);
+        if (!HdfSbufReadInt32(reply, &deviceType)) {
+            HDF_LOGE("failed to read device type for service %{public}s", svrName);
+            OsalMemFree(base);
+            continue;
+        }
         if (deviceType != HDF_LOCAL_SERVICE && deviceType != HDF_REMOTE_SERVICE) {
             HDF_LOGE("device type error %{public}d ", deviceType);
             OsalMemFree(base);
@@ -83,6 +87,9 @@ static int32_t DevmgrQueryDeviceInfo(struct HDIDeviceManager *iDevMgr, struct De
     struct HdfSBuf *data = NULL;
     int32_t ret;
 
+    if (iDevMgr == NULL || iDevMgr->remote == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
     reply = HdfSbufTypedObtain(SBUF_IPC);
     if (reply == NULL) {
         return HDF_ERR_MALLOC_FAIL;
@@ -156,8 +163,12 @@ static void DevmgrFreeQueryDeviceList(struct HDIDeviceManager *self, struct Devi
 
 static int32_t DevmgrProcessLoad(struct HDIDeviceManager *iDevMgr, const char *serviceName, int32_t id)
 {
+    if (iDevMgr == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
     int32_t status = HDF_FAILURE;
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
+
     do {
         if (data == NULL) {
             status = HDF_ERR_MALLOC_FAIL;

@@ -36,6 +36,11 @@ int32_t HdfLoadDriverByServiceName(const char *serviceName)
         ret = HDF_FAILURE;
         goto OUT;
     }
+    if (ioService == NULL || ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
+        HDF_LOGE("dispatcher is null");
+        ret = HDF_ERR_INVALID_OBJECT;
+        goto OUT;
+    }
     ret = ioService->dispatcher->Dispatch(&ioService->object, DEVMGR_LOAD_SERVICE, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("HdfLoadDriverByServiceName failed to load khdf driver %{public}s", serviceName);

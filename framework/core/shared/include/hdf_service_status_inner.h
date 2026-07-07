@@ -17,8 +17,8 @@ extern "C" {
 struct HdfSBuf;
 
 enum ServiceStatusListenerCmd {
-    SERVIE_STATUS_LISTENER_NOTIFY,
-    SERVIE_STATUS_LISTENER_MAX,
+    SERVICE_STATUS_LISTENER_NOTIFY,
+    SERVICE_STATUS_LISTENER_MAX,
 };
 
 int ServiceStatusMarshalling(struct ServiceStatus *status, struct HdfSBuf *buf);

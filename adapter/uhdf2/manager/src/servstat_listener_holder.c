@@ -91,8 +91,14 @@ int32_t UServStatListenerHolderNotifyStatus(struct ServStatListenerHolder *holde
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (holderInst->listenerRemote->dispatcher == NULL ||
+        holderInst->listenerRemote->dispatcher->DispatchAsync == NULL) {
+        HDF_LOGE("failed to notify service status, dispatcher is null");
+        HdfSbufRecycle(data);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     int ret = holderInst->listenerRemote->dispatcher->DispatchAsync(holderInst->listenerRemote,
-        SERVIE_STATUS_LISTENER_NOTIFY, data, NULL);
+        SERVICE_STATUS_LISTENER_NOTIFY, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("failed to notify service status, dispatch error");
         HdfSbufRecycle(data);
@@ -171,8 +177,10 @@ void ServStatListenerHolderRelease(struct ServStatListenerHolder *holder)
         OsalMutexUnlock(&g_holoderList.mutex);
     }
 
-    HdfRemoteServiceRecycle(holderInst->listenerRemote);
-    holderInst->listenerRemote = NULL;
+    if (holderInst->listenerRemote != NULL) {
+        HdfRemoteServiceRecycle(holderInst->listenerRemote);
+        holderInst->listenerRemote = NULL;
+    }
     OsalMemFree(holderInst);
 }
 

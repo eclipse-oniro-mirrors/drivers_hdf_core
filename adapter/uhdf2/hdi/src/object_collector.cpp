@@ -77,8 +77,8 @@ RETRY:
     std::unique_lock<std::mutex> lock(mutex_);
     auto it = interfaceObjectCollector_.find(interface.GetRefPtr());
     if (it != interfaceObjectCollector_.end()) {
-        if (it->second->GetSptrRefCount() == 0) {
-            // may object is releasing, yield to sync
+        if (it->second == nullptr || it->second->GetSptrRefCount() == 0) {
+            // may object is releasing or creation failed, yield to sync
             lock.unlock();
             std::this_thread::yield();
             goto RETRY;
