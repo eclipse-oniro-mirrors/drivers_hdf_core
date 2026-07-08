@@ -29,7 +29,7 @@ int ServStatListenerStub::OnRemoteRequest(
     uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
 {
     switch (code) {
-        case SERVICE_STATUS_LISTENER_NOTIFY:
+        case SERVIE_STATUS_LISTENER_NOTIFY:
             return ServStatListenerStubOnReceive(data, reply, option);
         default:
             HDF_LOGE("%{public}s: unknown request code %{public}u", __func__, code);
