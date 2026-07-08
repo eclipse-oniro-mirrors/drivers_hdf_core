@@ -34,7 +34,7 @@ int ServstatListenerStubRemoteDispatch(
     struct ServstatListenerStub *stub = (struct ServstatListenerStub *)remote;
     struct ServiceStatus status;
 
-    if (cmdid != SERVICE_STATUS_LISTENER_NOTIFY) {
+    if (cmdid != SERVIE_STATUS_LISTENER_NOTIFY) {
         return HDF_ERR_NOT_SUPPORT;
     }
     if (!HdfRemoteServiceCheckInterfaceToken(stub->remote, data)) {

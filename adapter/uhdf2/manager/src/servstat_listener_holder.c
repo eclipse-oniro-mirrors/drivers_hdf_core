@@ -98,7 +98,7 @@ int32_t UServStatListenerHolderNotifyStatus(struct ServStatListenerHolder *holde
         return HDF_ERR_INVALID_OBJECT;
     }
     int ret = holderInst->listenerRemote->dispatcher->DispatchAsync(holderInst->listenerRemote,
-        SERVICE_STATUS_LISTENER_NOTIFY, data, NULL);
+        SERVIE_STATUS_LISTENER_NOTIFY, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("failed to notify service status, dispatch error");
         HdfSbufRecycle(data);
