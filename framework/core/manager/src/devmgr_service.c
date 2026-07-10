@@ -36,6 +36,7 @@ static bool DevmgrServiceDynamicDevInfoFound(
         return false;
     }
 
+    OsalMutexLock(&devMgrSvc->devMgrMutex);
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&itDeviceInfo, &hostClnt->dynamicDevInfos);
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
@@ -43,11 +44,12 @@ static bool DevmgrServiceDynamicDevInfoFound(
             if (strcmp(deviceInfo->svcName, svcName) == 0) {
                 *targetDeviceInfo = deviceInfo;
                 *targetHostClnt = hostClnt;
+                OsalMutexUnlock(&devMgrSvc->devMgrMutex);
                 return true;
             }
         }
     }
-
+    OsalMutexUnlock(&devMgrSvc->devMgrMutex);
     return false;
 }
 
@@ -206,6 +208,7 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
         return HDF_FAILURE;
     }
 
+    OsalMutexLock(&devMgrSvc->devMgrMutex);
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&itDeviceInfo, &hostClnt->unloadDevInfos);
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
@@ -221,6 +224,7 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
             }
         }
     }
+    OsalMutexUnlock(&devMgrSvc->devMgrMutex);
     return HDF_SUCCESS;
 }
 
@@ -233,11 +237,15 @@ static struct DevHostServiceClnt *DevmgrServiceFindDeviceHost(struct IDevmgrServ
         return NULL;
     }
 
+    OsalMutexLock(&dmService->devMgrMutex);
     DLIST_FOR_EACH_ENTRY(hostClnt, &dmService->hosts, struct DevHostServiceClnt, node) {
         if (hostClnt->hostId == hostId) {
+            OsalMutexUnlock(&dmService->devMgrMutex);
             return hostClnt;
         }
     }
+    OsalMutexUnlock(&dmService->devMgrMutex);
+
     HDF_LOGE("cannot find host %{public}u", hostId);
     return NULL;
 }
@@ -324,9 +332,9 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
         DevHostServiceClntFreeInstance(hostClnt);
         return HDF_FAILURE;
     }
-
+    OsalMutexLock(&devmgr->devMgrMutex);
     DListInsertTail(&hostClnt->node, &devmgr->hosts);
-
+    OsalMutexUnlock(&devmgr->devMgrMutex);
     // not start the host which only have dynamic devices
     if (HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
         return HDF_SUCCESS;
@@ -379,6 +387,7 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
         return HDF_FAILURE;
     }
 
+    OsalMutexLock(&devMgrSvc->devMgrMutex);
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSbufWriteString(reply, hostClnt->hostName);
         HdfSbufWriteUint32(reply, hostClnt->hostId);
@@ -399,6 +408,7 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
             }
         }
     }
+    OsalMutexUnlock(&devMgrSvc->devMgrMutex);
     return HDF_SUCCESS;
 }
 
@@ -412,16 +422,20 @@ static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfS
         return HDF_FAILURE;
     }
 
+    OsalMutexLock(&devMgrSvc->devMgrMutex);
     if (!HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1)) {
+        OsalMutexUnlock(&devMgrSvc->devMgrMutex);
         HDF_LOGE("Sbuf Write host count failed");
         return HDF_FAILURE;
     }
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         if (!HdfSbufWriteInt32(reply, hostClnt->hostProcessId)) {
+            OsalMutexUnlock(&devMgrSvc->devMgrMutex);
             HDF_LOGE("%{public}s: Sbuf Write host pid failed", __func__);
             return HDF_FAILURE;
         }
     }
+    OsalMutexUnlock(&devMgrSvc->devMgrMutex);
 
     return HDF_SUCCESS;
 }
@@ -459,6 +473,7 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
 
     if (IsPowerWakeState(powerState)) {
         HDF_LOGI("%{public}s:wake state %{public}u", __func__, powerState);
+        OsalMutexLock(&devmgr->devMgrMutex);
         DLIST_FOR_EACH_ENTRY(hostClient, &devmgr->hosts, struct DevHostServiceClnt, node) {
             if (hostClient->hostService != NULL) {
                 if (hostClient->hostService->PmNotify(hostClient->hostService, powerState) != HDF_SUCCESS) {
@@ -466,8 +481,10 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
                 }
             }
         }
+        OsalMutexUnlock(&devmgr->devMgrMutex);
     } else {
         HDF_LOGI("%{public}s:suspend state %{public}u", __func__, powerState);
+        OsalMutexLock(&devmgr->devMgrMutex);
         DLIST_FOR_EACH_ENTRY_REVERSE(hostClient, &devmgr->hosts, struct DevHostServiceClnt, node) {
             if (hostClient->hostService != NULL) {
                 if (hostClient->hostService->PmNotify(hostClient->hostService, powerState) != HDF_SUCCESS) {
@@ -475,6 +492,7 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
                 }
             }
         }
+        OsalMutexUnlock(&devmgr->devMgrMutex);
     }
 
     return result;
@@ -539,10 +557,12 @@ void DevmgrServiceRelease(struct HdfObject *object)
     if (devmgrService == NULL) {
         return;
     }
+    OsalMutexLock(&devmgrService->devMgrMutex);
     DLIST_FOR_EACH_ENTRY_SAFE(hostClnt, hostClntTmp, &devmgrService->hosts, struct DevHostServiceClnt, node) {
         DListRemove(&hostClnt->node);
         DevHostServiceClntDelete(hostClnt);
     }
+    OsalMutexUnlock(&devmgrService->devMgrMutex);
 
     OsalMutexDestroy(&devmgrService->devMgrMutex);
 }
