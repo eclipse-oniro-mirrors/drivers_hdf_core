@@ -9,6 +9,7 @@
 #include "eth_chip_driver.h"
 #include "eth_device.h"
 #include "osal.h"
+#include "osal_mem.h"
 
 #define HDF_LOG_TAG eth_core
 struct EthConfig *g_ethConfig = NULL;
@@ -166,6 +167,9 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
     if (deviceObject == NULL) {
         HDF_LOGE("%s deviceObject is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
+    }
+    if (g_ethConfig != NULL) {
+        OsalMemFree(g_ethConfig);
     }
     g_ethConfig = GetEthConfig(deviceObject->property);
     if (g_ethConfig == NULL) {
