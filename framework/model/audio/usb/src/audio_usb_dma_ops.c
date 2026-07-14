@@ -930,21 +930,27 @@ static void AudioUsbCopyToUrb(
     struct AudioUsbDriver *audioUsbDriver, struct urb *urb, int offset, int stride, uint32_t bytes)
 {
     uint32_t bytes1;
+    uint32_t urbBufSize = urb->transfer_buffer_length;
 
     if (audioUsbDriver == NULL) {
         AUDIO_DEVICE_LOG_ERR("hdfAudioUsbDriver is null.");
         return;
     }
 
+    if (urbBufSize == 0 || offset >= urbBufSize || bytes > urbBufSize - offset) {
+        AUDIO_DEVICE_LOG_ERR("AudioUsbCopyToUrb: bytes %u overflow urb buf %u offset %d", bytes, urbBufSize, offset);
+        return;
+    }
+
     if (audioUsbDriver->renderHwptr + bytes > audioUsbDriver->renderBufInfo.cirBufSize * stride) {
         /* err, the transferred area goes over buffer boundary. */
         bytes1 = audioUsbDriver->renderBufInfo.cirBufSize * stride - audioUsbDriver->renderHwptr;
-        (void)memcpy_s(urb->transfer_buffer + offset, bytes1,
+        (void)memcpy_s(urb->transfer_buffer + offset, urbBufSize - offset,
             (char *)audioUsbDriver->renderBufInfo.virtAddr + audioUsbDriver->renderHwptr, bytes1);
-        (void)memcpy_s(urb->transfer_buffer + offset + bytes1, bytes - bytes1,
+        (void)memcpy_s(urb->transfer_buffer + offset + bytes1, urbBufSize - offset - bytes1,
             (char *)audioUsbDriver->renderBufInfo.virtAddr, bytes - bytes1);
     } else {
-        (void)memcpy_s(urb->transfer_buffer + offset, bytes,
+        (void)memcpy_s(urb->transfer_buffer + offset, urbBufSize - offset,
             (char *)audioUsbDriver->renderBufInfo.virtAddr + audioUsbDriver->renderHwptr, bytes);
     }
     audioUsbDriver->renderHwptr += bytes;
@@ -1052,8 +1058,10 @@ static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, stru
     uint32_t i;
     unsigned long flags;
     unsigned char *capPoint = NULL;
+    uint32_t cirBufTotalSize;
 
     frameSize = audioUsbDriver->capturePcmInfo.frameSize;
+    cirBufTotalSize = audioUsbDriver->captureBufInfo.cirBufSize * frameSize;
 
     for (i = 0; i < urb->number_of_packets; i++) {
         offset = urb->iso_frame_desc[i].offset;
@@ -1067,23 +1075,31 @@ static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, stru
             AUDIO_DEVICE_LOG_DEBUG("capture bytes = %d", bytes);
         }
 
+        if (bytes == 0 || bytes > cirBufTotalSize) {
+            AUDIO_DEVICE_LOG_ERR("AudioUsbRetireCaptureUrb: invalid bytes %u, cirBufTotalSize %u",
+                bytes, cirBufTotalSize);
+            continue;
+        }
+
         spin_lock_irqsave(&audioUsbDriver->lock, flags);
         oldptr = audioUsbDriver->captureHwptr;
         audioUsbDriver->captureHwptr += bytes;
-        if (audioUsbDriver->captureHwptr >= audioUsbDriver->captureBufInfo.cirBufSize * frameSize)
-            audioUsbDriver->captureHwptr -= audioUsbDriver->captureBufInfo.cirBufSize * frameSize;
+        if (audioUsbDriver->captureHwptr >= cirBufTotalSize)
+            audioUsbDriver->captureHwptr -= cirBufTotalSize;
         frames = (bytes + (oldptr % frameSize)) / frameSize;
         audioUsbDriver->captureTransferDone += frames;
         spin_unlock_irqrestore(&audioUsbDriver->lock, flags);
 
         /* copy a data chunk */
-        if (oldptr + bytes > audioUsbDriver->captureBufInfo.cirBufSize * frameSize) {
-            uint32_t bytes1 = audioUsbDriver->captureBufInfo.cirBufSize * frameSize - oldptr;
-            (void)memcpy_s((char *)audioUsbDriver->captureBufInfo.virtAddr + oldptr, bytes1, capPoint, bytes1);
+        if (oldptr + bytes > cirBufTotalSize) {
+            uint32_t bytes1 = cirBufTotalSize - oldptr;
+            (void)memcpy_s((char *)audioUsbDriver->captureBufInfo.virtAddr + oldptr,
+                cirBufTotalSize - oldptr, capPoint, bytes1);
             (void)memcpy_s(
-                (char *)audioUsbDriver->captureBufInfo.virtAddr, bytes - bytes1, capPoint + bytes1, bytes - bytes1);
+                (char *)audioUsbDriver->captureBufInfo.virtAddr, cirBufTotalSize, capPoint + bytes1, bytes - bytes1);
         } else {
-            (void)memcpy_s((char *)audioUsbDriver->captureBufInfo.virtAddr + oldptr, bytes, capPoint, bytes);
+            (void)memcpy_s((char *)audioUsbDriver->captureBufInfo.virtAddr + oldptr,
+                cirBufTotalSize - oldptr, capPoint, bytes);
         }
     }
 }

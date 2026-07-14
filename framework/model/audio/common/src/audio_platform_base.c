@@ -337,12 +337,17 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     }
     wPtr = data->renderBufInfo.wbufOffSet % data->renderBufInfo.cirBufSize;
 
+    if (wPtr + data->renderBufInfo.trafBufSize > data->renderBufInfo.cirBufSize) {
+        AUDIO_DRIVER_LOG_ERR("wPtr + trafBufSize overflow cirBufSize.");
+        return HDF_FAILURE;
+    }
+
     if (data->renderBufInfo.virtAddr == NULL) {
         AUDIO_DRIVER_LOG_ERR("render buffer is null.");
         return HDF_FAILURE;
     }
     ret = memcpy_s((char *)(data->renderBufInfo.virtAddr) + wPtr,
-        data->renderBufInfo.trafBufSize, txData->buf, data->renderBufInfo.trafBufSize);
+        data->renderBufInfo.cirBufSize - wPtr, txData->buf, data->renderBufInfo.trafBufSize);
     if (ret != 0) {
         AUDIO_DRIVER_LOG_ERR("memcpy_s failed.");
         return HDF_FAILURE;
@@ -449,6 +454,12 @@ static int32_t MmapWriteData(struct PlatformData *data, char *tmpBuf)
     }
 
     wPtr = data->renderBufInfo.wbufOffSet % data->renderBufInfo.cirBufSize;
+
+    if (wPtr + data->renderBufInfo.trafBufSize > data->renderBufInfo.cirBufSize) {
+        AUDIO_DRIVER_LOG_ERR("wPtr + trafBufSize overflow cirBufSize.");
+        return HDF_FAILURE;
+    }
+
     ret = CopyFromUser(tmpBuf, (char *)data->mmapData.memoryAddress + data->mmapData.offset,
         data->renderBufInfo.trafBufSize);
     if (ret != EOK) {
@@ -456,8 +467,8 @@ static int32_t MmapWriteData(struct PlatformData *data, char *tmpBuf)
         return HDF_FAILURE;
     }
 
-    ret = memcpy_s((char *)(data->renderBufInfo.virtAddr) + wPtr, data->renderBufInfo.trafBufSize,
-        tmpBuf, data->renderBufInfo.trafBufSize);
+    ret = memcpy_s((char *)(data->renderBufInfo.virtAddr) + wPtr,
+        data->renderBufInfo.cirBufSize - wPtr, tmpBuf, data->renderBufInfo.trafBufSize);
     if (ret != 0) {
         AUDIO_DRIVER_LOG_ERR("memcpy_s failed.");
         return HDF_FAILURE;

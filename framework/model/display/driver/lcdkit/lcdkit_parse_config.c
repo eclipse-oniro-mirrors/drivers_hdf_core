@@ -11,6 +11,7 @@
 #include "hdf_core_log.h"
 
 #define MAX_ARRAY_LEN 1000000
+#define MAX_CMD_COUNT 10000
 
 #define PARSE_PANEL_SYMBOL(node, ops, symbol, out) do { \
     if ((ops)->GetUint32((node), (symbol), (out), 0)) { \
@@ -48,6 +49,11 @@ static void FreeDsiPayload(struct DsiCmdDesc *dsiCmd, int32_t num)
 
 static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, int32_t len)
 {
+    if (count <= 0 || count > MAX_CMD_COUNT) {
+        HDF_LOGE("%s: invalid count %d", __func__, count);
+        OsalMemFree(array);
+        return HDF_FAILURE;
+    }
     struct DsiCmdDesc *dsiCmd = (struct DsiCmdDesc *)OsalMemCalloc(count * sizeof(struct DsiCmdDesc));
     if (dsiCmd == NULL) {
         HDF_LOGE("%s: OsalMemCalloc failed", __func__);
@@ -61,9 +67,27 @@ static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, 
     uint8_t *tmpArray = array;
     struct DsiCmdDesc *tmpCmd = dsiCmd;
     while (count > 0 && len > 0) {
+        if (len < DSI_CMD_HEAD) {
+            HDF_LOGE("%s: invalid len %d, less than DSI_CMD_HEAD", __func__, len);
+            FreeDsiPayload(dsiCmd, num);
+            OsalMemFree(array);
+            OsalMemFree(dsiCmd);
+            cmd->dsiCmd = NULL;
+            cmd->count = 0;
+            return HDF_FAILURE;
+        }
         tmpCmd->dataType = tmpArray[DATA_TYPE];
         tmpCmd->delay = tmpArray[CMD_DELAY];
         tmpCmd->dataLen = tmpArray[DATA_LEN];
+        if (len < DSI_CMD_HEAD + tmpCmd->dataLen) {
+            HDF_LOGE("%s: invalid len %d, less than DSI_CMD_HEAD + dataLen %d", __func__, len, tmpCmd->dataLen);
+            FreeDsiPayload(dsiCmd, num);
+            OsalMemFree(array);
+            OsalMemFree(dsiCmd);
+            cmd->dsiCmd = NULL;
+            cmd->count = 0;
+            return HDF_FAILURE;
+        }
         tmpCmd->payload = (uint8_t *)OsalMemCalloc(tmpCmd->dataLen * sizeof(uint8_t));
         if (tmpCmd->payload == NULL) {
             HDF_LOGE("%s: OsalMemCalloc failed", __func__);
@@ -75,7 +99,7 @@ static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, 
             return HDF_FAILURE;
         }
 
-        ret = memcpy_s(tmpCmd->payload, tmpCmd->dataLen, &tmpArray[DSI_CMD_HEAD], DSI_CMD_HEAD);
+        ret = memcpy_s(tmpCmd->payload, tmpCmd->dataLen, &tmpArray[DSI_CMD_HEAD], tmpCmd->dataLen);
         if (ret != EOK) {
             HDF_LOGE("%s: memcpy_s failed, ret %d", __func__, ret);
             FreeDsiPayload(dsiCmd, num);
@@ -86,11 +110,11 @@ static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, 
             return ret;
         }
 
+        len -= DSI_CMD_HEAD + tmpCmd->dataLen;
         tmpArray += DSI_CMD_HEAD + tmpCmd->dataLen;
         tmpCmd++;
         count--;
         num++;
-        len -= DSI_CMD_HEAD + tmpCmd->dataLen;
     }
     OsalMemFree(array);
     return HDF_SUCCESS;
