@@ -337,7 +337,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     }
     wPtr = data->renderBufInfo.wbufOffSet % data->renderBufInfo.cirBufSize;
 
-    if (wPtr + data->renderBufInfo.trafBufSize > data->renderBufInfo.cirBufSize) {
+    if (wPtr > data->renderBufInfo.cirBufSize - data->renderBufInfo.trafBufSize) {
         AUDIO_DRIVER_LOG_ERR("wPtr + trafBufSize overflow cirBufSize.");
         return HDF_FAILURE;
     }
@@ -455,7 +455,7 @@ static int32_t MmapWriteData(struct PlatformData *data, char *tmpBuf)
 
     wPtr = data->renderBufInfo.wbufOffSet % data->renderBufInfo.cirBufSize;
 
-    if (wPtr + data->renderBufInfo.trafBufSize > data->renderBufInfo.cirBufSize) {
+    if (wPtr > data->renderBufInfo.cirBufSize - data->renderBufInfo.trafBufSize) {
         AUDIO_DRIVER_LOG_ERR("wPtr + trafBufSize overflow cirBufSize.");
         return HDF_FAILURE;
     }

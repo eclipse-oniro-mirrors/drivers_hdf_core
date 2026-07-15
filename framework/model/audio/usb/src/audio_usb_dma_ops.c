@@ -937,7 +937,7 @@ static void AudioUsbCopyToUrb(
         return;
     }
 
-    if (urbBufSize == 0 || offset >= urbBufSize || bytes > urbBufSize - offset) {
+    if (urbBufSize == 0 || offset < 0 || offset >= urbBufSize || bytes > urbBufSize - offset) {
         AUDIO_DEVICE_LOG_ERR("AudioUsbCopyToUrb: bytes %u overflow urb buf %u offset %d", bytes, urbBufSize, offset);
         return;
     }
