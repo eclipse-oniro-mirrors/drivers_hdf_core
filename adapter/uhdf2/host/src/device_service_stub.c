@@ -26,6 +26,10 @@
 int DeviceServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    if (stub == NULL) {
+        HDF_LOGE("%{public}s: stub is null", __func__);
+        return HDF_FAILURE;
+    }
     struct DeviceServiceStub *service = (struct DeviceServiceStub *)stub;
     int ret = HDF_FAILURE;
 

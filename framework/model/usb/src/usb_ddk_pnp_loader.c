@@ -437,7 +437,7 @@ static int32_t UsbDdkPnpLoaderParseIdInferface(const struct DeviceResourceNode *
 
     table->interfaceMask = 0;
     table->interfaceLength = devResIface->GetElemNum(node, "interfaceNumber");
-    if (table->interfaceLength <= 0) {
+    if (table->interfaceLength <= 0 || table->interfaceLength > USB_PNP_INFO_MAX_INTERFACES) {
         HDF_LOGE("%s: read interfaceNumber length=%d fail!", __func__, table->interfaceLength);
         return HDF_FAILURE;
     }
@@ -777,6 +777,11 @@ static int32_t UsbDdkPnpLoaderrAddPnpDevice(struct HdfDeviceObject *usbPnpManage
     }
 
     struct UsbPnpNotifyServiceInfo serviceInfo;
+    if (idTable->interfaceLength > USB_PNP_INFO_MAX_INTERFACES || idTable->interfaceLength < 0) {
+        HDF_LOGE("%{public}s:%{public}d invalid interfaceLength=%{public}d",
+            __func__, __LINE__, idTable->interfaceLength);
+        return HDF_ERR_INVALID_PARAM;
+    }
     serviceInfo.length =
         sizeof(struct UsbPnpNotifyServiceInfo) - (USB_PNP_INFO_MAX_INTERFACES - idTable->interfaceLength);
     serviceInfo.devNum = infoTable->devNum;
@@ -856,6 +861,12 @@ static int32_t UsbDdkPnpLoaderRemoveHandle(
     struct HdfSBuf *pnpData = NULL;
     int32_t ret = HDF_SUCCESS;
 
+    if (deviceListTablePos->interfaceLength > USB_PNP_INFO_MAX_INTERFACES ||
+        deviceListTablePos->interfaceLength < 0) {
+        HDF_LOGE("%{public}s:%{public}d invalid interfaceLength=%{public}d",
+            __func__, __LINE__, deviceListTablePos->interfaceLength);
+        return HDF_ERR_INVALID_PARAM;
+    }
     serviceInfo.length = (uint32_t)(sizeof(struct UsbPnpNotifyServiceInfo) -
         (USB_PNP_INFO_MAX_INTERFACES - deviceListTablePos->interfaceLength));
     serviceInfo.devNum = deviceListTablePos->devNum;
