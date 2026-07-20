@@ -131,7 +131,7 @@ static bool HdfDevMgrDbgFillDeviceInfo(std::vector<HdiDevHostInfo> &hostInfos, M
             return false;
         }
 
-        if (devCnt > hostInfo.devInfo.max_size()) {
+        if (devCnt > HDF_MAX_HOST_COUNT) {
             HDF_LOGE("invalid len of device info");
             return false;
         }

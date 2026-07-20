@@ -259,12 +259,18 @@ bool NativeBuffer::ReadReserveData(MessageParcel &messageParcel, BufferHandle &h
         handle.reserve[i] = messageParcel.ReadFileDescriptor();
         if (handle.reserve[i] == -1) {
             HDF_LOGE("%{public}s: failed to read reserved fd value", __func__);
+            for (uint32_t k=0; k<i; k++) {
+                close(handle.reserve[k]);
+            }
             return false;
         }
     }
     for (uint32_t j = 0; j < handle.reserveInts; j++) {
         if (!messageParcel.ReadInt32(handle.reserve[handle.reserveFds + j])) {
             HDF_LOGE("%{public}s: failed to read reserved integer value", __func__);
+            for (uint32_t k=0; k<handle.reserveFds; k++) {
+                close(handle.reserve[k]);
+            }
             return false;
         }
     }

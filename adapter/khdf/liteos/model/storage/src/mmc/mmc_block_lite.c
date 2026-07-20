@@ -102,7 +102,8 @@ static ssize_t LiteosBlockRead(FAR struct Vnode *vnode, FAR unsigned char *buf,
     max = (size_t)(-1);
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
 
-    if (secStart >= max || nSecs >= max) {
+    if (secStart > (unsigned long long)SIZE_MAX ||
+        nSecs > (unsigned long long)SIZE_MAX) {
         HDF_LOGE("LiteosBlockRead: secStart or nSecs is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
@@ -127,7 +128,8 @@ static ssize_t LiteosBlockWrite(FAR struct Vnode *vnode, FAR const unsigned char
     max = (size_t)(-1);
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
 
-    if (secStart >= max || nSecs >= max) {
+    if (secStart > (unsigned long long)SIZE_MAX ||
+        nSecs > (unsigned long long)SIZE_MAX) {
         HDF_LOGE("LiteosBlockWrite: secStart or nSecs is invaild!");
         return HDF_ERR_INVALID_PARAM;
     }

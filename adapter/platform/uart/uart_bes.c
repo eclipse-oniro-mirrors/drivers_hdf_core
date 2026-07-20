@@ -758,7 +758,12 @@ static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t si
         ret = recvSize;
     } else {
         if (g_uartCtx[uartId].isBlock) {
-            data[0] = hal_uart_blocked_getc(uartId);
+            int32_t ch = hal_uart_blocked_getc(uartId);
+            if (ch < 0) {
+                HDF_LOGE("uart %Id blocked getc error\r\n", uartId);
+                return HDF_FAILURE;
+            }
+            data[0] = (uint8_t)ch;
         } else {
             if (hal_uart_readable(uartId) > 0) {
                 data[0] = hal_uart_getc(uartId);
