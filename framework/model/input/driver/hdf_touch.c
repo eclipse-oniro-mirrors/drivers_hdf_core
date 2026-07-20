@@ -268,6 +268,11 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
     uint32_t rstPinValue;
     uint32_t intPinAddr;
     uint32_t intPinValue;
+
+    if (chipDev == NULL || chipDev->driver == NULL) {
+        HDF_LOGE("%s: chipDev or driver is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     TouchDriver *driver = chipDev->driver;
     PowerEventHandler eventHandler;
     SeqArray *src = NULL;

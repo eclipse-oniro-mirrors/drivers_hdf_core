@@ -24,6 +24,10 @@ static int32_t GetDsiCmdCount(uint8_t *array, int32_t len, uint32_t *count)
     int32_t cnt = 0;
     uint8_t dlen;
 
+    if (array == NULL || count == NULL) {
+        HDF_LOGE("%s: array or count is null", __func__);
+        return HDF_FAILURE;
+    }
     while (len > 0) {
         dlen = array[DATA_LEN];
         array = array + DSI_CMD_HEAD + dlen;

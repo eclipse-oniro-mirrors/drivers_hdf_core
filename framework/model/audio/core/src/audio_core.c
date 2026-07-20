@@ -840,6 +840,10 @@ int32_t AudioCodecGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioC
         return HDF_ERR_INVALID_OBJECT;
     }
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
+    if (mixerCtrl == NULL) {
+        ADM_LOG_ERR("mixerCtrl is NULL.");
+        return HDF_ERR_INVALID_OBJECT;
+    }
     codec = AudioKcontrolGetCodec(kcontrol);
     if (codec == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");
@@ -958,6 +962,11 @@ int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct 
     }
 
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
+    if (mixerCtrl == NULL) {
+        ADM_LOG_ERR("mixerCtrl is NULL.");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
     if (AudioSetCtrlOpsReg(kcontrol, elemValue, mixerCtrl, &value) != HDF_SUCCESS) {
         ADM_LOG_ERR("AudioSetCtrlOpsReg is fail.");
         return HDF_ERR_INVALID_OBJECT;
@@ -1103,6 +1112,10 @@ int32_t AudioCpuDaiGetCtrlOps(const struct AudioKcontrol *kcontrol, struct Audio
         return HDF_ERR_INVALID_OBJECT;
     }
     mixerCtrl = (struct AudioMixerControl *)((volatile uintptr_t)kcontrol->privateValue);
+    if (mixerCtrl == NULL) {
+        ADM_LOG_ERR("mixerCtrl is NULL.");
+        return HDF_ERR_INVALID_OBJECT;
+    }
     dai = AudioKcontrolGetCpuDai(kcontrol);
     if (dai == NULL) {
         ADM_LOG_ERR("mixerCtrl and codec is NULL.");

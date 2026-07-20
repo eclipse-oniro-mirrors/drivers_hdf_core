@@ -100,6 +100,10 @@ int SharedMemQueueSyncer::Wake(uint32_t bitset)
 
 int SharedMemQueueSyncer::CheckSyncStatus(uint32_t bitset)
 {
+    if (syncAddr_ == nullptr) {
+        HDF_LOGE("CheckSyncStatus: syncAddr_ is nullptr!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     uint32_t syncWordOld = std::atomic_load(syncAddr_);
     if (syncWordOld & bitset) {
         return HDF_SUCCESS;

@@ -62,6 +62,10 @@ int32_t KeyIrqHandle(uint16_t intGpioNum, void *data)
 
 static int32_t SetupKeyIrq(KeyDriver *keyDrv)
 {
+    if (keyDrv ==NULL || keyDrv->keyCfg == NULL) {
+        HDF_LOGE("%s: keyDrv or keyCfg is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     uint16_t intGpioNum = keyDrv->keyCfg->gpioNum;
     uint16_t irqFlag = keyDrv->keyCfg->irqFlag;
     int32_t ret = GpioSetDir(intGpioNum, GPIO_DIR_IN);

@@ -346,6 +346,13 @@ int32_t GyroInitDriver(struct HdfDeviceObject *device)
         return HDF_FAILURE;
     }
 
+    if (g_regCfgGroup[0] == NULL) {
+        HDF_LOGE("%s: g_regCfgGroup is not initialized", __func__);
+        OsalMemFree(drvData->gyroCfg);
+        drvData->gyroCfg = NULL;
+        return HDF_FAILURE;
+    }
+
     drvData->gyroCfg->regCfgGroup = &g_regCfgGroup[0];
 
     HDF_LOGI("%s: Init gyro driver success", __func__);

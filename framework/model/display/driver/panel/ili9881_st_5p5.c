@@ -462,6 +462,10 @@ static int32_t PanelSendCmds(struct mipi_dsi_device *dsi,
         HDF_LOGE("dsi is NULL");
         return -EINVAL;
     }
+    if (cmds == NULL) {
+        HDF_LOGE("PanelSendCmds: cmds is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     for (i = 0; i < size; i++) {
         mipi_dsi_dcs_write_buffer(dsi, cmds[i].payload, cmds[i].dataLen);
         if (cmds[i].delay) {
@@ -498,7 +502,15 @@ static int32_t PanelPrepare(struct PanelData *panel)
     int32_t ret;
     struct panel_ili9881_dev *panel_dev = NULL;
 
+    if (panel == NULL) {
+        HDF_LOGE("%s: panel is NULL", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     panel_dev = ToPanelSimpleDev(panel);
+    if (panel_dev == NULL) {
+        HDF_LOGE("%s: panel_dev is NULL", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     ret = regulator_enable(panel_dev->supply);
     if (ret < 0) {
         HDF_LOGE("failed to enable supply: %d\n", ret);
