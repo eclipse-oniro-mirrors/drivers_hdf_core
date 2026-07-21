@@ -1,8 +1,0 @@
-git {
-  "permissions": {
-    "allow": [
-      "Bash(grep -n \"make\\\\\\\\.\\\\.\\\\| CC \\\\| LD \\\\|error:\" ./ditribute_job_client_failed)",
-      "Bash(git *)"
-    ]
-  }
-}
