@@ -397,7 +397,6 @@ static int32_t WifiCmdSetScanningMacAddress(const RequestContext *context, struc
 static int32_t HdfCmdfillPnoSettings(struct HdfSBuf *reqData,  WifiPnoSettings *pnoSettings)
 {
     uint32_t dataSize = 0;
-
     if (!HdfSbufReadInt32(reqData, &(pnoSettings->min2gRssi))) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "min2gRssi");
         return HDF_FAILURE;
@@ -418,7 +417,6 @@ static int32_t HdfCmdfillPnoSettings(struct HdfSBuf *reqData,  WifiPnoSettings *
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "pnoNetworksLen");
         return HDF_FAILURE;
     }
-	
     pnoSettings->pnoNetworks = (WifiPnoNetwork *)OsalMemAlloc(sizeof(WifiPnoNetwork) * pnoSettings->pnoNetworksLen);
     if (pnoSettings->pnoNetworks == NULL) {
         HDF_LOGE("%s: alloc memory failed.", __func__);
@@ -427,21 +425,24 @@ static int32_t HdfCmdfillPnoSettings(struct HdfSBuf *reqData,  WifiPnoSettings *
     for (uint32_t i = 0; i < pnoSettings->pnoNetworksLen; i++) {
         if (!HdfSbufReadUint8(reqData, &(pnoSettings->pnoNetworks[i].isHidden))) {
             HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "isHidden");
-            return HDF_FAILURE;
+            goto ERROR;
         }
         if (!HdfSbufReadBuffer(reqData, (const void **)&pnoSettings->pnoNetworks[i].freqs, &dataSize)) {
             HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freqs");
-            return HDF_FAILURE;
+            goto ERROR;
         }
         pnoSettings->pnoNetworks[i].freqsLen = dataSize / sizeof(pnoSettings->pnoNetworks[i].freqs[0]);
         if (!HdfSbufReadBuffer(reqData, (const void **)&pnoSettings->pnoNetworks[i].ssid.ssid,
             &(pnoSettings->pnoNetworks[i].ssid.ssidLen))) {
             HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ssid");
-            return HDF_FAILURE;
+            goto ERROR;
         }
     }
-
     return HDF_SUCCESS;
+ ERROR:
+    OsalMemFree(pnoSettings->pnoNetworks);
+    pnoSettings->pnoNetworks = NULL;
+    return HDF_FAILURE;
 }
 
 static int32_t HdfWlanStartPnoScan(const char *ifName, const WifiPnoSettings *pnoSettings)
