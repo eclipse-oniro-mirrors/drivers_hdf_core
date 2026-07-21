@@ -18,6 +18,7 @@
 #include <hdf_remote_service.h>
 #include <hdf_service_status_inner.h>
 #include <osal_mem.h>
+#include "securec.h"
 
 #define SERVSTAT_LISTENER_INTERFACE_DESCRIPTOR "HDI.IServiceStatusListener.V1_0"
 #define HDF_LOG_TAG servstat_listener
