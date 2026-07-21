@@ -245,7 +245,7 @@ static int32_t ReadData(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *dat
     }
 
     if (events.data == NULL || events.dataLen == 0) {
-        HDF_LOG("%s: events data is invalid", __func__);
+        HDF_LOGE("%s: events data is invalid", __func__);
         return HDF_FAILURE;
     }
 

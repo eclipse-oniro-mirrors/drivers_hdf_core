@@ -178,7 +178,7 @@ static struct HdfChipDriverFactory *HdfWlanGetDriverFactory(const char *driverNa
     HDF_LOGD("%s: HdfWlanGetDriverFactory finished!", __func__);
     if (initMgr->GetChipDriverByName == NULL) {
         HDF_LOGE("%s: GetChipDriverByName is null", __func__);
-        return;
+        return NULL;
     }
     return initMgr->GetChipDriverByName(driverName);
 }
