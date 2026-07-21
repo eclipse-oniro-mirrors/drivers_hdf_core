@@ -20,9 +20,15 @@
 
 static struct CameraConfigRoot g_configCameraRoot;
 
-static void SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, const int *ctrlValue)
+static int32_t SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, const int *ctrlValue)
 {
     int32_t i;
+
+    if (ctrlValueNum %CTRL_INFO_COUNT != 0) {
+        HDF_LOGE("%s:ctrlValueNum is not multiple of CTRL_INFO_COUNT,
+            ctrlValueNum=%{public}d", __func__, ctrlValueNum);
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     for (i = 0; i < ctrlValueNum; i += CTRL_INFO_COUNT) {
         ctrlCap[i / CTRL_INFO_COUNT].ctrlId = ctrlValue[i + CTRL_ID_INDEX];
@@ -35,6 +41,7 @@ static void SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, const 
             ctrlCap[i / CTRL_INFO_COUNT].ctrlId, ctrlCap[i / CTRL_INFO_COUNT].max, ctrlCap[i / CTRL_INFO_COUNT].min,
             ctrlCap[i / CTRL_INFO_COUNT].step, ctrlCap[i / CTRL_INFO_COUNT].def);
     }
+    return HDF_SUCCESS;
 }
 
 static int32_t ParseCameraSensorDeviceConfig(const struct DeviceResourceNode *node,
@@ -59,7 +66,8 @@ static int32_t ParseCameraSensorDeviceConfig(const struct DeviceResourceNode *no
     }
     ret = drsOps->GetUint32Array(node, "ctrlValue", sensorConfig->ctrlValue, sensorConfig->ctrlValueNum, 0);
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
-    SetCtrlCapInfo(sensorConfig->ctrlCap, sensorConfig->ctrlValueNum, sensorConfig->ctrlValue);
+    ret = SetCtrlCapInfo(sensorConfig->ctrlCap, sensorConfig->ctrlValueNum, sensorConfig->ctrlValue);
+    CHECK_PARSER_CONFIG_RET(ret, "ctrlCap");
 
     HDF_LOGD("%s: name=%{public}s, id=%{public}d, exposure=%{public}d, mirror=%{public}d, gain=%{public}d",
         __func__, sensorConfig->name, sensorConfig->id, sensorConfig->exposure, sensorConfig->mirror,
@@ -100,7 +108,8 @@ static int32_t ParseCameraIspDeviceConfig(const struct DeviceResourceNode *node,
     }
     ret = drsOps->GetUint32Array(node, "ctrlValue", ispConfig->ctrlValue, ispConfig->ctrlValueNum, 0);
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
-    SetCtrlCapInfo(ispConfig->ctrlCap, ispConfig->ctrlValueNum, ispConfig->ctrlValue);
+    ret = SetCtrlCapInfo(ispConfig->ctrlCap, ispConfig->ctrlValueNum, ispConfig->ctrlValue);
+    CHECK_PARSER_CONFIG_RET(ret, "ctrlCap");
 
     HDF_LOGD("%s: name=%{public}s, id=%{public}d, brightness=%{public}d, contrast=%{public}d, saturation=%{public}d, "
         "sharpness=%{public}d, gain=%{public}d, gamma=%{public}d, whiteBalance=%{public}d", __func__, ispConfig->name,
@@ -133,7 +142,8 @@ static int32_t ParseCameraVcmDeviceConfig(const struct DeviceResourceNode *node,
     }
     ret = drsOps->GetUint32Array(node, "ctrlValue", vcmConfig->ctrlValue, vcmConfig->ctrlValueNum, 0);
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
-    SetCtrlCapInfo(vcmConfig->ctrlCap, vcmConfig->ctrlValueNum, vcmConfig->ctrlValue);
+    ret = SetCtrlCapInfo(vcmConfig->ctrlCap, vcmConfig->ctrlValueNum, vcmConfig->ctrlValue);
+    CHECK_PARSER_CONFIG_RET(ret, "ctrlCap");
 
     HDF_LOGD("%s: name=%{public}s, id=%{public}d, focus=%{public}d, autoFocus=%{public}d, zoom=%{public}d,"
         "zoomMaxNum=%{public}d", __func__, vcmConfig->name, vcmConfig->id, vcmConfig->focus, vcmConfig->autoFocus,
@@ -160,7 +170,8 @@ static int32_t ParseCameraLensDeviceConfig(const struct DeviceResourceNode *node
     }
     ret = drsOps->GetUint32Array(node, "ctrlValue", lensConfig->ctrlValue, lensConfig->ctrlValueNum, 0);
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
-    SetCtrlCapInfo(lensConfig->ctrlCap, lensConfig->ctrlValueNum, lensConfig->ctrlValue);
+    ret = SetCtrlCapInfo(lensConfig->ctrlCap, lensConfig->ctrlValueNum, lensConfig->ctrlValue);
+    CHECK_PARSER_CONFIG_RET(ret, "ctrlCap");
 
     HDF_LOGD("%s: name=%{public}s, id=%{public}d, aperture=%{public}d", __func__,
         lensConfig->name, lensConfig->id, lensConfig->aperture);
@@ -187,7 +198,8 @@ static int32_t ParseCameraFlashDeviceConfig(const struct DeviceResourceNode *nod
     }
     ret = drsOps->GetUint32Array(node, "ctrlValue", flashConfig->ctrlValue, flashConfig->ctrlValueNum, 0);
     CHECK_PARSER_CONFIG_RET(ret, "ctrlValue");
-    SetCtrlCapInfo(flashConfig->ctrlCap, flashConfig->ctrlValueNum, flashConfig->ctrlValue);
+    ret = SetCtrlCapInfo(flashConfig->ctrlCap, flashConfig->ctrlValueNum, flashConfig->ctrlValue);
+    CHECK_PARSER_CONFIG_RET(ret, "ctrlCap");
 
     HDF_LOGD("%s: name=%{public}s, id=%{public}d, flashMode=%{public}d, flashIntensity=%{public}d", __func__,
         flashConfig->name, flashConfig->id, flashConfig->flashMode, flashConfig->flashIntensity);
@@ -329,6 +341,10 @@ static int32_t ParseCameraLensConfig(const struct DeviceResourceNode *node,
 
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
+        if (cnt >= CAMERA_DEVICE_MAX_NUM) {
+            HDF_LOGE("%s: lens num exceeds max!", __func__);
+            return HDF_FAILURE;
+        }
         if (ParseCameraLensDeviceConfig(childNode, drsOps, &lensConfig->lens[cnt]) != HDF_SUCCESS) {
             HDF_LOGE("%s: Parse lens[%{public}d] failed!", __func__, cnt);
             return HDF_FAILURE;
@@ -479,6 +495,10 @@ static int32_t ParseCameraConfig(const struct DeviceResourceNode *node,
 
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode)
     {
+        if (cnt >= CAMERA_MAX_NUM) {
+            HDF_LOGE("%s: device num exceeds max!", __func__);
+            return HDF_FAILURE;
+        }
         if (ParseCameraDeviceConfig(childNode, drsOps, &cameraConfig->deviceConfig[cnt]) != HDF_SUCCESS) {
             return HDF_FAILURE;
         }

@@ -14,8 +14,18 @@
 
 #define HDF_LOG_TAG HDF_CAMERA_VCM
 
+static int32_t CameraCmdVcmCheckDevId(int32_t devId)
+{
+    if (devId < 0 || devId >= DEVICE_NUM) {
+        HDF_LOGE("%s: devId out of range, devId = %{public}d", __func__, devId);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    return HDF_SUCCESS;
+}
+
 int32_t CameraCmdVcmQueryConfig(struct SubDevice subDev)
 {
+    int32_t ret;
     int32_t i;
     uint32_t ctrlSize;
     bool isFailed = false;
@@ -24,6 +34,8 @@ int32_t CameraCmdVcmQueryConfig(struct SubDevice subDev)
     struct CameraDeviceConfig *deviceConfig = subDev.cameraHcsConfig;
     struct HdfSBuf *rspData = subDev.rspData;
 
+    ret = CameraCmdVcmCheckDevId(devId);
+    CHECK_RETURN_RET(ret);
     ctrlSize = deviceConfig->vcm.vcm[devId].ctrlValueNum;
     for (i = 0; i < ctrlSize; i++) {
         if (ctrlId == deviceConfig->vcm.vcm[devId].ctrlCap[i].ctrlId) {
@@ -44,6 +56,10 @@ static int32_t CameraVcmGetConfig(struct CameraDevice *camDev, int32_t devId, st
     struct CameraDeviceDriver *deviceDriver = GetDeviceDriver(camDev);
     if (deviceDriver == NULL) {
         HDF_LOGE("%s: deviceDriver ptr is null!", __func__);
+        return HDF_FAILURE;
+    }
+    if (deviceDriver->vcm[devId] == NULL) {
+        HDF_LOGE("%s: vcm dev is null!", __func__);
         return HDF_FAILURE;
     }
     if (deviceDriver->vcm[devId]->devOps->getConfig == NULL) {
@@ -96,6 +112,8 @@ int32_t CameraCmdVcmGetConfig(struct SubDevice subDev)
     struct HdfSBuf *rspData = subDev.rspData;
 
     ctrlConfig.ctrl.id = subDev.ctrlId;
+    ret = CameraCmdVcmCheckDevId(devId);
+    CHECK_RETURN_RET(ret);
     ret = CheckVcmGetConfigId(deviceConfig, ctrlConfig, devId);
     CHECK_RETURN_RET(ret);
     ret = CameraVcmGetConfig(camDev, devId, &ctrlConfig);
@@ -115,6 +133,10 @@ static int32_t CameraVcmSetConfig(struct CameraDevice *camDev, int32_t devId, st
     struct CameraDeviceDriver *deviceDriver = GetDeviceDriver(camDev);
     if (deviceDriver == NULL) {
         HDF_LOGE("%s: deviceDriver ptr is null!", __func__);
+        return HDF_FAILURE;
+    }
+    if (deviceDriver->vcm[devId] == NULL) {
+        HDF_LOGE("%s: vcm dev is null!", __func__);
         return HDF_FAILURE;
     }
     if (deviceDriver->vcm[devId]->devOps->setConfig == NULL) {
@@ -172,6 +194,8 @@ int32_t CameraCmdVcmSetConfig(struct SubDevice subDev)
     isFailed |= !HdfSbufReadUint32(reqData, &ctrlConfig.ctrl.id);
     isFailed |= !HdfSbufReadUint32(reqData, &ctrlConfig.ctrl.value);
     CHECK_RETURN_RET(isFailed);
+    ret = CameraCmdVcmCheckDevId(devId);
+    CHECK_RETURN_RET(ret);
     ret = CheckVcmSetConfigId(deviceConfig, ctrlConfig, devId);
     CHECK_RETURN_RET(ret);
     ret = CameraVcmSetConfig(camDev, devId, &ctrlConfig);
@@ -189,6 +213,13 @@ int32_t CameraCmdVcmEnumDevice(struct SubDevice subDev)
     struct CameraDeviceConfig *deviceConfig = subDev.cameraHcsConfig;
     struct HdfSBuf *rspData = subDev.rspData;
 
+    if (deviceConfig == NULL) {
+        HDF_LOGE("%s: deviceConfig is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (CameraCmdVcmCheckDevId(devId) != HDF_SUCCESS) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     isFailed |= !HdfSbufWriteUint8(rspData, deviceConfig->vcm.mode);
     isFailed |= !HdfSbufWriteString(rspData, deviceConfig->vcm.vcm[devId].name);
     isFailed |= !HdfSbufWriteUint8(rspData, deviceConfig->vcm.vcm[devId].id);

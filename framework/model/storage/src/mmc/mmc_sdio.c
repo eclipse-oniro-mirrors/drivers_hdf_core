@@ -529,6 +529,10 @@ int32_t SdioDeviceFindFunction(struct SdioDevice *sdio, struct SdioFunctionConfi
 int32_t SdioDeviceIncrAddrReadBytes(struct SdioDevice *sdio,
     uint8_t *data, uint32_t addr, uint32_t size)
 {
+    if (data == NULL) {
+        HDF_LOGE("SdioDevicelncrAddrReadBytes: data is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (sdio->sdioOps == NULL) {
         HDF_LOGE("SdioDeviceIncrAddrReadBytes: ops is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -718,6 +722,10 @@ int32_t SdioDeviceDisableFunc(struct SdioDevice *sdio)
 
 int32_t SdioDeviceClaimIrq(struct SdioDevice *sdio, SdioIrqHandler *irqHandler)
 {
+    if (sdio == NULL) {
+        HDF_LOGE("SdioDeviceReleaseIrq: sdio is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (sdio->sdioOps == NULL) {
         HDF_LOGE("SdioDeviceClaimIrq: ops is null!");
         return HDF_ERR_INVALID_OBJECT;

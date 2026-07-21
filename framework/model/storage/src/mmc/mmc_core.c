@@ -230,6 +230,7 @@ static int32_t MmcCntlrQueueCreate(struct MmcCntlr *cntlr, bool needQueue)
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrQueueCreate: fail to start msg queue!");
         PlatformQueueDestroy(cntlr->msgQueue);
+        cntlr->msgQueue = NULL;
     }
     return ret;
 }
@@ -345,6 +346,11 @@ static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (cntrl->msgQueue == NULL) {
+        HDF_LOGE("MmcCntlrPostMsg:msgQueue is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
     if (mmcMsg->block) {
         (void)OsalSemInit(&mmcMsg->sem, 0);
     }
@@ -366,6 +372,10 @@ void MmcCntlrSetClock(struct MmcCntlr *cntlr, uint32_t clock)
 {
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->setClock == NULL) {
         HDF_LOGE("MmcCntlrSetClock: cntlr or ops or setClock is null!");
+        return;
+    }
+    if (cntrl->curDev == NULL) {
+        HDF_LOGE("MmcCntlrSetClock:curDev is null!");
         return;
     }
     cntlr->curDev->workPara.clock = clock;

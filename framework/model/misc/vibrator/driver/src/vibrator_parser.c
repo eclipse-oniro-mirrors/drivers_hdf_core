@@ -85,7 +85,7 @@ static int32_t ParseVibratorBus(struct DeviceResourceIface *parser, const struct
 
 int32_t GetVibratorBaseConfigData(const struct DeviceResourceNode *node, struct VibratorCfgData *config)
 {
-    int32_t ret;
+    int32_t ret = HDF_SUCCESS;
     struct DeviceResourceIface *parser = NULL;
     const struct DeviceResourceNode *infoNode = NULL;
     const struct DeviceResourceNode *busNode = NULL;

@@ -427,16 +427,22 @@ static int32_t HdfCmdfillPnoSettings(struct HdfSBuf *reqData,  WifiPnoSettings *
     for (uint32_t i = 0; i < pnoSettings->pnoNetworksLen; i++) {
         if (!HdfSbufReadUint8(reqData, &(pnoSettings->pnoNetworks[i].isHidden))) {
             HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "isHidden");
+            OsalMemFree(pnoSettings->pnoNetworks);
+            pnoSettings->pnoNetworks = NULL;
             return HDF_FAILURE;
         }
         if (!HdfSbufReadBuffer(reqData, (const void **)&pnoSettings->pnoNetworks[i].freqs, &dataSize)) {
             HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freqs");
+            OsalMemFree(pnoSettings->pnoNetworks);
+            pnoSettings->pnoNetworks = NULL;
             return HDF_FAILURE;
         }
         pnoSettings->pnoNetworks[i].freqsLen = dataSize / sizeof(pnoSettings->pnoNetworks[i].freqs[0]);
         if (!HdfSbufReadBuffer(reqData, (const void **)&pnoSettings->pnoNetworks[i].ssid.ssid,
             &(pnoSettings->pnoNetworks[i].ssid.ssidLen))) {
             HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ssid");
+            OsalMemFree(pnoSettings->pnoNetworks);
+            pnoSettings->pnoNetworks = NULL;
             return HDF_FAILURE;
         }
     }

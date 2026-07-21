@@ -375,7 +375,7 @@ int32_t NetIfSetMacAddr(struct NetDevice *netDevice, const unsigned char *macAdd
         return HDF_FAILURE;
     }
     if (netDevice->netDeviceIf != NULL && netDevice->netDeviceIf->setMacAddr != NULL) {
-        ret = netDevice->netDeviceIf->setMacAddr(netDevice, (void*)macAddr);
+        ret = netDevice->netDeviceIf->setMacAddr(netDevice, (const void*)macAddr);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s fail : setMacAddr fail!", __func__);
             return ret;

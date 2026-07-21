@@ -107,6 +107,12 @@ static int32_t RegisterDevice(const char *name, uint8_t id, unsigned short mode,
             return HDF_FAILURE;
         }
     } else {
+        if (strlen(name) >= MAX_DEV_NAME_LEN) {
+            OsalMemFree((char*)dev->name);
+            OsalMemFree(dev);
+            HDF_LOGE("RegisterDevice: name too long!");
+            return HDF_ERR_INVALID_PARAM;
+        }
         if (memcpy_s((char *)dev->name, MAX_DEV_NAME_LEN, name, strlen(name)) != EOK) {
             OsalMemFree((char *)dev->name);
             OsalMemFree(dev);
@@ -153,7 +159,7 @@ static void UnregisterDevice(uint8_t id)
     OsalMemFree((void *)dev->name);
     dev->name = NULL;
     OsalMemFree(dev);
-    dev = NULL;
+    g_vfsPara.miscDev = NULL;
     HDF_LOGI("UnregisterDevice: success!");
 }
 

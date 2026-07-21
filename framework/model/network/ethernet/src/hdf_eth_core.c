@@ -161,7 +161,7 @@ static int32_t InitEth(struct EthDevice *ethDevice, const uint8_t isSetDefault,
 
 static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
 {
-    int32_t ret;
+    int32_t ret = HDF_SUCCESS;
     uint8_t i;
 
     if (deviceObject == NULL) {
@@ -179,6 +179,8 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
     for (i = 0; i < g_ethConfig->deviceListSize; i++) {
         struct EthDevice *ethDevice = CreateEthDevice(&g_ethConfig->deviceInst[i]);
         if (ethDevice == NULL) {
+            OsalMemFree(g_ethConfig);
+            g_ethConfig = NULL;
             return HDF_FAILURE;
         }
         ethDevice->config = &g_ethConfig->deviceInst[i];
@@ -187,11 +189,15 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         if (ethChipDriverFact == NULL) {
             HDF_LOGE("%s: get ethChipDriverFact failed! driverName = %s", __func__, ethDevice->name);
             ReleaseEthDevice(ethDevice);
+            OsalMemFree(g_ethConfig);
+            g_ethConfig = NULL;
             return HDF_FAILURE;
         }
         ret = InitEth(ethDevice, g_ethConfig->deviceInst[i].isSetDefault, ethChipDriverFact);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s failed to init eth driver, ret: %d", __func__, ret);
+            OsalMemFree(g_ethConfig);
+            g_ethConfig = NULL;
             return ret;
         }
     }

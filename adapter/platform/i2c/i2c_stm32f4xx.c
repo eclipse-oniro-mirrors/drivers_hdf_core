@@ -327,10 +327,6 @@ static void HdfI2cInit(I2C_HANDLE i2cx, unsigned int i2cRate, unsigned int addr)
 
 static void HdfI2cWrite(I2C_HANDLE i2cx, unsigned char devAddr, const unsigned char *buf, unsigned int len)
 {
-    if (buf == NULL) {
-        return;
-    }
-
     if (g_I2cEnableFlg[i2cx] != true) {
         printf("I2C_WriteByte err, Please initialize first!");
         return;

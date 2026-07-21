@@ -171,11 +171,15 @@ static int32_t HdfSdioReadN(struct BusDev *dev, uint32_t addr, uint32_t cnt, uin
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
-    if (dev == NULL) {
+    if (dev == NULL || buf == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
+    if (handle == NULL) {
+        HDF_LOGE("%s:handle is NULL!", __func__);
+        return HDF_FAILURE;
+    }
     ret = SdioReadBytes(handle, buf, addr, cnt);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:read sdio data failed!", __func__);
@@ -305,7 +309,9 @@ static struct DevHandle *HdfGetDevHandle(struct BusDev *dev, const struct HdfCon
     }
     if (cnt == tmpChipList->chipInstSize || cnt == WLAN_MAX_CHIP_NUM) {
         HDF_LOGE("%s: NO sdio card detected!", __func__);
-        SdioClose(handle);
+        if (handle != NULL) {
+            SdioClose(handle);
+        }
         return NULL;
     }
     dev->devBase = handle;
@@ -349,6 +355,7 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
         return ret;
     } while (0);
 
+    SdioReleaseHost(handle);
     SdioClose(handle);
     return HDF_FAILURE;
 }
