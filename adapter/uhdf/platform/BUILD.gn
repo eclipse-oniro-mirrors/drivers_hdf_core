@@ -48,6 +48,7 @@ config("hdf_platform_pub_config") {
 }
 
 ohos_shared_library("hdf_platform") {
+  branch_protector_ret = "pac_ret"
   include_dirs = []
 
   public_configs = [ ":hdf_platform_pub_config" ]

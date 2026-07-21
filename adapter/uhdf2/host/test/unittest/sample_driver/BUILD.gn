@@ -20,6 +20,7 @@ if (with_sample) {
   }
 
   ohos_shared_library("libsample_driver") {
+    branch_protector_ret = "pac_ret"
     sources = [
       "sample_driver.cpp",
       "sample_hdi_service.cpp",

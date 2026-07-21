@@ -33,6 +33,7 @@ if (is_standard_system) {
     ]
   }
   ohos_shared_library("libhdf_platform") {
+    branch_protector_ret = "pac_ret"
     public_configs = [ ":libhdf_platform_pub_config" ]
     sources = [
       "$HDF_FRAMEWORKS/support/platform/src/adc/adc_if_u.c",

@@ -21,6 +21,7 @@ hdf_uhdf_path = "./.."
 hdf_framework_path = "./../../../framework"
 
 ohos_shared_library("libhdf_sec") {
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "//commonlibrary/c_utils/base/include",
     "$hdf_framework_path/include",

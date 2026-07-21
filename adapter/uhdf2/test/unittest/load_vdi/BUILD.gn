@@ -15,6 +15,7 @@ import("//build/test.gni")
 
 module_output_path = "hdf_core/hdf_core"
 ohos_unittest("hdf_load_vdi_test") {
+  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
 
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
@@ -40,6 +41,7 @@ ohos_unittest("hdf_load_vdi_test") {
 }
 
 ohos_shared_library("libvdi_sample1_driver") {
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
 
   sources =
@@ -55,6 +57,7 @@ ohos_shared_library("libvdi_sample1_driver") {
 }
 
 ohos_shared_library("libvdi_sample1_symbol") {
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
 
   sources =
@@ -70,6 +73,7 @@ ohos_shared_library("libvdi_sample1_symbol") {
 }
 
 ohos_shared_library("libvdi_sample2_driver") {
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
 
   sources = [

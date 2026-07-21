@@ -28,6 +28,7 @@ config("hdf_core_pub_config") {
 }
 
 ohos_shared_library("hdf_core") {
+  branch_protector_ret = "pac_ret"
   hdf_frameworks_path = "./../../../framework"
   include_dirs = [
     "$hdf_frameworks_path/core/adapter/vnode/include",
