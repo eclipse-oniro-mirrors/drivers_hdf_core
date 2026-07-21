@@ -153,7 +153,14 @@ static int32_t AttachWatchdogDeviceInfo(struct WatchdogCntlr *watchdogCntlr, str
     watchdogCntlr->priv = watchdogdeviceinfo;
     watchdogCntlr->wdtId = watchdogdeviceinfo->watchdogId;
 
-    return InitWatchdogDeviceInfo(watchdogdeviceinfo);
+    ret = InitWatchdogDeviceInfo(watchdogdeviceinfo);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: InitWatchdogDeviceInfo fail\r\n", __func__);
+        watchdogCntlr->priv = NULL;
+        (void)OsalMemFree(watchdogdeviceinfo);
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
 }
 /* HdfDriverEntry method definitions */
 static int32_t WatchdogDriverBind(struct HdfDeviceObject *device);
@@ -241,9 +248,13 @@ static void WatchdogDriverRelease(struct HdfDeviceObject *device)
         return;
     }
 
-    watchdogdeviceinfo = (WatchdogDeviceInfo *)watchdogCntlr->priv;
-    OsalMemFree(watchdogdeviceinfo);
-    return;
+    if (watchdogCntlr->priv != NULL) {
+        watchdogdeviceinfo = (WatchdogDeviceInfo *)watchdogCntlr->priv;
+        OsalMemFree(watchdogdeviceinfo);
+        watchdogCntlr->priv = NULL;
+    }
+    OsalMemFree(watchdogCntlr);
+    device->service = NULL;
 }
 
 static int32_t WatchdogDevStart(struct WatchdogCntlr *watchdogCntlr)

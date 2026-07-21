@@ -672,6 +672,7 @@ static int32_t PanelEntryInit(struct HdfDeviceObject *object)
     return HDF_SUCCESS;
 FAIL:
     OsalMemFree(panel_dev);
+    g_panel_dev = NULL;
     return HDF_FAILURE;
 }
 

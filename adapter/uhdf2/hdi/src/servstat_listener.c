@@ -41,7 +41,9 @@ int ServstatListenerStubRemoteDispatch(
         HDF_LOGE("failed to check interface");
         return HDF_ERR_INVALID_PARAM;
     }
+    (void)memset_s(&status, sizeof(status), 0, sizeof(status));
     if (ServiceStatusUnMarshalling(&status, data) != HDF_SUCCESS) {
+        HDF_LOGE("failed to unmarshalling service status");
         return HDF_ERR_INVALID_PARAM;
     }
     HDF_LOGI("ServstatListenerStubRemoteDispatch: service name %{public}s", status.serviceName);

@@ -35,7 +35,7 @@
 #define UART_NAME_LEN 20
 #define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
 
-static char g_driverName[UART_NAME_LEN];
+static char g_driverName[UART_NAME_LEN] = { 0 };
 
 static int32_t UartAdapterInit(struct UartHost *host)
 {
