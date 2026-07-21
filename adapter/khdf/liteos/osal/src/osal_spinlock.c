@@ -56,7 +56,7 @@ int32_t OsalSpinInit(OsalSpinlock *spinlock)
         OsalMemFree(spin);
         spinlock->realSpinlock = NULL;
         return HDF_FAILURE;
-    };
+    }
     spinlock->realSpinlock = spin;
 
     return HDF_SUCCESS;
