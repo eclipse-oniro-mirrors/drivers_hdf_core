@@ -30,6 +30,10 @@ void EventQueueWorkEntry(void *arg)
         HDF_LOGE("%s: inputDev is NULL", __func__);
         return;
     }
+    if (inputDev->hdfDevObj == NULL || inputDev->pkgBuf == NULL) {
+        HDF_LOGE("%s: hdfDevObj or pkgBuf is NULL", __func__);
+        return;
+    }
 
     HdfDeviceSendEvent(inputDev->hdfDevObj, 0, inputDev->pkgBuf);
     HdfSbufFlush(inputDev->pkgBuf);

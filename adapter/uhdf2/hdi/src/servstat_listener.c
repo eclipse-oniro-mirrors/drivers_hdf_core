@@ -30,6 +30,10 @@ struct ServstatListenerStub {
 int ServstatListenerStubRemoteDispatch(
     struct HdfRemoteService *remote, int cmdid, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    if (remote == NULL || data == NULL) {
+        HDF_LOGE("ServstatListenerStubRemoteDispatch: remote or data is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     (void)reply;
     struct ServstatListenerStub *stub = (struct ServstatListenerStub *)remote;
     struct ServiceStatus status;

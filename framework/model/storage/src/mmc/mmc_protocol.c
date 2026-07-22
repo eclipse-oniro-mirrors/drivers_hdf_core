@@ -1554,6 +1554,10 @@ static int32_t EmmcReadExtCsd(struct MmcCntlr *cntlr)
     uint8_t extCsd[EXT_CSD_BYTES_LEN] = {0};
     int32_t error;
 
+    if (cntlr ==  NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("EmmcReadExtCsd: cntlr or curDev is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (cntlr->curDev->reg.csd.specVers < MMC_CSD_SPEC_VER_4) {
         return HDF_SUCCESS;
     }
@@ -3453,6 +3457,11 @@ static int32_t SdioSwitchHighSpeed(struct MmcCntlr *cntlr)
 static int32_t SdioEnableHighSpeed(struct MmcCntlr *cntlr)
 {
     int32_t err;
+
+    if (cntlr == NULL || cntlr->curDev == NULL) {
+        HDF_LOGE("SdioEnableHighSpeed: cntlr or curDev is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     err = SdioSwitchHighSpeed(cntlr);
     if (cntlr->curDev->type == MMC_DEV_SDIO || err != HDF_SUCCESS) {

@@ -101,13 +101,22 @@ static ssize_t LiteosBlockRead(FAR struct Vnode *vnode, FAR unsigned char *buf,
     }
     max = (size_t)(-1);
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
+    if (mb == NULL) {
+        HDF_LOGE("LiteosBlockRead: mmc block is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     if (secStart >= max || nSecs >= max) {
         HDF_LOGE("LiteosBlockRead: secStart or nSecs is invalid!");
         return HDF_ERR_INVALID_PARAM;
     }
-    if (mb == NULL) {
-        HDF_LOGE("LiteosBlockRead: mmc block is null!");
+
+    if (buf == NULL) {
+        HDF_LOGE("LiteosBlockRead: buf is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (mb->mmc == NULL) {
+        HDF_LOGE("LiteosBlockRead: mmc device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 

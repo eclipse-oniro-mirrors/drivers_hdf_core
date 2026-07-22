@@ -138,11 +138,11 @@ static bool SpiAdapterIsDefaultTransferOneMessage(const struct SpiCntlr *cntlr)
     }
 
     linuxSpiDevice = (struct spi_device *)spiDev->priv;
-    if (linuxSpiDevice->controller != NULL) {
+    if (linuxSpiDevice->controller != NULL && linuxSpiDevice->controller->transfer_one_message != NULL) {
         return linuxSpiDevice->controller->transfer_one_message == g_linuxDefaultTransferOneMessage;
     }
 
-    if (linuxSpiDevice->master != NULL) {
+    if (linuxSpiDevice->master != NULL && linuxSpiDevice->master->transfer_one_message != NULL) {
         return linuxSpiDevice->master->transfer_one_message == g_linuxDefaultTransferOneMessage;
     }
     return false;
@@ -154,6 +154,11 @@ static int32_t SpiAdapterTransferOneMsg(struct SpiCntlr *cntlr, struct SpiMsg *m
     struct spi_message xfer;
     struct SpiDev *dev = NULL;
     struct spi_transfer *transfer = NULL;
+
+    if (msg == NULL) {
+        HDF_LOGE("SpiAdapterTransferOneMsg: msg is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL || dev->priv == NULL) {
@@ -341,6 +346,10 @@ static int32_t SpiAdapterOpen(struct SpiCntlr *cntlr)
     if (ret != SPI_DEV_FIND_SUCCESS) {
         HDF_LOGE("SpiAdapterOpen: spidev find fail, ret is %d!", ret);
         return HDF_FAILURE;
+    }
+    if (cntlr->method == NULL) {
+        HDF_LOGE("SpiAdapterOpen: method is null!");
+        return HDF_ERR_INVALID_PARAM;
     }
     if (SpiAdapterIsDefaultTransferOneMessage(cntlr)) {
         HDF_LOGD("SpiAdapterOpen: use default method!");

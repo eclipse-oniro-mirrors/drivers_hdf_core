@@ -77,6 +77,10 @@ int32_t ServiceManagerProxy::RegisterServiceStatusListener(
     MessageParcel reply;
     MessageOption option;
 
+    if (listener == nullptr) {
+        HDF_LOGE("RegisterServiceStatusListener: listener is nullptr!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (!data.WriteInterfaceToken(GetDescriptor()) || !data.WriteUint16(deviceClass) ||
         !data.WriteRemoteObject(listener->AsObject())) {
         return HDF_FAILURE;

@@ -193,6 +193,10 @@ static int32_t SetHallEnable(void)
     }
 
     mode = OSAL_IRQF_TRIGGER_RISING | OSAL_IRQF_TRIGGER_FALLING;
+    if (data == NULL || data->hallCfg == NULL) {
+        HDF_LOGE("%s: data or hallCfg is NULL", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (drvData->hallCfg->busCfg.GpioNum[SENSOR_GPIO_NUM1] >= 0) {
         ret = GpioSetIrq(drvData->hallCfg->busCfg.GpioNum[SENSOR_GPIO_NUM1], mode,
             HallNorthPolarityIrqFunc, drvData);
