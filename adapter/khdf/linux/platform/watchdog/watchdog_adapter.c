@@ -325,6 +325,9 @@ static void HdfWdtRelease(struct HdfDeviceObject *obj)
         HDF_LOGE("HdfWdtRelease: wdt is null!");
         return;
     }
+    if (wdt->ops != NULL && wdt->ops->releasePriv != NULL) {
+        wdt->ops->releasePriv(wdt);
+    }
     WatchdogCntlrRemove(wdt);
     OsalMemFree(wdt);
 }

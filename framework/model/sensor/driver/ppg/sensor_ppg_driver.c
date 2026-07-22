@@ -306,6 +306,7 @@ int32_t PpgInitDriver(struct HdfDeviceObject *device)
 
     if (HdfWorkInit(&drvData->ppgWork, PpgDataWorkEntry, drvData) != HDF_SUCCESS) {
         HDF_LOGE("%s: Ppg create thread failed", __func__);
+        HdfWorkQueueDestroy(&drvData->ppgWorkQueue);
         return HDF_FAILURE;
     }
 

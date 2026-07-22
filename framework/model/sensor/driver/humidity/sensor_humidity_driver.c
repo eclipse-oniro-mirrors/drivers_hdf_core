@@ -123,6 +123,7 @@ static int32_t SetHumidityEnable(void)
     ret = OsalTimerStartLoop(&drvData->humidityTimer);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Humidity start timer failed[%d]", __func__, ret);
+        (void)OsalTimerDelete(&drvData->humidityTimer);
         return ret;
     }
     drvData->enable = true;

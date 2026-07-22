@@ -349,7 +349,9 @@ static int32_t InitHallAfterDetected(const struct DeviceResourceNode *node, stru
 
     if (ParserHallDelayedConfigData(node, drvData) != HDF_SUCCESS) {
         HDF_LOGE("%s: get hall delayed config failed", __func__);
-        (void)DeleteSensorDevice(&drvData->hallCfg->sensorInfo);
+        if (DeleteSensorDevice(&drvData->hallCfg->sensorInfo) != HDF_SUCCESS) {
+            HDF_LOGE("%s: delete hall device failed", __func__);
+        }
         return HDF_FAILURE;
     }
 

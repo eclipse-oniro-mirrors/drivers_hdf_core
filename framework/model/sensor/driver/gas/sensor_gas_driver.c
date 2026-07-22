@@ -132,6 +132,7 @@ static int32_t SetGasEnable(void)
     ret = OsalTimerStartLoop(&drvData->gasTimer);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Gas start timer failed[%d]", __func__, ret);
+        (void)OsalTimerDelete(&drvData->gasTimer);
         return ret;
     }
     drvData->enable = true;
