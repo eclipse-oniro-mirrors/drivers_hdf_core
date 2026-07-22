@@ -619,6 +619,7 @@ static int32_t StreamHostCaptureOpen(const struct HdfDeviceIoClient *client, str
 
     if (AudioDaiDeviceStartup(audioCard) != HDF_SUCCESS) {
         ADM_LOG_ERR("Dai Device Startup failed.");
+        AudioCaptureClose(audioCard);
         return HDF_FAILURE;
     }
 

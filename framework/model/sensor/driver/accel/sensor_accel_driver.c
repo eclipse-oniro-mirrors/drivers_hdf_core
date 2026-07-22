@@ -365,6 +365,10 @@ int32_t AccelInitDriver(struct HdfDeviceObject *device)
         return HDF_FAILURE;
     }
 
+    if (drvData->accelCfg != NULL) {
+        AccelReleaseCfgData(drvData->accelCfg);
+        OsalMemFree(drvData->accelCfg);
+    }
     drvData->accelCfg = (struct SensorCfgData *)OsalMemCalloc(sizeof(*drvData->accelCfg));
     if (drvData->accelCfg == NULL) {
         HDF_LOGE("%s: Malloc accel config data failed", __func__);

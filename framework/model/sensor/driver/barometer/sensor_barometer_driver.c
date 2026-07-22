@@ -333,6 +333,10 @@ int32_t BarometerInitDriver(struct HdfDeviceObject *device)
         return HDF_FAILURE;
     }
 
+    if (drvData->barometerCfg != NULL) {
+        BarometerReleaseCfgData(drvData->barometerCfg);
+        OsalMemFree(drvData->barometerCfg);
+    }
     drvData->barometerCfg = (struct SensorCfgData *)OsalMemCalloc(sizeof(*drvData->barometerCfg));
     if (drvData->barometerCfg == NULL) {
         HDF_LOGE("%s: Malloc barometer config data failed", __func__);

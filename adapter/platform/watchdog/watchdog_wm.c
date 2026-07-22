@@ -162,7 +162,14 @@ static int32_t AttachWatchdogDevice(struct WatchdogCntlr *watchdogCntlr, struct 
 
     watchdogCntlr->priv = watchdogDevice;
 
-    return InitWatchdogDevice(watchdogDevice);
+    ret = InitWatchdogDevice(watchdogDevice);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: InitWatchdogDevice fail\r\n", __func__);
+        watchdogCntlr->priv = NULL;
+        (void)OsalMemFree(watchdogDevice);
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
 }
 
 /* HdfDriverEntry method definitions */
@@ -234,14 +241,18 @@ static void WatchdogDriverRelease(struct HdfDeviceObject *device)
     }
 
     watchdogCntlr = WatchdogCntlrFromDevice(device);
-    if (watchdogCntlr == NULL || watchdogCntlr->priv == NULL) {
+    if (watchdogCntlr == NULL) {
         HDF_LOGE("%s: watchdogCntlr is NULL\r\n", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        return;
     }
 
-    watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    OsalMemFree(watchdogDevice);
-    return;
+    if (watchdogCntlr->priv != NULL) {
+        watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
+        OsalMemFree(watchdogDevice);
+        watchdogCntlr->priv = NULL;
+    }
+    OsalMemFree(watchdogCntlr);
+    device->service = NULL;
 }
 
 /* HdfDriverEntry definitions */
