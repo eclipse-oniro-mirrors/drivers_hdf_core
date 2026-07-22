@@ -501,7 +501,7 @@ struct NetDeviceInterFace {
     int32_t (*stop)(struct NetDevice *netDev);  /**< Closes the data link layer. */
     NetDevTxResult (*xmit)(struct NetDevice *netDev, NetBuf *netBuff);        /**< Sends data. */
     int32_t (*ioctl)(struct NetDevice *netDev, IfReq *req, int32_t cmd);      /**< Used for the control command word. */
-    int32_t (*setMacAddr)(struct NetDevice *netDev, const void *addr);              /**< Sets the MAC address. */
+    int32_t (*setMacAddr)(struct NetDevice *netDev, void *addr);              /**< Sets the MAC address. */
     struct NetDevStats *(*getStats)(struct NetDevice *netDev);                /**< Obtains the statistics. */
     void (*setNetIfStatus)(struct NetDevice *netDev, NetIfStatus status);     /**< Sets the network port status. */
     uint16_t (*selectQueue)(struct NetDevice *netDev, NetBuf *netBuff);       /**< Selects a priority queue. */
