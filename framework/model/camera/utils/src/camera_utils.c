@@ -472,7 +472,7 @@ int32_t CameraGetDeviceInfo(int type, struct HdfSBuf *reqData,
 
     ret = GetCameraId(deviceName, strlen(deviceName), camId);
     CHECK_RETURN_RET(ret);
-    if ((*camId) <0 || (*camId) >= CAMERA_DEVICE_MAX_NUM) {
+    if ((*camId) < 0 || (*camId) >= CAMERA_DEVICE_MAX_NUM) {
         HDF_LOGE("%s: wrong camId! camId=%{public}d", __func__, (*camId));
         return HDF_FAILURE;
     }

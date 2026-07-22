@@ -196,6 +196,7 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         ret = InitEth(ethDevice, g_ethConfig->deviceInst[i].isSetDefault, ethChipDriverFact);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s failed to init eth driver, ret: %d", __func__, ret);
+            ReleaseEthDevice(ethDevice);
             OsalMemFree(g_ethConfig);
             g_ethConfig = NULL;
             return ret;

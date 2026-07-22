@@ -333,7 +333,7 @@ static int32_t TimerIoSet(struct HdfSBuf *data, struct HdfSBuf *reply)
     }
     struct TimerCntrl *cntrl = TimerCntrlOpen(number);
     if (cntrl == NULL) {
-        HDF_LOGE("TimerloSet: cntrl is null!");
+        HDF_LOGE("TimerIoSet: cntrl is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return TimerCntrlSet(cntrl, cfg->useconds, TimerIoCb);
@@ -369,7 +369,7 @@ static int32_t TimerIoSetOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     }
     struct TimerCntrl *cntrl = TimerCntrlOpen(number);
     if (cntrl == NULL) {
-        HDF_LOGE("TimerloSetOnce: cntrl is null!");
+        HDF_LOGE("TimerIoSetOnce: cntrl is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
     return TimerCntrlSetOnce(cntrl, cfg->useconds, TimerIoCb);
@@ -519,7 +519,7 @@ int32_t TimerCntrlRemoveByNumber(const uint32_t number)
     }
 
     DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->timerListHead, struct TimerCntrl, node) {
-        if (number == pos->ops->Remove != NULL) {
+        if (number == pos->info.number) {
             if ((pos->ops != NULL) && (pos->ops->Remove != NULL) && (pos->ops->Remove(pos) != HDF_SUCCESS)) {
                 HDF_LOGE("TimerCntrlRemoveByNumber: remove %u fail!", pos->info.number);
             }

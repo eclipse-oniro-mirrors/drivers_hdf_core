@@ -108,7 +108,7 @@ static int32_t RegisterDevice(const char *name, uint8_t id, unsigned short mode,
         }
     } else {
         if (strlen(name) >= MAX_DEV_NAME_LEN) {
-            OsalMemFree((char*)dev->name);
+            OsalMemFree((char *)dev->name);
             OsalMemFree(dev);
             HDF_LOGE("RegisterDevice: name too long!");
             return HDF_ERR_INVALID_PARAM;

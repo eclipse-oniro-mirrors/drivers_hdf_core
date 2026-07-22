@@ -181,9 +181,9 @@ static uint32_t CalcDataRate(struct PanelInfo *info)
     int32_t bpp = GetBitsPerPixel(info->mipi.format);
     uint64_t bitNum = (uint64_t)hpixel * vline * info->frameRate * bpp;
     if ((bitNum % TRANSFORM_MILL) == 0) {
-        bitClk = (uint32_t)bitNum / TRANSFORM_MILL;
+        bitClk = (uint32_t)(bitNum / TRANSFORM_MILL);
     } else {
-        bitClk = (uint32_t)bitNum / TRANSFORM_MILL + 1;
+        bitClk = (uint32_t)(bitNum / TRANSFORM_MILL + 1);
     }
     if (!info->mipi.lane) {
         return HDF_FAILURE;

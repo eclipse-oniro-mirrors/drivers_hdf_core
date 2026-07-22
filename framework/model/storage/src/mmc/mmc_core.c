@@ -346,8 +346,8 @@ static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (cntrl->msgQueue == NULL) {
-        HDF_LOGE("MmcCntlrPostMsg:msgQueue is null!");
+    if (cntlr->msgQueue == NULL) {
+        HDF_LOGE("MmcCntlrPostMsg: msgQueue is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -374,8 +374,8 @@ void MmcCntlrSetClock(struct MmcCntlr *cntlr, uint32_t clock)
         HDF_LOGE("MmcCntlrSetClock: cntlr or ops or setClock is null!");
         return;
     }
-    if (cntrl->curDev == NULL) {
-        HDF_LOGE("MmcCntlrSetClock:curDev is null!");
+    if (cntlr->curDev == NULL) {
+        HDF_LOGE("MmcCntlrSetClock: curDev is null!");
         return;
     }
     cntlr->curDev->workPara.clock = clock;
