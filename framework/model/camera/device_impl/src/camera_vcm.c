@@ -17,7 +17,7 @@
 static int32_t CameraCmdVcmCheckDevId(int32_t devId)
 {
     if (devId < 0 || devId >= DEVICE_NUM) {
-        HDF_LOGE("%s: devId out of range, devId=%{public}d", func, devId);
+        HDF_LOGE("%s: devId out of range, devId=%{public}d", __func__, devId);
         return HDF_ERR_INVALID_PARAM;
     }
     return HDF_SUCCESS;
