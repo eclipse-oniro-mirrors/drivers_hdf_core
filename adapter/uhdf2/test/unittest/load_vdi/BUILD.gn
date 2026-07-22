@@ -15,7 +15,6 @@ import("//build/test.gni")
 
 module_output_path = "hdf_core/hdf_core"
 ohos_unittest("hdf_load_vdi_test") {
-  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
 
   include_dirs = [ "../../../../../framework/core/host/test/sample" ]
