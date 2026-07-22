@@ -25,7 +25,8 @@ static int32_t SetCtrlCapInfo(struct CtrlCapInfo *ctrlCap, int ctrlValueNum, con
     int32_t i;
 
     if (ctrlValueNum % CTRL_INFO_COUNT != 0) {
-        HDF_LOGE("%s: ctrlValueNum is not multiple of CTRL_INFO_COUNT, ctrlValueNum=%{public}d", func, ctrlValueNum);
+        HDF_LOGE("%s: ctrlValueNum is not multiple of CTRL_INFO_COUNT, ctrlValueNum=%{public}d",
+            __func__, ctrlValueNum);
         return HDF_ERR_INVALID_PARAM;
     }
 
