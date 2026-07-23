@@ -34,6 +34,10 @@ int32_t CameraCmdVcmQueryConfig(struct SubDevice subDev)
     struct CameraDeviceConfig *deviceConfig = subDev.cameraHcsConfig;
     struct HdfSBuf *rspData = subDev.rspData;
 
+    if (deviceConfig == NULL) {
+        HDF_LOGE("%s: deviceConfig is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     ret = CameraCmdVcmCheckDevId(devId);
     CHECK_RETURN_RET(ret);
     ctrlSize = deviceConfig->vcm.vcm[devId].ctrlValueNum;
@@ -111,6 +115,10 @@ int32_t CameraCmdVcmGetConfig(struct SubDevice subDev)
     struct CameraDeviceConfig *deviceConfig = subDev.cameraHcsConfig;
     struct HdfSBuf *rspData = subDev.rspData;
 
+    if (deviceConfig == NULL) {
+        HDF_LOGE("%s: deviceConfig is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     ctrlConfig.ctrl.id = subDev.ctrlId;
     ret = CameraCmdVcmCheckDevId(devId);
     CHECK_RETURN_RET(ret);
@@ -191,6 +199,10 @@ int32_t CameraCmdVcmSetConfig(struct SubDevice subDev)
     struct CameraDeviceConfig *deviceConfig = subDev.cameraHcsConfig;
     struct HdfSBuf *reqData = subDev.reqData;
 
+    if (deviceConfig == NULL) {
+        HDF_LOGE("%s: deviceConfig is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     isFailed |= !HdfSbufReadUint32(reqData, &ctrlConfig.ctrl.id);
     isFailed |= !HdfSbufReadUint32(reqData, &ctrlConfig.ctrl.value);
     CHECK_RETURN_RET(isFailed);

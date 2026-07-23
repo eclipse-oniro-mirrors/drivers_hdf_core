@@ -176,12 +176,13 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         HDF_LOGE("%s failed to get g_ethConfig!", __func__);
         return HDF_FAILURE;
     }
+    struct EthDevice *ethDevice[g_ethConfig->deviceListSize];
+    (void)memset_s(ethDevices, sizeof(ethDevices), 0, sizeof(ethDevices));
+
     for (i = 0; i < g_ethConfig->deviceListSize; i++) {
         struct EthDevice *ethDevice = CreateEthDevice(&g_ethConfig->deviceInst[i]);
         if (ethDevice == NULL) {
-            OsalMemFree(g_ethConfig);
-            g_ethConfig = NULL;
-            return HDF_FAILURE;
+            goto ERR_RELEASE;
         }
         ethDevice->config = &g_ethConfig->deviceInst[i];
 
@@ -189,22 +190,33 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         if (ethChipDriverFact == NULL) {
             HDF_LOGE("%s: get ethChipDriverFact failed! driverName = %s", __func__, ethDevice->name);
             ReleaseEthDevice(ethDevice);
-            OsalMemFree(g_ethConfig);
-            g_ethConfig = NULL;
-            return HDF_FAILURE;
+            goto ERR_RELEASE;
         }
         ret = InitEth(ethDevice, g_ethConfig->deviceInst[i].isSetDefault, ethChipDriverFact);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s failed to init eth driver, ret: %d", __func__, ret);
             ReleaseEthDevice(ethDevice);
-            OsalMemFree(g_ethConfig);
-            g_ethConfig = NULL;
-            return ret;
+            goto ERR_RELEASE;
         }
     }
     HDF_LOGE("%s hdf eth driver framework init success", __func__);
     return ret;
+
+ERR_RELEASE:
+    for (uint8_t j = 0; j < g_ethConfig->deviceListSize; j++) {
+        if (ethDevices[j] = NULL) {
+            DeinitEth(ethDevices[j]);
+            ReleaseEthDevice(ethDevices[j]);
+        }
+    }
+    OsalMemFree(g_ethConfig);
+    g_ethConfig = NULL;
+    return HDF_FAILURE;
+    HDF_LOGE("%s hdf eth driver framework init success", __func__);
+    return ret;
 }
+
+
 
 static int32_t HdfEthDriverBind(struct HdfDeviceObject *deviceObject)
 {
