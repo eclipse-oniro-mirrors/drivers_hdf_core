@@ -160,6 +160,10 @@ void LightTimerEntry(uintptr_t para)
     }
 
     lightId = (uint32_t)para;
+    if (lightId >= LIGHT_ID_MAX || drvData->info[lightId] == NULL) {
+        HDF_LOGE("%s: lightId %u invalid or info null", __func__, lightId);
+        return;
+    }
     drvData->lightId = lightId;
 
     if (drvData->info[lightId]->lightState == LIGHT_STATE_START) {
