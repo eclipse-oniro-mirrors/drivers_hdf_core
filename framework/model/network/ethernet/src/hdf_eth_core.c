@@ -215,8 +215,6 @@ ERR_RELEASE:
     return HDF_FAILURE;
 }
 
-
-
 static int32_t HdfEthDriverBind(struct HdfDeviceObject *deviceObject)
 {
     (void)deviceObject;
