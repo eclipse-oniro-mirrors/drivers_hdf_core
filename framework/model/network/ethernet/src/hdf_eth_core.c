@@ -176,7 +176,7 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         HDF_LOGE("%s failed to get g_ethConfig!", __func__);
         return HDF_FAILURE;
     }
-    struct EthDevice *ethDevice[g_ethConfig->deviceListSize];
+    struct EthDevice *ethDevices[g_ethConfig->deviceListSize];
     (void)memset_s(ethDevices, sizeof(ethDevices), 0, sizeof(ethDevices));
 
     for (i = 0; i < g_ethConfig->deviceListSize; i++) {
@@ -198,13 +198,14 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
             ReleaseEthDevice(ethDevice);
             goto ERR_RELEASE;
         }
+        ethDevices[i] = ethDevice;
     }
     HDF_LOGE("%s hdf eth driver framework init success", __func__);
     return ret;
 
 ERR_RELEASE:
     for (uint8_t j = 0; j < g_ethConfig->deviceListSize; j++) {
-        if (ethDevices[j] = NULL) {
+        if (ethDevices[j] != NULL) {
             DeinitEth(ethDevices[j]);
             ReleaseEthDevice(ethDevices[j]);
         }
@@ -212,8 +213,6 @@ ERR_RELEASE:
     OsalMemFree(g_ethConfig);
     g_ethConfig = NULL;
     return HDF_FAILURE;
-    HDF_LOGE("%s hdf eth driver framework init success", __func__);
-    return ret;
 }
 
 
