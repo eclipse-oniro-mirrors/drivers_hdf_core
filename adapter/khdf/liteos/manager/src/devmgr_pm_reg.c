@@ -49,7 +49,9 @@ UINT32 DevmgrPmSuspend(UINT32 mode)
 
     if (devmgrService->PowerStateChange(devmgrService, POWER_STATE_SUSPEND) != HDF_SUCCESS) {
         HDF_LOGE("%s drivers suspend failed", __func__);
-        devmgrService->PowerStateChange(devmgrService, POWER_STATE_RESUME);
+        if (devmgrService->PowerStateChange(devmgrService, POWER_STATE_RESUME) != HDF_SUCCESS) {
+            HDF_LOGE("%s drivers resume also failed!", __func__);
+        }
         return LOS_NOK;
     }
 
