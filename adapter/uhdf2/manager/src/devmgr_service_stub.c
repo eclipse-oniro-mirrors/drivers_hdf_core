@@ -84,10 +84,6 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
 
 static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
 {
-    if (servName == NULL) {
-        HDF_LOGE("%s: servName is null!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     uint32_t deviceId;
     if (!HdfSbufReadUint32(data, &deviceId)) {
         HDF_LOGE("%{public}s:failed to get host id and device id", __func__);
@@ -95,6 +91,10 @@ static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devm
     }
     const char *servName = HdfSbufReadString(data);
     const char *deviceName = HdfSbufReadString(data);
+    if (servName == NULL || deviceName == NULL) {
+        HDF_LOGE("%{public}s: invalid service or device name", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct HdfDevTokenProxy *tokenClnt = HdfDevTokenProxyObtain(NULL);
     if (tokenClnt == NULL) {
         return HDF_FAILURE;
@@ -321,10 +321,6 @@ static struct HdfRemoteDispatcher g_devmgrDispatcher = {
 
 int DevmgrServiceStubStartService(struct IDevmgrService *inst)
 {
-    if (servName == NULL) {
-        HDF_LOGE("%s: servName is null!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     struct DevmgrServiceStub *fullService = (struct DevmgrServiceStub *)inst;
     if (fullService == NULL) {
         HDF_LOGE("Start service failed, fullService is null");

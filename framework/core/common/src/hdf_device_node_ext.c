@@ -90,10 +90,6 @@ static int DeviceNodeExtPublishService(struct HdfDeviceNode *devNode)
 
 int DeviceNodeExtRemoveService(struct HdfDeviceNode *devNode)
 {
-    if (devNode == NULL) {
-        HDF_LOGE("%s: devNode is null!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     struct DeviceNodeExt *devNodeExt = CONTAINER_OF(devNode, struct DeviceNodeExt, super);
     if (devNode == NULL) {
         return HDF_ERR_INVALID_PARAM;

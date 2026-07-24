@@ -74,10 +74,6 @@ static int32_t HdiServiceSetUnMarshalling(struct HdfSBuf *buf, struct HdiService
 struct HdiServiceSet *HDIServMgrListServiceByInterfaceDesc(
     struct HDIServiceManager *iServMgr, const char *interfaceDesc)
 {
-    if (HDIServMgrListServiceByInterfaceDesc == NULL) {
-        HDF_LOGE("%ss: HDIServMgrListServiceByInterfaceDesc is null!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     if (iServMgr == NULL || interfaceDesc == NULL || strlen(interfaceDesc) == 0) {
         return NULL;
     }

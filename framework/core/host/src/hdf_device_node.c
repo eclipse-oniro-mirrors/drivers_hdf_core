@@ -64,8 +64,8 @@ static int HdfDeviceNodePublishService(struct HdfDeviceNode *devNode)
 
 int DeviceDriverBind(struct HdfDeviceNode *devNode)
 {
-    if (driver == NULL) {
-        HDF_LOGE("%s: driver is null!", __func__);
+    if (devNode == NULL || devNode->driver == NULL || devNode->driver->entry == NULL) {
+        HDF_LOGE("%{public}s: invalid device node or driver", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     int ret;
@@ -263,10 +263,6 @@ void HdfDeviceNodeDestruct(struct HdfDeviceNode *devNode)
 
 struct HdfDeviceNode *HdfDeviceNodeNewInstance(const struct HdfDeviceInfo *deviceInfo, struct HdfDriver *driver)
 {
-    if (token == NULL) {
-        HDF_LOGE("%s: token is null!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     struct HdfDeviceNode *devNode = NULL;
     if (deviceInfo == NULL) {
         return NULL;

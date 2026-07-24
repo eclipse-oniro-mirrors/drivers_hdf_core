@@ -48,8 +48,8 @@ static devid_t FindUsableDevNodeId(struct HdfDevice *device)
 
 static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
 {
-    if (device == NULL) {
-        HDF_LOGE("%s: device is null!", __func__);
+    if (device == NULL || devid == NULL) {
+        HDF_LOGE("%s: device or devid is null!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     devid_t nodeId;
@@ -82,8 +82,8 @@ static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
 
 static int HdfDeviceAttach(struct IHdfDevice *devInst, struct HdfDeviceNode *devNode)
 {
-    if (devId == NULL) {
-        HDF_LOGE("%s: devId is null!", __func__);
+    if (devNode->token == NULL || devNode == NULL) {
+        HDF_LOGE("failed to attach device, input params invalid");
         return HDF_ERR_INVALID_PARAM;
     }
     int ret;

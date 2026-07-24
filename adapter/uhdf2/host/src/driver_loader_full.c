@@ -32,10 +32,6 @@ static struct DriverLoaderFull *g_fullLoader = NULL;
 
 struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
 {
-    if (g_fullLoader == NULL) {
-        HDF_LOGE("%s: g_fullLoader is null!", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     if (moduleName == NULL) {
         return NULL;
     }

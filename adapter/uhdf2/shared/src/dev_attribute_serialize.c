@@ -55,10 +55,6 @@ bool DeviceAttributeSerialize(const struct HdfDeviceInfo *attribute, struct HdfS
 
 static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *sbuf)
 {
-    if (servName == NULL) {
-        HDF_LOGE("%s: servName is null!", __func__);
-        return false;
-    }
     const char *svcName = HdfSbufReadString(sbuf);
     if (svcName == NULL) {
         HDF_LOGE("Read from sbuf failed, svcName is null");
