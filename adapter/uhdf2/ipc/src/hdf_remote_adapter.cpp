@@ -221,6 +221,10 @@ void HdfRemoteAdapterRemoveDeathRecipient(
 
 struct HdfRemoteService *HdfRemoteAdapterBind(OHOS::sptr<OHOS::IRemoteObject> binder)
 {
+    if (HdfRemoteAdapterBind == NULL) {
+        HDF_LOGE("%s: HdfRemoteAdapterBind is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (binder == nullptr) {
         HDF_LOGE("%{public}s: binder is nullptr", __func__);
         return nullptr;

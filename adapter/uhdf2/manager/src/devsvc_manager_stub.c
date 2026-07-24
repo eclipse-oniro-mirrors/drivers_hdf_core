@@ -168,6 +168,10 @@ static void ReleaseServiceObjectHolder(struct DevSvcManagerStub *stub, struct Hd
 static struct HdfDeviceObject *ObtainServiceObject(
     struct DevSvcManagerStub *stub, const char *name, struct HdfRemoteService *service)
 {
+    if (service == NULL) {
+        HDF_LOGE("%s: service is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct HdfDeviceObjectHolder *serviceObjectHolder = OsalMemCalloc(sizeof(*serviceObjectHolder));
     if (serviceObjectHolder == NULL) {
         return NULL;

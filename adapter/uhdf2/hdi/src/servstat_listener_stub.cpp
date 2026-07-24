@@ -40,6 +40,10 @@ int ServStatListenerStub::OnRemoteRequest(
 int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    if (ptr == NULL) {
+        HDF_LOGE("%s: ptr is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     ServiceStatus status;
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         HDF_LOGE("failed to check interface token");

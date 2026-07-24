@@ -24,6 +24,10 @@
 static bool DevmgrServiceDynamicDevInfoFound(
     const char *svcName, struct DevHostServiceClnt **targetHostClnt, struct HdfDeviceInfo **targetDeviceInfo)
 {
+    if (svcName == NULL) {
+        HDF_LOGE("%s: svcName is null!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct HdfSListIterator itDeviceInfo;
     struct HdfDeviceInfo *deviceInfo = NULL;
     struct DevHostServiceClnt *hostClnt = NULL;
