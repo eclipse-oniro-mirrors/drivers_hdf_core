@@ -204,6 +204,10 @@ static int32_t SetBacklightByPwm(uint32_t level)
         HDF_LOGE("%s:pwmHandle is null", __func__);
         return HDF_FAILURE;
     }
+    if (panelCfg->info.blk.maxLevel == 0) {
+        HDF_LOGE("%s: maxLevel is 0, invalid param", __func__);
+        return HDF_FAILURE;
+    }
     duty = (level * panelCfg->info.pwm.period) / panelCfg->info.blk.maxLevel;
     ret = PwmSetDuty(panelCfg->pwmHandle, duty);
     if (ret != HDF_SUCCESS) {

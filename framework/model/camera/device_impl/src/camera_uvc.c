@@ -68,6 +68,10 @@ int32_t CameraCmdUvcSetConfig(struct SubDevice subDev)
     struct CameraCtrlConfig ctrlConfig = {};
     struct CameraDeviceDriver *deviceDriver = GetDeviceDriver(subDev.camDev);
 
+    if (devId < 0) {
+        HDF_LOGE("%s: devId is invalid!", __func__);
+        return HDF_FAILURE;
+    }
     ret = CameraCmdUvcCheckDeviceOps(deviceDriver, devId);
     CHECK_RETURN_RET(ret);
     isFailed |= !HdfSbufReadUint32(reqData, &ctrlConfig.ctrl.id);
