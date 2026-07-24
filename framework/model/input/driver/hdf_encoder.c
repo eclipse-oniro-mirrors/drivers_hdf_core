@@ -20,6 +20,11 @@ static void EncoderTimerFunc(uintptr_t arg)
 {
     int32_t ret;
     EncoderDriver *encoderDrv = (EncoderDriver *)arg;
+    if (encoderDrv == NULL || encoderDrv->encoderCfg == NULL) {
+        HDF_LOGE("%s: encoderDrv or encoderCfg is NULL", __func__);
+        return;
+    }
+
     uint16_t gpioClk = encoderDrv->encoderCfg->gpioClk;
     uint16_t gpioData = encoderDrv->encoderCfg->gpioData;
     uint16_t gpioSW = encoderDrv->encoderCfg->gpioSW;

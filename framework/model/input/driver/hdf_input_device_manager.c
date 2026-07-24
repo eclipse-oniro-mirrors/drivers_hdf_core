@@ -84,6 +84,14 @@ static void HotPlugNotify(const InputDevice *inputDev, uint32_t status)
     HotPlugEvent event = {0};
     int32_t ret;
 
+    if (inputDev == NULL) {
+        HDF_LOGE("%s: inputDev is null", __func__);
+        return;
+    }
+    if (g_inputManager == NULL || g_inputManager->hdfDevObj == NULL) {
+        HDF_LOGE("%s: g_inputManager or hdfDevObj is null", __func__);
+        return;
+    }
     if (inputDev->eventBuf == NULL) {
         HDF_LOGE("%s: event buffer is null", __func__);
         return;

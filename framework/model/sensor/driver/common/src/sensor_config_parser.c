@@ -143,11 +143,17 @@ int32_t ParseSensorRegGroup(struct DeviceResourceIface *parser, const struct Dev
         group->regCfgItem = (struct SensorRegCfg*)OsalMemCalloc(group->itemNum * sizeof(*(group->regCfgItem)));
         if (group->regCfgItem == NULL) {
             HDF_LOGE("%s: malloc sensor reg config item failed", __func__);
+            OsalMemFree(group);
+            *groupNode = NULL;
             return HDF_ERR_MALLOC_FAIL;
         }
 
         if (ParseSensorRegItem(parser, regCfgNode, groupName, group) != HDF_SUCCESS) {
             HDF_LOGE("%s: malloc sensor reg config item data failed", __func__);
+            OsalMemFree(group->regCfgItem);
+            group->regCfgItem = NULL;
+            OsalMemFree(group);
+            *groupNode = NULL;
             return HDF_FAILURE;
         }
     }

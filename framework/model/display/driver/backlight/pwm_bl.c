@@ -69,8 +69,8 @@ static int32_t ParsePwmNum(const struct DeviceResourceNode *node, uint8_t *pwmNu
     int32_t ret;
     struct DeviceResourceIface *parser = NULL;
 
-    if (node == NULL) {
-        HDF_LOGE("%s: node is null", __func__);
+    if (node == NULL || pwmNum == NULL) {
+        HDF_LOGE("%s: node or pwmNum is null", __func__);
         return HDF_FAILURE;
     }
     parser = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);

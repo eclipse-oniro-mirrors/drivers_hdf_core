@@ -609,6 +609,11 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
         if (validDataSize < data->captureBufInfo.trafBufSize) {
             data->captureBufInfo.curTrafSize = validDataSize;
         }
+    } else {
+        validDataSize = wPtr - rPtr;
+        if (validDataSize < data->captureBufInfo.trafBufSize) {
+            data->captureBufInfo.curTrafSize = validDataSize;
+        }
     }
     if (data->capturePcmInfo.isBigEndian) {
         if (AudioDataBigEndianChange((char *)(data->captureBufInfo.virtAddr) + rPtr,

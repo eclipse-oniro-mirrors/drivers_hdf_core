@@ -467,6 +467,10 @@ static int32_t ControlElemListRspDataSerialize(struct HdfSBuf *rspData, struct A
         return HDF_FAILURE;
     }
 
+    if (ctlEleList->cardServiceName == NULL) {
+        ADM_LOG_ERR("cardServiceName is NULL!");
+        return HDF_FAILURE;
+    }
     if (!HdfSbufWriteString(rspData, ctlEleList->cardServiceName)) {
         ADM_LOG_ERR("Write response data cardServiceName=%s failed!", ctlEleList->cardServiceName);
         return HDF_FAILURE;

@@ -343,11 +343,13 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
         ret = HdfSdioEnableFunc(dev);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: Enable sdio failed!", __func__);
+            SdioReleaseHost(handle);
             break;
         }
         ret = HdfSdioSetBlk(dev, busCfg->blockSize);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: Set sdio block size failed!", __func__);
+            SdioReleaseHost(handle);
             break;
         }
         SdioReleaseHost(handle);

@@ -458,6 +458,10 @@ static int32_t WifiCmdSetCountryCode(const RequestContext *context, struct HdfSB
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "code");
         return HDF_FAILURE;
     }
+    if (code == NULL || replayDataSize == 0) {
+        HDF_LOGE("%s: invalid code or invalid replayDataSize", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     ret = SetCountryCode(netdev, code, replayDataSize);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to set country code,%d", __func__, ret);

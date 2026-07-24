@@ -74,6 +74,10 @@ static uint16_t TimeCounter(uint16_t intGpioNum)
 
 static void RecvDataHandle(InfraredDriver *infraredDrv, uint32_t data)
 {
+    if (infraredDrv == NULL || infraredDrv->inputDev == NULL) {
+        HDF_LOGE("%s: infraredDrv or inputDev is NULL", __func__);
+        return;
+    }
     if (((data & 0xFF00) >> 8) + (data & 0xFF) != 0xFF) { // 8 bit
         return;
     }
@@ -173,6 +177,10 @@ int32_t InfraredIrqHandle(uint16_t intGpioNum, void *data)
 
 static int32_t SetupInfraredIrq(InfraredDriver *infraredDrv)
 {
+    if (infraredDrv == NULL || infraredDrv->infraredCfg == NULL) {
+        HDF_LOGE("%s: infraredDrv or infraredCfg is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     uint16_t intGpioNum = infraredDrv->infraredCfg->gpioNum;
     uint16_t irqFlag = infraredDrv->infraredCfg->irqFlag;
     int32_t ret = GpioSetDir(intGpioNum, GPIO_DIR_IN);

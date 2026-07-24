@@ -244,6 +244,11 @@ static int32_t ReadData(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *dat
         return HDF_FAILURE;
     }
 
+    if (events.data == NULL || events.dataLen == 0) {
+        HDF_LOGE("%s: events data is invalid", __func__);
+        return HDF_FAILURE;
+    }
+
     if (!HdfSbufWriteBuffer(reply, &events, sizeof(events))) {
         HDF_LOGE("%s: sbuf write event failed", __func__);
         return HDF_FAILURE;

@@ -619,6 +619,7 @@ static int32_t StreamHostCaptureOpen(const struct HdfDeviceIoClient *client, str
 
     if (AudioDaiDeviceStartup(audioCard) != HDF_SUCCESS) {
         ADM_LOG_ERR("Dai Device Startup failed.");
+        AudioCaptureClose(audioCard);
         return HDF_FAILURE;
     }
 
@@ -878,6 +879,10 @@ static int32_t StreamHostMmapWrite(const struct HdfDeviceIoClient *client, struc
     }
     (void)client;
     audioCard = StreamHostGetCardInstance(data);
+    if (audioCard == NULL) {
+        ADM_LOG_ERR("StreamHostMmapWrite: audioCard is null!");
+        return HDF_FAILURE;
+    }
 
     if (!HdfSbufReadUint64(data, &mAddress)) {
         ADM_LOG_ERR("render mmap read request memory address failed!");
