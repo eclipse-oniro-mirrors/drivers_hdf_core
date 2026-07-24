@@ -57,7 +57,7 @@ static int32_t ReportPpgData(uint8_t *dataBuf, uint16_t dataLen)
     if (dataLen >= sizeof(uint32_t)) {
         HDF_LOGD("%s: Ppg data[0] = 0x%04x", __func__, ((uint32_t *)dataBuf)[0]);
     } else {
-        HDF_LOGD("%s: Ppg dataLen %u too samll for uint32 cast", __func__, dataLen);
+        HDF_LOGD("%s: Ppg dataLen %u too small for uint32 cast", __func__, dataLen);
     }
 
     if (ReportSensorEvent(&event) != HDF_SUCCESS) {
