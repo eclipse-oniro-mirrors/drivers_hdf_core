@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -15,6 +15,7 @@
 #include "hdf_object_manager.h"
 #include "hdf_service_record.h"
 #include "osal_mem.h"
+#include "osal_atomic.h"
 
 #define HDF_LOG_TAG devsvc_manager
 #define SERVICE_LIST_MAX 16
@@ -91,16 +92,6 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
         HDF_LOGE("failed to add service, input param is null");
         return HDF_FAILURE;
     }
-    OsalMutexLock(&devSvcManager->mutex);
-    record = DevSvcManagerSearchServiceLocked(inst, HdfStringMakeHashKey(servInfo->servName, 0));
-    if (record != NULL) {
-        // on service died will release old service object
-        record->value = service;
-        OsalMutexUnlock(&devSvcManager->mutex);
-        HDF_LOGI("%{public}s:add service %{public}s exist, only update value", __func__, servInfo->servName);
-        return HDF_SUCCESS;
-    }
-    OsalMutexUnlock(&devSvcManager->mutex);
     record = DevSvcRecordNewInstance();
     if (record == NULL) {
         HDF_LOGE("failed to add service , record is null");
@@ -116,12 +107,28 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
 
     if (servInfo->interfaceDesc != NULL && strcmp(servInfo->interfaceDesc, "") != 0) {
         record->interfaceDesc = HdfStringCopy(servInfo->interfaceDesc);
+        if (record->interfaceDesc == NULL) {
+            DevSvcRecordFreeInstance(record);
+            return HDF_ERR_MALLOC_FAIL;
+        }
     }
     if (record->servName == NULL) {
         DevSvcRecordFreeInstance(record);
         return HDF_ERR_MALLOC_FAIL;
     }
+    if (servInfo->servInfo != NULL && record->servInfo == NULL) {
+        DevSvcRecordFreeInstance(record);
+        return HDF_ERR_MALLOC_FAIL;
+    }
     OsalMutexLock(&devSvcManager->mutex);
+    struct DevSvcRecord *existRecord = DevSvcManagerSearchServiceLocked(inst, record->key);
+    if (existRecord != NULL) {
+        existRecord->value = service;
+        OsalMutexUnlock(&devSvcManager->mutex);
+        DevSvcRecordFreeInstance(record);
+        HDF_LOGI("%{public}s:add service %{public}s exist, only update value", __func__, servInfo->servName);
+        return HDF_SUCCESS;
+    }
     DListInsertTail(&record->entry, &devSvcManager->services);
     NotifyServiceStatusLocked(devSvcManager, record, SERVIE_STATUS_START);
     OsalMutexUnlock(&devSvcManager->mutex);
@@ -214,14 +221,14 @@ void DevSvcManagerRemoveService(struct IDevSvcManager *inst, const char *svcName
 
 struct HdfDeviceObject *DevSvcManagerGetObject(struct IDevSvcManager *inst, const char *svcName)
 {
-    uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     struct DevSvcRecord *serviceRecord = NULL;
     struct HdfDeviceObject *deviceObject = NULL;
-    if (svcName == NULL) {
-        HDF_LOGE("Get service failed, svcName is null");
+    if (devSvcManager == NULL || svcName == NULL) {
+        HDF_LOGE("Get service failed, invalid param");
         return NULL;
     }
+    uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
     OsalMutexLock(&devSvcManager->mutex);
     serviceRecord = DevSvcManagerSearchServiceLocked(inst, serviceKey);
     if (serviceRecord != NULL) {
@@ -286,7 +293,7 @@ int DevSvcManagerListServiceByInterfaceDesc(
     struct DevSvcRecord *record = NULL;
     struct DevSvcManager *devSvcManager = (struct DevSvcManager *)inst;
     int status = HDF_SUCCESS;
-    if (devSvcManager == NULL || reply == NULL) {
+    if (devSvcManager == NULL || reply == NULL || interfaceDesc == NULL) {
         HDF_LOGE("failed to list service collection info, parameter is null");
         return HDF_ERR_INVALID_PARAM;
     }
@@ -311,16 +318,17 @@ int DevSvcManagerListServiceByInterfaceDesc(
             serviceNum = serviceNum + 1;
         }
     }
-    OsalMutexUnlock(&devSvcManager->mutex);
-    HDF_LOGD("find %{public}u services interfacedesc is %{public}s", serviceNum, interfaceDesc);
     if (!HdfSbufWriteUint32(reply, serviceNum)) {
         HDF_LOGE("failed to write serviceNum to buffer, interfacedesc is %{public}s, serviceNum is %{public}d",
             interfaceDesc, serviceNum);
+        OsalMutexUnlock(&devSvcManager->mutex);
         return HDF_FAILURE;
     }
     for (i = 0; i < serviceNum; i++) {
         HdfSbufWriteString(reply, serviceNames[i]);
     }
+    OsalMutexUnlock(&devSvcManager->mutex);
+    HDF_LOGD("find %{public}u services interfacedesc is %{public}s", serviceNum, interfaceDesc);
     return status;
 }
 
@@ -347,7 +355,9 @@ void DevSvcManagerUnregsterServListener(struct IDevSvcManager *inst, struct Serv
     }
 
     OsalMutexLock(&devSvcManager->mutex);
-    DListRemove(&listenerHolder->node);
+    if (listenerHolder->node.next != NULL) {
+        DListRemove(&listenerHolder->node);
+    }
     OsalMutexUnlock(&devSvcManager->mutex);
 }
 
@@ -401,23 +411,23 @@ int DevSvcManagerStartService(void)
 
 struct HdfObject *DevSvcManagerCreate(void)
 {
-    static bool isDevSvcManagerInit = false;
+    static OsalAtomic g_createOnce = {0};
     static struct DevSvcManager devSvcManagerInstance;
-    if (!isDevSvcManagerInit) {
+    if (OsalAtomicRead(&g_createOnce) == 0) {
         if (!DevSvcManagerConstruct(&devSvcManagerInstance)) {
             return NULL;
         }
-        isDevSvcManagerInit = true;
+        OsalAtomicSet(&g_createOnce, 1);
     }
     return (struct HdfObject *)&devSvcManagerInstance;
 }
 
 void DevSvcManagerRelease(struct IDevSvcManager *inst)
 {
-    struct DevSvcManager *devSvcManager = CONTAINER_OF(inst, struct DevSvcManager, super);
     if (inst == NULL) {
         return;
     }
+    struct DevSvcManager *devSvcManager = CONTAINER_OF(inst, struct DevSvcManager, super);
     struct DevSvcRecord *record = NULL;
     struct DevSvcRecord *tmp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(record, tmp, &devSvcManager->services, struct DevSvcRecord, entry) {
@@ -428,9 +438,13 @@ void DevSvcManagerRelease(struct IDevSvcManager *inst)
 
 struct IDevSvcManager *DevSvcManagerGetInstance(void)
 {
+    static OsalAtomic g_instOnce = {0};
     static struct IDevSvcManager *instance = NULL;
-    if (instance == NULL) {
+    if (OsalAtomicRead(&g_instOnce) == 0) {
         instance = (struct IDevSvcManager *)HdfObjectManagerGetObject(HDF_OBJECT_ID_DEVSVC_MANAGER);
+        if (instance != NULL) {
+            OsalAtomicSet(&g_instOnce, 1);
+        }
     }
     return instance;
 }
