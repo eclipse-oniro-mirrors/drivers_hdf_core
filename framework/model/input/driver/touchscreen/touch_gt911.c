@@ -176,6 +176,21 @@ static void ChipVersionIsExt(ChipDevice *device, FrameData *frame, const uint8_t
     }
 }
 
+static void ChipVersionDirect(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
+{
+    for (uint8_t i = 0; i < pointNum; i++) {     // chipversion D: direct pass-through
+        frame->fingers[i].trackId = buf[GT_POINT_SIZE * i + GT_TRACK_ID];
+        frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
+        frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
+                              ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
+        if (frame->fingers[i].x == 0) {
+            frame->fingers[i].x = X_OFFSET;
+        }
+        frame->fingers[i].valid = true;
+    }
+}
+
 static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
 {
     int32_t chipVer = device->chipCfg->chipVersion;
@@ -183,6 +198,8 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
         ChipVersionDefault(device, frame, buf, pointNum);
     } else if (chipVer == 1) {  // chipversion B:gt911_zsj4p0
         ChipVersionIsOne(device, frame, buf, pointNum);
+    } else if (chipVer == 3) {  // chipversion D: direct pass-through
+        ChipVersionDirect(device, frame, buf, pointNum);
     } else {                    // chipversion C:gt911_tg7p0
         ChipVersionIsExt(device, frame, buf, pointNum);
     }

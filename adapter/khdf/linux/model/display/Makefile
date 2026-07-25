@@ -34,6 +34,9 @@ obj-$(CONFIG_ARCH_SPRD) += \
 obj-$(CONFIG_ARCH_HI3516DV300) += \
          $(DISPLAY_ROOT_DIR)/adapter_soc/hi35xx_disp.o
 
+obj-$(CONFIG_ARCH_SS928V100) += \
+         $(DISPLAY_ROOT_DIR)/adapter_soc/hi3403_disp.o
+
 obj-$(CONFIG_DRIVERS_HDF_LCDKIT) += \
          $(DISPLAY_ROOT_DIR)/lcdkit/lite_lcdkit.o \
          $(DISPLAY_ROOT_DIR)/lcdkit/lcdkit_parse_config.o

@@ -113,9 +113,13 @@ int32_t SetDispBacklight(uint32_t devId, uint32_t level)
     if (disp && disp->panelManager && devId < disp->panelManager->panelNum) {
         panel = disp->panelManager->panel[devId];
     }
-    if ((panel == NULL) || (UpdateBrightness(panel->blDev, level) != HDF_SUCCESS)) {
-        HDF_LOGE("%s:panel is null or UpdateBrightness failed", __func__);
+    if (panel == NULL) {
+        HDF_LOGE("%s: panel is null", __func__);
         return HDF_FAILURE;
+    }
+    if (UpdateBrightness(panel->blDev, level) != HDF_SUCCESS) {
+        HDF_LOGW("%s: UpdateBrightness failed, backlight unavailable", __func__);
+        /* continue — MIPI display works without backlight */
     }
     HDF_LOGI("%s:level = %u", __func__, level);
     return HDF_SUCCESS;
@@ -184,7 +188,7 @@ static int32_t SetDispPower(uint32_t devId, uint32_t powerStatus)
             ret = panel->on(panel);
             if (ret == HDF_SUCCESS) {
                 panel->powerStatus = POWER_STATUS_ON;
-                ret = UpdateBacklightState(panel->blDev, FB_POWER_ON);
+                UpdateBacklightState(panel->blDev, FB_POWER_ON);
                 EsdCheckStartUp(disp->esd, devId);
             }
             break;
@@ -192,7 +196,7 @@ static int32_t SetDispPower(uint32_t devId, uint32_t powerStatus)
             ret = panel->off(panel);
             if (ret == HDF_SUCCESS) {
                 panel->powerStatus = POWER_STATUS_OFF;
-                ret = UpdateBacklightState(panel->blDev, FB_POWER_OFF);
+                UpdateBacklightState(panel->blDev, FB_POWER_OFF);
                 EsdCheckEnd(disp->esd, devId);
             }
             break;
