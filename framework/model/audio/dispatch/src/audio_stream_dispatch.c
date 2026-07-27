@@ -690,6 +690,7 @@ static int32_t StreamHostRenderOpen(const struct HdfDeviceIoClient *client, stru
 
     if (AudioDaiDeviceStartup(audioCard) != HDF_SUCCESS) {
         ADM_LOG_ERR("Dai Device Startup failed.");
+        AudioRenderClose(audioCard);
         return HDF_FAILURE;
     }
 
