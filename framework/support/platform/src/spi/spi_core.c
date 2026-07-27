@@ -160,6 +160,10 @@ static int32_t SpiMsgsRwProcess(
         msgs[i].rbuf = NULL;
         msgs[i].wbuf = NULL;
         if ((userMsg->rwFlag & SPI_USER_MSG_READ) == SPI_USER_MSG_READ) {
+            if ((*lenReply) > UINT32_MAX - msgs[i].len) {
+                HDF_LOGE("SpiMsgsRwProcess: lenReply overflow!");
+                return HDF_ERR_INVALID_PARAM;
+            }
             (*lenReply) += msgs[i].len;
             msgs[i].rbuf = tmpFlag; // tmpFlag is not mainpulated, only to mark rbuf not NULL
         }

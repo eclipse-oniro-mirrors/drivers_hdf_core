@@ -417,6 +417,11 @@ static int32_t HdfCmdfillPnoSettings(struct HdfSBuf *reqData,  WifiPnoSettings *
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "pnoNetworksLen");
         return HDF_FAILURE;
     }
+    if (pnoSettings->pnoNetworksLen == 0 || pnoSettings->pnoNetworksLen > PNO_NETWORKS_MAX) {
+        HDF_LOGE("%s: %s!ParamName=%s, invalid len %u", __func__, ERROR_DESC_READ_REQ_FAILED, "pnoNetworksLen",
+            pnoSettings->pnoNetworksLen);
+        return HDF_FAILURE;
+    }
     pnoSettings->pnoNetworks = (WifiPnoNetwork *)OsalMemAlloc(sizeof(WifiPnoNetwork) * pnoSettings->pnoNetworksLen);
     if (pnoSettings->pnoNetworks == NULL) {
         HDF_LOGE("%s: alloc memory failed.", __func__);
