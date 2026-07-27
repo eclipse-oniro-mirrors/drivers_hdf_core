@@ -22,6 +22,10 @@ static int32_t CameraCmdUvcCheckDeviceOps(struct CameraDeviceDriver *deviceDrive
         HDF_LOGE("%s: deviceDriver ptr is null!", __func__);
         return HDF_FAILURE;
     }
+    if (devId < 0 || devId >= DEVICE_NUM) {
+        HDF_LOGE("%s: devId out of range!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (deviceDriver->uvc[devId] == NULL) {
         HDF_LOGE("%s: uvc dev is null!", __func__);
         return HDF_FAILURE;

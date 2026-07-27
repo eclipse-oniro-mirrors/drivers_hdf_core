@@ -161,7 +161,7 @@ static int32_t InitEth(struct EthDevice *ethDevice, const uint8_t isSetDefault,
 
 static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
 {
-    int32_t ret;
+    int32_t ret = HDF_SUCCESS;
     uint8_t i;
 
     if (deviceObject == NULL) {

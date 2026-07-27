@@ -472,7 +472,7 @@ int32_t CameraGetDeviceInfo(int type, struct HdfSBuf *reqData,
 
     ret = GetCameraId(deviceName, strlen(deviceName), camId);
     CHECK_RETURN_RET(ret);
-    if ((*camId) > CAMERA_DEVICE_MAX_NUM) {
+    if ((*camId) < 0 || (*camId) >= CAMERA_DEVICE_MAX_NUM) {
         HDF_LOGE("%s: wrong camId! camId=%{public}d", __func__, (*camId));
         return HDF_FAILURE;
     }
@@ -560,7 +560,7 @@ int32_t CameraDeviceGetCtrlConfig(struct CommonDevice *comDev,
         HDF_LOGE("%s: get rootConfig failed!", __func__);
         return HDF_FAILURE;
     }
-    if (comDev->camId > CAMERA_DEVICE_MAX_NUM) {
+    if (comDev->camId < 0 || comDev->camId >= CAMERA_DEVICE_MAX_NUM) {
         HDF_LOGE("%s: wrong camId! camId=%{public}d", __func__, comDev->camId);
         return HDF_FAILURE;
     }
