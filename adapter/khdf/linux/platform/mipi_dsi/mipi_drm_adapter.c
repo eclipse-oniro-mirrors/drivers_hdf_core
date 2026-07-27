@@ -240,6 +240,7 @@ static int32_t MipiDsiAdapterInit(struct HdfDeviceObject *device)
 static void MipiDsiAdapterRelease(struct HdfDeviceObject *device)
 {
     struct MipiDsiCntlr *cntlr;
+    struct mipi_dsi_device *linuxPanel;
 
     if (device == NULL) {
         HDF_LOGE("MipiDsiAdapterRelease: device is null!");
@@ -249,6 +250,15 @@ static void MipiDsiAdapterRelease(struct HdfDeviceObject *device)
     if (cntlr == NULL) {
         HDF_LOGE("MipiDsiAdapterRelease: cntlr is null!");
         return;
+    }
+
+    linuxPanel = (struct mipi_dsi_device *)cntlr->priv;
+    if (linuxPanel != NULL) {
+        /* 分离 DSI 设备 */
+        mipi_dsi_detach(linuxPanel);
+        /* 释放设备引用计数 */
+        mipi_dsi_device_put(linuxPanel);
+        cntlr->priv = NULL;
     }
     MipiDsiUnregisterCntlr(cntlr);
     cntlr->priv = NULL;

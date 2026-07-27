@@ -66,6 +66,10 @@ static struct SpiDev *SpiFindDeviceByCsNum(const struct SpiCntlr *cntlr, uint32_
     struct SpiDev *dev = NULL;
     struct SpiDev *tmpDev = NULL;
 
+    if (cntlr == NULL) {
+        HDF_LOGE("SpiFindDeviceByCsNum: cntlr is NULL");
+        return NULL;
+    }
     if (cntlr->numCs <= cs) {
         HDF_LOGE("SpiFindDeviceByCsNum: invalid cs %u!", cs);
         return NULL;
@@ -438,6 +442,7 @@ static int SpiAdapterRegisterDummyController(void)
     dummyCntlr->transfer_one = SpiAdapterTransferOneDummy;
     if (devm_spi_register_controller(&pdev.dev, dummyCntlr) != 0) {
         HDF_LOGE("SpiAdapterRegisterDummyController: register dummy controller fail!");
+        platform_device_unregister(&pdev);
         return HDF_PLT_ERR_OS_API;
     }
     g_linuxDefaultTransferOneMessage = dummyCntlr->transfer_one_message;
@@ -544,6 +549,11 @@ static void HdfSpiDeviceRelease(struct HdfDeviceObject *device)
 
     DLIST_FOR_EACH_ENTRY_SAFE(dev, tmpDev, &(cntlr->list), struct SpiDev, list) {
         DListRemove(&(dev->list));
+        if (dev->priv != NULL) {
+            struct device *dev_priv = (struct device *)dev->priv;
+            put_device(dev_priv);
+            dev->priv = NULL;
+        }
         OsalMemFree(dev);
     }
     SpiCntlrDestroy(cntlr);

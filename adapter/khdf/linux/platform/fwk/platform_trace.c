@@ -222,7 +222,7 @@ void PlatformTraceInfoDump(void)
     int32_t ret;
     char buf[TRACE_INFO_DUMPER_LEN];
     OsalFile file;
-    int32_t len = 0;
+    uint32_t len = 0;
     off_t off;
     if (!TraceIsOpen()) {
         return;

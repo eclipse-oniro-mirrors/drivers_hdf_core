@@ -443,13 +443,17 @@ int32_t TimerListRemoveAll(void)
     struct TimerCntrl *tmp = NULL;
     struct TimerManager *manager = g_timerManager;
 
+    if (manager == NULL) {
+        HDF_LOGE("TimerListRemoveAll: manager is NULL");
+        return HDF_ERR_INVALID_PARAM;        
+    }
     if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
         HDF_LOGE("TimerListRemoveAll: lock regulator manager fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
 
     DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->timerListHead, struct TimerCntrl, node) {
-        if ((pos->ops->Remove != NULL) && (pos->ops->Remove(pos) != HDF_SUCCESS)) {
+        if ((pos->ops != NULL) && (pos->ops->Remove != NULL) && (pos->ops->Remove(pos) != HDF_SUCCESS)) {
             HDF_LOGE("TimerListRemoveAll: remove %u fail!", pos->info.number);
         }
         DListRemove(&pos->node);

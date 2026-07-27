@@ -123,6 +123,10 @@ static int32_t AttachWatchdogDeviceInfo(struct WatchdogCntlr *watchdogCntlr, str
     int32_t ret;
     WatchdogDeviceInfo *watchdogdeviceinfo = NULL;
 
+    if {watchdogCntlr == NULL} {
+        HDF_LOGE("watchdogCntlr is NULL\r\n");
+        return HDF_FAILURE;
+    }
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
     if (device == NULL || device->deviceMatchAttr == NULL) {
 #else

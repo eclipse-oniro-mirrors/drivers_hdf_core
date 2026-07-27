@@ -688,6 +688,7 @@ static void SpiDriverRelease(struct HdfDeviceObject *device)
 
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
     OsalMemFree(spiDevice);
+    spiCntlr->priv == NULL;
     return;
 }
 
