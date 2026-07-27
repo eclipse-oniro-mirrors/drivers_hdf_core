@@ -26,7 +26,12 @@ extern "C" {
  * @brief Defines the log domain of the HDF.
  */
 #ifndef LOG_DOMAIN
-#define LOG_DOMAIN 0xD002510
+    #define LOG_DOMAIN 0xD002510
+#else
+    #if LOG_DOMAIN == 0
+        #undef LOG_DOMAIN
+        #define LOG_DOMAIN 0xD002510
+    #endif
 #endif
 
 #ifdef __cplusplus
