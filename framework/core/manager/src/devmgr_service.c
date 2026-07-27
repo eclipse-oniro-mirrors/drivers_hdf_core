@@ -142,7 +142,11 @@ static int DevmgrServiceStopHost(struct DevHostServiceClnt *hostClnt)
         HDF_LOGE("invalid installer");
         return HDF_FAILURE;
     }
-    installer->StopDeviceHost(hostClnt->hostId, hostClnt->hostName);
+    int ret = installer->StopDeviceHost(hostCInt->hostId, hostCInt->hostName);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("failed to stop host %{public}u, ret:%{public}d", hostCInt->hostId, ret);
+        return ret;
+    }
     hostClnt->stopFlag = true;
     return HDF_SUCCESS;
 }
@@ -344,6 +348,7 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
 static int DevmgrServiceStartDeviceHosts(struct DevmgrService *inst)
 {
     int ret;
+    int lastError = HDF_SUCCESS;
     struct HdfSList hostList;
     struct HdfSListIterator it;
     struct HdfHostInfo *hostAttr = NULL;
@@ -360,10 +365,11 @@ static int DevmgrServiceStartDeviceHosts(struct DevmgrService *inst)
         if (ret != HDF_SUCCESS) {
             HDF_LOGW("%{public}s failed to start device host, host id is %{public}u, host name is '%{public}s'",
                 __func__, hostAttr->hostId, hostAttr->hostName);
+            lastError = ret;
         }
     }
     HdfSListFlush(&hostList, HdfHostInfoDelete);
-    return HDF_SUCCESS;
+    return lastError;
 }
 
 static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct HdfSBuf *reply)
@@ -436,9 +442,15 @@ int DevmgrServiceStartService(struct IDevmgrService *inst)
     }
 
     ret = DevmgrServiceStartDeviceHosts(dmService);
-    int startServiceRet = DevSvcManagerStartService();
-    HDF_LOGI("start svcmgr result %{public}d. Init DeviceHosts info result: %{public}d", startServiceRet, ret);
-    return ret;
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: failed to start device hosts, result: %{public}d", __func__, ret);
+        return ret;
+    }
+    ret = DevSvcManagerStartService();
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: failed to start device hosts, result: %{public}d", __func__, ret);
+    }
+    return HDF_SUCCESS;
 }
 
 int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum HdfPowerState powerState)

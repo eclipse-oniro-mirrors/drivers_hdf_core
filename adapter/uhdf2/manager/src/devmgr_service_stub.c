@@ -61,6 +61,10 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
         HDF_LOGE("invalid host id");
         return HDF_FAILURE;
     }
+    if (hostId > UINT16_MAX) {
+        HDF_LOGE("%{public}s : hostId %{public}u exceeds uint16_t range", __func__, hostId);
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct HdfRemoteService *service = HdfSbufReadRemoteService(data);
     if (service == NULL) {
         HDF_LOGE("failed to read remote service from sbuf");
@@ -69,9 +73,10 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
     if (hostIf == NULL) {
         HDF_LOGE("%{public}s: failed to obtain host service proxy", __func__);
+        HdfRemoteServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
-    DevmgrServicehostClntGetPid(devmgrSvc, hostId);
+    DevmgrServicehostClntGetPid(devmgrSvc, (uint16_t)hostId);
     int32_t ret = devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: attach device host failed, release hostIf", __func__);

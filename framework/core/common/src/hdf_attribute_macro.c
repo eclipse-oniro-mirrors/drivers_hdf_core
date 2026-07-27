@@ -149,7 +149,7 @@ static bool GetDeviceNodeInfo(const struct HdfDeviceNodeType *deviceNode, struct
 static bool GetDevcieNodeList(const struct HdfDeviceType *device,
     struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
 {
-    uint8_t deviceNodeIdx = 1;
+    uint16_t deviceNodeIdx = 1;
     uint16_t hostId = hostClnt->hostId;
     struct HdfDeviceInfo *devInfo = NULL;
     const struct HdfDeviceNodeType *devNode = NULL;
@@ -165,10 +165,16 @@ static bool GetDevcieNodeList(const struct HdfDeviceType *device,
             continue;
         }
 
+        if (deviceNodeIdx > DEVNODEID_MASK) {
+            HDF_LOGE("%{public}s: deviceNodeIdx overflow, exceeds max %u", __func__, DEVNODEID_MASK);
+            HdfDeviceInfoFreeInstance(deviceNodeInfo);
+            continue;
+        }
         devInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
         if (devInfo->preload != DEVICE_PRELOAD_DISABLE) {
             if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &devInfo->node, HdfDeviceListCompareMacro)) {
-                HDF_LOGE("%{public}s: failed to add device info to list %{public}s", __func__, devInfo->svcName);
+                HDF_LOGE("%{public}s: failed to add device info to list %{public}s",
+                    __func__, devInfo->svcName != NULL ? devInfo->svcName: "null");
                 HdfDeviceInfoFreeInstance(devInfo);
                 continue;
             }
@@ -222,6 +228,7 @@ int HdfAttributeManagerGetDeviceList(struct DevHostServiceClnt *hostClnt)
 
     DLIST_FOR_EACH_ENTRY(device, &host->devices, struct HdfDeviceType, deviceEntry) {
         if (!GetDevcieNodeList(device, hostClnt, deviceIdx)) {
+            AttributeManagerFreeHost(host);
             return ret;
         }
         deviceIdx++;

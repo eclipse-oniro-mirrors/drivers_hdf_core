@@ -290,10 +290,11 @@ static int32_t HdfDevEventListenTask(void *para)
 EXIT:
     HDF_LOGI("event listener task exit");
 
+    bool selfFree = thread->shouldStop;
     thread->status = LISTENER_EXITED;
     OsalMemFree(pfds);
 
-    if (thread->shouldStop) {
+    if (selfFree) {
         /* Exit due to async call and free the thread struct. */
         OsalMutexDestroy(&thread->mutex);
         OsalThreadDestroy(&thread->thread);

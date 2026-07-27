@@ -180,7 +180,7 @@ static bool GetDeviceNodeInfo(const struct DeviceResourceNode *deviceNode, struc
 static bool GetDevcieNodeList(
     const struct DeviceResourceNode *device, struct DevHostServiceClnt *hostClnt, uint16_t deviceIdx)
 {
-    uint8_t deviceNodeIdx = 1;
+    uint16_t deviceNodeIdx = 1;
     uint16_t hostId = hostClnt->hostId;
     struct HdfDeviceInfo *deviceNodeInfo = NULL;
     const struct DeviceResourceNode *devNodeResource = device->child;
@@ -196,6 +196,11 @@ static bool GetDevcieNodeList(
             continue;
         }
 
+        if (deviceNodeIdx > DEVNODEID_MASK) {
+            HDF_LOGE("%{public}s: deviceNodeIdx overflow, exceeds max %u", __func__, DEVNODEID_MASK);
+            HdfDeviceInfoFreeInstance(deviceNodeInfo);
+            continue;
+        }
         deviceNodeInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
         if (deviceNodeInfo->preload != DEVICE_PRELOAD_DISABLE) {
             if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &deviceNodeInfo->node, HdfDeviceListCompare)) {

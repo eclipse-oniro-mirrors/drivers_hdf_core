@@ -139,13 +139,19 @@ void HdfSbufFlush(struct HdfSBuf *sbuf)
 
 size_t HdfSbufGetCapacity(const struct HdfSBuf *sbuf)
 {
-    HDF_SBUF_IMPL_CHECK_RETURN(sbuf, getCapacity, HDF_FAILURE);
-    return (sbuf != NULL && sbuf->impl != NULL) ? sbuf->impl->getCapacity(sbuf->impl) : 0;
+    if (sbuf == NULL || sbuf->impl == NULL) {
+        HDF_LOGE("%{public}s: invalid sbuf object", __func__);
+        return 0;
+    }
+    return sbuf->impl->getCapacity(sbuf->impl);
 }
 
 size_t HdfSbufGetDataSize(const struct HdfSBuf *sbuf)
 {
-    HDF_SBUF_IMPL_CHECK_RETURN(sbuf, getDataSize, HDF_FAILURE);
+    if (sbuf->impl->getDataSize == NULL) {
+        HDF_LOGE("getDataSize is not supported on %{public}u sbuf", sbuf->type);
+        return 0;
+    }
     return sbuf->impl->getDataSize(sbuf->impl);
 }
 
