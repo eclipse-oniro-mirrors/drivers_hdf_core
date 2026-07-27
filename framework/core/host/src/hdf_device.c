@@ -82,7 +82,7 @@ static int AcquireNodeDeivceId(struct HdfDevice *device, devid_t *devid)
 
 static int HdfDeviceAttach(struct IHdfDevice *devInst, struct HdfDeviceNode *devNode)
 {
-    if (devNode->token == NULL || devNode == NULL) {
+    if (devNode == NULL || devNode->token == NULL) {
         HDF_LOGE("failed to attach device, input params invalid");
         return HDF_ERR_INVALID_PARAM;
     }
