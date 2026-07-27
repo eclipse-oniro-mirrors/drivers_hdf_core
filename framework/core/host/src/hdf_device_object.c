@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -217,10 +217,10 @@ struct HdfDeviceObject *HdfDeviceObjectAlloc(struct HdfDeviceObject *parent, con
 
 void HdfDeviceObjectRelease(struct HdfDeviceObject *dev)
 {
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (dev == NULL) {
         return;
     }
+    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
 
     if (devNode->device != NULL && devNode->device->super.Detach != NULL) {
         devNode->device->super.Detach(&devNode->device->super, devNode);
@@ -231,10 +231,13 @@ void HdfDeviceObjectRelease(struct HdfDeviceObject *dev)
 int HdfDeviceObjectRegister(struct HdfDeviceObject *dev)
 {
     int ret = HDF_FAILURE;
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     struct IDriverLoader *driverLoader = HdfDriverLoaderGetInstance();
 
-    if (dev == NULL || devNode->driverName == NULL || devNode->device == NULL || driverLoader == NULL ||
+    if (dev == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
+    if (devNode->driverName == NULL || devNode->device == NULL || driverLoader == NULL ||
         driverLoader->GetDriver == NULL) {
         HDF_LOGE("failed to add device, param invalid");
         return HDF_ERR_INVALID_PARAM;
@@ -257,8 +260,11 @@ int HdfDeviceObjectRegister(struct HdfDeviceObject *dev)
 
 int HdfDeviceObjectUnRegister(struct HdfDeviceObject *dev)
 {
+    if (dev == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (devNode == NULL || devNode->device == NULL) {
+    if (devNode->device == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -268,10 +274,10 @@ int HdfDeviceObjectUnRegister(struct HdfDeviceObject *dev)
 int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servName, uint8_t policy, uint32_t perm)
 {
     int ret;
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (dev == NULL || servName == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
+    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
 
     if (policy <= SERVICE_POLICY_NONE || policy >= SERVICE_POLICY_INVALID) {
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
@@ -300,10 +306,10 @@ int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servN
 
 int HdfDeviceObjectRemoveService(struct HdfDeviceObject *dev)
 {
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (dev == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
+    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
 
     return devNode->super.RemoveService(devNode);
 }
@@ -326,10 +332,10 @@ int HdfDeviceObjectSetServInfo(struct HdfDeviceObject *dev, const char *info)
 
 int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev)
 {
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (dev == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
+    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     struct HdfServiceInfo servInfo;
     HdfServiceInfoInit(&servInfo, devNode);
     return DevSvcManagerClntUpdateService(&devNode->deviceObject, &servInfo);
@@ -337,9 +343,13 @@ int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev)
 
 int HdfDeviceObjectSetInterfaceDesc(struct HdfDeviceObject *dev, const char *interfaceDesc)
 {
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (dev == NULL || interfaceDesc == NULL) {
         return HDF_ERR_INVALID_PARAM;
+    }
+    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
+    if (devNode->interfaceDesc != NULL) {
+        OsalMemFree((char *)devNode->interfaceDesc);
+        devNode->interfaceDesc = NULL;
     }
     devNode->interfaceDesc = HdfStringCopy(interfaceDesc);
     return devNode->interfaceDesc != NULL ? HDF_SUCCESS : HDF_ERR_MALLOC_FAIL;
@@ -349,5 +359,10 @@ bool __attribute__((weak)) HdfDeviceObjectCheckInterfaceDesc(struct HdfDeviceObj
 {
     (void)dev;
     (void)data;
+#ifdef __USER__
+    HDF_LOGE("strong symbol not linked, interface token check bypassed");
+    return false;
+#else
     return true;
+#endif
 }

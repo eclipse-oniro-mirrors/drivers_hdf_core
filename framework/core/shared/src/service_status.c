@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -43,5 +43,9 @@ int ServiceStatusUnMarshalling(struct ServiceStatus *status, struct HdfSBuf *buf
     }
 
     status->info = HdfSbufReadString(buf);
+    if (status->info == NULL) {
+        HDF_LOGI("failed to unmarshalling service status, info is null");
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }

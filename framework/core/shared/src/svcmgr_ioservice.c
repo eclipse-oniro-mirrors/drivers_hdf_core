@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -81,16 +81,14 @@ int32_t SvcMgrIoserviceUnRegSvcStatListener(struct ISvcMgrIoservice *self, struc
     struct IoServiceStatusListener *listenerInst
         = CONTAINER_OF(listener, struct IoServiceStatusListener, svcstatListener);
 
-    int ret = HdfDeviceUnregisterEventListener(svcmgrInst->iosvc, &listenerInst->ioservListener);
-    if (ret != HDF_SUCCESS) {
-        return ret;
+    if (HdfIoserviceGetListenerCount(svcmgrInst->iosvc) == 1) {
+        int ret = UnSetListenClass(svcmgrInst, listenerInst->deviceClass);
+        if (ret != HDF_SUCCESS) {
+            return ret;
+        }
     }
 
-    if (HdfIoserviceGetListenerCount(svcmgrInst->iosvc) == 0) {
-        ret = UnSetListenClass(svcmgrInst, listenerInst->deviceClass);
-    }
-
-    return ret;
+    return HdfDeviceUnregisterEventListener(svcmgrInst->iosvc, &listenerInst->ioservListener);
 }
 
 static void SvcMgrIoserviceConstruct(struct ISvcMgrIoservice *svcmgrInst)

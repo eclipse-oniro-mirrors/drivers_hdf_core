@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -246,9 +246,11 @@ void HdfDeviceNodeDestruct(struct HdfDeviceNode *devNode)
             devNode->powerToken = NULL;
             OsalMemFree(devNode->servName);
             OsalMemFree((char *)devNode->servInfo);
+            OsalMemFree((char *)devNode->interfaceDesc);
             OsalMemFree(devNode->driverName);
             devNode->servName = NULL;
             devNode->servInfo = NULL;
+            devNode->interfaceDesc = NULL;
             break;
         case DEVNODE_NONE:
             break;
@@ -272,6 +274,10 @@ struct HdfDeviceNode *HdfDeviceNodeNewInstance(const struct HdfDeviceInfo *devic
     devNode->devId = deviceInfo->deviceId;
     devNode->permission = deviceInfo->permission;
     devNode->policy = deviceInfo->policy;
+    if (devNode->token == NULL) {
+        HdfDeviceNodeFreeInstance(devNode);
+        return NULL;
+    }
     devNode->token->devid = deviceInfo->deviceId;
     devNode->servName = HdfStringCopy(deviceInfo->svcName);
     devNode->token->servName = HdfStringCopy(deviceInfo->svcName);

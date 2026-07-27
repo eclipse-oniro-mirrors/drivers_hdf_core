@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -23,6 +23,10 @@ static int OnIoServiceEventReceive(
     }
 
     struct IoServiceStatusListener *statusListener = listener->priv;
+    if (statusListener == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
     if (statusListener->svcstatListener.callback != NULL &&
         (statusListener->deviceClass & status.deviceClass)) {
         statusListener->svcstatListener.callback(&statusListener->svcstatListener, &status);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -16,6 +16,7 @@
 #include "osal_mem.h"
 #include "svcmgr_ioservice.h"
 #include "osal_mutex.h"
+#include "osal_atomic.h"
 
 #define HDF_LOG_TAG devsvc_mger
 #define SVC_MGR_NODE_PERM 0660
@@ -43,6 +44,9 @@ static int32_t DevSvcManagerExtRegisterListener(struct HdfDeviceIoClient *client
         return HDF_ERR_INVALID_PARAM;
     }
     svcmgrInst = (struct DevSvcManagerExt *)DevSvcManagerGetInstance();
+    if (svcmgrInst == NULL) {
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     if (!HdfSbufReadUint16(data, &devClass)) {
         return HDF_ERR_INVALID_PARAM;
@@ -73,17 +77,17 @@ static int32_t DevSvcManagerExtUnRegisterListener(struct HdfDeviceIoClient *clie
     }
 
     svcmgrInst = (struct DevSvcManagerExt *)client->device->priv;
-    OsalMutexLock(&svcmgrInst->mutex);
+    OsalMutexLock(&svcmgrInst->super.mutex);
     holder = ServStatListenerHolderGet((uintptr_t)client);
     if (holder == NULL) {
-        OsalMutexUnlock(&svcmgrInst->mutex);
+        OsalMutexUnlock(&svcmgrInst->super.mutex);
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
     }
     if (holder->node.next != NULL) {
-        svcmgrInst->super.super.UnregsterServListener(&svcmgrInst->super.super, holder);
+        DListRemove(&holder->node);
     }
     ServStatListenerHolderRelease(holder);
-    OsalMutexUnlock(&svcmgrInst->mutex);
+    OsalMutexUnlock(&svcmgrInst->super.mutex);
 
     return HDF_SUCCESS;
 }
@@ -153,10 +157,10 @@ int DevSvcManagerExtStart(struct IDevSvcManager *svcmgr)
         };
         inst->serv->dispatcher = &dispatcher;
         inst->serv->target = (struct HdfObject *)&svcmgrDevObj;
+        inst->started = true;
     }
 
     ServStatListenerHolderinit();
-    inst->started = true;
     return HDF_SUCCESS;
 }
 
@@ -171,6 +175,7 @@ static bool DevSvcManagerExtConstruct(struct DevSvcManagerExt *inst)
     }
     if (OsalMutexInit(&inst->mutex) != HDF_SUCCESS) {
         HDF_LOGE("failed to create devsvcmgrext mutex");
+        OsalMutexDestroy(&inst->super.mutex);
         return false;
     }
     inst->super.super.StartService = DevSvcManagerExtStart;
@@ -180,17 +185,17 @@ static bool DevSvcManagerExtConstruct(struct DevSvcManagerExt *inst)
 
 struct HdfObject *DevSvcManagerExtCreate(void)
 {
+    static OsalAtomic g_extCreateOnce = {0};
     static struct DevSvcManagerExt *instance;
-    if (instance != NULL) {
-        return (struct HdfObject *)instance;
+    if (OsalAtomicRead(&g_extCreateOnce) == 0) {
+        instance = OsalMemCalloc(sizeof(struct DevSvcManagerExt));
+        if (!DevSvcManagerExtConstruct(instance)) {
+            OsalMemFree(instance);
+            instance = NULL;
+        } else {
+            OsalAtomicSet(&g_extCreateOnce, 1);
+        }
     }
-
-    instance = OsalMemCalloc(sizeof(struct DevSvcManagerExt));
-    if (!DevSvcManagerExtConstruct(instance)) {
-        OsalMemFree(instance);
-        instance = NULL;
-    }
-
     return (struct HdfObject *)instance;
 }
 
@@ -204,6 +209,7 @@ void DevSvcManagerExtRelease(struct IDevSvcManager *inst)
         HdfIoServiceRemove(instance->serv);
         instance->serv = NULL;
     }
+    OsalMutexDestroy(&instance->mutex);
     DevSvcManagerRelease(inst);
     instance->started = false;
 }
