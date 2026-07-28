@@ -148,7 +148,7 @@ static int32_t Hi3403HardWareInit(void)
 
 static int32_t Hi3403EntryInit(struct HdfDeviceObject *object)
 {
-    HDF_LOGE("%s: HI3403_DISP init start", __func__);
+    HDF_LOGI("%s: HI3403_DISP init start", __func__);
     if (object == NULL) {
         HDF_LOGE("%s: object is null", __func__);
         return HDF_FAILURE;

@@ -915,6 +915,10 @@ static void MipiTxDrvHwInit(int smooth)
     unsigned long *mipiTxCrgAddr;
 
     mipiTxCrgAddr = (unsigned long *)OsalIoRemap(MIPI_TX_CRG, (unsigned long)0x4);
+    if (mipiTxCrgAddr == NULL) {
+        HDF_LOGE("%s: OsalIoRemap CRG failed", __func__);
+        return;
+    }
     /* mipi_tx gate clk enable */
     WriteReg32(mipiTxCrgAddr, 1, 0x1);
     /* reset */
