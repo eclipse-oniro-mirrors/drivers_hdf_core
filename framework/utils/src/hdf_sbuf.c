@@ -133,7 +133,7 @@ uint8_t *HdfSbufGetData(const struct HdfSBuf *sbuf)
 
 void HdfSbufFlush(struct HdfSBuf *sbuf)
 {
-    HDF_SBUF_IMPL_CHECK_RETURN_VOID(sbuf, getData);
+    HDF_SBUF_IMPL_CHECK_RETURN_VOID(sbuf, flush);
     sbuf->impl->flush(sbuf->impl);
 }
 

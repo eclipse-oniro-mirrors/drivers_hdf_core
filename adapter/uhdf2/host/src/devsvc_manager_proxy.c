@@ -176,6 +176,8 @@ struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, cons
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
     if (serviceProxy == NULL) {
         HDF_LOGE("Get service failed, serviceProxy is null");
+        HdfSbufRecycle(reply);
+        HdfSbufRecycle(data);
         return NULL;
     }
 

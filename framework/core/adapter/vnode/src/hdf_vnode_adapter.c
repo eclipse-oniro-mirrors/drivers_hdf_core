@@ -729,6 +729,7 @@ struct HdfIoService *HdfIoServiceAdapterRegCdev(struct HdfVNodeAdapter *vnodeAda
     ret = OsalRegisterCdev(vnodeAdapter->cdev, vnodeAdapter->vNodePath, mode, vnodeAdapter);
     if (ret != 0) {
         HDF_LOGE("failed to register dev node %s, ret is: %d", vnodeAdapter->vNodePath, ret);
+        OsalFreeCdev(vnodeAdapter->cdev);
         OsalMutexDestroy(&vnodeAdapter->mutex);
         goto ERROR;
     }
