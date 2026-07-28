@@ -23,6 +23,7 @@ static bool g_isGT5688 = false;
 
 #define FOUR_BYTES 4
 #define FOUR_BYTES_BIT 32
+#define CHIP_VERSION_D 3
 
 static int32_t ChipInit(ChipDevice *device)
 {
@@ -198,7 +199,7 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
         ChipVersionDefault(device, frame, buf, pointNum);
     } else if (chipVer == 1) {  // chipversion B:gt911_zsj4p0
         ChipVersionIsOne(device, frame, buf, pointNum);
-    } else if (chipVer == 3) {  // chipversion D: direct pass-through
+    } else if (chipVer == CHIP_VERSION_D) {  // chipversion D: direct pass-through
         ChipVersionDirect(device, frame, buf, pointNum);
     } else {                    // chipversion C:gt911_tg7p0
         ChipVersionIsExt(device, frame, buf, pointNum);

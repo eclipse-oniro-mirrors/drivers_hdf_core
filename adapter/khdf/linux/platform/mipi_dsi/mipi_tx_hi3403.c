@@ -38,6 +38,26 @@ extern "C" {
 #define HDF_LOG_TAG mipi_tx_hi3403
 #define INT_MAX_VALUE 0x7fffffff
 
+/* Hardware-specific constants */
+#define MIPI_TX_POWER_BASE         2
+#define PLL_SET_DIVISOR            256
+#define PHY_TMR_HS_LP_OFFSET       4
+#define PHY_TMR_CLK_OFFSET         3
+#define PHY_TMR_SCALE_FACTOR       65536
+#define MIPI_TX_PHY_RESET_DELAY_US 1000
+#define VID_MODE_TYPE_MASK         0x3
+#define VID_MODE_TYPE_SHIFT        8
+#define VID_MODE_TYPE_SYNC_PULSE   0
+#define VID_MODE_TYPE_SYNC_EVENT   1
+#define VID_MODE_TYPE_CMD          2
+#define TIMING_UNIT_CONV           125
+#define CLK_DIV_THRESHOLD          160
+#define CLK_DIV_THRESHOLD_MINUS1   159
+#define CLKMGR_MIN_DIV             2
+#define REG_MAP_FLAG_HW_INIT       2
+#define PLL_SET_MODULUS            8
+#define CMD_CFG_DELAY_US           10
+
 volatile  MipiTxRegsTypeTag *g_mipiTxRegsVa = NULL;
 unsigned int g_mipiTxIrqNum = MIPI_TX_IRQ;
 unsigned int g_actualPhyDataRate;
@@ -82,26 +102,27 @@ static void HdfIsbDsbDmb(void)
 static void SetPhyReg(unsigned int addr, unsigned char value)
 {
     HdfIsbDsbDmb();
-    g_mipiTxRegsVa->PHY_TST_CTRL1.u32 = (0x10000 + addr);
+    g_mipiTxRegsVa->phyTstCtrL1.u32 = (0x10000 + addr);
     HdfIsbDsbDmb();
-    g_mipiTxRegsVa->PHY_TST_CTRL0.u32 = 0x2;
+    g_mipiTxRegsVa->phyTstCtrL0.u32 = 0x2;
     HdfIsbDsbDmb();
-    g_mipiTxRegsVa->PHY_TST_CTRL0.u32 = 0x0;
+    g_mipiTxRegsVa->phyTstCtrL0.u32 = 0x0;
     HdfIsbDsbDmb();
-    g_mipiTxRegsVa->PHY_TST_CTRL1.u32 = value;
+    g_mipiTxRegsVa->phyTstCtrL1.u32 = value;
     HdfIsbDsbDmb();
-    g_mipiTxRegsVa->PHY_TST_CTRL0.u32 = 0x2;
+    g_mipiTxRegsVa->phyTstCtrL0.u32 = 0x2;
     HdfIsbDsbDmb();
-    g_mipiTxRegsVa->PHY_TST_CTRL0.u32 = 0x0;
+    g_mipiTxRegsVa->phyTstCtrL0.u32 = 0x0;
     HdfIsbDsbDmb();
 }
 
-static int mipi_tx_power(unsigned int base, unsigned int exp)
+static int MipiTxPower(unsigned int base, unsigned int exp)
 {
     int result = 1;
     while (exp) {
-        if (exp & 0x01)
+        if (exp & 0x01) {
             result = result * (int)base;
+        }
         base = base * base;
         exp = exp >> 1;
     }
@@ -117,21 +138,21 @@ static inline unsigned char Hi3403GetPhyTimingByType(unsigned int timingType)
 
 static void Hi3403SetCmdLpMode(void)
 {
-    g_mipiTxRegsVa->CMD_MODE_CFG.u32 = 0xFFF;
+    g_mipiTxRegsVa->cmdModeCfg.u32 = 0xFFF;
 }
 
 static void Hi3403SetCmdHsMode(void)
 {
-    g_mipiTxRegsVa->CMD_MODE_CFG.u32 = 0x0;
+    g_mipiTxRegsVa->cmdModeCfg.u32 = 0x0;
 }
 
 static void Hi3403SetClkLaneCfg(int hsEnable)
 {
     U_LPCLK_CTRL clkLane;
-    clkLane.u32 = g_mipiTxRegsVa->LPCLK_CTRL.u32;
-    clkLane.bits.phy_txrequestclkhs = (unsigned int)hsEnable;
-    clkLane.bits.auto_clklane_ctrl = 0;
-    g_mipiTxRegsVa->LPCLK_CTRL.u32 = clkLane.u32;
+    clkLane.u32 = g_mipiTxRegsVa->lpclkCtrl.u32;
+    clkLane.bits.phyTxrequestclkhs = (unsigned int)hsEnable;
+    clkLane.bits.autoClklaneCtrl = 0;
+    g_mipiTxRegsVa->lpclkCtrl.u32 = clkLane.u32;
 }
 
 /* ====== hi3403 phy reset helpers ====== */
@@ -139,44 +160,45 @@ static void Hi3403SetClkLaneCfg(int hsEnable)
 static void Hi3403PhyReset(void)
 {
     U_PHY_RSTZ phyCtrl;
-    phyCtrl.u32 = g_mipiTxRegsVa->PHY_RSTZ.u32;
-    phyCtrl.bits.phy_rstz = 0x0;
-    g_mipiTxRegsVa->PHY_RSTZ.u32 = phyCtrl.u32;
+    phyCtrl.u32 = g_mipiTxRegsVa->phyRstz.u32;
+    phyCtrl.bits.phyRstz = 0x0;
+    g_mipiTxRegsVa->phyRstz.u32 = phyCtrl.u32;
 }
 
 static void Hi3403PhyUnreset(void)
 {
     U_PHY_RSTZ phyCtrl;
-    phyCtrl.u32 = g_mipiTxRegsVa->PHY_RSTZ.u32;
-    phyCtrl.bits.phy_rstz = 0x1;
-    g_mipiTxRegsVa->PHY_RSTZ.u32 = phyCtrl.u32;
+    phyCtrl.u32 = g_mipiTxRegsVa->phyRstz.u32;
+    phyCtrl.bits.phyRstz = 0x1;
+    g_mipiTxRegsVa->phyRstz.u32 = phyCtrl.u32;
 }
 
 static void Hi3403ControllerPhyReset(void)
 {
-    g_mipiTxRegsVa->PWR_UP.u32 = 0x0;
+    g_mipiTxRegsVa->pwrUp.u32 = 0x0;
     Hi3403PhyReset();
     OsalUDelay(1);
     Hi3403PhyUnreset();
-    g_mipiTxRegsVa->PWR_UP.u32 = 0x1;
+    g_mipiTxRegsVa->pwrUp.u32 = 0x1;
 }
 
 /* ====== hi3403 PLL config ====== */
 
 static unsigned char Hi3403GetPhyPllSet063(unsigned int phyDataRate, unsigned char pllSet065)
 {
-    return (unsigned char)(mipi_tx_ceil(phyDataRate, MIPI_TX_REF_CLK) *
-        mipi_tx_power(2, (pllSet065 % 8)) % 256);
+    return (unsigned char)(MipiTxCeil(phyDataRate, MIPI_TX_REF_CLK) *
+        MipiTxPower(MIPI_TX_POWER_BASE, (pllSet065 % PLL_SET_MODULUS)) % PLL_SET_DIVISOR);
 }
 
 static unsigned char Hi3403GetPhyPllSet064(unsigned int phyDataRate)
 {
-    return (unsigned char)(mipi_tx_ceil(phyDataRate, MIPI_TX_REF_CLK) / 256);
+    return (unsigned char)(MipiTxCeil(phyDataRate, MIPI_TX_REF_CLK) / PLL_SET_DIVISOR);
 }
 
 static void MipiTxDrvSetPhyPllSetX(unsigned int phyDataRate)
 {
-    unsigned char pllSet063, pllSet064;
+    unsigned char pllSet063;
+    unsigned char pllSet064;
     const unsigned char pllSet065 = 0x0;
 
     pllSet063 = Hi3403GetPhyPllSet063(phyDataRate, pllSet065);
@@ -191,55 +213,55 @@ static void MipiTxDrvSetPhyPllSetX(unsigned int phyDataRate)
 
 static void MipiTxDrvGetPhyTimingParam(MipiTxPhyTimingParamTag *tp)
 {
-    tp->data_tpre_delay = Hi3403GetPhyTimingByType(TPRE_DELAY);
-    tp->clk_tlpx = Hi3403GetPhyTimingByType(TLPX);
-    tp->clk_tclk_prepare = Hi3403GetPhyTimingByType(TCLK_PREPARE);
-    tp->clk_tclk_zero = Hi3403GetPhyTimingByType(TCLK_ZERO);
-    tp->clk_tclk_trail = Hi3403GetPhyTimingByType(TCLK_TRAIL);
-    tp->data_tlpx = Hi3403GetPhyTimingByType(TLPX);
-    tp->data_ths_prepare = Hi3403GetPhyTimingByType(THS_PREPARE);
-    tp->data_ths_zero = Hi3403GetPhyTimingByType(THS_ZERO);
-    tp->data_ths_trail = Hi3403GetPhyTimingByType(THS_TRAIL);
-    tp->clk_post_delay = Hi3403GetPhyTimingByType(TCLK_POST) + tp->data_ths_trail + 4;
+    tp->dataTpreDelay = Hi3403GetPhyTimingByType(TPRE_DELAY);
+    tp->clkTlpx = Hi3403GetPhyTimingByType(TLPX);
+    tp->clkTclkPrepare = Hi3403GetPhyTimingByType(TCLK_PREPARE);
+    tp->clkTclkZero = Hi3403GetPhyTimingByType(TCLK_ZERO);
+    tp->clkTclkTrail = Hi3403GetPhyTimingByType(TCLK_TRAIL);
+    tp->dataTlpx = Hi3403GetPhyTimingByType(TLPX);
+    tp->dataThsPrepare = Hi3403GetPhyTimingByType(THS_PREPARE);
+    tp->dataThsZero = Hi3403GetPhyTimingByType(THS_ZERO);
+    tp->dataThsTrail = Hi3403GetPhyTimingByType(THS_TRAIL);
+    tp->clkPostDelay = Hi3403GetPhyTimingByType(TCLK_POST) + tp->dataThsTrail + PHY_TMR_HS_LP_OFFSET;
 }
 
 static void MipiTxDrvSetPhyTimingParam(const MipiTxPhyTimingParamTag *tp)
 {
-    SetPhyReg(DATA0_TPRE_DELAY, tp->data_tpre_delay);
-    SetPhyReg(DATA1_TPRE_DELAY, tp->data_tpre_delay);
-    SetPhyReg(DATA2_TPRE_DELAY, tp->data_tpre_delay);
-    SetPhyReg(DATA3_TPRE_DELAY, tp->data_tpre_delay);
-    SetPhyReg(CLK_POST_DELAY, tp->clk_post_delay);
-    SetPhyReg(CLK_TLPX, tp->clk_tlpx);
-    SetPhyReg(CLK_TCLK_PREPARE, tp->clk_tclk_prepare);
-    SetPhyReg(CLK_TCLK_ZERO, tp->clk_tclk_zero);
-    SetPhyReg(CLK_TCLK_TRAIL, tp->clk_tclk_trail);
-    SetPhyReg(DATA0_TLPX, tp->data_tlpx);
-    SetPhyReg(DATA0_THS_PREPARE, tp->data_ths_prepare);
-    SetPhyReg(DATA0_THS_ZERO, tp->data_ths_zero);
-    SetPhyReg(DATA0_THS_TRAIL, tp->data_ths_trail);
-    SetPhyReg(DATA1_TLPX, tp->data_tlpx);
-    SetPhyReg(DATA1_THS_PREPARE, tp->data_ths_prepare);
-    SetPhyReg(DATA1_THS_ZERO, tp->data_ths_zero);
-    SetPhyReg(DATA1_THS_TRAIL, tp->data_ths_trail);
-    SetPhyReg(DATA2_TLPX, tp->data_tlpx);
-    SetPhyReg(DATA2_THS_PREPARE, tp->data_ths_prepare);
-    SetPhyReg(DATA2_THS_ZERO, tp->data_ths_zero);
-    SetPhyReg(DATA2_THS_TRAIL, tp->data_ths_trail);
-    SetPhyReg(DATA3_TLPX, tp->data_tlpx);
-    SetPhyReg(DATA3_THS_PREPARE, tp->data_ths_prepare);
-    SetPhyReg(DATA3_THS_ZERO, tp->data_ths_zero);
-    SetPhyReg(DATA3_THS_TRAIL, tp->data_ths_trail);
+    SetPhyReg(HI3403_DATA0_TPRE_DELAY, tp->dataTpreDelay);
+    SetPhyReg(HI3403_DATA1_TPRE_DELAY, tp->dataTpreDelay);
+    SetPhyReg(HI3403_DATA2_TPRE_DELAY, tp->dataTpreDelay);
+    SetPhyReg(HI3403_DATA3_TPRE_DELAY, tp->dataTpreDelay);
+    SetPhyReg(HI3403_CLK_POST_DELAY, tp->clkPostDelay);
+    SetPhyReg(HI3403_CLK_TLPX, tp->clkTlpx);
+    SetPhyReg(HI3403_CLK_TCLK_PREPARE, tp->clkTclkPrepare);
+    SetPhyReg(HI3403_CLK_TCLK_ZERO, tp->clkTclkZero);
+    SetPhyReg(HI3403_CLK_TCLK_TRAIL, tp->clkTclkTrail);
+    SetPhyReg(HI3403_DATA0_TLPX, tp->dataTlpx);
+    SetPhyReg(HI3403_DATA0_THS_PREPARE, tp->dataThsPrepare);
+    SetPhyReg(HI3403_DATA0_THS_ZERO, tp->dataThsZero);
+    SetPhyReg(HI3403_DATA0_THS_TRAIL, tp->dataThsTrail);
+    SetPhyReg(HI3403_DATA1_TLPX, tp->dataTlpx);
+    SetPhyReg(HI3403_DATA1_THS_PREPARE, tp->dataThsPrepare);
+    SetPhyReg(HI3403_DATA1_THS_ZERO, tp->dataThsZero);
+    SetPhyReg(HI3403_DATA1_THS_TRAIL, tp->dataThsTrail);
+    SetPhyReg(HI3403_DATA2_TLPX, tp->dataTlpx);
+    SetPhyReg(HI3403_DATA2_THS_PREPARE, tp->dataThsPrepare);
+    SetPhyReg(HI3403_DATA2_THS_ZERO, tp->dataThsZero);
+    SetPhyReg(HI3403_DATA2_THS_TRAIL, tp->dataThsTrail);
+    SetPhyReg(HI3403_DATA3_TLPX, tp->dataTlpx);
+    SetPhyReg(HI3403_DATA3_THS_PREPARE, tp->dataThsPrepare);
+    SetPhyReg(HI3403_DATA3_THS_ZERO, tp->dataThsZero);
+    SetPhyReg(HI3403_DATA3_THS_TRAIL, tp->dataThsTrail);
 }
 
 static void MipiTxDrvSetPhyHsLpSwitchTime(const MipiTxPhyTimingParamTag *tp)
 {
-    g_mipiTxRegsVa->PHY_TMR_CFG.u32 = tp->data_tpre_delay + tp->data_tlpx +
-        tp->data_ths_prepare + tp->data_ths_zero + 4 +
-        (tp->data_ths_trail + 1) * 65536;
-    g_mipiTxRegsVa->PHY_TMR_LPCLK_CFG.u32 = tp->clk_tlpx + tp->clk_tclk_prepare +
-        tp->clk_tclk_zero + 3 +
-        (tp->clk_post_delay + 1 + tp->data_ths_trail) * 65536;
+    g_mipiTxRegsVa->phyTmrCfg.u32 = tp->dataTpreDelay + tp->dataTlpx +
+        tp->dataThsPrepare + tp->dataThsZero + PHY_TMR_HS_LP_OFFSET +
+        (tp->dataThsTrail + 1) * PHY_TMR_SCALE_FACTOR;
+    g_mipiTxRegsVa->phyTmrLpclkCfg.u32 = tp->clkTlpx + tp->clkTclkPrepare +
+        tp->clkTclkZero + PHY_TMR_CLK_OFFSET +
+        (tp->clkPostDelay + 1 + tp->dataThsTrail) * PHY_TMR_SCALE_FACTOR;
 }
 
 static void MipiTxDrvSetPhyCfg(const ComboDevCfgTag *cfg)
@@ -250,16 +272,16 @@ static void MipiTxDrvSetPhyCfg(const ComboDevCfgTag *cfg)
     (void)memset_s(&tp, sizeof(tp), 0, sizeof(tp));
 
     /* Reset PHY */
-    g_mipiTxRegsVa->PHY_RSTZ.u32 = 0x0;
-    OsalUDelay(1000);
+    g_mipiTxRegsVa->phyRstz.u32 = 0x0;
+    OsalUDelay(MIPI_TX_PHY_RESET_DELAY_US);
 
     /* Disable input */
-    g_mipiTxRegsVa->OPERATION_MODE.u32 = 0x0;
+    g_mipiTxRegsVa->operationMode.u32 = 0x0;
 
     /* ctrl_reset toggle */
-    g_mipiTxRegsVa->PWR_UP.u32 = 0x0;
+    g_mipiTxRegsVa->pwrUp.u32 = 0x0;
     OsalUDelay(1);
-    g_mipiTxRegsVa->PWR_UP.u32 = 0x1;
+    g_mipiTxRegsVa->pwrUp.u32 = 0x1;
 
     /* PLL + Timing + HS/LP switch */
     MipiTxDrvSetPhyPllSetX(g_actualPhyDataRate);
@@ -268,7 +290,7 @@ static void MipiTxDrvSetPhyCfg(const ComboDevCfgTag *cfg)
     MipiTxDrvSetPhyHsLpSwitchTime(&tp);
 
     /* PHY enable */
-    g_mipiTxRegsVa->PHY_RSTZ.u32 = 0xF;
+    g_mipiTxRegsVa->phyRstz.u32 = 0xF;
     OsalMSleep(1);
 }
 
@@ -279,21 +301,23 @@ static void SetOutputFormat(const ComboDevCfgTag *cfg)
     int colorCoding = 0;
 
     if (cfg->outputMode == OUTPUT_MODE_CSI) {
-        if (cfg->outputFormat == OUT_FORMAT_YUV420_8_BIT_NORMAL)
+        if (cfg->outputFormat == OUT_FORMAT_YUV420_8_BIT_NORMAL) {
             colorCoding = 0xD;
-        else if (cfg->outputFormat == OUT_FORMAT_YUV422_8_BIT)
+        } else if (cfg->outputFormat == OUT_FORMAT_YUV422_8_BIT) {
             colorCoding = 0x1E;
+        }
     } else {
-        if (cfg->outputFormat == OUT_FORMAT_RGB_16_BIT)
+        if (cfg->outputFormat == OUT_FORMAT_RGB_16_BIT) {
             colorCoding = 0x0;
-        else if (cfg->outputFormat == OUT_FORMAT_RGB_18_BIT)
+        } else if (cfg->outputFormat == OUT_FORMAT_RGB_18_BIT) {
             colorCoding = 0x3;
-        else if (cfg->outputFormat == OUT_FORMAT_RGB_24_BIT)
+        } else if (cfg->outputFormat == OUT_FORMAT_RGB_24_BIT) {
             colorCoding = 0x5;
-        else
+        } else {
             colorCoding = 0x5;
+        }
     }
-    g_mipiTxRegsVa->COLOR_CODING.u32 = (unsigned int)colorCoding;
+    g_mipiTxRegsVa->colorCoding.u32 = (unsigned int)colorCoding;
 }
 
 static void SetVideoModeCfg(const ComboDevCfgTag *cfg)
@@ -302,40 +326,46 @@ static void SetVideoModeCfg(const ComboDevCfgTag *cfg)
     unsigned int videoModeType;
     U_READ_MEMORY_DELAY_CTRL readMemDelay;
 
-    if (cfg->videoMode == NON_BURST_MODE_SYNC_PULSES)
-        videoModeType = 0;
-    else if (cfg->videoMode == NON_BURST_MODE_SYNC_EVENTS)
-        videoModeType = 1;
-    else
-        videoModeType = 2;
+    if (cfg->videoMode == NON_BURST_MODE_SYNC_PULSES) {
+        videoModeType = VID_MODE_TYPE_SYNC_PULSE;
+    } else if (cfg->videoMode == NON_BURST_MODE_SYNC_EVENTS) {
+        videoModeType = VID_MODE_TYPE_SYNC_EVENT;
+    } else {
+        videoModeType = VID_MODE_TYPE_CMD;
+    }
 
-    if ((cfg->outputMode == OUTPUT_MODE_CSI) || (cfg->outputMode == OUTPUT_MODE_DSI_CMD))
-        videoModeType = 2;
+    if ((cfg->outputMode == OUTPUT_MODE_CSI) || (cfg->outputMode == OUTPUT_MODE_DSI_CMD)) {
+        videoModeType = VID_MODE_TYPE_CMD;
+    }
 
-    /* mode_cfg: cmd_video_mode=1, video_mode_type at bits 9:8 */
-    modeCfgVal = g_mipiTxRegsVa->MODE_CFG.u32;
-    modeCfgVal &= ~(0x3 << 8);
-    modeCfgVal |= (videoModeType << 8);
-    modeCfgVal |= 0x1;  /* cmd_video_mode = 1 */
-    g_mipiTxRegsVa->MODE_CFG.u32 = modeCfgVal;
+    /* mode_cfg: cmdVideoMode=1, video_mode_type at bits 9:8 */
+    modeCfgVal = g_mipiTxRegsVa->modeCfg.u32;
+    modeCfgVal &= ~(VID_MODE_TYPE_MASK << VID_MODE_TYPE_SHIFT);
+    modeCfgVal |= (videoModeType << VID_MODE_TYPE_SHIFT);
+    modeCfgVal |= 0x1;  /* cmdVideoMode = 1 */
+    g_mipiTxRegsVa->modeCfg.u32 = modeCfgVal;
 
     /* video_lp_en = 0x3f */
-    g_mipiTxRegsVa->VID_MODE_CFG.u32 = 0x3f;
+    g_mipiTxRegsVa->vidModeCfg.u32 = 0x3f;
 
     /* read_memory_delay_ctrl */
-    readMemDelay.u32 = g_mipiTxRegsVa->READ_MEMORY_DELAY_CTRL.u32;
+    readMemDelay.u32 = g_mipiTxRegsVa->readMemoryDelayCtrl.u32;
     if ((cfg->videoMode == NON_BURST_MODE_SYNC_PULSES) ||
-        (cfg->videoMode == NON_BURST_MODE_SYNC_EVENTS))
-        readMemDelay.bits.delay_abnormal = 0x1;
-    else
-        readMemDelay.bits.delay_abnormal = 0x0;
-    g_mipiTxRegsVa->READ_MEMORY_DELAY_CTRL.u32 = readMemDelay.u32;
+        (cfg->videoMode == NON_BURST_MODE_SYNC_EVENTS)) {
+        readMemDelay.bits.delayAbnormal = 0x1;
+    } else {
+        readMemDelay.bits.delayAbnormal = 0x0;
+    }
+    g_mipiTxRegsVa->readMemoryDelayCtrl.u32 = readMemDelay.u32;
 }
 
 static void SetTimingConfig(const ComboDevCfgTag *cfg)
 {
-    unsigned int hsa, hbp, hline;
-    unsigned int hact, hfp;
+    unsigned int hsa;
+    unsigned int hbp;
+    unsigned int hline;
+    unsigned int hact;
+    unsigned int hfp;
 
     if (cfg->pixelClk == 0) {
         HDF_LOGE("SetTimingConfig: pixelClk is 0!");
@@ -344,20 +374,20 @@ static void SetTimingConfig(const ComboDevCfgTag *cfg)
     hact = cfg->syncInfo.vidHsaPixels + cfg->syncInfo.vidHbpPixels + cfg->syncInfo.vidPktSize;
     hfp = cfg->syncInfo.vidHlinePixels - hact;
     hsa = (unsigned int)((unsigned long long)g_actualPhyDataRate *
-        cfg->syncInfo.vidHsaPixels * 125 / cfg->pixelClk);
+        cfg->syncInfo.vidHsaPixels * TIMING_UNIT_CONV / cfg->pixelClk);
     hbp = (unsigned int)((unsigned long long)g_actualPhyDataRate *
-        cfg->syncInfo.vidHbpPixels * 125 / cfg->pixelClk);
+        cfg->syncInfo.vidHbpPixels * TIMING_UNIT_CONV / cfg->pixelClk);
     hline = (unsigned int)((unsigned long long)g_actualPhyDataRate *
         (cfg->syncInfo.vidHsaPixels + cfg->syncInfo.vidHbpPixels +
-         cfg->syncInfo.vidPktSize + hfp) * 125 / cfg->pixelClk);
+         cfg->syncInfo.vidPktSize + hfp) * TIMING_UNIT_CONV / cfg->pixelClk);
 
-    g_mipiTxRegsVa->VID_HSA_TIME.u32 = hsa;
-    g_mipiTxRegsVa->VID_HBP_TIME.u32 = hbp;
-    g_mipiTxRegsVa->VID_HLINE_TIME.u32 = hline;
-    g_mipiTxRegsVa->VID_VSA_LINES.u32 = cfg->syncInfo.vidVsaLines;
-    g_mipiTxRegsVa->VID_VBP_LINES.u32 = cfg->syncInfo.vidVbpLines;
-    g_mipiTxRegsVa->VID_VFP_LINES.u32 = cfg->syncInfo.vidVfpLines;
-    g_mipiTxRegsVa->VID_VACTIVE_LINES.u32 = cfg->syncInfo.vidActiveLines;
+    g_mipiTxRegsVa->vidHsaTime.u32 = hsa;
+    g_mipiTxRegsVa->vidHbpTime.u32 = hbp;
+    g_mipiTxRegsVa->vidHlineTime.u32 = hline;
+    g_mipiTxRegsVa->vidVsaLines.u32 = cfg->syncInfo.vidVsaLines;
+    g_mipiTxRegsVa->vidVbpLines.u32 = cfg->syncInfo.vidVbpLines;
+    g_mipiTxRegsVa->vidVfpLines.u32 = cfg->syncInfo.vidVfpLines;
+    g_mipiTxRegsVa->vidVactiveLines.u32 = cfg->syncInfo.vidActiveLines;
 
     HDF_LOGI("%s: hsa=%u hbp=%u hline=%u vsa=%u vbp=%u vfp=%u vact=%u",
         __func__, hsa, hbp, hline,
@@ -371,20 +401,21 @@ static void SetLaneConfig(const short laneId[], int len)
     int i;
 
     for (i = 0; i < len; i++) {
-        if (laneId[i] != MIPI_TX_DISABLE_LANE_ID)
+        if (laneId[i] != MIPI_TX_DISABLE_LANE_ID) {
             num++;
+        }
     }
     /* Preserve HW reset lane_id mapping, only update lane count */
-    g_mipiTxRegsVa->PHY_IF_CFG.u32 = (unsigned int)(num - 1);
+    g_mipiTxRegsVa->phyIfCfg.u32 = (unsigned int)(num - 1);
     HDF_LOGI("%s: lane count=%d", __func__, num);
 }
 
 static void MipiTxDrvSetClkMgrCfg(void)
 {
-    if (g_actualPhyDataRate / 160 < 2) {
-        g_mipiTxRegsVa->CLKMGR_CFG.u32 = 0x102;
+    if (g_actualPhyDataRate / CLK_DIV_THRESHOLD < CLKMGR_MIN_DIV) {
+        g_mipiTxRegsVa->clkmgrCfg.u32 = 0x102;
     } else {
-        g_mipiTxRegsVa->CLKMGR_CFG.u32 = 0x100 + (g_actualPhyDataRate + 159) / 160;
+        g_mipiTxRegsVa->clkmgrCfg.u32 = 0x100 + (g_actualPhyDataRate + CLK_DIV_THRESHOLD_MINUS1) / CLK_DIV_THRESHOLD;
     }
 }
 /* ====== command / read FIFO helpers ====== */
@@ -397,13 +428,13 @@ static void MipiTxDrvSetControllerCfg(const ComboDevCfgTag *cfg)
     }
 
     /* 1. interrupt mask */
-    g_mipiTxRegsVa->GINT_MSK = 0x1ffff;
+    g_mipiTxRegsVa->gintMsk = 0x1ffff;
 
     /* 2. disable input */
-    g_mipiTxRegsVa->OPERATION_MODE.u32 = 0x0;
+    g_mipiTxRegsVa->operationMode.u32 = 0x0;
 
     /* 3. vc_id */
-    g_mipiTxRegsVa->VCID.u32 = 0x0;
+    g_mipiTxRegsVa->vcid.u32 = 0x0;
 
     /* 4. output format, color coding */
     SetOutputFormat(cfg);
@@ -416,64 +447,66 @@ static void MipiTxDrvSetControllerCfg(const ComboDevCfgTag *cfg)
     Hi3403SetCmdLpMode();
 
     /* 7. pck_en */
-    if (cfg->outputMode == OUTPUT_MODE_CSI)
-        g_mipiTxRegsVa->PCKHDL_CFG.u32 = 0x0C;
-    else
-        g_mipiTxRegsVa->PCKHDL_CFG.u32 = 0x1E;
+    if (cfg->outputMode == OUTPUT_MODE_CSI) {
+        g_mipiTxRegsVa->pckhdlCfg.u32 = 0x0C;
+    } else {
+        g_mipiTxRegsVa->pckhdlCfg.u32 = 0x1E;
+    }
 
-    /* 8. gen_vc */
-    g_mipiTxRegsVa->GEN_VCID.u32 = 0x0;
+    /* 8. genVc */
+    g_mipiTxRegsVa->genVcid.u32 = 0x0;
 
     /* 9. video mode cfg */
     SetVideoModeCfg(cfg);
 
     /* 10. pkt size */
-    if ((cfg->outputMode == OUTPUT_MODE_DSI_VIDEO) || (cfg->outputMode == OUTPUT_MODE_CSI))
-        g_mipiTxRegsVa->VID_PKT_SIZE.u32 = cfg->syncInfo.vidPktSize;
-    else
-        g_mipiTxRegsVa->EDPI_CMD_SIZE.u32 = cfg->syncInfo.vidPktSize;
+    if ((cfg->outputMode == OUTPUT_MODE_DSI_VIDEO) || (cfg->outputMode == OUTPUT_MODE_CSI)) {
+        g_mipiTxRegsVa->vidPktSize.u32 = cfg->syncInfo.vidPktSize;
+    } else {
+        g_mipiTxRegsVa->edpiCmdSize.u32 = cfg->syncInfo.vidPktSize;
+    }
 
     /* 11. num_chunks / null_size */
-    g_mipiTxRegsVa->VID_NUM_CHUNKS.u32 = 0x0;
-    g_mipiTxRegsVa->VID_NULL_SIZE.u32 = 0x0;
+    g_mipiTxRegsVa->vidNumChunks.u32 = 0x0;
+    g_mipiTxRegsVa->vidNullSize.u32 = 0x0;
 
     /* 12. timing config */
     SetTimingConfig(cfg);
 
     /* 13. lp_cmd_tim */
-    g_mipiTxRegsVa->LP_CMD_TIM.u32 = 0xff0000;
+    g_mipiTxRegsVa->lpCmdTim.u32 = 0xff0000;
 
     /* 14. DSI CMD / CSI extra settings */
     if (cfg->outputMode == OUTPUT_MODE_CSI) {
-        g_mipiTxRegsVa->EDPI_CMD_SIZE.u32 = 0;
-        g_mipiTxRegsVa->HSRD_TO_SET.u32 = 0x0;
+        g_mipiTxRegsVa->edpiCmdSize.u32 = 0;
+        g_mipiTxRegsVa->hsrdToSet.u32 = 0x0;
     }
-    g_mipiTxRegsVa->HS_LP_TO_SET.u32 = 0x0;
-    g_mipiTxRegsVa->LPRD_TO_SET.u32 = 0x0;
-    g_mipiTxRegsVa->HSWR_TO_SET.u32 = 0x0;
-    g_mipiTxRegsVa->LPWR_TO_SET.u32 = 0x0;
-    g_mipiTxRegsVa->BTA_TO_SET.u32 = 0x0;
-    g_mipiTxRegsVa->READ_CMD_TIME.u32 = 0x7fff;
+    g_mipiTxRegsVa->hsLpToSet.u32 = 0x0;
+    g_mipiTxRegsVa->lprdToSet.u32 = 0x0;
+    g_mipiTxRegsVa->hswrToSet.u32 = 0x0;
+    g_mipiTxRegsVa->lpwrToSet.u32 = 0x0;
+    g_mipiTxRegsVa->btaToSet.u32 = 0x0;
+    g_mipiTxRegsVa->readCmdTime.u32 = 0x7fff;
 
     /* 15. datatype0/1, csi_ctrl */
-    g_mipiTxRegsVa->DATATYPE0.u32 = 0x111213D;
-    g_mipiTxRegsVa->DATATYPE1.u32 = 0x31081909;
-    g_mipiTxRegsVa->CSI_CTRL.u32 = 0x10100;
+    g_mipiTxRegsVa->datatypE0.u32 = 0x111213D;
+    g_mipiTxRegsVa->datatypE1.u32 = 0x31081909;
+    g_mipiTxRegsVa->csiCtrl.u32 = 0x10100;
 
     /* 16. lane config */
     SetLaneConfig(cfg->laneId, LANE_MAX_NUM);
 
     /* 17. ulps_ctrl */
-    g_mipiTxRegsVa->PHY_ULPS_CTRL.u32 = 0x0;
+    g_mipiTxRegsVa->phyUlpsCtrl.u32 = 0x0;
 
-    /* 18. tx_triggers */
-    g_mipiTxRegsVa->TX_TRIGGERS.u32 = 0x0;
+    /* 18. txTriggers */
+    g_mipiTxRegsVa->txTriggers.u32 = 0x0;
 
     /* 19. vid_shadow_ctrl */
-    g_mipiTxRegsVa->VID_SHADOW_CTRL.u32 = 0x0;
+    g_mipiTxRegsVa->vidShadowCtrl.u32 = 0x0;
 
     /* 20. int0_mask */
-    g_mipiTxRegsVa->INT_MSK0.u32 = 0x0;
+    g_mipiTxRegsVa->intMsK0.u32 = 0x0;
 
     /* 21. clklane_continue disable */
     Hi3403SetClkLaneCfg(0);
@@ -488,14 +521,14 @@ static int MipiTxWaitCmdFifoEmpty(void)
 
     waitCnt = 0;
     do {
-        cmdPktStatus.u32 = g_mipiTxRegsVa->CMD_PKT_STATUS.u32;
+        cmdPktStatus.u32 = g_mipiTxRegsVa->cmdPktStatus.u32;
         waitCnt++;
         OsalUDelay(1);
-        if (waitCnt >  MIPI_TX_READ_TIMEOUT_CNT) {
+        if (waitCnt >  HI3403_MIPI_TX_READ_TIMEOUT_CNT) {
             HDF_LOGW("MipiTxWaitCmdFifoEmpty: timeout when send cmd buffer!");
             return HDF_ERR_TIMEOUT;
         }
-    } while (cmdPktStatus.bits.gen_cmd_empty == 0);
+    } while (cmdPktStatus.bits.genCmdEmpty == 0);
     return HDF_SUCCESS;
 }
 
@@ -506,14 +539,14 @@ static int MipiTxWaitWriteFifoEmpty(void)
 
     waitCnt = 0;
     do {
-        cmdPktStatus.u32 = g_mipiTxRegsVa->CMD_PKT_STATUS.u32;
+        cmdPktStatus.u32 = g_mipiTxRegsVa->cmdPktStatus.u32;
         waitCnt++;
         OsalUDelay(1);
-        if (waitCnt >  MIPI_TX_READ_TIMEOUT_CNT) {
+        if (waitCnt >  HI3403_MIPI_TX_READ_TIMEOUT_CNT) {
             HDF_LOGW("MipiTxWaitWriteFifoEmpty: timeout when send data buffer!");
             return HDF_ERR_TIMEOUT;
         }
-    } while (cmdPktStatus.bits.gen_pld_w_empty == 0);
+    } while (cmdPktStatus.bits.genPldWEmpty == 0);
     return HDF_SUCCESS;
 }
 
@@ -524,17 +557,17 @@ static int MipiTxWaitWriteFifoNotFull(void)
 
     waitCnt = 0;
     do {
-        cmdPktStatus.u32 = g_mipiTxRegsVa->CMD_PKT_STATUS.u32;
+        cmdPktStatus.u32 = g_mipiTxRegsVa->cmdPktStatus.u32;
         if (waitCnt > 0) {
             OsalUDelay(1);
             HDF_LOGW("MipiTxWaitWriteFifoNotFull: write fifo full happened wait count = %u!", waitCnt);
         }
-        if (waitCnt >  MIPI_TX_READ_TIMEOUT_CNT) {
+        if (waitCnt >  HI3403_MIPI_TX_READ_TIMEOUT_CNT) {
             HDF_LOGW("MipiTxWaitWriteFifoNotFull: timeout when wait write fifo not full buffer!");
             return HDF_ERR_TIMEOUT;
         }
         waitCnt++;
-    } while (cmdPktStatus.bits.gen_pld_w_full == 1);
+    } while (cmdPktStatus.bits.genPldWFull == 1);
     return HDF_SUCCESS;
 }
 
@@ -549,37 +582,37 @@ static void MipiTxDrvSetPayloadData(const unsigned char *cmd, unsigned short cmd
     int i;
     int j;
 
-    genPldData.u32 = g_mipiTxRegsVa->GEN_PLD_DATA.u32;
+    genPldData.u32 = g_mipiTxRegsVa->genPldData.u32;
 
     for (i = 0; i < (cmdSize / 4); i++) { /* 4 cmd once */
-        genPldData.bits.gen_pld_b1 = cmd[i * 4]; /* 0 in 4 */
-        genPldData.bits.gen_pld_b2 = cmd[i * 4 + 1]; /* 1 in 4 */
-        genPldData.bits.gen_pld_b3 = cmd[i * 4 + 2]; /* 2 in 4 */
-        genPldData.bits.gen_pld_b4 = cmd[i * 4 + 3]; /* 3 in 4 */
+        genPldData.bits.genPldB1 = cmd[i * 4]; /* 0 in 4 */
+        genPldData.bits.genPldB2 = cmd[i * 4 + 1]; /* 1 in 4 */
+        genPldData.bits.genPldB3 = cmd[i * 4 + 2]; /* 2 in 4 */
+        genPldData.bits.genPldB4 = cmd[i * 4 + 3]; /* 3 in 4 */
         ret = MipiTxWaitWriteFifoNotFull();
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("MipiTxDrvSetPayloadData: [MipiTxWaitWriteFifoNotFull] fail!");
             return;
         }
-        g_mipiTxRegsVa->GEN_PLD_DATA.u32 = genPldData.u32;
+        g_mipiTxRegsVa->genPldData.u32 = genPldData.u32;
     }
     j = cmdSize % 4; /* remainder of 4 */
     if (j != 0) {
         if (j > 0) {
-            genPldData.bits.gen_pld_b1 = cmd[i * 4]; /* 0 in 4 */
+            genPldData.bits.genPldB1 = cmd[i * 4]; /* 0 in 4 */
         }
         if (j > 1) {
-            genPldData.bits.gen_pld_b2 = cmd[i * 4 + 1]; /* 1 in 4 */
+            genPldData.bits.genPldB2 = cmd[i * 4 + 1]; /* 1 in 4 */
         }
         if (j > 2) { /* bigger than 2 */
-            genPldData.bits.gen_pld_b3 = cmd[i * 4 + 2]; /* 2 in 4 */
+            genPldData.bits.genPldB3 = cmd[i * 4 + 2]; /* 2 in 4 */
         }
         ret = MipiTxWaitWriteFifoNotFull();
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("MipiTxDrvSetPayloadData: [MipiTxWaitWriteFifoNotFull] fail!");
             return;
         }
-        g_mipiTxRegsVa->GEN_PLD_DATA.u32 = genPldData.u32;
+        g_mipiTxRegsVa->genPldData.u32 = genPldData.u32;
     }
 }
 
@@ -618,7 +651,7 @@ static int MipiTxDrvSetCmdInfo(const CmdInfoTag *cmdInfo)
     }
     Hi3403SetCmdLpMode();
     Hi3403SetClkLaneCfg(0); /* LP: disable HS clock request */
-    genHdr.u32 = g_mipiTxRegsVa->GEN_HDR.u32;
+    genHdr.u32 = g_mipiTxRegsVa->genHdr.u32;
     if (cmdInfo->cmd != NULL) {
         if ((cmdInfo->cmdSize > 200) || (cmdInfo->cmdSize == 0)) { /* 200 is max cmd size */
             HDF_LOGE("MipiTxDrvSetCmdInfo: set cmd size illegal, size =%u!", cmdInfo->cmdSize);
@@ -640,10 +673,10 @@ static int MipiTxDrvSetCmdInfo(const CmdInfoTag *cmdInfo)
             return HDF_ERR_IO;
         }
     }
-    genHdr.bits.gen_dt = cmdInfo->dataType;
-    genHdr.bits.gen_wc_lsbyte = cmdInfo->cmdSize & 0xff;
-    genHdr.bits.gen_wc_msbyte = (cmdInfo->cmdSize & 0xff00) >> 8; /* height 8 bits */
-    g_mipiTxRegsVa->GEN_HDR.u32 = genHdr.u32;
+    genHdr.bits.genDt = cmdInfo->dataType;
+    genHdr.bits.genWcLsbyte = cmdInfo->cmdSize & 0xff;
+    genHdr.bits.genWcMsbyte = (cmdInfo->cmdSize & 0xff00) >> 8; /* height 8 bits */
+    g_mipiTxRegsVa->genHdr.u32 = genHdr.u32;
     OsalUDelay(350);  /* wait 350 us transfer end */
     ret = MipiTxWaitCmdFifoEmpty();
     if (ret != HDF_SUCCESS) {
@@ -667,21 +700,21 @@ static int MipiTxWaitReadFifoNotEmpty(void)
 
     waitCnt = 0;
     do {
-        intSt1.u32 =  g_mipiTxRegsVa->INT_ST1.u32;
-        intSt0.u32 =  g_mipiTxRegsVa->INT_ST0.u32;
+        intSt1.u32 =  g_mipiTxRegsVa->intST1.u32;
+        intSt0.u32 =  g_mipiTxRegsVa->intST0.u32;
         if ((intSt1.u32 & 0x3e) != 0) {
             HDF_LOGE("MipiTxWaitReadFifoNotEmpty: err happened when read data, int_st1 = 0x%x,int_st0 = %x!",
                 intSt1.u32, intSt0.u32);
             return HDF_FAILURE;
         }
-        if (waitCnt >  MIPI_TX_READ_TIMEOUT_CNT) {
+        if (waitCnt >  HI3403_MIPI_TX_READ_TIMEOUT_CNT) {
             HDF_LOGW("MipiTxWaitReadFifoNotEmpty: timeout when read data!");
             return HDF_ERR_TIMEOUT;
         }
         waitCnt++;
         OsalUDelay(1);
-        cmdPktStatus.u32 = g_mipiTxRegsVa->CMD_PKT_STATUS.u32;
-    } while (cmdPktStatus.bits.gen_pld_r_empty == 0x1);
+        cmdPktStatus.u32 = g_mipiTxRegsVa->cmdPktStatus.u32;
+    } while (cmdPktStatus.bits.genPldREmpty == 0x1);
     return HDF_SUCCESS;
 }
 
@@ -693,18 +726,18 @@ static int MipiTxWaitReadFifoEmpty(void)
 
     waitCnt = 0;
     do {
-        intSt1.u32 = g_mipiTxRegsVa->INT_ST1.u32;
-        if ((intSt1.bits.gen_pld_rd_err) == 0x0) {
-            pldData.u32 = g_mipiTxRegsVa->GEN_PLD_DATA.u32;
+        intSt1.u32 = g_mipiTxRegsVa->intST1.u32;
+        if ((intSt1.bits.genPldRdErr) == 0x0) {
+            pldData.u32 = g_mipiTxRegsVa->genPldData.u32;
         }
         waitCnt++;
         OsalUDelay(1);
-        if (waitCnt >  MIPI_TX_READ_TIMEOUT_CNT) {
+        if (waitCnt >  HI3403_MIPI_TX_READ_TIMEOUT_CNT) {
             HDF_LOGW("MipiTxWaitReadFifoEmpty: timeout when clear data buffer, the last read data is 0x%x!",
                 pldData.u32);
             return HDF_ERR_TIMEOUT;
         }
-    } while ((intSt1.bits.gen_pld_rd_err) == 0x0);
+    } while ((intSt1.bits.genPldRdErr) == 0x0);
     return HDF_SUCCESS;
 }
 
@@ -713,11 +746,11 @@ static int MipiTxSendShortPacket(unsigned char virtualChannel,
 {
     U_GEN_HDR genHdr;
 
-    genHdr.bits.gen_vc = virtualChannel;
-    genHdr.bits.gen_dt = dataType;
-    genHdr.bits.gen_wc_lsbyte = (dataParam & 0xff);
-    genHdr.bits.gen_wc_msbyte = (dataParam & 0xff00) >> 8; /* height 8 bits */
-    g_mipiTxRegsVa->GEN_HDR.u32 = genHdr.u32;
+    genHdr.bits.genVc = virtualChannel;
+    genHdr.bits.genDt = dataType;
+    genHdr.bits.genWcLsbyte = (dataParam & 0xff);
+    genHdr.bits.genWcMsbyte = (dataParam & 0xff00) >> 8; /* height 8 bits */
+    g_mipiTxRegsVa->genHdr.u32 = genHdr.u32;
     if (MipiTxWaitCmdFifoEmpty() != HDF_SUCCESS) {
         HDF_LOGE("MipiTxSendShortPacket: [MipiTxWaitCmdFifoEmpty] fail!");
         return HDF_FAILURE;
@@ -736,11 +769,11 @@ static int MipiTxGetReadFifoData(unsigned int getDataSize, unsigned char *dataBu
             HDF_LOGE("MipiTxGetReadFifoData: [MipiTxWaitReadFifoNotEmpty] fail at first!");
             return HDF_FAILURE;
         }
-        pldData.u32 = g_mipiTxRegsVa->GEN_PLD_DATA.u32;
-        dataBuf[i * 4] = pldData.bits.gen_pld_b1;     /* 0 in 4 */
-        dataBuf[i * 4 + 1] = pldData.bits.gen_pld_b2; /* 1 in 4 */
-        dataBuf[i * 4 + 2] = pldData.bits.gen_pld_b3; /* 2 in 4 */
-        dataBuf[i * 4 + 3] = pldData.bits.gen_pld_b4; /* 3 in 4 */
+        pldData.u32 = g_mipiTxRegsVa->genPldData.u32;
+        dataBuf[i * 4] = pldData.bits.genPldB1;     /* 0 in 4 */
+        dataBuf[i * 4 + 1] = pldData.bits.genPldB2; /* 1 in 4 */
+        dataBuf[i * 4 + 2] = pldData.bits.genPldB3; /* 2 in 4 */
+        dataBuf[i * 4 + 3] = pldData.bits.genPldB4; /* 3 in 4 */
     }
 
     j = getDataSize % 4; /* remainder of 4 */
@@ -750,15 +783,15 @@ static int MipiTxGetReadFifoData(unsigned int getDataSize, unsigned char *dataBu
             HDF_LOGE("MipiTxGetReadFifoData: [MipiTxWaitReadFifoNotEmpty] fail at second!");
             return HDF_FAILURE;
         }
-        pldData.u32 = g_mipiTxRegsVa->GEN_PLD_DATA.u32;
+        pldData.u32 = g_mipiTxRegsVa->genPldData.u32;
         if (j > 0) {
-            dataBuf[i * 4] = pldData.bits.gen_pld_b1; /* 0 in 4 */
+            dataBuf[i * 4] = pldData.bits.genPldB1; /* 0 in 4 */
         }
         if (j > 1) {
-            dataBuf[i * 4 + 1] = pldData.bits.gen_pld_b2; /* 1 in 4 */
+            dataBuf[i * 4 + 1] = pldData.bits.genPldB2; /* 1 in 4 */
         }
         if (j > 2) { /* bigger than 2 */
-            dataBuf[i * 4 + 2] = pldData.bits.gen_pld_b3; /* 2 in 4 */
+            dataBuf[i * 4 + 2] = pldData.bits.genPldB3; /* 2 in 4 */
         }
     }
     return HDF_SUCCESS;
@@ -772,15 +805,15 @@ static void MipiTxReset(void)
     U_MODE_CFG modeCfg;
 
     /* disable input */
-    operationMode.u32 = g_mipiTxRegsVa->OPERATION_MODE.u32;
-    operationMode.bits.input_en = 0;
-    g_mipiTxRegsVa->OPERATION_MODE.u32 = operationMode.u32;
+    operationMode.u32 = g_mipiTxRegsVa->operationMode.u32;
+    operationMode.bits.inputEn = 0;
+    g_mipiTxRegsVa->operationMode.u32 = operationMode.u32;
 
     /* set to LP + command mode */
     Hi3403SetCmdLpMode();
-    modeCfg.u32 = g_mipiTxRegsVa->MODE_CFG.u32;
-    modeCfg.bits.cmd_video_mode = 1;
-    g_mipiTxRegsVa->MODE_CFG.u32 = modeCfg.u32;
+    modeCfg.u32 = g_mipiTxRegsVa->modeCfg.u32;
+    modeCfg.bits.cmdVideoMode = 1;
+    g_mipiTxRegsVa->modeCfg.u32 = modeCfg.u32;
     Hi3403SetClkLaneCfg(0);
 
     /* phy + controller reset */
@@ -839,25 +872,26 @@ static void MipiTxDrvEnableInput(const OutPutModeTag outputMode)
 
     if ((outputMode == OUTPUT_MODE_DSI_VIDEO) || (outputMode == OUTPUT_MODE_CSI)) {
         U_MODE_CFG modeCfg;
-        modeCfg.u32 = g_mipiTxRegsVa->MODE_CFG.u32;
-        modeCfg.bits.cmd_video_mode = 0;
-        g_mipiTxRegsVa->MODE_CFG.u32 = modeCfg.u32;
+        modeCfg.u32 = g_mipiTxRegsVa->modeCfg.u32;
+        modeCfg.bits.cmdVideoMode = 0;
+        g_mipiTxRegsVa->modeCfg.u32 = modeCfg.u32;
     }
 
-    if (outputMode == OUTPUT_MODE_DSI_CMD)
+    if (outputMode == OUTPUT_MODE_DSI_CMD) {
         Hi3403SetCmdHsMode();
+    }
 
     OsalUDelay(1);
     Hi3403SetClkLaneCfg(1); /* HS clock enable */
     OsalUDelay(1);
 
     /* enable input */
-    opMode.u32 = g_mipiTxRegsVa->OPERATION_MODE.u32;
-    opMode.bits.mem_ck_en = 1;
-    opMode.bits.input_en = 1;
-    opMode.bits.hss_abnormal_rst = 1;
-    opMode.bits.read_empty_vsync_en = 1;
-    g_mipiTxRegsVa->OPERATION_MODE.u32 = opMode.u32;
+    opMode.u32 = g_mipiTxRegsVa->operationMode.u32;
+    opMode.bits.memCkEn = 1;
+    opMode.bits.inputEn = 1;
+    opMode.bits.hssAbnormalRst = 1;
+    opMode.bits.readEmptyVsyncEn = 1;
+    g_mipiTxRegsVa->operationMode.u32 = opMode.u32;
 
     /* reset controller + phy */
     Hi3403ControllerPhyReset();
@@ -869,15 +903,15 @@ static void MipiTxDrvDisableInput(void)
     U_MODE_CFG modeCfg;
 
     /* disable input */
-    operationMode.u32 = g_mipiTxRegsVa->OPERATION_MODE.u32;
-    operationMode.bits.input_en = 0;
-    g_mipiTxRegsVa->OPERATION_MODE.u32 = operationMode.u32;
+    operationMode.u32 = g_mipiTxRegsVa->operationMode.u32;
+    operationMode.bits.inputEn = 0;
+    g_mipiTxRegsVa->operationMode.u32 = operationMode.u32;
 
     /* set to LP + command mode */
     Hi3403SetCmdLpMode();
-    modeCfg.u32 = g_mipiTxRegsVa->MODE_CFG.u32;
-    modeCfg.bits.cmd_video_mode = 1;
-    g_mipiTxRegsVa->MODE_CFG.u32 = modeCfg.u32;
+    modeCfg.u32 = g_mipiTxRegsVa->modeCfg.u32;
+    modeCfg.bits.cmdVideoMode = 1;
+    g_mipiTxRegsVa->modeCfg.u32 = modeCfg.u32;
     Hi3403SetClkLaneCfg(0);
 
     /* phy + controller reset */
@@ -1038,12 +1072,12 @@ static int MipiTxSetComboDevCfg(const ComboDevCfgTag *devCfg)
     /* Lazy HW init: defer CRG clock+reset to first use */
     if (!g_regMapFlag || g_regMapFlag == 1) {
         MipiTxDrvHwInit(0);
-        g_regMapFlag = 2;
+        g_regMapFlag = REG_MAP_FLAG_HW_INIT;
     }
 
     /* hi3403 HAL flow: disable first, then controller_cfg + phy_cfg */
     MipiTxDrvDisableInput();
-    OsalUDelay(10);
+    OsalUDelay(CMD_CFG_DELAY_US);
 
     MipiTxDrvSetControllerCfg(devCfg);
     MipiTxDrvSetPhyCfg(devCfg);

@@ -45,35 +45,35 @@
 #define PLL_SET_0X65        0x65
 
 /* phy timing reg addr */
-#define CLK_POST_DELAY      0x68
-#define DATA0_TPRE_DELAY    0x28
-#define DATA1_TPRE_DELAY    0x38
-#define DATA2_TPRE_DELAY    0x48
-#define DATA3_TPRE_DELAY    0x58
+#define HI3403_CLK_POST_DELAY      0x68
+#define HI3403_DATA3_TPRE_DELAY    0x58
+#define HI3403_DATA2_TPRE_DELAY    0x48
+#define HI3403_DATA1_TPRE_DELAY    0x38
+#define HI3403_DATA0_TPRE_DELAY    0x28
 
-#define CLK_TLPX            0x10
-#define CLK_TCLK_PREPARE    0x11
-#define CLK_TCLK_ZERO       0x12
-#define CLK_TCLK_TRAIL      0x13
+#define HI3403_DATA3_TLPX          0x50
+#define HI3403_DATA3_THS_PREPARE   0x51
+#define HI3403_DATA3_THS_ZERO      0x52
+#define HI3403_DATA3_THS_TRAIL     0x53
+#define HI3403_DATA2_TLPX          0x40
+#define HI3403_DATA2_THS_PREPARE   0x41
+#define HI3403_DATA2_THS_ZERO      0x42
+#define HI3403_DATA2_THS_TRAIL     0x43
+#define HI3403_DATA1_TLPX          0x30
+#define HI3403_DATA1_THS_PREPARE   0x31
+#define HI3403_DATA1_THS_ZERO      0x32
+#define HI3403_DATA1_THS_TRAIL     0x33
+#define HI3403_DATA0_TLPX          0x20
+#define HI3403_DATA0_THS_PREPARE   0x21
+#define HI3403_DATA0_THS_ZERO      0x22
+#define HI3403_DATA0_THS_TRAIL     0x23
 
-#define DATA0_TLPX          0x20
-#define DATA0_THS_PREPARE   0x21
-#define DATA0_THS_ZERO      0x22
-#define DATA0_THS_TRAIL     0x23
-#define DATA1_TLPX          0x30
-#define DATA1_THS_PREPARE   0x31
-#define DATA1_THS_ZERO      0x32
-#define DATA1_THS_TRAIL     0x33
-#define DATA2_TLPX          0x40
-#define DATA2_THS_PREPARE   0x41
-#define DATA2_THS_ZERO      0x42
-#define DATA2_THS_TRAIL     0x43
-#define DATA3_TLPX          0x50
-#define DATA3_THS_PREPARE   0x51
-#define DATA3_THS_ZERO      0x52
-#define DATA3_THS_TRAIL     0x53
+#define HI3403_CLK_TLPX            0x10
+#define HI3403_CLK_TCLK_PREPARE    0x11
+#define HI3403_CLK_TCLK_ZERO       0x12
+#define HI3403_CLK_TCLK_TRAIL      0x13
 
-#define MIPI_TX_READ_TIMEOUT_CNT 1000
+#define HI3403_MIPI_TX_READ_TIMEOUT_CNT 1000
 
 #define PREPARE_COMPENSATE    10
 #define ROUNDUP_VALUE     7999
@@ -82,19 +82,22 @@
 #define MIPI_TX_INTERRUPTS_ENABLE 0
 
 /* PLL helper */
-#define mipi_tx_ceil(a, b) (((a) + (b) - 1) / (b))
+static inline unsigned int MipiTxCeil(unsigned int a, unsigned int b)
+{
+    return ((a) + (b) - 1) / (b);
+}
 
 typedef struct {
-    unsigned char data_tpre_delay;
-    unsigned char clk_tlpx;
-    unsigned char clk_tclk_prepare;
-    unsigned char clk_tclk_zero;
-    unsigned char clk_tclk_trail;
-    unsigned char data_tlpx;
-    unsigned char data_ths_prepare;
-    unsigned char data_ths_zero;
-    unsigned char data_ths_trail;
-    unsigned char clk_post_delay;
+    unsigned char dataTpreDelay;
+    unsigned char clkTlpx;
+    unsigned char clkTclkPrepare;
+    unsigned char clkTclkZero;
+    unsigned char clkTclkTrail;
+    unsigned char dataTlpx;
+    unsigned char dataThsPrepare;
+    unsigned char dataThsZero;
+    unsigned char dataThsTrail;
+    unsigned char clkPostDelay;
 } MipiTxPhyTimingParamTag;
 
 typedef struct {
