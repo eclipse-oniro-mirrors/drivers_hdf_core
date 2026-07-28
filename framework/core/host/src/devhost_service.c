@@ -120,10 +120,6 @@ ERROR:
 
 int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
 {
-    if (inst == NULL) {
-        HDF_LOGE("%s: inst is null!", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     struct HdfDevice *device = NULL;
     struct DevHostService *hostService = (struct DevHostService *)inst;
     struct HdfDeviceNode *devNode = NULL;
