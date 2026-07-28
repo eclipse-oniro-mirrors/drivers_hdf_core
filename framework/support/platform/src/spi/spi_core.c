@@ -6,6 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <stdint.h>
+
 #include "spi_core.h"
 #include "hdf_core_log.h"
 #include "osal_mem.h"
