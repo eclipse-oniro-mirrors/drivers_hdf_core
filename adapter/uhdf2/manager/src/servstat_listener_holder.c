@@ -170,8 +170,8 @@ void ServStatListenerHolderRelease(struct ServStatListenerHolder *holder)
     }
 
     struct UServStatListenerHolder *holderInst = CONTAINER_OF(holder, struct UServStatListenerHolder, holder);
-    OsalMutexLock(&g_holoderList.mutex);
 
+    OsalMutexLock(&g_holoderList.mutex);
     if (holderInst->node.next != NULL) {
         DListRemove(&holderInst->node);
     }

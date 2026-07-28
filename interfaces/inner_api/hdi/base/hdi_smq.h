@@ -384,7 +384,7 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
         return reinterpret_cast<uintptr_t>(nullptr);
     }
 
-    int offset = (static_cast<off_t>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    off_t offset = (static_cast<off_t>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
     size_t length = static_cast<size_t>(memzone->offset) - static_cast<size_t>(offset) +
         static_cast<size_t>(memzone->size);
 
@@ -714,7 +714,8 @@ size_t SharedMemQueue<T>::GetAvalidWriteSize()
     size_t readSize = GetAvalidReadSize();
     size_t elementCount = meta_->GetElementCount();
     if (readSize > elementCount) {
-        HDF_LOGE("GetAvalidWriteSize, invalid readSize %{public}zu.", readSize, elementCount);
+        HDF_LOGE("GetAvalidWriteSize, invalid readSize %{public}zu exceeds elementCount %{public}zu.",
+            readSize, elementCount);
         return 0;
     }
     return elementCount - readSize;

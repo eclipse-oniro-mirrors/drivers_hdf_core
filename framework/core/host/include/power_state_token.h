@@ -17,6 +17,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 struct PowerStateToken {
     struct IPowerStateToken super;
     const struct IPowerEventListener *listener;

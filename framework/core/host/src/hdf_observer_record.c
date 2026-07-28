@@ -54,6 +54,7 @@ bool HdfServiceObserverRecordCompare(struct HdfSListNode *listEntry, uint32_t se
 }
 
 #define MAX_NOTIFY_SUBSCRIBERS 32
+
 void HdfServiceObserverRecordNotifySubscribers(
     struct HdfServiceObserverRecord *record, devid_t deviceId, uint16_t policy)
 {
@@ -83,7 +84,7 @@ void HdfServiceObserverRecordNotifySubscribers(
     }
     OsalMutexUnlock(&record->obsRecMutex);
 
-    for (i=0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         subscribers[i]->callback.OnServiceConnected(subscribers[i]->callback.deviceObject, publisher);
     }
 }

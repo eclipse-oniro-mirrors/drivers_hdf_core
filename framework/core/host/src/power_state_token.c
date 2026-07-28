@@ -141,8 +141,8 @@ static int32_t PowerStateTokenConstruct(struct PowerStateToken *powerStateToken,
     powerStateToken->listener = listener;
     powerStateToken->deviceObject = deviceObject;
     HdfSRefConstruct(&powerStateToken->wakeRef, srefListener);
-
     OsalAtomicSet(&powerStateToken->taskRefCount, 1);
+
     return HDF_SUCCESS;
 }
 

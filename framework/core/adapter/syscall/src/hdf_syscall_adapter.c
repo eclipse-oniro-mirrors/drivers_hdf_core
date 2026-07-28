@@ -904,6 +904,9 @@ int32_t HdfDeviceRegisterEventListenerWithSchedPolicy(
     if (adapter->group != NULL) {
         /* Do not bind any service in a service goup to its own thread or start the group thread. */
         ret = HdfIoServiceGroupThreadStart(adapter->group, policy);
+        if (ret != HDF_SUCCESS) {
+            DListRemove(&listener->listNode);
+        }
         OsalMutexUnlock(&adapter->mutex);
         return ret;
     }

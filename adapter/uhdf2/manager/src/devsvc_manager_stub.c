@@ -286,18 +286,17 @@ static int32_t DevSvcManagerStubAddService(struct IDevSvcManager *super, struct 
     }
 
     OsalMutexLock(&stub->devSvcStubMutex);
-
     struct HdfDeviceObject *oldServiceObject = super->GetObject(super, info.servName);
     ret = super->AddService(super, serviceObject, &info);
-    struct HdfDeviceObject *releaseObj = (ret != HDF_SUCCESS)? serviceObject : oldServiceObject;
+    struct HdfDeviceObject *releaseObj = (ret != HDF_SUCCESS) ? serviceObject : oldServiceObject;
     if (releaseObj != NULL && CheckServiceObjectValidNoLock(stub, releaseObj)) {
         struct HdfRemoteService *svcRemote = (struct HdfRemoteService *)releaseObj->service;
         HdfRemoteServiceRemoveDeathRecipient(svcRemote, &stub->recipient);
         struct HdfDeviceObjectHolder *holder = (struct HdfDeviceObjectHolder *)releaseObj;
         HdfSListRemove(&stub->devObjHolderList, &holder->entry);
         ReleaseServiceObjectHolder(stub, holder);
-        OsalMutexUnlock(&stub->devSvcStubMutex);
     }
+    OsalMutexUnlock(&stub->devSvcStubMutex);
     HDF_LOGI("add service %{public}s, %{public}d", info.servName, ret);
     return ret;
 // LCOV_EXCL_STOP
@@ -338,15 +337,15 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    struct HdfDeviceObject *releaseObj = (ret != HDF_SUCCESS)? serviceObject : oldServiceObject;
+    struct HdfDeviceObject *releaseObj = (ret != HDF_SUCCESS) ? serviceObject : oldServiceObject;
     if (releaseObj != NULL && CheckServiceObjectValidNoLock(stub, releaseObj)) {
         struct HdfRemoteService *svcRemote = (struct HdfRemoteService *)releaseObj->service;
         HdfRemoteServiceRemoveDeathRecipient(svcRemote, &stub->recipient);
         struct HdfDeviceObjectHolder *holder = (struct HdfDeviceObjectHolder *)releaseObj;
         HdfSListRemove(&stub->devObjHolderList, &holder->entry);
         ReleaseServiceObjectHolder(stub, holder);
-        OsalMutexUnlock(&stub->devSvcStubMutex);
     }
+    OsalMutexUnlock(&stub->devSvcStubMutex);
     HDF_LOGI("update service %{public}s, %{public}d", info.servName, ret);
     return ret;
     // LCOV_EXCL_STOP

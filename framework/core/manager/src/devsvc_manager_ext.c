@@ -152,13 +152,15 @@ int DevSvcManagerExtStart(struct IDevSvcManager *svcmgr)
     if (inst->serv == NULL) {
         HDF_LOGE("failed to pushlish svcmgr ioservice");
         return HDF_FAILURE;
-        static struct HdfIoDispatcher dispatcher = {
-            .Dispatch = DeviceSvcMgrDispatch,
-        };
-        inst->started = true;
     }
+    static struct HdfIoDispatcher dispatcher = {
+        .Dispatch = DeviceSvcMgrDispatch,
+    };
+    inst->serv->dispatcher = &dispatcher;
+    inst->serv->target = (struct HdfObject *)&svcmgrDevObj;
 
     ServStatListenerHolderinit();
+    inst->started = true;
     return HDF_SUCCESS;
 }
 

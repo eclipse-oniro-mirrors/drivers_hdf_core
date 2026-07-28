@@ -447,7 +447,7 @@ static void AddEventToRingBuffer(struct HdfVNodeAdapterClient *vnodeClient, stru
     cursor = vnodeClient->writeCursor;
     vnodeClient->eventRingBuffer[cursor] = event;
     __sync_synchronize();
-    vnodeClient->writeCursor = (cursor +1) % EVENT_RINGBUFFER_MAX;
+    vnodeClient->writeCursor = (cursor + 1) % EVENT_RINGBUFFER_MAX;
 
     vnodeClient->writeHeadEvent = false;
 }
@@ -666,6 +666,7 @@ int HdfVNodeAdapterOpen(struct OsalCdev *cdev, struct file *filep)
         ret = client->ioServiceClient.device->service->Open(&client->ioServiceClient);
         if (ret != HDF_SUCCESS) {
             HdfDestoryVNodeAdapterClient(client);
+            OsalSetFilePriv(filep, NULL);
             return ret;
         }
     }

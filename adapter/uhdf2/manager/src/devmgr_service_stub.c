@@ -62,7 +62,7 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
         return HDF_FAILURE;
     }
     if (hostId > UINT16_MAX) {
-        HDF_LOGE("%{public}s : hostId %{public}u exceeds uint16_t range", __func__, hostId);
+        HDF_LOGE("%{public}s: hostId %{public}u exceeds uint16_t range", __func__, hostId);
         return HDF_ERR_INVALID_PARAM;
     }
     struct HdfRemoteService *service = HdfSbufReadRemoteService(data);

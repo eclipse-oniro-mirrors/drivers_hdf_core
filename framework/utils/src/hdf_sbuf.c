@@ -143,11 +143,19 @@ size_t HdfSbufGetCapacity(const struct HdfSBuf *sbuf)
         HDF_LOGE("%{public}s: invalid sbuf object", __func__);
         return 0;
     }
+    if (sbuf->impl->getCapacity == NULL) {
+        HDF_LOGE("getCapacity is not supported on %{public}u sbuf", sbuf->type);
+        return 0;
+    }
     return sbuf->impl->getCapacity(sbuf->impl);
 }
 
 size_t HdfSbufGetDataSize(const struct HdfSBuf *sbuf)
 {
+    if (sbuf == NULL || sbuf->impl == NULL) {
+        HDF_LOGE("%{public}s: invalid sbuf object", __func__);
+        return 0;
+    }
     if (sbuf->impl->getDataSize == NULL) {
         HDF_LOGE("getDataSize is not supported on %{public}u sbuf", sbuf->type);
         return 0;

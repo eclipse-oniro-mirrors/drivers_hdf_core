@@ -167,14 +167,14 @@ static bool GetDevcieNodeList(const struct HdfDeviceType *device,
 
         if (deviceNodeIdx > DEVNODEID_MASK) {
             HDF_LOGE("%{public}s: deviceNodeIdx overflow, exceeds max %u", __func__, DEVNODEID_MASK);
-            HdfDeviceInfoFreeInstance(deviceNodeInfo);
+            HdfDeviceInfoFreeInstance(devInfo);
             continue;
         }
         devInfo->deviceId = MK_DEVID(hostId, deviceIdx, deviceNodeIdx);
         if (devInfo->preload != DEVICE_PRELOAD_DISABLE) {
             if (!HdfSListAddOrder(&hostClnt->unloadDevInfos, &devInfo->node, HdfDeviceListCompareMacro)) {
                 HDF_LOGE("%{public}s: failed to add device info to list %{public}s",
-                    __func__, devInfo->svcName != NULL ? devInfo->svcName: "null");
+                    __func__, devInfo->svcName != NULL ? devInfo->svcName : "null");
                 HdfDeviceInfoFreeInstance(devInfo);
                 continue;
             }

@@ -57,7 +57,7 @@ static int32_t PmTaskFunc(struct HdfTaskType *para)
 
     pmRequest = CONTAINER_OF(para, struct HdfPmRequest, task);
     powerToken = pmRequest->token;
-    tokenIf = (struct IPowerStateToken*)powerToken;
+    tokenIf = (struct IPowerStateToken *)powerToken;
     if (pmRequest->pmType == HDF_PM_REQUEST_ACQUIRE) {
         if ((tokenIf != NULL) && (tokenIf->AcquireWakeLock != NULL)) {
             tokenIf->AcquireWakeLock(tokenIf);
@@ -89,7 +89,7 @@ void HdfPmTaskPut(struct PowerStateToken *powerToken, HDF_PM_REQUEST_TYPE type)
     }
 
     pmRequest->token = powerToken;
-    OsalAtomicInc(&powerToken->taskPefCount);
+    OsalAtomicInc(&powerToken->taskRefCount);
     pmRequest->pmType = type;
     pmRequest->task.func = PmTaskFunc;
     HdfTaskEnqueue(pmTaskQueue->taskQueue, &pmRequest->task);

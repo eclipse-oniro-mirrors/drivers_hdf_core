@@ -142,9 +142,9 @@ static int DevmgrServiceStopHost(struct DevHostServiceClnt *hostClnt)
         HDF_LOGE("invalid installer");
         return HDF_FAILURE;
     }
-    int ret = installer->StopDeviceHost(hostCInt->hostId, hostCInt->hostName);
+    int ret = installer->StopDeviceHost(hostClnt->hostId, hostClnt->hostName);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("failed to stop host %{public}u, ret:%{public}d", hostCInt->hostId, ret);
+        HDF_LOGE("failed to stop host %{public}u, ret: %{public}d", hostClnt->hostId, ret);
         return ret;
     }
     hostClnt->stopFlag = true;
@@ -448,7 +448,8 @@ int DevmgrServiceStartService(struct IDevmgrService *inst)
     }
     ret = DevSvcManagerStartService();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s: failed to start device hosts, result: %{public}d", __func__, ret);
+        HDF_LOGE("%{public}s: failed to start svc manager, result: %{public}d", __func__, ret);
+        return ret;
     }
     return HDF_SUCCESS;
 }
