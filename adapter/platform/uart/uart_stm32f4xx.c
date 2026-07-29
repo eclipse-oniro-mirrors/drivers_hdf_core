@@ -500,6 +500,10 @@ static int32_t GetUartDeviceResource(UartDevice *device, const struct DeviceReso
     }
 
     device->uartId = resource->num;
+    if (device->uartId < 1 || device->uartId > USART_NUM_6) {
+        HDF_LOGE("%s: uartId %u out of range [1, %u]", __func__, device->uartId, USART_NUM_6);
+        return HDF_ERR_INVALID_PARAM;
+    }
     g_uartCtx[device->uartId - 1].dePin = resource->dePin;
     g_uartCtx[device->uartId - 1].deGroup = resource->deGroup;
     g_uartCtx[device->uartId - 1].uartType = resource->uartType;

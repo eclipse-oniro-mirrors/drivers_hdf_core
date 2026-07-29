@@ -54,7 +54,11 @@ static int32_t ReportPpgData(uint8_t *dataBuf, uint16_t dataLen)
     }
     event.timestamp = time.sec * SENSOR_SECOND_CONVERT_NANOSECOND + time.usec * SENSOR_CONVERT_UNIT;
 
-    HDF_LOGD("%s: Ppg data[0] = 0x%04x", __func__, ((uint32_t *)dataBuf)[0]);
+    if (dataLen >= sizeof(uint32_t)) {
+        HDF_LOGD("%s: Ppg data[0] = 0x%04x", __func__, ((uint32_t *)dataBuf)[0]);
+    } else {
+        HDF_LOGD("%s: Ppg dataLen %u too small for uint32 cast", __func__, dataLen);
+    }
 
     if (ReportSensorEvent(&event) != HDF_SUCCESS) {
         HDF_LOGE("%s: Cs1262 report data failed", __func__);

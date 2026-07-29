@@ -80,6 +80,10 @@ int32_t WriteSensor(struct SensorBusCfg *busCfg, uint8_t *writeData, uint16_t da
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
     CHECK_NULL_PTR_RETURN_VALUE(writeData, HDF_FAILURE);
 
+    if (dataLen == 0) {
+        HDF_LOGE("%s: dataLen %u invalid", __func__, dataLen);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (busCfg->busType == SENSOR_BUS_I2C) {
         CHECK_NULL_PTR_RETURN_VALUE(busCfg->i2cCfg.handle, HDF_FAILURE);
 
