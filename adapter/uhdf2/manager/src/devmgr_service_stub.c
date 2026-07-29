@@ -91,6 +91,10 @@ static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devm
     }
     const char *servName = HdfSbufReadString(data);
     const char *deviceName = HdfSbufReadString(data);
+    if (servName == NULL || deviceName == NULL) {
+        HDF_LOGE("%{public}s: invalid service or device name", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     struct HdfDevTokenProxy *tokenClnt = HdfDevTokenProxyObtain(NULL);
     if (tokenClnt == NULL) {
         return HDF_FAILURE;
