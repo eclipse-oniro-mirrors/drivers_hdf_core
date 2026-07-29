@@ -30,6 +30,7 @@ extern "C" {
 #define MAX_NR_AKM_SUITES 2
 #define WPAS_MAX_SCAN_SSIDS 16
 #define DRIVER_MAX_SCAN_SSIDS 2
+#define PNO_NETWORKS_MAX 16
 
 #define SCAN_AP_LIMIT 64
 #define SCAN_TIME_OUT 5
