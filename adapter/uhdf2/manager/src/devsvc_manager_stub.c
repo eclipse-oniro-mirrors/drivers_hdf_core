@@ -337,6 +337,7 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
         return HDF_ERR_MALLOC_FAIL;
     }
 
+    ret = super->UpdateService(super, serviceObject, &info);
     struct HdfDeviceObject *releaseObj = (ret != HDF_SUCCESS) ? serviceObject : oldServiceObject;
     if (releaseObj != NULL && CheckServiceObjectValidNoLock(stub, releaseObj)) {
         struct HdfRemoteService *svcRemote = (struct HdfRemoteService *)releaseObj->service;
