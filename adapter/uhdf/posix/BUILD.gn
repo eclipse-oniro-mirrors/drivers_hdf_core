@@ -26,6 +26,7 @@ config("hdf_osal_pub_config") {
 }
 if (defined(ohos_lite)) {
   ohos_shared_library("hdf_posix_osal") {
+    branch_protector_ret = "pac_ret"
     framework_core_relative_path = "./../../../framework/support/posix/src"
     output_extension = "z.so"
 

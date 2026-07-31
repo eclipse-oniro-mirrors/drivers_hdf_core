@@ -8,6 +8,7 @@ import("//build/ohos.gni")
 import("./../../../adapter/uhdf2/uhdf.gni")
 
 ohos_executable("hdf_dbg") {
+  branch_protector_ret = "pac_ret"
   sources = [ "hdf_dbg.cpp" ]
 
   if (is_standard_system) {
