@@ -507,6 +507,12 @@ static int32_t CodecI2cMsgFill(struct I2cTransferParam *i2cTransferParam, const 
     msgs[0].len = i2cTransferParam->i2cRegDataLen + 1;
     AUDIO_DRIVER_LOG_DEBUG("msgs[0].addr=0x%02x, regs[0]=0x%02x.", msgs[0].addr, regs[0]);
 
+    if (i2cTransferParam->i2cRegDataLen != I2C_MSG_BUF_SIZE_1 &&
+        i2cTransferParam->i2cRegDataLen != I2C_MSG_BUF_SIZE_2) {
+        AUDIO_DRIVER_LOG_ERR("i2cRegDataLen is invalid");
+        return HDF_FAILURE;
+    }
+
     if (rwFlag == 0) { // write
         // S 11011A2A1 0 A ADDR A MS1 A LS1 A <....> P
         msgBuf = OsalMemCalloc(i2cTransferParam->i2cRegDataLen + 1);
@@ -517,12 +523,9 @@ static int32_t CodecI2cMsgFill(struct I2cTransferParam *i2cTransferParam, const 
         msgBuf[0] = regs[0];
         if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_1) {
             msgBuf[1] = (uint8_t)regAttr->value;
-        } else if (i2cTransferParam->i2cRegDataLen == I2C_MSG_BUF_SIZE_2) {
+        } else {
             msgBuf[1] = (regAttr->value >> COMM_SHIFT_8BIT); // High 8 bit
             msgBuf[I2C_MSG_BUF_SIZE_2] = (uint8_t)(regAttr->value & COMM_MASK_FF);    // Low 8 bit
-        } else {
-            AUDIO_DRIVER_LOG_ERR("i2cRegDataLen is invalid");
-            return HDF_FAILURE;
         }
         msgs[0].buf = msgBuf;
     } else {

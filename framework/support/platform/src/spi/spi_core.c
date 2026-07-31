@@ -16,6 +16,7 @@
 #define SPI_TRACE_BASIC_PARAM_NUM  3
 #define SPI_TRACE_PARAM_GET_NUM    3
 #define HDF_LOG_TAG spi_core
+#define HDF_UINT32_MAX 0xffffffffu
 
 int32_t SpiCntlrOpen(struct SpiCntlr *cntlr, uint32_t csNum)
 {
@@ -159,6 +160,10 @@ static int32_t SpiMsgsRwProcess(
         msgs[i].rbuf = NULL;
         msgs[i].wbuf = NULL;
         if ((userMsg->rwFlag & SPI_USER_MSG_READ) == SPI_USER_MSG_READ) {
+            if ((*lenReply) > HDF_UINT32_MAX - msgs[i].len) {
+                HDF_LOGE("SpiMsgsRwProcess: lenReply overflow!");
+                return HDF_ERR_INVALID_PARAM;
+            }
             (*lenReply) += msgs[i].len;
             msgs[i].rbuf = tmpFlag; // tmpFlag is not mainpulated, only to mark rbuf not NULL
         }
