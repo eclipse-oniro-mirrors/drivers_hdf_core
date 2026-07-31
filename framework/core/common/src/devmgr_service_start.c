@@ -77,6 +77,7 @@ int DeviceManagerDispatch(struct HdfObject *stub, int code, struct HdfSBuf *data
         HDF_LOGE("%{public}s: input param is invalid", __func__);
         return ret;
     }
+    HdfSbufFlush(reply);
     OsalMutexLock(&devMgrSvc->devMgrMutex);
     switch (code) {
         case DEVMGR_LOAD_SERVICE:

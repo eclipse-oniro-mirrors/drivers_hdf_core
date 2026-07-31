@@ -248,6 +248,12 @@ static struct SpiMsg *SpiDevGetSpiMsgFromUser(struct SpiIocMsg *umsg)
         HDF_LOGE("SpiDevGetSpiMsgFromUser: melloc msg error!");
         return NULL;
     }
+    if (!LOS_IsUserAddressRange((vaddr_t)(uintptr_t)(umsg->msg),
+        sizeof(struct SpiMsg) * count)) {
+        HDF_LOGE("SpiDevGetSpiMsgFromUser: umsg->msg not in user space!");
+        OsalMemFree(msg);
+        return NULL;
+    }
     ret = LOS_CopyToKernel((void *)msg, sizeof(struct SpiMsg) * count,
         (void *)(umsg->msg), sizeof(struct SpiMsg) * count);
     if (ret != 0) {
@@ -267,6 +273,10 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
     uint8_t *rbuf = NULL;
 
     for (i = 0; i < count; i++) {
+        if (msg[i].len > (uint32_t)(INT32_MAX - len)) {
+            HDF_LOGE("SpiDevRealTransfer: len overflow at msg[%d]!", i);
+            return HDF_ERR_INVALID_PARAM;
+        }
         len += msg[i].len;
     }
     if (len <= 0) {
@@ -280,10 +290,18 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
     }
     rbuf = wbuf + sizeof(uint8_t) * len;
     for (i = 0; i < count; i++) {
-        if (LOS_CopyToKernel(wbuf + pos, msg[i].len, (void *)msg[i].wbuf, msg[i].len) != 0) {
-            HDF_LOGE("SpiDevRealTransfer: copy to kernel error!");
+        if (msg[i].wbuf != NULL &&
+            !LOS_IsUserAddressRange((vaddr_t)(uintptr_t)(msg[i].wbuf), msg[i].len)) {
+            HDF_LOGE("SpiDevRealTransfer: msg[%d].wbuf not in user space!", i);
             OsalMemFree(wbuf);
-            return HDF_ERR_IO;
+            return HDF_ERR_INVALID_PARAM;
+        }
+        if (msg[i].wbuf != NULL) {
+            if (LOS_CopyToKernel(wbuf + pos, msg[i].len, (void *)msg[i].wbuf, msg[i].len) != 0) {
+                HDF_LOGE("SpiDevRealTransfer: copy to kernel error!");
+                OsalMemFree(wbuf);
+                return HDF_ERR_IO;
+            }
         }
         kmsg[i].wbuf = wbuf + pos;
         kmsg[i].rbuf = rbuf + pos;
@@ -299,10 +317,18 @@ static int32_t SpiDevRealTransfer(struct SpiDev *dev, struct SpiMsg *msg, struct
         return HDF_FAILURE;
     }
     for (i = 0; i < count; i++) {
-        if (LOS_CopyFromKernel((void *)msg[i].rbuf, msg[i].len, (void *)kmsg[i].rbuf, msg[i].len) != 0) {
-            HDF_LOGE("SpiDevRealTransfer: copy from kernel error!");
+        if (msg[i].rbuf != NULL &&
+            !LOS_IsUserAddressRange((vaddr_t)(uintptr_t)(msg[i].rbuf), msg[i].len)) {
+            HDF_LOGE("SpiDevRealTransfer: msg[%d].rbuf not in user space!", i);
             OsalMemFree(wbuf);
-            return HDF_ERR_IO;
+            return HDF_ERR_INVALID_PARAM;
+        }
+        if (msg[i].rbuf != NULL) {
+            if (LOS_CopyFromKernel((void *)msg[i].rbuf, msg[i].len, (void *)kmsg[i].rbuf, msg[i].len) != 0) {
+                HDF_LOGE("SpiDevRealTransfer: copy from kernel error!");
+                OsalMemFree(wbuf);
+                return HDF_ERR_IO;
+            }
         }
     }
     OsalMemFree(wbuf);
