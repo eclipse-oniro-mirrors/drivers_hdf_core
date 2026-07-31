@@ -307,22 +307,23 @@ static int32_t UsbPnpNotifyGetDeviceInfo(
     void *eventData, union UsbPnpDeviceInfoData *pnpInfoData, struct UsbPnpDeviceInfo **deviceInfo)
 {
     struct UsbInfoQueryPara infoQueryPara;
+    int32_t cmdType = g_usbPnpNotifyCmdType;
 
-    if ((g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_ADD_INTERFACE) ||
-        (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_INTERFACE)) {
+    if ((cmdType == USB_PNP_NOTIFY_ADD_INTERFACE) ||
+        (cmdType == USB_PNP_NOTIFY_REMOVE_INTERFACE)) {
         pnpInfoData->infoData = (struct UsbPnpAddRemoveInfo *)eventData;
     } else {
         pnpInfoData->usbDev = (struct usb_device *)eventData;
     }
 
-    if ((g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_ADD_INTERFACE) ||
-        (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_INTERFACE)) {
+    if ((cmdType == USB_PNP_NOTIFY_ADD_INTERFACE) ||
+        (cmdType == USB_PNP_NOTIFY_REMOVE_INTERFACE)) {
         infoQueryPara.type = USB_INFO_NORMAL_TYPE;
         infoQueryPara.devNum = pnpInfoData->infoData->devNum;
         infoQueryPara.busNum = pnpInfoData->infoData->busNum;
         *deviceInfo = UsbPnpNotifyFindInfo(infoQueryPara);
-    } else if ((g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_ADD_DEVICE) ||
-        (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_DEVICE)) {
+    } else if ((cmdType == USB_PNP_NOTIFY_ADD_DEVICE) ||
+        (cmdType == USB_PNP_NOTIFY_REMOVE_DEVICE)) {
         infoQueryPara.type = USB_INFO_DEVICE_ADDRESS_TYPE;
         infoQueryPara.usbDevAddr = (uint64_t)pnpInfoData->usbDev;
         *deviceInfo = UsbPnpNotifyFindInfo(infoQueryPara);
@@ -434,13 +435,28 @@ static void TestReadPnpInfo(struct HdfSBuf *data)
 {
     uint32_t infoSize;
     bool flag;
+    const struct UsbPnpNotifyMatchInfoTable *tmpInfo = NULL;
 
-    flag = HdfSbufReadBuffer(data, (const void **)(&g_testUsbPnpInfo), &infoSize);
-    if ((!flag) || (g_testUsbPnpInfo == NULL)) {
+    flag = HdfSbufReadBuffer(data, (const void **)(&tmpInfo), &infoSize);
+    if ((!flag) || (tmpInfo == NULL) || (infoSize < sizeof(struct UsbPnpNotifyMatchInfoTable))) {
         HDF_LOGE("%s: fail to read g_testUsbPnpInfo, flag=%d", __func__, flag);
         return;
     }
 
+    struct UsbPnpNotifyMatchInfoTable *newInfo =
+        (struct UsbPnpNotifyMatchInfoTable *)OsalMemCalloc(sizeof(struct UsbPnpNotifyMatchInfoTable));
+    if (newInfo == NULL) {
+        HDF_LOGE("%s: alloc failed", __func__);
+        return;
+    }
+    if (memcpy_s(newInfo, sizeof(struct UsbPnpNotifyMatchInfoTable), tmpInfo, infoSize) != EOK) {
+        HDF_LOGE("%s: memcpy_s failed", __func__);
+        OsalMemFree(newInfo);
+        return;
+    }
+
+    OsalMemFree(g_testUsbPnpInfo);
+    g_testUsbPnpInfo = newInfo;
     HDF_LOGI("%s:%d infoSize=%d read success!", __func__, __LINE__, infoSize);
 }
 
@@ -598,6 +614,7 @@ static int32_t UsbPnpNotifyReportThread(void *arg)
 
         g_usbDevice = NULL;
 #if USB_PNP_NOTIFY_TEST_MODE == true
+        OsalMemFree(g_testUsbPnpInfo);
         g_testUsbPnpInfo = NULL;
 #endif
         OsalMutexUnlock(&g_usbSendEventLock);
@@ -722,7 +739,7 @@ static void UsbPnpNotifyReadPnpInfo(struct HdfSBuf *data)
     bool flag;
 
     flag = HdfSbufReadBuffer(data, (const void **)(&usbPnpInfo), &infoSize);
-    if ((!flag) || (usbPnpInfo == NULL)) {
+    if ((!flag) || (usbPnpInfo == NULL) || (infoSize < sizeof(struct UsbPnpAddRemoveInfo))) {
         HDF_LOGE("%s: fail to read g_usbPnpInfo, flag=%d", __func__, flag);
         return;
     }
@@ -733,8 +750,6 @@ static void UsbPnpNotifyReadPnpInfo(struct HdfSBuf *data)
     g_usbPnpInfo.interfaceClass = usbPnpInfo->interfaceClass;
     g_usbPnpInfo.interfaceSubClass = usbPnpInfo->interfaceSubClass;
     g_usbPnpInfo.interfaceProtocol = usbPnpInfo->interfaceProtocol;
-
-    g_usbDevice = (struct usb_device *)&g_usbPnpInfo;
 
     infoQueryPara.type = USB_INFO_NORMAL_TYPE;
     infoQueryPara.devNum = usbPnpInfo->devNum;
@@ -809,6 +824,11 @@ static int32_t UsbPnpNotifyDispatch(
             break;
         case USB_PNP_NOTIFY_REMOVE_TEST:
             TestReadPnpInfo(data);
+            if (g_testUsbPnpInfo == NULL) {
+                HDF_LOGE("%s: g_testUsbPnpInfo is NULL", __func__);
+                ret = HDF_FAILURE;
+                break;
+            }
             g_usbPnpNotifyRemoveType = g_testUsbPnpInfo->removeType;
             wake_up_interruptible(&g_usbPnpNotifyReportWait);
             break;
