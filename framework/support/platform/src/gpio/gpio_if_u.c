@@ -347,7 +347,9 @@ int32_t GpioUnsetIrq(uint16_t gpio, void *arg)
     }
 
     HdfSbufRecycle(data);
-    PlatformUserListenerDestory((struct PlatformUserListenerManager *)service->priv, gpio);
+    if (service->priv != NULL) {
+        PlatformUserListenerDestory((struct PlatformUserListenerManager *)service->priv, gpio);
+    }
     return HDF_SUCCESS;
 }
 

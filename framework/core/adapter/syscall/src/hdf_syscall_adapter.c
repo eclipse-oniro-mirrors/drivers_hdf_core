@@ -78,6 +78,10 @@ static int32_t HdfDevEventGrowReadBuffer(struct HdfWriteReadBuf *buffer)
 
 static struct HdfSyscallAdapter *HdfFdToAdapterLocked(const struct HdfDevListenerThread *thread, int32_t fd)
 {
+    if (thread == NULL) {
+        return NULL;
+    }
+
     if (thread->adapter != NULL && thread->adapter->fd == fd) {
         return thread->adapter;
     }
@@ -406,8 +410,11 @@ static int32_t GetValidPfdIndexLocked(struct HdfDevListenerThread *thread, struc
             return HDF_ERR_MALLOC_FAIL;
         }
         if (thread->pfdSize != 0) {
-            (void)memcpy_s(
-                newPfds, sizeof(struct pollfd) * newSize, thread->pfds, sizeof(struct pollfd) * thread->pfdSize);
+            if (memcpy_s(newPfds,
+                sizeof(struct pollfd) * newSize, thread->pfds, sizeof(struct pollfd) * thread->pfdSize) != EOK) {
+                OsalMemFree(newPfds);
+                return HDF_ERR_INVALID_PARAM;
+            }
         }
 
         for (uint32_t i = index; i < newSize; i++) {
@@ -442,6 +449,9 @@ static int32_t HdfListenThreadInitPollFds(struct HdfDevListenerThread *thread)
     if (thread->adapterListPtr != NULL) {
         DLIST_FOR_EACH_ENTRY(adapter, thread->adapterListPtr, struct HdfSyscallAdapter, listNode) {
             if (HdfAddAdapterToPfds(thread, adapter) != HDF_SUCCESS) {
+                for (uint32_t i = 0; i < thread->pfdSize; i++) {
+                    thread->pfds[i].fd = SYSCALL_INVALID_FD;
+                }
                 return HDF_ERR_MALLOC_FAIL;
             }
         }
@@ -535,6 +545,10 @@ static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group
         OsalMutexUnlock(&group->mutex);
         return HDF_FAILURE;
     }
+    if (group->thread == NULL) {
+        OsalMutexUnlock(&group->mutex);
+        return HDF_ERR_THREAD_CREATE_FAIL;
+    }
     group->thread->policy = policy;
     int32_t ret = HdfDevListenerThreadStart(group->thread);
     OsalMutexUnlock(&group->mutex);
@@ -548,19 +562,14 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
     if (thread->adapterListPtr == NULL) {
         return HDF_SUCCESS;
     }
-
     OsalMutexLock(&thread->mutex);
-    struct HdfSyscallAdapter *headAdapter = DListIsEmpty(thread->adapterListPtr) ?
-        NULL :
+    struct HdfSyscallAdapter *headAdapter = DListIsEmpty(thread->adapterListPtr) ? NULL :
         DLIST_FIRST_ENTRY(thread->adapterListPtr, struct HdfSyscallAdapter, listNode);
-
     DListInsertTail(&adapter->listNode, thread->adapterListPtr);
-
     if (thread->status < LISTENER_STARTED) {
         OsalMutexUnlock(&thread->mutex);
         return HDF_SUCCESS;
     }
-
     int32_t ret = HDF_SUCCESS;
     do {
         int32_t index = GetValidPfdIndexLocked(thread, adapter);
@@ -568,11 +577,9 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
             ret = HDF_ERR_MALLOC_FAIL;
             break;
         }
-
         thread->pfds[index].fd = adapter->fd;
         thread->pfds[index].events = POLLIN;
         thread->pfds[index].revents = 0;
-
         if (headAdapter != NULL) {
             if (ioctl(headAdapter->fd, HDF_LISTEN_EVENT_WAKEUP, 0) != 0) {
                 HDF_LOGE("%{public}s: failed to wakeup drv to add poll %{public}d %{public}s",
@@ -582,7 +589,10 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
                 break;
             }
         }
-
+        if (adapter->fd == SYSCALL_INVALID_FD) {
+            ret = HDF_DEV_ERR_OP;
+            break;
+        }
         if (HdfAdapterStartListenIoctl(adapter->fd) != HDF_SUCCESS) {
             thread->pfds[index].fd = SYSCALL_INVALID_FD;
             ret = HDF_DEV_ERR_OP;
@@ -592,7 +602,6 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
         OsalMutexUnlock(&thread->mutex);
         return ret;
     } while (false);
-
     DListRemove(&adapter->listNode);
     OsalMutexUnlock(&thread->mutex);
     return ret;
