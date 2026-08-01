@@ -202,6 +202,8 @@ static int32_t DevMgrUeventParseMatchKey(char *subStr, struct DListHead *matchKe
         DListInsertTail(&matchKey->entry, matchKeyList);
         return HDF_SUCCESS;
     } else {
+        OsalMemFree(matchKey->key);
+ 	    OsalMemFree(matchKey->value);
         OsalMemFree(matchKey);
         return HDF_FAILURE;
     }

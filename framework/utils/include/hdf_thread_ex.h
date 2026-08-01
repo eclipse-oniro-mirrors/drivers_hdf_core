@@ -24,7 +24,7 @@ struct HdfThread {
     void (*Stop)(struct HdfThread *thread);
 };
 
-void HdfThreadConstruct(struct HdfThread *thread);
+int32_t HdfThreadConstruct(struct HdfThread *thread);
 void HdfThreadDestruct(struct HdfThread *thread);
 struct HdfThread *HdfThreadNewInstance(void);
 void HdfThreadFreeInstance(struct HdfThread *thread);

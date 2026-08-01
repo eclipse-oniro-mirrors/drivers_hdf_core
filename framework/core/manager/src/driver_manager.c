@@ -11,13 +11,21 @@
 #include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_sysevent.h"
+#include "osal_mutex.h"
+
+static struct OsalMutex g_driverListLock;
 
 static struct DListHead *HdfDriverHead(void)
 {
     static struct DListHead driverHead = {0};
+    static bool driverLockInited = false;
     if (driverHead.next == NULL) {
         DListHeadInit(&driverHead);
     }
+    if (!driverLockInited) {
+ 	    OsalMutexInit(&g_driverListLock);
+ 	    driverLockInited = true;
+ 	}
 
     return &driverHead;
 }
@@ -37,7 +45,9 @@ int32_t HdfRegisterDriverEntry(const struct HdfDriverEntry *entry)
 
     newDriver->entry = entry;
 
+    OsalMutexLock(&g_driverListLock);
     DListInsertTail(&newDriver->node, HdfDriverHead());
+    OsalMutexUnlock(&g_driverListLock);
 
     return HDF_SUCCESS;
 }
@@ -52,6 +62,7 @@ int32_t HdfUnregisterDriverEntry(const struct HdfDriverEntry *entry)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    OsalMutexLock(&g_driverListLock);
     driverHead = HdfDriverHead();
     DLIST_FOR_EACH_ENTRY_SAFE(driver, tmp, driverHead, struct HdfDriver, node) {
         if (driver->entry == entry) {
@@ -60,6 +71,7 @@ int32_t HdfUnregisterDriverEntry(const struct HdfDriverEntry *entry)
             break;
         }
     }
+    OsalMutexUnlock(&g_driverListLock);
 
     return HDF_SUCCESS;
 }
@@ -70,7 +82,9 @@ int32_t HdfRegisterDriver(struct HdfDriver *driver)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    OsalMutexLock(&g_driverListLock);
     DListInsertTail(&driver->node, HdfDriverHead());
+    OsalMutexUnlock(&g_driverListLock);
     return HDF_SUCCESS;
 }
 
@@ -84,6 +98,7 @@ int32_t HdfUnregisterDriver(struct HdfDriver *driver)
         return HDF_ERR_INVALID_PARAM;
     }
 
+    OsalMutexLock(&g_driverListLock);
     driverHead = HdfDriverHead();
     DLIST_FOR_EACH_ENTRY_SAFE(it, tmp, driverHead, struct HdfDriver, node) {
         if (it == driver) {
@@ -91,6 +106,7 @@ int32_t HdfUnregisterDriver(struct HdfDriver *driver)
             break;
         }
     }
+    OsalMutexUnlock(&g_driverListLock);
 
     return HDF_SUCCESS;
 }
@@ -99,13 +115,16 @@ static struct HdfDriver *HdfDriverManagerFoundDriver(const char *driverName)
 {
     struct DListHead *driverHead = NULL;
     struct HdfDriver *driver = NULL;
+    OsalMutexLock(&g_driverListLock);
     driverHead = HdfDriverHead();
     DLIST_FOR_EACH_ENTRY(driver, driverHead, struct HdfDriver, node) {
         if (driver->entry != NULL && driver->entry->moduleName != NULL &&
             !strcmp(driver->entry->moduleName, driverName)) {
+            OsalMutexUnlock(&g_driverListLock);
             return driver;
         }
     }
+    OsalMutexUnlock(&g_driverListLock);
 
     return NULL;
 }

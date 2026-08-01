@@ -55,9 +55,15 @@ struct HdfSListNode *HdfSListGetLast(const struct HdfSList *list)
 
 void HdfSListAdd(struct HdfSList *list, struct HdfSListNode *link)
 {
+    struct HdfSListNode *iterator = NULL;
     if (list == NULL || link == NULL) {
         return;
     }
+    for (iterator = list->root; iterator != NULL; iterator = iterator->next) {
+ 	    if (iterator == link) {
+ 	        return;
+ 	    }
+ 	}
     link->next = list->root;
     list->root = link;
 }

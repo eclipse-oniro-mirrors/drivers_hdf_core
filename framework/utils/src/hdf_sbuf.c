@@ -311,7 +311,7 @@ const char16_t *HdfSbufReadString16(struct HdfSBuf *sbuf)
 
 int32_t HdfSbufWriteRemoteService(struct HdfSBuf *sbuf, const struct HdfRemoteService *service)
 {
-    HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeRemoteService, false);
+    HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeRemoteService, HDF_FAILURE);
     return sbuf->impl->writeRemoteService(sbuf->impl, service);
 }
 
@@ -511,6 +511,7 @@ struct HdfSBuf *HdfSbufMove(struct HdfSBuf *sbuf)
         OsalMemFree(newBuf);
         return NULL;
     }
+    newBuf->type = sbuf->type;
     return newBuf;
 }
 
