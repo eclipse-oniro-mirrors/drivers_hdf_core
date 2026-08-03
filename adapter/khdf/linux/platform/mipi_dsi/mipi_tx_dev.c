@@ -269,7 +269,7 @@ static struct MipiDsiCntlr *GetCntlrFromFilep(struct file *filep)
         HDF_LOGE("GetCntlrFromFilep: filep is invalid!");
         return NULL;
     }
-    id = GetId();
+    id = GetIdFromFilep(filep);
 
     return g_vfsPara[id].cntlr;
 }
@@ -281,7 +281,7 @@ static struct semaphore *GetSemaFromFilep(struct file *filep)
         HDF_LOGE("GetSemaFromFilep: filep is invalid!");
         return NULL;
     }
-    id = GetId();
+    id = GetIdFromFilep(filep);
 
     return &g_vfsPara[id].sem;
 }
@@ -293,7 +293,7 @@ static struct MipiCfg *GetCfgFromFilep(struct file *filep)
         HDF_LOGE("GetCfgFromFilep: filep is invalid!");
         return NULL;
     }
-    id = GetId();
+    id = GetIdFromFilep(filep);
     if (g_vfsPara[id].cntlr == NULL) {
         HDF_LOGE("GetCfgFromFilep: g_vfsPara[id].cntlr is null!");
         return NULL;
@@ -547,10 +547,10 @@ static int MipiDsiDevOpen(struct inode *inode, struct file *filep)
 {
     uint8_t id;
     (void)inode;
-    (void)filep;
 
     id = GetId();
     g_vfsPara[id].cntlr = MipiDsiCntlrOpen(id);
+    filep->private_data = (void *)(uintptr_t)id;
     HDF_LOGI("MipiDsiDevOpen: success!");
 
     return 0;
@@ -560,11 +560,11 @@ static int MipiDsiDevRelease(struct inode *inode, struct file *filep)
 {
     uint8_t id;
     (void)inode;
-    (void)filep;
 
-    id = GetId();
+    id = GetIdFromFilep(filep);
     if (g_vfsPara[id].cntlr != NULL) {
         MipiDsiCntlrClose(g_vfsPara[id].cntlr);
+        g_vfsPara[id].cntlr = NULL;
     }
     HDF_LOGI("MipiDsiDevRelease: success!");
     return 0;
