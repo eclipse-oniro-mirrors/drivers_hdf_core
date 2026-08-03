@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-/adapter/ @pxd2022
-/framework/ @pxd2022
-/framework/model/input/ @pxd2022
-/framework/model/audio/ @pxd2022
-/framework/include/audio/ @pxd2022
-/framework/model/sensor/ @pxd2022
-/framework/model/misc/ @pxd2022
-/framework/model/display/ @pxd2022
-/framework/model/camera/ @pxd2022
-/framework/include/camera/ @pxd2022
-/framework/model/wifi/ @pxd2022
-/framework/model/network/ @pxd2022
-/framework/model/usb/ @pxd2022
-/framework/include/wifi/ @pxd2022
-/framework/include/bluetooth/ @pxd2022
-/framework/include/ethernet/ @pxd2022
-/framework/include/net/ @pxd2022
+/adapter/ @ykkwang
+/framework/ @ykkwang
+/framework/model/input/ @ykkwang
+/framework/model/audio/ @ykkwang
+/framework/include/audio/ @ykkwang
+/framework/model/sensor/ @ykkwang
+/framework/model/misc/ @ykkwang
+/framework/model/display/ @ykkwang
+/framework/model/camera/ @ykkwang
+/framework/include/camera/ @ykkwang
+/framework/model/wifi/ @ykkwang
+/framework/model/network/ @ykkwang
+/framework/model/usb/ @ykkwang
+/framework/include/wifi/ @ykkwang
+/framework/include/bluetooth/ @ykkwang
+/framework/include/ethernet/ @ykkwang
+/framework/include/net/ @ykkwang
 
-# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @pxd2022
-interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @pxd2022
+# any change to interfaces/inner_api/hdi/hdf_device_manager_interface_code.h needs to be reviewed by @ykkwang
+interfaces/inner_api/hdi/hdf_device_manager_interface_code.h @ykkwang
