@@ -165,8 +165,8 @@ static void HdfDevMgrDbgFillServiceInfo(std::vector<HdiServiceInfo> &serviceInfo
  	 
     if (serviceNum > serviceInfos.max_size()) {
         HDF_LOGE("invalid len of serviceInfos");
- 	    return;
- 	}
+        return;
+    }
  	 
     for (uint32_t i = 0; i < serviceNum; i++) {
         if (reply.GetReadableBytes() == 0) {
