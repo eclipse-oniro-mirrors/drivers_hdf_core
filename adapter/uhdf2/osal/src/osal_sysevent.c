@@ -143,7 +143,7 @@ static int InitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *notifie
         HdfIoServiceRecycle(notifier->keventIoService);
         notifier->keventIoService = NULL;
         notifier->ioServiceListener.onReceive = NULL;
- 	    notifier->ioServiceListener.priv = NULL;
+        notifier->ioServiceListener.priv = NULL;
     }
 
     return ret;

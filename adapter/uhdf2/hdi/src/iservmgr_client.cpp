@@ -158,21 +158,21 @@ sptr<IRemoteObject> ServiceManagerProxy::GetService(const char *serviceName)
 static void HdfDevMgrDbgFillServiceInfo(std::vector<HdiServiceInfo> &serviceInfos, MessageParcel &reply)
 {
     uint32_t serviceNum = 0;
- 	if (!reply.ReadUint32(serviceNum)) {
- 	    HDF_LOGE("failed to read number of service");
+    if (!reply.ReadUint32(serviceNum)) {
+        HDF_LOGE("failed to read number of service");
  	    return;
  	}
  	 
- 	if (serviceNum > serviceInfos.max_size()) {
- 	    HDF_LOGE("invalid len of serviceInfos");
+    if (serviceNum > serviceInfos.max_size()) {
+        HDF_LOGE("invalid len of serviceInfos");
  	    return;
  	}
  	 
- 	for (uint32_t i = 0; i < serviceNum; i++) {
- 	    if (reply.GetReadableBytes() == 0) {
- 	        HDF_LOGE("no enough data to read");
- 	        return;
- 	    }
+    for (uint32_t i = 0; i < serviceNum; i++) {
+        if (reply.GetReadableBytes() == 0) {
+            HDF_LOGE("no enough data to read");
+            return;
+        }
         HdiServiceInfo info;
         const char *servName = reply.ReadCString();
         if (servName == nullptr) {

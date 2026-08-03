@@ -87,8 +87,8 @@ RETRY:
     }
     sptr<IRemoteObject> object = NewObjectLocked(interface, interfaceName);
     if (object != nullptr) {
- 	    interfaceObjectCollector_[interface.GetRefPtr()] = object;
- 	}
+        interfaceObjectCollector_[interface.GetRefPtr()] = object;
+    }
     return object;
 }
 

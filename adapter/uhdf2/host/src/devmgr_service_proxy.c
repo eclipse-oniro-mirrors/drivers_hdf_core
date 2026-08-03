@@ -45,9 +45,9 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
     remoteService = serviceProxy->remote;
     dipatcher = remoteService->dispatcher;
     if (dipatcher == NULL || dipatcher->Dispatch == NULL) {
- 	    HDF_LOGE("DevmgrServiceProxyAttachDeviceHost failed, dipatcher is NULL");
- 	    goto FINISHED;
- 	}
+        HDF_LOGE("DevmgrServiceProxyAttachDeviceHost failed, dipatcher is NULL");
+        goto FINISHED;
+    }
     const int waitTimes = 100;
     const int sleepInterval = 20000; // 20ms
     int timeout = waitTimes;

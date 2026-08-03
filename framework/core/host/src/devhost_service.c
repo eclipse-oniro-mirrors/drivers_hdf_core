@@ -93,7 +93,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
         HDF_LOGE("failed to add device, create devNode failed");
         driverLoader->ReclaimDriver(driver);
         ret = HDF_DEV_ERR_NO_MEMORY;
- 	         goto ERROR;
+        goto ERROR;
     }
     devNode->hostService = hostService;
     devNode->device = device;
@@ -108,14 +108,14 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     return HDF_SUCCESS;
 ERROR:
     DevHostServiceReleaseDeviceIfEmpty(hostService, device);
- 	return ret;
+    return ret;
 }
  	 
 void DevHostServiceReleaseDeviceIfEmpty(struct DevHostService *hostService, struct HdfDevice *device)
 {
- 	if (DListIsEmpty(&device->devNodes)) {
- 	    DevHostServiceFreeDevice(hostService, device);
- 	}
+    if (DListIsEmpty(&device->devNodes)) {
+        DevHostServiceFreeDevice(hostService, device);
+    }
 }
 
 int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)

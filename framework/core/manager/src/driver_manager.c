@@ -23,9 +23,9 @@ static struct DListHead *HdfDriverHead(void)
         DListHeadInit(&driverHead);
     }
     if (!driverLockInited) {
- 	    OsalMutexInit(&g_driverListLock);
- 	    driverLockInited = true;
- 	}
+        OsalMutexInit(&g_driverListLock);
+        driverLockInited = true;
+    }
 
     return &driverHead;
 }

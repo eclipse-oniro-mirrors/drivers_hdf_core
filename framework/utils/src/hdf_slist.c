@@ -60,10 +60,10 @@ void HdfSListAdd(struct HdfSList *list, struct HdfSListNode *link)
         return;
     }
     for (iterator = list->root; iterator != NULL; iterator = iterator->next) {
- 	    if (iterator == link) {
- 	        return;
+        if (iterator == link) {
+            return;
  	    }
- 	}
+    }
     link->next = list->root;
     list->root = link;
 }

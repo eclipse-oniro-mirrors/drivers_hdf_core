@@ -21,8 +21,8 @@ void HdfThreadStart(struct HdfThread *thread)
         .policy = 0,
     };
     if (OsalThreadStart(&thread->adapter, &param) == HDF_SUCCESS) {
- 	    thread->status = true;
- 	}
+        thread->status = true;
+    }
 }
 
 void HdfThreadStop(struct HdfThread *thread)
@@ -80,9 +80,9 @@ struct HdfThread *HdfThreadNewInstance(void)
     struct HdfThread *thread = (struct HdfThread *)OsalMemCalloc(sizeof(struct HdfThread));
     if (thread != NULL) {
         if (HdfThreadConstruct(thread) != HDF_SUCCESS) {
- 	        OsalMemFree(thread);
- 	        return NULL;
- 	    }
+            OsalMemFree(thread);
+            return NULL;
+        }
     }
     return thread;
 }

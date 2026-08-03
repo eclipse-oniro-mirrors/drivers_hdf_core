@@ -203,7 +203,7 @@ static int32_t DevMgrUeventParseMatchKey(char *subStr, struct DListHead *matchKe
         return HDF_SUCCESS;
     } else {
         OsalMemFree(matchKey->key);
- 	    OsalMemFree(matchKey->value);
+        OsalMemFree(matchKey->value);
         OsalMemFree(matchKey);
         return HDF_FAILURE;
     }
