@@ -110,7 +110,7 @@ ERROR:
     DevHostServiceReleaseDeviceIfEmpty(hostService, device);
     return ret;
 }
- 	 
+
 void DevHostServiceReleaseDeviceIfEmpty(struct DevHostService *hostService, struct HdfDevice *device)
 {
     if (DListIsEmpty(&device->devNodes)) {
