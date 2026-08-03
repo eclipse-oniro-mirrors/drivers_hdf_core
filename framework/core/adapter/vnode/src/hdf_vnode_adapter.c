@@ -444,11 +444,12 @@ static void AddEventToRingBuffer(struct HdfVNodeAdapterClient *vnodeClient, stru
         vnodeClient->writeHeadEvent = true;
     }
 
-    cursor = vnodeClient->writeCursor;
+    do {
+        cursor = vnodeClient->writeCursor;
+    } while (!__sync_bool_compare_and_swap(&(vnodeClient->writeCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
+
     vnodeClient->eventRingBuffer[cursor] = event;
     __sync_synchronize();
-    vnodeClient->writeCursor = (cursor + 1) % EVENT_RINGBUFFER_MAX;
-
     vnodeClient->writeHeadEvent = false;
 }
 
