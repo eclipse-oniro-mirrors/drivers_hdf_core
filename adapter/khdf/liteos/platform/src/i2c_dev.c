@@ -57,6 +57,10 @@ static inline int32_t I2cMsgInitFromUser(struct I2cMsg *kMsgs, struct i2c_msg *u
     if ((uMsgs->flags & I2C_M_RD) != 0) {
         return HDF_SUCCESS;
     }
+    if (!LOS_IsUserAddressRange((vaddr_t)(uintptr_t)(uMsgs->buf), uMsgs->len)) {
+        HDF_LOGE("I2cMsgInitFromUser: uMsgs->buf not in user space!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     ret = LOS_CopyToKernel((void *)(kMsgs->buf), kMsgs->len, (void *)(uMsgs->buf), uMsgs->len);
     return (ret == LOS_OK) ? HDF_SUCCESS : HDF_ERR_IO;
 }
@@ -67,6 +71,10 @@ static inline int32_t I2cMsgBackToUser(struct I2cMsg *kMsgs, struct i2c_msg *uMs
 
     if ((kMsgs->flags & I2C_M_RD) == 0) {
         return HDF_SUCCESS;
+    }
+    if (!LOS_IsUserAddressRange((vaddr_t)(uintptr_t)(uMsgs->buf), uMsgs->len)) {
+        HDF_LOGE("I2cMsgBackToUser: uMsgs->buf not in user space!");
+        return HDF_ERR_INVALID_PARAM;
     }
     ret = LOS_CopyFromKernel((void *)(uMsgs->buf), uMsgs->len, (void *)(kMsgs->buf), kMsgs->len);
     return (ret == LOS_OK) ? HDF_SUCCESS : HDF_ERR_IO;
@@ -120,6 +128,12 @@ static int32_t I2cMsgsCreateFromUser(I2cIoctlWrap *wrap,
     }
     kMsgs = (struct I2cMsg *)((uint8_t *)uMsgs + sizeof(*uMsgs) * wrap->nmsgs);
 
+    if (!LOS_IsUserAddressRange((vaddr_t)(uintptr_t)(wrap->msgs),
+        sizeof(*uMsgs) * wrap->nmsgs)) {
+        HDF_LOGE("I2cMsgsCreateFromUser: wrap->msgs not in user space!");
+        ret = HDF_ERR_INVALID_PARAM;
+        goto __ERR__;
+    }
     ret = LOS_CopyToKernel((void *)uMsgs, sizeof(*uMsgs) * wrap->nmsgs,
         (void *)wrap->msgs, sizeof(*uMsgs) * wrap->nmsgs);
     if (ret != LOS_OK) {
@@ -272,6 +286,11 @@ static int I2cIoctlReadWrite(const struct I2cClient *client, const void *arg)
 
     if (arg == NULL) {
         HDF_LOGE("I2cIoctlReadWrite: arg is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (!LOS_IsUserAddressRange((vaddr_t)(uintptr_t)arg, sizeof(wrap))) {
+        HDF_LOGE("I2cIoctlReadWrite: arg not in user space!");
         return HDF_ERR_INVALID_PARAM;
     }
 
