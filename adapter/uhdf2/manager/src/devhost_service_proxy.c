@@ -37,7 +37,6 @@ static int32_t DevHostServiceProxyOpsDevice(
 
     if (!DeviceAttributeSerialize(attribute, data)) {
         HDF_LOGE("%{public}s: failed to serialize device attribute", __func__);
-        goto FINISHED;
     }
     status = hostClnt->remote->dispatcher->Dispatch(hostClnt->remote, opsCode, data, NULL);
 FINISHED:
