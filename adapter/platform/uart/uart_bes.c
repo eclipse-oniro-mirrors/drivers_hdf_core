@@ -756,7 +756,7 @@ static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t si
             return ret;
         }
         if (recvSize > INT32_MAX) {
-            return INT32_MAX;
+            return HDF_ERR_INVALID_PARAM;
         }
         ret = recvSize;
     } else {
