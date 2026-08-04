@@ -18,7 +18,8 @@ obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/mipi/mipi_dsi_core.o \
           $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/mipi/mipi_dsi_if.o
 obj-$(CONFIG_DRM_MIPI_DSI) += mipi_drm_adapter.o
 
-obj-y  += mipi_tx_dev.o \
-          mipi_tx_hi35xx.o
+obj-y  += mipi_tx_dev.o
+
+obj-$(CONFIG_ARCH_HI3516DV300) += mipi_tx_hi35xx.o
 
 EXTRA_CFLAGS += -Wno-error=date-time
