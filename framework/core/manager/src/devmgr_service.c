@@ -255,16 +255,13 @@ static int DevmgrServiceAttachDevice(struct IDevmgrService *inst, struct IHdfDev
         HDF_LOGE("failed to attach device, hostClnt is null");
         return HDF_FAILURE;
     }
-    OsalMutexLock(&hostClnt->hostLock);
     tokenClnt = DeviceTokenClntNewInstance(token);
     if (tokenClnt == NULL) {
-        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGE("failed to attach device, tokenClnt is null");
         return HDF_FAILURE;
     }
 
     HdfSListAdd(&hostClnt->devices, &tokenClnt->node);
-    OsalMutexUnlock(&hostClnt->hostLock);
     return HDF_SUCCESS;
 }
 
@@ -285,16 +282,13 @@ static int DevmgrServiceDetachDevice(struct IDevmgrService *inst, devid_t devid)
         HDF_LOGE("failed to attach device, hostClnt is null");
         return HDF_FAILURE;
     }
-    OsalMutexLock(&hostClnt->hostLock);
     tokenClntNode = HdfSListSearch(&hostClnt->devices, devid, HdfSListHostSearchDeviceTokenComparer);
     if (tokenClntNode == NULL) {
-        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGE("devmgr detach devic not found");
         return HDF_DEV_ERR_NO_DEVICE;
     }
     tokenClnt = CONTAINER_OF(tokenClntNode, struct DeviceTokenClnt, node);
     HdfSListRemove(&hostClnt->devices, &tokenClnt->node);
-    OsalMutexUnlock(&hostClnt->hostLock);
     DeviceTokenClntFreeInstance(tokenClnt);
     return HDF_SUCCESS;
 }
@@ -386,9 +380,7 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
         return HDF_FAILURE;
     }
 
-    OsalMutexLock(&devMgrSvc->devMgrMutex);
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
-        OsalMutexLock(&hostClnt->hostLock);
         HdfSbufWriteString(reply, hostClnt->hostName);
         HdfSbufWriteUint32(reply, hostClnt->hostId);
         HdfSbufWriteUint32(reply, HdfSListCount(&hostClnt->devices));
@@ -407,9 +399,7 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
                 HDF_LOGI("%{public}s host:%{public}s token null", __func__, hostClnt->hostName);
             }
         }
-        OsalMutexUnlock(&hostClnt->hostLock);
     }
-    OsalMutexUnlock(&devMgrSvc->devMgrMutex);
     return HDF_SUCCESS;
 }
 
