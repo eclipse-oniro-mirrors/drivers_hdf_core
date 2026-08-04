@@ -366,6 +366,7 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
         DevSvcManagerRemoveService(serviceManager, DEVICE_MANAGER_SERVICE, deviceObject);
         HdfRemoteServiceRecycle(remoteService);
         fullService->remote = NULL;
+        OsalMemFree(deviceObject);
         return status;
     }
     return DevSvcManagerStartService();

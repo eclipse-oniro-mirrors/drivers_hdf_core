@@ -558,6 +558,7 @@ static int32_t DevSvcManagerStubUnregisterServListener(struct IDevSvcManager *su
     }
     super->UnregsterServListener(super, listenerHolder);
     ServStatListenerHolderRelease(listenerHolder);
+    HdfRemoteServiceRecycle(listenerRemote);
     HDF_LOGI("unregister servstat listener success");
     return HDF_SUCCESS;
 // LCOV_EXCL_STOP
