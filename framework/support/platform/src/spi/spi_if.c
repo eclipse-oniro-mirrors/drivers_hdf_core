@@ -50,10 +50,6 @@ int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
         HDF_LOGE("SpiTransfer: client or cntlr is null!");
         return HDF_ERR_INVALID_PARAM;        
     }
-    if {msgs == NULL} {
-        HDF_LOGE("SpiTransfer: msgs is null!");
-        return HDF_ERR_INVALID_PARAM;  
-    }
 
     return SpiCntlrTransfer(client->cntlr, client->csNum, msgs, count);
 }

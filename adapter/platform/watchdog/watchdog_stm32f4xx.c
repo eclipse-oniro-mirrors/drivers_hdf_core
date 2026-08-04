@@ -122,8 +122,7 @@ static int32_t AttachWatchdogDeviceInfo(struct WatchdogCntlr *watchdogCntlr, str
 {
     int32_t ret;
     WatchdogDeviceInfo *watchdogdeviceinfo = NULL;
-
-    if {watchdogCntlr == NULL} {
+    if (watchdogCntlr == NULL) {
         HDF_LOGE("watchdogCntlr is NULL\r\n");
         return HDF_FAILURE;
     }
