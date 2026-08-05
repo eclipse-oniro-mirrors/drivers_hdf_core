@@ -992,8 +992,16 @@ if __name__ == "__main__":
                                action="append",
                                help="the imports")
 
+    option_parser.add_argument("--output-json",
+                               help="write build info JSON to file instead of stdout")
+
     Option.load(option_parser.parse_args())
     idl_parser = IdlParser()
     idl_parser.parse()
-    sys.stdout.write(ModuleInfo.json_info())
-    sys.stdout.flush()
+    _result = ModuleInfo.json_info()
+    if Option.opt().output_json:
+        with open(Option.opt().output_json, 'w') as f:
+            f.write(_result)
+    else:
+        sys.stdout.write(_result)
+        sys.stdout.flush()

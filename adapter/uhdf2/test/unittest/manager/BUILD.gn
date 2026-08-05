@@ -150,9 +150,6 @@ ohos_unittest("hdf_adapter_uhdf_test_remote_adapter") {
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
-      "hdf_core:libhdf_ipc_adapter",
-      "hdf_core:libhdf_utils",
-      "hdf_core:libhdi",
       "hilog:libhilog",
       "ipc:ipc_single",
     ]
@@ -170,10 +167,10 @@ ohos_unittest("hdf_adapter_uhdf_test_core_shared") {
   defines = [ "__USER__" ]
   sources = [ "$hdf_framework_path/core/shared/test/unittest/common/hdf_core_shared_test.cpp" ]
   deps = [
-    "$hdf_uhdf_path/hdi:libhdi",
-    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
-    "$hdf_uhdf_path/utils:libhdf_utils",
-    "$hdf_adapter_path/uhdf2/host:libhdf_host",
+    "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
+    "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
+    "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
+    "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
   ]
   if (is_standard_system) {
     external_deps = [
@@ -206,9 +203,9 @@ ohos_unittest("hdf_adapter_uhdf_test_uevent") {
     ]
 
     deps = [
-      "$hdf_adapter_path/uhdf2/hdi:libhdi",
-      "$hdf_adapter_path/uhdf2/ipc:libhdf_ipc_adapter",
-      "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
+      "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
+      "//drivers/hdf_core/adapter/uhdf2/ipc:libhdf_ipc_adapter",
+      "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
     ]
   } else {
     external_deps = [ "hilog:libhilog" ]

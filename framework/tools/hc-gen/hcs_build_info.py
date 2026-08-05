@@ -10,7 +10,7 @@
 import os
 import sys
 from queue import Queue
-
+import json as _json
 
 class TokenType(object):
     UNKNOWN = 0
@@ -239,12 +239,26 @@ def check_python_version():
 
 if __name__ == "__main__":
     check_python_version()
+
     if len(sys.argv) < 2:
         raise Exception("No hcs source files, please check input")
-    all_hcs_files = sys.argv[1:]
-    parser = HcsParser()
-    for hcs_file in all_hcs_files:
-        parser.parse(hcs_file)
 
-    sys.stdout.write(parser.get_hcs_info())
+output_json_file = None
+hcs_files = []
+for arg in sys.argv[1:]:
+    if arg.startswith("--output-json="):
+        output_json_file = arg[len("--output-json="):]
+    else:
+        hcs_files.append(arg)
+parser = HcsParser()
+for hcs_file in hcs_files:
+    parser.parse(hcs_file)
+
+result = parser.get_hcs_info()
+if output_json_file:
+    lines = [line for line in result.strip().split('\n') if line]
+    with open(output_json_file, 'w') as f:
+        _json.dump(lines, f)
+else:
+    sys.stdout.write(result)
     sys.stdout.flush()

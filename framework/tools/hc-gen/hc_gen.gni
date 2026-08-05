@@ -20,13 +20,23 @@ template("hc_gen") {
   }
 
   # get all hcs file by sources
-  hcs_inputs =
-      exec_script("//drivers/hdf_core/framework/tools/hc-gen/hcs_build_info.py",
-                  rebase_path(invoker.sources),
-                  "list lines")
+
+  _hcs_info_file = "$target_gen_dir/${target_name}_hcs_info.json"
+  action("${target_name}_gen_hcs_info") {
+    script = "//drivers/hdf_core/framework/tools/hc-gen/hcs_build_info.py"
+    args = rebase_path(invoker.sources) + [
+      "--output-json" + rebase_path(_hcs_info_file),
+    ]
+    inputs = invoker.sources
+    outputs = [ _hcs_info_file ]
+  }
+  hcs_inputs = read_file(_hcs_info_file, "list lines")
 
   target(target_type, target_name) {
-    deps = [ "//drivers/hdf_core/framework/tools/hc-gen:build_hc_gen" ]
+    deps = [
+      "//drivers/hdf_core/framework/tools/hc-gen:build_hc_gen",
+      ":${target_name}_gen_hcs_info",
+    ]
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
       script = "//build/lite/run_shell_cmd.py"

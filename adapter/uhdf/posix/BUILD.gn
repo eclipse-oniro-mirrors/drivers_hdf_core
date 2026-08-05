@@ -54,7 +54,14 @@ if (defined(ohos_lite)) {
     part_name = "hdf_core"
   }
 } else {
-  group("hdf_posix_osal") {
-    deps = []
+  ohos_shared_library("hdf_posix_osal") {
+    public_configs = [ ":hdf_osal_pub_config" ]
+
+    external_deps = [
+      "c_utils:utils",
+      "hilog:libhilog",
+    ]
+    subsystem_name = "hdf"
+    part_name = "hdf_core"
   }
 }

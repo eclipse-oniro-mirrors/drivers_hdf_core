@@ -17,6 +17,7 @@ action("build_hc_gen") {
     rebase_path("."),
     "BUILD_DIR=" + rebase_path(target_out_dir),
   ]
+  innerapi_tags = []
 }
 
 copy("hc_gen") {

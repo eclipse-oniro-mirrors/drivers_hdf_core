@@ -14,7 +14,10 @@ include_dirs = [
   "//drivers/hdf_core/framework/support/platform/test/fuzztest",
 ]
 
-deps = [ "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_platform" ]
+deps = [
+  "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_platform",
+  "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
+]
 
 cflags = [
   "-g",
@@ -25,6 +28,5 @@ cflags = [
 
 platform_fuzzexternal_deps = [
   "c_utils:utils",
-  "hdf_core:libhdf_utils",
   "hilog:libhilog",
 ]
