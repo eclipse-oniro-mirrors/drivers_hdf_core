@@ -9,8 +9,8 @@
 #include "hdf_sbuf.h"
 #ifndef __LITEOS__
 #ifndef __KERNEL__
-#include <pthread.h>
 #include <dlfcn.h>
+#include <pthread.h>
 #endif
 #endif
 #include "hdf_core_log.h"
