@@ -169,7 +169,7 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         return HDF_ERR_INVALID_PARAM;
     }
     if (g_ethConfig != NULL) {
- 	         OsalMemFree(g_ethConfig);
+        OsalMemFree(g_ethConfig);
     }
     g_ethConfig = GetEthConfig(deviceObject->property);
     if (g_ethConfig == NULL) {
