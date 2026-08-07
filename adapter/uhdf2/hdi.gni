@@ -113,17 +113,9 @@ template("hdi") {
     ]
   }
 
-  _build_info_file = "$target_gen_dir/${target_name}_build_info.json"
-  action("${target_name}_gen_info") {
-    script = "$idl_tool_path/build_hdi_files_info.py"
-    args = get_build_info_args + [
-      "--output-json",
-      rebase_path(_build_info_file),
-    ]
-    inputs = invoker.sources
-    outputs = [ _build_info_file ]
-  }
-  hdi_build_info = read_file(_build_info_file, "json")
+  hdi_build_info = exec_script("$idl_tool_path/build_hdi_files_info.py",
+                                get_build_info_args,
+                                "json")
   assert(defined(hdi_build_info.include_dirs), "missing include_dirs")
   assert(defined(hdi_build_info.out_dir), "out_dir")
   assert(defined(hdi_build_info.version), "missing version")
