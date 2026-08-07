@@ -68,8 +68,8 @@ struct HdfDeviceNodeType {
             return (retCode); \
         } \
         DListHeadInit(&device->deviceNodes); \
-        DListInsertTail(&device->deviceEntry, &(devices)); \
         node##_foreach_child_vargs(HDF_DEAL_DEVICE_NODE, device->deviceNodes, host, retCode); \
+        DListInsertTail(&device->deviceEntry, &(devices)); \
     } while (0)
 
 #define HDF_FIND_HOST(node, name, host, retCode) \
