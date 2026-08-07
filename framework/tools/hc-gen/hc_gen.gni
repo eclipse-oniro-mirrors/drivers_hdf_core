@@ -21,9 +21,9 @@ template("hc_gen") {
 
   # get all hcs file by sources
   hcs_inputs =
-       exec_script("//drivers/hdf_core/framework/tools/hc-gen/hcs_build_info.py",
-                   rebase_path(invoker.sources),
-                   "list lines")
+      exec_script("//drivers/hdf_core/framework/tools/hc-gen/hcs_build_info.py",
+                  rebase_path(invoker.sources),
+                  "list lines")
 
   target(target_type, target_name) {
     deps = [ "//drivers/hdf_core/framework/tools/hc-gen:build_hc_gen" ]

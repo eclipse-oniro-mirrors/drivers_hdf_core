@@ -11,6 +11,7 @@ import os
 import sys
 from queue import Queue
 
+
 class TokenType(object):
     UNKNOWN = 0
     END_OF_FILE = 1
@@ -240,7 +241,6 @@ if __name__ == "__main__":
     check_python_version()
     if len(sys.argv) < 2:
         raise Exception("No hcs source files, please check input")
-
     all_hcs_files = sys.argv[1:]
     parser = HcsParser()
     for hcs_file in all_hcs_files:

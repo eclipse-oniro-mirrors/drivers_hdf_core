@@ -65,9 +65,9 @@ template("hdi_small") {
   }
 
   hdi_build_info =
-       exec_script("$hdf_framework_path/tools/hdi-gen/build_hdi_files_info.py",
-                   get_build_info_args,
-                   "json")
+      exec_script("$hdf_framework_path/tools/hdi-gen/build_hdi_files_info.py",
+                  get_build_info_args,
+                  "json")
 
   assert(defined(hdi_build_info.include_dirs), "missing include_dirs")
   assert(defined(hdi_build_info.out_dir), "out_dir")

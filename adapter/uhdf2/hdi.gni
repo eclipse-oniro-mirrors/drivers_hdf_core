@@ -114,8 +114,8 @@ template("hdi") {
   }
 
   hdi_build_info = exec_script("$idl_tool_path/build_hdi_files_info.py",
-                                get_build_info_args,
-                                "json")
+                               get_build_info_args,
+                               "json")
   assert(defined(hdi_build_info.include_dirs), "missing include_dirs")
   assert(defined(hdi_build_info.out_dir), "out_dir")
   assert(defined(hdi_build_info.version), "missing version")
