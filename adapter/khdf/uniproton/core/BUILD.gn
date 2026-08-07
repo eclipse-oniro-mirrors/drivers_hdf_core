@@ -86,8 +86,8 @@ hdf_driver("hdf_core") {
     cmd = "if [ -f ${HDF_HCS_BUILD_PATH}/BUILD.gn ]; then echo true; else echo false; fi"
     HAVE_HCS_BUILD_PATH =
         exec_script("//build/lite/run_shell_cmd.py", [ cmd ], "value")
-    if (hdf_hcs_build_enabled) {
-      deps = [ "//device/soc/st/stm32f407zg/uniproton/board/hdf_config" ]
+    if (HAVE_HCS_BUILD_PATH) {
+      deps = [ "${HDF_HCS_BUILD_PATH}" ]
     }
   }
 }

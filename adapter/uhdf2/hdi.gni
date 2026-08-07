@@ -132,7 +132,7 @@ template("hdi") {
   }
 
   action("idl_gen") {
-    deps = idl_build_deps + [ ":${target_name}_gen_info" ]
+    deps = idl_build_deps
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
       script = "//build/lite/run_shell_cmd.py"
