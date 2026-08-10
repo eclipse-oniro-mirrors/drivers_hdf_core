@@ -1,4 +1,4 @@
-# 驯动管理进程 hdf_devmgr
+# 驱动管理进程 hdf_devmgr
 
 本文记录 `hdf_devmgr` 的设计意图、核心架构、改动规则与代码路径。
 

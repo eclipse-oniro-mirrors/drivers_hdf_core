@@ -53,7 +53,7 @@
 
 ### 嵌套指南
 
-若子目录下存在自身的 `AGENT.md`、`README.md` 或 `docs/` 说明，以子目录指南为准；本文件仅提供仓根级路由与约束。开工前可用以下命令一次性枚举所有子级指南：
+若子目录下存在自身的 `AGENTS.md`、`AGENT.md`、`README.md` 或 `docs/` 说明，以子目录指南为准；本文件仅提供仓根级路由与约束。开工前可用以下命令一次性枚举所有子级指南：
 
 ```bash
 # 注意：
@@ -129,9 +129,9 @@ git ls-files \
 >   - <docs/knowledge/xxx.md#章节标题>
 >   - <相关子目录 README.md 路径>
 > 【已识别约束】
->   - <类别>: 引用 AGENT.md 第 N 节 / 第 M 条（例：Ask before 第 3 条：新增第三方依赖 → 需法务评审）
->   - <类别>: 引用具体路由文档条目（例：AGENT.md《Do not》"错误码只能新增，不得复用"条；或 `module-map.md#容易放错的位置` 对应条目）
-> 【风险等级】 <高 | 中 | 低>（依据 AGENT.md《风险等级与审批链》表判定）
+>   - <类别>: 引用 AGENTS.md 第 N 节 / 第 M 条（例：Ask before 第 3 条：新增第三方依赖 → 需法务评审）
+>   - <类别>: 引用具体路由文档条目（例：AGENTS.md《Do not》"错误码只能新增，不得复用"条；或 `module-map.md#容易放错的位置` 对应条目）
+> 【风险等级】 <高 | 中 | 低>（依据 AGENTS.md《风险等级与审批链》表判定）
 > ```
 >
 > 未按此块声明的回复视为流程违规，Reviewer 有权直接打回。
@@ -140,7 +140,7 @@ git ls-files \
 
 - 驱动框架采用 Manager-Host 多进程模型：`hdf_devmgr` 管理进程负责设备生命周期，每个 hostId 对应一个 `DevHostService` 进程负责驱动加载。新增进程间交互逻辑时先确认归属。
 - **hdf_devmgr 进程**的代码分布在 `framework/core/manager/`（框架层）和 `adapter/uhdf2/manager/`（适配层），不要只改一侧。进程入口为 `adapter/uhdf2/manager/device_manager.c`。
-- **hdf_devhost 进程**的代码分布在 `framework/core/host/`（框架层）和 `adapter/uhdf2/host/`（适配层），可执行文件入口在 `adapter/uhdf2/host/devhost.c`，链接 `libhdf_host` 共享库；`adapter/uhdf2/host/src/` 下含 devhost 服务实现（`devhost_service_full.c`、`devhost_service_stub.c`、`devhost_dump.c`、`devhost_object_config.c`、`device_service_stub.c`、`device_token_stub.c`）与代理/客户端（`devmgr_service_proxy.c`、`devsvc_manager_proxy.c`、`hdf_devsvc_manager_clnt.c`）、驱动加载与线程模型（`driver_loader_full.c`、`hdf_device_thread.c`）、电源管理（`hdf_pm_reg.c`）。
+- **hdf_devhost 进程**的代码分布在 `framework/core/host/`（框架层）和 `adapter/uhdf2/host/`（适配层）。注意构建归属：本仓 `adapter/uhdf2/host/devhost.c` 含 `main()`（第 316 行）但**本仓 BUILD.gn 不构建它**（`grep -rn 'devhost\.c' --include='*.gn' .` 无构建引用）；真正产出 `hdf_devhost` 可执行文件的是 `drivers/peripheral/devhost/host/BUILD.gn`，它链接本仓的 `libhdf_host` 共享库。本仓侧只产出 `adapter/uhdf2/host:libhdf_host`（框架 + 适配逻辑）。`adapter/uhdf2/host/src/` 下含 devhost 服务实现（`devhost_service_full.c`、`devhost_service_stub.c`、`devhost_dump.c`、`devhost_object_config.c`、`device_service_stub.c`、`device_token_stub.c`）与代理/客户端（`devmgr_service_proxy.c`、`devsvc_manager_proxy.c`、`hdf_devsvc_manager_clnt.c`）、驱动加载与线程模型（`driver_loader_full.c`、`hdf_device_thread.c`）、电源管理（`hdf_pm_reg.c`）。对比 `hdf_devmgr`：它在本仓 `adapter/uhdf2/manager/BUILD.gn:21` 有 `ohos_executable("hdf_devmgr")`，是本仓直接产出的可执行文件。
 - `framework/core/shared/` 是接口契约层，不承载业务行为。新增 Manager-Host 交互应先在这里定义接口。
 - `adapter/uhdf2/ipc/` 是 C 框架到 OHOS C++ IPC 的桥接，不承载 HDF 业务逻辑。
 - 新增驱动入口通过 `HdfDriverEntry` 结构体注册（Bind/Init/Release 三接口），并在 HCS `device_info` 段下的 `host → device → deviceNode` 树中通过 `moduleName` 匹配对应驱动（示例见 `framework/sample/config/device_info/device_info.hcs`）。
@@ -425,11 +425,11 @@ cd ${OHOS_ROOT}
 
 任何一步验证 FAIL 或 SKIP（非 N-A）时，**不得直接进入 Done**，必须按以下环路处理，直到全部通过或明确降级：
 
-1. **分类**：判定失败属于（a）代码缺陷、（b）测试环境缺失、（c）AGENT.md/文档指引错误。
+1. **分类**：判定失败属于（a）代码缺陷、（b）测试环境缺失、（c）AGENTS.md/文档指引错误。
 2. **修复**：
    - (a) 修改源码/生成物/HCS/IDL/配置，回到"任务专项检查"重跑相关命令。
    - (b) 在最终回复"未运行的验证项"中记录，并给出等效替代证据（如 CI 结果链接、跨设备日志、代码 review 结论）。
-   - (c) 更新本 AGENT.md 或对应知识文档，并作为独立 commit 一起提交。
+   - (c) 更新本 AGENTS.md 或对应知识文档，并作为独立 commit 一起提交。
 3. **重验**：对同一验证项**至少重跑一次**，将新的 PASS/FAIL 状态填入《最终回复模板》的验证结果表；FAIL 累计达 3 次仍未通过时，必须升级到对应《风险等级与审批链》审批人（不得静默降级为 SKIP）。
 4. **记录**：每一轮循环需在 PR 或最终回复中追加一行"Round N: <项> <FAIL→PASS 或 FAIL→FAIL> · 措施 <...> · 命令 <...>"，用于回溯。
 5. **终止条件**：Done 定义的 10 条全部为 PASS 或 N-A（不含 SKIP，除非对应"未运行的验证项"已给出替代证据并被 Reviewer 明确接受）。
@@ -448,7 +448,7 @@ cd ${OHOS_ROOT}
 6. 生成文件确认：未手改 hdi-gen / idl-gen / hc-gen 生成物；若 IDL/HCS 有改动，已重跑工具并附差异说明。
 7. 跨内核/跨进程一致性：涉及 manager/host 或多内核 OSAL 的改动，双侧同步确认；`adapter/uhdf/` 与 `adapter/uhdf2/` 未交叉混改。
 8. 安全 / 合规确认：涉及 IPC/权限变更给出 SELinux `.te` 变更清单（`security_selinux_adapter` 仓 PR 链接）；涉及第三方依赖，按 OpenHarmony 规范新增 `README.OpenSource` 并同步 `bundle.json` 依赖。
-9. 子目录若存在 `AGENT.md`/`README.md`/`docs/`，已按其增量约束核对（清单见"嵌套指南"）。
+9. 子目录若存在 `AGENTS.md`/`AGENT.md`/`README.md`/`docs/`，已按其增量约束核对（清单见"嵌套指南"）。
 10. 提交遵循 DCO：所有 commit 含 `Signed-off-by`（`git commit -s`），subject 采用 `<scope>: <summary>`。
 
 最终回复应包含：
