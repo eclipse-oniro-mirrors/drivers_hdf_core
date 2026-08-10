@@ -34,7 +34,6 @@ if (hdf_core_khdf_test_support) {
       "unittest/manager:hdf_adapter_uhdf_test_uevent",
       "unittest/osal:hdf_adapter_uhdf_test_osal",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-      "unittest/platform/i2c:ui2c_test",
     ]
     if (with_sample) {
       deps += [
@@ -44,8 +43,11 @@ if (hdf_core_khdf_test_support) {
         "unittest/load_vdi:libvdi_sample2_driver",
       ]
     }
-    if (hdf_core_platform_test_support) {
+    if (hdf_core_platform_test_support && libhdf_platform_test) {
       deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
+    }
+    if (libhdf_platform_test) {
+      deps += [ "unittest/platform/i2c:ui2c_test" ]
     }
   }
 } else {

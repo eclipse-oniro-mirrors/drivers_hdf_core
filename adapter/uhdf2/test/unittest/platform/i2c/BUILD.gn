@@ -12,16 +12,22 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
 
-module_output_path = "hdf_core/hdf_core"
-ohos_unittest("ui2c_test") {
-  module_out_path = module_output_path
-  sources = [ "ui2c_test.cpp" ]
+if (libhdf_platform_test) {
+  module_output_path = "hdf_core/hdf_core"
+  ohos_unittest("ui2c_test") {
+    module_out_path = module_output_path
+    sources = [ "ui2c_test.cpp" ]
 
-  external_deps = [
-    "c_utils:utils",
-    "hdf_core:libhdf_platform",
-    "hdf_core:libhdf_utils",
-    "hilog:libhilog",
-  ]
+    deps = [
+      "$hdf_uhdf_path/platform:libhdf_platform",
+      "$hdf_uhdf_path/utils:libhdf_utils"
+    ]
+
+    external_deps = [
+      "c_utils:utils",
+      "hilog:libhilog",
+    ]
+  }
 }

@@ -39,6 +39,13 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/core/shared/include",
     ]
 
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      cfi_vcall_icall_only = true
+      debug = false
+    }
+
     public_configs = [ ":libhdf_ipc_adapter_pub_config" ]
 
     sources = [

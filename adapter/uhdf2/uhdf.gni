@@ -26,4 +26,6 @@ declare_args() {
 
   with_sample = false
   hdf_core_default_peripheral_config = true
+
+  libhdf_platform_test = false
 }
