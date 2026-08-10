@@ -38,6 +38,14 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/utils/include",
       "$hdf_uhdf_path/utils/include",
     ]
+
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      cfi_vcall_icall_only = true
+      debug = false
+    }
+
     public_configs = [ ":lib_utils_pub_config" ]
     sources = [
       "$hdf_framework_path/support/posix/src/osal_mem.c",

@@ -44,7 +44,6 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/manager:hdf_devmgr.cfg",
       "$hdf_adapter_path/uhdf2/manager:hdf_devmgr.para.dac",
       "$hdf_adapter_path/uhdf2/manager:hdf_pnp.cfg",
-      "$hdf_adapter_path/uhdf2/platform:libhdf_platform",
       "$hdf_adapter_path/uhdf2/pub_utils:libpub_utils",
       "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
       "$hdf_framework_path/tools/hdf_dbg:hdf_dbg",
@@ -52,6 +51,10 @@ if (defined(ohos_lite)) {
 
     if (hdf_core_default_peripheral_config) {
       deps += [ "./uhdf2/host/peripheral:hdf_peripheral.cfg" ]
+    }
+
+    if (libhdf_platform_test) {
+      deps += [ "$hdf_adapter_path/uhdf2/platform:libhdf_platform" ]
     }
 
     if (with_sample) {

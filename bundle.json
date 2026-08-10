@@ -139,18 +139,6 @@
                     }
                 },
                 {
-                    "name": "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_platform",
-                    "header": {
-                        "header_files": [
-                            "i2c_if.h",
-                            "spi_if.h",
-                            "gpio_if.h",
-                            "platform_if.h"
-                        ],
-                        "header_base": "//drivers/hdf_core/framework/include/platform"
-                    }
-                },
-                {
                     "name": "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi_base",
                     "header": {
                         "header_files": [

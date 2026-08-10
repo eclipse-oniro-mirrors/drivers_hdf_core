@@ -33,8 +33,16 @@ if (is_standard_system) {
     ]
   }
   ohos_shared_library("libhdf_platform") {
-    branch_protector_ret = "pac_ret"
     public_configs = [ ":libhdf_platform_pub_config" ]
+
+    branch_protector_ret = "pac_ret"
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      cfi_vcall_icall_only = true
+      debug = false
+    }
+
     sources = [
       "$HDF_FRAMEWORKS/support/platform/src/adc/adc_if_u.c",
       "$HDF_FRAMEWORKS/support/platform/src/clock/clock_if_u.c",
