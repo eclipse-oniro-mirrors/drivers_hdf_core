@@ -187,7 +187,8 @@ static int32_t OpenHdiServiceImpl(const LibImplInfo& libInfo, const std::string&
     return HDF_SUCCESS;
 }
 
-static void *LoadHdiImplDirectly(const LibImplInfo& libInfo, const std::string& interfaceName, HdiImpl &hdiImpl)
+__attribute__((no_sanitize("cfi"))) static void *LoadHdiImplDirectly(const LibImplInfo& libInfo,
+    const std::string& interfaceName, HdiImpl &hdiImpl)
 {
     const std::string libName = libInfo.libraryName;
     void *implInstance = hdiImpl.constructor();
@@ -243,7 +244,7 @@ void SearchMatchedLibraryInDir(const LibImplInfo& implInfo,
     closedir(dir);
 }
 
-static void *ConstructMatchedLibraryInDirs(const LibImplInfo& implInfo,
+__attribute__((no_sanitize("cfi"))) static void *ConstructMatchedLibraryInDirs(const LibImplInfo& implInfo,
     const std::string &interfaceName)
 {
     const char * const paths[] = {
@@ -296,7 +297,8 @@ static void *ConstructMatchedLibraryInDirs(const LibImplInfo& implInfo,
     return impl;
 }
 
-static void *LoadHdiImplPatternly(const LibImplInfo& libImplInfo, const std::string& interfaceName)
+__attribute__((no_sanitize("cfi"))) static void *LoadHdiImplPatternly(const LibImplInfo& libImplInfo,
+    const std::string& interfaceName)
 {
     auto it = g_hdiMaxConstructorMap.find(libImplInfo.libNameBase);
     if (it != g_hdiMaxConstructorMap.end()) {
@@ -318,7 +320,8 @@ static void *LoadHdiImplPatternly(const LibImplInfo& libImplInfo, const std::str
  * library name: libfoo_xxx_service_1.0.z.so
  * method name: FooImplGetInstance
  */
-void *LoadHdiImpl(const char *desc, const char *serviceName)
+
+__attribute__((no_sanitize("cfi"))) void *LoadHdiImpl(const char *desc, const char *serviceName)
 {
     if (desc == nullptr || serviceName == nullptr || strlen(desc) == 0 || strlen(serviceName) == 0) {
         HDF_LOGE("%{public}s invalid interface descriptor or service name", __func__);
@@ -357,7 +360,7 @@ void *LoadHdiImpl(const char *desc, const char *serviceName)
     return LoadHdiImplDirectly(libInfo, interfaceName, hdiImpl);
 }
 
-void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
+__attribute__((no_sanitize("cfi"))) void UnloadHdiImpl(const char *desc, const char *serviceName, void *impl)
 {
     if (desc == nullptr || impl == nullptr) {
         return;
