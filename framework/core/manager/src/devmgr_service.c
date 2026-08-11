@@ -17,9 +17,16 @@
 #include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_time.h"
+#ifdef __USER__
+#include <pthread.h>
+#endif
 
 #define HDF_LOG_TAG devmgr_service
 #define INVALID_PID (-1)
+
+#ifdef __USER__
+pthread_rwlock_t g_hostsLock = PTHREAD_RWLOCK_INITIALIZER;
+#endif
 
 static bool DevmgrServiceDynamicDevInfoFound(
     const char *svcName, struct DevHostServiceClnt **targetHostClnt, struct HdfDeviceInfo **targetDeviceInfo)
@@ -36,6 +43,10 @@ static bool DevmgrServiceDynamicDevInfoFound(
         return false;
     }
 
+#ifdef __USER__
+    pthread_rwlock_rdlock(&g_hostsLock);
+#endif
+
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&itDeviceInfo, &hostClnt->dynamicDevInfos);
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
@@ -43,10 +54,17 @@ static bool DevmgrServiceDynamicDevInfoFound(
             if (strcmp(deviceInfo->svcName, svcName) == 0) {
                 *targetDeviceInfo = deviceInfo;
                 *targetHostClnt = hostClnt;
+#ifdef __USER__
+                pthread_rwlock_unlock(&g_hostsLock);
+#endif
                 return true;
             }
         }
     }
+
+#ifdef __USER__
+    pthread_rwlock_unlock(&g_hostsLock);
+#endif
 
     return false;
 }
@@ -206,6 +224,9 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
         return HDF_FAILURE;
     }
 
+#ifdef __USER__
+    pthread_rwlock_wrlock(&g_hostsLock);    // not needed in user space
+#endif
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSListIteratorInit(&itDeviceInfo, &hostClnt->unloadDevInfos);
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
@@ -221,6 +242,9 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
             }
         }
     }
+#ifdef __USER__
+    pthread_rwlock_unlock(&g_hostsLock);
+#endif
     return HDF_SUCCESS;
 }
 
@@ -233,11 +257,21 @@ static struct DevHostServiceClnt *DevmgrServiceFindDeviceHost(struct IDevmgrServ
         return NULL;
     }
 
+#ifdef __USER__
+    pthread_rwlock_rdlock(&g_hostsLock);
+#endif
     DLIST_FOR_EACH_ENTRY(hostClnt, &dmService->hosts, struct DevHostServiceClnt, node) {
         if (hostClnt->hostId == hostId) {
+#ifdef __USER__
+            pthread_rwlock_unlock(&g_hostsLock);
+#endif
             return hostClnt;
         }
     }
+#ifdef __USER__
+    pthread_rwlock_unlock(&g_hostsLock);
+#endif
+
     HDF_LOGE("cannot find host %{public}u", hostId);
     return NULL;
 }
@@ -325,7 +359,15 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
         return HDF_FAILURE;
     }
 
+#ifdef __USER__
+    pthread_rwlock_wrlock(&g_hostsLock);
+#endif
+
     DListInsertTail(&hostClnt->node, &devmgr->hosts);
+
+#ifdef __USER__
+    pthread_rwlock_unlock(&g_hostsLock);
+#endif
 
     // not start the host which only have dynamic devices
     if (HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
@@ -379,6 +421,10 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
         return HDF_FAILURE;
     }
 
+#ifdef __USER__
+    pthread_rwlock_rdlock(&g_hostsLock);
+#endif
+
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         HdfSbufWriteString(reply, hostClnt->hostName);
         HdfSbufWriteUint32(reply, hostClnt->hostId);
@@ -399,6 +445,9 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
             }
         }
     }
+#ifdef __USER__
+    pthread_rwlock_unlock(&g_hostsLock);
+#endif
     return HDF_SUCCESS;
 }
 
@@ -412,16 +461,29 @@ static int32_t DevmgrServiceListAllHost(struct IDevmgrService *inst, struct HdfS
         return HDF_FAILURE;
     }
 
+#ifdef __USER__
+    pthread_rwlock_rdlock(&g_hostsLock);
+#endif
+
     if (!HdfSbufWriteUint32(reply, DListGetCount(&devMgrSvc->hosts) + 1)) {
+#ifdef __USER__
+        pthread_rwlock_unlock(&g_hostsLock);
+#endif
         HDF_LOGE("Sbuf Write host count failed");
         return HDF_FAILURE;
     }
     DLIST_FOR_EACH_ENTRY(hostClnt, &devMgrSvc->hosts, struct DevHostServiceClnt, node) {
         if (!HdfSbufWriteInt32(reply, hostClnt->hostProcessId)) {
+#ifdef __USER__
+            pthread_rwlock_unlock(&g_hostsLock);
+#endif
             HDF_LOGE("%{public}s: Sbuf Write host pid failed", __func__);
             return HDF_FAILURE;
         }
     }
+#ifdef __USER__
+        pthread_rwlock_unlock(&g_hostsLock);
+#endif
 
     return HDF_SUCCESS;
 }
@@ -459,6 +521,9 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
 
     if (IsPowerWakeState(powerState)) {
         HDF_LOGI("%{public}s:wake state %{public}u", __func__, powerState);
+#ifdef __USER__
+        pthread_rwlock_wrlock(&g_hostsLock);
+#endif
         DLIST_FOR_EACH_ENTRY(hostClient, &devmgr->hosts, struct DevHostServiceClnt, node) {
             if (hostClient->hostService != NULL) {
                 if (hostClient->hostService->PmNotify(hostClient->hostService, powerState) != HDF_SUCCESS) {
@@ -466,8 +531,14 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
                 }
             }
         }
+#ifdef __USER__
+        pthread_rwlock_unlock(&g_hostsLock);
+#endif
     } else {
         HDF_LOGI("%{public}s:suspend state %{public}u", __func__, powerState);
+#ifdef __USER__
+        pthread_rwlock_wrlock(&g_hostsLock);
+#endif
         DLIST_FOR_EACH_ENTRY_REVERSE(hostClient, &devmgr->hosts, struct DevHostServiceClnt, node) {
             if (hostClient->hostService != NULL) {
                 if (hostClient->hostService->PmNotify(hostClient->hostService, powerState) != HDF_SUCCESS) {
@@ -475,6 +546,9 @@ int DevmgrServicePowerStateChange(struct IDevmgrService *devmgrService, enum Hdf
                 }
             }
         }
+#ifdef __USER__
+        pthread_rwlock_unlock(&g_hostsLock);
+#endif
     }
 
     return result;
@@ -539,10 +613,17 @@ void DevmgrServiceRelease(struct HdfObject *object)
     if (devmgrService == NULL) {
         return;
     }
+
+#ifdef __USER__
+    pthread_rwlock_wrlock(&g_hostsLock);
+#endif
     DLIST_FOR_EACH_ENTRY_SAFE(hostClnt, hostClntTmp, &devmgrService->hosts, struct DevHostServiceClnt, node) {
         DListRemove(&hostClnt->node);
         DevHostServiceClntDelete(hostClnt);
     }
+#ifdef __USER__
+    pthread_rwlock_unlock(&g_hostsLock);
+#endif
 
     OsalMutexDestroy(&devmgrService->devMgrMutex);
 }
