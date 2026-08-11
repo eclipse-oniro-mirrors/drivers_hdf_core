@@ -54,7 +54,10 @@ if (defined(ohos_lite)) {
     part_name = "hdf_core"
   }
 } else {
-  group("hdf_posix_osal") {
-    deps = []
+  ohos_shared_headers("hdf_posix_osal") {
+    include_dirs = [ "//drivers/hdf_core/interfaces/inner_api" ]
+    
+    subsystem_name = "hdf"
+    part_name = "hdf_core"
   }
 }

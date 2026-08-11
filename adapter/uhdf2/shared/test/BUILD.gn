@@ -27,8 +27,8 @@ ohos_unittest("dev_attribute_serialize_test") {
   sources = [ "dev_attribute_serialize_test.cpp" ]
 
   deps = [
-    "$hdf_uhdf_path/host:libhdf_host",
-    "$hdf_uhdf_path/utils:libhdf_utils",
+    "//drivers/hdf_core/adapter/uhdf2/host:libhdf_host",
+    "//drivers/hdf_core/adapter/uhdf2/utils:libhdf_utils",
   ]
 
   external_deps = [ "c_utils:utils" ]
