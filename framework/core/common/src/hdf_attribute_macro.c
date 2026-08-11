@@ -78,6 +78,7 @@ bool HdfAttributeManagerGetHostList(struct HdfSList *hostList)
     DLIST_FOR_EACH_ENTRY(host, &devHost->hosts, struct HdfHostType, hostEntry) {
         struct HdfHostInfo *hostInfo = HdfHostInfoNewInstance();
         if (hostInfo == NULL) {
+            AttributeManagerFreeDevHost(devHost);
             HdfSListFlush(hostList, HdfHostInfoDelete);
             HDF_LOGE("%{public}s: new hostInfo is null", __func__);
             return false;

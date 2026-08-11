@@ -78,6 +78,9 @@ struct HdfMessage* HdfMessageQueueNext(struct HdfMessageQueue *queue)
 
 void HdfMessageQueueFlush(struct HdfMessageQueue *queue)
 {
+    if (queue == NULL) {
+        return;
+    }
     struct HdfSListIterator it;
     OsalMutexLock(&queue->mutex);
     HdfSListIteratorInit(&it, &queue->list);

@@ -113,6 +113,7 @@ static void HdfQueueStartThread(struct HdfTaskQueue *queue)
     ret = OsalThreadStart(&queue->thread, &param);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s OsalThreadStart fail", __func__);
+        queue->threadRunFlag = false;
     }
 }
 

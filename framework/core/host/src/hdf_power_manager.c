@@ -79,6 +79,10 @@ void HdfPmTaskPut(struct PowerStateToken *powerToken, HDF_PM_REQUEST_TYPE type)
     }
 
     pmTaskQueue = HdfPmTaskQueueInstance();
+    if (pmTaskQueue == NULL || pmTaskQueue->taskQueue == NULL) {
+        HDF_LOGI("%{public}s pmTaskQueue or taskQueue is null", __func__);
+        return;
+    }
     pmRequest = (struct HdfPmRequest *)OsalMemCalloc(sizeof(*pmRequest));
     if (pmRequest == NULL) {
         HDF_LOGI("%{public}s OsalMemCalloc fail", __func__);
