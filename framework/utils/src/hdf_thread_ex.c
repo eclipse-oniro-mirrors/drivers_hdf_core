@@ -42,30 +42,29 @@ bool HdfThreadIsRunning(struct HdfThread *thread)
     return thread->status;
 }
 
-int HdfThreadMain(void *argv)
+void HdfThreadMain(void *argv)
 {
     struct HdfThread *thread = (struct HdfThread *)argv;
     if (thread == NULL) {
-        return HDF_FAILURE;
+        return;
     }
     if (thread->ThreadEntry != NULL) {
         thread->ThreadEntry(argv);
     } else {
         OsalThreadDestroy(&thread->adapter);
     }
-    return HDF_SUCCESS;
 }
 
-int32_t HdfThreadConstruct(struct HdfThread *thread)
+void HdfThreadConstruct(struct HdfThread *thread)
 {
     if (thread == NULL) {
-        return HDF_ERR_INVALID_PARAM;
+        return;
     }
     thread->Start = HdfThreadStart;
     thread->Stop = HdfThreadStop;
     thread->IsRunning = HdfThreadIsRunning;
     thread->status = false;
-    return OsalThreadCreate(&thread->adapter, (OsalThreadEntry)HdfThreadMain, thread);
+    OsalThreadCreate(&thread->adapter, (OsalThreadEntry)HdfThreadMain, thread);
 }
 
 void HdfThreadDestruct(struct HdfThread *thread)
@@ -79,10 +78,7 @@ struct HdfThread *HdfThreadNewInstance(void)
 {
     struct HdfThread *thread = (struct HdfThread *)OsalMemCalloc(sizeof(struct HdfThread));
     if (thread != NULL) {
-        if (HdfThreadConstruct(thread) != HDF_SUCCESS) {
-            OsalMemFree(thread);
-            return NULL;
-        }
+        HdfThreadConstruct(thread);
     }
     return thread;
 }
