@@ -35,7 +35,6 @@ struct IDevHostService *DevHostServiceNewInstance(uint16_t hostId, const char *h
 void DevHostServiceFreeInstance(struct IDevHostService *service);
 struct HdfObject *DevHostServiceCreate(void);
 void DevHostServiceRelease(struct HdfObject *object);
-void DevHostServiceReleaseDeviceIfEmpty(struct DevHostService *hostService, struct HdfDevice *device);
 
 #ifdef __cplusplus
 }
