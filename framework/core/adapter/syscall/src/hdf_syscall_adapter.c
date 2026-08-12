@@ -609,10 +609,6 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
 // LCOV_EXCL_START
 static void HdfListenThreadPollDel(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
-    if (adapter == NULL) {
-        HDF_LOGE("%s: adapter is null!", __func__);
-        return;
-    }
     if (thread == NULL) {
         DListRemove(&adapter->listNode);
         adapter->group = NULL;
