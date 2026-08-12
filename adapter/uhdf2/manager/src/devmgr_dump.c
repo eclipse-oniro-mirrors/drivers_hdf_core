@@ -376,7 +376,9 @@ static void DevMgrFillDeviceInfo(struct HdfSBuf *data, struct HdfSBuf *reply, ui
             return;
         }
 
-        (void)HdfSbufReadUint32(data, &devCnt);
+        if (!HdfSbufReadUint32(data, &devCnt)) {
+            HDF_LOGE("%{public}s: read devCnt failed", __func__);
+        }
         (*hostCnt)++;
         if (devCnt == 0 || devCnt > DEVCNT_MAX) {
             HDF_LOGE("devCnt is over");

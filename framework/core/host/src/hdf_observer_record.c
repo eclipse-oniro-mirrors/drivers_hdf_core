@@ -53,28 +53,40 @@ bool HdfServiceObserverRecordCompare(struct HdfSListNode *listEntry, uint32_t se
     return false;
 }
 
+#define MAX_NOTIFY_SUBSCRIBERS 32
+
 void HdfServiceObserverRecordNotifySubscribers(
     struct HdfServiceObserverRecord *record, devid_t deviceId, uint16_t policy)
 {
     struct HdfSListIterator it;
+    struct HdfServiceSubscriber *subscribers[MAX_NOTIFY_SUBSCRIBERS];
+    void *publisher = NULL;
+    int count = 0;
+    int i;
+
     if (record == NULL) {
         HDF_LOGE("%{public}s: record is null", __func__);
         return;
     }
 
     OsalMutexLock(&record->obsRecMutex);
+    publisher = record->publisher;
     HdfSListIteratorInit(&it, &record->subscribers);
     while (HdfSListIteratorHasNext(&it)) {
         struct HdfServiceSubscriber *subscriber =
             (struct HdfServiceSubscriber *)HdfSListIteratorNext(&it);
         if (deviceId == subscriber->devId || policy != SERVICE_POLICY_PRIVATE) {
             subscriber->state = HDF_SUBSCRIBER_STATE_READY;
-            if (subscriber->callback.OnServiceConnected != NULL) {
-                subscriber->callback.OnServiceConnected(subscriber->callback.deviceObject, record->publisher);
+            if (subscriber->callback.OnServiceConnected != NULL && count < MAX_NOTIFY_SUBSCRIBERS) {
+                subscribers[count++] = subscriber;
             }
         }
     }
     OsalMutexUnlock(&record->obsRecMutex);
+
+    for (i = 0; i < count; i++) {
+        subscribers[i]->callback.OnServiceConnected(subscribers[i]->callback.deviceObject, publisher);
+    }
 }
 
 void HdfServiceObserverRecordDelete(struct HdfSListNode *listEntry)

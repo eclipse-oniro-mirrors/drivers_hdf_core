@@ -342,7 +342,8 @@ static struct DeviceResourceAttr *GetAttrValueInNode(const struct DeviceResource
         return NULL;
     }
     for (attr = node->attrData; attr != NULL; attr = attr->next) {
-        if ((attr->value != NULL) && (strcmp(attr->value + HCS_PREFIX_LENGTH, attrValue) == 0) &&
+        if ((attr->value != NULL) && (HcsGetPrefix(attr->value) == CONFIG_STRING) &&
+            (strcmp(attr->value + HCS_PREFIX_LENGTH, attrValue) == 0) &&
             (attr->name != NULL) && (strcmp(attr->name, HCS_MATCH_ATTR) == 0)) {
             break;
         }

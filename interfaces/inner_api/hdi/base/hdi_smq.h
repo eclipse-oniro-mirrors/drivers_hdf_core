@@ -384,17 +384,18 @@ uintptr_t SharedMemQueue<T>::MapMemZone(uint32_t zoneType)
         return reinterpret_cast<uintptr_t>(nullptr);
     }
 
-    int offset = (static_cast<int>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
-    int length = static_cast<int>(memzone->offset) - offset + static_cast<int>(memzone->size);
+    off_t offset = (static_cast<off_t>(memzone->offset) / PAGE_SIZE) * PAGE_SIZE;
+    size_t length = static_cast<size_t>(memzone->offset) - static_cast<size_t>(offset) +
+        static_cast<size_t>(memzone->size);
 
     void *ptr = mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, meta_->GetFd(), offset);
     if (ptr == MAP_FAILED) {
         HDF_LOGE(
-            "failed to map memzone %{public}u, size %{public}u, offset %{public}u , fd %{public}d, errnor=%{public}d",
-            zoneType, length, offset, meta_->GetFd(), errno);
+            "failed to map memzone %{public}u, size %{public}zu, offset %{public}td , fd %{public}d, errnor=%{public}d",
+            zoneType, length, static_cast<ptrdiff_t>(offset), meta_->GetFd(), errno);
         return reinterpret_cast<uintptr_t>(nullptr);
     }
-    return (reinterpret_cast<uintptr_t>(ptr) + (static_cast<int>(memzone->offset) - offset));
+    return (reinterpret_cast<uintptr_t>(ptr) + (static_cast<size_t>(memzone->offset) - static_cast<size_t>(offset)));
 }
 
 template <typename T>
@@ -710,7 +711,14 @@ size_t SharedMemQueue<T>::GetAvalidWriteSize()
         HDF_LOGE("GetAvalidWriteSize, meta_ is nullptr.");
         return 0;
     }
-    return meta_->GetElementCount() - GetAvalidReadSize();
+    size_t readSize = GetAvalidReadSize();
+    size_t elementCount = meta_->GetElementCount();
+    if (readSize > elementCount) {
+        HDF_LOGE("GetAvalidWriteSize, invalid readSize %{public}zu exceeds elementCount %{public}zu.",
+            readSize, elementCount);
+        return 0;
+    }
+    return elementCount - readSize;
 }
 
 template <typename T>
@@ -722,7 +730,13 @@ size_t SharedMemQueue<T>::GetAvalidReadSize()
     }
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
-    auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + meta_->GetElementCount() + 1 - rOffset);
+    auto elementCount = meta_->GetElementCount();
+    if (wOffset > elementCount || rOffset > elementCount) {
+        HDF_LOGE("GetAvalidReadSize, invalid offset wOffset=%{public}" PRIu64 " rOffset=%{public}" PRIu64
+            " elementCount=%{public}zu.", wOffset, rOffset, elementCount);
+        return 0;
+    }
+    auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + elementCount + 1 - rOffset);
     return size;
 }
 
