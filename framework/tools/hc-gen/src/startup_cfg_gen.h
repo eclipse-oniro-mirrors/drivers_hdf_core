@@ -15,7 +15,6 @@
 #include <set>
 
 #include "generator.h"
-#include "option.h"
 
 namespace OHOS {
 namespace Hardware {
@@ -61,23 +60,11 @@ private:
 
     void HostInfoOutput(const std::string &name, bool end);
 
-    void HostConfigWholeOutput(const std::vector<std::pair<std::string, HostInfo>> &vect);
-
-    void HostConfigSeparateOutput(const std::vector<std::pair<std::string, HostInfo>> &vect);
-
-    bool CreatePreDirectory();
-
     void HeaderTopOutput();
 
     void HeaderBottomOutput();
 
     void HostInfosOutput();
-
-    void ImportFileHeaderTopOutput();
-
-    void ImportFileHeaderBottomOutput();
-
-    void InsertImportFilePath(const std::string& filePath);
 
     void EmitDynamicLoad(const std::string &name, std::set<std::string> &configedKeywords);
 
@@ -113,10 +100,6 @@ private:
     std::ofstream ofs_;
     std::string outFileName_;
     std::map<std::string, HostInfo> hostInfoMap_;
-
-    std::ofstream importFile_;
-
-    const OHOS::Hardware::Option& option;
 };
 } // namespace Hardware
 } // namespace OHOS
