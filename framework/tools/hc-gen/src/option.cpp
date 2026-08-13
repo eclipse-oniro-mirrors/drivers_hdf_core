@@ -57,27 +57,8 @@ Option &Option::Parse(int argc, char **argv)
 bool Option::ParseOptions(int argc, char **argv)
 {
     int32_t op = 0;
-
-    static struct option long_options[] = {
-        { "separate", no_argument, 0, 0 },
-        { 0, 0, 0, 0 }
-    };
-    
     while (op != OPTION_END) {
-        int option_index = 0;
-        op = getopt_long(argc, argv, HCS_SUPPORT_ARGS, long_options, &option_index);
-        // long options process
-        if (op == 0) {
-            // --separate option process
-            if (strcmp(long_options[option_index].name, "separate") == 0) {
-                if ((genStartCfg_ == true) && (shouldGenByteCodeConfig_ == false)) {
-                    isCfgSeperate_ = true;
-                } else {
-                    Logger().Error() << "--separate must follow with -s";
-                    SetOptionError();
-                }
-            }
-        }
+        op = getopt(argc, argv, HCS_SUPPORT_ARGS);
         SetOptionData(op);
         if (ShouldShowUsage() || ShouldShowVersion()) {
             return false;
@@ -155,8 +136,6 @@ void Option::ShowUsage()
     ShowOption("-V", "show verbose info");
     ShowOption("-v", "show version");
     ShowOption("-h", "show this help message");
-    Logger() << "  " << "Specific Options:";
-    ShowOption("--separate", "output separate config files, must be used with -s");
 }
 
 void Option::ShowOption(const ::std::string &option, const ::std::string &helpInfo)
@@ -218,11 +197,6 @@ bool Option::ShouldDecompile() const
 bool Option::ShouldGenStartConfig() const
 {
     return genStartCfg_;
-}
-
-bool Option::ShouldGenSeparateConfig() const
-{
-    return isCfgSeperate_;
 }
 
 std::string Option::GetSymbolPrefix() const
