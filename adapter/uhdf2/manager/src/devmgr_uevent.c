@@ -193,8 +193,6 @@ static int32_t DevMgrUeventParseMatchKey(char *subStr, struct DListHead *matchKe
     }
     if (matchKey->value == NULL || matchKey->key == NULL) {
         HDF_LOGW("%{public}s OsalMemCalloc matchKey->value or matchKey->key failed", __func__);
-        OsalMemFree(matchKey);
-        return HDF_FAILURE;
     }
     DListHeadInit(&matchKey->entry);
 
