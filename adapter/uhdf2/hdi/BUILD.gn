@@ -49,6 +49,18 @@ if (defined(ohos_lite)) {
   }
 
   ohos_shared_library("libhdi_base") {
+    branch_protector_ret = "pac_ret"
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      cfi_vcall_icall_only = true
+      debug = false
+    }
+
+    if (!use_clang_coverage) {
+      version_script="libhdi_base.versionscript"
+    }
+
     output_extension = "z.so"
 
     defines = []
@@ -160,6 +172,17 @@ if (defined(ohos_lite)) {
 
   ohos_shared_library("libhdi_base") {
     branch_protector_ret = "pac_ret"
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      cfi_vcall_icall_only = true
+      debug = false
+    }
+
+    if (!use_clang_coverage) {
+      version_script="libhdi_base.versionscript"
+    }
+
     output_extension = "z.so"
 
     defines = []
