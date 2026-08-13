@@ -37,6 +37,7 @@ void ReleaseHcsTree(void)
 
 void SetHcsBlobPath(const char *path)
 {
+    pthread_mutex_lock(&g_getDmRootMutex);
     if (HCS_BLOB_PATH != NULL) {
         OsalMemFree((void *)HCS_BLOB_PATH);
         HCS_BLOB_PATH = NULL;
@@ -44,6 +45,7 @@ void SetHcsBlobPath(const char *path)
     if (path != NULL) {
         HCS_BLOB_PATH = strdup(path);
     }
+    pthread_mutex_unlock(&g_getDmRootMutex);
 }
 
 static bool CreateHcsToTree(void)

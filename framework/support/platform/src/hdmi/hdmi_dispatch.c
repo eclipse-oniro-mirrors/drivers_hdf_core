@@ -196,8 +196,9 @@ static int32_t HdmiCmdInfoFrameSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data
         return HDF_ERR_IO;
     }
 
-    if (!HdfSbufReadBuffer(data, (const void **)&frame, &size)) {
-        HDF_LOGE("HdmiCmdInfoFrameSet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&frame, &size) || frame == NULL ||
+        size < sizeof(union HdmiInfoFrameInfo)) {
+        HDF_LOGE("HdmiCmdInfoFrameSet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
     return HdmiCntlrInfoFrameSet(cntlr, type, frame);
@@ -210,8 +211,9 @@ static int32_t HdmiCmdInfoFrameGet(struct HdmiCntlr *cntlr, struct HdfSBuf *data
     enum HdmiPacketType *type = NULL;
     union HdmiInfoFrameInfo frame = {0};
 
-    if (!HdfSbufReadBuffer(data, (const void **)&type, &size)) {
-        HDF_LOGE("HdmiCmdInfoFrameGet: sbuf read buffer failed");
+    if (!HdfSbufReadBuffer(data, (const void **)&type, &size) || type == NULL ||
+        size < sizeof(enum HdmiPacketType)) {
+        HDF_LOGE("HdmiCmdInfoFrameGet: sbuf read buffer failed or invalid size");
         return HDF_ERR_IO;
     }
 

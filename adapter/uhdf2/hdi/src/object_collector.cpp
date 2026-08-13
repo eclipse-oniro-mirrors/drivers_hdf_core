@@ -20,6 +20,8 @@
 #include "hdf_core_log.h"
 #include "osal_time.h"
 
+constexpr int MAX_GET_OR_NEW_OBJECT_RETRY = 100;
+
 using namespace OHOS::HDI;
 
 ObjectCollector *ObjectCollector::instance_ = new ObjectCollector();
@@ -73,20 +75,28 @@ OHOS::sptr<OHOS::IRemoteObject> ObjectCollector::GetOrNewObject(
         return nullptr;
     }
 
+    int retryCount = 0;
 RETRY:
     std::unique_lock<std::mutex> lock(mutex_);
     auto it = interfaceObjectCollector_.find(interface.GetRefPtr());
     if (it != interfaceObjectCollector_.end()) {
-        if (it->second == nullptr || it->second->GetSptrRefCount() == 0) {
-            // may object is releasing or creation failed, yield to sync
+        if (it->second == nullptr) {
+            interfaceObjectCollector_.erase(it);
+        } else if (it->second->GetSptrRefCount() == 0) {
+            if (++retryCount >= MAX_GET_OR_NEW_OBJECT_RETRY) {
+                return nullptr;
+            }
             lock.unlock();
             std::this_thread::yield();
             goto RETRY;
+        } else {
+            return it->second.GetRefPtr();
         }
-        return it->second.GetRefPtr();
     }
     sptr<IRemoteObject> object = NewObjectLocked(interface, interfaceName);
-    interfaceObjectCollector_[interface.GetRefPtr()] = object;
+    if (object != nullptr) {
+        interfaceObjectCollector_[interface.GetRefPtr()] = object;
+    }
     return object;
 }
 

@@ -160,6 +160,11 @@ static int32_t SpiAdapterTransferOneMsg(struct SpiCntlr *cntlr, struct SpiMsg *m
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (cntlr == NULL) {
+        HDF_LOGE("SpiAdapterTransferOneMsg: cntlr is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     dev = SpiFindDeviceByCsNum(cntlr, cntlr->curCs);
     if (dev == NULL || dev->priv == NULL) {
         HDF_LOGE("SpiAdapterTransferOneMsg: fail, spidev is null!\n");
@@ -378,11 +383,11 @@ static int32_t SpiAdapterClose(struct SpiCntlr *cntlr)
     }
 
     spidev = (struct spi_device *)dev->priv;
-    if (spidev == NULL) {
-        HDF_LOGE("SpiAdapterClose: fail, spidev is null!");
-        return HDF_FAILURE;
+    if (spidev != NULL) {
+        put_device(&spidev->dev);
     }
-    put_device(&spidev->dev);
+    DListRemove(&dev->list);
+    OsalMemFree(dev);
     return HDF_SUCCESS;
 }
 

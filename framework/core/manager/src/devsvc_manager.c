@@ -122,7 +122,7 @@ int DevSvcManagerAddService(struct IDevSvcManager *inst,
     }
     OsalMutexLock(&devSvcManager->mutex);
     struct DevSvcRecord *existRecord = DevSvcManagerSearchServiceLocked(inst, record->key);
-    if (existRecord != NULL) {
+    if (existRecord != NULL && strcmp(servInfo->servName, existRecord->servName) == 0) {
         existRecord->value = service;
         OsalMutexUnlock(&devSvcManager->mutex);
         DevSvcRecordFreeInstance(record);
@@ -229,15 +229,16 @@ struct HdfDeviceObject *DevSvcManagerGetObject(struct IDevSvcManager *inst, cons
         return NULL;
     }
     uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
-    OsalMutexLock(&devSvcManager->mutex);
+    if (OsalMutexLock(&devSvcManager->mutex) != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: OsalMutexLock failed", __func__);
+        return NULL;
+    }
     serviceRecord = DevSvcManagerSearchServiceLocked(inst, serviceKey);
     if (serviceRecord != NULL) {
         deviceObject = serviceRecord->value;
-        OsalMutexUnlock(&devSvcManager->mutex);
-        return deviceObject;
     }
     OsalMutexUnlock(&devSvcManager->mutex);
-    return NULL;
+    return deviceObject;
 }
 
 // only use for kernel space
@@ -262,7 +263,7 @@ void DevSvcManagerListService(struct HdfSBuf *serviceNameSet, DeviceClass device
 struct HdfObject *DevSvcManagerGetService(struct IDevSvcManager *inst, const char *svcName)
 {
     struct HdfDeviceObject *deviceObject = DevSvcManagerGetObject(inst, svcName);
-    if (deviceObject == NULL) {
+    if (deviceObject == NULL || deviceObject->service == NULL) {
         return NULL;
     }
     return (struct HdfObject *)deviceObject->service;
@@ -302,8 +303,8 @@ int DevSvcManagerListServiceByInterfaceDesc(
     uint32_t i;
     OsalMutexLock(&devSvcManager->mutex);
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
-        if (record->interfaceDesc == NULL) {
-            HDF_LOGD("%{public}s interfacedesc is null", record->servName);
+        if (record->servName == NULL || record->interfaceDesc == NULL) {
+            HDF_LOGD("%{public}s interfacedesc is null", record->servName != NULL ? record->servName : "NULL");
             continue;
         }
         if (serviceNum >= SERVICE_LIST_MAX) {
@@ -430,9 +431,12 @@ void DevSvcManagerRelease(struct IDevSvcManager *inst)
     struct DevSvcManager *devSvcManager = CONTAINER_OF(inst, struct DevSvcManager, super);
     struct DevSvcRecord *record = NULL;
     struct DevSvcRecord *tmp = NULL;
+    OsalMutexLock(&devSvcManager->mutex);
     DLIST_FOR_EACH_ENTRY_SAFE(record, tmp, &devSvcManager->services, struct DevSvcRecord, entry) {
+        DListRemove(&record->entry);
         DevSvcRecordFreeInstance(record);
     }
+    OsalMutexUnlock(&devSvcManager->mutex);
     OsalMutexDestroy(&devSvcManager->mutex);
 }
 

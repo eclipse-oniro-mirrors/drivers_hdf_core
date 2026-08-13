@@ -331,6 +331,11 @@ static int I2cFsIoctl(struct file *filep, int cmd, unsigned long arg)
     int retval = ENOERR;
     struct I2cClient *client = filep->f_priv;
 
+    if (client == NULL) {
+        HDF_LOGE("I2cFsIoctl: client is null!");
+        return -EINVAL;
+    }
+
     switch (cmd) {
         case IOCTL_CLIENT_FORCE:
         case IOCTL_CLIENT:

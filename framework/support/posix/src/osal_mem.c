@@ -74,6 +74,11 @@ void *OsalMemAllocAlign(size_t alignment, size_t size)
         return NULL;
     }
 
+    if (alignment == 0 || (alignment & (alignment - 1)) != 0) {
+        HDF_LOGE("%s invalid alignment %zu", __func__, alignment);
+        return NULL;
+    }
+
     ret = posix_memalign(&buf, alignment, size);
     if (ret != 0) {
         HDF_LOGE("%s memory alloc fail %d", __func__, ret);

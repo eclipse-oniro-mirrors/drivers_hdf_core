@@ -232,7 +232,12 @@ static int32_t TimerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
         HDF_LOGE("TimerIoClose: number[%d] invalid!", number);
         return HDF_ERR_INVALID_PARAM;
     }
-    return TimerCntrlClose(TimerCntrlOpen(number));
+    struct TimerCntrl *cntrl = TimerCntrlOpen(number);
+    if (cntrl == NULL) {
+        HDF_LOGE("TimerIoClose: cntrl is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    return TimerCntrlClose(cntrl);
 }
 
 static int32_t TimerIoStart(struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -255,7 +260,12 @@ static int32_t TimerIoStart(struct HdfSBuf *data, struct HdfSBuf *reply)
         HDF_LOGE("TimerIoStart: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
     }
-    return TimerCntrlStart(TimerCntrlOpen(number));
+    struct TimerCntrl *cntrl = TimerCntrlOpen(number);
+    if (cntrl == NULL) {
+        HDF_LOGE("TimerIoStart: cntrl is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    return TimerCntrlStart(cntrl);
 }
 
 static int32_t TimerIoStop(struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -278,7 +288,12 @@ static int32_t TimerIoStop(struct HdfSBuf *data, struct HdfSBuf *reply)
         HDF_LOGE("TimerIoStop: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
     }
-    return TimerCntrlStop(TimerCntrlOpen(number));
+    struct TimerCntrl *cntrl = TimerCntrlOpen(number);
+    if (cntrl == NULL) {
+        HDF_LOGE("TimerIoStop: cntrl is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    return TimerCntrlStop(cntrl);
 }
 
 static int32_t TimerIoCb(uint32_t number)

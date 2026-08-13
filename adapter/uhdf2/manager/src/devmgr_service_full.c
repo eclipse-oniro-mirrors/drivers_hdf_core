@@ -57,7 +57,7 @@ static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *
     // the host will be restart by init module if there are default loaded devices in it.
     // the on-demand loaded device needs to be loaded by calling 'LoadDevice' interface.
     CleanupDiedHostResources(hostClnt, service);
-    return 0;
+    return hostClnt->hostPid;
 }
 
 static void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t hostId,

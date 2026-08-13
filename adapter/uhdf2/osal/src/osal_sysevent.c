@@ -142,6 +142,8 @@ static int InitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *notifie
         HDF_LOGE(" ioservice %{public}s is invalid", KEVENT_IOSERVICE_NAME);
         HdfIoServiceRecycle(notifier->keventIoService);
         notifier->keventIoService = NULL;
+        notifier->ioServiceListener.onReceive = NULL;
+        notifier->ioServiceListener.priv = NULL;
     }
 
     return ret;

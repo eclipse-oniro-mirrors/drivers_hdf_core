@@ -24,6 +24,7 @@ namespace HDI {
 namespace ServiceManager {
 namespace V1_0 {
 #define HDF_MAX_SERVINFO_LEN 1024
+#define HDF_MAX_SERVNAME_LEN 1024
 
 int ServStatListenerStub::OnRemoteRequest(
     uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
@@ -47,8 +48,8 @@ int32_t ServStatListenerStub::ServStatListenerStubOnReceive(
     }
 
     const char *name = data.ReadCString();
-    if (name == nullptr) {
-        HDF_LOGE("failed to read serviceName in ServiceStatus, name is null");
+    if (name == nullptr || strlen(name) > HDF_MAX_SERVNAME_LEN) {
+        HDF_LOGE("failed to read serviceName in ServiceStatus, name is null or too long");
         return HDF_FAILURE;
     }
     status.serviceName = name;

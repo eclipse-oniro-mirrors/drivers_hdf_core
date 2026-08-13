@@ -52,19 +52,24 @@ static int32_t DevSvcManagerExtRegisterListener(struct HdfDeviceIoClient *client
         return HDF_ERR_INVALID_PARAM;
     }
 
+    OsalMutexLock(&svcmgrInst->super.mutex);
     holder = ServStatListenerHolderGet((uintptr_t)client);
     if (holder != NULL) {
         HDF_LOGE("%{public}s:register listener exist, update and return", __func__);
         holder->listenClass = devClass;
+        OsalMutexUnlock(&svcmgrInst->super.mutex);
         return HDF_SUCCESS;
     }
 
     holder = ServStatListenerHolderCreate((uintptr_t)client, devClass);
     if (holder == NULL) {
+        OsalMutexUnlock(&svcmgrInst->super.mutex);
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    return svcmgrInst->super.super.RegsterServListener(&svcmgrInst->super.super, holder);
+    int32_t ret = svcmgrInst->super.super.RegsterServListener(&svcmgrInst->super.super, holder);
+    OsalMutexUnlock(&svcmgrInst->super.mutex);
+    return ret;
 }
 
 static int32_t DevSvcManagerExtUnRegisterListener(struct HdfDeviceIoClient *client)
@@ -82,9 +87,6 @@ static int32_t DevSvcManagerExtUnRegisterListener(struct HdfDeviceIoClient *clie
     if (holder == NULL) {
         OsalMutexUnlock(&svcmgrInst->super.mutex);
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
-    }
-    if (holder->node.next != NULL) {
-        DListRemove(&holder->node);
     }
     ServStatListenerHolderRelease(holder);
     OsalMutexUnlock(&svcmgrInst->super.mutex);
@@ -151,14 +153,14 @@ int DevSvcManagerExtStart(struct IDevSvcManager *svcmgr)
     inst->serv = HdfIoServicePublish(DEV_SVCMGR_NODE, SVC_MGR_NODE_PERM);
     if (inst->serv == NULL) {
         HDF_LOGE("failed to pushlish svcmgr ioservice");
-    } else {
-        static struct HdfIoDispatcher dispatcher = {
-            .Dispatch = DeviceSvcMgrDispatch,
-        };
-        inst->serv->dispatcher = &dispatcher;
-        inst->serv->target = (struct HdfObject *)&svcmgrDevObj;
-        inst->started = true;
+        return HDF_FAILURE;
     }
+    static struct HdfIoDispatcher dispatcher = {
+        .Dispatch = DeviceSvcMgrDispatch,
+    };
+    inst->serv->dispatcher = &dispatcher;
+    inst->serv->target = (struct HdfObject *)&svcmgrDevObj;
+    inst->started = true;
 
     ServStatListenerHolderinit();
     return HDF_SUCCESS;
@@ -209,7 +211,7 @@ void DevSvcManagerExtRelease(struct IDevSvcManager *inst)
         HdfIoServiceRemove(instance->serv);
         instance->serv = NULL;
     }
-    OsalMutexDestroy(&instance->mutex);
     DevSvcManagerRelease(inst);
+    OsalMutexDestroy(&instance->mutex);
     instance->started = false;
 }

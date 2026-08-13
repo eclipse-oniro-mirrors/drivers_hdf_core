@@ -199,9 +199,9 @@ static struct HdfDeviceObject *ObtainServiceObject(
 
     OsalMutexLock(&stub->devSvcStubMutex);
     HdfSListAdd(&stub->devObjHolderList, &serviceObjectHolder->entry);
-    OsalMutexUnlock(&stub->devSvcStubMutex);
 
     HdfRemoteServiceAddDeathRecipient(service, &stub->recipient);
+    OsalMutexUnlock(&stub->devSvcStubMutex);
 
     return serviceObject;
 }
@@ -318,14 +318,17 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
     }
 
 // LCOV_EXCL_START
+    OsalMutexLock(&stub->devSvcStubMutex);
     struct HdfDeviceObject *oldServiceObject = super->GetObject(super, info.servName);
     if (oldServiceObject == NULL) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
         HDF_LOGE("update service %{public}s not exist", info.servName);
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
     }
 
     struct HdfDeviceObject *serviceObject = ObtainServiceObject(stub, info.servName, service);
     if (serviceObject == NULL) {
+        OsalMutexUnlock(&stub->devSvcStubMutex);
         return HDF_ERR_MALLOC_FAIL;
     }
 
@@ -335,6 +338,7 @@ static int32_t DevSvcManagerStubUpdateService(struct IDevSvcManager *super, stru
     } else {
         ReleaseServiceObject(stub, oldServiceObject);
     }
+    OsalMutexUnlock(&stub->devSvcStubMutex);
     HDF_LOGI("update service %{public}s, %{public}d", info.servName, ret);
     return ret;
     // LCOV_EXCL_STOP

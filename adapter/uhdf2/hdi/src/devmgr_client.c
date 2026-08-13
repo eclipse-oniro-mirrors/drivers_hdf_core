@@ -108,7 +108,11 @@ static int32_t DevmgrQueryDeviceInfo(struct HDIDeviceManager *iDevMgr, struct De
         list->deviceCnt = 0;
         DListHeadInit(&list->list);
 
-        HdfSbufWriteInt32(data, type);
+        if (!HdfSbufWriteInt32(data, type)) {
+            HDF_LOGE("HdfSbufWriteInt32 failed");
+            ret = HDF_FAILURE;
+            break;
+        }
         ret = DeviceManagerHdiCall(iDevMgr, DEVMGR_SERVICE_QUERY_DEVICE, data, reply);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("DevmgrProxyQueryDevice failed");
