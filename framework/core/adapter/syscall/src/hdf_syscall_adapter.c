@@ -541,7 +541,7 @@ static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group
     }
     if (group->thread == NULL) {
         OsalMutexUnlock(&group->mutex);
-        return HDF_ERR_THREAD_CREATE_FAIL;
+        return HDF_FAILURE;
     }
     group->thread->policy = policy;
     int32_t ret = HdfDevListenerThreadStart(group->thread);
