@@ -154,8 +154,6 @@ static int32_t DevMgrUeventParseKeyValue(char *str, struct DevMgrMatchKey *match
     matchKey->value = strdup(value);
     if (matchKey->key == NULL || matchKey->value == NULL) {
         HDF_LOGE("invalid param : matchKey->key or matchKey->value");
-        OsalMemFree(matchKey->key);
-        OsalMemFree(matchKey->value);
         return HDF_FAILURE;
     }
 
