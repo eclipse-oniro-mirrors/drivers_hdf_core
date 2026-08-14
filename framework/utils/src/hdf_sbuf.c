@@ -311,7 +311,7 @@ const char16_t *HdfSbufReadString16(struct HdfSBuf *sbuf)
 
 int32_t HdfSbufWriteRemoteService(struct HdfSBuf *sbuf, const struct HdfRemoteService *service)
 {
-    HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeRemoteService, HDF_FAILURE);
+    HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeRemoteService, false);
     return sbuf->impl->writeRemoteService(sbuf->impl, service);
 }
 
