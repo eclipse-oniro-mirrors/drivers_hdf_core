@@ -184,6 +184,10 @@ static int UartAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long ar
     oldfs = get_fs();
     set_fs(KERNEL_DS);
 #endif
+    if (fp->f_op == NULL) {
+        HDF_LOGE("UartAdapterIoctlInner: f_op is null!");
+        return HDF_FAILURE;
+    }
     if (fp->f_op->unlocked_ioctl != NULL) {
         ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
     }
@@ -257,6 +261,10 @@ static int32_t UartAdapterGetBaud(struct UartHost *host, uint32_t *baudRate)
     if (baudRate == NULL) {
         HDF_LOGE("UartAdapterGetBaud: baudRate is null!");
         return HDF_ERR_INVALID_PARAM;
+    }
+    if (fp == NULL) {
+        HDF_LOGE("UartAdapterGetBaud: fp is null!");
+        return HDF_ERR_INVALID_OBJECT;
     }
     if (UartAdapterIoctlInner(fp, TCGETS, (unsigned long)&termios) < 0) {
         HDF_LOGE("UartAdapterGetBaud: tcgets fail!");

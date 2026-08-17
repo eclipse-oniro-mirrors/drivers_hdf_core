@@ -453,6 +453,10 @@ int32_t TimerListRemoveAll(void)
     struct TimerCntrl *tmp = NULL;
     struct TimerManager *manager = g_timerManager;
 
+    if (manager == NULL) {
+        HDF_LOGE("TimerListRemoveAll: manager is NULL");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
         HDF_LOGE("TimerListRemoveAll: lock regulator manager fail!");
         return HDF_ERR_DEVICE_BUSY;

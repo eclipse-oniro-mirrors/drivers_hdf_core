@@ -755,6 +755,9 @@ static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t si
             HDF_LOGE("uart %ld recev error\r\n", uartId);
             return ret;
         }
+        if (recvSize > INT32_MAX) {
+            return HDF_ERR_INVALID_PARAM;
+        }
         ret = recvSize;
     } else {
         if (g_uartCtx[uartId].isBlock) {

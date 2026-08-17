@@ -215,6 +215,10 @@ int32_t OsalThreadResume(struct OsalThread *thread)
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (thread->realThread == NULL) {
+        HDF_LOGE("invalid parameter realThread is NULL\n");
+        return HDF_ERR_INVALID_PARAM;
+    }
     ret = LOS_TaskResume(((struct ThreadWrapper *)thread->realThread)->tid);
     if (ret != LOS_OK) {
         HDF_LOGE("%s failed %d %d\n", __func__, ret, __LINE__);
