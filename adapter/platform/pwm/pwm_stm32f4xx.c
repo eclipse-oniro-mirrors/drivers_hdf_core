@@ -386,7 +386,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
         OsalMemFree(host->device);
         host->device = NULL;
     }
-    host->method = NULL;  
+    host->method = NULL;
 
     OsalMemFree(host);
     host = NULL;
