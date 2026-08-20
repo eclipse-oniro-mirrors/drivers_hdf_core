@@ -75,11 +75,11 @@ int32_t HdfGetServiceNameByDeviceClass(DeviceClass deviceClass, struct HdfSBuf *
         ret = HDF_FAILURE;
         goto OUT;
     }
-    if (ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("dispatcher is null");
-        ret = HDF_ERR_INVALID_OBJECT;
-        goto OUT;
-    }
+  if (ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
+      HDF_LOGE("dispatcher is null");
+      ret = HDF_ERR_INVALID_OBJECT;
+      goto OUT;
+  }
     ret = ioService->dispatcher->Dispatch(&ioService->object, DEVMGR_GET_SERVICE, data, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("HdfGetServiceNameByDeviceClass failed to query service by class");
@@ -102,11 +102,11 @@ int32_t HdfListAllService(struct HdfSBuf *reply)
         HDF_LOGE("HdfListAllService failed to get %{public}s service", DEV_MGR_NODE);
         return ret;
     }
-    if (ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("dispatcher is null");
-        HdfIoServiceRecycle(ioService);
-        return ret;
-    }
+  if (ioService->dispatcher == NULL || ioService->dispatcher->Dispatch == NULL) {
+      HDF_LOGE("dispatcher is null");
+      HdfIoServiceRecycle(ioService);
+      return ret;
+  }
     ret = ioService->dispatcher->Dispatch(&ioService->object, DEVMGR_LIST_ALL_SERVICE, NULL, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("failed to list all service info");
