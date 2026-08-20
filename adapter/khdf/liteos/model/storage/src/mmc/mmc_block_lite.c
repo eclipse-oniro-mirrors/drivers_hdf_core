@@ -136,13 +136,18 @@ static ssize_t LiteosBlockWrite(FAR struct Vnode *vnode, FAR const unsigned char
     max = (size_t)(-1);
     mb = (struct MmcBlock *)((struct drv_data*)vnode->data)->priv;
 
-    if (secStart >= max || nSecs >= max) {
-        HDF_LOGE("LiteosBlockWrite: secStart or nSecs is invaild!");
-        return HDF_ERR_INVALID_PARAM;
-    }
     if (mb == NULL) {
         HDF_LOGE("LiteosBlockWrite: mmc block is null!");
         return HDF_ERR_INVALID_OBJECT;
+    }
+    if (mb->mmc == NULL) {
+        HDF_LOGE("LiteosBlockWrite: mmc device is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (secStart >= max || nSecs >= max) {
+        HDF_LOGE("LiteosBlockWrite: secStart or nSecs is invaild!");
+        return HDF_ERR_INVALID_PARAM;
     }
 
     return MmcDeviceWrite(mb->mmc, (uint8_t *)buf, (size_t)secStart, (size_t)nSecs);

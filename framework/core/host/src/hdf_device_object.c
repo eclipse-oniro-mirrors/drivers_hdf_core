@@ -237,8 +237,8 @@ int HdfDeviceObjectRegister(struct HdfDeviceObject *dev)
         return HDF_ERR_INVALID_PARAM;
     }
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (devNode->driverName == NULL || devNode->device == NULL || driverLoader == NULL ||
-        driverLoader->GetDriver == NULL) {
+    if (devNode->driverName == NULL || devNode->device == NULL || devNode->device->super.Attach == NULL ||
+        driverLoader == NULL || driverLoader->GetDriver == NULL) {
         HDF_LOGE("failed to add device, param invalid");
         return HDF_ERR_INVALID_PARAM;
     }
@@ -264,7 +264,7 @@ int HdfDeviceObjectUnRegister(struct HdfDeviceObject *dev)
         return HDF_ERR_INVALID_OBJECT;
     }
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (devNode->device == NULL) {
+    if (devNode->device == NULL || devNode->device->super.Detach == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -288,6 +288,9 @@ int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servN
         return HDF_FAILURE;
     }
 
+    if (devNode->servName != NULL) {
+        OsalMemFree((char *)devNode->servName);
+    }
     devNode->servName = HdfStringCopy(servName);
     if (devNode->servName == NULL) {
         return HDF_DEV_ERR_NO_MEMORY;
@@ -298,10 +301,19 @@ int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servN
 
     ret = DeviceDriverBind(devNode);
     if (ret != HDF_SUCCESS) {
+        OsalMemFree((char *)devNode->servName);
+        devNode->servName = NULL;
         return ret;
     }
 
-    return devNode->super.PublishService(devNode);
+    ret = devNode->super.PublishService(devNode);
+    if (ret != HDF_SUCCESS) {
+        OsalMemFree((char *)devNode->servName);
+        devNode->servName = NULL;
+        return ret;
+    }
+
+    return ret;
 }
 
 int HdfDeviceObjectRemoveService(struct HdfDeviceObject *dev)

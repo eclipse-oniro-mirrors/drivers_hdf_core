@@ -65,6 +65,10 @@ static int32_t HdfPwmClose(struct PwmDev *pwm)
         HDF_LOGE("HdfPwmClose: pwm is null!");
         return HDF_ERR_INVALID_PARAM;
     }
+    if (pwm->priv == NULL) {
+        HDF_LOGE("HdfPwmClose: pwm->priv is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     pwm_put((struct pwm_device *)pwm->priv);
     return HDF_SUCCESS;
 }

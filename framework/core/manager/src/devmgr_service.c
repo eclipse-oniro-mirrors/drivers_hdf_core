@@ -232,6 +232,10 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
             deviceInfo = (struct HdfDeviceInfo *)HdfSListIteratorNext(&itDeviceInfo);
             if (deviceInfo->preload == DEVICE_PRELOAD_ENABLE_STEP2) {
+                if (hostClnt->hostService == NULL || hostClnt->hostService->AddDevice == NULL) {
+                    HDF_LOGE("%{public}s: hostService is null", __func__);
+                    continue;
+                }
                 ret = hostClnt->hostService->AddDevice(hostClnt->hostService, deviceInfo);
                 if (ret != HDF_SUCCESS) {
                     HDF_LOGE("%{public}s:failed to load driver %{public}s", __func__, deviceInfo->moduleName);
@@ -302,6 +306,9 @@ static int DevmgrServiceAttachDevice(struct IDevmgrService *inst, struct IHdfDev
 static bool HdfSListHostSearchDeviceTokenComparer(struct HdfSListNode *tokenNode, uint32_t devid)
 {
     struct DeviceTokenClnt *tokenClnt = CONTAINER_OF(tokenNode, struct DeviceTokenClnt, node);
+    if (tokenClnt->tokenIf == NULL) {
+        return false;
+    }
     return tokenClnt->tokenIf->devid == devid;
 }
 

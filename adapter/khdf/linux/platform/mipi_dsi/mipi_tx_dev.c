@@ -554,7 +554,15 @@ static int MipiDsiDevOpen(struct inode *inode, struct file *filep)
     (void)inode;
 
     id = GetId();
+    if (id >= MAX_CNTLR_CNT) {
+        HDF_LOGE("MipiDsiDevOpen: id is invalid!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     g_vfsPara[id].cntlr = MipiDsiCntlrOpen(id);
+    if (g_vfsPara[id].cntlr == NULL) {
+        HDF_LOGE("MipiDsiDevOpen: MipiDsiCntlrOpen fail!");
+        return HDF_FAILURE;
+    }
     filep->private_data = (void *)(uintptr_t)id;
     HDF_LOGI("MipiDsiDevOpen: success!");
 
@@ -566,7 +574,16 @@ static int MipiDsiDevRelease(struct inode *inode, struct file *filep)
     uint8_t id;
     (void)inode;
 
+    if (filep == NULL) {
+        HDF_LOGE("MipiDsiDevRelease: filep is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     id = GetIdFromFilep(filep);
+    if (id >= MAX_CNTLR_CNT) {
+        HDF_LOGE("MipiDsiDevRelease: id is invalid!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (g_vfsPara[id].cntlr != NULL) {
         MipiDsiCntlrClose(g_vfsPara[id].cntlr);
         g_vfsPara[id].cntlr = NULL;

@@ -64,13 +64,10 @@ static int HdfDeviceNodePublishService(struct HdfDeviceNode *devNode)
 
 int DeviceDriverBind(struct HdfDeviceNode *devNode)
 {
-    if (devNode == NULL || devNode->driver == NULL || devNode->driver->entry == NULL) {
-        HDF_LOGE("%{public}s: invalid device node or driver", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
     int ret;
     const struct HdfDriverEntry *driverEntry = NULL;
-    if (devNode == NULL) {
+    if (devNode == NULL || devNode->driver == NULL || devNode->driver->entry == NULL) {
+        HDF_LOGE("%{public}s: invalid device node or driver", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -133,6 +130,9 @@ int HdfDeviceLaunchNode(struct HdfDeviceNode *devNode)
 int HdfDeviceNodeAddPowerStateListener(
     struct HdfDeviceNode *devNode, const struct IPowerEventListener *listener)
 {
+    if (devNode == NULL) {
+        return HDF_FAILURE;
+    }
     if (devNode->powerToken != NULL) {
         return HDF_FAILURE;
     }

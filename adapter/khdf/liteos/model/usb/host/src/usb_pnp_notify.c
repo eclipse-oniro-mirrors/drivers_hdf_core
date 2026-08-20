@@ -562,6 +562,10 @@ OUT:
 static int32_t UsbPnpNotifyFirstReportDevice(struct HdfDeviceIoClient *client)
 {
     dprintf("%s:%d Enter!\n", __func__, __LINE__);
+    if (client == NULL || client->device == NULL) {
+        HDF_LOGE("%s:%d client or client->device is NULL", __func__, __LINE__);
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (DListIsEmpty(&g_usbPnpDeviceListHead) == true) {
         dprintf("%s:%d device list is empty\n", __func__, __LINE__);
         return HDF_SUCCESS;
