@@ -525,6 +525,7 @@ struct HdfSBuf *HdfSbufMove(struct HdfSBuf *sbuf)
         OsalMemFree(newBuf);
         return NULL;
     }
+    newBuf->type = sbuf->type;
     return newBuf;
 }
 

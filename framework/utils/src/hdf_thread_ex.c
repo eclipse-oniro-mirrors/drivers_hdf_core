@@ -20,8 +20,9 @@ void HdfThreadStart(struct HdfThread *thread)
         .stackSize = 0,
         .policy = 0,
     };
-    OsalThreadStart(&thread->adapter, &param);
-    thread->status = true;
+    if (OsalThreadStart(&thread->adapter, &param) == HDF_SUCCESS) {
+        thread->status = true;
+    }
 }
 
 void HdfThreadStop(struct HdfThread *thread)
