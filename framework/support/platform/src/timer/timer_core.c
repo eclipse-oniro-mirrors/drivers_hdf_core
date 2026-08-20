@@ -56,7 +56,7 @@ struct TimerCntrl *TimerCntrlOpen(const uint32_t number)
 int32_t TimerCntrlClose(struct TimerCntrl *cntrl)
 {
     CHECK_NULL_PTR_RETURN_VALUE(cntrl, HDF_ERR_INVALID_OBJECT);
-    CHECK_NULL_PTR_RETURN_VALUE(cntrl->ops, HDF_ERR_INVALID_OBJECT);
+  CHECK_NULL_PTR_RETURN_VALUE(cntrl->ops, HDF_ERR_INVALID_OBJECT);
     if (OsalMutexLock(&cntrl->lock) != HDF_SUCCESS) {
         HDF_LOGE("TimerCntrlClose: OsalMutexLock %u fail!", cntrl->info.number);
         return HDF_ERR_DEVICE_BUSY;
@@ -73,7 +73,7 @@ int32_t TimerCntrlClose(struct TimerCntrl *cntrl)
 int32_t TimerCntrlSet(struct TimerCntrl *cntrl, uint32_t useconds, TimerHandleCb cb)
 {
     CHECK_NULL_PTR_RETURN_VALUE(cntrl, HDF_ERR_INVALID_OBJECT);
-    CHECK_NULL_PTR_RETURN_VALUE(cntrl->ops, HDF_ERR_INVALID_OBJECT);
+  CHECK_NULL_PTR_RETURN_VALUE(cntrl->ops, HDF_ERR_INVALID_OBJECT);
     CHECK_NULL_PTR_RETURN_VALUE(cb, HDF_ERR_INVALID_OBJECT);
     if (OsalMutexLock(&cntrl->lock) != HDF_SUCCESS) {
         HDF_LOGE("TimerCntrlSet: OsalMutexLock %u fail!", cntrl->info.number);
@@ -92,7 +92,7 @@ int32_t TimerCntrlSet(struct TimerCntrl *cntrl, uint32_t useconds, TimerHandleCb
 int32_t TimerCntrlSetOnce(struct TimerCntrl *cntrl, uint32_t useconds, TimerHandleCb cb)
 {
     CHECK_NULL_PTR_RETURN_VALUE(cntrl, HDF_ERR_INVALID_OBJECT);
-    CHECK_NULL_PTR_RETURN_VALUE(cntrl->ops, HDF_ERR_INVALID_OBJECT);
+  CHECK_NULL_PTR_RETURN_VALUE(cntrl->ops, HDF_ERR_INVALID_OBJECT);
     CHECK_NULL_PTR_RETURN_VALUE(cb, HDF_ERR_INVALID_OBJECT);
 
     if (OsalMutexLock(&cntrl->lock) != HDF_SUCCESS) {
@@ -444,7 +444,7 @@ int32_t TimerListRemoveAll(void)
 {
     struct TimerCntrl *pos = NULL;
     struct TimerCntrl *tmp = NULL;
-    CHECK_NULL_PTR_RETURN_VALUE(g_timerManager, HDF_FAILURE);
+  CHECK_NULL_PTR_RETURN_VALUE(g_timerManager, HDF_FAILURE);
     struct TimerManager *manager = g_timerManager;
 
     if (OsalMutexLock(&manager->lock) != HDF_SUCCESS) {
