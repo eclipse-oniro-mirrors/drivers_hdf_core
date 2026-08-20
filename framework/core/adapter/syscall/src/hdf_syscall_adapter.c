@@ -78,6 +78,10 @@ static int32_t HdfDevEventGrowReadBuffer(struct HdfWriteReadBuf *buffer)
 
 static struct HdfSyscallAdapter *HdfFdToAdapterLocked(const struct HdfDevListenerThread *thread, int32_t fd)
 {
+    if (thread == NULL) {
+        return NULL;
+    }
+
     if (thread->adapter != NULL && thread->adapter->fd == fd) {
         return thread->adapter;
     }
@@ -533,6 +537,10 @@ static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group
 {
     OsalMutexLock(&group->mutex);
     if (HdfIoServiceGroupThreadInit(group) != HDF_SUCCESS) {
+        OsalMutexUnlock(&group->mutex);
+        return HDF_FAILURE;
+    }
+    if (group->thread == NULL) {
         OsalMutexUnlock(&group->mutex);
         return HDF_FAILURE;
     }
