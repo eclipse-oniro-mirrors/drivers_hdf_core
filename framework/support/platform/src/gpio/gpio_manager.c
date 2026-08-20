@@ -187,11 +187,11 @@ int32_t GpioCntlrAdd(struct GpioCntlr *cntlr)
         return ret;
     }
     cntlr->device.manager = GpioManagerGet();
-  if (cntlr->device.manager == NULL) {
-      HDF_LOGE("GpioCntlrAdd: get gpio manager fail!");
-      GpioCntlrDestroyGpioInfos(cntlr);
-      return HDF_PLT_ERR_DEV_GET;
-  }
+    if (cntlr->device.manager == NULL) {
+        HDF_LOGE("GpioCntlrAdd: get gpio manager fail!");
+        GpioCntlrDestroyGpioInfos(cntlr);
+        return HDF_PLT_ERR_DEV_GET;
+    }
     ret = PlatformDeviceAdd(&cntlr->device);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("GpioCntlrAdd: fail to add device:%d!", ret);
