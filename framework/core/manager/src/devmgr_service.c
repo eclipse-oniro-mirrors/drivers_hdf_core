@@ -289,7 +289,7 @@ static int DevmgrServiceDetachDevice(struct IDevmgrService *inst, devid_t devid)
     }
     tokenClnt = CONTAINER_OF(tokenClntNode, struct DeviceTokenClnt, node);
     HdfSListRemove(&hostClnt->devices, &tokenClnt->node);
-    DeviceTokenClntFreeInstance(tokenClnt);
+  DeviceTokenClntFreeInstance(tokenClnt);
     return HDF_SUCCESS;
 }
 
