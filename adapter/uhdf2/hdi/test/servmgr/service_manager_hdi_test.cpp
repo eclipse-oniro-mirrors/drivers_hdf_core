@@ -1019,6 +1019,9 @@ HWTEST_F(HdfServiceMangerHdiTest, ListenerTest006, TestSize.Level1)
     // write status
     ret = data.WriteUint16(ServiceStatusType::SERVIE_STATUS_START);
     ASSERT_TRUE(ret);
+    // write info
+    ret = data.WriteCString("test_info");
+    ASSERT_TRUE(ret);
 
     int32_t reqRet = listener->OnRemoteRequest(SERVIE_STATUS_LISTENER_NOTIFY, data, reply, option);
     ASSERT_EQ(reqRet, HDF_SUCCESS);

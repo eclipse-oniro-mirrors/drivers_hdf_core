@@ -50,11 +50,7 @@ int DeviceServiceStubDispatch(
     };
 
     if (ioService->Dispatch != NULL) {
-#ifdef __USER__
-        pthread_rwlock_unlock(&service->super.deviceObject.mutex);
-#endif
         ret = ioService->Dispatch(&client, code, data, reply);
-        return ret;
     }
 
 #ifdef __USER__
@@ -82,28 +78,16 @@ int DeviceServiceStubPublishService(struct HdfDeviceNode *service)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-#ifdef __USER__
-    pthread_rwlock_wrlock(&service->deviceObject.mutex);
-#endif
     if (fullService->remote != NULL) {
-#ifdef __USER__
-        pthread_rwlock_unlock(&service->deviceObject.mutex);
-#endif
         HDF_LOGE("%{public}s:service %{public}s already published", __func__, service->servName);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (service->policy != SERVICE_POLICY_PUBLIC && service->policy != SERVICE_POLICY_CAPACITY) {
-#ifdef __USER__
-        pthread_rwlock_unlock(&service->deviceObject.mutex);
-#endif
         return HDF_ERR_NOT_SUPPORT;
     }
 
     fullService->remote = HdfRemoteServiceObtain((struct HdfObject *)fullService, &g_deviceServiceDispatcher);
-#ifdef __USER__
-    pthread_rwlock_unlock(&service->deviceObject.mutex);
-#endif
     if (fullService->remote == NULL) {
         return HDF_ERR_MALLOC_FAIL;
     }
