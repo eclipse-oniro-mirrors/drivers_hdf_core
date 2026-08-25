@@ -25,7 +25,6 @@ struct UServStatListenerHolder {
     struct DListHead node;
     struct ServStatListenerHolder holder;
     struct HdfRemoteService *listenerRemote;
-    uint32_t refCount;
 };
 
 struct SvcStatListenerHolderList {
@@ -131,7 +130,6 @@ struct ServStatListenerHolder *ServStatListenerHolderGet(uint64_t index)
     DLIST_FOR_EACH_ENTRY(it, &g_holoderList.list, struct UServStatListenerHolder, node) {
         if (it->holder.index == index) {
             holder = it;
-            holder->refCount++;
             break;
         }
     }
@@ -173,18 +171,11 @@ void ServStatListenerHolderRelease(struct ServStatListenerHolder *holder)
 
     struct UServStatListenerHolder *holderInst = CONTAINER_OF(holder, struct UServStatListenerHolder, holder);
 
-    OsalMutexLock(&g_holoderList.mutex);
-    if (holderInst->refCount > 0) {
-        holderInst->refCount--;
-    }
-    if (holderInst->refCount > 0) {
-        OsalMutexUnlock(&g_holoderList.mutex);
-        return;
-    }
     if (holderInst->node.next != NULL) {
+        OsalMutexLock(&g_holoderList.mutex);
         DListRemove(&holderInst->node);
+        OsalMutexUnlock(&g_holoderList.mutex);
     }
-    OsalMutexUnlock(&g_holoderList.mutex);
 
     if (holderInst->listenerRemote != NULL) {
         HdfRemoteServiceRecycle(holderInst->listenerRemote);

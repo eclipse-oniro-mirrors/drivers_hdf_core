@@ -169,8 +169,8 @@ static int DevSvcManagerProxyUpdateService(struct IDevSvcManager *inst,
 struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, const char *svcName)
 {
     int status = HDF_FAILURE;
-    struct HdfSBuf *data = NULL;
-    struct HdfSBuf *reply = NULL;
+    struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
+    struct HdfSBuf *reply = HdfSbufTypedObtain(SBUF_IPC);
     struct HdfRemoteDispatcher *dispatcher = NULL;
     struct HdfRemoteService *remoteService = NULL;
     struct DevSvcManagerProxy *serviceProxy = (struct DevSvcManagerProxy *)inst;
@@ -180,8 +180,6 @@ struct HdfObject *DevSvcManagerProxyGetService(struct IDevSvcManager *inst, cons
         HdfSbufRecycle(data);
         return NULL;
     }
-    data = HdfSbufTypedObtain(SBUF_IPC);
-    reply = HdfSbufTypedObtain(SBUF_IPC);
 
     do {
         if ((serviceProxy->remote == NULL) || (data == NULL) || (reply == NULL)) {

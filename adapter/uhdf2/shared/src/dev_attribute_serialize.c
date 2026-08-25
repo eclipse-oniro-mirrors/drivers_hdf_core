@@ -22,9 +22,6 @@
 #define ATTRIBUTE_PRIVATE_DATA_LENGTH_NULL 0
 #define ATTRIBUTE_PRIVATE_DATA_LENGTH_NORMAL 1
 #define MAX_DEVICE_SVC_NAME_LEN 256
-#define MAX_DEVICE_MODULE_NAME_LEN 256
-#define MAX_DEVICE_NAME_LEN 256
-#define MAX_DEVICE_MATCH_ATTR_LEN 256
 
 bool DeviceAttributeSerialize(const struct HdfDeviceInfo *attribute, struct HdfSBuf *sbuf)
 {
@@ -78,10 +75,6 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
         HDF_LOGE("Read from parcel failed, moduleName is null");
         return false;
     }
-    if (strlen(moduleName) > MAX_DEVICE_MODULE_NAME_LEN) {
-        HDF_LOGE("moduleName too long: %zu", strlen(moduleName));
-        return false;
-    }
     attribute->moduleName = strdup(moduleName);
     if (attribute->moduleName == NULL) {
         HDF_LOGE("Read from sbuf failed, strdup moduleName fail");
@@ -91,10 +84,6 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
     const char *deviceName = HdfSbufReadString(sbuf);
     if (deviceName == NULL) {
         HDF_LOGE("Read from sbuf failed, deviceName is null");
-        return false;
-    }
-    if (strlen(deviceName) > MAX_DEVICE_NAME_LEN) {
-        HDF_LOGE("deviceName too long: %zu", strlen(deviceName));
         return false;
     }
     attribute->deviceName = strdup(deviceName);
@@ -112,10 +101,6 @@ static bool DeviceAttributeSet(struct HdfDeviceInfo *attribute, struct HdfSBuf *
         const char *deviceMatchAttr = HdfSbufReadString(sbuf);
         if (deviceMatchAttr == NULL) {
             HDF_LOGE("%s: Read from sbuf failed, deviceMatchAttr is null", __func__);
-            return false;
-        }
-        if (strlen(deviceMatchAttr) > MAX_DEVICE_MATCH_ATTR_LEN) {
-            HDF_LOGE("deviceMatchAttr too long: %zu", strlen(deviceMatchAttr));
             return false;
         }
         attribute->deviceMatchAttr = strdup(deviceMatchAttr);

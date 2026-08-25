@@ -36,7 +36,7 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
         return NULL;
     }
 
-    struct HdfDriver *driver = OsalMemCalloc(sizeof(struct HdfDriver));
+    struct HdfDriver *driver = OsalMemAlloc(sizeof(struct HdfDriver));
     if (driver == NULL) {
         return NULL;
     }

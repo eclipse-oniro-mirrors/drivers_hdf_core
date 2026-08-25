@@ -156,21 +156,16 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
     }
 
     if (strcmp(option, "dumpHost") == 0) {
-        DevHostDumpFunc dumpHostFunc = NULL;
-        OsalMutexLock(&g_dumpHostNode.mutex);
-        dumpHostFunc = g_dumpHostNode.dumpHost;
-        OsalMutexUnlock(&g_dumpHostNode.mutex);
-        if (dumpHostFunc == NULL) {
+        if (g_dumpHostNode.dumpHost == NULL) {
             HDF_LOGE("%{public}s no dumpHost function", __func__);
             (void)HdfSbufWriteString(reply, "The host does not register dump function\n");
             return;
         }
-        dumpHostFunc(data, reply);
+        g_dumpHostNode.dumpHost(data, reply);
     } else if (strcmp(option, "dumpService") == 0) {
         const char *servName = HdfSbufReadString(data);
         if (servName == NULL) { return; }
         struct DumpServiceNode *pos = NULL;
-        DevHostDumpFunc dumpServiceFunc = NULL;
         bool dumpFlag = false;
         OsalMutexLock(&g_dumpHostNode.mutex);
         DLIST_FOR_EACH_ENTRY(pos, &g_dumpHostNode.list, struct DumpServiceNode, node) {
@@ -178,15 +173,13 @@ void DevHostDump(struct HdfSBuf *data, struct HdfSBuf *reply)
                 continue;
             }
             if (pos->dumpService) {
-                dumpServiceFunc = pos->dumpService;
+                pos->dumpService(data, reply);
                 dumpFlag = true;
                 break;
             }
         }
         OsalMutexUnlock(&g_dumpHostNode.mutex);
-        if (dumpFlag && dumpServiceFunc != NULL) {
-            dumpServiceFunc(data, reply);
-        } else if (!dumpFlag) {
+        if (!dumpFlag) {
             (void)HdfSbufWriteString(reply, "The service does not register dump function\n");
         }
     } else if (strcmp(option, "--ipc") == 0) {
