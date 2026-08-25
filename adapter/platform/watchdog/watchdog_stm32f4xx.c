@@ -224,7 +224,6 @@ static int32_t WatchdogDriverInit(struct HdfDeviceObject *device)
 
     ret = AttachWatchdogDeviceInfo(watchdogCntlr, device);
     if (ret != HDF_SUCCESS) {
-        device->service = NULL;
         OsalMemFree(watchdogCntlr);
         HDF_LOGE("%s:attach error\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
