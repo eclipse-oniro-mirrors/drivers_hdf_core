@@ -117,7 +117,7 @@ static int32_t AttachWatchdogDevice(struct WatchdogCntlr *watchdogCntlr, struct 
 
     ret = InitWatchdogDevice(watchdogDevice);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%S: InitWatchdogDevice fail\r\n", __func__);
+        HDF_LOGE("%s: InitWatchdogDevice fail\r\n", __func__);
         watchdogCntlr->priv = NULL;
         (void)OsalMemFree(watchdogDevice);
         return HDF_FAILURE;
