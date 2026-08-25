@@ -83,6 +83,7 @@ RETRY:
             std::this_thread::yield();
             goto RETRY;
         }
+        return it->second.GetRefPtr();
     }
     sptr<IRemoteObject> object = NewObjectLocked(interface, interfaceName);
     if (object != nullptr) {
