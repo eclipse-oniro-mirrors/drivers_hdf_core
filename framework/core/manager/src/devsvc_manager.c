@@ -229,16 +229,15 @@ struct HdfDeviceObject *DevSvcManagerGetObject(struct IDevSvcManager *inst, cons
         return NULL;
     }
     uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
-    if (OsalMutexLock(&devSvcManager->mutex) != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s: OsalMutexLock failed", __func__);
-        return NULL;
-    }
+    OsalMutexLock(&devSvcManager->mutex);
     serviceRecord = DevSvcManagerSearchServiceLocked(inst, serviceKey);
     if (serviceRecord != NULL) {
         deviceObject = serviceRecord->value;
+        OsalMutexUnlock(&devSvcManager->mutex);
+        return deviceObject;
     }
     OsalMutexUnlock(&devSvcManager->mutex);
-    return deviceObject;
+    return NULL;
 }
 
 // only use for kernel space
@@ -431,12 +430,9 @@ void DevSvcManagerRelease(struct IDevSvcManager *inst)
     struct DevSvcManager *devSvcManager = CONTAINER_OF(inst, struct DevSvcManager, super);
     struct DevSvcRecord *record = NULL;
     struct DevSvcRecord *tmp = NULL;
-    OsalMutexLock(&devSvcManager->mutex);
     DLIST_FOR_EACH_ENTRY_SAFE(record, tmp, &devSvcManager->services, struct DevSvcRecord, entry) {
-        DListRemove(&record->entry);
         DevSvcRecordFreeInstance(record);
     }
-    OsalMutexUnlock(&devSvcManager->mutex);
     OsalMutexDestroy(&devSvcManager->mutex);
 }
 
