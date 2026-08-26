@@ -187,6 +187,11 @@ static int32_t UsbPnpNotifyAddInitInfo(struct UsbPnpDeviceInfo *deviceInfo, unio
         goto OUT;
     }
     deviceInfo->info.numInfos = infoData.usbDev->actconfig->desc.bNumInterfaces;
+    if (deviceInfo->info.numInfos > USB_PNP_INFO_MAX_INTERFACES) {
+        HDF_LOGE("%s: numInfos %u exceeds max %d", __func__, deviceInfo->info.numInfos, USB_PNP_INFO_MAX_INTERFACES);
+        ret = HDF_ERR_INVALID_PARAM;
+        goto OUT;
+    }
     for (i = 0; i < deviceInfo->info.numInfos; i++) {
         if ((infoData.usbDev->actconfig->interface[i] == NULL) ||
             (infoData.usbDev->actconfig->interface[i]->cur_altsetting == NULL)) {
@@ -596,6 +601,11 @@ static int32_t UsbPnpNotifyReportThread(void *arg)
 #if USB_PNP_NOTIFY_TEST_MODE == true
         if ((g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_ADD_TEST) ||
             (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_TEST)) {
+            if (g_testUsbPnpInfo == NULL) {
+                HDF_LOGE("%s: g_testUsbPnpInfo is NULL", __func__);
+                OsalMutexUnlock(&g_usbSendEventLock);
+                continue;
+            }
             ret = TestPnpNotifyHdfSendEvent(deviceObject);
         } else {
 #endif

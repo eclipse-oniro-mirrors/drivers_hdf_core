@@ -378,7 +378,11 @@ int DevmgrServiceStubStartService(struct IDevmgrService *inst)
         OsalMemFree(deviceObject);
         return status;
     }
-    return DevSvcManagerStartService();
+    status = DevSvcManagerStartService();
+    if (status != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: failed to start svc manager service", __func__);
+    }
+    return status;
 }
 
 static void DevmgrServiceStubConstruct(struct DevmgrServiceStub *inst)

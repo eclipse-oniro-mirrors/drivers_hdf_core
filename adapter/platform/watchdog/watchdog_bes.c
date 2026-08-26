@@ -272,7 +272,7 @@ static int32_t WatchdogDevSetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32
 
 static int32_t WatchdogDevGetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32_t *seconds)
 {
-    if (watchdogCntlr == NULL || seconds == NULL) {
+    if (watchdogCntlr == NULL || watchdogCntlr->priv == NULL || seconds == NULL) {
         HDF_LOGE("%s: PARAM is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }

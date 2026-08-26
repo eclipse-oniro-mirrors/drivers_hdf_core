@@ -27,6 +27,10 @@
 static int32_t DevHostServiceProxyOpsDevice(
     struct IDevHostService *inst, const struct HdfDeviceInfo *attribute, int opsCode)
 {
+    if (inst == NULL) {
+        HDF_LOGE("%{public}s: inst is null", __func__);
+        return HDF_FAILURE;
+    }
     int status = HDF_FAILURE;
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     struct DevHostServiceProxy *hostClnt = (struct DevHostServiceProxy *)inst;
@@ -53,6 +57,10 @@ static int32_t DevHostServiceProxyAddDevice(
 static int32_t DevHostServiceProxyDelDevice(
     struct IDevHostService *inst, devid_t devid)
 {
+    if (inst == NULL) {
+        HDF_LOGE("%{public}s: inst is null", __func__);
+        return HDF_FAILURE;
+    }
     int status = HDF_FAILURE;
     struct HdfSBuf *data = HdfSbufTypedObtain(SBUF_IPC);
     struct DevHostServiceProxy *hostClnt = (struct DevHostServiceProxy *)inst;

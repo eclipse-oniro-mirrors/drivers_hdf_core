@@ -287,6 +287,10 @@ static int32_t LinuxSdioFlushData(struct SdioDevice *dev)
         HDF_LOGE("LinuxSdioFlushData: card is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
+    if (func->card->host == NULL) {
+        HDF_LOGE("LinuxSdioFlushData: host is NULL.");
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
     return mmc_sw_reset(func->card);

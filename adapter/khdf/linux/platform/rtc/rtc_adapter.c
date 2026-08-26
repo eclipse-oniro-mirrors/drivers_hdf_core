@@ -32,7 +32,7 @@ static inline void HdfTimeToLinuxTime(const struct RtcTime *hdfTime, struct rtc_
     linuxTime->tm_min = hdfTime->minute;
     linuxTime->tm_hour = hdfTime->hour;
     linuxTime->tm_mday = hdfTime->day;
-    linuxTime->tm_mon = hdfTime->month - MONTH_DIFF;
+    linuxTime->tm_mon = (hdfTime->month > 0) ? (hdfTime->month - MONTH_DIFF) : 0;
     linuxTime->tm_year = hdfTime->year - YEAR_BASE;
     linuxTime->tm_wday = hdfTime->weekday;
     linuxTime->tm_yday = rtc_year_days(linuxTime->tm_mday, linuxTime->tm_mon, linuxTime->tm_year);
@@ -92,6 +92,10 @@ static int32_t HiRtcWriteTime(struct RtcHost *host, const struct RtcTime *hdfTim
     struct rtc_device *dev = HdfGetRtcDevice();
 
     (void)host;
+    if (hdfTime == NULL) {
+        HDF_LOGE("HiRtcWriteTime: hdfTime is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (dev == NULL) {
         return HDF_FAILURE;
     }

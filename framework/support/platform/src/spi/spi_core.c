@@ -172,9 +172,9 @@ static int32_t SpiMsgsRwProcess(
             if ((!HdfSbufReadBuffer(data, (const void **)&buf, &len)) || (buf == NULL) || (len != msgs[i].len)) {
                 HDF_LOGE("SpiMsgsRwProcess: read msg[%d] wbuf fail, len[%u], msgs[%d].len[%u]!", i,
                     len, i, msgs[i].len);
-            } else {
-                msgs[i].wbuf = buf;
+                return HDF_ERR_IO;
             }
+            msgs[i].wbuf = buf;
         }
     }
 
