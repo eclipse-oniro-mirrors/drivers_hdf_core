@@ -162,7 +162,7 @@ static int32_t InitEth(struct EthDevice *ethDevice, const uint8_t isSetDefault,
 static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
 {
     int32_t ret = HDF_SUCCESS;
-    uint8_t i;
+    size_t i;
 
     if (deviceObject == NULL) {
         HDF_LOGE("%s deviceObject is NULL", __func__);
