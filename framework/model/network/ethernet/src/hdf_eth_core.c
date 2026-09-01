@@ -162,7 +162,6 @@ static int32_t InitEth(struct EthDevice *ethDevice, const uint8_t isSetDefault,
 static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
 {
     int32_t ret = HDF_SUCCESS;
-    uint8_t i;
 
     if (deviceObject == NULL) {
         HDF_LOGE("%s deviceObject is NULL", __func__);
@@ -176,7 +175,7 @@ static int32_t HdfEthDriverInit(struct HdfDeviceObject *deviceObject)
         HDF_LOGE("%s failed to get g_ethConfig!", __func__);
         return HDF_FAILURE;
     }
-    for (i = 0; i < g_ethConfig->deviceListSize; i++) {
+    for (size_t i = 0; i < g_ethConfig->deviceListSize; i++) {
         struct EthDevice *ethDevice = CreateEthDevice(&g_ethConfig->deviceInst[i]);
         if (ethDevice == NULL) {
             return HDF_FAILURE;
