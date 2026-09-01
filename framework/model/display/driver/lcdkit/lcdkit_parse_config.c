@@ -13,6 +13,12 @@
 #define MAX_ARRAY_LEN 1000000
 #define MAX_CMD_COUNT 10000
 
+#define POWER_TYPE_INDEX     0
+#define POWER_NUM_INDEX      1
+#define POWER_VOL_INDEX      2
+#define POWER_OPT_INDEX      2
+#define POWER_DELAY_INDEX    3
+
 #define PARSE_PANEL_SYMBOL(node, ops, symbol, out) do { \
     if ((ops)->GetUint32((node), (symbol), (out), 0)) { \
         HDF_LOGE("%s: get symbol:%s failed", __func__, (symbol)); \
@@ -47,7 +53,7 @@ static void FreeDsiPayload(struct DsiCmdDesc *dsiCmd, int32_t num)
 {
     int32_t i;
     for (i = 0; i < num; i++) {
-        OsalMemFree(dsiCmd[i]->payload);
+        OsalMemFree(dsiCmd[i].payload);
     }
 }
 
@@ -211,9 +217,9 @@ static int32_t ParsePowerSetting(const struct DeviceResourceNode *node, struct D
     }
     int32_t i;
     for (i = 0; i < (count / POWER_SETTING_SIZE); i++) {
-        setting->power[i].type = tmp[i];        // get power type
-        setting->power[i].num = tmp[i + 1];     // 1-get power num
-        setting->power[i].vol = tmp[i + 2];     // 2-get power vol
+        setting->power[i].type = tmp[POWER_TYPE_INDEX];        // get power type
+        setting->power[i].num = tmp[POWER_NUM_INDEX];         // get power num
+        setting->power[i].vol = tmp[POWER_VOL_INDEX];         // get power vol
         tmp += POWER_SETTING_SIZE;              // next power setting
     }
     setting->count = count / POWER_SETTING_SIZE;
@@ -248,10 +254,11 @@ static int32_t ParsePowerSequeue(const struct DeviceResourceNode *node, struct D
     }
     int32_t i;
     for (i = 0; i < (count / POWER_SEQUEUE_SIZE); i++) {
-        seq->pwCtrl[i].num = tmp[i];          // get power num
-        seq->pwCtrl[i].opt = tmp[i + 1];      // 1-get power operate
-        seq->pwCtrl[i].delay = tmp[i + 2];    // 2-get power delay
-        tmp += POWER_SEQUEUE_SIZE;                    // next power setting
+        seq->pwCtrl[i].type = tmp[POWER_TYPE_INDEX];          // get power type
+        seq->pwCtrl[i].num  = tmp[POWER_NUM_INDEX];          // get power num
+        seq->pwCtrl[i].opt  = tmp[POWER_OPT_INDEX];          // get power operate
+        seq->pwCtrl[i].delay = tmp[POWER_DELAY_INDEX];         // get power delay
+        tmp += POWER_SEQUEUE_SIZE;              // next power setting
     }
     seq->count = count / POWER_SEQUEUE_SIZE;
     OsalMemFree(array);
