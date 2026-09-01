@@ -19,6 +19,7 @@
 #include "osal_file.h"
 #include "osal_mem.h"
 #include "osal_uaccess.h"
+#include <pthread.h>
 #include <udk/char.h>
 #include <udk/lib/idr.h>
 #include <udk/sysfs.h>
@@ -29,7 +30,7 @@
 #define HDF_MINOR_START 0
 #define HDF_MAX_CHAR_DEVICES 1024
 static devnum_t g_hdfDevt;
-static bool g_charRegionInited = false;
+static pthread_once_t g_charRegionOnce = PTHREAD_ONCE_INIT;
 static DEFINE_IDR(g_hdfDevIdr);
 
 struct OsalCdev {
@@ -96,7 +97,13 @@ static int OsalCdevIoctl(struct udk_char_context *ctx, unsigned int cmd, unsigne
 {
     struct OsalCdev *cdev;
 
+    if (ctx == NULL || ctx->chrdev == NULL) {
+        return -EINVAL;
+    }
     cdev = container_of(ctx->chrdev->ops, struct OsalCdev, udkFops);
+    if (cdev->opsImpl == NULL || cdev->opsImpl->ioctl == NULL) {
+        return -ENOTTY;
+    }
     return (int)cdev->opsImpl->ioctl(&cdev->filep, cmd, arg);
 }
 
@@ -324,23 +331,23 @@ static void UdkHdfSysfsDelete(struct udk_char_device *cdev)
     }
 }
 
-static int InitHdfCharDevRegion(void)
+static void InitHdfCharDevRegionOnce(void)
 {
-    int ret = 0;
-
-    if (g_charRegionInited) {
-        HDF_LOGD("Hdf chardev region already initialized");
-        return 0;
-    }
-
-    ret = udk_alloc_chrdev_region(&g_hdfDevt, HDF_MINOR_START,
-                                  HDF_MAX_CHAR_DEVICES, "hdf_udk");
+    int ret = udk_alloc_chrdev_region(&g_hdfDevt, HDF_MINOR_START,
+                                      HDF_MAX_CHAR_DEVICES, "hdf_udk");
     if (ret < 0) {
         HDF_LOGE("Failed to allocate chrdev region, ret=%d", ret);
+        return;
+    }
+}
+
+static int InitHdfCharDevRegion(void)
+{
+    pthread_once(&g_charRegionOnce, InitHdfCharDevRegionOnce);
+    if (g_hdfDevt == 0) {
+        HDF_LOGE("Hdf chardev region not initialized");
         return HDF_FAILURE;
     }
-
-    g_charRegionInited = true;
     return 0;
 }
 

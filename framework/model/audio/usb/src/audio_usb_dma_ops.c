@@ -931,20 +931,34 @@ static void AudioUsbCopyToUrb(
 {
     uint32_t bytes1;
     uint32_t urbBufSize = urb->transfer_buffer_length;
+    uint32_t renderBufTotalSize;
 
     if (audioUsbDriver == NULL) {
         AUDIO_DEVICE_LOG_ERR("hdfAudioUsbDriver is null.");
         return;
     }
 
+    renderBufTotalSize = audioUsbDriver->renderBufInfo.cirBufSize * stride;
+
     if (urbBufSize == 0 || offset < 0 || offset >= urbBufSize || bytes > urbBufSize - offset) {
         AUDIO_DEVICE_LOG_ERR("AudioUsbCopyToUrb: bytes %u overflow urb buf %u offset %d", bytes, urbBufSize, offset);
         return;
     }
 
-    if (audioUsbDriver->renderHwptr + bytes > audioUsbDriver->renderBufInfo.cirBufSize * stride) {
+    if (renderBufTotalSize == 0 || audioUsbDriver->renderHwptr >= renderBufTotalSize) {
+        AUDIO_DEVICE_LOG_ERR("AudioUsbCopyToUrb: invalid renderBufTotalSize %u or renderHwptr %u",
+            renderBufTotalSize, audioUsbDriver->renderHwptr);
+        return;
+    }
+
+    if (audioUsbDriver->renderHwptr + bytes > renderBufTotalSize) {
         /* err, the transferred area goes over buffer boundary. */
-        bytes1 = audioUsbDriver->renderBufInfo.cirBufSize * stride - audioUsbDriver->renderHwptr;
+        bytes1 = renderBufTotalSize - audioUsbDriver->renderHwptr;
+        if (bytes1 > urbBufSize - offset || bytes - bytes1 > urbBufSize - offset - bytes1) {
+            AUDIO_DEVICE_LOG_ERR("AudioUsbCopyToUrb: wrap overflow bytes1 %u urbRemain %u",
+                bytes1, urbBufSize - offset);
+            return;
+        }
         (void)memcpy_s(urb->transfer_buffer + offset, urbBufSize - offset,
             (char *)audioUsbDriver->renderBufInfo.virtAddr + audioUsbDriver->renderHwptr, bytes1);
         (void)memcpy_s(urb->transfer_buffer + offset + bytes1, urbBufSize - offset - bytes1,
@@ -955,8 +969,8 @@ static void AudioUsbCopyToUrb(
     }
     audioUsbDriver->renderHwptr += bytes;
 
-    if (audioUsbDriver->renderHwptr >= audioUsbDriver->renderBufInfo.cirBufSize * stride) {
-        audioUsbDriver->renderHwptr -= audioUsbDriver->renderBufInfo.cirBufSize * stride;
+    if (audioUsbDriver->renderHwptr >= renderBufTotalSize) {
+        audioUsbDriver->renderHwptr -= renderBufTotalSize;
     }
 }
 
@@ -1075,7 +1089,10 @@ static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, stru
             AUDIO_DEVICE_LOG_DEBUG("capture bytes = %d", bytes);
         }
 
-        if (bytes == 0 || bytes > cirBufTotalSize) {
+        if (bytes == 0) {
+            continue;
+        }
+        if (bytes > cirBufTotalSize) {
             AUDIO_DEVICE_LOG_ERR("AudioUsbRetireCaptureUrb: invalid bytes %u, cirBufTotalSize %u",
                 bytes, cirBufTotalSize);
             continue;

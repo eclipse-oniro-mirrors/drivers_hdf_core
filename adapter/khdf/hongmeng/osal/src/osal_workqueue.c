@@ -64,6 +64,8 @@ int32_t HdfWorkQueueInit(HdfWorkQueue *queue, char *name)
 static int HdfWorkHandler(struct udk_work *work)
 {
     struct OsalHdfWork *hdfWork = NULL;
+    HdfWorkFunc func = NULL;
+    void *para = NULL;
 
     if (work == NULL) {
         HDF_LOGE("%s invalid work", __func__);
@@ -71,10 +73,12 @@ static int HdfWorkHandler(struct udk_work *work)
     }
 
     hdfWork = container_of(work, struct OsalHdfWork, work);
+    func = hdfWork->func;
+    para = hdfWork->para;
     udk_work_destroy(work);
 
-    if (hdfWork->func != NULL) {
-        hdfWork->func(hdfWork->para);
+    if (func != NULL) {
+        func(para);
     } else {
         HDF_LOGW("%s no handler function", __func__);
     }
@@ -116,6 +120,8 @@ static int HdfDelayedWorkHandler(struct udk_work *work)
 {
     struct udk_delayed_work *dwork = NULL;
     struct OsalHdfDelayedWork *hdfDwork = NULL;
+    HdfWorkFunc func = NULL;
+    void *para = NULL;
 
     if (work == NULL) {
         HDF_LOGE("%s invalid work", __func__);
@@ -124,10 +130,12 @@ static int HdfDelayedWorkHandler(struct udk_work *work)
 
     dwork = container_of(work, struct udk_delayed_work, work);
     hdfDwork = container_of(dwork, struct OsalHdfDelayedWork, dwork);
+    func = hdfDwork->func;
+    para = hdfDwork->para;
     udk_delayed_work_destroy(dwork);
 
-    if (hdfDwork->func != NULL) {
-        hdfDwork->func(hdfDwork->para);
+    if (func != NULL) {
+        func(para);
     } else {
         HDF_LOGW("%s no handler function", __func__);
     }

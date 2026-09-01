@@ -442,7 +442,11 @@ bool HdfRemoteAdapterWriteInterfaceToken(struct HdfRemoteService *service, struc
 
 static bool CheckInterfaceTokenIngoreVersion(const std::string &client, const std::string &stub)
 {
-    if (client.length() > 0 && client == stub) {
+    if (client.empty() || stub.empty()) {
+        HDF_LOGE("%{public}s: empty token", __func__);
+        return false;
+    }
+    if (client == stub) {
         return true;
     }
     std::vector<std::string> clientVec;
