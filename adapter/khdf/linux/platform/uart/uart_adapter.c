@@ -37,6 +37,57 @@
 
 static char g_driverName[UART_NAME_LEN] = { 0 };
 
+static int UartAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long arg)
+{
+    int ret = HDF_FAILURE;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+    mm_segment_t oldfs;
+#endif
+
+    if (fp == NULL) {
+        HDF_LOGE("UartAdapterIoctlInner: fp is null!");
+        return HDF_FAILURE;
+    }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+    oldfs = get_fs();
+    set_fs(KERNEL_DS);
+#endif
+    if (fp->f_op == NULL) {
+        HDF_LOGE("UartAdapterIoctlInner: f_op is null!");
+        return HDF_FAILURE;
+    }
+    if (fp->f_op->unlocked_ioctl != NULL) {
+        ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
+    }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+    set_fs(oldfs);
+#endif
+    return ret;
+}
+
+/* VMIN/VTIME take effect only in non-canonical (raw) mode */
+static int32_t UartAdapterSetRawMode(struct file *fp)
+{
+    struct termios tio;
+
+    if (UartAdapterIoctlInner(fp, TCGETS, (unsigned long)&tio) < 0) {
+        HDF_LOGE("UartAdapterSetRawMode: tcgets fail!");
+        return HDF_FAILURE;
+    }
+    tio.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+    tio.c_oflag &= ~OPOST;
+    tio.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+    tio.c_cflag &= ~(CSIZE | PARENB);
+    tio.c_cflag |= CS8;
+    tio.c_cc[VMIN] = 0;
+    tio.c_cc[VTIME] = 0;
+    if (UartAdapterIoctlInner(fp, TCSETS, (unsigned long)&tio) < 0) {
+        HDF_LOGE("UartAdapterSetRawMode: tcsets fail!");
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
 static int32_t UartAdapterInit(struct UartHost *host)
 {
     char name[UART_PATHNAME_LEN] = {0};
@@ -68,6 +119,13 @@ static int32_t UartAdapterInit(struct UartHost *host)
     set_fs(oldfs);
 #endif
     host->priv = fp;
+
+    if (UartAdapterSetRawMode(fp) != HDF_SUCCESS) {
+        filp_close(fp, NULL);
+        host->priv = NULL;
+        return HDF_FAILURE;
+    }
+
     return HDF_SUCCESS;
 }
 
@@ -107,7 +165,6 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
 #endif
-    uint32_t tmp = 0;
 
     if (host == NULL || host->priv == NULL || data == NULL || size == 0) {
         HDF_LOGE("UartAdapterRead: invalid parameters!");
@@ -119,20 +176,16 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
     oldfs = get_fs();
     set_fs(KERNEL_DS);
 #endif
-    while (size > tmp) {
-        ret = vfs_read(fp, p + tmp, 1, &pos);
-        if (ret <= 0) {
-            if (ret < 0) {
-                HDF_LOGE("UartAdapterRead: vfs_read fail ret: %d!", ret);
-            }
-            break;
-        }
-        tmp++;
+    ret = vfs_read(fp, p, size, &pos);
+    if (ret == -EAGAIN) {
+        ret = 0;
+    } else if (ret < 0) {
+        HDF_LOGE("UartAdapterRead: vfs_read fail ret: %d!", ret);
     }
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     set_fs(oldfs);
 #endif
-    return tmp;
+    return ret;
 }
 
 static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t size)
@@ -167,34 +220,6 @@ static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t s
     set_fs(oldfs);
 #endif
     return HDF_SUCCESS;
-}
-
-static int UartAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long arg)
-{
-    int ret = HDF_FAILURE;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
-    mm_segment_t oldfs;
-#endif
-
-    if (fp == NULL) {
-        HDF_LOGE("UartAdapterIoctlInner: fp is null!");
-        return HDF_FAILURE;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
-    oldfs = get_fs();
-    set_fs(KERNEL_DS);
-#endif
-    if (fp->f_op == NULL) {
-        HDF_LOGE("UartAdapterIoctlInner: f_op is null!");
-        return HDF_FAILURE;
-    }
-    if (fp->f_op->unlocked_ioctl != NULL) {
-        ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
-    set_fs(oldfs);
-#endif
-    return ret;
 }
 
 static uint32_t CflagToBaudRate(unsigned short flag)
@@ -343,8 +368,6 @@ static int32_t UartAdapterSetBaud(struct UartHost *host, uint32_t baudRate)
     }
     termios.c_cflag &= ~CBAUD;
     termios.c_cflag |= BaudRateToCflag(baudRate);
-    termios.c_cc[VMIN] = 0;
-    termios.c_cc[VTIME] = 0;
     if (UartAdapterIoctlInner(fp, TCSETS, (unsigned long)&termios) < 0) {
         HDF_LOGE("UartAdapterSetBaud: tcgets fail, line: %d!", __LINE__);
         return HDF_FAILURE;
@@ -448,6 +471,8 @@ static int32_t UartAdapterGetAttribute(struct UartHost *host, struct UartAttribu
     attribute->stopBits = StopBitToAttr(termios.c_cflag);
     attribute->cts = CtsRtsToAttr(termios.c_cflag);
     attribute->rts = CtsRtsToAttr(termios.c_cflag);
+    attribute->vmin = termios.c_cc[VMIN];
+    attribute->vtime = termios.c_cc[VTIME];
     return HDF_SUCCESS;
 }
 
@@ -492,14 +517,33 @@ static int32_t UartAdapterSetAttribute(struct UartHost *host, struct UartAttribu
     } else {
         termios.c_cflag &= ~CSTOPB;
     }
+    termios.c_cc[VMIN] = attribute->vmin;
+    termios.c_cc[VTIME] = attribute->vtime;
     ret = UartAdapterIoctlInner(fp, TCSETS, (unsigned long)&termios);
     return ret;
 }
 
 static int32_t UartAdapterSetTransMode(struct UartHost *host, enum UartTransMode mode)
 {
-    (void)host;
-    (void)mode;
+    struct file *fp = NULL;
+
+    if (host == NULL || host->priv == NULL) {
+        HDF_LOGE("UartAdapterSetTransMode: host or priv is null!");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    fp = (struct file *)host->priv;
+
+    switch (mode) {
+        case UART_MODE_RD_BLOCK:
+            fp->f_flags &= ~O_NONBLOCK;
+            break;
+        case UART_MODE_RD_NONBLOCK:
+            fp->f_flags |= O_NONBLOCK;
+            break;
+        default:
+            HDF_LOGE("UartAdapterSetTransMode: unsupported mode %d!", mode);
+            return HDF_ERR_NOT_SUPPORT;
+    }
     return HDF_SUCCESS;
 }
 

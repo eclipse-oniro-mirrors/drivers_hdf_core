@@ -222,8 +222,10 @@ struct UartAttribute {
  * @since 1.0
  */
 #define UART_ATTR_TX_FIFO_EN 1
-    /** Reserved bits */
-    unsigned int reserved : 16;
+    /** Minimum number of characters for blocking read (VMIN) */
+    unsigned int vmin : 8;
+    /** Timeout for blocking read in deciseconds (VTIME) */
+    unsigned int vtime : 8;
 };
 #pragma pack(pop)
 

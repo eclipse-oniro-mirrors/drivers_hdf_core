@@ -96,13 +96,90 @@ HWTEST_F(HdfUartTest, UartIfPerformanceTest001, TestSize.Level1)
 }
 
 /**
-  * @tc.name: UartMiniBlockWriteTest001
-  * @tc.desc: uart mini block write test only for the mini platform
-  * @tc.type: FUNC
-  * @tc.require:
-  */
+ * @tc.name: UartMiniBlockWriteTest001
+ * @tc.desc: uart mini block write test only for the mini platform
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(HdfUartTest, UartMiniBlockWriteTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_UART_TYPE, UART_MINI_BLOCK_WRITE_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+/**
+ * @tc.name: UartVminVtimeAttrTest001
+ * @tc.desc: set vmin/vtime via attribute and read back, then verify set baud keeps them
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartVminVtimeAttrTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_VMIN_VTIME_ATTR));
+}
+
+/**
+ * @tc.name: UartTransModeSwitchTest001
+ * @tc.desc: switch between block and non-block modes and check read timing on an idle line
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartTransModeSwitchTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_TRANS_MODE_SWITCH));
+}
+
+/**
+ * @tc.name: UartSelfLoopDataTest001
+ * @tc.desc: write and read back the pattern on a loopback-wired port and verify data integrity
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartSelfLoopDataTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_SELF_LOOP_DATA));
+}
+
+/**
+ * @tc.name: UartVminWakeTest001
+ * @tc.desc: blocking read is woken up once vmin bytes have been written to the loopback port
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartVminWakeTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_VMIN_WAKE));
+}
+
+/**
+ * @tc.name: UartVtimeInterByteTest001
+ * @tc.desc: blocking read returns the partial bytes after the inter-byte vtime expires
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartVtimeInterByteTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_VTIME_INTERBYTE));
+}
+
+/**
+ * @tc.name: UartBatchReadPerfTest001
+ * @tc.desc: transfer the pattern in chunks on the loopback port and verify integrity and call count
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartBatchReadPerfTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_BATCH_READ_PERF));
+}
+
+/**
+ * @tc.name: UartDualPortDataTest001
+ * @tc.desc: cross verify data between two board uart ports wired to each other
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(HdfUartTest, UartDualPortDataTest001, TestSize.Level1)
+{
+    EXPECT_EQ(0, UartTestExecute(UART_TEST_CMD_DUAL_PORT_DATA));
 }
