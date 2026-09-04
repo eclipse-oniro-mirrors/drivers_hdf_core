@@ -931,14 +931,13 @@ static void AudioUsbCopyToUrb(
 {
     uint32_t bytes1;
     uint32_t urbBufSize = urb->transfer_buffer_length;
-    uint32_t renderBufTotalSize;
 
     if (audioUsbDriver == NULL) {
         AUDIO_DEVICE_LOG_ERR("hdfAudioUsbDriver is null.");
         return;
     }
 
-    renderBufTotalSize = audioUsbDriver->renderBufInfo.cirBufSize * stride;
+    uint32_t renderBufTotalSize = audioUsbDriver->renderBufInfo.cirBufSize * stride;
 
     if (urbBufSize == 0 || offset < 0 || offset >= urbBufSize || bytes > urbBufSize - offset) {
         AUDIO_DEVICE_LOG_ERR("AudioUsbCopyToUrb: bytes %u overflow urb buf %u offset %d", bytes, urbBufSize, offset);
