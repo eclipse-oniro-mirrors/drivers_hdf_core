@@ -92,26 +92,30 @@ static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, 
             cmd->count = 0;
             return HDF_FAILURE;
         }
-        tmpCmd->payload = (uint8_t *)OsalMemCalloc(tmpCmd->dataLen * sizeof(uint8_t));
-        if (tmpCmd->payload == NULL) {
-            HDF_LOGE("%s: OsalMemCalloc failed", __func__);
-            FreeDsiPayload(dsiCmd, num);
-            OsalMemFree(array);
-            OsalMemFree(dsiCmd);
-            cmd->dsiCmd = NULL;
-            cmd->count = 0;
-            return HDF_FAILURE;
-        }
+        if (tmpCmd->dataLen == 0) {
+            tmpCmd->payload = NULL;
+        } else {
+            tmpCmd->payload = (uint8_t *)OsalMemCalloc(tmpCmd->dataLen * sizeof(uint8_t));
+            if (tmpCmd->payload == NULL) {
+                HDF_LOGE("%s: OsalMemCalloc failed", __func__);
+                FreeDsiPayload(dsiCmd, num);
+                OsalMemFree(array);
+                OsalMemFree(dsiCmd);
+                cmd->dsiCmd = NULL;
+                cmd->count = 0;
+                return HDF_FAILURE;
+            }
 
-        ret = memcpy_s(tmpCmd->payload, tmpCmd->dataLen, &tmpArray[DSI_CMD_HEAD], tmpCmd->dataLen);
-        if (ret != EOK) {
-            HDF_LOGE("%s: memcpy_s failed, ret %d", __func__, ret);
-            FreeDsiPayload(dsiCmd, num);
-            OsalMemFree(array);
-            OsalMemFree(dsiCmd);
-            cmd->dsiCmd = NULL;
-            cmd->count = 0;
-            return ret;
+            ret = memcpy_s(tmpCmd->payload, tmpCmd->dataLen, &tmpArray[DSI_CMD_HEAD], tmpCmd->dataLen);
+            if (ret != EOK) {
+                HDF_LOGE("%s: memcpy_s failed, ret %d", __func__, ret);
+                FreeDsiPayload(dsiCmd, num);
+                OsalMemFree(array);
+                OsalMemFree(dsiCmd);
+                cmd->dsiCmd = NULL;
+                cmd->count = 0;
+                return ret;
+            }
         }
 
         len -= DSI_CMD_HEAD + tmpCmd->dataLen;
