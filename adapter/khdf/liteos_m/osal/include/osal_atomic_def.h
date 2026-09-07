@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2026 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -8,8 +8,8 @@
  *    conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- *    of conditions and the following disclaimer in the documentation and/or other materials
- *    provided with the distribution.
+ *    of the following conditions and the following disclaimer in the documentation and/or
+ *    other materials provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
  *    to endorse or promote products derived from this software without specific prior written
@@ -31,8 +31,8 @@
 #ifndef OSAL_ATOMIC_DEF_H
 #define OSAL_ATOMIC_DEF_H
 
-#include <los_atomic.h>
-#include "hdf_base.h"
+#include <stdint.h>
+#include "osal_extend.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,41 +57,40 @@ static inline int32_t OsalTestBitWrapper(unsigned long nr, const volatile unsign
 
 static inline int32_t OsalTestSetBitWrapper(unsigned long nr, volatile unsigned long *addr)
 {
-    uint32_t intSave = LOS_IntLock();
+    uint32_t flags = OsalExtendIrqSave();
 
     const unsigned long mask = OSAL_BIT_MASK(nr);
     unsigned long *p = ((unsigned long *)addr) + OSAL_BIT_WORD(nr);
     unsigned long old = *p;
     *p = old | mask;
 
-    LOS_IntRestore(intSave);
+    OsalExtendIrqRestore(flags);
     return ((old & mask) != 0);
 }
 
 static inline int32_t OsalTestClearBitWrapper(unsigned long nr, volatile unsigned long *addr)
 {
-    uint32_t intSave = LOS_IntLock();
+    uint32_t flags = OsalExtendIrqSave();
 
     const unsigned long mask = OSAL_BIT_MASK(nr);
     unsigned long *p = ((unsigned long *)addr) + OSAL_BIT_WORD(nr);
     unsigned long old = *p;
     *p = old & ~mask;
 
-    LOS_IntRestore(intSave);
+    OsalExtendIrqRestore(flags);
     return ((old & mask) != 0);
 }
 
 static inline void OsalClearBitWrapper(unsigned long nr, volatile unsigned long *addr)
 {
-    uint32_t intSave = LOS_IntLock();
+    uint32_t flags = OsalExtendIrqSave();
 
     const unsigned long mask = OSAL_BIT_MASK(nr);
     unsigned long *p = ((unsigned long *)addr) + OSAL_BIT_WORD(nr);
     *p &= ~mask;
 
-    LOS_IntRestore(intSave);
+    OsalExtendIrqRestore(flags);
 }
-
 
 #ifdef __cplusplus
 }

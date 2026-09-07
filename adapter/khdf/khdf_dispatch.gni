@@ -1,0 +1,37 @@
+#
+# Copyright (c) 2026, Huawei Device Co., Ltd. All rights reserved.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# ===================================================================
+# Central khdf adapter dispatch layer.
+# ===================================================================
+# This file is NEWLY INTRODUCED. The khdf tree previously had no
+# top-level dispatch: each vendor product's hdf_config/BUILD.gn
+# hard-coded the platform import (e.g. khdf/liteos_m/hdf.gni).
+#
+# ohos_kernel_type is set by the hb tool from the product config.json
+# "kernel_type" field (see build/lite/ohos_var.gni:70-71). Supported
+# values: "liteos_a", "liteos_m", "linux", "uniproton".
+# "freertos" / "rtthread" are future kernels not yet in the tree.
+#
+# Products import this file, then import("$hdf_khdf_path/hdf.gni")
+# instead of hard-coding a platform path.
+# ===================================================================
+
+if (ohos_kernel_type == "liteos_m" || ohos_kernel_type == "freertos" ||
+    ohos_kernel_type == "rtthread") {
+  hdf_khdf_path = "//drivers/hdf_core/adapter/khdf/liteos_m"
+} else {
+  assert(false, "unsupported ohos_kernel_type for khdf: " + ohos_kernel_type)
+}
