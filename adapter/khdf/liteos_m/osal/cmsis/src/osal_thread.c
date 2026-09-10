@@ -159,13 +159,12 @@ static bool OsalCheckPara(struct OsalThread *thread)
 int32_t OsalThreadSuspend(struct OsalThread *thread)
 {
     struct ThreadWrapper *para = NULL;
-    osStatus_t ret;
 
     if (!OsalCheckPara(thread)) {
         return HDF_ERR_INVALID_PARAM;
     }
     para = (struct ThreadWrapper *)thread->realThread;
-    ret = osThreadSuspend(para->threadId);
+    osStatus_t ret = osThreadSuspend(para->threadId);
     if (ret != osOK) {
         HDF_LOGE("%s osThreadSuspend failed %d", __func__, ret);
         return HDF_FAILURE;
@@ -176,13 +175,12 @@ int32_t OsalThreadSuspend(struct OsalThread *thread)
 int32_t OsalThreadResume(struct OsalThread *thread)
 {
     struct ThreadWrapper *para = NULL;
-    osStatus_t ret;
 
     if (!OsalCheckPara(thread)) {
         return HDF_ERR_INVALID_PARAM;
     }
     para = (struct ThreadWrapper *)thread->realThread;
-    ret = osThreadResume(para->threadId);
+    osStatus_t ret = osThreadResume(para->threadId);
     if (ret != osOK) {
         HDF_LOGE("%s osThreadResume failed %d", __func__, ret);
         return HDF_FAILURE;

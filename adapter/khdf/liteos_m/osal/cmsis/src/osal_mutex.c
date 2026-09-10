@@ -51,12 +51,11 @@ int32_t OsalMutexInit(struct OsalMutex *mutex)
 
 int32_t OsalMutexDestroy(struct OsalMutex *mutex)
 {
-    osStatus_t ret;
     if (mutex == NULL || mutex->realMutex == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexDelete(mutex->realMutex);
+    osStatus_t ret = osMutexDelete(mutex->realMutex);
     if (ret != osOK) {
         HDF_LOGE("%s osMutexDelete fail %d", __func__, ret);
         return HDF_FAILURE;
@@ -67,12 +66,11 @@ int32_t OsalMutexDestroy(struct OsalMutex *mutex)
 
 int32_t OsalMutexLock(struct OsalMutex *mutex)
 {
-    osStatus_t ret;
     if (mutex == NULL || mutex->realMutex == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexAcquire(mutex->realMutex, osWaitForever);
+    osStatus_t ret = osMutexAcquire(mutex->realMutex, osWaitForever);
     if (ret != osOK) {
         HDF_LOGE("%s osMutexAcquire fail %d", __func__, ret);
         return HDF_FAILURE;
@@ -82,12 +80,11 @@ int32_t OsalMutexLock(struct OsalMutex *mutex)
 
 int32_t OsalMutexTimedLock(struct OsalMutex *mutex, uint32_t ms)
 {
-    osStatus_t ret;
     if (mutex == NULL || mutex->realMutex == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexAcquire(mutex->realMutex, OsalCmsisMsToTick(ms));
+    osStatus_t ret = osMutexAcquire(mutex->realMutex, OsalCmsisMsToTick(ms));
     if (ret == osErrorTimeout) {
         return HDF_ERR_TIMEOUT;
     }
@@ -100,12 +97,11 @@ int32_t OsalMutexTimedLock(struct OsalMutex *mutex, uint32_t ms)
 
 int32_t OsalMutexUnlock(struct OsalMutex *mutex)
 {
-    osStatus_t ret;
     if (mutex == NULL || mutex->realMutex == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexRelease(mutex->realMutex);
+    osStatus_t ret = osMutexRelease(mutex->realMutex);
     if (ret != osOK) {
         HDF_LOGE("%s osMutexRelease fail %d", __func__, ret);
         return HDF_FAILURE;

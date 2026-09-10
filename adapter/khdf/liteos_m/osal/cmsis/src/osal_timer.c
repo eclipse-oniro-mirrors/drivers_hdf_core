@@ -141,14 +141,13 @@ int32_t OsalTimerSetTimeout(OsalTimer *timer, uint32_t interval)
 int32_t OsalTimerDelete(OsalTimer *timer)
 {
     struct OsalCmsisTimer *cmsisTimer = NULL;
-    osStatus_t ret;
     if (timer == NULL || timer->realTimer == NULL) {
         HDF_LOGE("%s invalid para", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     cmsisTimer = (struct OsalCmsisTimer *)timer->realTimer;
     if (cmsisTimer->timerId != NULL) {
-        ret = osTimerDelete(cmsisTimer->timerId);
+        osStatus_t ret = osTimerDelete(cmsisTimer->timerId);
         if (ret != osOK) {
             HDF_LOGE("%s osTimerDelete fail %d", __func__, ret);
             return HDF_FAILURE;

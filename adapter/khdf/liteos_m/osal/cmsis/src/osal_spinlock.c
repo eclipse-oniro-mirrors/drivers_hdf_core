@@ -51,12 +51,11 @@ int32_t OsalSpinInit(OsalSpinlock *spinlock)
 
 int32_t OsalSpinDestroy(OsalSpinlock *spinlock)
 {
-    osStatus_t ret;
     if (spinlock == NULL || spinlock->realSpinlock == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexDelete(spinlock->realSpinlock);
+    osStatus_t ret = osMutexDelete(spinlock->realSpinlock);
     if (ret != osOK) {
         HDF_LOGE("%s osMutexDelete fail %d", __func__, ret);
         return HDF_FAILURE;
@@ -67,12 +66,11 @@ int32_t OsalSpinDestroy(OsalSpinlock *spinlock)
 
 int32_t OsalSpinLock(OsalSpinlock *spinlock)
 {
-    osStatus_t ret;
     if (spinlock == NULL || spinlock->realSpinlock == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexAcquire(spinlock->realSpinlock, osWaitForever);
+    osStatus_t ret = osMutexAcquire(spinlock->realSpinlock, osWaitForever);
     if (ret != osOK) {
         HDF_LOGE("%s fail %d", __func__, ret);
         return HDF_FAILURE;
@@ -82,12 +80,11 @@ int32_t OsalSpinLock(OsalSpinlock *spinlock)
 
 int32_t OsalSpinUnlock(OsalSpinlock *spinlock)
 {
-    osStatus_t ret;
     if (spinlock == NULL || spinlock->realSpinlock == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osMutexRelease(spinlock->realSpinlock);
+    osStatus_t ret = osMutexRelease(spinlock->realSpinlock);
     if (ret != osOK) {
         HDF_LOGE("%s fail %d", __func__, ret);
         return HDF_FAILURE;

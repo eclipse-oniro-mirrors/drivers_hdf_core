@@ -51,15 +51,12 @@ int32_t OsalSemInit(struct OsalSem *sem, uint32_t value)
 
 int32_t OsalSemWait(struct OsalSem *sem, uint32_t ms)
 {
-    osStatus_t ret;
-    uint32_t timeout;
-
     if (sem == NULL || sem->realSemaphore == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    timeout = (ms == OSAL_WAIT_FOREVER) ? osWaitForever : OsalCmsisMsToTick(ms);
-    ret = osSemaphoreAcquire(sem->realSemaphore, timeout);
+    uint32_t timeout = (ms == OSAL_WAIT_FOREVER) ? osWaitForever : OsalCmsisMsToTick(ms);
+    osStatus_t ret = osSemaphoreAcquire(sem->realSemaphore, timeout);
     if (ret == osErrorTimeout) {
         return HDF_ERR_TIMEOUT;
     }
@@ -72,12 +69,11 @@ int32_t OsalSemWait(struct OsalSem *sem, uint32_t ms)
 
 int32_t OsalSemPost(struct OsalSem *sem)
 {
-    osStatus_t ret;
     if (sem == NULL || sem->realSemaphore == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osSemaphoreRelease(sem->realSemaphore);
+    osStatus_t ret = osSemaphoreRelease(sem->realSemaphore);
     if (ret != osOK) {
         HDF_LOGE("%s osSemaphoreRelease fail %d", __func__, ret);
         return HDF_FAILURE;
@@ -87,12 +83,11 @@ int32_t OsalSemPost(struct OsalSem *sem)
 
 int32_t OsalSemDestroy(struct OsalSem *sem)
 {
-    osStatus_t ret;
     if (sem == NULL || sem->realSemaphore == NULL) {
         HDF_LOGE("%s invalid param", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = osSemaphoreDelete(sem->realSemaphore);
+    osStatus_t ret = osSemaphoreDelete(sem->realSemaphore);
     if (ret != osOK) {
         HDF_LOGE("%s osSemaphoreDelete fail %d", __func__, ret);
         return HDF_FAILURE;
