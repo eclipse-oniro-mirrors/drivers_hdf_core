@@ -101,6 +101,10 @@ if (defined(ohos_lite)) {
       debug = false
     }
 
+    if (!use_clang_coverage) {
+      version_script = "libhdi.versionscript"
+    }
+
     include_dirs = [
       "$hdf_framework_path/core/shared/include",
       "$hdf_framework_path/core/host/include",
