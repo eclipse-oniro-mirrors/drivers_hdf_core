@@ -297,6 +297,15 @@ template <typename T>
 SharedMemQueue<T>::SharedMemQueue(const SharedMemQueueMeta<T> &meta)
 {
     meta_ = std::make_shared<SharedMemQueueMeta<T>>(meta);
+    if (meta_ == nullptr) {
+        HDF_LOGE("Create SharedMemQueueMeta failed, meta_ is nullptr");
+        return;
+    }
+    if (meta_->GetElementCount() == 0 || meta_->GetSize() == 0) {
+        HDF_LOGE("invalid smq meta, elementCount=%{public}zu, size=%{public}zu", meta_->GetElementCount(),
+            meta_->GetSize());
+        return;
+    }
     Init(false);
 }
 
@@ -609,6 +618,10 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
         HDF_LOGE("meta_ is nullptr, count: %{public}zu.", count);
         return HDF_ERR_INVALID_OBJECT;
     }
+    if (readOffset_ == nullptr || writeOffset_ == nullptr || queueBuffer_ == nullptr) {
+        HDF_LOGE("smq is not initialized, count: %{public}zu.", count);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     auto avalidWrite = GetAvalidWriteSize();
     if (count > avalidWrite && meta_->GetType() == SmqType::SYNCED_SMQ) {
         // synced smq can not overflow write
@@ -621,6 +634,11 @@ int SharedMemQueue<T>::WriteNonBlocking(const T *data, size_t count)
     auto rOffset = readOffset_->load(std::memory_order_acquire);
     uint64_t newWriteOffset;
     auto qCount = meta_->GetElementCount();
+    if (qCount == 0 || wOffset > qCount || rOffset > qCount) {
+        HDF_LOGE("%s invalid smq state, wOffset=%{public}" PRIu64 ", rOffset=%{public}" PRIu64
+            ", qc=%{public}zu.", __func__, wOffset, rOffset, qCount);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (wOffset + count <= (qCount + 1)) {
         if (memcpy_s(queueBuffer_ + (wOffset * sizeof(T)), (qCount + 1 - wOffset) * sizeof(T),
             data, count * sizeof(T)) != EOK) {
@@ -664,6 +682,10 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
         HDF_LOGE("Try to read zero data from smq!");
         return -EINVAL;
     }
+    if (readOffset_ == nullptr || writeOffset_ == nullptr || queueBuffer_ == nullptr) {
+        HDF_LOGE("smq is not initialized, count: %{public}zu.", count);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     size_t availableRdsize = GetAvalidReadSize();
     if (count > availableRdsize) {
         HDF_LOGE("No sufficient data to read, try to read %{public}zu data, "
@@ -674,6 +696,15 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
     auto qCount = meta_->GetElementCount();
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
+    if (qCount == 0 || wOffset > qCount || rOffset > qCount) {
+        HDF_LOGE("%s invalid smq state, wOffset=%{public}" PRIu64 ", rOffset=%{public}" PRIu64
+            ", qc=%{public}zu.", __func__, wOffset, rOffset, qCount);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (count > qCount) {
+        HDF_LOGE("%s count %{public}zu exceeds queue capacity %{public}zu.", __func__, count, qCount);
+        return -EINVAL;
+    }
     if (rOffset + count <= (qCount + 1)) {
         if (memcpy_s(data, count * sizeof(T), queueBuffer_ + (rOffset * sizeof(T)), count * sizeof(T)) != EOK) {
             HDF_LOGE("%s whole memcpy_s failed, dc: %{public}zu, wOffset: %{public}" PRIu64
@@ -726,6 +757,10 @@ size_t SharedMemQueue<T>::GetAvalidReadSize()
 {
     if (meta_ == nullptr) {
         HDF_LOGE("GetAvalidReadSize, meta_ is nullptr.");
+        return 0;
+    }
+    if (readOffset_ == nullptr || writeOffset_ == nullptr) {
+        HDF_LOGE("GetAvalidReadSize, smq is not initialized.");
         return 0;
     }
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
