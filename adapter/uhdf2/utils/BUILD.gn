@@ -119,6 +119,10 @@ if (defined(ohos_lite)) {
       debug = false
     }
 
+    if (!use_clang_coverage) {
+      version_script = "libhdf_utils.versionscript"
+    }
+
     include_dirs = [
       "$hdf_framework_path/include",
       "$hdf_framework_path/include/core",
