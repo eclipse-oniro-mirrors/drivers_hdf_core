@@ -21,7 +21,11 @@ declare_args() {
   hicollie_enabled = false
 
   if (hdf_core_default_hicollie_config) {
-    hicollie_enabled = hdf_core_default_hicollie_config
+    hicollie_enabled = true
+    if (defined(global_parts_info) &&
+        !defined(global_parts_info.hiviewdfx_hicollie)) {
+      hicollie_enabled = false
+    }
   }
 
   with_sample = false
