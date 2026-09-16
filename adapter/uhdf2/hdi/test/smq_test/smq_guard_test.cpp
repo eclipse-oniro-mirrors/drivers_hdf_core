@@ -67,34 +67,34 @@ HWTEST_F(SmqGuardTest, SmqMetaElementCountZeroTest, TestSize.Level1)
 HWTEST_F(SmqGuardTest, SmqMetaElementCountOverflowElementSizeTest, TestSize.Level1)
 {
     // sizeof(int32_t) == 4, UINT32_MAX / 4 == 0x3FFFFFFF
-    constexpr size_t OVER_FLOW_COUNT = 0x40000000UL; // just beyond UINT32_MAX/4
-    SharedMemQueueMeta<int32_t> meta(-1, OVER_FLOW_COUNT, SmqType::SYNCED_SMQ);
+    constexpr size_t overFlowCount = 0x40000000UL; // just beyond UINT32_MAX/4
+    SharedMemQueueMeta<int32_t> meta(-1, overFlowCount, SmqType::SYNCED_SMQ);
     ASSERT_EQ(meta.GetSize(), 0u);
-    ASSERT_EQ(meta.GetElementCount(), OVER_FLOW_COUNT);
+    ASSERT_EQ(meta.GetElementCount(), overFlowCount);
 }
 
 // (elementCount+1)*elementSize 在 32 位回绕：应被 64 位中间量拦截
 // 该值正是漏洞报告 PoC 中的 elementCount=0x3FFFFFFF
 HWTEST_F(SmqGuardTest, SmqMetaDataSizeWrapTest, TestSize.Level1)
 {
-    constexpr size_t WRAP_COUNT = 0x3FFFFFFFUL; // (0x3FFFFFFF+1)*4 wraps to 0 on 32-bit
-    SharedMemQueueMeta<int32_t> meta(-1, WRAP_COUNT, SmqType::SYNCED_SMQ);
+    constexpr size_t wrapCount = 0x3FFFFFFFUL; // (0x3FFFFFFF+1)*4 wraps to 0 on 32-bit
+    SharedMemQueueMeta<int32_t> meta(-1, wrapCount, SmqType::SYNCED_SMQ);
     ASSERT_EQ(meta.GetSize(), 0u);
-    ASSERT_EQ(meta.GetElementCount(), WRAP_COUNT);
+    ASSERT_EQ(meta.GetElementCount(), wrapCount);
 }
 
 // 正常构造：size_ 有效，且 data zone size 正确
 HWTEST_F(SmqGuardTest, SmqMetaNormalTest, TestSize.Level1)
 {
-    constexpr size_t NORMAL_COUNT = 16;
-    SharedMemQueueMeta<int32_t> meta(-1, NORMAL_COUNT, SmqType::SYNCED_SMQ);
+    constexpr size_t normalCount = 16;
+    SharedMemQueueMeta<int32_t> meta(-1, normalCount, SmqType::SYNCED_SMQ);
     ASSERT_GT(meta.GetSize(), 0u);
-    ASSERT_EQ(meta.GetElementCount(), NORMAL_COUNT);
+    ASSERT_EQ(meta.GetElementCount(), normalCount);
 
     auto dataZone = meta.GetMemZone(SharedMemQueueMeta<int32_t>::MEMZONE_DATA);
     ASSERT_NE(dataZone, nullptr);
     // data zone size == (count + 1) * sizeof(int32_t)
-    ASSERT_EQ(dataZone->size, (NORMAL_COUNT + 1) * sizeof(int32_t));
+    ASSERT_EQ(dataZone->size, (normalCount + 1) * sizeof(int32_t));
 }
 
 /*
@@ -150,8 +150,8 @@ HWTEST_F(SmqGuardTest, SmqReadWriteUninitializedTest, TestSize.Level1)
 // WriteNonBlocking 越界 wOffset（栽植共享内存 write offset > elementCount）应被拒绝
 HWTEST_F(SmqGuardTest, SmqWriteOutOfRangeOffsetTest, TestSize.Level1)
 {
-    constexpr uint32_t QUEUE_SIZE = 16;
-    SharedMemQueue<uint32_t> sq(QUEUE_SIZE, SmqType::UNSYNC_SMQ);
+    constexpr uint32_t queueSize = 16;
+    SharedMemQueue<uint32_t> sq(queueSize, SmqType::UNSYNC_SMQ);
     ASSERT_TRUE(sq.IsGood());
     auto meta = sq.GetMeta();
     ASSERT_NE(meta, nullptr);
@@ -169,7 +169,7 @@ HWTEST_F(SmqGuardTest, SmqWriteOutOfRangeOffsetTest, TestSize.Level1)
     auto *wPtr = reinterpret_cast<uint64_t *>(reinterpret_cast<uintptr_t>(ptr) +
         (static_cast<int>(wZone->offset) - pageOff));
     // 栽植一个越界的 write offset，模拟恶意客户端写共享内存
-    *wPtr = static_cast<uint64_t>(QUEUE_SIZE) + 1;
+    *wPtr = static_cast<uint64_t>(queueSize) + 1;
 
     uint32_t val = 42;
     int ret = sq.WriteNonBlocking(&val, 1);
@@ -184,23 +184,23 @@ HWTEST_F(SmqGuardTest, SmqWriteOutOfRangeOffsetTest, TestSize.Level1)
 
 HWTEST_F(SmqGuardTest, SmqConcurrentSingleProducerSingleConsumerTest, TestSize.Level1)
 {
-    constexpr uint32_t QUEUE_SIZE = 512;
-    constexpr uint32_t TOTAL = 10000;
+    constexpr uint32_t queueSize = 512;
+    constexpr uint32_t total = 10000;
     std::shared_ptr<SharedMemQueue<uint32_t>> sq =
-        std::make_shared<SharedMemQueue<uint32_t>>(QUEUE_SIZE, SmqType::SYNCED_SMQ);
+        std::make_shared<SharedMemQueue<uint32_t>>(queueSize, SmqType::SYNCED_SMQ);
     ASSERT_TRUE(sq->IsGood());
 
     std::atomic<bool> start{false};
     std::atomic<uint64_t> produced{0};
     std::atomic<uint64_t> consumed{0};
     std::vector<uint32_t> received;
-    received.reserve(TOTAL);
+    received.reserve(total);
 
-    std::thread producer([&]() {
+    std::thread producer([&start, &produced, &sq]() {
         while (!start.load(std::memory_order_acquire)) {
             std::this_thread::yield();
         }
-        for (uint32_t i = 0; i < TOTAL;) {
+        for (uint32_t i = 0; i < total;) {
             int ret = sq->WriteNonBlocking(&i, 1);
             if (ret == 0) {
                 produced.fetch_add(1, std::memory_order_relaxed);
@@ -212,11 +212,11 @@ HWTEST_F(SmqGuardTest, SmqConcurrentSingleProducerSingleConsumerTest, TestSize.L
         }
     });
 
-    std::thread consumer([&]() {
+    std::thread consumer([&start, &consumed, &sq, &received]() {
         while (!start.load(std::memory_order_acquire)) {
             std::this_thread::yield();
         }
-        while (consumed.load(std::memory_order_relaxed) < TOTAL) {
+        while (consumed.load(std::memory_order_relaxed) < total) {
             uint32_t v = 0;
             int ret = sq->ReadNonBlocking(&v, 1);
             if (ret == 0) {
@@ -233,11 +233,11 @@ HWTEST_F(SmqGuardTest, SmqConcurrentSingleProducerSingleConsumerTest, TestSize.L
     producer.join();
     consumer.join();
 
-    ASSERT_EQ(produced.load(), TOTAL);
-    ASSERT_EQ(consumed.load(), TOTAL);
-    ASSERT_EQ(received.size(), TOTAL);
+    ASSERT_EQ(produced.load(), total);
+    ASSERT_EQ(consumed.load(), total);
+    ASSERT_EQ(received.size(), total);
     // 单生产者按序写入，单消费者 FIFO 读出，顺序应严格递增
-    for (uint32_t i = 0; i < TOTAL; ++i) {
+    for (uint32_t i = 0; i < total; ++i) {
         ASSERT_EQ(received[i], i);
     }
 }
