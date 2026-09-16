@@ -196,16 +196,20 @@ static void UsbDdkPnpLoaderMatchHandle(
     const struct UsbPnpNotifyMatchInfoTable *dev, int8_t index, struct UsbPnpMatchIdTable *id, bool flag)
 {
     if ((!id->pnpMatchFlag) && flag) {
-        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_CLASS)) {
+        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_CLASS) &&
+            id->interfaceClassLength < USB_PNP_INFO_MAX_INTERFACES) {
             id->interfaceClass[id->interfaceClassLength++] = dev->interfaceInfo[index].interfaceClass;
         }
-        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_SUBCLASS)) {
+        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_SUBCLASS) &&
+            id->interfaceSubClassLength < USB_PNP_INFO_MAX_INTERFACES) {
             id->interfaceSubClass[id->interfaceSubClassLength++] = dev->interfaceInfo[index].interfaceSubClass;
         }
-        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_PROTOCOL)) {
+        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_PROTOCOL) &&
+            id->interfaceProtocolLength < USB_PNP_INFO_MAX_INTERFACES) {
             id->interfaceProtocol[id->interfaceProtocolLength++] = dev->interfaceInfo[index].interfaceProtocol;
         }
-        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_NUMBER)) {
+        if (!(id->matchFlag & USB_PNP_NOTIFY_MATCH_INT_NUMBER) &&
+            id->interfaceLength < USB_PNP_INFO_MAX_INTERFACES) {
             id->interfaceNumber[id->interfaceLength++] = dev->interfaceInfo[index].interfaceNumber;
         }
     }
@@ -949,6 +953,10 @@ static int32_t UsbDdkPnpLoaderDevice(
 
     if ((infoTable == NULL) || (g_usbPnpMatchIdTable == NULL) || (g_usbPnpMatchIdTable[0] == NULL)) {
         HDF_LOGE("%s:%d infoTable or super or g_usbPnpMatchIdTable is NULL!", __func__, __LINE__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (infoTable->numInfos > USB_PNP_INFO_MAX_INTERFACES) {
+        HDF_LOGE("%s:%d invalid numInfos=%u!", __func__, __LINE__, infoTable->numInfos);
         return HDF_ERR_INVALID_PARAM;
     }
     bool match = false;
