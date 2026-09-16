@@ -364,6 +364,9 @@ static void AudioUsbQueuePendingOutputUrbs(struct AudioUsbEndpoint *endpoint)
         AUDIO_DEVICE_LOG_DEBUG("urbCtx is not null.");
 
         for (index = 0; index < packet->packets; index++) {
+            if (index >= MAX_PACKS_HS) {
+                break;
+            }
             urbCtx->packetSize[index] = packet->packetSize[index];
         }
 
@@ -388,6 +391,10 @@ static void AudioUsbUpdataOutPacket(
     struct AudioUsbPacketInfo *outPacket = NULL;
 
     inUrbCtx = urb->context;
+    if (inUrbCtx == NULL || inUrbCtx->packets > MAX_PACKS_HS) {
+        AUDIO_DEVICE_LOG_ERR("invalid urb context, packets=%d", inUrbCtx == NULL ? -1 : inUrbCtx->packets);
+        return;
+    }
     for (i = 0; i < inUrbCtx->packets; i++) {
         if (urb->iso_frame_desc[i].status == 0) {
             bytes += urb->iso_frame_desc[i].actual_length;
