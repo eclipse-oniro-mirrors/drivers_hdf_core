@@ -71,20 +71,8 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
         return HDF_FAILURE;
     }
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
-    if (hostIf == NULL) {
-        HDF_LOGE("%{public}s: failed to obtain host service proxy", __func__);
-        HdfRemoteServiceRecycle(service);
-        return HDF_ERR_MALLOC_FAIL;
-    }
     DevmgrServicehostClntGetPid(devmgrSvc, (uint16_t)hostId);
-    int32_t ret = devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s: attach device host failed, release hostIf", __func__);
-        DevHostServiceProxyRecycle((struct DevHostServiceProxy *)hostIf);
-        return ret;
-    }
-
-    return HDF_SUCCESS;
+    return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
 }
 
 static int32_t DevmgrServiceStubDispatchAttachDevice(struct IDevmgrService *devmgrSvc, struct HdfSBuf *data)
