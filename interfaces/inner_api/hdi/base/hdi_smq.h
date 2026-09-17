@@ -751,6 +751,10 @@ size_t SharedMemQueue<T>::GetAvalidReadSize()
         HDF_LOGE("GetAvalidReadSize, meta_ is nullptr.");
         return 0;
     }
+    if (readOffset_ == nullptr || writeOffset_ == nullptr) {
+        HDF_LOGE("GetAvalidReadSize, smq is not initialized.");
+        return 0;
+    }
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
     auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + meta_->GetElementCount() + 1 - rOffset);
