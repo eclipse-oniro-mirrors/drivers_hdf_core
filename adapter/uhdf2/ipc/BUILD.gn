@@ -46,6 +46,10 @@ if (defined(ohos_lite)) {
       debug = false
     }
 
+    if (!use_clang_coverage) {
+      version_script = "libhdf_ipc_adapter.versionscript"
+    }
+
     public_configs = [ ":libhdf_ipc_adapter_pub_config" ]
 
     sources = [
