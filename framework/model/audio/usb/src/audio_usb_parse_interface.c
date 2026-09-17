@@ -404,19 +404,26 @@ static void AudioUsbInitRate(
     }
 }
 
-static int32_t AudioUsbParseFormatRates(
-    struct AudioUsbDriver *audioUsbDriver, struct AudioUsbFormat *audioUsbFormat, uint8_t *fmt, int32_t offset)
+static int32_t AudioUsbParseFormatRates(struct AudioUsbDriver *audioUsbDriver,
+    struct AudioUsbFormat *audioUsbFormat, uint8_t *fmt, int32_t offset, int32_t bufLen)
 {
-    int32_t nrRates = fmt[offset];
+    int32_t nrRates;
     int32_t r, idx;
     int32_t temp;
 
+    if (bufLen <= offset) {
+        AUDIO_DRIVER_LOG_ERR("%u:%d : invalid FORMAT_TYPE desc, bufLen=%d offset=%d",
+            audioUsbFormat->iface, audioUsbFormat->altsetting, bufLen, offset);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    nrRates = fmt[offset];
     if (nrRates == 0) {
         nrRates = SAMPLE_RATE_2;
     }
     temp = offset + 1 + SAMPLE_RATE_3 * nrRates;
-    if (fmt[0] < temp) {
-        AUDIO_DRIVER_LOG_ERR("%u:%d : invalid FORMAT_TYPE desc", audioUsbFormat->iface, audioUsbFormat->altsetting);
+    if (bufLen < temp) {
+        AUDIO_DRIVER_LOG_ERR("%u:%d : invalid FORMAT_TYPE desc, bufLen=%d need=%d", audioUsbFormat->iface,
+            audioUsbFormat->altsetting, bufLen, temp);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -461,8 +468,8 @@ static int32_t AudioUsbParseFormatRates(
 }
 
 /* parse the format type I and III descriptors */
-static int32_t AudioUsbParseFormatSub(
-    struct AudioUsbDriver *audioUsbDriver, struct AudioUsbFormat *audioUsbFormat, uint64_t format, void *pFmt)
+static int32_t AudioUsbParseFormatSub(struct AudioUsbDriver *audioUsbDriver,
+    struct AudioUsbFormat *audioUsbFormat, uint64_t format, void *pFmt, int32_t bufLen)
 {
     uint32_t fmtType;
     int32_t ret;
@@ -497,7 +504,7 @@ static int32_t AudioUsbParseFormatSub(
     if (audioUsbFormat->protocol == UAC_VERSION_1) {
         fmt = pFmt;
         audioUsbFormat->channels = fmt->bNrChannels;
-        ret = AudioUsbParseFormatRates(audioUsbDriver, audioUsbFormat, (uint8_t *)fmt, RATE_OFFSET);
+        ret = AudioUsbParseFormatRates(audioUsbDriver, audioUsbFormat, (uint8_t *)fmt, RATE_OFFSET, bufLen);
     } else {
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -512,14 +519,14 @@ static int32_t AudioUsbParseFormatSub(
 }
 
 static int32_t AudioUsbParseFormat(struct AudioUsbDriver *audioUsbDriver, struct AudioUsbFormat *audioUsbFormat,
-    uint64_t format, struct uac_format_type_i_continuous_descriptor *fmt, int32_t stream)
+    uint64_t format, struct uac_format_type_i_continuous_descriptor *fmt, int32_t stream, int32_t bufLen)
 {
     int32_t ret = 0;
 
     switch (fmt->bFormatType) {
         case UAC_FORMAT_TYPE_I:
         case UAC_FORMAT_TYPE_III:
-            ret = AudioUsbParseFormatSub(audioUsbDriver, audioUsbFormat, format, fmt);
+            ret = AudioUsbParseFormatSub(audioUsbDriver, audioUsbFormat, format, fmt, bufLen);
             break;
         case UAC_FORMAT_TYPE_II:
             break;
@@ -674,7 +681,12 @@ static struct AudioUsbFormat *AudioUsbUac12GetFormat(struct AudioUsbDriver *audi
     }
     (void)ParseUacEndpointAttr(alts, uacFmt->protocol, &audioUsbFormat->attributes);
     /* ok, let's parse further... */
-    if (AudioUsbParseFormat(audioUsbDriver, audioUsbFormat, uacFmt->format, fmt, uacFmt->stream) != HDF_SUCCESS) {
+    /* bufLen is the real remaining byte length of the format descriptor within
+     * alts->extra, derived from the buffer boundary instead of the device
+     * reported bLength (which a malicious device can fake to bypass bounds checks). */
+    int32_t bufLen = (int32_t)(alts->extra + alts->extralen - (uint8_t *)fmt);
+    if (AudioUsbParseFormat(audioUsbDriver, audioUsbFormat, uacFmt->format, fmt, uacFmt->stream, bufLen) !=
+        HDF_SUCCESS) {
         AudioUsbFreeFormat(audioUsbFormat);
         return NULL;
     }

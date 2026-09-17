@@ -18,7 +18,10 @@ module_output_path = "hdf_core/hdf_core"
 
 ohos_unittest("HdiSmqTest") {
   module_out_path = module_output_path
-  sources = [ "smq_test.cpp" ]
+  sources = [
+    "smq_test.cpp",
+    "smq_guard_test.cpp",
+  ]
 
   deps = [
     "$hdf_uhdf_path/hdi:libhdi",
