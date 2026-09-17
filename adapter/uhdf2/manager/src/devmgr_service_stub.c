@@ -71,11 +71,6 @@ static int32_t DevmgrServiceStubDispatchAttachDeviceHost(struct IDevmgrService *
         return HDF_FAILURE;
     }
     struct IDevHostService *hostIf = DevHostServiceProxyObtain(hostId, service);
-    if (hostIf == NULL) {
-        HDF_LOGE("%{public}s: failed to obtain host service proxy", __func__);
-        HdfRemoteServiceRecycle(service);
-        return HDF_ERR_MALLOC_FAIL;
-    }
     DevmgrServicehostClntGetPid(devmgrSvc, (uint16_t)hostId);
     return devmgrSvc->AttachDeviceHost(devmgrSvc, hostId, hostIf);
 }
