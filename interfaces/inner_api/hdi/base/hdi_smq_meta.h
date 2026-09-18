@@ -40,6 +40,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cinttypes>
 #include <memory>
 #include <message_parcel.h>
 #include <unistd.h>
@@ -259,12 +260,27 @@ template <typename T>
 SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType type)
     : ashmemFd_(fd), size_(0), elementCount_(elementCount), elementSize_(sizeof(T)), type_(type)
 {
-    // max size UIN32_MAX byte
+    // Reject element counts that would overflow the element size computation or
+    // exceed the addressable shared memory size. Use 64-bit intermediate values
+    // to avoid 32-bit wraparound (the previous UINT32_MAX/elementSize_ check only
+    // guarded the multiplication against uint32 overflow, but on 32-bit ABI the
+    // subsequent (elementCount_ + 1) * elementSize_ still wrapped).
+    if (elementCount_ == 0) {
+        HDF_LOGE("invalid elementCount=0 for smq meta");
+        return;
+    }
     if (elementCount_ > UINT32_MAX / elementSize_) {
+        HDF_LOGE("elementCount=%{public}" PRIu64 " overflows element size %{public}" PRIu64,
+            static_cast<uint64_t>(elementCount_), static_cast<uint64_t>(elementSize_));
         return;
     }
 
-    size_t dataSize = (elementCount_ + 1) * elementSize_; // one more byte to differentiate empty/full status
+    uint64_t dataSize64 = (static_cast<uint64_t>(elementCount_) + 1) * elementSize_; // one more to diff empty/full
+    if (dataSize64 > UINT32_MAX) {
+        HDF_LOGE("smq data size %{public}" PRIu64 " exceeds UINT32_MAX", dataSize64);
+        return;
+    }
+    size_t dataSize = static_cast<size_t>(dataSize64);
     size_t memZoneSize[] = {
         sizeof(uint64_t), // read ptr
         sizeof(uint64_t), // write ptr
