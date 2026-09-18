@@ -106,6 +106,13 @@ int32_t HdfWifiEventInformBssFrame(const struct NetDevice *netDev,
         return HDF_FAILURE;
     }
 
+    if (bssInfo->mgmtLen < (uint32_t)OFFSET_OF(struct Ieee80211Mgmt, u.probeResp.variable) ||
+        bssInfo->mgmtLen < (uint32_t)OFFSET_OF(struct Ieee80211Mgmt, u.beacon.variable)) {
+        HDF_LOGE("%s invalid mgmtLen=%u, drop frame", __func__, bssInfo->mgmtLen);
+        HdfSbufRecycle(data);
+        return HDF_FAILURE;
+    }
+
     ieLen = bssInfo->mgmtLen - (uint32_t)OFFSET_OF(struct Ieee80211Mgmt, u.probeResp.variable);
     beaconLen = bssInfo->mgmtLen - (uint32_t)OFFSET_OF(struct Ieee80211Mgmt, u.beacon.variable);
     if (!HdfSbufWriteString(data, netDev->name) ||
