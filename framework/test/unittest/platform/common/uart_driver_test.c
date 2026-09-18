@@ -15,6 +15,24 @@
 
 static struct UartTestConfig g_config;
 
+static void UartTestReadOptionalConfig(struct UartTestConfig *config, const struct DeviceResourceNode *node)
+{
+    struct DeviceResourceIface *drsOps = NULL;
+
+    drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    if (drsOps == NULL || drsOps->GetUint32 == NULL) {
+        return;
+    }
+    /* optional: peer uart port for board dual-port cross topology */
+    if (drsOps->GetUint32(node, "peer_port", &config->peerPort, UART_TEST_PEER_PORT_NONE) != HDF_SUCCESS) {
+        config->peerPort = UART_TEST_PEER_PORT_NONE;
+    }
+    /* optional: 1 when the port data can be read back (jumper loopback or PC echo) */
+    if (drsOps->GetUint32(node, "loopback", &config->loopback, 0) != HDF_SUCCESS) {
+        config->loopback = 0;
+    }
+}
+
 static int32_t UartTestDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     (void)client;
@@ -34,6 +52,15 @@ static int32_t UartTestDispatch(struct HdfDeviceIoClient *client, int cmd, struc
         }
         if (!HdfSbufWriteBuffer(reply, g_config.wbuf, g_config.len)) {
             HDF_LOGE("UartTestDispatch: write config wbuf fail!");
+            return HDF_ERR_IO;
+        }
+        /* optional fields appended for newer user-side tests, kept last for compatibility */
+        if (!HdfSbufWriteUint32(reply, g_config.peerPort)) {
+            HDF_LOGE("UartTestDispatch: write peer port fail!");
+            return HDF_ERR_IO;
+        }
+        if (!HdfSbufWriteUint32(reply, g_config.loopback)) {
+            HDF_LOGE("UartTestDispatch: write loopback fail!");
             return HDF_ERR_IO;
         }
     } else {
@@ -87,6 +114,7 @@ static int32_t UartTestReadConfig(struct UartTestConfig *config, const struct De
         config->wbuf[i] = tmp[i];
     }
     OsalMemFree(tmp);
+    UartTestReadOptionalConfig(config, node);
     return HDF_SUCCESS;
 }
 
