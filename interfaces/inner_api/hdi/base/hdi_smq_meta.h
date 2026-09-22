@@ -45,10 +45,14 @@
 #include <message_parcel.h>
 #include <unistd.h>
 #include "securec.h"
+#include "hdf_log.h"
 
 #ifndef HDF_LOG_TAG
 #define HDF_LOG_TAG smq
 #endif
+
+constexpr uint32_t SHAREDMEMQUEUEMETA_TAG = 0x01;
+constexpr uint64_t SHAREDMEMQUEUE_FDSAN_TAG = (static_cast<uint64_t>(LOG_DOMAIN) << 32) | SHAREDMEMQUEUEMETA_TAG;
 
 namespace OHOS {
 namespace HDI {
@@ -240,10 +244,11 @@ SharedMemQueueMeta<T> &SharedMemQueueMeta<T>::operator=(const SharedMemQueueMeta
 {
     if (this != &other) {
         if (ashmemFd_ >= 0) {
-            close(ashmemFd_);
+            fdsan_close_with_tag(ashmemFd_, SHAREDMEMQUEUE_FDSAN_TAG);
             ashmemFd_ = -1;
         }
         ashmemFd_ = dup(other.ashmemFd_);
+        fdsan_exchange_owner_tag(ashmemFd_, 0, SHAREDMEMQUEUE_FDSAN_TAG);
         size_ = other.size_;
         elementCount_ = other.elementCount_;
         elementSize_ = other.elementSize_;
@@ -260,6 +265,7 @@ template <typename T>
 SharedMemQueueMeta<T>::SharedMemQueueMeta(int fd, size_t elementCount, SmqType type)
     : ashmemFd_(fd), size_(0), elementCount_(elementCount), elementSize_(sizeof(T)), type_(type)
 {
+    fdsan_exchange_owner_tag(ashmemFd_, 0, SHAREDMEMQUEUE_FDSAN_TAG);
     // Reject element counts that would overflow the element size computation or
     // exceed the addressable shared memory size. Use 64-bit intermediate values
     // to avoid 32-bit wraparound (the previous UINT32_MAX/elementSize_ check only
@@ -304,6 +310,7 @@ SharedMemQueueMeta<T>::SharedMemQueueMeta(const SharedMemQueueMeta<T> &other)
     if (ashmemFd_ < 0) {
         HDF_LOGW("failed to dup ashmem fd for smq");
     }
+    fdsan_exchange_owner_tag(ashmemFd_, 0, SHAREDMEMQUEUE_FDSAN_TAG);
     elementCount_ = other.elementCount_;
     elementSize_ = other.elementSize_;
     size_ = other.size_;
@@ -317,7 +324,7 @@ template <typename T>
 SharedMemQueueMeta<T>::~SharedMemQueueMeta()
 {
     if (ashmemFd_ >= 0) {
-        close(ashmemFd_);
+        fdsan_close_with_tag(ashmemFd_, SHAREDMEMQUEUE_FDSAN_TAG);
         ashmemFd_ = -1;
     }
     ashmemFd_ = -1;
@@ -332,10 +339,11 @@ template <typename T>
 void SharedMemQueueMeta<T>::SetFd(int fd)
 {
     if (ashmemFd_ >= 0) {
-        close(ashmemFd_);
+        fdsan_close_with_tag(ashmemFd_, SHAREDMEMQUEUE_FDSAN_TAG);
         ashmemFd_ = -1;
     }
     ashmemFd_ = fd;
+    fdsan_exchange_owner_tag(ashmemFd_, 0, SHAREDMEMQUEUE_FDSAN_TAG);
 }
 
 /**
