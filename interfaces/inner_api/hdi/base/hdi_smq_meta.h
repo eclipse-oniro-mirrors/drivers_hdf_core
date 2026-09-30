@@ -51,8 +51,10 @@
 #define HDF_LOG_TAG smq
 #endif
 
+#define SMQ_FDSAN_DOMAIN 0x2510
+
 constexpr uint32_t SHAREDMEMQUEUEMETA_TAG = 0x01;
-constexpr uint64_t SHAREDMEMQUEUE_FDSAN_TAG = (static_cast<uint64_t>(LOG_DOMAIN) << 32) | SHAREDMEMQUEUEMETA_TAG;
+constexpr uint64_t SHAREDMEMQUEUE_FDSAN_TAG = (static_cast<uint64_t>(SMQ_FDSAN_DOMAIN) << 32) | SHAREDMEMQUEUEMETA_TAG;
 
 namespace OHOS {
 namespace HDI {
