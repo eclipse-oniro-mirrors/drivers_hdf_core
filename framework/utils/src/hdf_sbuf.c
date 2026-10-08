@@ -251,7 +251,8 @@ bool HdfSbufWriteString(struct HdfSBuf *sbuf, const char *value)
     return sbuf->impl->writeString(sbuf->impl, value);
 }
 
-bool HdfSbufWriteString16(struct HdfSBuf *sbuf, const char16_t *value, uint32_t size)
+__attribute__((no_sanitize("cfi"))) bool HdfSbufWriteString16(struct HdfSBuf *sbuf,
+    const char16_t *value, uint32_t size)
 {
     HDF_SBUF_IMPL_CHECK_RETURN(sbuf, writeString16, false);
     return sbuf->impl->writeString16(sbuf->impl, value, size);
@@ -317,7 +318,7 @@ bool HdfSBufWriteString16(struct HdfSBuf *sbuf, const char16_t *value, uint32_t 
     return sbuf->impl->writeString16(sbuf->impl, value, size);
 }
 
-const char16_t *HdfSbufReadString16(struct HdfSBuf *sbuf)
+__attribute__((no_sanitize("cfi"))) const char16_t *HdfSbufReadString16(struct HdfSBuf *sbuf)
 {
     HDF_SBUF_IMPL_CHECK_RETURN(sbuf, readString16, NULL);
     return sbuf->impl->readString16(sbuf->impl);
