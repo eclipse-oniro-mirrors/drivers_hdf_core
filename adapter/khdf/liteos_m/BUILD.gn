@@ -64,6 +64,8 @@ config("hdf_config") {
     "//commonlibrary/utils_lite/include",
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
     "osal/include",
+    "osal/cmsis/include",
+    "osal/extend",
     "$HDF_FRAMEWORKS_PATH/include",
     "$HDF_FRAMEWORKS_PATH/include/osal",
     "$HDF_FRAMEWORKS_PATH/include/utils",

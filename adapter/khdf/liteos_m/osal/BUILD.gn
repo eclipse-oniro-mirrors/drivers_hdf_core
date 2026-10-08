@@ -29,16 +29,18 @@
 
 import("./../hdf.gni")
 
+# OSAL for liteos_m. The CMSIS-RTOS2 implementation lives under cmsis/.
+# This target aggregates the cmsis implementation so the top-level
+# hdf_lite (in liteos_m/BUILD.gn, which deps "osal") picks it up.
 module_switch = defined(LOSCFG_DRIVERS_HDF)
 hdf_driver("hdf_osal_lite") {
-  sources = [
-    "src/osal_mem.c",
-    "src/osal_mutex.c",
-    "src/osal_sem.c",
-    "src/osal_spinlock.c",
-    "src/osal_thread.c",
-    "src/osal_time.c",
-    "src/osal_timer.c",
+  deps = [ "cmsis" ]
+}
+
+config("public") {
+  include_dirs = [
+    "include",
+    "cmsis/include",
+    "extend",
   ]
-  deps = [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_static" ]
 }
