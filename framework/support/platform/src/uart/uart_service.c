@@ -95,10 +95,9 @@ static int32_t UartIoSetBaud(struct UartHost *host, struct HdfSBuf *data)
 
 static int32_t UartIoGetAttribute(struct UartHost *host, struct HdfSBuf *reply)
 {
-    int32_t ret;
-    struct UartAttribute attribute;
+    struct UartAttribute attribute = {0};
 
-    ret = UartHostGetAttribute(host, &attribute);
+    int32_t ret = UartHostGetAttribute(host, &attribute);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("UartIoGetAttribute: uart get attribute fail, ret: %d!", ret);
         return ret;
