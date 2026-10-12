@@ -48,6 +48,12 @@ using namespace testing::ext;
 #define HCS_VAL_UINT16_SIZE         2
 #define HCS_VAL_UINT32_SIZE         4
 #define HCS_VAL_UINT64_SIZE         8
+#define HCS_BITS_PER_BYTE            8
+#define HCS_BYTE_MASK                0xFF
+#define HCS_SHIFT_1BYTE              (HCS_VAL_UINT8_SIZE * HCS_BITS_PER_BYTE)
+#define HCS_SHIFT_2BYTE              (HCS_VAL_UINT16_SIZE * HCS_BITS_PER_BYTE)
+#define HCS_SHIFT_3BYTE              ((HCS_VAL_UINT32_SIZE - 1) * HCS_BITS_PER_BYTE)
+#define HCS_NULL_TERM_SIZE           1
 #define HCS_PREFIX_AND_U8_LEN       (HCS_PREFIX_LENGTH + HCS_VAL_UINT8_SIZE)
 #define HCS_PREFIX_AND_U16_LEN     (HCS_PREFIX_LENGTH + HCS_VAL_UINT16_SIZE)
 #define HCS_PREFIX_AND_U32_LEN     (HCS_PREFIX_LENGTH + HCS_VAL_UINT32_SIZE)
@@ -84,18 +90,18 @@ static void HcsTestMakeUint16Value(char *buf, size_t bufLen, uint16_t val)
 {
     (void)memset_s(buf, bufLen, 0, bufLen);
     buf[0] = static_cast<char>(CONFIG_WORD);
-    buf[1] = static_cast<char>(val & 0xFF);
-    buf[HCS_VAL_UINT16_SIZE] = static_cast<char>((val >> 8) & 0xFF);
+    buf[1] = static_cast<char>(val & HCS_BYTE_MASK);
+    buf[HCS_VAL_UINT16_SIZE] = static_cast<char>((val >> HCS_SHIFT_1BYTE) & HCS_BYTE_MASK);
 }
 
 static void HcsTestMakeUint32Value(char *buf, size_t bufLen, uint32_t val)
 {
     (void)memset_s(buf, bufLen, 0, bufLen);
     buf[0] = static_cast<char>(CONFIG_DWORD);
-    buf[1] = static_cast<char>(val & 0xFF);
-    buf[HCS_VAL_UINT16_SIZE] = static_cast<char>((val >> 8) & 0xFF);
-    buf[HCS_VAL_UINT32_SIZE - 1] = static_cast<char>((val >> 16) & 0xFF);
-    buf[HCS_VAL_UINT32_SIZE] = static_cast<char>((val >> 24) & 0xFF);
+    buf[1] = static_cast<char>(val & HCS_BYTE_MASK);
+    buf[HCS_VAL_UINT16_SIZE] = static_cast<char>((val >> HCS_SHIFT_1BYTE) & HCS_BYTE_MASK);
+    buf[HCS_VAL_UINT32_SIZE - 1] = static_cast<char>((val >> HCS_SHIFT_2BYTE) & HCS_BYTE_MASK);
+    buf[HCS_VAL_UINT32_SIZE] = static_cast<char>((val >> HCS_SHIFT_3BYTE) & HCS_BYTE_MASK);
 }
 
 static void HcsTestMakeUint64Value(char *buf, size_t bufLen, uint64_t val)
@@ -103,7 +109,7 @@ static void HcsTestMakeUint64Value(char *buf, size_t bufLen, uint64_t val)
     (void)memset_s(buf, bufLen, 0, bufLen);
     buf[0] = static_cast<char>(CONFIG_QWORD);
     for (size_t i = 0; i < HCS_VAL_UINT64_SIZE; i++) {
-        buf[i + 1] = static_cast<char>((val >> (i * HCS_VAL_UINT8_SIZE * HCS_VAL_UINT8_SIZE)) & 0xFF);
+        buf[i + 1] = static_cast<char>((val >> (i * HCS_BITS_PER_BYTE)) & HCS_BYTE_MASK);
     }
 }
 
@@ -125,8 +131,8 @@ static void HcsTestMakeUint8ArrayValue(char *buf, size_t bufLen, const uint8_t *
     (void)memset_s(buf, bufLen, 0, bufLen);
     size_t offset = 0;
     buf[offset++] = static_cast<char>(CONFIG_ARRAY);
-    buf[offset++] = static_cast<char>(count & 0xFF);
-    buf[offset++] = static_cast<char>((count >> 8) & 0xFF);
+    buf[offset++] = static_cast<char>(count & HCS_BYTE_MASK);
+    buf[offset++] = static_cast<char>((count >> HCS_SHIFT_1BYTE) & HCS_BYTE_MASK);
     for (uint16_t i = 0; i < count && offset + HCS_PREFIX_AND_U8_LEN < bufLen; i++) {
         buf[offset++] = static_cast<char>(CONFIG_BYTE);
         buf[offset++] = static_cast<char>(vals[i]);
@@ -138,12 +144,12 @@ static void HcsTestMakeStringArrayValue(char *buf, size_t bufLen, const char **s
     (void)memset_s(buf, bufLen, 0, bufLen);
     size_t offset = 0;
     buf[offset++] = static_cast<char>(CONFIG_ARRAY);
-    buf[offset++] = static_cast<char>(count & 0xFF);
-    buf[offset++] = static_cast<char>((count >> 8) & 0xFF);
+    buf[offset++] = static_cast<char>(count & HCS_BYTE_MASK);
+    buf[offset++] = static_cast<char>((count >> HCS_SHIFT_1BYTE) & HCS_BYTE_MASK);
     for (uint16_t i = 0; i < count; i++) {
         buf[offset++] = static_cast<char>(CONFIG_STRING);
         size_t slen = strlen(strs[i]);
-        if (offset + slen + 1 > bufLen) {
+        if (offset + slen + HCS_NULL_TERM_SIZE > bufLen) {
             break;
         }
         if (memcpy_s(buf + offset, bufLen - offset, strs[i], slen) != EOK) {
@@ -191,11 +197,13 @@ static void HcsTestBuildNode(void)
     HcsTestInitAttr(&g_u64Attr, HCS_TEST_ATTR_NAME_U64, vbuf, HCS_PREFIX_AND_U64_LEN);
 
     HcsTestMakeStringValue(vbuf, sizeof(vbuf), HCS_TEST_STRING_VALUE);
-    HcsTestInitAttr(&g_strAttr, HCS_TEST_ATTR_NAME_STR, vbuf, strlen(HCS_TEST_STRING_VALUE) + HCS_STRING_PREFIX_AND_TERM);
+    size_t strLen = strlen(HCS_TEST_STRING_VALUE) + HCS_STRING_PREFIX_AND_TERM;
+    HcsTestInitAttr(&g_strAttr, HCS_TEST_ATTR_NAME_STR, vbuf, strLen);
 
     uint8_t arrVals[HCS_TEST_ARRAY_COUNT] = {HCS_TEST_ARRAY_ELEM0, HCS_TEST_ARRAY_ELEM1, HCS_TEST_ARRAY_ELEM2};
     HcsTestMakeUint8ArrayValue(vbuf, sizeof(vbuf), arrVals, HCS_TEST_ARRAY_COUNT);
-    HcsTestInitAttr(&g_arrAttr, HCS_TEST_ATTR_NAME_ARR, vbuf, HCS_ARRAY_HEADER_SIZE + HCS_TEST_ARRAY_COUNT * HCS_PREFIX_AND_U8_LEN);
+    size_t arrLen = HCS_ARRAY_HEADER_SIZE + HCS_TEST_ARRAY_COUNT * HCS_PREFIX_AND_U8_LEN;
+    HcsTestInitAttr(&g_arrAttr, HCS_TEST_ATTR_NAME_ARR, vbuf, arrLen);
 
     g_boolAttr.attr.next = &g_u8Attr.attr;
     g_u8Attr.attr.next = &g_u16Attr.attr;
