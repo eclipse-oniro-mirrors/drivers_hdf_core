@@ -6,15 +6,15 @@
 
 ## Introduction<a name="section11660541593"></a>
 
-This repository stores the code and compilation scripts for the OpenHarmony driver subsystem to adapt to the liteos\_m kernel and to deploy the hardware driver foundation \(HDF\).
+This repository stores the code and compilation scripts for the OpenHarmony driver subsystem to adapt to the liteos\_m kernel and to deploy the hardware driver foundation \(HDF\). The OSAL is implemented on top of CMSIS-RTOS2 and routed by the central khdf\_dispatch.gni according to ohos\_kernel\_type; small RTOS kernels (liteos\_m/freertos/rtthread) share this directory's CMSIS OSAL.
 
 ## Directory Structure<a name="section161941989596"></a>
 
 ```
 /drivers/hdf_core/adapter/khdf/liteos_m
-├── core                 # Driver code for adapting to the LiteOS Cortex-M kernel
+├── core                 # Driver code for adapting to the liteos_m kernel
 ├── hcs                  # Script for compiling the HDF configuration source (HCS) file
-├── osal                 # System APIs for adapting to the LiteOS Cortex-M kernel
+├── osal                 # CMSIS-RTOS2 based system APIs shared by small RTOS kernels
 └── test                 # Test code for the kernel driver framework
 ```
 
