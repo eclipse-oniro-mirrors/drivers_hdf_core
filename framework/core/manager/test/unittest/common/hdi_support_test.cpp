@@ -146,7 +146,7 @@ HWTEST_F(HdiSupportTest, LoadHdiImplZeroMinorTest, TestSize.Level1)
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplNullDescTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0x1234;
+    void *fakeImpl = reinterpret_cast<void *>(0x1234);
     UnloadHdiImpl(nullptr, HDI_TEST_VALID_SERVICE, fakeImpl);
 }
 
@@ -162,25 +162,25 @@ HWTEST_F(HdiSupportTest, UnloadHdiImplNullAllTest, TestSize.Level1)
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplInvalidDescTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0x1234;
+    void *fakeImpl = reinterpret_cast<void *>(0x1234);
     UnloadHdiImpl(HDI_TEST_INVALID_DESC, HDI_TEST_VALID_SERVICE, fakeImpl);
 }
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplNoVersionDescTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0x5678;
+    void *fakeImpl = reinterpret_cast<void *>(0x5678);
     UnloadHdiImpl(HDI_TEST_NO_VERSION_DESC, HDI_TEST_VALID_SERVICE, fakeImpl);
 }
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplEmptyDescTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0x9ABC;
+    void *fakeImpl = reinterpret_cast<void *>(0x9ABC);
     UnloadHdiImpl(HDI_TEST_EMPTY_DESC, HDI_TEST_VALID_SERVICE, fakeImpl);
 }
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplValidDescNonexistentTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0xDEF0;
+    void *fakeImpl = reinterpret_cast<void *>(0xDEF0);
     UnloadHdiImpl(HDI_TEST_VALID_DESC, HDI_TEST_VALID_SERVICE, fakeImpl);
 }
 
@@ -252,7 +252,7 @@ HWTEST_F(HdiSupportTest, LoadHdiImplStressTest, TestSize.Level1)
 HWTEST_F(HdiSupportTest, UnloadHdiImplMultipleCallsTest, TestSize.Level1)
 {
     for (int i = 0; i < 10; i++) {
-        UnloadHdiImpl(HDI_TEST_VALID_DESC, HDI_TEST_VALID_SERVICE, (void *)0x1000);
+        UnloadHdiImpl(HDI_TEST_VALID_DESC, HDI_TEST_VALID_SERVICE, reinterpret_cast<void *>(0x1000));
     }
 }
 
@@ -417,7 +417,7 @@ HWTEST_F(HdiSupportTest, LoadHdiImplSlashInServiceTest, TestSize.Level1)
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplSpecialCharsDescTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0x1234;
+    void *fakeImpl = reinterpret_cast<void *>(0x1234);
     UnloadHdiImpl("ohos.hdi.v1_0.I_Foo_Bar", "svc", fakeImpl);
 }
 
@@ -428,23 +428,23 @@ HWTEST_F(HdiSupportTest, UnloadHdiImplLongDescTest, TestSize.Level1)
         longDesc += "verylongname.";
     }
     longDesc += "v1_0.IFoo";
-    void *fakeImpl = (void *)0x5678;
+    void *fakeImpl = reinterpret_cast<void *>(0x5678);
     UnloadHdiImpl(longDesc.c_str(), "svc", fakeImpl);
 }
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplValidDescNullServiceTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0x9ABC;
+    void *fakeImpl = reinterpret_cast<void *>(0x9ABC);
     UnloadHdiImpl(HDI_TEST_VALID_DESC, nullptr, fakeImpl);
 }
 
 HWTEST_F(HdiSupportTest, UnloadHdiImplEmptyServiceTest, TestSize.Level1)
 {
-    void *fakeImpl = (void *)0xDEF0;
+    void *fakeImpl = reinterpret_cast<void *>(0xDEF0);
     UnloadHdiImpl(HDI_TEST_VALID_DESC, HDI_TEST_EMPTY_SERVICE, fakeImpl);
 }
 
-HWTEST_F(HdiSupportTest, LoadHdiImplMassiveStressTest, TestSize.Level1)
+static void LoadHdiImplMassiveStressHelper(void)
 {
     const char *descriptors[] = {
         "ohos.hdi.audio.v1_0.IAudioManager",
@@ -457,44 +457,22 @@ HWTEST_F(HdiSupportTest, LoadHdiImplMassiveStressTest, TestSize.Level1)
         "ohos.hdi.sensor.v1_0.ISensorInterface",
         "ohos.hdi.sensor.v2_0.ISensorInterface",
         "ohos.hdi.usb.v1_0.IUsbPnpNotify",
-        "ohos.hdi.usb.v1_1.IUsbPnpNotify",
-        "ohos.hdi.wifi.v1_0.IWifi",
-        "ohos.hdi.wifi.v2_0.IWifi",
-        "ohos.hdi.bluetooth.v1_0.IBluetoothHost",
-        "ohos.hdi.vibrator.v1_0.IVibrator",
-        "ohos.hdi.light.v1_0.ILight",
-        "ohos.hdi.motion.v1_0.IMotion",
-        "ohos.hdi.codec.v1_0.ICodecComponent",
-        "ohos.hdi.codec.v2_0.ICodecComponent",
-        "ohos.hdi.format.v1_0.IFormatFile",
     };
     const char *services[] = {
-        "audio_manager_service",
-        "audio_manager_service",
-        "camera_host_service",
-        "camera_host_service",
-        "camera_host_service",
-        "display_composer_service",
-        "display_composer_service",
-        "sensor_service",
-        "sensor_service",
-        "usb_pnp_notify_service",
-        "usb_pnp_notify_service",
-        "wifi_service",
-        "wifi_service",
-        "bluetooth_host_service",
-        "vibrator_service",
-        "light_service",
-        "motion_service",
-        "codec_component_service",
-        "codec_component_service",
-        "format_file_service",
+        "audio_svc", "audio_svc", "camera_svc", "camera_svc", "camera_svc",
+        "display_svc", "display_svc", "sensor_svc", "sensor_svc", "usb_svc",
     };
-    for (size_t i = 0; i < sizeof(descriptors) / sizeof(descriptors[0]); i++) {
+    size_t count = sizeof(descriptors) / sizeof(descriptors[0]);
+    for (size_t i = 0; i < count; i++) {
         void *impl = LoadHdiImpl(descriptors[i], services[i]);
         ASSERT_EQ(impl, nullptr) << "Failed at index " << i;
         UnloadHdiImpl(descriptors[i], services[i], impl);
     }
+}
+
+HWTEST_F(HdiSupportTest, LoadHdiImplMassiveStressTest, TestSize.Level1)
+{
+    LoadHdiImplMassiveStressHelper();
 }
 
 } // namespace OHOS

@@ -18,11 +18,9 @@
 
 #include "hdf_device_object.h"
 #include "hdf_device_desc.h"
-
-extern "C" {
 #include "hdf_pm.h"
-int HdfDeviceObjectRemoveService(struct HdfDeviceObject *dev);
-}
+
+extern "C" int HdfDeviceObjectRemoveService(struct HdfDeviceObject *dev);
 
 #include "hdf_base.h"
 #include "hdf_core_log.h"
