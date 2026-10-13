@@ -84,6 +84,7 @@ group("unittest") {
     "./../../../../adapter/uhdf2/hdi/test/buffer_handle:hdi_buffer_handle_test",
     "object_collector:object_collector_test",
     "smq_test:HdiSmqTest",
+    "smq_test:HdiSmqUnitTest",
     "stub_collector:stub_collector_test",
   ]
 }

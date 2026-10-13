@@ -46,3 +46,22 @@ ohos_unittest("HdiSmqTest") {
     "ipc:ipc_single",
   ]
 }
+
+ohos_unittest("HdiSmqUnitTest") {
+  module_out_path = module_output_path
+  sources = [ "smq_unit_test.cpp" ]
+
+  deps = [
+    "$hdf_uhdf_path/hdi:libhdi",
+    "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
+    "$hdf_uhdf_path/utils:libhdf_utils",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+}
