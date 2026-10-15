@@ -110,9 +110,9 @@ config DRIVERS_HDF_PLATFORM_SDIO
 
 config DRIVERS_HDF_PLATFORM_DMAC
     bool "Enable HDF platform dmac driver"
-        default n
+    default n
     depends on DRIVERS_HDF_PLATFORM
-        help
+    help
       Answer Y to enable HDF platform dmac driver.
 
 config DRIVERS_HDF_PLATFORM_MIPI_DSI
@@ -178,7 +178,6 @@ config DRIVERS_HDF_WIFI
     help
       Answer Y to enable HDF WiFi Host driver.
 
-endif
 config DRIVERS_HDF_PLATFORM_REGULATOR
     bool "Enable HDF platform regulator driver"
     default n
@@ -187,3 +186,4 @@ config DRIVERS_HDF_PLATFORM_REGULATOR
       Answer Y to enable HDF platform regulator driver.
 
 source "../../drivers/hdf_core/adapter/khdf/liteos_m/model/storage/Kconfig"
+endif
