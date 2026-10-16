@@ -39,21 +39,18 @@ choice
 
   config DRIVERS_HDF_WLAN_SDIO
     bool "Enable HDF WLAN Sdio Host driver"
-    default n
     depends on DRIVERS_HDF_PLATFORM_SDIO
     help
       Answer Y to enable HDF WLAN Sdio Host driver.
 
   config DRIVERS_HDF_WLAN_USB
     bool "Enable HDF WLAN Usb Host driver"
-    default n
     depends on DRIVERS_HDF_USB_PNP_NOTIFY
     help
       Answer Y to enable HDF WLAN Usb Host driver.
 
   config DRIVERS_HDF_WLAN_PCIE
     bool "Enable HDF WLAN Pcie Host driver"
-    default n
     depends on DRIVERS_HDF_PLATFORM_PCIE
     help
       Answer Y to enable HDF WLAN Pcie Host driver.
