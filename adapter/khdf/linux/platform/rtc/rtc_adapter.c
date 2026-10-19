@@ -47,6 +47,7 @@ static inline void LinuxTimeToHdfTime(struct RtcTime *hdfTime, const struct rtc_
     hdfTime->month = linuxTime->tm_mon + MONTH_DIFF;
     hdfTime->year = linuxTime->tm_year + YEAR_BASE;
     hdfTime->weekday = linuxTime->tm_wday;
+    hdfTime->millisecond = 0;
 }
 
 static inline struct rtc_device *HdfGetRtcDevice(void)
