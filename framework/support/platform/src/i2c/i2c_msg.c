@@ -10,9 +10,12 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include "hdf_sbuf.h"
 #include "i2c_msg.h"
 #include "i2c_service.h"
 #include "osal_mem.h"
+
+#define I2C_MAX_BUFFER_SIZE 0x100000
 
 int32_t AssignReplayBuffer(uint32_t lenReply, uint8_t **bufReply, struct I2cMsg *msgs, int16_t count)
 {
@@ -64,6 +67,11 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
         msgs[i].buf = NULL;
         msgs[i].flags = userMsgs->flags;
         if ((msgs[i].flags & I2C_FLAG_READ) != 0) {
+            if (lenReply > 0xFFFFFFFFu - msgs[i].len) {
+                HDF_LOGE("RebuildMsgs: lenReply overflow!");
+                OsalMemFree(msgs);
+                return HDF_ERR_INVALID_PARAM;
+            }
             lenReply += msgs[i].len;
         } else if ((!HdfSbufReadBuffer(data, (const void **)&buf, &len)) || (buf == NULL)) {
             HDF_LOGE("RebuildMsgs: read msg[%d] buf fail!", i);
@@ -71,6 +79,12 @@ static int32_t RebuildMsgs(struct HdfSBuf *data, struct I2cMsg **outMsgs, int16_
             msgs[i].len = len;
             msgs[i].buf = buf;
         }
+    }
+
+    if (lenReply > I2C_MAX_BUFFER_SIZE) {
+        HDF_LOGE("RebuildMsgs: lenReply %u too large!", lenReply);
+        OsalMemFree(msgs);
+        return HDF_ERR_INVALID_PARAM;
     }
 
     if (lenReply > 0 && AssignReplayBuffer(lenReply, bufReply, msgs, count) != HDF_SUCCESS) {
@@ -88,6 +102,11 @@ int32_t I2cMsgsRebuildFromSbuf(struct HdfSBuf *data, struct I2cMsg **msgs, int16
     int16_t msgCount = 0;
     struct I2cMsg *builtMsgs = NULL;
     int32_t ret;
+
+    if (data == NULL || msgs == NULL || count == NULL) {
+        HDF_LOGE("I2cMsgsRebuildFromSbuf: invalid param!");
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     if (!HdfSbufReadInt16(data, &msgCount)) {
         HDF_LOGE("I2cMsgsRebuildFromSbuf: read count fail!");

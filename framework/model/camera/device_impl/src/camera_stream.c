@@ -598,6 +598,10 @@ int32_t CameraQueryMemory(struct CommonDevice *comDev)
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.planeCount);
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &flag);
     userBuffer.planes = userPlane;
+    if (userBuffer.planeCount > 1) {
+        HDF_LOGE("%s: planeCount %u exceeds max %d", __func__, userBuffer.planeCount, 1);
+        return HDF_ERR_INVALID_PARAM;
+    }
     CHECK_RETURN_RET(isFailed);
     ret = CameraDeviceQueryMemory(comDev->camDev, comDev->driverName, comDev->camId, &userBuffer, flag);
     if (ret != HDF_SUCCESS) {
@@ -662,6 +666,10 @@ int32_t CameraStreamQueue(struct CommonDevice *comDev)
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.id);
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.planeCount);
     userBuffer.planes = userPlane;
+    if (userBuffer.planeCount > 1) {
+        HDF_LOGE("%s: planeCount %u exceeds max %d", __func__, userBuffer.planeCount, 1);
+        return HDF_ERR_INVALID_PARAM;
+    }
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.planes[0].length);
     if (userBuffer.memType == MEMTYPE_USERPTR) {
         isFailed |= !HdfSbufReadUint64(comDev->reqData, &userBuffer.planes[0].memory.userPtr);
@@ -711,6 +719,10 @@ int32_t CameraStreamDeQueue(struct CommonDevice *comDev)
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.memType);
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.planeCount);
     userBuffer.planes = userPlane;
+    if (userBuffer.planeCount > 1) {
+        HDF_LOGE("%s: planeCount %u exceeds max %d", __func__, userBuffer.planeCount, 1);
+        return HDF_ERR_INVALID_PARAM;
+    }
     isFailed |= !HdfSbufReadUint32(comDev->reqData, &userBuffer.flags);
     CHECK_RETURN_RET(isFailed);
 
