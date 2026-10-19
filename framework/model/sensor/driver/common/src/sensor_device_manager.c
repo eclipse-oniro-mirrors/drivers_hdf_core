@@ -103,7 +103,9 @@ int32_t ReportSensorEvent(const struct SensorReportEvent *events)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if (!HdfSbufWriteBuffer(msg, events, sizeof(*events))) {
+    struct SensorReportEvent eventsTmp = *events;
+    eventsTmp.data = NULL;
+    if (!HdfSbufWriteBuffer(msg, &eventsTmp, sizeof(eventsTmp))) {
         HDF_LOGE("%s: sbuf write event failed", __func__);
         ret = HDF_FAILURE;
         goto EXIT;
@@ -249,7 +251,9 @@ static int32_t ReadData(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *dat
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufWriteBuffer(reply, &events, sizeof(events))) {
+    struct SensorReportEvent eventsTmp = events;
+    eventsTmp.data = NULL;
+    if (!HdfSbufWriteBuffer(reply, &eventsTmp, sizeof(eventsTmp))) {
         HDF_LOGE("%s: sbuf write event failed", __func__);
         return HDF_FAILURE;
     }
