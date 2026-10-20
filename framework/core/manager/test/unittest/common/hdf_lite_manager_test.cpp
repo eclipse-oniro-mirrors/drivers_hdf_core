@@ -53,6 +53,16 @@ HWTEST_F(HdfManagerTest, HdfIoServiceBind001, TestSize.Level0)
 {
     const char *svcName = "khdf_ut";
     struct HdfIoService *hdfSvc = HdfIoServiceBind(svcName);
+    if (hdfSvc == nullptr) {
+        // "khdf_ut" is the kernel-mode HDF unit test service, which does not exist on
+        // userspace HDF (uhdf) builds. Skip only when the framework itself is healthy
+        // (the device manager node can still be bound); otherwise keep failing below.
+        struct HdfIoService *mgrSvc = HdfIoServiceBind(DEV_MGR_NODE);
+        if (mgrSvc != nullptr) {
+            HdfIoServiceRecycle(mgrSvc);
+            GTEST_SKIP() << "khdf_ut service is not available on this build (userspace HDF)";
+        }
+    }
     EXPECT_TRUE(hdfSvc != nullptr);
     HdfIoServiceRecycle(hdfSvc);
 }
@@ -81,6 +91,11 @@ HWTEST_F(HdfManagerTest, HdfRegisterDevice001, TestSize.Level0)
     int32_t ret = HDF_FAILURE;
     struct HdfSBuf *data = nullptr;
     struct HdfIoService *ioService = HdfIoServiceBind(SAMPLE_SERVICE);
+    if (ioService == nullptr) {
+        // The sample driver (libsample_driver.z.so) is a test-only driver and is not shipped
+        // on all products; skip when its service is not present.
+        GTEST_SKIP() << "sample_service is not available on this product (sample driver not shipped)";
+    }
     ASSERT_TRUE(ioService != nullptr);
     data = HdfSbufObtainDefaultSize();
     EXPECT_TRUE(data != nullptr);
@@ -116,6 +131,15 @@ HWTEST_F(HdfManagerTest, HdfGetServiceNameByDeviceClass001, TestSize.Level0)
 {
     struct HdfSBuf *data = HdfSbufObtain(2000);
     ASSERT_TRUE(data != nullptr);
+
+    // The check below requires the test-only sample driver to be loaded; skip when its
+    // service is not present so the case is not reported as a product defect.
+    struct HdfIoService *sampleSvc = HdfIoServiceBind(SAMPLE_SERVICE);
+    if (sampleSvc == nullptr) {
+        HdfSbufRecycle(data);
+        GTEST_SKIP() << "sample_service is not available on this product (sample driver not shipped)";
+    }
+    HdfIoServiceRecycle(sampleSvc);
 
     bool flag = false;
     for (size_t i = DEVICE_CLASS_DEFAULT; i < DEVICE_CLASS_MAX; i++) {

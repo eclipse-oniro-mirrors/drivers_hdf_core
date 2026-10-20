@@ -65,6 +65,15 @@ static void OsalCreateDir(bool flag)
 }
 void OsalTest::SetUpTestCase()
 {
+    // All cases in this suite are driven through the kernel-mode HDF test service
+    // ("khdf_ut"), which does not exist on userspace HDF (uhdf) builds; skip the whole
+    // suite when the service is absent instead of reporting it as a failure.
+    struct HdfIoService *testService = HdfIoServiceBind(HDF_TEST_SERVICE_NAME);
+    if (testService == nullptr) {
+        GTEST_SKIP() << HDF_TEST_SERVICE_NAME << " service is not available on this build (userspace HDF)";
+    }
+    HdfIoServiceRecycle(testService);
+
     HdfTestOpenService();
     OsalCreateDir(true);
     OSAL_TEST_FUNC_DEFINE(OSAL_TEST_START);
