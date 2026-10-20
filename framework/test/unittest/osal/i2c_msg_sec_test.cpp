@@ -8,13 +8,16 @@
 
 #include <gtest/gtest.h>
 #include <cstring>
+#include "securec.h"
 #include "hdf_sbuf.h"
 #include "i2c_if.h"
 #include "i2c_service.h"
 #include "osal_mem.h"
 
 extern "C" {
-#include "i2c_msg.h"
+int32_t I2cMsgsRebuildFromSbuf(struct HdfSBuf *data, struct I2cMsg **msgs, int16_t *count);
+void I2cMsgsFree(struct I2cMsg *msgs, int16_t count);
+int32_t I2cMsgsWriteToSbuf(struct I2cMsg *msgs, int16_t count, struct HdfSBuf *reply);
 }
 
 using namespace testing::ext;
@@ -59,7 +62,7 @@ static struct HdfSBuf *CreateI2cSbuf(struct I2cMsg *msgs, int16_t count)
 HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildNormalTest001, TestSize.Level1)
 {
     struct I2cMsg msgs[3];
-    memset(msgs, 0, sizeof(msgs));
+    memset_s(msgs, sizeof(msgs), 0, sizeof(msgs));
     for (int i = 0; i < 3; i++) {
         msgs[i].addr = 0x50;
         msgs[i].len = 4;
@@ -130,7 +133,7 @@ HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildUpperBoundTest001, TestSize.Level1)
 {
     const int16_t count = 20;
     struct I2cMsg msgs[count];
-    memset(msgs, 0, sizeof(msgs));
+    memset_s(msgs, sizeof(msgs), 0, sizeof(msgs));
     for (int i = 0; i < count; i++) {
         msgs[i].addr = 0x50;
         msgs[i].len = 0xFFFF;
@@ -153,7 +156,7 @@ HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildUpperBoundTest001, TestSize.Level1)
 HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildSingleLargeMsgTest001, TestSize.Level1)
 {
     struct I2cMsg msgs[1];
-    memset(msgs, 0, sizeof(msgs));
+    memset_s(msgs, sizeof(msgs), 0, sizeof(msgs));
     msgs[0].addr = 0x50;
     msgs[0].len = 0xFFFF;
     msgs[0].flags = I2C_FLAG_READ;
@@ -202,7 +205,7 @@ HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildWriteMsgNormalTest001, TestSize.Level
 {
     struct I2cMsg msgs[1];
     uint8_t buf[4] = {0x01, 0x02, 0x03, 0x04};
-    memset(msgs, 0, sizeof(msgs));
+    memset_s(msgs, sizeof(msgs), 0, sizeof(msgs));
     msgs[0].addr = 0x50;
     msgs[0].len = sizeof(buf);
     msgs[0].flags = 0;
@@ -225,7 +228,7 @@ HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildMixedMsgsNormalTest001, TestSize.Leve
 {
     struct I2cMsg msgs[2];
     uint8_t writeBuf[4] = {0x01, 0x02, 0x03, 0x04};
-    memset(msgs, 0, sizeof(msgs));
+    memset_s(msgs, sizeof(msgs), 0, sizeof(msgs));
     msgs[0].addr = 0x50;
     msgs[0].len = sizeof(writeBuf);
     msgs[0].flags = 0;
@@ -259,7 +262,7 @@ HWTEST_F(I2cMsgsRebuildTest, I2cMsgsRebuildStressTest001, TestSize.Level1)
     for (int iter = 0; iter < 50; iter++) {
         struct I2cMsg msgs[2];
         uint8_t writeBuf[4] = {0x01, 0x02, 0x03, 0x04};
-        memset(msgs, 0, sizeof(msgs));
+        memset_s(msgs, sizeof(msgs), 0, sizeof(msgs));
         msgs[0].addr = 0x50;
         msgs[0].len = sizeof(writeBuf);
         msgs[0].flags = 0;
