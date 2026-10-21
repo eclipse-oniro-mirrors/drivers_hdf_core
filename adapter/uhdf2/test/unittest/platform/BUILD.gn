@@ -28,9 +28,24 @@ ohos_unittest("hdf_adapter_uhdf_test_platform") {
     "$hdf_framework_path/include",
     "$hdf_framework_path/test/unittest/include",
     "$hdf_framework_path/test/unittest/platform/common",
+    "$hdf_framework_path/support/platform/include",
+    "$hdf_framework_path/support/platform/include/i2c",
+    "$hdf_framework_path/support/platform/include/fwk",
+    "$hdf_framework_path/support/platform/src/i2c",
+    "$hdf_framework_path/utils/include",
   ]
 
   defines = [ "__USER__" ]
+  cflags = [
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsigned-char",
+    "-fno-common",
+    "-fno-strict-aliasing",
+    "-fno-lto",
+  ]
+  ldflags = [ "-fno-lto" ]
   sources = [
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_adc_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_gpio_test.cpp",
@@ -38,6 +53,8 @@ ohos_unittest("hdf_adapter_uhdf_test_platform") {
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_pwm_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_rtc_test.cpp",
     "$hdf_framework_path/support/platform/test/unittest/common/hdf_uart_test.cpp",
+    "$hdf_framework_path/support/platform/test/unittest/common/i2c_msg_sec_test.cpp",
+    "$hdf_framework_path/support/platform/src/i2c/i2c_msg.c",
     "$hdf_framework_path/test/unittest/platform/common/adc_test.c",
     "$hdf_framework_path/test/unittest/platform/common/gpio_test.c",
     "$hdf_framework_path/test/unittest/platform/common/i2c_test.c",
@@ -53,14 +70,6 @@ ohos_unittest("hdf_adapter_uhdf_test_platform") {
   ]
   resource_config_file =
       "$hdf_adapter_path/uhdf2/test/resource/platform/ohos_test.xml"
-  cflags = [
-    "-Wall",
-    "-Wextra",
-    "-Werror",
-    "-fsigned-char",
-    "-fno-common",
-    "-fno-strict-aliasing",
-  ]
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
