@@ -11,7 +11,6 @@
 #include "hdf_base.h"
 #include "device_resource_if.h"
 #include "osal_mem.h"
-#include "hdf_disp.h"
 #ifdef HDF_LOG_TAG
 #undef HDF_LOG_TAG
 #endif

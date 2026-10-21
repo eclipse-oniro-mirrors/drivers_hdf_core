@@ -66,10 +66,8 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
 endif
 
 ifneq ($(filter y m,$(CONFIG_DRIVERS_HDF_AUDIO_RK3566)),)
-ifneq ($(wildcard $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/Makefile),)
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3566) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/kaihong/khdvk_3566b/kernel/audio/
-endif
 endif
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \

@@ -41,12 +41,10 @@ static int32_t PowerInit(void)
     return HDF_SUCCESS;
 }
 
-static int32_t LcdkitInit(struct PanelData *panel)
+static int32_t LcdkitInit(void)
 {
     int32_t ret;
     struct PanelConfig *panelCfg = GetPanelCfg();
-
-    (void)panel;
 
     if (panelCfg->info.intfType != MIPI_DSI) {
         HDF_LOGE("%s:not support intf: %u", __func__, panelCfg->info.intfType);
@@ -63,11 +61,14 @@ static int32_t LcdkitInit(struct PanelData *panel)
         HDF_LOGE("%s:MipiDsiOpen failed", __func__);
         return HDF_FAILURE;
     }
+
     if (panelCfg->info.blk.type == BLK_PWM) {
         panelCfg->pwmHandle = PwmOpen(panelCfg->info.pwm.dev);
         if (panelCfg->pwmHandle == NULL) {
-            HDF_LOGW("%s: PwmOpen failed, backlight unavailable", __func__);
-            /* continue without backlight — MIPI DSI still works */
+            MipiDsiClose(panelCfg->dsiHandle);
+            panelCfg->dsiHandle = NULL;
+            HDF_LOGE("%s: PwmOpen failed", __func__);
+            return HDF_FAILURE;
         }
     }
     return HDF_SUCCESS;
@@ -159,14 +160,13 @@ static int32_t PowerOff(void)
     return HDF_SUCCESS;
 }
 
-static int32_t LcdkitOn(struct PanelData *panel)
+static int32_t LcdkitOn(void)
 {
-    (void)panel;
     int32_t ret;
 
     ret = PowerOn();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:PowerOn failed", __func__);
+        HDF_LOGE("%s:MipiPowerOn failed", __func__);
         return HDF_FAILURE;
     }
     ret = MipiDsiOn();
@@ -177,9 +177,8 @@ static int32_t LcdkitOn(struct PanelData *panel)
     return HDF_SUCCESS;
 }
 
-static int32_t LcdkitOff(struct PanelData *panel)
+static int32_t LcdkitOff(void)
 {
-    (void)panel;
     int32_t ret;
 
     ret = MipiDsiOff();
@@ -264,6 +263,7 @@ static struct PanelData g_panelData = {
     .init = LcdkitInit,
     .on = LcdkitOn,
     .off = LcdkitOff,
+    .setBacklight = LcdkitSetBkl,
 };
 
 static int32_t LcdkitEntryInit(struct HdfDeviceObject *object)
@@ -279,8 +279,8 @@ static int32_t LcdkitEntryInit(struct HdfDeviceObject *object)
         return HDF_FAILURE;
     }
     g_panelData.info = &panelCfg->info;
-    if (RegisterPanel(&g_panelData) != HDF_SUCCESS) {
-        HDF_LOGE("%s: RegisterPanel failed", __func__);
+    if (PanelDataRegister(&g_panelData) != HDF_SUCCESS) {
+        HDF_LOGE("%s: PanelDataRegister failed", __func__);
         return HDF_FAILURE;
     }
     HDF_LOGI("%s: exit succ", __func__);
