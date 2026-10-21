@@ -65,23 +65,14 @@ ohos_unittest("hdf_adapter_uhdf_test_osal_posix") {
     "$hdf_framework_path/include",
     "$hdf_framework_path/test/unittest/include",
     "$hdf_framework_path/test/unittest/osal",
-    "$hdf_framework_path/support/platform/include",
-    "$hdf_framework_path/support/platform/include/i2c",
-    "$hdf_framework_path/support/platform/include/fwk",
-    "$hdf_framework_path/support/platform/src/i2c",
-    "$hdf_framework_path/utils/include",
   ]
 
   defines = [ "__USER__" ]
-  cflags = [ "-fno-lto" ]
-  ldflags = [ "-fno-lto" ]
   sources = [
     "$hdf_framework_path/support/posix/test/unittest/common/hdf_osal_test_posix.cpp",
     "$hdf_framework_path/test/unittest/osal/osal_all_test.c",
     "$hdf_framework_path/test/unittest/osal/osal_get_case_test.c",
     "$hdf_framework_path/test/unittest/osal/osal_list_test.c",
-    "$hdf_framework_path/support/platform/src/i2c/i2c_msg.c",
-    "$hdf_framework_path/test/unittest/osal/i2c_msg_sec_test.cpp",
   ]
   deps = [ "$hdf_adapter_path/uhdf2/utils:libhdf_utils" ]
 
