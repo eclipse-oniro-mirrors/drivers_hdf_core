@@ -396,7 +396,7 @@ static int32_t TimerIoSetOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t TimerIoGet(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret = HDF_SUCCESS;
-    struct TimerConfig cfg;
+    struct TimerConfig cfg = {0};
     uint32_t handle;
     int16_t number;
 

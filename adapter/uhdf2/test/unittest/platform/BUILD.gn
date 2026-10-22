@@ -70,3 +70,50 @@ ohos_unittest("hdf_adapter_uhdf_test_platform") {
   }
 }
 
+ohos_unittest("hdf_adapter_uhdf_test_platform_i2c_sec") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "$hdf_framework_path/include/platform",
+    "$hdf_framework_path/include/core",
+    "$hdf_framework_path/include/osal",
+    "$hdf_adapter_path/uhdf/posix/include",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/include",
+    "$hdf_framework_path/test/unittest/include",
+    "$hdf_framework_path/support/platform/include",
+    "$hdf_framework_path/support/platform/include/i2c",
+    "$hdf_framework_path/support/platform/include/fwk",
+    "$hdf_framework_path/support/platform/src/i2c",
+    "$hdf_framework_path/utils/include",
+  ]
+
+  defines = [ "__USER__" ]
+  cflags = [
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsigned-char",
+    "-fno-common",
+    "-fno-strict-aliasing",
+    "-fno-lto",
+  ]
+  ldflags = [ "-fno-lto" ]
+  sources = [
+    "$hdf_framework_path/support/platform/test/unittest/common/i2c_msg_sec_test.cpp",
+    "$hdf_framework_path/support/platform/src/i2c/i2c_msg.c",
+  ]
+
+  deps = [
+    "$hdf_adapter_path/build/test_common:libhdf_test_common",
+    "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
+  ]
+  if (is_standard_system) {
+    external_deps = [
+      "c_utils:utils",
+      "hilog:libhilog",
+    ]
+  } else {
+    external_deps = [ "hilog:libhilog" ]
+  }
+}
+
