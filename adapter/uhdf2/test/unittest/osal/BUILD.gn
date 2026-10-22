@@ -45,6 +45,7 @@ ohos_unittest("hdf_adapter_uhdf_test_osal") {
       "$hdf_adapter_path/uhdf2/test/resource/osal/ohos_test.xml"
   if (is_standard_system) {
     external_deps = [
+      "bounds_checking_function:libsec_shared",
       "c_utils:utils",
       "hilog:libhilog",
     ]
@@ -78,6 +79,7 @@ ohos_unittest("hdf_adapter_uhdf_test_osal_posix") {
 
   if (is_standard_system) {
     external_deps = [
+      "bounds_checking_function:libsec_shared",
       "c_utils:utils",
       "hilog:libhilog",
     ]
