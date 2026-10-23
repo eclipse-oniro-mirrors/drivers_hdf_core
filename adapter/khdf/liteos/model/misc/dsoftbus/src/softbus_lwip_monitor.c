@@ -94,6 +94,7 @@ static void NetifStatusCallback(struct netif *netif, netif_nsc_reason_t reason,
             break;
         case LWIP_NSC_IPV4_ADDRESS_CHANGED:
             reportInfo.event = EVENT_IFACE_ADDR_CHANGED;
+            reportInfo.extInfo.status = 0;
             dprintf("NetifStatusCallback(%s): nsc ipv4 addr changed\n", netif->full_name);
             break;
         case LWIP_NSC_NETIF_ADDED:
