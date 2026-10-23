@@ -68,6 +68,7 @@ static void GravityDataWorkEntry(void *arg)
     event.timestamp = time.sec * SENSOR_SECOND_CONVERT_NANOSECOND + time.usec * SENSOR_CONVERT_UNIT;
     event.sensorId = SENSOR_TAG_GRAVITY;
     event.option = 0;
+    event.version = 0;
     event.mode = SENSOR_WORK_MODE_REALTIME;
     event.dataLen = sizeof(GravityRawData);
     event.data = (uint8_t *)&GravityRawData;

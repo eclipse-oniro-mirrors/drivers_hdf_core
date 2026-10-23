@@ -212,6 +212,7 @@ int32_t PwmDeviceAdd(struct HdfDeviceObject *obj, struct PwmDev *pwm)
         HDF_LOGE("PwmDeviceAdd: init spinlock fail!");
         return HDF_FAILURE;
     }
+    (void)memset_s(&pwm->cfg, sizeof(pwm->cfg), 0, sizeof(pwm->cfg));
     pwm->device = obj;
     obj->service = &(pwm->service);
     pwm->device->service->Dispatch = PwmIoDispatch;

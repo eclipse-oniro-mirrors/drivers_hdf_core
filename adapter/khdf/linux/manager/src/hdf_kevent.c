@@ -95,6 +95,7 @@ static struct HdfSBuf *PrepareEvent(
     sysEvent.eventClass = class;
     sysEvent.eventid = eventId;
     sysEvent.syncToken = 0;
+    sysEvent.reserved = 0;
 
     if (sync) {
         eventWait = HdfKeventWaitAlloc();
