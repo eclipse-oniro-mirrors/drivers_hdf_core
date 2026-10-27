@@ -129,7 +129,7 @@ struct PlatformQueueTestEntry {
 
 static struct PlatformQueueTestEntry g_entry[] = {
     { PLAT_QUEUE_TEST_ADD_AND_WAIT, PlatformQueueTestAddAndWait, "PlatformQueueTestAddAndWait" },
-    {PLAT_QUEUE_TEST_SUSPEND_AND_RESEME, PlatformQueueTestSuspendAndResume, "PlatformQueueTestSuspendAndResume"},
+    { PLAT_QUEUE_TEST_SUSPEND_AND_RESUME, PlatformQueueTestSuspendAndResume, "PlatformQueueTestSuspendAndResume" },
     { PLAT_QUEUE_TEST_RELIABILITY, PlatformQueueTestReliability, "PlatformQueueTestReliability" },
 };
 
