@@ -104,6 +104,23 @@ static int32_t PlatformQueueTestReliability(struct PlatformQueue *pq)
     return HDF_SUCCESS;
 }
 
+static int32_t PlatformQueueTestSuspendAndResume(struct PlatformQueue *pq)
+{
+    int32_t ret;
+    struct PlatformMsg *msg = NULL;
+
+    PLAT_LOGD("PlatformQueueTestSuspendAndResume: enter");
+    ret = PlatformQueueGetMsg(NULL, &msg, 0);
+    CHECK_NE_RETURN(ret, HDF_SUCCESS, ret);
+    ret = PlatformQueueGetMsg(pq, NULL, 0);
+    CHECK_NE_RETURN(ret, HDF_SUCCESS, ret);
+    ret = PlatformQueueGetMsg(pq, &msg, 0);
+    CHECK_NE_RETURN(ret, HDF_SUCCESS, ret);
+
+    PLAT_LOGD("PlatformQueueTestSuspendAndResume: exit!");
+    return HDF_SUCCESS;
+}
+
 struct PlatformQueueTestEntry {
     int cmd;
     int32_t (*func)(struct PlatformQueue *pq);
@@ -112,6 +129,7 @@ struct PlatformQueueTestEntry {
 
 static struct PlatformQueueTestEntry g_entry[] = {
     { PLAT_QUEUE_TEST_ADD_AND_WAIT, PlatformQueueTestAddAndWait, "PlatformQueueTestAddAndWait" },
+    {PLAT_QUEUE_TEST_SUSPEND_AND_RESEME, PlatformQueueTestSuspendAndResume, "PlatformQueueTestSuspendAndResume"},
     { PLAT_QUEUE_TEST_RELIABILITY, PlatformQueueTestReliability, "PlatformQueueTestReliability" },
 };
 
