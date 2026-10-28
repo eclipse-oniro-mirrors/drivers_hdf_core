@@ -40,12 +40,14 @@ static void CleanupDiedHostResources(struct DevHostServiceClnt *hostClnt, struct
             hostProxy = (struct DevHostServiceProxy *)service->target;
             HDF_LOGI("%{public}s hostId: %{public}u remove old hostService", __func__, hostClnt->hostId);
             DevHostServiceProxyRecycle(hostProxy);
+            service->target = NULL;
         }
     } else {
         hostProxy = (struct DevHostServiceProxy *)service->target;
         HDF_LOGI("%{public}s hostId: %{public}u remove old hostService, and current hostService is null",
             __func__, hostClnt->hostId);
         DevHostServiceProxyRecycle(hostProxy);
+        service->target = NULL;
     }
 
     OsalMutexUnlock(&hostClnt->hostLock);
