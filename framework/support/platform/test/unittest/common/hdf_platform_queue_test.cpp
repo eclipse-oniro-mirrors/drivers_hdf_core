@@ -57,6 +57,18 @@ HWTEST_F(HdfPlatformQueueTest, HdfPlatformQueueTestAddAndWait001, TestSize.Level
 }
 
 /**
+  * @tc.name: HdfPlatformQueueTestSuspendAndResume001
+  * @tc.desc: platform queue function test
+  * @tc.type: FUNC
+  * @tc.require: NA
+  */
+HWTEST_F(HdfPlatformQueueTest, HdfPlatformQueueTestSuspendAndResume001, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {TEST_PAL_QUEUE_TYPE, PLAT_QUEUE_TEST_SUSPEND_AND_RESUME, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+/**
   * @tc.name: HdfPlatformQueueTestReliability001
   * @tc.desc: platform queue function test
   * @tc.type: FUNC
