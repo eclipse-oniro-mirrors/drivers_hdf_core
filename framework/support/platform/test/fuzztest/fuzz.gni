@@ -9,6 +9,9 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 module_output_path = "hdf_core/hdf_core"
 
+resource_config_file =
+    "//drivers/hdf_core/framework/support/platform/test/resource/hdf_core/ohos_test.xml"
+
 include_dirs = [
   "//drivers/hdf_core/framework/include/platform",
   "//drivers/hdf_core/framework/support/platform/test/fuzztest",

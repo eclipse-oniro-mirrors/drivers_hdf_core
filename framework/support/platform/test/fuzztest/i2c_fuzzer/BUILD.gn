@@ -10,6 +10,7 @@ ohos_fuzztest("I2cFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file = "."
+  resource_config_file = resource_config_file
 
   include_dirs += [ "." ]
 

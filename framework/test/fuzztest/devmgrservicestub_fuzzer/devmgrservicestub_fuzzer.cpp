@@ -87,11 +87,20 @@ static bool AttachDeviceHostFuzzTest(int32_t code, const uint8_t *data, size_t s
         return false;
     }
 
-    if (!HdfSbufWriteBuffer(dataBuf, data, size)) {
-        HDF_LOGE("%{public}s:%{public}d: failed to write data", __func__, __LINE__);
-        HdfSbufRecycle(dataBuf);
-        HdfSbufRecycle(replyBuf);
-        return false;
+    if (code == DEVMGR_SERVICE_ATTACH_DEVICE_HOST) {
+        uint32_t hostId = 0;
+        if (size >= sizeof(uint32_t)) {
+            hostId = *reinterpret_cast<const uint32_t *>(data);
+        }
+        HdfSbufWriteUint32(dataBuf, hostId);
+        HdfSbufWriteRemoteService(dataBuf, instance->remote);
+    } else {
+        if (!HdfSbufWriteBuffer(dataBuf, data, size)) {
+            HDF_LOGE("%{public}s:%{public}d: failed to write data", __func__, __LINE__);
+            HdfSbufRecycle(dataBuf);
+            HdfSbufRecycle(replyBuf);
+            return false;
+        }
     }
 
     (void)instance->remote->dispatcher->Dispatch(
