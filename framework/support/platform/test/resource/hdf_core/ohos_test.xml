@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2026 Huawei Device Co., Ltd.
+
+     HDF is dual licensed: you can use it either under the terms of
+     the GPL, or the BSD license, at your option.
+     See the LICENSE file in the root of this repository for complete details.
+-->
+<configuration ver="2.0">
+    <target name="GpioFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+    <target name="I2cFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+    <target name="PwmFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+    <target name="RtcFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+    <target name="SpiFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+    <target name="UartFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+    <target name="WatchdogFuzzTest">
+        <preparer>
+            <option name="push" value="hdf/hdf_core/libhdf_platform.z.so -> /system/lib64" src="out"/>
+        </preparer>
+    </target>
+</configuration>
