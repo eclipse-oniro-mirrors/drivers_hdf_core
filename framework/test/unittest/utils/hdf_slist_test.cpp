@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 #include <cstring>
+#include <algorithm>
 #include "hdf_slist.h"
 
 using namespace testing::ext;
@@ -20,7 +21,10 @@ struct TestNode {
     struct HdfSListNode node;
 };
 
-#define NODE_TO_TEST(ptr) HDF_SLIST_CONTAINER_OF(struct HdfSListNode, (ptr), struct TestNode, node)
+static inline struct TestNode *NodeToTest(struct HdfSListNode *ptr)
+{
+    return HDF_SLIST_CONTAINER_OF(struct HdfSListNode, ptr, struct TestNode, node);
+}
 
 static struct TestNode *CreateTestNode(int val)
 {
@@ -33,7 +37,7 @@ static struct TestNode *CreateTestNode(int val)
 static void DeleteTestNode(struct HdfSListNode *link)
 {
     if (link != nullptr) {
-        struct TestNode *node = NODE_TO_TEST(link);
+        struct TestNode *node = NodeToTest(link);
         delete node;
     }
 }
@@ -43,7 +47,7 @@ static bool SearchByValue(struct HdfSListNode *link, uint32_t key)
     if (link == nullptr) {
         return false;
     }
-    struct TestNode *node = NODE_TO_TEST(link);
+    struct TestNode *node = NodeToTest(link);
     return (uint32_t)node->value == key;
 }
 
@@ -52,8 +56,8 @@ static bool CompareAscending(struct HdfSListNode *current, struct HdfSListNode *
     if (current == nullptr || newNode == nullptr) {
         return false;
     }
-    struct TestNode *cur = NODE_TO_TEST(current);
-    struct TestNode *nw = NODE_TO_TEST(newNode);
+    struct TestNode *cur = NodeToTest(current);
+    struct TestNode *nw = NodeToTest(newNode);
     return cur->value <= nw->value;
 }
 
@@ -108,7 +112,7 @@ HWTEST_F(HdfSListTest, HdfSListAdd001, TestSize.Level1)
     EXPECT_EQ(HdfSListCount(&list), 1);
     struct HdfSListNode *peek = HdfSListPeek(&list);
     ASSERT_NE(peek, nullptr);
-    EXPECT_EQ(NODE_TO_TEST(peek)->value, 10);
+    EXPECT_EQ(NodeToTest(peek)->value, 10);
 }
 
 HWTEST_F(HdfSListTest, HdfSListAdd002, TestSize.Level1)
@@ -122,11 +126,11 @@ HWTEST_F(HdfSListTest, HdfSListAdd002, TestSize.Level1)
     EXPECT_EQ(HdfSListCount(&list), 3);
     /* Add prepends — order should be 30, 20, 10 */
     struct HdfSListNode *iter = HdfSListPeek(&list);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 30);
+    EXPECT_EQ(NodeToTest(iter)->value, 30);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 20);
+    EXPECT_EQ(NodeToTest(iter)->value, 20);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 10);
+    EXPECT_EQ(NodeToTest(iter)->value, 10);
 }
 
 HWTEST_F(HdfSListTest, HdfSListAddNull001, TestSize.Level1)
@@ -152,11 +156,11 @@ HWTEST_F(HdfSListTest, HdfSListAddTail001, TestSize.Level1)
     EXPECT_EQ(HdfSListCount(&list), 3);
     /* AddTail appends — order should be 10, 20, 30 */
     struct HdfSListNode *iter = HdfSListPeek(&list);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 10);
+    EXPECT_EQ(NodeToTest(iter)->value, 10);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 20);
+    EXPECT_EQ(NodeToTest(iter)->value, 20);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 30);
+    EXPECT_EQ(NodeToTest(iter)->value, 30);
 }
 
 HWTEST_F(HdfSListTest, HdfSListAddTailDedup001, TestSize.Level1)
@@ -187,11 +191,11 @@ HWTEST_F(HdfSListTest, HdfSListAddOrder001, TestSize.Level1)
     EXPECT_EQ(HdfSListCount(&list), 3);
     /* Verify ascending order */
     struct HdfSListNode *iter = HdfSListPeek(&list);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 10);
+    EXPECT_EQ(NodeToTest(iter)->value, 10);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 20);
+    EXPECT_EQ(NodeToTest(iter)->value, 20);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 30);
+    EXPECT_EQ(NodeToTest(iter)->value, 30);
 }
 
 HWTEST_F(HdfSListTest, HdfSListAddOrderEmpty001, TestSize.Level1)
@@ -199,7 +203,7 @@ HWTEST_F(HdfSListTest, HdfSListAddOrderEmpty001, TestSize.Level1)
     struct TestNode *n1 = CreateTestNode(10);
     EXPECT_TRUE(HdfSListAddOrder(&list, &n1->node, CompareAscending));
     EXPECT_EQ(HdfSListCount(&list), 1);
-    EXPECT_EQ(NODE_TO_TEST(HdfSListPeek(&list))->value, 10);
+    EXPECT_EQ(NodeToTest(HdfSListPeek(&list))->value, 10);
 }
 
 HWTEST_F(HdfSListTest, HdfSListAddOrderDuplicate001, TestSize.Level1)
@@ -233,9 +237,9 @@ HWTEST_F(HdfSListTest, HdfSListRemove001, TestSize.Level1)
     HdfSListRemove(&list, &n2->node);
     EXPECT_EQ(HdfSListCount(&list), 2);
     struct HdfSListNode *iter = HdfSListPeek(&list);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 10);
+    EXPECT_EQ(NodeToTest(iter)->value, 10);
     iter = HdfSListNext(iter);
-    EXPECT_EQ(NODE_TO_TEST(iter)->value, 30);
+    EXPECT_EQ(NodeToTest(iter)->value, 30);
     delete n2;
 }
 
@@ -247,7 +251,7 @@ HWTEST_F(HdfSListTest, HdfSListRemoveHead001, TestSize.Level1)
     HdfSListAddTail(&list, &n2->node);
     HdfSListRemove(&list, &n1->node);
     EXPECT_EQ(HdfSListCount(&list), 1);
-    EXPECT_EQ(NODE_TO_TEST(HdfSListPeek(&list))->value, 20);
+    EXPECT_EQ(NodeToTest(HdfSListPeek(&list))->value, 20);
     delete n1;
 }
 
@@ -295,7 +299,7 @@ HWTEST_F(HdfSListTest, HdfSListPeek001, TestSize.Level1)
     struct TestNode *n1 = CreateTestNode(10);
     HdfSListAdd(&list, &n1->node);
     ASSERT_NE(HdfSListPeek(&list), nullptr);
-    EXPECT_EQ(NODE_TO_TEST(HdfSListPeek(&list))->value, 10);
+    EXPECT_EQ(NodeToTest(HdfSListPeek(&list))->value, 10);
 }
 
 HWTEST_F(HdfSListTest, HdfSListPeekNull001, TestSize.Level1)
@@ -312,7 +316,7 @@ HWTEST_F(HdfSListTest, HdfSListNext001, TestSize.Level1)
     struct HdfSListNode *first = HdfSListPeek(&list);
     struct HdfSListNode *second = HdfSListNext(first);
     ASSERT_NE(second, nullptr);
-    EXPECT_EQ(NODE_TO_TEST(second)->value, 20);
+    EXPECT_EQ(NodeToTest(second)->value, 20);
     EXPECT_EQ(HdfSListNext(second), nullptr);
 }
 
@@ -331,7 +335,7 @@ HWTEST_F(HdfSListTest, HdfSListPop001, TestSize.Level1)
     HdfSListAddTail(&list, &n2->node);
     struct HdfSListNode *popped = HdfSListPop(&list);
     ASSERT_NE(popped, nullptr);
-    EXPECT_EQ(NODE_TO_TEST(popped)->value, 10);
+    EXPECT_EQ(NodeToTest(popped)->value, 10);
     EXPECT_EQ(HdfSListCount(&list), 1);
     delete n1;
 }
@@ -358,7 +362,7 @@ HWTEST_F(HdfSListTest, HdfSListGetLast001, TestSize.Level1)
     HdfSListAddTail(&list, &n3->node);
     struct HdfSListNode *last = HdfSListGetLast(&list);
     ASSERT_NE(last, nullptr);
-    EXPECT_EQ(NODE_TO_TEST(last)->value, 30);
+    EXPECT_EQ(NodeToTest(last)->value, 30);
 }
 
 HWTEST_F(HdfSListTest, HdfSListGetLastEmpty001, TestSize.Level1)
@@ -381,7 +385,7 @@ HWTEST_F(HdfSListTest, HdfSListSearch001, TestSize.Level1)
     }
     struct HdfSListNode *found = HdfSListSearch(&list, 30, SearchByValue);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(NODE_TO_TEST(found)->value, 30);
+    EXPECT_EQ(NodeToTest(found)->value, 30);
 }
 
 HWTEST_F(HdfSListTest, HdfSListSearchNotFound001, TestSize.Level1)
@@ -442,7 +446,7 @@ HWTEST_F(HdfSListTest, HdfSListIteratorBasic001, TestSize.Level1)
     while (HdfSListIteratorHasNext(&iter)) {
         struct HdfSListNode *node = HdfSListIteratorNext(&iter);
         ASSERT_NE(node, nullptr);
-        EXPECT_EQ(NODE_TO_TEST(node)->value, count * 10);
+        EXPECT_EQ(NodeToTest(node)->value, count * 10);
         count++;
     }
     EXPECT_EQ(count, 5);
@@ -475,7 +479,7 @@ HWTEST_F(HdfSListTest, HdfSListIteratorRemove001, TestSize.Level1)
     while (HdfSListIteratorHasNext(&iter)) {
         struct HdfSListNode *node = HdfSListIteratorNext(&iter);
         ASSERT_NE(node, nullptr);
-        if (NODE_TO_TEST(node)->value == 20) {
+        if (NodeToTest(node)->value == 20) {
             HdfSListIteratorRemove(&iter);
             DeleteTestNode(node);
             removedCount++;
@@ -498,7 +502,7 @@ HWTEST_F(HdfSListTest, HdfSListIteratorInsert001, TestSize.Level1)
     while (HdfSListIteratorHasNext(&iter)) {
         struct HdfSListNode *node = HdfSListIteratorNext(&iter);
         ASSERT_NE(node, nullptr);
-        if (NODE_TO_TEST(node)->value == 10) {
+        if (NodeToTest(node)->value == 10) {
             struct TestNode *newNode = CreateTestNode(20);
             HdfSListIteratorInsert(&iter, &newNode->node);
             break;
@@ -508,11 +512,11 @@ HWTEST_F(HdfSListTest, HdfSListIteratorInsert001, TestSize.Level1)
     /* HdfSListIteratorInsert inserts BEFORE current node.
      * List was 10->30, insert 20 before 10 gives: 20->10->30 */
     struct HdfSListNode *ptr = HdfSListPeek(&list);
-    EXPECT_EQ(NODE_TO_TEST(ptr)->value, 20);
+    EXPECT_EQ(NodeToTest(ptr)->value, 20);
     ptr = HdfSListNext(ptr);
-    EXPECT_EQ(NODE_TO_TEST(ptr)->value, 10);
+    EXPECT_EQ(NodeToTest(ptr)->value, 10);
     ptr = HdfSListNext(ptr);
-    EXPECT_EQ(NODE_TO_TEST(ptr)->value, 30);
+    EXPECT_EQ(NodeToTest(ptr)->value, 30);
 }
 
 HWTEST_F(HdfSListTest, HdfSListIteratorRemoveAll001, TestSize.Level1)
@@ -568,7 +572,7 @@ HWTEST_F(HdfSListTest, HdfSListStressAddRemove001, TestSize.Level0)
     int removed = 0;
     while (HdfSListIteratorHasNext(&iter)) {
         struct HdfSListNode *node = HdfSListIteratorNext(&iter);
-        struct TestNode *tn = NODE_TO_TEST(node);
+        struct TestNode *tn = NodeToTest(node);
         if (tn->value % 2 == 0) {
             HdfSListIteratorRemove(&iter);
             DeleteTestNode(node);
@@ -581,7 +585,7 @@ HWTEST_F(HdfSListTest, HdfSListStressAddRemove001, TestSize.Level0)
     HdfSListIteratorInit(&iter, &list);
     while (HdfSListIteratorHasNext(&iter)) {
         struct HdfSListNode *node = HdfSListIteratorNext(&iter);
-        struct TestNode *tn = NODE_TO_TEST(node);
+        struct TestNode *tn = NodeToTest(node);
         EXPECT_NE(tn->value % 2, 0);
     }
 }
@@ -589,7 +593,7 @@ HWTEST_F(HdfSListTest, HdfSListStressAddRemove001, TestSize.Level0)
 HWTEST_F(HdfSListTest, HdfSListStressOrderInsert001, TestSize.Level0)
 {
     int values[] = {47, 3, 19, 88, 1, 55, 22, 66, 13, 99};
-    int numValues = (int)(sizeof(values) / sizeof(values[0]));
+    int numValues = static_cast<int>(sizeof(values) / sizeof(values[0]));
     /* Insert in random order */
     for (int i = 0; i < numValues; i++) {
         struct TestNode *n = CreateTestNode(values[i]);
@@ -600,7 +604,7 @@ HWTEST_F(HdfSListTest, HdfSListStressOrderInsert001, TestSize.Level0)
     struct HdfSListNode *iter = HdfSListPeek(&list);
     int prevVal = -1;
     while (iter != nullptr) {
-        int val = NODE_TO_TEST(iter)->value;
+        int val = NodeToTest(iter)->value;
         EXPECT_GE(val, prevVal);
         prevVal = val;
         iter = HdfSListNext(iter);
@@ -617,7 +621,7 @@ HWTEST_F(HdfSListTest, HdfSListPopAll001, TestSize.Level1)
     while (!HdfSListIsEmpty(&list)) {
         struct HdfSListNode *node = HdfSListPop(&list);
         ASSERT_NE(node, nullptr);
-        EXPECT_EQ(NODE_TO_TEST(node)->value, count);
+        EXPECT_EQ(NodeToTest(node)->value, count);
         DeleteTestNode(node);
         count++;
     }

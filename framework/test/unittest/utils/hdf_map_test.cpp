@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include <cstring>
 #include <string>
+#include <algorithm>
 #include "hdf_map.h"
 #include "hdf_cstring.h"
 
@@ -102,14 +103,14 @@ HWTEST_F(HdfMapTest, MapSetNullParams001, TestSize.Level1)
 HWTEST_F(HdfMapTest, MapSetOversizedValue001, TestSize.Level1)
 {
     char bigBuf[1001];
-    memset(bigBuf, 'x', sizeof(bigBuf));
+    std::fill(bigBuf, bigBuf + sizeof(bigBuf), 'x');
     EXPECT_EQ(MapSet(&map, "key", bigBuf, sizeof(bigBuf)), HDF_ERR_INVALID_PARAM);
 }
 
 HWTEST_F(HdfMapTest, MapSetOversizedKey001, TestSize.Level1)
 {
     char bigKey[1002];
-    memset(bigKey, 'k', 1001);
+    std::fill(bigKey, bigKey + 1001, 'k');
     bigKey[1001] = '\0';
     int v = 10;
     EXPECT_EQ(MapSet(&map, bigKey, &v, sizeof(v)), HDF_ERR_INVALID_PARAM);
@@ -270,7 +271,7 @@ HWTEST_F(HdfMapTest, MapStressCollisions001, TestSize.Level1)
     /* Insert entries that might hash to the same bucket */
     int v = 100;
     const char *keys[] = {"aa", "bb", "ab", "ba", "aaa", "bbb", "aba", "bab"};
-    int numKeys = (int)(sizeof(keys) / sizeof(keys[0]));
+    int numKeys = static_cast<int>(sizeof(keys) / sizeof(keys[0]));
     for (int i = 0; i < numKeys; i++) {
         EXPECT_EQ(MapSet(&map, keys[i], &v, sizeof(v)), HDF_SUCCESS);
     }
@@ -324,7 +325,7 @@ HWTEST_F(HdfCStringTest, HdfCStringObtain001, TestSize.Level1)
     const char *str = "hello world";
     struct HdfCString *cs = HdfCStringObtain(str);
     ASSERT_NE(cs, nullptr);
-    EXPECT_EQ(cs->size, (int)strlen(str));
+    EXPECT_EQ(cs->size, static_cast<int>(strlen(str)));
     EXPECT_STREQ(cs->value, str);
     HdfCStringRecycle(cs);
 }
@@ -348,7 +349,7 @@ HWTEST_F(HdfCStringTest, HdfCStringObtainMaxLen001, TestSize.Level1)
 {
     /* CSTRING_MAX is 1024 — string of exactly 1024 chars should succeed */
     char str1024[1025];
-    memset(str1024, 'a', 1024);
+    std::fill(str1024, str1024 + 1024, 'a');
     str1024[1024] = '\0';
     struct HdfCString *cs = HdfCStringObtain(str1024);
     ASSERT_NE(cs, nullptr);
@@ -360,7 +361,7 @@ HWTEST_F(HdfCStringTest, HdfCStringObtainOverMaxLen001, TestSize.Level1)
 {
     /* String of 1025 chars should fail */
     char str1025[1026];
-    memset(str1025, 'a', 1025);
+    std::fill(str1025, str1025 + 1025, 'a');
     str1025[1025] = '\0';
     struct HdfCString *cs = HdfCStringObtain(str1025);
     EXPECT_EQ(cs, nullptr);
