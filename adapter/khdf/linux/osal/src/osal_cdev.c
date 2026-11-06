@@ -18,6 +18,7 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/fs.h>
+#include <linux/mutex.h>
 #include <linux/version.h>
 #include "osal_cdev.h"
 #include "hdf_core_log.h"
@@ -70,6 +71,7 @@ static char* hdfDevnode(const struct device* dev, unsigned short* mode)
 }
 
 static bool g_hdfClassInitted = false;
+static DEFINE_MUTEX(g_hdfClassMutex);
 
 struct class g_hdfClass = {
     .name = "hdf",
@@ -82,13 +84,16 @@ static int HdfClassInit(void)
 {
     int ret;
 
+    mutex_lock(&g_hdfClassMutex);
     if (g_hdfClassInitted) {
+        mutex_unlock(&g_hdfClassMutex);
         return HDF_SUCCESS;
     }
 
     ret = class_register(&g_hdfClass);
     if (ret) {
         HDF_LOGE("failed to register hdf class");
+        mutex_unlock(&g_hdfClassMutex);
         return ret;
     }
     HDF_LOGI("register hdf class success");
@@ -97,10 +102,12 @@ static int HdfClassInit(void)
     if (ret) {
         HDF_LOGE("failed to alloc hdf char major");
         class_unregister(&g_hdfClass);
+        mutex_unlock(&g_hdfClassMutex);
         return ret;
     }
 
     g_hdfClassInitted = true;
+    mutex_unlock(&g_hdfClassMutex);
     return HDF_SUCCESS;
 }
 

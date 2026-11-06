@@ -74,7 +74,9 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
         return ret;
     }
 
+    (void)OsalMutexLock(&hostService->deviceLock);
     device = DevHostServiceQueryOrAddDevice(hostService, DEVICEID(deviceInfo->deviceId));
+    (void)OsalMutexUnlock(&hostService->deviceLock);
     if (device == NULL || device->super.Attach == NULL) {
         HDF_LOGE("failed to add device, device or Attach func is null");
         return HDF_DEV_ERR_NO_DEVICE;
@@ -111,8 +113,10 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     return HDF_SUCCESS;
 
 ERROR:
-    if (DListIsEmpty(&device->devNodes)) {
+    if (device != NULL && DListIsEmpty(&device->devNodes)) {
+        (void)OsalMutexLock(&hostService->deviceLock);
         DevHostServiceFreeDevice(hostService, device);
+        (void)OsalMutexUnlock(&hostService->deviceLock);
     }
 
     return ret;
@@ -124,7 +128,13 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
     struct DevHostService *hostService = (struct DevHostService *)inst;
     struct HdfDeviceNode *devNode = NULL;
 
+    if (hostService == NULL) {
+        return HDF_SUCCESS;
+    }
+
+    (void)OsalMutexLock(&hostService->deviceLock);
     device = DevHostServiceFindDevice(hostService, DEVICEID(devId));
+    (void)OsalMutexUnlock(&hostService->deviceLock);
     if (device == NULL) {
         HDF_LOGW("failed to del device, device is not exist");
         return HDF_SUCCESS;
@@ -148,7 +158,9 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
     HdfDeviceNodeFreeInstance(devNode);
 
     if (DListIsEmpty(&device->devNodes)) {
+        (void)OsalMutexLock(&hostService->deviceLock);
         DevHostServiceFreeDevice(hostService, device);
+        (void)OsalMutexUnlock(&hostService->deviceLock);
     }
     HDF_LOGD("%{public}s add device success", __func__);
     return HDF_SUCCESS;
@@ -200,13 +212,14 @@ static int DevHostServicePmNotify(struct IDevHostService *service, uint32_t stat
 {
     struct HdfDevice *device = NULL;
     int ret = HDF_SUCCESS;
-    struct DevHostService *hostService = CONTAINER_OF(service, struct DevHostService, super);
-    if (hostService == NULL) {
-        HDF_LOGE("failed to start device service, hostService is null");
+    if (service == NULL) {
+        HDF_LOGE("failed to start device service, service is null");
         return HDF_FAILURE;
     }
+    struct DevHostService *hostService = CONTAINER_OF(service, struct DevHostService, super);
 
     HDF_LOGD("host(%{public}s) set power state=%{public}u", hostService->hostName, state);
+    (void)OsalMutexLock(&hostService->deviceLock);
     if (IsPowerWakeState(state)) {
         DLIST_FOR_EACH_ENTRY_REVERSE(device, &hostService->devices, struct HdfDevice, node) {
             if (ApplyDevicesPowerState(device, state) != HDF_SUCCESS) {
@@ -220,6 +233,7 @@ static int DevHostServicePmNotify(struct IDevHostService *service, uint32_t stat
             }
         }
     }
+    (void)OsalMutexUnlock(&hostService->deviceLock);
 
     return ret;
 }
@@ -235,6 +249,7 @@ void DevHostServiceConstruct(struct DevHostService *service)
     hostServiceIf->StartService = DevHostServiceStartService;
     hostServiceIf->PmNotify = DevHostServicePmNotify;
     DListHeadInit(&service->devices);
+    (void)OsalMutexInit(&service->deviceLock);
     HdfServiceObserverConstruct(&service->observer);
 }
 
@@ -249,6 +264,7 @@ void DevHostServiceDestruct(struct DevHostService *service)
     DLIST_FOR_EACH_ENTRY_SAFE(device, tmp, &service->devices, struct HdfDevice, node) {
         HdfDeviceFreeInstance(device);
     }
+    (void)OsalMutexDestroy(&service->deviceLock);
     HdfServiceObserverDestruct(&service->observer);
 }
 

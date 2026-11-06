@@ -83,7 +83,9 @@ static void HdfQueueStopThread(struct HdfTaskQueue *queue)
         return;
     }
 
+    OsalMutexLock(&queue->mutex);
     queue->threadRunFlag = false;
+    OsalMutexUnlock(&queue->mutex);
 
     ret = OsalSemPost(&queue->sem);
     if (ret != HDF_SUCCESS) {
@@ -180,6 +182,7 @@ static int32_t HdfThreadTasker(void *data)
         }
         task = HdfTaskDequeue(queue);
         while (task != NULL) {
+            OsalMutexUnlock(&queue->mutex);
             if (task->func) {
                 task->func(task);
             } else if (queue->queueFunc) {
@@ -187,6 +190,7 @@ static int32_t HdfThreadTasker(void *data)
             } else {
                 HDF_LOGE("%s no task and queue function", __func__);
             }
+            OsalMutexLock(&queue->mutex);
             task = HdfTaskDequeue(queue);
         }
         ret = OsalMutexUnlock(&queue->mutex);

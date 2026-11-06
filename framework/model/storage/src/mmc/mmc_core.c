@@ -944,7 +944,7 @@ void MmcCntlrDestroySdioIrqThread(struct MmcCntlr *cntlr)
     dev = (struct SdioDevice *)cntlr->curDev;
     (void)OsalThreadDestroy(&dev->thread);
     (void)OsalSemDestroy(&dev->sem);
-    dev->threadRunning = true;
+    dev->threadRunning = false;
 }
 
 void MmcCntlrNotifySdioIrqThread(struct MmcCntlr *cntlr)

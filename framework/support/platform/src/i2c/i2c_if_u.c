@@ -106,20 +106,32 @@ static int32_t I2cHandleSbufReset(struct I2cHandle *i2cHandle)
     return HDF_SUCCESS;
 }
 
+static struct OsalMutex g_i2cServiceLock;
+
 static struct I2cManagerService *I2cManagerGetService(void)
 {
     static struct I2cManagerService manager;
 
+    if (g_i2cServiceLock.realMutex == NULL) {
+        if (OsalMutexInit(&g_i2cServiceLock) != HDF_SUCCESS) {
+            HDF_LOGE("I2cManagerGetService: init service lock fail!");
+            return NULL;
+        }
+    }
+    (void)OsalMutexLock(&g_i2cServiceLock);
     if (manager.ioService != NULL) {
+        (void)OsalMutexUnlock(&g_i2cServiceLock);
         return &manager;
     }
 
     manager.ioService = HdfIoServiceBind(I2C_SERVICE_NAME);
     if (manager.ioService == NULL) {
         HDF_LOGE("I2cManagerGetService: fail to get i2c IoService!");
+        (void)OsalMutexUnlock(&g_i2cServiceLock);
         return NULL;
     }
 
+    (void)OsalMutexUnlock(&g_i2cServiceLock);
     return &manager;
 }
 

@@ -388,6 +388,8 @@ struct ClockDevice *ClockDeviceGetParent(struct ClockDevice *device)
 int32_t ClockDeviceSetParent(struct ClockDevice *device, struct ClockDevice *parent)
 {
     int32_t ret;
+    struct ClockDevice *first = NULL;
+    struct ClockDevice *second = NULL;
 
     if (device == NULL || parent == NULL) {
         HDF_LOGE("ClockDeviceSetParent: device or is parent null!");
@@ -399,20 +401,28 @@ int32_t ClockDeviceSetParent(struct ClockDevice *device, struct ClockDevice *par
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    if (ClockDeviceLock(device) != HDF_SUCCESS) {
+    if ((uintptr_t)device < (uintptr_t)parent) {
+        first = device;
+        second = parent;
+    } else {
+        first = parent;
+        second = device;
+    }
+
+    if (ClockDeviceLock(first) != HDF_SUCCESS) {
         HDF_LOGE("ClockDeviceSetParent: lock clock device fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
 
-    if (ClockDeviceLock(parent) != HDF_SUCCESS) {
-        ClockDeviceUnlock(device);
+    if (ClockDeviceLock(second) != HDF_SUCCESS) {
+        ClockDeviceUnlock(first);
         HDF_LOGE("ClockDeviceGetParent: lock clock device fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = device->ops->setParent(device, parent);
 
-    ClockDeviceUnlock(device);
-    ClockDeviceUnlock(parent);
+    ClockDeviceUnlock(second);
+    ClockDeviceUnlock(first);
     return ret;
 }
 

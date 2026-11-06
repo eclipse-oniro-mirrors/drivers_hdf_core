@@ -205,10 +205,13 @@ int32_t BufferQueueReturnBuffer(struct BufferQueue *queue, struct UserCameraBuff
     if (ret != HDF_SUCCESS) {
         return ret;
     }
+    OsalMutexLock(&queue->mmapLock);
     if ((queue->flags & QUEUE_STATE_ERROR) != 0) {
         HDF_LOGE("%s: fatal error occurred on queue", __func__);
+        OsalMutexUnlock(&queue->mmapLock);
         return HDF_FAILURE;
     }
+    OsalMutexUnlock(&queue->mmapLock);
     buffer = queue->buffers[userBuffer->id];
     if (buffer->state != BUFFER_STATE_DEQUEUED) {
         HDF_LOGE("%s: invalid buffer state", __func__);
@@ -224,40 +227,50 @@ int32_t BufferQueueReturnBuffer(struct BufferQueue *queue, struct UserCameraBuff
     CameraBufferQueueBuffer(buffer);
     CameraBufferToUserBuffer(buffer, userBuffer);
 
+    OsalMutexLock(&queue->mmapLock);
     if ((queue->flags & QUEUE_STATE_STREAMING) != 0 && (queue->flags & QUEUE_STATE_STREAMING_CALLED) == 0 &&
         (queue->queuedCount >= queue->minBuffersNeeded)) {
         ret = BufferQueueStart(queue);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: BufferQueueStart failed", __func__);
+            OsalMutexUnlock(&queue->mmapLock);
             return ret;
         }
     }
+    OsalMutexUnlock(&queue->mmapLock);
     return HDF_SUCCESS;
 }
 
 static int32_t WaitForDoneBuffer(struct BufferQueue *queue, uint32_t blocking)
 {
     while (true) {
+        OsalMutexLock(&queue->mmapLock);
         if ((queue->flags & QUEUE_STATE_WAITING_DEQUEUE) != 0 || (queue->flags & QUEUE_STATE_STREAMING) == 0 ||
             (queue->flags & QUEUE_STATE_ERROR) != 0 || (queue->flags & QUEUE_STATE_LAST_BUFFER_DEQUEUED) != 0) {
+            OsalMutexUnlock(&queue->mmapLock);
             return HDF_FAILURE;
         }
 
         if (!DListIsEmpty(&queue->doneList)) {
+            OsalMutexUnlock(&queue->mmapLock);
             break;
         }
 
         if (blocking == 0) {
+            OsalMutexUnlock(&queue->mmapLock);
             return HDF_FAILURE;
         }
         queue->flags |= QUEUE_STATE_WAITING_DEQUEUE;
+        OsalMutexUnlock(&queue->mmapLock);
 
         MemoryAdapterDriverMutexLock(queue);
         int32_t ret = wait_event_interruptible(queue->doneWait, !DListIsEmpty(&queue->doneList) ||
             (queue->flags & QUEUE_STATE_STREAMING) == 0 || (queue->flags & QUEUE_STATE_ERROR) != 0);
         MemoryAdapterDriverMutexUnLock(queue);
 
+        OsalMutexLock(&queue->mmapLock);
         queue->flags &= ~QUEUE_STATE_WAITING_DEQUEUE;
+        OsalMutexUnlock(&queue->mmapLock);
         if (ret != 0) {
             HDF_LOGE("%s: wait function failed", __func__);
             return HDF_FAILURE;
@@ -327,8 +340,10 @@ int32_t BufferQueueAcquireBuffer(struct BufferQueue *queue, struct UserCameraBuf
 /* stream on */
 int32_t BufferQueueStreamOn(struct BufferQueue *queue)
 {
+    OsalMutexLock(&queue->mmapLock);
     if ((queue->flags & QUEUE_STATE_STREAMING) != 0 || (queue->numBuffers) == 0 ||
         (queue->numBuffers < queue->minBuffersNeeded)) {
+        OsalMutexUnlock(&queue->mmapLock);
         return HDF_FAILURE;
     }
 
@@ -336,10 +351,12 @@ int32_t BufferQueueStreamOn(struct BufferQueue *queue)
         int32_t ret = BufferQueueStart(queue);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: BufferQueueStart failed", __func__);
+            OsalMutexUnlock(&queue->mmapLock);
             return ret;
         }
     }
     queue->flags |= QUEUE_STATE_STREAMING;
+    OsalMutexUnlock(&queue->mmapLock);
     return HDF_SUCCESS;
 }
 
@@ -348,8 +365,10 @@ int32_t BufferQueueStreamOff(struct BufferQueue *queue)
 {
     BufferQueueStop(queue);
 
+    OsalMutexLock(&queue->mmapLock);
     queue->flags |= QUEUE_STATE_WAITING_BUFFERS;
     queue->flags &= ~QUEUE_STATE_LAST_BUFFER_DEQUEUED;
+    OsalMutexUnlock(&queue->mmapLock);
     HDF_LOGD("%s: stream off success", __func__);
 
     return HDF_SUCCESS;

@@ -20,6 +20,7 @@
 #include "hdf_sbuf.h"
 #include "osal_file.h"
 #include "osal_mem.h"
+#include "osal_mutex.h"
 #include "osal_time.h"
 #include "securec.h"
 #include "usb_pnp_manager.h"
@@ -32,6 +33,7 @@
 #define USB_DDK_PNP_CLASS_VENDOR_SPEC 0xFF
 
 static struct DListHead g_usbPnpDeviceTableListHead;
+static OsalMutex g_usbPnpDeviceTableListLock;
 static struct UsbPnpMatchIdTable **g_usbPnpMatchIdTable = NULL;
 
 static struct HdfSBuf *UsbDdkPnpLoaderBufCreate(const char *moduleName, const char *serviceName,
@@ -737,7 +739,9 @@ static int32_t UsbDdkPnpLoaderDeviceListAdd(
             return ret;
         }
 
+        OsalMutexLock(&g_usbPnpDeviceTableListLock);
         DListInsertTail(&deviceTableListTemp->list, &g_usbPnpDeviceTableListHead);
+        OsalMutexUnlock(&g_usbPnpDeviceTableListLock);
 
         ret = HDF_SUCCESS;
     }
@@ -748,8 +752,10 @@ static int32_t UsbDdkPnpLoaderDeviceListAdd(
 static struct UsbPnpDeviceListTable *UsbDdkPnpLoaderAddInterface(
     const struct UsbPnpNotifyMatchInfoTable *info, const struct UsbPnpMatchIdTable *idTable)
 {
+    OsalMutexLock(&g_usbPnpDeviceTableListLock);
     if (DListIsEmpty(&g_usbPnpDeviceTableListHead) == true) {
         HDF_LOGE("%s:%d g_usbPnpDeviceTableListHead is empty. ", __func__, __LINE__);
+        OsalMutexUnlock(&g_usbPnpDeviceTableListLock);
         return NULL;
     }
 
@@ -762,9 +768,11 @@ static struct UsbPnpDeviceListTable *UsbDdkPnpLoaderAddInterface(
             (strcmp(deviceListTablePos->deviceMatchAttr, idTable->deviceMatchAttr) == 0) &&
             (deviceListTablePos->usbDevAddr == info->usbDevAddr) && (deviceListTablePos->devNum == info->devNum) &&
             (deviceListTablePos->busNum == info->busNum)) {
+            OsalMutexUnlock(&g_usbPnpDeviceTableListLock);
             return deviceListTablePos;
         }
     }
+    OsalMutexUnlock(&g_usbPnpDeviceTableListLock);
 
     HDF_LOGE("%s:%d interface=%d-%d-%d to be add but not exist. ", __func__, __LINE__, info->devNum, info->busNum,
         info->numInfos);
@@ -913,8 +921,10 @@ static int32_t UsbDdkPnpLoaderRemoveDevice(
     bool findFlag = false;
     int32_t i;
 
+    OsalMutexLock(&g_usbPnpDeviceTableListLock);
     if (DListIsEmpty(&g_usbPnpDeviceTableListHead) == true) {
         HDF_LOGE("%s:%d g_usbPnpDeviceTableListHead is empty. ", __func__, __LINE__);
+        OsalMutexUnlock(&g_usbPnpDeviceTableListLock);
         return HDF_SUCCESS;
     }
 
@@ -946,6 +956,8 @@ static int32_t UsbDdkPnpLoaderRemoveDevice(
             }
         }
     }
+
+    OsalMutexUnlock(&g_usbPnpDeviceTableListLock);
 
     if (findFlag == false) {
         HDF_LOGE("%s:%d removeType=%d to be remove but not exist.", __func__, __LINE__, removeInfo.removeType);
@@ -1065,6 +1077,7 @@ int32_t UsbDdkPnpLoaderEventHandle(void)
     if (firstInitFlag == true) {
         firstInitFlag = false;
         DListHeadInit(&g_usbPnpDeviceTableListHead);
+        OsalMutexInit(&g_usbPnpDeviceTableListLock);
     }
 
     g_usbPnpMatchIdTable = UsbDdkPnpLoaderPnpMatch();

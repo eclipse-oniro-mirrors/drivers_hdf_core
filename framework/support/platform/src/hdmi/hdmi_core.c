@@ -32,12 +32,19 @@ int32_t HdmiCntlrAllocDev(struct HdmiCntlr *cntlr)
 
 void HdmiCntlrFreeDev(struct HdmiCntlr *cntlr)
 {
-    if (cntlr == NULL || cntlr->hdmi == NULL) {
+    if (cntlr == NULL) {
+        return;
+    }
+
+    HdmiCntlrLock(cntlr);
+    if (cntlr->hdmi == NULL) {
+        HdmiCntlrUnlock(cntlr);
         return;
     }
 
     OsalMemFree(cntlr->hdmi);
     cntlr->hdmi = NULL;
+    HdmiCntlrUnlock(cntlr);
 }
 
 static void HdmiCecInit(struct HdmiCntlr *cntlr)
@@ -533,17 +540,24 @@ int32_t HdmiCntlrGetSinkEdid(struct HdmiCntlr *cntlr, uint8_t *buffer, uint32_t 
         HdmiCntlrFreeDev(cntlr);
         return HDF_DEV_ERR_NO_DEVICE;
     }
+
+    HdmiCntlrLock(cntlr);
     if (cntlr->hdmi != NULL) {
-        return HdmiEdidGetRaw(&(cntlr->hdmi->edid), buffer, len);
+        ret = HdmiEdidGetRaw(&(cntlr->hdmi->edid), buffer, len);
+        HdmiCntlrUnlock(cntlr);
+        return ret;
     }
+    HdmiCntlrUnlock(cntlr);
 
     ret = HdmiCntlrAllocDev(cntlr);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
 
+    HdmiCntlrLock(cntlr);
     ret = HdmiEdidRawDataRead(&(cntlr->hdmi->edid), &(cntlr->ddc));
     if (ret != HDF_SUCCESS) {
+        HdmiCntlrUnlock(cntlr);
         HdmiCntlrFreeDev(cntlr);
         return ret;
     }
@@ -552,7 +566,9 @@ int32_t HdmiCntlrGetSinkEdid(struct HdmiCntlr *cntlr, uint8_t *buffer, uint32_t 
         (void)HdmiEdidPhase(&(cntlr->hdmi->edid));
         cntlr->hdmi->edid.edidPhase = true;
     }
-    return HdmiEdidGetRaw(&(cntlr->hdmi->edid), buffer, len);
+    ret = HdmiEdidGetRaw(&(cntlr->hdmi->edid), buffer, len);
+    HdmiCntlrUnlock(cntlr);
+    return ret;
 }
 
 static void HdmiCntlrModeSelect(struct HdmiCntlr *cntlr)

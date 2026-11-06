@@ -30,18 +30,24 @@
 
 #include "mmc_block.h"
 #include "mmc_block_lite.h"
+#include "osal_spinlock.h"
 
 struct DiskioMmcHandler g_diskDrv = { { 0 }, { 0 }, { 0 }, { 0 } };
+static OsalSpinlock g_diskDrvLock;
 
 static DSTATUS DiskMmcInit(BYTE pd)
 {
+    uint32_t flags;
     if (pd >= FF_VOLUMES) {
         return RES_PARERR;
     }
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     if (g_diskDrv.drv[pd] == NULL) {
+        OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
         return RES_PARERR;
     }
     g_diskDrv.initialized[pd] = 1;
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
     return RES_OK;
 }
 
@@ -49,15 +55,19 @@ static DSTATUS DiskMmcStatus(BYTE pd)
 {
     bool present = false;
     struct MmcBlock *mb = NULL;
+    uint32_t flags;
 
     if (pd >= FF_VOLUMES) {
         return RES_PARERR;
     }
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     if (g_diskDrv.drv[pd] == NULL) {
+        OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
         return RES_ERROR;
     }
 
     mb = (struct MmcBlock *)g_diskDrv.priv[pd];
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
     if (mb == NULL || mb->mmc == NULL) {
         return RES_ERROR;
     }
@@ -74,6 +84,7 @@ static DRESULT DisckMmcRead(BYTE pd, BYTE *buffer, DWORD startSector, UINT nSect
     struct MmcBlock *mb = NULL;
     size_t max;
     ssize_t ret;
+    uint32_t flags;
 
     if (pd >= FF_VOLUMES) {
         return RES_PARERR;
@@ -84,7 +95,9 @@ static DRESULT DisckMmcRead(BYTE pd, BYTE *buffer, DWORD startSector, UINT nSect
         return RES_PARERR;
     }
 
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     mb = (struct MmcBlock *)g_diskDrv.priv[pd];
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
     if (mb == NULL || mb->mmc == NULL) {
         return RES_ERROR;
     }
@@ -101,6 +114,7 @@ static DRESULT DiskMmcWrite(BYTE pd, const BYTE *buffer, DWORD startSector, UINT
     struct MmcBlock *mb = NULL;
     size_t max;
     ssize_t ret;
+    uint32_t flags;
 
     if (pd >= FF_VOLUMES) {
         return RES_PARERR;
@@ -111,7 +125,9 @@ static DRESULT DiskMmcWrite(BYTE pd, const BYTE *buffer, DWORD startSector, UINT
         return RES_PARERR;
     }
 
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     mb = (struct MmcBlock *)g_diskDrv.priv[pd];
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
     if (mb == NULL || mb->mmc == NULL) {
         return RES_ERROR;
     }
@@ -127,15 +143,19 @@ static DRESULT DiskMmcIoctl(BYTE pd, BYTE cmd, void *buffer)
 {
     struct MmcBlock *mb = NULL;
     struct MmcDevice *dev = NULL;
+    uint32_t flags;
 
     if (pd >= FF_VOLUMES) {
         return RES_PARERR;
     }
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     if (g_diskDrv.drv[pd] == NULL) {
+        OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
         return RES_ERROR;
     }
 
     mb = (struct MmcBlock *)g_diskDrv.priv[pd];
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
     if (mb == NULL || mb->mmc == NULL) {
         return RES_ERROR;
     }
@@ -169,6 +189,7 @@ static struct DiskioMmcOps g_diskioMmcOps = {
 static int32_t MmcBlockAdd(struct MmcDevice *mmcDevice, struct MmcBlock *mb)
 {
     uint16_t index;
+    uint32_t flags;
 
     if (mmcDevice->cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
@@ -179,9 +200,11 @@ static int32_t MmcBlockAdd(struct MmcDevice *mmcDevice, struct MmcBlock *mb)
         return HDF_ERR_INVALID_PARAM;
     }
 
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     g_diskDrv.drv[index] = &g_diskioMmcOps;
     g_diskDrv.lun[index] = (uint8_t)index;
     g_diskDrv.priv[index] = (void *)mb;
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
     VolToPart[index].di = (uint8_t)index;
     VolToPart[index].pd = (uint8_t)index;
     return HDF_SUCCESS;
@@ -196,6 +219,7 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    OsalSpinInit(&g_diskDrvLock);
     mb = mmcDevice->mb;
     ret = MmcBlockAdd(mmcDevice, mb);
     if (ret != HDF_SUCCESS) {
@@ -207,6 +231,7 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
 static void MmcBlockRemove(struct MmcDevice *mmcDevice)
 {
     uint16_t index;
+    uint32_t flags;
 
     if (mmcDevice->cntlr == NULL) {
         return;
@@ -216,10 +241,12 @@ static void MmcBlockRemove(struct MmcDevice *mmcDevice)
     if (index >= FF_VOLUMES) {
         return;
     }
+    OsalSpinLockIrqSave(&g_diskDrvLock, &flags);
     g_diskDrv.drv[index] = NULL;
     g_diskDrv.priv[index] = NULL;
     g_diskDrv.initialized[index] = 0;
     g_diskDrv.lun[index] = 0;
+    OsalSpinUnlockIrqRestore(&g_diskDrvLock, &flags);
 }
 
 void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
@@ -228,4 +255,5 @@ void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
         return;
     }
     MmcBlockRemove(mmcDevice);
+    OsalSpinDestroy(&g_diskDrvLock);
 }

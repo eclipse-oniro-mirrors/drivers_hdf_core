@@ -10,6 +10,7 @@
 #include "hdf_dlist.h"
 #include "hdf_io_service_if.h"
 #include "osal_mem.h"
+#include "osal_mutex.h"
 #include "pin_if.h"
 #include "platform_core.h"
 #include "securec.h"
@@ -22,6 +23,7 @@
 
 static struct DListHead g_listHead;
 static OsalSpinlock g_listLock;
+static struct OsalMutex g_addNodeMutex;
 
 struct PinInfo {
     char pinName[PIN_NAME_LEN];
@@ -34,11 +36,20 @@ static const char *AddNode(const char *pinName)
     struct PinInfo *pin = NULL;
     static struct DListHead *head = NULL;
 
+    if (g_addNodeMutex.realMutex == NULL) {
+        if (OsalMutexInit(&g_addNodeMutex) != HDF_SUCCESS) {
+            HDF_LOGE("AddNode: init mutex fail!");
+            return NULL;
+        }
+    }
+    (void)OsalMutexLock(&g_addNodeMutex);
     if (head == NULL) {
         head = &g_listHead;
         DListHeadInit(head);
         OsalSpinInit(&g_listLock);
     }
+    (void)OsalMutexUnlock(&g_addNodeMutex);
+
     pin = OsalMemCalloc(sizeof(struct PinInfo));
     if (pin == NULL) {
         HDF_LOGE("AddNode: malloc pin fail!");
@@ -72,17 +83,28 @@ static void RemoveNode(const char *pinName)
     (void)OsalSpinUnlock(&g_listLock);
 }
 
+static struct OsalMutex g_pinServiceMutex;
+
 static struct HdfIoService *PinManagerServiceGet(void)
 {
     static struct HdfIoService *service = NULL;
 
+    if (g_pinServiceMutex.realMutex == NULL) {
+        if (OsalMutexInit(&g_pinServiceMutex) != HDF_SUCCESS) {
+            HDF_LOGE("PinManagerServiceGet: init mutex fail!");
+            return NULL;
+        }
+    }
+    (void)OsalMutexLock(&g_pinServiceMutex);
     if (service != NULL) {
+        (void)OsalMutexUnlock(&g_pinServiceMutex);
         return service;
     }
     service = HdfIoServiceBind(PIN_SERVICE_NAME);
     if (service == NULL) {
         HDF_LOGE("PinServiceGetService: fail to get pin service!");
     }
+    (void)OsalMutexUnlock(&g_pinServiceMutex);
     return service;
 }
 

@@ -38,12 +38,57 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define OsalAtomicReadWrapper(v)        ((v)->counter)
-#define OsalAtomicSetWrapper(v, value)  (v)->counter = (value)
-#define OsalAtomicIncWrapper(v)         ((v)->counter)++
-#define OsalAtomicIncRetWrapper(v)      (++((v)->counter))
-#define OsalAtomicDecWrapper(v)         (((v)->counter)--)
-#define OsalAtomicDecRetWrapper(v)      (--((v)->counter))
+static inline int32_t OsalAtomicReadWrapperInline(volatile int32_t *counter)
+{
+    uint32_t intSave = PRT_IntLock();
+    int32_t val = *counter;
+    PRT_IntRestore(intSave);
+    return val;
+}
+
+static inline void OsalAtomicSetWrapperInline(volatile int32_t *counter, int32_t value)
+{
+    uint32_t intSave = PRT_IntLock();
+    *counter = value;
+    PRT_IntRestore(intSave);
+}
+
+static inline void OsalAtomicIncWrapperInline(volatile int32_t *counter)
+{
+    uint32_t intSave = PRT_IntLock();
+    (*counter)++;
+    PRT_IntRestore(intSave);
+}
+
+static inline int32_t OsalAtomicIncRetWrapperInline(volatile int32_t *counter)
+{
+    uint32_t intSave = PRT_IntLock();
+    int32_t val = ++(*counter);
+    PRT_IntRestore(intSave);
+    return val;
+}
+
+static inline void OsalAtomicDecWrapperInline(volatile int32_t *counter)
+{
+    uint32_t intSave = PRT_IntLock();
+    (*counter)--;
+    PRT_IntRestore(intSave);
+}
+
+static inline int32_t OsalAtomicDecRetWrapperInline(volatile int32_t *counter)
+{
+    uint32_t intSave = PRT_IntLock();
+    int32_t val = --(*counter);
+    PRT_IntRestore(intSave);
+    return val;
+}
+
+#define OsalAtomicReadWrapper(v)        OsalAtomicReadWrapperInline(&(v)->counter)
+#define OsalAtomicSetWrapper(v, value)  OsalAtomicSetWrapperInline(&(v)->counter, (value))
+#define OsalAtomicIncWrapper(v)         OsalAtomicIncWrapperInline(&(v)->counter)
+#define OsalAtomicIncRetWrapper(v)      OsalAtomicIncRetWrapperInline(&(v)->counter)
+#define OsalAtomicDecWrapper(v)         OsalAtomicDecWrapperInline(&(v)->counter)
+#define OsalAtomicDecRetWrapper(v)      OsalAtomicDecRetWrapperInline(&(v)->counter)
 
 #define OSAL_BITS_PER_LONG 32
 #define OSAL_BIT_MASK(nr) (1UL << ((nr) % OSAL_BITS_PER_LONG))

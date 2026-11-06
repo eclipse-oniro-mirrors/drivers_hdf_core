@@ -39,51 +39,82 @@
 
 int32_t OsalMutexInit(struct OsalMutex *mutex)
 {
-    (void)mutex;
-    /* On multi-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause deadlock case.
-    * For this reason,leave unimplementation.
-    */
+    SemHandle sem;
+    uint32_t ret;
+
+    if (mutex == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    ret = PRT_SemCreate(1, &sem);
+    if (ret != OS_OK) {
+        HDF_LOGE("%s: PRT_SemCreate fail %u", __func__, ret);
+        return HDF_FAILURE;
+    }
+    mutex->realMutex = (void *)(uintptr_t)sem;
     return HDF_SUCCESS;
 }
 
 int32_t OsalMutexDestroy(struct OsalMutex *mutex)
 {
-    (void)mutex;
-    /* On multi-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause deadlock case.
-    * For this reason,leave unimplementation.
-    */
+    uint32_t ret;
+
+    if (mutex == NULL || mutex->realMutex == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    ret = PRT_SemDelete((SemHandle)(uintptr_t)mutex->realMutex);
+    if (ret != OS_OK) {
+        HDF_LOGE("%s: PRT_SemDelete fail %u", __func__, ret);
+        return HDF_FAILURE;
+    }
+    mutex->realMutex = NULL;
     return HDF_SUCCESS;
 }
 
 int32_t OsalMutexLock(struct OsalMutex *mutex)
 {
-    (void)mutex;
-    /* On multi-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause deadlock case.
-    * For this reason,leave unimplementation.
-    */
+    uint32_t ret;
+
+    if (mutex == NULL || mutex->realMutex == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    ret = PRT_SemPend((SemHandle)(uintptr_t)mutex->realMutex, PRT_WAIT_FOREVER);
+    if (ret != OS_OK) {
+        HDF_LOGE("%s: PRT_SemPend fail %u", __func__, ret);
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }
 
 int32_t OsalMutexTimedLock(struct OsalMutex *mutex, uint32_t ms)
 {
-    (void)mutex;
-    (void)ms;
-    /* On multi-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause deadlock case.
-    * For this reason,leave unimplementation.
-    */
+    uint32_t ret;
+
+    if (mutex == NULL || mutex->realMutex == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    ret = PRT_SemPend((SemHandle)(uintptr_t)mutex->realMutex, ms);
+    if (ret != OS_OK) {
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }
 
 int32_t OsalMutexUnlock(struct OsalMutex *mutex)
 {
-    (void)mutex;
-    /* On multi-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause deadlock case.
-    * For this reason,leave unimplementation.
-    */
+    uint32_t ret;
+
+    if (mutex == NULL || mutex->realMutex == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    ret = PRT_SemPost((SemHandle)(uintptr_t)mutex->realMutex);
+    if (ret != OS_OK) {
+        HDF_LOGE("%s: PRT_SemPost fail %u", __func__, ret);
+        return HDF_FAILURE;
+    }
     return HDF_SUCCESS;
 }

@@ -17,6 +17,7 @@
 #include "hdf_dlist.h"
 #include "hdf_sref.h"
 #include "osal_mutex.h"
+#include "osal_spinlock.h"
 #include "platform_core.h"
 
 #define CAN_THREAD_RUNNING (0x1)
@@ -63,6 +64,7 @@ struct CanCntlr {
     const struct CanMsg *irqMsg;
     struct OsalSem sem;
     uint8_t threadStatus;
+    OsalSpinlock threadLock;
 };
 
 enum CanErrState {

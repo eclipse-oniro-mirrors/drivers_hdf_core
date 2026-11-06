@@ -17,15 +17,43 @@
 
 AUDIO_LIST_HEAD(g_cardManager);
 
+static struct OsalMutex g_cardManagerLock;
+
+static int32_t AudioCardLock(void)
+{
+    if (g_cardManagerLock.realMutex == NULL) {
+        if (OsalMutexInit(&g_cardManagerLock) != HDF_SUCCESS) {
+            ADM_LOG_ERR("AudioCardLock: init lock fail!");
+            return HDF_FAILURE;
+        }
+    }
+    return OsalMutexLock(&g_cardManagerLock);
+}
+
+static void AudioCardUnlock(void)
+{
+    (void)OsalMutexUnlock(&g_cardManagerLock);
+}
+
 /* Get all sound card instance */
 const struct DListHead *GetAllCardInstance(void)
 {
-    if (DListIsEmpty(&g_cardManager)) {
-        ADM_LOG_ERR("g_cardManager is empty.");
+    const struct DListHead *head = NULL;
+
+    if (AudioCardLock() != HDF_SUCCESS) {
+        ADM_LOG_ERR("AudioCardLock fail!");
         return NULL;
     }
 
-    return &g_cardManager;
+    if (DListIsEmpty(&g_cardManager)) {
+        ADM_LOG_ERR("g_cardManager is empty.");
+        AudioCardUnlock();
+        return NULL;
+    }
+
+    head = &g_cardManager;
+    AudioCardUnlock();
+    return head;
 }
 
 /* Get a sound card instance */
@@ -38,22 +66,31 @@ struct AudioCard *GetCardInstance(const char *serviceName)
         return NULL;
     }
 
+    if (AudioCardLock() != HDF_SUCCESS) {
+        ADM_LOG_ERR("AudioCardLock fail!");
+        return NULL;
+    }
+
     if (DListIsEmpty(&g_cardManager)) {
         ADM_LOG_ERR("g_cardManager is empty.");
+        AudioCardUnlock();
         return NULL;
     }
 
     DLIST_FOR_EACH_ENTRY(audioCard, &g_cardManager, struct AudioCard, list) {
         if (audioCard->configData.cardServiceName == NULL) {
             ADM_LOG_ERR("cardServiceName is NULL.");
+            AudioCardUnlock();
             return NULL;
         }
 
         if (strcmp(audioCard->configData.cardServiceName, serviceName) == 0) {
+            AudioCardUnlock();
             return audioCard;
         }
     }
     ADM_LOG_ERR("serviceName is %s.", serviceName);
+    AudioCardUnlock();
     return NULL;
 }
 
@@ -369,7 +406,12 @@ static int32_t AudioCardInit(struct HdfDeviceObject *device, struct AudioHost *a
     }
 
     /* sound card added to list */
+    if (AudioCardLock() != HDF_SUCCESS) {
+        ADM_LOG_ERR("AudioCardLock fail!");
+        return HDF_FAILURE;
+    }
     DListInsertHead(&audioCard->list, &g_cardManager);
+    AudioCardUnlock();
 
     return HDF_SUCCESS;
 }
@@ -435,7 +477,12 @@ static void AudioDriverRelease(struct HdfDeviceObject *device)
             OsalMemFree(ctrlReq);
         }
 
-        DListRemove(&audioCard->list);
+        if (AudioCardLock() != HDF_SUCCESS) {
+            ADM_LOG_ERR("AudioCardLock fail!");
+        } else {
+            DListRemove(&audioCard->list);
+            AudioCardUnlock();
+        }
         OsalMemFree(audioCard->rtd);
         OsalMemFree(audioHost->priv);
     }

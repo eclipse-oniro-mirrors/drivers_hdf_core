@@ -632,6 +632,7 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
 {
     struct I3cDevice *device = NULL;
     uint16_t ptr;
+    uint32_t flags;
 
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrFreeIbi: cntlr is null!");
@@ -649,6 +650,7 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    OsalSpinLockIrqSave(&cntlr->lock, &flags);
     for (ptr = 0; ptr < I3C_IBI_MAX; ptr++) {
         if (cntlr->ibiSlot[ptr] == NULL || cntlr->ibiSlot[ptr] != device->ibi) {
             continue;
@@ -661,6 +663,7 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
         device->ibi = NULL;
         break;
     }
+    OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
 
     return HDF_SUCCESS;
 }
@@ -668,6 +671,9 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
 int32_t I3cCntlrIbiCallback(struct I3cDevice *device)
 {
     struct I3cIbiData *ibiData = NULL;
+    uint32_t flags;
+    I3cIbiFunc ibiFunc = NULL;
+    uint16_t addr;
 
     if (device == NULL) {
         HDF_LOGW("I3cCntlrIbiCallback: device is null!");
@@ -680,22 +686,27 @@ int32_t I3cCntlrIbiCallback(struct I3cDevice *device)
         return HDF_ERR_MALLOC_FAIL;
     }
 
+    OsalSpinLockIrqSave(&device->cntlr->lock, &flags);
+    if (device->ibi == NULL) {
+        HDF_LOGW("I3cCntlrIbiCallback: device->ibi is null!");
+        OsalSpinUnlockIrqRestore(&device->cntlr->lock, &flags);
+        OsalMemFree(ibiData);
+        return HDF_ERR_NOT_SUPPORT;
+    }
     ibiData->buf = device->ibi->data;
     ibiData->payload = device->ibi->payload;
+    ibiFunc = device->ibi->ibiFunc;
+    addr = (device->dynaAddr != 0) ? device->dynaAddr : device->addr;
+    OsalSpinUnlockIrqRestore(&device->cntlr->lock, &flags);
 
-    if (device->ibi->ibiFunc == NULL) {
-        HDF_LOGW("I3cCntlrIbiCallback: device->ibi or ibiFunc is null!");
+    if (ibiFunc == NULL) {
+        HDF_LOGW("I3cCntlrIbiCallback: ibiFunc is null!");
         OsalMemFree(ibiData);
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    if (device->dynaAddr != 0) {
-        (void)device->ibi->ibiFunc(device->cntlr, device->dynaAddr, *ibiData);
-        OsalMemFree(ibiData);
-    } else {
-        (void)device->ibi->ibiFunc(device->cntlr, device->addr, *ibiData);
-        OsalMemFree(ibiData);
-    }
+    (void)ibiFunc(device->cntlr, addr, *ibiData);
+    OsalMemFree(ibiData);
 
     return HDF_SUCCESS;
 }

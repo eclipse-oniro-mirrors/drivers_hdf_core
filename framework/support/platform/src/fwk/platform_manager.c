@@ -305,13 +305,22 @@ struct PlatformDevice *PlatformManagerGetDeviceByNumber(struct PlatformManager *
 static bool PlatformDeviceMatchByName(struct PlatformDevice *device, void *data)
 {
     const char *name = (const char *)data;
+    bool match = false;
 
-    if (name == NULL || device->name == NULL) {
-        PLAT_LOGE("PlatformDeviceMatchByName: name or device->name is null!");
+    if (name == NULL) {
+        PLAT_LOGE("PlatformDeviceMatchByName: name is null!");
         return false;
     }
 
-    return (strcmp(name, device->name) == 0);
+    (void)OsalSpinLock(&device->spin);
+    if (device->name == NULL) {
+        PLAT_LOGE("PlatformDeviceMatchByName: device->name is null!");
+        (void)OsalSpinUnlock(&device->spin);
+        return false;
+    }
+    match = (strcmp(name, device->name) == 0);
+    (void)OsalSpinUnlock(&device->spin);
+    return match;
 }
 
 struct PlatformDevice *PlatformManagerGetDeviceByName(struct PlatformManager *manager, const char *name)

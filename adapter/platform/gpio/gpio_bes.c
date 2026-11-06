@@ -12,6 +12,7 @@
 #include "hal_iomux.h"
 #include "hdf_core_log.h"
 #include "osal_irq.h"
+#include "osal_spinlock.h"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #include "hcs_macro.h"
 #include "hdf_config_macro.h"
@@ -73,6 +74,7 @@ static struct GpioCntlr g_gpioCntlr;
 enum HAL_GPIO_PIN_T g_gpioPinReflectionMap[HAL_GPIO_PIN_LED_NUM] = {0};
 
 static struct HAL_GPIO_IRQ_CFG_T g_gpioIrqCfg[HAL_GPIO_PIN_LED_NUM] = {0};
+static OsalSpinlock g_gpioIrqCfgLock;
 
 static void OemGpioIrqHdl(enum HAL_GPIO_PIN_T pin)
 {
@@ -322,6 +324,7 @@ static int32_t GpioDriverInit(struct HdfDeviceObject *device)
         return HDF_DEV_ERR_ATTACHDEV_FAIL;
     }
 
+    OsalSpinInit(&g_gpioIrqCfgLock);
     gpioCntlr->ops = &g_GpioCntlrMethod; // register callback
     ret = GpioCntlrAdd(gpioCntlr);
     if (ret != HDF_SUCCESS) {
@@ -415,22 +418,26 @@ static int32_t GpioDevGetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *d
 static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mode)
 {
     (void)cntlr;
+    uint32_t flags;
     enum HAL_GPIO_PIN_T pin = (enum HAL_GPIO_PIN_T)g_gpioPinReflectionMap[gpio];
     if (pin >= HAL_GPIO_PIN_LED_NUM) {
         HDF_LOGE("%s %d, error pin:%d", __func__, __LINE__, pin);
         return HDF_ERR_NOT_SUPPORT;
     }
 
+    OsalSpinLockIrqSave(&g_gpioIrqCfgLock, &flags);
     if ((mode == OSAL_IRQF_TRIGGER_RISING) || (mode == OSAL_IRQF_TRIGGER_FALLING)) {
         g_gpioIrqCfg[pin].irq_type = HAL_GPIO_IRQ_TYPE_EDGE_SENSITIVE;
     } else if ((mode == OSAL_IRQF_TRIGGER_HIGH) || (mode == OSAL_IRQF_TRIGGER_LOW)) {
         g_gpioIrqCfg[pin].irq_type = HAL_GPIO_IRQ_TYPE_LEVEL_SENSITIVE;
     } else {
         HDF_LOGE("%s %d, error mode:%hu", __func__, __LINE__, mode);
+        OsalSpinUnlockIrqRestore(&g_gpioIrqCfgLock, &flags);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     g_gpioIrqCfg[pin].irq_polarity = mode;
+    OsalSpinUnlockIrqRestore(&g_gpioIrqCfgLock, &flags);
 
     return HDF_SUCCESS;
 }
@@ -451,6 +458,7 @@ static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
     (void)cntlr;
     struct HAL_GPIO_IRQ_CFG_T gpioCfg;
+    uint32_t flags;
     uint16_t halGpio = (enum HAL_GPIO_PIN_T)g_gpioPinReflectionMap[gpio];
     if ((enum HAL_GPIO_PIN_T)halGpio >= HAL_GPIO_PIN_LED_NUM) {
         HDF_LOGE("%s %d, error pin:%d", __func__, __LINE__, (enum HAL_GPIO_PIN_T)halGpio);
@@ -461,10 +469,12 @@ static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 
     gpioCfg.irq_enable = true;
     gpioCfg.irq_debounce = true;
-    gpioCfg.irq_polarity = g_gpioIrqCfg[(enum HAL_GPIO_PIN_T)halGpio].irq_polarity;
     gpioCfg.irq_handler = OemGpioIrqHdl;
+    OsalSpinLockIrqSave(&g_gpioIrqCfgLock, &flags);
+    gpioCfg.irq_polarity = g_gpioIrqCfg[(enum HAL_GPIO_PIN_T)halGpio].irq_polarity;
     gpioCfg.irq_type = g_gpioIrqCfg[(enum HAL_GPIO_PIN_T)halGpio].irq_type;
     g_gpioIrqCfg[halGpio] = gpioCfg;
+    OsalSpinUnlockIrqRestore(&g_gpioIrqCfgLock, &flags);
 
     hal_gpio_setup_irq((enum HAL_GPIO_PIN_T)halGpio, &gpioCfg);
 
