@@ -102,6 +102,27 @@ git ls-files \
 | 任务中直接提及 hdf_devmgr 管理进程、设备生命周期、Manager-Host IPC | 先读 `docs/knowledge/hdf_devmgr.md` |
 | 任务中直接提及 devhost 驱动加载、设备服务发布、电源管理 | 先读 `docs/knowledge/hdf_devhost.md` |
 
+### 知识路由（六篇结构）
+
+`docs/knowledge/` 下新增的六篇插件级文档覆盖业务实体与技术机制，按任务类型索引（路径相对本 AGENTS.md）：
+
+| 问题 | 先读 |
+|---|---|
+| 业务定位、核心职责、职责边界、系统上下文、核心输入输出 | [业务背景](docs/knowledge/business-context.md) |
+| 架构分层、设计原则、非功能设计、what/why 架构约束 | [架构设计及约束](docs/knowledge/architecture.md) |
+| 修改代码前的领域约束（进程归属/API 错误码/并发 IPC/驱动模型/电源/安全/许可/提交） | [编码铁律](docs/knowledge/coding-standards.md) |
+| 术语和易混概念（hdf_devmgr/devhost/SBUF/HCS/HdfDriverEntry/HdfDeviceNode/ServicePolicy/VDI/PowerStateToken/平台设备三层结构/MessageLooper 等） | [术语表](docs/knowledge/glossary.md) |
+| 实体、状态、关系和生命周期（HdfDriverEntry/HdfDeviceNode/HdfDevice/HdfDeviceInfo/DevHostServiceClnt/服务注册记录） | [业务实体知识](docs/knowledge/hdf-Entity.md) |
+| 技术原理、使用方式和限制（驱动加载/设备生命周期/SBUF 序列化/HCS 解析/对象工厂/电源管理/平台设备 IO 调用/异步消息） | [技术术语知识](docs/knowledge/hdf-Technology.md) |
+
+按需阅读顺序（从任务进入知识，而非一次加载全部）：
+1. 不确定改动归属 → [业务背景](docs/knowledge/business-context.md) 应用定位 + [架构设计及约束](docs/knowledge/architecture.md) 逻辑架构。
+2. 改框架/适配/驱动模型前 → [编码铁律](docs/knowledge/coding-standards.md)。
+3. 遇到不熟悉的类型/术语 → [术语表](docs/knowledge/glossary.md)。
+4. 涉及设备生命周期/驱动加载细节 → [业务实体知识](docs/knowledge/hdf-Entity.md)。
+5. 涉及 SBUF/HCS/对象工厂/电源/平台 IO/异步消息原理 → [技术术语知识](docs/knowledge/hdf-Technology.md)。
+6. 仍需 Manager/Host 进程级细节 → 回到上方既有 `hdf_devmgr.md` / `hdf_devhost.md`。
+
 路径级触发（改动这些目录前必读；`module-map.md` 实际只有两个章节：`# 模块路由`（H1）与 `## 容易放错的位置`（H2），以下条目均指向这两节内对应的**表格行**或**条目**）：
 
 | 改动路径 | 必读章节 · 具体条目 |
