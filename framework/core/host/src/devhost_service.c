@@ -76,20 +76,22 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
 
     (void)OsalMutexLock(&hostService->deviceLock);
     device = DevHostServiceQueryOrAddDevice(hostService, DEVICEID(deviceInfo->deviceId));
-    (void)OsalMutexUnlock(&hostService->deviceLock);
     if (device == NULL || device->super.Attach == NULL) {
         HDF_LOGE("failed to add device, device or Attach func is null");
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_DEV_ERR_NO_DEVICE;
     }
     devNode = device->super.GetDeviceNode(&device->super, deviceInfo->deviceId);
     if (devNode != NULL) {
         HDF_LOGE("failed to add device, device already exist");
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_ERR_DEVICE_BUSY;
     }
     driver = driverLoader->GetDriver(deviceInfo->moduleName);
     if (driver == NULL) {
         HDF_LOGE("failed to add device %{public}s, get driver failed", deviceInfo->moduleName);
         ret = HDF_DEV_ERR_NODATA;
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         goto ERROR;
     }
 
@@ -97,6 +99,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     if (devNode == NULL) {
         HDF_LOGE("failed to add device, create devNode failed");
         driverLoader->ReclaimDriver(driver);
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_DEV_ERR_NO_MEMORY;
     }
 
@@ -104,6 +107,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     devNode->device = device;
     devNode->driver = driver;
     ret = device->super.Attach(&device->super, devNode);
+    (void)OsalMutexUnlock(&hostService->deviceLock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("failed to add device, attach devNode failed");
         HdfDeviceNodeFreeInstance(devNode);
@@ -113,11 +117,11 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     return HDF_SUCCESS;
 
 ERROR:
+    (void)OsalMutexLock(&hostService->deviceLock);
     if (device != NULL && DListIsEmpty(&device->devNodes)) {
-        (void)OsalMutexLock(&hostService->deviceLock);
         DevHostServiceFreeDevice(hostService, device);
-        (void)OsalMutexUnlock(&hostService->deviceLock);
     }
+    (void)OsalMutexUnlock(&hostService->deviceLock);
 
     return ret;
 }

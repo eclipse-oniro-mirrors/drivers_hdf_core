@@ -1208,7 +1208,9 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
         DListRemove(&adapter->listNode);
         adapter->group = NULL;
     } else {
+        DListRemove(&adapter->listNode);
         HdfListenThreadPollDel(adapterGroup->thread, adapter);
+        adapter->group = NULL;
     }
     OsalMutexUnlock(&adapterGroup->mutex);
 }

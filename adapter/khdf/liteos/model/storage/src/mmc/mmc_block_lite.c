@@ -300,6 +300,7 @@ struct block_operations *StorageBlockGetMmcOps(void)
 
 static struct MmcBlock *g_diskIdTable[SYS_MAX_DISK] = { };
 static OsalSpinlock g_diskIdTableLock;
+static bool g_diskIdTableLockInited = false;
 
 int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
 {
@@ -320,7 +321,13 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    OsalSpinInit(&g_diskIdTableLock);
+    if (!g_diskIdTableLockInited) {
+        if (OsalSpinInit(&g_diskIdTableLock) != HDF_SUCCESS) {
+            HDF_LOGE("MmcBlockOsInit: OsalSpinInit fail!");
+            return HDF_FAILURE;
+        }
+        g_diskIdTableLockInited = true;
+    }
     diskId = los_alloc_diskid_byname(mb->name);
     if (!mb->removable) {
         info = &g_emmcInfo;
@@ -368,7 +375,6 @@ void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
         g_diskIdTable[diskId] = NULL;
         OsalSpinUnlockIrqRestore(&g_diskIdTableLock, &flags);
     }
-    OsalSpinDestroy(&g_diskIdTableLock);
 }
 
 static struct MmcBlock *MmcBlockFromDiskId(int32_t diskId)

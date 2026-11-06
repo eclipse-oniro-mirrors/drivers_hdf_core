@@ -210,6 +210,8 @@ static int32_t MmcBlockAdd(struct MmcDevice *mmcDevice, struct MmcBlock *mb)
     return HDF_SUCCESS;
 }
 
+static bool g_diskDrvLockInited = false;
+
 int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
 {
     struct MmcBlock *mb = NULL;
@@ -219,7 +221,12 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    OsalSpinInit(&g_diskDrvLock);
+    if (!g_diskDrvLockInited) {
+        if (OsalSpinInit(&g_diskDrvLock) != HDF_SUCCESS) {
+            return HDF_FAILURE;
+        }
+        g_diskDrvLockInited = true;
+    }
     mb = mmcDevice->mb;
     ret = MmcBlockAdd(mmcDevice, mb);
     if (ret != HDF_SUCCESS) {
@@ -255,5 +262,4 @@ void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
         return;
     }
     MmcBlockRemove(mmcDevice);
-    OsalSpinDestroy(&g_diskDrvLock);
 }
