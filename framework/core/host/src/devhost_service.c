@@ -138,35 +138,37 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
 
     (void)OsalMutexLock(&hostService->deviceLock);
     device = DevHostServiceFindDevice(hostService, DEVICEID(devId));
-    (void)OsalMutexUnlock(&hostService->deviceLock);
     if (device == NULL) {
         HDF_LOGW("failed to del device, device is not exist");
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_SUCCESS;
     }
 
     devNode = device->super.GetDeviceNode(&device->super, devId);
     if (devNode == NULL) {
         HDF_LOGI("failed to del device, not exist");
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
     if (device->super.Detach == NULL) {
         HDF_LOGE("failed to del device, invalid device");
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (device->super.Detach(&device->super, devNode) != HDF_SUCCESS) {
         HDF_LOGE("failed to detach device");
+        (void)OsalMutexUnlock(&hostService->deviceLock);
         return HDF_FAILURE;
     }
     HdfDeviceNodeFreeInstance(devNode);
 
     if (DListIsEmpty(&device->devNodes)) {
-        (void)OsalMutexLock(&hostService->deviceLock);
         DevHostServiceFreeDevice(hostService, device);
-        (void)OsalMutexUnlock(&hostService->deviceLock);
     }
-    HDF_LOGD("%{public}s add device success", __func__);
+    (void)OsalMutexUnlock(&hostService->deviceLock);
+    HDF_LOGD("%{public}s del device success", __func__);
     return HDF_SUCCESS;
 }
 

@@ -1191,6 +1191,8 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
 
 void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfIoService *service)
 {
+    struct HdfDevListenerThread *threadToDestroy = NULL;
+
     if (group == NULL || service == NULL) {
         return;
     }
@@ -1203,7 +1205,7 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
         return;
     }
     if (HaveOnlyOneElement(&adapterGroup->adapterList)) {
-        HdfDevListenerThreadDestroy(adapterGroup->thread);
+        threadToDestroy = adapterGroup->thread;
         adapterGroup->thread = NULL;
         DListRemove(&adapter->listNode);
         adapter->group = NULL;
@@ -1213,6 +1215,8 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
         adapter->group = NULL;
     }
     OsalMutexUnlock(&adapterGroup->mutex);
+
+    HdfDevListenerThreadDestroy(threadToDestroy);
 }
 
 int HdfIoserviceGetListenerCount(const struct HdfIoService *service)
