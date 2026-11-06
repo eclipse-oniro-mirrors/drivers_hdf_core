@@ -188,17 +188,20 @@ int32_t OsalTimerDelete(OsalTimer *timer)
         PRT_IntRestore(intSave);
         return HDF_FAILURE;
     }
+    timer->realTimer = NULL;
     PRT_IntRestore(intSave);
 
     ret = PRT_TimerDelete(0, timerID);
     if (ret == OS_OK) {
         intSave = PRT_IntLock();
-        OsalMemFree(timer->realTimer);
-        timer->realTimer = NULL;
+        OsalMemFree(liteTimer);
         PRT_IntRestore(intSave);
         return HDF_SUCCESS;
     } else {
         HDF_LOGE("%s PRT_TimerDelete fail %u", __func__, ret);
+        intSave = PRT_IntLock();
+        timer->realTimer = (void *)liteTimer;
+        PRT_IntRestore(intSave);
         return HDF_FAILURE;
     }
 }

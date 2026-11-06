@@ -68,6 +68,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     struct HdfDriver *driver = NULL;
     struct DevHostService *hostService = CONTAINER_OF(inst, struct DevHostService, super);
     struct IDriverLoader *driverLoader = HdfDriverLoaderGetInstance();
+    bool needFreeDevice = false;
 
     if (inst == NULL || deviceInfo == NULL || driverLoader == NULL || driverLoader->GetDriver == NULL) {
         HDF_LOGE("failed to add device, input param is null");
@@ -78,47 +79,48 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     device = DevHostServiceQueryOrAddDevice(hostService, DEVICEID(deviceInfo->deviceId));
     if (device == NULL || device->super.Attach == NULL) {
         HDF_LOGE("failed to add device, device or Attach func is null");
-        (void)OsalMutexUnlock(&hostService->deviceLock);
-        return HDF_DEV_ERR_NO_DEVICE;
+        needFreeDevice = (device != NULL);
+        ret = HDF_DEV_ERR_NO_DEVICE;
+        goto ERR_UNLOCK;
     }
     devNode = device->super.GetDeviceNode(&device->super, deviceInfo->deviceId);
     if (devNode != NULL) {
         HDF_LOGE("failed to add device, device already exist");
-        (void)OsalMutexUnlock(&hostService->deviceLock);
-        return HDF_ERR_DEVICE_BUSY;
+        ret = HDF_ERR_DEVICE_BUSY;
+        needFreeDevice = false;
+        goto ERR_UNLOCK;
     }
     driver = driverLoader->GetDriver(deviceInfo->moduleName);
     if (driver == NULL) {
         HDF_LOGE("failed to add device %{public}s, get driver failed", deviceInfo->moduleName);
         ret = HDF_DEV_ERR_NODATA;
-        (void)OsalMutexUnlock(&hostService->deviceLock);
-        goto ERROR;
+        needFreeDevice = true;
+        goto ERR_UNLOCK;
     }
 
     devNode = HdfDeviceNodeNewInstance(deviceInfo, driver);
     if (devNode == NULL) {
         HDF_LOGE("failed to add device, create devNode failed");
         driverLoader->ReclaimDriver(driver);
-        (void)OsalMutexUnlock(&hostService->deviceLock);
-        return HDF_DEV_ERR_NO_MEMORY;
+        needFreeDevice = true;
+        ret = HDF_DEV_ERR_NO_MEMORY;
+        goto ERR_UNLOCK;
     }
 
     devNode->hostService = hostService;
     devNode->device = device;
     devNode->driver = driver;
     ret = device->super.Attach(&device->super, devNode);
-    (void)OsalMutexUnlock(&hostService->deviceLock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("failed to add device, attach devNode failed");
         HdfDeviceNodeFreeInstance(devNode);
-        goto ERROR;
+        needFreeDevice = true;
+    } else {
+        HDF_LOGD("%{public}s add device success", __func__);
     }
-    HDF_LOGD("%{public}s add device success", __func__);
-    return HDF_SUCCESS;
 
-ERROR:
-    (void)OsalMutexLock(&hostService->deviceLock);
-    if (device != NULL && DListIsEmpty(&device->devNodes)) {
+ERR_UNLOCK:
+    if (needFreeDevice && device != NULL && DListIsEmpty(&device->devNodes)) {
         DevHostServiceFreeDevice(hostService, device);
     }
     (void)OsalMutexUnlock(&hostService->deviceLock);
