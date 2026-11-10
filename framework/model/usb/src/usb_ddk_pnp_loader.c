@@ -33,7 +33,7 @@
 #define USB_DDK_PNP_CLASS_VENDOR_SPEC 0xFF
 
 static struct DListHead g_usbPnpDeviceTableListHead;
-static OsalMutex g_usbPnpDeviceTableListLock;
+static struct OsalMutex g_usbPnpDeviceTableListLock;
 static struct UsbPnpMatchIdTable **g_usbPnpMatchIdTable = NULL;
 
 static struct HdfSBuf *UsbDdkPnpLoaderBufCreate(const char *moduleName, const char *serviceName,
