@@ -26,6 +26,8 @@ extern "C" {
 #define OsalAtomicSetWrapper(v, value) ((v)->counter = (value))
 #define OsalAtomicIncWrapper(v) __sync_fetch_and_add(&(v)->counter, 1)
 #define OsalAtomicDecWrapper(v) __sync_sub_and_fetch(&(v)->counter, 1)
+#define OsalAtomicIncRetWrapper(v) __sync_add_and_fetch(&(v)->counter, 1)
+#define OsalAtomicDecRetWrapper(v) __sync_sub_and_fetch(&(v)->counter, 1)
 static inline int32_t BitDoNotSupport(int nr, unsigned long *addr)
 {
     (void)nr;
