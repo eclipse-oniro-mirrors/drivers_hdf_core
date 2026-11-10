@@ -34,7 +34,7 @@
 
 #define HDF_INVALID_DEV_ID 0xffffffff
 
-#define HDF_LOG_TAG devmgr_service_stu
+#define HDF_LOG_TAG devmgr_service_stub
 
 static void DevmgrServicehostClntGetPid(struct IDevmgrService *devmgrSvc, uint16_t hostId)
 {
