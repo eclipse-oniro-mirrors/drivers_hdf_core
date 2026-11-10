@@ -46,27 +46,24 @@ int HdfServiceObserverSubscribeService(
         HDF_LOGE("observer or svcName or callback.OnServiceConnected is null");
         return HDF_FAILURE;
     }
-    OsalMutexLock(&observer->observerMutex);
     serviceRecord = (struct HdfServiceObserverRecord *)HdfSListSearch(
         &observer->services, serviceKey, HdfServiceObserverRecordCompare);
     if (serviceRecord == NULL) {
         serviceRecord = HdfServiceObserverRecordObtain(serviceKey);
         if (serviceRecord == NULL) {
             HDF_LOGE("failed to subscribe service, serviceRecord is null");
-            OsalMutexUnlock(&observer->observerMutex);
             return HDF_FAILURE;
         }
         subscriber = HdfServiceSubscriberObtain(callback, deviceId);
         if (subscriber == NULL) {
             HDF_LOGE("failed to subscribe service, subscriber is null");
             HdfServiceObserverRecordRecycle(serviceRecord);
-            OsalMutexUnlock(&observer->observerMutex);
             return HDF_FAILURE;
         }
+        OsalMutexLock(&observer->observerMutex);
         HdfSListAdd(&observer->services, &serviceRecord->entry);
         OsalMutexUnlock(&observer->observerMutex);
     } else {
-        OsalMutexUnlock(&observer->observerMutex);
         subscriber = HdfServiceSubscriberObtain(callback, deviceId);
         if (subscriber == NULL) {
             HDF_LOGE("failed to subscribe service, subscriber obtain null");
@@ -93,24 +90,22 @@ int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const 
         HDF_LOGE("observer or svcName is null");
         return HDF_FAILURE;
     }
-    OsalMutexLock(&observer->observerMutex);
     serviceRecord = (struct HdfServiceObserverRecord *)HdfSListSearch(
         &observer->services, serviceKey, HdfServiceObserverRecordCompare);
     if (serviceRecord == NULL) {
         serviceRecord = HdfServiceObserverRecordObtain(serviceKey);
         if (serviceRecord == NULL) {
             HDF_LOGE("PublishService failed, serviceRecord is null");
-            OsalMutexUnlock(&observer->observerMutex);
             return HDF_FAILURE;
         }
         serviceRecord->publisher = service;
         serviceRecord->devId = deviceId;
         serviceRecord->policy = policy;
+        OsalMutexLock(&observer->observerMutex);
         HdfSListAdd(&observer->services, &serviceRecord->entry);
         OsalMutexUnlock(&observer->observerMutex);
     } else {
         serviceRecord->publisher = service;
-        OsalMutexUnlock(&observer->observerMutex);
         HdfServiceObserverRecordNotifySubscribers(serviceRecord, deviceId, policy);
     }
     return HDF_SUCCESS;
@@ -124,12 +119,12 @@ void HdfServiceObserverRemoveRecord(struct HdfServiceObserver *observer, const c
         HDF_LOGW("observer or svcName is null");
         return;
     }
-    OsalMutexLock(&observer->observerMutex);
     serviceRecord = (struct HdfServiceObserverRecord *)HdfSListSearch(
         &observer->services, serviceKey, HdfServiceObserverRecordCompare);
     if (serviceRecord != NULL) {
+        OsalMutexLock(&observer->observerMutex);
         HdfSListRemove(&observer->services, &serviceRecord->entry);
+        OsalMutexUnlock(&observer->observerMutex);
         HdfServiceObserverRecordRecycle(serviceRecord);
     }
-    OsalMutexUnlock(&observer->observerMutex);
 }

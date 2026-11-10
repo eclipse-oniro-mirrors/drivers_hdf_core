@@ -60,8 +60,7 @@ static OsalAtomic g_isGadgetAdd = {0};
 static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
 {
     struct UsbPnpDeviceInfo *infoTemp = NULL;
-    static OsalAtomic idNum = {0};
-    int32_t curId;
+    static OsalAtomic idNum = {1};
 
     infoTemp = (struct UsbPnpDeviceInfo *)OsalMemCalloc(sizeof(struct UsbPnpDeviceInfo));
     if (infoTemp == NULL) {
@@ -69,7 +68,7 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
         return NULL;
     }
 
-    curId = OsalAtomicIncReturn(&idNum);
+    int32_t curId = OsalAtomicIncReturn(&idNum);
     if (curId >= INT32_MAX) {
         OsalAtomicSet(&idNum, 0);
     }

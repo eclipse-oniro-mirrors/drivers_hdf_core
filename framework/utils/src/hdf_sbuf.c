@@ -114,7 +114,8 @@ static const struct HdfSbufConstructor *HdfSbufConstructorGet(uint32_t type)
     }
 #ifndef __LITEOS__
 #ifndef __KERNEL__
-    if (type == SBUF_IPC) {
+    if (type == SBUF_IPC &&
+        (g_sbufConstructorMap[SBUF_IPC].bind == NULL || g_sbufConstructorMap[SBUF_IPC].obtain == NULL)) {
         pthread_mutex_lock(&g_handleLock);
         LoadIpcImpl();
         pthread_mutex_unlock(&g_handleLock);

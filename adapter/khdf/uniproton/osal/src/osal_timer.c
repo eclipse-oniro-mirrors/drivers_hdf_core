@@ -30,7 +30,6 @@
 
 #include "osal_timer.h"
 #include "hdf_core_log.h"
-#include "prt_hwi.h"
 #include "prt_timer.h"
 #include "osal_mem.h"
 
@@ -122,37 +121,24 @@ int32_t OsalTimerSetTimeout(OsalTimer *timer, uint32_t interval)
 {
     struct OsalLitetimer *liteTimer = NULL;
     uint32_t ret;
-    uint32_t intSave;
-    TimerHandle timerID;
 
-    if (timer == NULL || interval == 0) {
+    if (timer == NULL || timer->realTimer == NULL || interval == 0) {
         HDF_LOGE("%s invalid para", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
-    intSave = PRT_IntLock();
-    if (timer->realTimer == NULL) {
-        HDF_LOGE("%s invalid para", __func__);
-        PRT_IntRestore(intSave);
-        return HDF_ERR_INVALID_PARAM;
-    }
     liteTimer = (struct OsalLitetimer *)timer->realTimer;
-    timerID = liteTimer->timerID;
-    if (timerID == OSAL_INVALID_TIMER_ID) {
-        HDF_LOGE("%s timer id invalid %u", __func__, timerID);
-        PRT_IntRestore(intSave);
+    if (liteTimer->timerID == OSAL_INVALID_TIMER_ID) {
+        HDF_LOGE("%s timer id invalid %u", __func__, liteTimer->timerID);
         return HDF_FAILURE;
     }
 
     if (liteTimer->interval == interval) {
-        PRT_IntRestore(intSave);
         return HDF_SUCCESS;
     }
 
     liteTimer->interval = interval;
-    PRT_IntRestore(intSave);
-
-    ret = PRT_TimerDelete(0, timerID);
+    ret = PRT_TimerDelete(0, liteTimer->timerID);
     if (ret != OS_OK) {
         HDF_LOGE("%s PRT_TimerDelete fail %u", __func__, ret);
         return HDF_FAILURE;
@@ -164,44 +150,27 @@ int32_t OsalTimerSetTimeout(OsalTimer *timer, uint32_t interval)
 int32_t OsalTimerDelete(OsalTimer *timer)
 {
     uint32_t ret;
-    uint32_t intSave;
     struct OsalLitetimer *liteTimer = NULL;
-    TimerHandle timerID;
 
-    if (timer == NULL) {
+    if (timer == NULL || timer->realTimer == NULL) {
         HDF_LOGE("%s invalid para", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
-    intSave = PRT_IntLock();
-    if (timer->realTimer == NULL) {
-        HDF_LOGE("%s invalid para", __func__);
-        PRT_IntRestore(intSave);
-        return HDF_ERR_INVALID_PARAM;
-    }
     liteTimer = (struct OsalLitetimer *)timer->realTimer;
-    timerID = liteTimer->timerID;
-    if (timerID == OSAL_INVALID_TIMER_ID) {
-        HDF_LOGE("%s timer id invalid %u", __func__, timerID);
+    if (liteTimer->timerID == OSAL_INVALID_TIMER_ID) {
+        HDF_LOGE("%s timer id invalid %u", __func__, liteTimer->timerID);
         OsalMemFree(timer->realTimer);
         timer->realTimer = NULL;
-        PRT_IntRestore(intSave);
         return HDF_FAILURE;
     }
-    timer->realTimer = NULL;
-    PRT_IntRestore(intSave);
-
-    ret = PRT_TimerDelete(0, timerID);
+    ret = PRT_TimerDelete(0, liteTimer->timerID);
     if (ret == OS_OK) {
-        intSave = PRT_IntLock();
-        OsalMemFree(liteTimer);
-        PRT_IntRestore(intSave);
+        OsalMemFree(timer->realTimer);
+        timer->realTimer = NULL;
         return HDF_SUCCESS;
     } else {
         HDF_LOGE("%s PRT_TimerDelete fail %u", __func__, ret);
-        intSave = PRT_IntLock();
-        timer->realTimer = (void *)liteTimer;
-        PRT_IntRestore(intSave);
         return HDF_FAILURE;
     }
 }
