@@ -116,7 +116,7 @@ static int HdfRemoteAdapterOptionalDispatch(struct HdfRemoteService *service, in
     OHOS::MessageParcel *replyParcel = nullptr;
 
     if (reply == nullptr) {
-        static OHOS::MessageParcel dummyReply;
+        OHOS::MessageParcel dummyReply;
         dummyReply.FlushBuffer();
         replyParcel = &dummyReply;
     } else if (SbufToParcel(reply, &replyParcel)) {

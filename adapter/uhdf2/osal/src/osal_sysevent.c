@@ -155,9 +155,14 @@ static void DeInitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *noti
         return;
     }
 
-    (void)HdfDeviceUnregisterEventListener(notifier->keventIoService, &notifier->ioServiceListener);
-    HdfIoServiceRecycle(notifier->keventIoService);
+    struct HdfIoService *keventIoService = notifier->keventIoService;
     notifier->keventIoService = NULL;
+    notifier->ioServiceListener.onReceive = NULL;
+    notifier->ioServiceListener.priv = NULL;
+    OsalMutexUnlock(&notifier->mutex);
+    (void)HdfDeviceUnregisterEventListener(keventIoService, &notifier->ioServiceListener);
+    HdfIoServiceRecycle(keventIoService);
+    OsalMutexLock(&notifier->mutex);
 }
 
 int32_t HdfSysEventNotifyRegister(struct HdfSysEventNotifyNode *notifierNode, uint64_t classSet)
