@@ -41,6 +41,8 @@ int HdfServiceObserverSubscribeService(
 {
     struct HdfServiceObserverRecord *serviceRecord = NULL;
     struct HdfServiceSubscriber *subscriber = NULL;
+    void *publisher = NULL;
+    bool needNotify = false;
     uint32_t serviceKey = HdfStringMakeHashKey(svcName, 0);
     if ((observer == NULL) || (svcName == NULL)) {
         HDF_LOGE("observer or svcName or callback.OnServiceConnected is null");
@@ -64,23 +66,28 @@ int HdfServiceObserverSubscribeService(
             return HDF_FAILURE;
         }
         HdfSListAdd(&observer->services, &serviceRecord->entry);
-        OsalMutexUnlock(&observer->observerMutex);
     } else {
-        OsalMutexUnlock(&observer->observerMutex);
         subscriber = HdfServiceSubscriberObtain(callback, deviceId);
         if (subscriber == NULL) {
             HDF_LOGE("failed to subscribe service, subscriber obtain null");
+            OsalMutexUnlock(&observer->observerMutex);
             return HDF_FAILURE;
         }
     }
     if ((serviceRecord->publisher != NULL) && (subscriber->callback.OnServiceConnected != NULL) &&
         ((serviceRecord->policy != SERVICE_POLICY_PRIVATE) || (serviceRecord->devId == deviceId))) {
         subscriber->state = HDF_SUBSCRIBER_STATE_READY;
-        subscriber->callback.OnServiceConnected(subscriber->callback.deviceObject, serviceRecord->publisher);
+        publisher = serviceRecord->publisher;
+        needNotify = true;
     }
     OsalMutexLock(&serviceRecord->obsRecMutex);
     HdfSListAdd(&serviceRecord->subscribers, &subscriber->entry);
     OsalMutexUnlock(&serviceRecord->obsRecMutex);
+    OsalMutexUnlock(&observer->observerMutex);
+
+    if (needNotify) {
+        subscriber->callback.OnServiceConnected(subscriber->callback.deviceObject, publisher);
+    }
     return HDF_SUCCESS;
 }
 
@@ -110,8 +117,8 @@ int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const 
         OsalMutexUnlock(&observer->observerMutex);
     } else {
         serviceRecord->publisher = service;
-        OsalMutexUnlock(&observer->observerMutex);
         HdfServiceObserverRecordNotifySubscribers(serviceRecord, deviceId, policy);
+        OsalMutexUnlock(&observer->observerMutex);
     }
     return HDF_SUCCESS;
 }
