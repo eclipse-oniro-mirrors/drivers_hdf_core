@@ -24,9 +24,9 @@ struct DevHostService {
     uint16_t hostId;
     const char *hostName;
     struct DListHead devices;
-    struct OsalMutex deviceLock;
     struct HdfServiceObserver observer;
     struct HdfSysEventNotifyNode sysEventNotifyNode;
+    struct OsalMutex deviceLock;
 };
 
 void DevHostServiceConstruct(struct DevHostService *service);
