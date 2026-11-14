@@ -18,9 +18,6 @@
 #include <stdlib.h>
 #include <sys/syscall.h>
 #include <unistd.h>
-#ifdef __USER__
-#include <pthread.h>
-#endif
 
 #include "devhost_service_proxy.h"
 #include "devhost_service_clnt.h"
@@ -38,10 +35,6 @@
 #define HDF_INVALID_DEV_ID 0xffffffff
 
 #define HDF_LOG_TAG devmgr_service_stub
-
-#ifdef __USER__
-extern pthread_rwlock_t g_hostsLock;
-#endif
 
 static void DevmgrServicehostClntGetPid(struct IDevmgrService *devmgrSvc, uint16_t hostId)
 {

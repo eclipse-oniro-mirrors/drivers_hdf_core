@@ -26,8 +26,9 @@ struct DevHostService {
     struct DListHead devices;
     struct HdfServiceObserver observer;
     struct HdfSysEventNotifyNode sysEventNotifyNode;
-    struct OsalMutex deviceLock;
 };
+
+extern struct OsalMutex g_devhostDeviceLock;
 
 void DevHostServiceConstruct(struct DevHostService *service);
 void DevHostServiceDestruct(struct DevHostService *service);

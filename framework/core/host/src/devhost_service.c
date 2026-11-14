@@ -18,6 +18,8 @@
 
 #define HDF_LOG_TAG devhost_service
 
+struct OsalMutex g_devhostDeviceLock;
+
 static struct HdfDevice *DevHostServiceFindDevice(struct DevHostService *hostService, uint16_t deviceId)
 {
     struct HdfDevice *device = NULL;
@@ -75,7 +77,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
         return ret;
     }
 
-    (void)OsalMutexLock(&hostService->deviceLock);
+    (void)OsalMutexLock(&g_devhostDeviceLock);
     device = DevHostServiceQueryOrAddDevice(hostService, DEVICEID(deviceInfo->deviceId));
     if (device == NULL || device->super.Attach == NULL) {
         HDF_LOGE("failed to add device, device or Attach func is null");
@@ -123,7 +125,7 @@ ERR_UNLOCK:
     if (needFreeDevice && device != NULL && DListIsEmpty(&device->devNodes)) {
         DevHostServiceFreeDevice(hostService, device);
     }
-    (void)OsalMutexUnlock(&hostService->deviceLock);
+    (void)OsalMutexUnlock(&g_devhostDeviceLock);
 
     return ret;
 }
@@ -138,30 +140,30 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
         return HDF_ERR_INVALID_OBJECT;
     }
  
-    (void)OsalMutexLock(&hostService->deviceLock);
+    (void)OsalMutexLock(&g_devhostDeviceLock);
     device = DevHostServiceFindDevice(hostService, DEVICEID(devId));
     if (device == NULL) {
         HDF_LOGW("failed to del device, device is not exist");
-        (void)OsalMutexUnlock(&hostService->deviceLock);
+        (void)OsalMutexUnlock(&g_devhostDeviceLock);
         return HDF_SUCCESS;
     }
 
     devNode = device->super.GetDeviceNode(&device->super, devId);
     if (devNode == NULL) {
         HDF_LOGI("failed to del device, not exist");
-        (void)OsalMutexUnlock(&hostService->deviceLock);
+        (void)OsalMutexUnlock(&g_devhostDeviceLock);
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
     if (device->super.Detach == NULL) {
         HDF_LOGE("failed to del device, invalid device");
-        (void)OsalMutexUnlock(&hostService->deviceLock);
+        (void)OsalMutexUnlock(&g_devhostDeviceLock);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (device->super.Detach(&device->super, devNode) != HDF_SUCCESS) {
         HDF_LOGE("failed to detach device");
-        (void)OsalMutexUnlock(&hostService->deviceLock);
+        (void)OsalMutexUnlock(&g_devhostDeviceLock);
         return HDF_FAILURE;
     }
     HdfDeviceNodeFreeInstance(devNode);
@@ -169,7 +171,7 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
     if (DListIsEmpty(&device->devNodes)) {
         DevHostServiceFreeDevice(hostService, device);
     }
-    (void)OsalMutexUnlock(&hostService->deviceLock);
+    (void)OsalMutexUnlock(&g_devhostDeviceLock);
     HDF_LOGD("%{public}s del device success", __func__);
     return HDF_SUCCESS;
 }
@@ -227,7 +229,7 @@ static int DevHostServicePmNotify(struct IDevHostService *service, uint32_t stat
     struct DevHostService *hostService = CONTAINER_OF(service, struct DevHostService, super);
 
     HDF_LOGD("host(%{public}s) set power state=%{public}u", hostService->hostName, state);
-    (void)OsalMutexLock(&hostService->deviceLock);
+    (void)OsalMutexLock(&g_devhostDeviceLock);
     if (IsPowerWakeState(state)) {
         DLIST_FOR_EACH_ENTRY_REVERSE(device, &hostService->devices, struct HdfDevice, node) {
             if (ApplyDevicesPowerState(device, state) != HDF_SUCCESS) {
@@ -241,7 +243,7 @@ static int DevHostServicePmNotify(struct IDevHostService *service, uint32_t stat
             }
         }
     }
-    (void)OsalMutexUnlock(&hostService->deviceLock);
+    (void)OsalMutexUnlock(&g_devhostDeviceLock);
 
     return ret;
 }
@@ -257,7 +259,7 @@ void DevHostServiceConstruct(struct DevHostService *service)
     hostServiceIf->StartService = DevHostServiceStartService;
     hostServiceIf->PmNotify = DevHostServicePmNotify;
     DListHeadInit(&service->devices);
-    (void)OsalMutexInit(&service->deviceLock);
+    (void)OsalMutexInit(&g_devhostDeviceLock);
     HdfServiceObserverConstruct(&service->observer);
 }
 
@@ -272,7 +274,7 @@ void DevHostServiceDestruct(struct DevHostService *service)
     DLIST_FOR_EACH_ENTRY_SAFE(device, tmp, &service->devices, struct HdfDevice, node) {
         HdfDeviceFreeInstance(device);
     }
-    (void)OsalMutexDestroy(&service->deviceLock);
+    (void)OsalMutexDestroy(&g_devhostDeviceLock);
     HdfServiceObserverDestruct(&service->observer);
 }
 

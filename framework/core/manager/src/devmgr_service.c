@@ -17,10 +17,6 @@
 #include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_time.h"
-#ifdef __USER__
-#include <pthread.h>
-#endif
-
 #define HDF_LOG_TAG devmgr_service
 #define INVALID_PID (-1)
 

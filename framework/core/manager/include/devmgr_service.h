@@ -13,6 +13,14 @@
 #include "hdf_dlist.h"
 #include "osal_mutex.h"
 
+#ifdef __USER__
+#include <pthread.h>
+#endif
+
+#ifdef __USER__
+extern pthread_rwlock_t g_hostsLock;
+#endif
+
 struct DevmgrService {
     struct IDevmgrService super;
     struct DListHead hosts;
