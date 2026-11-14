@@ -17,12 +17,10 @@
 
 #define HDF_LOG_TAG HDF_CAMERA_QUEUE
 
-void BufferQueueStop(struct BufferQueue *queue)
+void BufferQueueStopUnlocked(struct BufferQueue *queue)
 {
     uint32_t i;
     uint32_t flags;
-
-    OsalMutexLock(&queue->mmapLock);
 
     if (OsalAtomicRead(&queue->driverOwnCount) != 0) {
         for (i = 0; i < queue->numBuffers; ++i) {
@@ -51,7 +49,12 @@ void BufferQueueStop(struct BufferQueue *queue)
         buffer->flags &= ~BUFFER_PREPARED;
         buffer->state = BUFFER_STATE_DEQUEUED;
     }
+}
 
+void BufferQueueStop(struct BufferQueue *queue)
+{
+    OsalMutexLock(&queue->mmapLock);
+    BufferQueueStopUnlocked(queue);
     OsalMutexUnlock(&queue->mmapLock);
 }
 
@@ -152,8 +155,8 @@ int32_t BufferQueueReleaseBuffers(struct BufferQueue *queue, struct UserCameraRe
 
     if (userRequest->count == 0 || queue->numBuffers != 0 ||
         (queue->memType != MEMTYPE_UNKNOWN && queue->memType != userRequest->memType)) {
-        BufferQueueStop(queue);
         OsalMutexLock(&queue->mmapLock);
+        BufferQueueStopUnlocked(queue);
         ret = BufferQueueFree(queue, queue->numBuffers);
         OsalMutexUnlock(&queue->mmapLock);
     }
