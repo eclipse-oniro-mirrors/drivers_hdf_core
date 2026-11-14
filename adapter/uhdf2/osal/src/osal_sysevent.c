@@ -157,6 +157,7 @@ static void DeInitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *noti
 
     struct HdfIoService *keventIoService = notifier->keventIoService;
     notifier->keventIoService = NULL;
+    notifier->ioServiceListener.callBack = NULL;
     notifier->ioServiceListener.onReceive = NULL;
     notifier->ioServiceListener.priv = NULL;
     OsalMutexUnlock(&notifier->mutex);

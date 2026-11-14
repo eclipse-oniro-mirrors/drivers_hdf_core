@@ -117,8 +117,9 @@ int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const 
         OsalMutexUnlock(&observer->observerMutex);
     } else {
         serviceRecord->publisher = service;
-        HdfServiceObserverRecordNotifySubscribers(serviceRecord, deviceId, policy);
         OsalMutexUnlock(&observer->observerMutex);
+        HdfServiceObserverRecordNotifySubscribers(serviceRecord, deviceId, policy);
+        return HDF_SUCCESS;
     }
     return HDF_SUCCESS;
 }
