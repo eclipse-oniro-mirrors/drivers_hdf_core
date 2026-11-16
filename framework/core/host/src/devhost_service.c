@@ -19,6 +19,7 @@
 #define HDF_LOG_TAG devhost_service
 
 struct OsalMutex g_devhostDeviceLock;
+static bool g_devhostDeviceLockInited = false;
 
 static struct HdfDevice *DevHostServiceFindDevice(struct DevHostService *hostService, uint16_t deviceId)
 {
@@ -259,7 +260,10 @@ void DevHostServiceConstruct(struct DevHostService *service)
     hostServiceIf->StartService = DevHostServiceStartService;
     hostServiceIf->PmNotify = DevHostServicePmNotify;
     DListHeadInit(&service->devices);
-    (void)OsalMutexInit(&g_devhostDeviceLock);
+    if (!g_devhostDeviceLockInited) {
+        (void)OsalMutexInit(&g_devhostDeviceLock);
+        g_devhostDeviceLockInited = true;
+    }
     HdfServiceObserverConstruct(&service->observer);
 }
 
@@ -274,7 +278,10 @@ void DevHostServiceDestruct(struct DevHostService *service)
     DLIST_FOR_EACH_ENTRY_SAFE(device, tmp, &service->devices, struct HdfDevice, node) {
         HdfDeviceFreeInstance(device);
     }
-    (void)OsalMutexDestroy(&g_devhostDeviceLock);
+    if (g_devhostDeviceLockInited) {
+        (void)OsalMutexDestroy(&g_devhostDeviceLock);
+        g_devhostDeviceLockInited = false;
+    }
     HdfServiceObserverDestruct(&service->observer);
 }
 
