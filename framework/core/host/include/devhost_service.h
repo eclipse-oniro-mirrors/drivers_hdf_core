@@ -13,7 +13,6 @@
 #include "hdf_service_observer.h"
 #include "hdf_dlist.h"
 #include "osal_sysevent.h"
-#include "osal_mutex.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,8 +26,6 @@ struct DevHostService {
     struct HdfServiceObserver observer;
     struct HdfSysEventNotifyNode sysEventNotifyNode;
 };
-
-extern struct OsalMutex g_devhostDeviceLock;
 
 void DevHostServiceConstruct(struct DevHostService *service);
 void DevHostServiceDestruct(struct DevHostService *service);

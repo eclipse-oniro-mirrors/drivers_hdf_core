@@ -260,9 +260,7 @@ static int32_t HdfDevEventListenTask(void *para)
     uint16_t pfdSize = 0;
     int32_t pollCount = 0;
 
-    OsalMutexLock(&thread->mutex);
     thread->status = LISTENER_RUNNING;
-    OsalMutexUnlock(&thread->mutex);
     SetThreadName();
     while (!thread->shouldStop) {
         if (thread->pollChanged) {
@@ -296,10 +294,8 @@ static int32_t HdfDevEventListenTask(void *para)
 EXIT:
     HDF_LOGI("event listener task exit");
 
-    OsalMutexLock(&thread->mutex);
     bool selfFree = thread->shouldStop;
     thread->status = LISTENER_EXITED;
-    OsalMutexUnlock(&thread->mutex);
     OsalMemFree(pfds);
 
     if (selfFree) {
@@ -919,14 +915,11 @@ int32_t HdfDeviceRegisterEventListenerWithSchedPolicy(
 
     if (adapter->group != NULL) {
         /* Do not bind any service in a service goup to its own thread or start the group thread. */
-        struct HdfSyscallAdapterGroup *grp = adapter->group;
-        OsalMutexUnlock(&adapter->mutex);
-        ret = HdfIoServiceGroupThreadStart(grp, policy);
+        ret = HdfIoServiceGroupThreadStart(adapter->group, policy);
         if (ret != HDF_SUCCESS) {
-            OsalMutexLock(&adapter->mutex);
             DListRemove(&listener->listNode);
-            OsalMutexUnlock(&adapter->mutex);
         }
+        OsalMutexUnlock(&adapter->mutex);
         return ret;
     }
 
@@ -957,18 +950,15 @@ int32_t HdfDeviceUnregisterEventListener(struct HdfIoService *target, struct Hdf
     }
 
     struct HdfSyscallAdapter *adapter = (struct HdfSyscallAdapter *)target;
-    struct HdfDevListenerThread *threadToDestroy = NULL;
     OsalMutexLock(&adapter->mutex);
 
     DListRemove(&listener->listNode);
 
     if (DListIsEmpty(&adapter->listenerList)) {
-        threadToDestroy = adapter->thread;
+        HdfDevListenerThreadDestroy(adapter->thread);
         adapter->thread = NULL;
     }
     OsalMutexUnlock(&adapter->mutex);
-
-    HdfDevListenerThreadDestroy(threadToDestroy);
 
     return HDF_SUCCESS;
 }
@@ -1125,13 +1115,10 @@ int32_t HdfIoServiceGroupUnregisterListener(struct HdfIoServiceGroup *group, str
     DListRemove(&listener->listNode);
 
     if (listenerThread != NULL && GetListenerCount(listenerThread) == 0) {
+        HdfDevListenerThreadDestroy(listenerThread);
         adapterGroup->thread = NULL;
-    } else {
-        listenerThread = NULL;
     }
     OsalMutexUnlock(&adapterGroup->mutex);
-
-    HdfDevListenerThreadDestroy(listenerThread);
 
     return HDF_SUCCESS;
 }
@@ -1191,21 +1178,18 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
 
 void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfIoService *service)
 {
-    struct HdfDevListenerThread *threadToDestroy = NULL;
-
     if (group == NULL || service == NULL) {
         return;
     }
     struct HdfSyscallAdapter *adapter = CONTAINER_OF(service, struct HdfSyscallAdapter, super);
     struct HdfSyscallAdapterGroup *adapterGroup = CONTAINER_OF(group, struct HdfSyscallAdapterGroup, serviceGroup);
-
-    OsalMutexLock(&adapterGroup->mutex);
     if (adapterGroup->thread == NULL || adapter->group == NULL) {
-        OsalMutexUnlock(&adapterGroup->mutex);
         return;
     }
+
+    OsalMutexLock(&adapterGroup->mutex);
     if (HaveOnlyOneElement(&adapterGroup->adapterList)) {
-        threadToDestroy = adapterGroup->thread;
+        HdfDevListenerThreadDestroy(adapterGroup->thread);
         adapterGroup->thread = NULL;
         DListRemove(&adapter->listNode);
         adapter->group = NULL;
@@ -1213,8 +1197,7 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
         HdfListenThreadPollDel(adapterGroup->thread, adapter);
     }
     OsalMutexUnlock(&adapterGroup->mutex);
-
-    HdfDevListenerThreadDestroy(threadToDestroy);
+    adapter->group = NULL;
 }
 
 int HdfIoserviceGetListenerCount(const struct HdfIoService *service)

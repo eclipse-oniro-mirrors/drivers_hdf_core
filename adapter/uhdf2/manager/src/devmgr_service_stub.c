@@ -44,18 +44,12 @@ static void DevmgrServicehostClntGetPid(struct IDevmgrService *devmgrSvc, uint16
     }
 
     struct DevHostServiceClnt *hostClnt = NULL;
-#ifdef __USER__
-    pthread_rwlock_wrlock(&g_hostsLock);
-#endif
     DLIST_FOR_EACH_ENTRY(hostClnt, &dmService->hosts, struct DevHostServiceClnt, node) {
         if (hostClnt->hostId == hostId) {
             hostClnt->hostProcessId = HdfRemoteGetCallingPid();
             break;
         }
     }
-#ifdef __USER__
-    pthread_rwlock_unlock(&g_hostsLock);
-#endif
 
     return;
 }
