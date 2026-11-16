@@ -218,7 +218,7 @@ int32_t CanCntlrOnNewMsgIrqSafe(struct CanCntlr *cntlr, const struct CanMsg *msg
     }
     cntlr->irqMsg = msg;
     cntlr->threadStatus |= CAN_THREAD_PENDING;
-    OsalSpinUnlockIrqRestore(&cntlr->threadLock, &flags);
     (void)OsalSemPost(&cntlr->sem);
+    OsalSpinUnlockIrqRestore(&cntlr->threadLock, &flags);
     return HDF_SUCCESS;
 }

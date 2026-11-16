@@ -74,7 +74,6 @@ enum QueueState {
 };
 
 void BufferQueueStop(struct BufferQueue *queue);
-void BufferQueueStopUnlocked(struct BufferQueue *queue);
 int32_t BufferQueueCheckMemOps(struct BufferQueue *queue, enum CameraMemType memType);
 int32_t BufferQueueReleaseBuffers(struct BufferQueue *queue, struct UserCameraReq *userRequest);
 int32_t BufferQueueRequestBuffers(struct BufferQueue *queue, struct UserCameraReq *userRequest,
