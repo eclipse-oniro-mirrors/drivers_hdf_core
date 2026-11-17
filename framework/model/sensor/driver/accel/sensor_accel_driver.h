@@ -11,6 +11,7 @@
 
 #include "hdf_workqueue.h"
 #include "osal_mutex.h"
+#include "osal_spinlock.h"
 #include "osal_timer.h"
 #include "sensor_config_parser.h"
 #include "sensor_platform_if.h"
@@ -57,6 +58,7 @@ struct AccelDrvData {
     struct SensorCfgData *accelCfg;
     struct AccelOpsCall ops;
     GravitySubscribeAccelCallback cb;
+    OsalSpinlock spinlock;
 };
 
 int32_t AccelRegisterChipOps(const struct AccelOpsCall *ops);

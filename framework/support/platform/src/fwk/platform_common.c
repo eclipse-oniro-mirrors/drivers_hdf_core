@@ -7,6 +7,7 @@
  */
 
 #include "hdf_core_log.h"
+#include "osal_mutex.h"
 #include "osal_spinlock.h"
 #include "platform_core.h"
 
@@ -169,13 +170,21 @@ static struct PlatformModuleInfo g_platformModules[] = {
 
 static OsalSpinlock g_platformSpin;
 static bool g_platformReady;
+static struct OsalMutex g_platformMutex;
 
 void PlatformGlobalLock(void)
 {
+    if (g_platformMutex.realMutex == NULL) {
+        if (OsalMutexInit(&g_platformMutex) != HDF_SUCCESS) {
+            return;
+        }
+    }
+    (void)OsalMutexLock(&g_platformMutex);
     if (g_platformReady == false) {
         (void)OsalSpinInit(&g_platformSpin);
         g_platformReady = true;
     }
+    (void)OsalMutexUnlock(&g_platformMutex);
     (void)OsalSpinLock(&g_platformSpin);
 }
 

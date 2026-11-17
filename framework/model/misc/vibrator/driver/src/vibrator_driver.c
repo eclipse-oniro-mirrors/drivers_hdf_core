@@ -69,7 +69,9 @@ void StartVibrator(void)
 
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
 
+    OsalMutexLock(&drvData->mutex);
     drvData->state = VIBRATOR_STATE_START_TIMER;
+    OsalMutexUnlock(&drvData->mutex);
     HdfAddWork(&drvData->workQueue, &drvData->work);
 }
 
@@ -79,7 +81,9 @@ void StopVibrator(void)
     struct VibratorDriverData *drvData = GetVibratorDrvData();
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
 
+    OsalMutexLock(&drvData->mutex);
     drvData->state = VIBRATOR_STATE_STOP;
+    OsalMutexUnlock(&drvData->mutex);
     HdfAddWork(&drvData->workQueue, &drvData->work);
 }
 
@@ -111,6 +115,7 @@ static void VibratorWorkEntry(void *para)
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData->ops.Start);
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData->ops.Stop);
 
+    OsalMutexLock(&drvData->mutex);
     if (drvData->state == VIBRATOR_STATE_START_TIMER) {
         ret = drvData->ops.Start();
         if (ret != HDF_SUCCESS) {
@@ -124,6 +129,7 @@ static void VibratorWorkEntry(void *para)
             HDF_LOGE("%s: add vibrator work fail! device state[%d]!", __func__, drvData->state);
         }
     }
+    OsalMutexUnlock(&drvData->mutex);
 }
 
 static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)

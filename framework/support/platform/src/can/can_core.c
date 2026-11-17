@@ -198,6 +198,8 @@ int32_t CanCntlrOnNewMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)
 
 int32_t CanCntlrOnNewMsgIrqSafe(struct CanCntlr *cntlr, const struct CanMsg *msg)
 {
+    uint32_t flags;
+
     if (cntlr == NULL) {
         HDF_LOGE("CanCntlrOnNewMsgIrqSafe: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -208,12 +210,15 @@ int32_t CanCntlrOnNewMsgIrqSafe(struct CanCntlr *cntlr, const struct CanMsg *msg
         return HDF_ERR_INVALID_PARAM;
     }
 
+    OsalSpinLockIrqSave(&cntlr->threadLock, &flags);
     if ((cntlr->threadStatus & CAN_THREAD_RUNNING) == 0 || (cntlr->threadStatus & CAN_THREAD_PENDING) != 0) {
+        OsalSpinUnlockIrqRestore(&cntlr->threadLock, &flags);
         HDF_LOGE("CanCntlrOnNewMsgIrqSafe: device is busy!");
         return HDF_ERR_DEVICE_BUSY;
     }
     cntlr->irqMsg = msg;
     cntlr->threadStatus |= CAN_THREAD_PENDING;
     (void)OsalSemPost(&cntlr->sem);
+    OsalSpinUnlockIrqRestore(&cntlr->threadLock, &flags);
     return HDF_SUCCESS;
 }

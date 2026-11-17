@@ -101,12 +101,6 @@ static int32_t SetPpgEnable(void)
         return HDF_SUCCESS;
     }
 
-    ret = EnablePpgIrq(PPG_IRQ_GPIO_NO);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("Gpio enable ppg irq failed: %d", ret);
-        return HDF_FAILURE;
-    }
-
     ret = drvData->chipData.opsCall.Enable();
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: SetPpgEnable failed", __func__);
@@ -114,6 +108,13 @@ static int32_t SetPpgEnable(void)
     }
 
     drvData->enable = true;
+
+    ret = EnablePpgIrq(PPG_IRQ_GPIO_NO);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("Gpio enable ppg irq failed: %d", ret);
+        return HDF_FAILURE;
+    }
+
     HDF_LOGI("%s: success", __func__);
     return HDF_SUCCESS;
 }
@@ -131,15 +132,15 @@ static int32_t SetPpgDisable(void)
         return HDF_SUCCESS;
     }
 
-    ret = drvData->chipData.opsCall.Disable();
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: SetPpgDisable failed", __func__);
-        return HDF_FAILURE;
-    }
-
     ret = DisablePpgIrq(PPG_IRQ_GPIO_NO);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("Gpio disable ppg irq failed: %d", ret);
+        return HDF_FAILURE;
+    }
+
+    ret = drvData->chipData.opsCall.Disable();
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: SetPpgDisable failed", __func__);
         return HDF_FAILURE;
     }
 

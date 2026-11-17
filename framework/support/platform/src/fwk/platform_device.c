@@ -95,16 +95,23 @@ int32_t PlatformDeviceSetName(struct PlatformDevice *device, const char *fmt, ..
     }
 
     PLAT_LOGD("PlatformDeviceSetName: realName:%s, realLen:%zu!", realName, realLen);
+    (void)OsalSpinLock(&device->spin);
     device->name = (const char *)realName;
+    (void)OsalSpinUnlock(&device->spin);
     return HDF_SUCCESS;
 }
 
 void PlatformDeviceClearName(struct PlatformDevice *device)
 {
-    if (device != NULL && device->name != NULL) {
+    if (device == NULL) {
+        return;
+    }
+    (void)OsalSpinLock(&device->spin);
+    if (device->name != NULL) {
         OsalMemFree((char *)device->name);
         device->name = NULL;
     }
+    (void)OsalSpinUnlock(&device->spin);
 }
 
 int32_t PlatformDeviceInit(struct PlatformDevice *device)
@@ -247,40 +254,52 @@ void PlatformDeviceDel(struct PlatformDevice *device)
 int32_t PlatformDeviceCreateService(struct PlatformDevice *device,
     int32_t (*dispatch)(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply))
 {
+    struct IDeviceIoService *service = NULL;
+
     if (device == NULL) {
         PLAT_LOGE("PlatformDeviceCreateService: device is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    if (device->service != NULL) {
-        PLAT_LOGE("PlatformDeviceCreateService: service already creatted!");
-        return HDF_FAILURE;
-    }
-
-    device->service = (struct IDeviceIoService *)OsalMemCalloc(sizeof(*(device->service)));
-    if (device->service == NULL) {
+    service = (struct IDeviceIoService *)OsalMemCalloc(sizeof(*service));
+    if (service == NULL) {
         PLAT_LOGE("PlatformDeviceCreateService: memcalloc service fail!");
         return HDF_ERR_MALLOC_FAIL;
     }
+    service->Dispatch = dispatch;
 
-    device->service->Dispatch = dispatch;
+    (void)OsalSpinLock(&device->spin);
+    if (device->service != NULL) {
+        (void)OsalSpinUnlock(&device->spin);
+        PLAT_LOGE("PlatformDeviceCreateService: service already creatted!");
+        OsalMemFree(service);
+        return HDF_FAILURE;
+    }
+    device->service = service;
+    (void)OsalSpinUnlock(&device->spin);
     return HDF_SUCCESS;
 }
 
 void PlatformDeviceDestroyService(struct PlatformDevice *device)
 {
+    struct IDeviceIoService *service = NULL;
+
     if (device == NULL) {
         PLAT_LOGE("PlatformDeviceDestroyService: device is null!");
         return;
     }
 
+    (void)OsalSpinLock(&device->spin);
     if (device->service == NULL) {
+        (void)OsalSpinUnlock(&device->spin);
         PLAT_LOGE("PlatformDeviceDestroyService: service is null!");
         return;
     }
-
-    OsalMemFree(device->service);
+    service = device->service;
     device->service = NULL;
+    (void)OsalSpinUnlock(&device->spin);
+
+    OsalMemFree(service);
 }
 
 int32_t PlatformDeviceSetHdfDev(struct PlatformDevice *device, struct HdfDeviceObject *hdfDevice)
@@ -303,10 +322,14 @@ int32_t PlatformDeviceSetHdfDev(struct PlatformDevice *device, struct HdfDeviceO
 int32_t PlatformDeviceBind(struct PlatformDevice *device, struct HdfDeviceObject *hdfDevice)
 {
     int32_t ret;
+    struct IDeviceIoService *service = NULL;
 
     ret = PlatformDeviceSetHdfDev(device, hdfDevice);
     if (ret == HDF_SUCCESS) {
-        hdfDevice->service = device->service;
+        (void)OsalSpinLock(&device->spin);
+        service = device->service;
+        (void)OsalSpinUnlock(&device->spin);
+        hdfDevice->service = service;
     }
     return ret;
 }

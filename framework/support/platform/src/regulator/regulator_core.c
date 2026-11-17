@@ -456,11 +456,14 @@ int32_t RegulatorNodeForceDisable(struct RegulatorNode *node)
         return HDF_SUCCESS;
     }
 
-    // if the regulator force disable ,set all child node disable
+    (void)OsalMutexUnlock(&node->lock);
     if (RegulatorTreeChildForceDisable(node) != HDF_SUCCESS) {
-        (void)OsalMutexUnlock(&node->lock);
         HDF_LOGE("RegulatorNodeForceDisable: RegulatorTreeConsumerForceDisable: %s fail!", node->regulatorInfo.name);
         return HDF_FAILURE;
+    }
+    if (OsalMutexLock(&node->lock) != HDF_SUCCESS) {
+        HDF_LOGE("RegulatorNodeForceDisable: lock regulator %s fail!", node->regulatorInfo.name);
+        return HDF_ERR_DEVICE_BUSY;
     }
 
     if (node->ops->forceDisable != NULL) {

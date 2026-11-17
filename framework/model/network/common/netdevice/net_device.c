@@ -10,12 +10,27 @@
 #include "securec.h"
 
 #include "osal_mem.h"
+#include "osal_mutex.h"
 #include "net_device_impl.h"
 #include "net_device_adapter.h"
 
 #define HDF_LOG_TAG "NetDevice"
 
 static struct NetDeviceImpl *g_netDeviceImplTable[MAX_NETDEVICE_COUNT] = {NULL};
+static struct OsalMutex g_netDeviceMutex;
+
+static void NetDeviceLock(void)
+{
+    if (g_netDeviceMutex.realMutex == NULL) {
+        (void)OsalMutexInit(&g_netDeviceMutex);
+    }
+    (void)OsalMutexLock(&g_netDeviceMutex);
+}
+
+static void NetDeviceUnlock(void)
+{
+    (void)OsalMutexUnlock(&g_netDeviceMutex);
+}
 
 static bool FindAvailableTable(uint32_t *index)
 {
@@ -48,12 +63,15 @@ static void DeleteNetDeviceImplFromTable(const struct NetDeviceImpl *netDeviceIm
 {
     int32_t i;
 
+    NetDeviceLock();
     for (i = 0; i < MAX_NETDEVICE_COUNT; i++) {
         if (g_netDeviceImplTable[i] == netDeviceImpl) {
             g_netDeviceImplTable[i] = NULL;
+            NetDeviceUnlock();
             return;
         }
     }
+    NetDeviceUnlock();
     return;
 }
 
@@ -108,14 +126,17 @@ static struct NetDeviceImpl *GetImplByNetDevice(const struct NetDevice *netDevic
     struct NetDeviceImpl *ndImpl = NULL;
     int32_t i;
 
+    NetDeviceLock();
     for (i = 0; i < MAX_NETDEVICE_COUNT; i++) {
         if (g_netDeviceImplTable[i] != NULL && g_netDeviceImplTable[i]->netDevice != NULL) {
             if (netDevice == g_netDeviceImplTable[i]->netDevice) {
                 ndImpl = g_netDeviceImplTable[i];
+                NetDeviceUnlock();
                 return ndImpl;
             }
         }
     }
+    NetDeviceUnlock();
     HDF_LOGE("%s Get Impl by netdevice failed", __func__);
     return ndImpl;
 }
@@ -172,13 +193,16 @@ struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetLinkType ty
         OsalMemFree(netDevice);
         return NULL;
     }
+    NetDeviceLock();
     if (FindAvailableTable(&index)) {
         AddNetDeviceImplToTable(index, ndImpl);
     } else {
+        NetDeviceUnlock();
         DeInitNetDeviceImpl(ndImpl);
         HDF_LOGE("%s fail: Not extra table.", __func__);
         return NULL;
     }
+    NetDeviceUnlock();
     /* INIT OSPrivate */
     ret = HDF_FAILURE;
     if (ndImpl->interFace != NULL && ndImpl->interFace->init != NULL) {
@@ -256,13 +280,17 @@ struct NetDevice *NetDeviceGetInstByName(const char *name)
         HDF_LOGE("%s fail: name = NULL.", __func__);
         return NULL;
     }
+    NetDeviceLock();
     for (i = 0; i < MAX_NETDEVICE_COUNT; i++) {
         if (g_netDeviceImplTable[i] != NULL && g_netDeviceImplTable[i]->netDevice != NULL) {
             if (strcmp(g_netDeviceImplTable[i]->netDevice->name, name) == 0) {
-                return g_netDeviceImplTable[i]->netDevice;
+                struct NetDevice *nd = g_netDeviceImplTable[i]->netDevice;
+                NetDeviceUnlock();
+                return nd;
             }
         }
     }
+    NetDeviceUnlock();
     HDF_LOGE("%s fail: %s: name not exist.", __func__, name);
     return NULL;
 }
@@ -272,14 +300,17 @@ bool NetDeviceIsAnyInstRunning(void)
     struct NetDevice *netDev = NULL;
     int32_t i;
 
+    NetDeviceLock();
     for (i = 0; i < MAX_NETDEVICE_COUNT; i++) {
         if (g_netDeviceImplTable[i] != NULL && g_netDeviceImplTable[i]->netDevice != NULL) {
             netDev = g_netDeviceImplTable[i]->netDevice;
             if ((GET_NET_DEV_FLAGS(netDev) & NET_DEVICE_IFF_RUNNING) != 0) {
+                NetDeviceUnlock();
                 return true;
             }
         }
     }
+    NetDeviceUnlock();
     return false;
 }
 
@@ -299,11 +330,13 @@ uint32_t NetDevGetRegisterCount(void)
     uint32_t count = 0;
     int32_t i;
 
+    NetDeviceLock();
     for (i = 0; i < MAX_NETDEVICE_COUNT; i++) {
         if (g_netDeviceImplTable[i] != NULL && g_netDeviceImplTable[i]->netDevice != NULL) {
             count++;
         }
     }
+    NetDeviceUnlock();
     return count;
 }
 
@@ -314,14 +347,15 @@ uint32_t NetDeviceGetCap(void)
 
 struct NetDevice *NetDeviceGetInstByIndex(uint32_t index)
 {
+    struct NetDevice *nd = NULL;
+    NetDeviceLock();
     if (index < MAX_NETDEVICE_COUNT) {
         if (g_netDeviceImplTable[index] != NULL) {
-            return g_netDeviceImplTable[index]->netDevice;
-        } else {
-            return NULL;
+            nd = g_netDeviceImplTable[index]->netDevice;
         }
     }
-    return NULL;
+    NetDeviceUnlock();
+    return nd;
 }
 
 int32_t NetIfSetAddr(const struct NetDevice *netDevice, const IpV4Addr *ipAddr, const IpV4Addr *netMask,

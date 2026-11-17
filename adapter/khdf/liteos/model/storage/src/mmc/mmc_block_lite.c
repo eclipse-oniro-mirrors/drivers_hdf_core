@@ -34,6 +34,7 @@
 #include "hdf_core_log.h"
 #include "mmc_block.h"
 #include "mmc_sd.h"
+#include "osal_spinlock.h"
 #include "sys/ioctl.h"
 #include "user_copy.h"
 
@@ -298,11 +299,14 @@ struct block_operations *StorageBlockGetMmcOps(void)
 }
 
 static struct MmcBlock *g_diskIdTable[SYS_MAX_DISK] = { };
+static OsalSpinlock g_diskIdTableLock;
+static bool g_diskIdTableLockInited = false;
 
 int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
 {
     int32_t ret;
     int32_t diskId;
+    uint32_t flags;
     struct disk_divide_info *info = NULL;
     struct MmcBlock *mb = NULL;
 
@@ -317,6 +321,13 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    if (!g_diskIdTableLockInited) {
+        if (OsalSpinInit(&g_diskIdTableLock) != HDF_SUCCESS) {
+            HDF_LOGE("MmcBlockOsInit: OsalSpinInit fail!");
+            return HDF_FAILURE;
+        }
+        g_diskIdTableLockInited = true;
+    }
     diskId = los_alloc_diskid_byname(mb->name);
     if (!mb->removable) {
         info = &g_emmcInfo;
@@ -336,7 +347,9 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
     }
 
     if (diskId >= 0 && diskId < SYS_MAX_DISK) {
+        OsalSpinLockIrqSave(&g_diskIdTableLock, &flags);
         g_diskIdTable[diskId] = mb;
+        OsalSpinUnlockIrqRestore(&g_diskIdTableLock, &flags);
     }
 
     return HDF_SUCCESS;
@@ -345,6 +358,7 @@ int32_t MmcBlockOsInit(struct MmcDevice *mmcDevice)
 void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
 {
     int diskId;
+    uint32_t flags;
     struct MmcBlock *mb = NULL;
 
     if (mmcDevice == NULL || mmcDevice->mb == NULL) {
@@ -357,14 +371,22 @@ void MmcBlockOsUninit(struct MmcDevice *mmcDevice)
     (void)los_disk_deinit(diskId);
 
     if (diskId >= 0 && diskId < SYS_MAX_DISK) {
+        OsalSpinLockIrqSave(&g_diskIdTableLock, &flags);
         g_diskIdTable[diskId] = NULL;
+        OsalSpinUnlockIrqRestore(&g_diskIdTableLock, &flags);
     }
 }
 
 static struct MmcBlock *MmcBlockFromDiskId(int32_t diskId)
 {
+    struct MmcBlock *mb = NULL;
+    uint32_t flags;
+
     if (diskId >= 0 && diskId < SYS_MAX_DISK) {
-        return g_diskIdTable[diskId];
+        OsalSpinLockIrqSave(&g_diskIdTableLock, &flags);
+        mb = g_diskIdTable[diskId];
+        OsalSpinUnlockIrqRestore(&g_diskIdTableLock, &flags);
+        return mb;
     }
     return NULL;
 }

@@ -153,9 +153,12 @@ static int32_t DmaToDevice(struct PcieCntlr *cntlr, struct HdfSBuf *data, uint32
         HDF_LOGE("DmaToDevice: sbuf read buffer fail!");
         return HDF_ERR_IO;
     }
+
+    PcieCntlrLock(cntlr);
     cntlr->dmaData = (uintptr_t)buf;
     cntlr->len = len;
     cntlr->dir = PCIE_DMA_TO_DEVICE;
+    PcieCntlrUnlock(cntlr);
 
     return PcieCntlrDmaMap(cntlr, PcieIoDmaCb, (uintptr_t)buf, len, PCIE_DMA_TO_DEVICE);
 }
@@ -169,9 +172,12 @@ static int32_t DeviceToDma(struct PcieCntlr *cntlr, uint32_t len)
         HDF_LOGE("DeviceToDma: malloc fail");
         return HDF_ERR_MALLOC_FAIL;
     }
+
+    PcieCntlrLock(cntlr);
     cntlr->dmaData = (uintptr_t)addr;
     cntlr->len = len;
     cntlr->dir = PCIE_DMA_FROM_DEVICE;
+    PcieCntlrUnlock(cntlr);
 
     return PcieCntlrDmaMap(cntlr, PcieIoDmaCb, (uintptr_t)addr, len, PCIE_DMA_FROM_DEVICE);
 }
@@ -212,16 +218,28 @@ static int32_t PcieCmdDmaMap(struct PcieCntlr *cntlr, struct HdfSBuf *data)
 static int32_t PcieCmdDmaUnmap(struct PcieCntlr *cntlr, struct HdfSBuf *data)
 {
     uint8_t dir;
+    uintptr_t dmaData;
+    uint32_t len;
 
-    if (!HdfSbufReadUint8(data, &dir) || dir != cntlr->dir) {
+    if (!HdfSbufReadUint8(data, &dir)) {
         HDF_LOGE("PcieCmdDmaUnmap: read dir fail");
         return HDF_ERR_IO;
     }
 
-    PcieCntlrDmaUnmap(cntlr, cntlr->dmaData, cntlr->len, dir);
-    OsalMemFree((void *)cntlr->dmaData);
+    PcieCntlrLock(cntlr);
+    if (dir != cntlr->dir) {
+        PcieCntlrUnlock(cntlr);
+        HDF_LOGE("PcieCmdDmaUnmap: read dir fail");
+        return HDF_ERR_IO;
+    }
+    dmaData = cntlr->dmaData;
+    len = cntlr->len;
     cntlr->dmaData = 0;
     cntlr->len = 0;
+    PcieCntlrUnlock(cntlr);
+
+    PcieCntlrDmaUnmap(cntlr, dmaData, len, dir);
+    OsalMemFree((void *)dmaData);
 
     return HDF_SUCCESS;
 }

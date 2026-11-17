@@ -544,11 +544,13 @@ static void LightWorkEntry(void *para)
         return;
     }
 
+    OsalMutexLock(&drvData->mutex);
     if (drvData->info[lightId]->lightState == LIGHT_STATE_START) {
         if (StopLight(lightId) != HDF_SUCCESS) {
         HDF_LOGE("%s: add light work fail! device state[%d]!", __func__, drvData->info[lightId]->lightState);
         }
         drvData->info[lightId]->lightState = LIGHT_STATE_STOP;
+        OsalMutexUnlock(&drvData->mutex);
         return;
     }
 
@@ -557,8 +559,10 @@ static void LightWorkEntry(void *para)
         HDF_LOGE("%s: add light work fail! device state[%d]!", __func__, drvData->info[lightId]->lightState);
         }
         drvData->info[lightId]->lightState = LIGHT_STATE_START;
+        OsalMutexUnlock(&drvData->mutex);
         return;
     }
+    OsalMutexUnlock(&drvData->mutex);
 }
 
 int32_t InitLightDriver(struct HdfDeviceObject *device)

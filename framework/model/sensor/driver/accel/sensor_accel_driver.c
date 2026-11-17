@@ -86,6 +86,7 @@ static void AccelTimerEntry(uintptr_t arg)
 {
     int64_t interval;
     int32_t ret;
+    uint32_t flags;
     struct AccelDrvData *drvData = (struct AccelDrvData *)arg;
     CHECK_NULL_PTR_RETURN(drvData);
 
@@ -93,7 +94,9 @@ static void AccelTimerEntry(uintptr_t arg)
         HDF_LOGE("%s: Accel add work queue failed", __func__);
     }
 
+    OsalSpinLockIrqSave(&drvData->spinlock, &flags);
     interval = OsalDivS64(drvData->interval, (SENSOR_CONVERT_UNIT * SENSOR_CONVERT_UNIT));
+    OsalSpinUnlockIrqRestore(&drvData->spinlock, &flags);
     interval = (interval < SENSOR_TIMER_MIN_TIME) ? SENSOR_TIMER_MIN_TIME : interval;
     ret = OsalTimerSetTimeout(&drvData->accelTimer, interval);
     if (ret != HDF_SUCCESS) {
@@ -116,6 +119,7 @@ static int32_t InitAccelData(struct AccelDrvData *drvData)
     drvData->interval = SENSOR_TIMER_MIN_TIME;
     drvData->enable = false;
     drvData->detectFlag = false;
+    OsalSpinInit(&drvData->spinlock);
 
     return HDF_SUCCESS;
 }
@@ -187,13 +191,16 @@ static int32_t SetAccelDisable(void)
 static int32_t SetAccelBatch(int64_t samplingInterval, int64_t interval)
 {
     (void)interval;
+    uint32_t flags;
 
     struct AccelDrvData *drvData = NULL;
 
     drvData = AccelGetDrvData();
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
+    OsalSpinLockIrqSave(&drvData->spinlock, &flags);
     drvData->interval = samplingInterval;
+    OsalSpinUnlockIrqRestore(&drvData->spinlock, &flags);
 
     return HDF_SUCCESS;
 }
@@ -398,6 +405,7 @@ void AccelReleaseDriver(struct HdfDeviceObject *device)
 
     HdfWorkDestroy(&drvData->accelWork);
     HdfWorkQueueDestroy(&drvData->accelWorkQueue);
+    OsalSpinDestroy(&drvData->spinlock);
     OsalMemFree(drvData);
 }
 

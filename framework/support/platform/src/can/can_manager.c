@@ -18,57 +18,87 @@
 #define CAN_IRQ_STACK_SIZE (1024 * 8)
 
 static struct PlatformManager *g_manager;
+static struct OsalMutex g_managerLock;
 
 static struct PlatformManager *CanManagerGet(void)
 {
     int32_t ret;
 
+    if (g_managerLock.realMutex == NULL) {
+        if (OsalMutexInit(&g_managerLock) != HDF_SUCCESS) {
+            HDF_LOGE("CanManagerGet: init manager lock fail!");
+            return NULL;
+        }
+    }
+    (void)OsalMutexLock(&g_managerLock);
     if (g_manager == NULL) {
         ret = PlatformManagerCreate("CAN_BUS_MANAGER", &g_manager);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("CanManagerGet: create can manager fail, ret: %d!", ret);
         }
     }
+    (void)OsalMutexUnlock(&g_managerLock);
     return g_manager;
 }
 
 static void CanManagerDestroyIfNeed(void)
 {
+    if (g_managerLock.realMutex == NULL) {
+        return;
+    }
+    (void)OsalMutexLock(&g_managerLock);
     if (g_manager != NULL && DListIsEmpty(&g_manager->devices)) {
         PlatformManagerDestroy(g_manager);
         g_manager = NULL;
     }
+    (void)OsalMutexUnlock(&g_managerLock);
 }
 
 static int32_t CanIrqThreadWorker(void *data)
 {
     int32_t ret;
     struct CanCntlr *cntlr = (struct CanCntlr *)data;
+    const struct CanMsg *irqMsg = NULL;
+    uint8_t threadStatus;
 
     if (cntlr == NULL) {
         HDF_LOGE("CanIrqThreadWorker: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    OsalSpinLock(&cntlr->threadLock);
     cntlr->threadStatus |= CAN_THREAD_RUNNING;
-    while ((cntlr->threadStatus & CAN_THREAD_RUNNING) != 0) {
-        /* wait event */
+    threadStatus = cntlr->threadStatus;
+    OsalSpinUnlock(&cntlr->threadLock);
+
+    while ((threadStatus & CAN_THREAD_RUNNING) != 0) {
         ret = OsalSemWait(&cntlr->sem, HDF_WAIT_FOREVER);
         if (ret != HDF_SUCCESS) {
             continue;
         }
+
+        OsalSpinLock(&cntlr->threadLock);
         if ((cntlr->threadStatus & CAN_THREAD_RUNNING) == 0) {
-            break;  // exit thread
+            OsalSpinUnlock(&cntlr->threadLock);
+            break;
         }
-        ret = CanCntlrOnNewMsg(cntlr, cntlr->irqMsg);
-        if (ret != HDF_SUCCESS) {
-            HDF_LOGE("CanIrqThreadWorker: CanCntlrOnNewMsg fail!");
-        }
+        irqMsg = cntlr->irqMsg;
         cntlr->irqMsg = NULL;
         cntlr->threadStatus &= ~CAN_THREAD_PENDING;
+        threadStatus = cntlr->threadStatus;
+        OsalSpinUnlock(&cntlr->threadLock);
+
+        if (irqMsg != NULL) {
+            ret = CanCntlrOnNewMsg(cntlr, irqMsg);
+            if (ret != HDF_SUCCESS) {
+                HDF_LOGE("CanIrqThreadWorker: CanCntlrOnNewMsg fail!");
+            }
+        }
     }
 
+    OsalSpinLock(&cntlr->threadLock);
     cntlr->threadStatus |= CAN_THREAD_STOPPED;
+    OsalSpinUnlock(&cntlr->threadLock);
     return HDF_SUCCESS;
 }
 
@@ -109,6 +139,8 @@ static int32_t CanCntlrCreateThread(struct CanCntlr *cntlr)
     return HDF_SUCCESS;
 }
 
+static void CanCntlrDestroyThread(struct CanCntlr *cntlr);
+
 static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
 {
     if (cntlr == NULL || cntlr->ops == NULL) {
@@ -122,18 +154,28 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
 
     DListHeadInit(&cntlr->rxBoxList);
 
+    if (OsalSpinInit(&cntlr->threadLock) != HDF_SUCCESS) {
+        HDF_LOGE("CanCntlrCheckAndInit: init thread lock fail!");
+        return HDF_FAILURE;
+    }
+
     if (CanCntlrCreateThread(cntlr) != HDF_SUCCESS) {
         HDF_LOGE("CanCntlrCheckAndInit: create thread fail!");
+        (void)OsalSpinDestroy(&cntlr->threadLock);
         return HDF_FAILURE;
     }
     if (OsalMutexInit(&cntlr->lock) != HDF_SUCCESS) {
         HDF_LOGE("CanCntlrCheckAndInit: init lock fail!");
+        CanCntlrDestroyThread(cntlr);
+        (void)OsalSpinDestroy(&cntlr->threadLock);
         return HDF_FAILURE;
     }
 
     if (OsalMutexInit(&cntlr->rboxListLock) != HDF_SUCCESS) {
         HDF_LOGE("CanCntlrCheckAndInit: init rx box list lock fail!");
         (void)OsalMutexDestroy(&cntlr->lock);
+        CanCntlrDestroyThread(cntlr);
+        (void)OsalSpinDestroy(&cntlr->threadLock);
         return HDF_FAILURE;
     }
 
@@ -146,6 +188,8 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
         HDF_LOGE("CanCntlrCheckAndInit: create can msg pool fail!");
         (void)OsalMutexDestroy(&cntlr->rboxListLock);
         (void)OsalMutexDestroy(&cntlr->lock);
+        CanCntlrDestroyThread(cntlr);
+        (void)OsalSpinDestroy(&cntlr->threadLock);
         return HDF_FAILURE;
     }
 
@@ -155,16 +199,27 @@ static int32_t CanCntlrCheckAndInit(struct CanCntlr *cntlr)
 static void CanCntlrDestroyThread(struct CanCntlr *cntlr)
 {
     int t = 0;
+    uint8_t threadStatus;
 
+    OsalSpinLock(&cntlr->threadLock);
     cntlr->threadStatus &= ~CAN_THREAD_RUNNING;
     cntlr->irqMsg = NULL;
+    OsalSpinUnlock(&cntlr->threadLock);
     (void)OsalSemPost(&cntlr->sem);
-    while ((cntlr->threadStatus & CAN_THREAD_STOPPED) == 0) {
+
+    do {
+        OsalSpinLock(&cntlr->threadLock);
+        threadStatus = cntlr->threadStatus;
+        OsalSpinUnlock(&cntlr->threadLock);
+        if ((threadStatus & CAN_THREAD_STOPPED) != 0) {
+            break;
+        }
         OsalMSleep(1);
         if (t++ > THREAD_EXIT_TIMEOUT) {
             break;
         }
-    }
+    } while (true);
+
     (void)OsalThreadDestroy(&cntlr->thread);
     (void)OsalSemDestroy(&cntlr->sem);
 }
@@ -177,6 +232,7 @@ static void CanCntlrDeInit(struct CanCntlr *cntlr)
     cntlr->msgPool = NULL;
     (void)OsalMutexDestroy(&cntlr->rboxListLock);
     (void)OsalMutexDestroy(&cntlr->lock);
+    (void)OsalSpinDestroy(&cntlr->threadLock);
     HDF_LOGD("CanCntlrDeInit: exit!");
 }
 

@@ -134,6 +134,7 @@ static int32_t GetAllSensorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t count = 0;
     struct SensorDevInfoNode *pos = NULL;
+    struct SensorDevInfoNode *tmp = NULL;
     struct SensorBasicInfo *sensorInfo = NULL;
     struct SensorDevMgrData *manager = NULL;
 
@@ -144,10 +145,12 @@ static int32_t GetAllSensorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
     CHECK_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
     CHECK_NULL_PTR_RETURN_VALUE(manager, HDF_ERR_INVALID_PARAM);
 
-    DLIST_FOR_EACH_ENTRY(pos, &manager->sensorDevInfoHead, struct SensorDevInfoNode, node) {
+    (void)OsalMutexLock(&manager->mutex);
+    DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->sensorDevInfoHead, struct SensorDevInfoNode, node) {
         sensorInfo = &(pos->devInfo.sensorInfo);
         if (!HdfSbufWriteBuffer(reply, sensorInfo, sizeof(*sensorInfo))) {
             HDF_LOGE("%s: write sbuf failed", __func__);
+            (void)OsalMutexUnlock(&manager->mutex);
             return HDF_FAILURE;
         }
 
@@ -157,6 +160,7 @@ static int32_t GetAllSensorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
             break;
         }
     }
+    (void)OsalMutexUnlock(&manager->mutex);
 
     return HDF_SUCCESS;
 }

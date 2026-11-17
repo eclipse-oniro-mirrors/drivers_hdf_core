@@ -420,17 +420,21 @@ static uint32_t GetDeviceCount(void)
 static int32_t ScanAllDev(struct HdfSBuf *reply)
 {
     DevDesc sta;
-    InputDevice *tmpDev = g_inputManager->inputDevList;
+    InputDevice *tmpDev = NULL;
+    OsalMutexLock(&g_inputManager->mutex);
+    tmpDev = g_inputManager->inputDevList;
     while (tmpDev != NULL) {
         sta.devType = tmpDev->devType;
         sta.devId = tmpDev->devId;
 
         if (!HdfSbufWriteBuffer(reply, &sta, sizeof(DevDesc))) {
             HDF_LOGE("%s: HdfSbufWriteBuffer failed", __func__);
+            OsalMutexUnlock(&g_inputManager->mutex);
             return HDF_FAILURE;
         }
         tmpDev = tmpDev->next;
     }
+    OsalMutexUnlock(&g_inputManager->mutex);
     HdfSbufWriteBuffer(reply, NULL, 0); // end flag
     return HDF_SUCCESS;
 }

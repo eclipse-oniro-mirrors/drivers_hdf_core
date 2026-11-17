@@ -23,6 +23,7 @@
 
 #include "hdf_device_desc.h"
 #include "hdf_core_log.h"
+#include "osal_atomic.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "usb_pnp_notify.h"
@@ -54,12 +55,12 @@ struct DListHead g_usbPnpInfoListHead;
 #if USB_PNP_NOTIFY_TEST_MODE == true
 struct UsbPnpNotifyMatchInfoTable *g_testUsbPnpInfo = NULL;
 #endif
-static int32_t g_isGadgetAdd = 0;
+static OsalAtomic g_isGadgetAdd = {0};
 
 static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
 {
     struct UsbPnpDeviceInfo *infoTemp = NULL;
-    static int32_t idNum = 1;
+    static OsalAtomic idNum = {1};
 
     infoTemp = (struct UsbPnpDeviceInfo *)OsalMemCalloc(sizeof(struct UsbPnpDeviceInfo));
     if (infoTemp == NULL) {
@@ -67,15 +68,15 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
         return NULL;
     }
 
-    if (idNum == INT32_MAX) {
-        idNum = 1;
+    int32_t curId = OsalAtomicIncReturn(&idNum);
+    if (curId >= INT32_MAX) {
+        OsalAtomicSet(&idNum, 0);
     }
-    infoTemp->id = idNum;
+    infoTemp->id = curId;
     OsalMutexInit(&infoTemp->lock);
     infoTemp->status = USB_PNP_DEVICE_INIT_STATUS;
     DListHeadInit(&infoTemp->list);
     DListInsertTail(&infoTemp->list, &g_usbPnpInfoListHead);
-    idNum++;
 
     return infoTemp;
 }
@@ -672,7 +673,9 @@ static int32_t UsbPnpNotifyCallback(struct notifier_block *self, unsigned long a
     switch (action) {
         case USB_DEVICE_ADD:
             pnpInfoData.usbDev = dev;
+            OsalMutexLock(&g_usbSendEventLock);
             deviceInfo = UsbPnpNotifyCreateInfo();
+            OsalMutexUnlock(&g_usbSendEventLock);
             if (deviceInfo == NULL) {
                 HDF_LOGE("%s:%d USB_DEVICE_ADD create info failed", __func__, __LINE__);
             } else {
@@ -690,7 +693,9 @@ static int32_t UsbPnpNotifyCallback(struct notifier_block *self, unsigned long a
         case USB_DEVICE_REMOVE:
             infoQueryPara.type = USB_INFO_DEVICE_ADDRESS_TYPE;
             infoQueryPara.usbDevAddr = (uint64_t)dev;
+            OsalMutexLock(&g_usbSendEventLock);
             deviceInfo = UsbPnpNotifyFindInfo(infoQueryPara);
+            OsalMutexUnlock(&g_usbSendEventLock);
             if (deviceInfo == NULL) {
                 HDF_LOGE("%s:%d USB_DEVICE_REMOVE find info failed", __func__, __LINE__);
             } else {
@@ -717,10 +722,10 @@ static int32_t UsbPnpNotifyCallback(struct notifier_block *self, unsigned long a
                 break;
             }
             if (action == USB_GADGET_ADD) {
-                g_isGadgetAdd = 1;
+                OsalAtomicSet(&g_isGadgetAdd, 1);
                 g_gadgetPnpNotifyType = USB_PNP_DRIVER_GADGET_ADD;
             } else {
-                g_isGadgetAdd = 0;
+                OsalAtomicSet(&g_isGadgetAdd, 0);
                 g_gadgetPnpNotifyType = USB_PNP_DRIVER_GADGET_REMOVE;
             }
             OsalMutexUnlock(&g_gadgetSendEventLock);
@@ -851,7 +856,7 @@ static int32_t UsbPnpNotifyDispatch(
             UsbPnpGetDevices(reply);
             break;
         case USB_PNP_DRIVER_GET_GADGET_LINK_STATUS:
-            HdfSbufWriteInt32(reply, g_isGadgetAdd);
+            HdfSbufWriteInt32(reply, OsalAtomicRead(&g_isGadgetAdd));
             break;
         default:
             ret = HDF_ERR_NOT_SUPPORT;
