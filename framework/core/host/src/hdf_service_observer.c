@@ -14,7 +14,6 @@
 #include "hdf_service_subscriber.h"
 
 #define HDF_LOG_TAG service_observer
-#define MAX_NOTIFY_SUBSCRIBERS 32
 
 bool HdfServiceObserverConstruct(struct HdfServiceObserver *observer)
 {
@@ -119,32 +118,9 @@ int HdfServiceObserverPublishService(struct HdfServiceObserver *observer, const 
         HdfSListAdd(&observer->services, &serviceRecord->entry);
         OsalMutexUnlock(&observer->observerMutex);
     } else {
-        struct SubscriberCallback callbacks[MAX_NOTIFY_SUBSCRIBERS];
-        void *publisher = NULL;
-        int count = 0;
-        int i;
-        struct HdfSListIterator it;
-
         serviceRecord->publisher = service;
-        OsalMutexLock(&serviceRecord->obsRecMutex);
-        publisher = serviceRecord->publisher;
-        HdfSListIteratorInit(&it, &serviceRecord->subscribers);
-        while (HdfSListIteratorHasNext(&it)) {
-            struct HdfServiceSubscriber *subscriber =
-                (struct HdfServiceSubscriber *)HdfSListIteratorNext(&it);
-            if (deviceId == subscriber->devId || policy != SERVICE_POLICY_PRIVATE) {
-                subscriber->state = HDF_SUBSCRIBER_STATE_READY;
-                if (subscriber->callback.OnServiceConnected != NULL && count < MAX_NOTIFY_SUBSCRIBERS) {
-                    callbacks[count++] = subscriber->callback;
-                }
-            }
-        }
-        OsalMutexUnlock(&serviceRecord->obsRecMutex);
         OsalMutexUnlock(&observer->observerMutex);
-
-        for (i = 0; i < count; i++) {
-            callbacks[i].OnServiceConnected(callbacks[i].deviceObject, publisher);
-        }
+        HdfServiceObserverRecordNotifySubscribers(serviceRecord, deviceId, policy);
         return HDF_SUCCESS;
     }
     return HDF_SUCCESS;
