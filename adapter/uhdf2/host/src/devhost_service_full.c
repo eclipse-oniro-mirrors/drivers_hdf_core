@@ -182,6 +182,7 @@ int DevHostServiceFullPmNotify(struct IDevHostService *service, uint32_t state)
     }
 
     struct HdfDevice *device = NULL;
+    DevHostServiceDeviceLock();
     if (IsPowerWakeState(state)) {
         DLIST_FOR_EACH_ENTRY_REVERSE(device, &hostService->devices, struct HdfDevice, node) {
             if (DevHostServiceFullDispatchPowerState(device, state) != HDF_SUCCESS) {
@@ -195,6 +196,7 @@ int DevHostServiceFullPmNotify(struct IDevHostService *service, uint32_t state)
             }
         }
     }
+    DevHostServiceDeviceUnlock();
 
     return result;
 }
