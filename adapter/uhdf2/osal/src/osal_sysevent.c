@@ -149,15 +149,26 @@ static int InitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *notifie
     return ret;
 }
 
+/*
+ * Caller must hold notifier->mutex on entry.
+ * This function releases notifier->mutex to call HdfDeviceUnregisterEventListener
+ * (which may acquire adapter->mutex and thread->mutex), then re-acquires notifier->mutex
+ * before returning. The release is necessary to avoid AB-BA deadlock with the syscall
+ * adapter's lock hierarchy.
+ */
 static void DeInitKeventIoServiceListenerLocked(struct HdfSysEventNotifier *notifier)
 {
     if (notifier->keventIoService == NULL) {
         return;
     }
 
-    (void)HdfDeviceUnregisterEventListener(notifier->keventIoService, &notifier->ioServiceListener);
-    HdfIoServiceRecycle(notifier->keventIoService);
+    struct HdfIoService *keventIoService = notifier->keventIoService;
     notifier->keventIoService = NULL;
+    notifier->ioServiceListener.callBack = NULL;
+    notifier->ioServiceListener.onReceive = NULL;
+    notifier->ioServiceListener.priv = NULL;
+    (void)HdfDeviceUnregisterEventListener(keventIoService, &notifier->ioServiceListener);
+    HdfIoServiceRecycle(keventIoService);
 }
 
 int32_t HdfSysEventNotifyRegister(struct HdfSysEventNotifyNode *notifierNode, uint64_t classSet)

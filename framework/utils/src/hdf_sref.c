@@ -18,8 +18,7 @@ void HdfSRefAcquire(struct HdfSRef *sref)
         HDF_LOGE("Acquire input sref is null");
         return;
     }
-    OsalAtomicInc(&sref->refs);
-    lockRef = OsalAtomicRead(&sref->refs);
+    lockRef = OsalAtomicIncReturn(&sref->refs);
     if ((lockRef == 1) && (sref->listener != NULL)) {
         struct IHdfSRefListener *listener = sref->listener;
         if (listener->OnFirstAcquire != NULL) {
@@ -45,8 +44,7 @@ void HdfSRefRelease(struct HdfSRef *sref)
         HDF_LOGE("Release input sref is null");
         return;
     }
-    OsalAtomicDec(&sref->refs);
-    lockRef = OsalAtomicRead(&sref->refs);
+    lockRef = OsalAtomicDecReturn(&sref->refs);
     if ((lockRef == 0) && (sref->listener != NULL)) {
         struct IHdfSRefListener *listener = sref->listener;
         if (listener->OnLastRelease != NULL) {

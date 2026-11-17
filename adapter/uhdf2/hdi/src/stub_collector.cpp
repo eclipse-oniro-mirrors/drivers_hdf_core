@@ -60,8 +60,8 @@ struct HdfRemoteService **StubCollectorGetOrNewObject(const char *ifDesc, void *
         return stub->second;
     }
 
-    HDF_LOGI("g_constructorMap size %{public}zu", g_constructorMap.size());
     const std::lock_guard<std::mutex> lock(g_consMapLock);
+    HDF_LOGI("g_constructorMap size %{public}zu", g_constructorMap.size());
     for (auto &consruct : g_constructorMap) {
         HDF_LOGI("g_constructorMap it: %{public}s", consruct.first.c_str());
     }
