@@ -8,7 +8,7 @@
  *    conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    of the conditions and the following disclaimer in the documentation and/or other materials
  *    provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
@@ -22,7 +22,7 @@
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND IN ANY THEORY OF LIABILITY,
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -30,86 +30,79 @@
 
 #include "osal_spinlock.h"
 #include "hdf_core_log.h"
-#include "prt_sem.h"
+#include "prt_hwi.h"
 
 #define HDF_LOG_TAG osal_spinlock
 
-#define HDF_INVALID_MUX_ID UINT32_MAX
-
 int32_t OsalSpinInit(OsalSpinlock *spinlock)
 {
-    (void)spinlock;
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
+    if (spinlock == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    spinlock->realSpinlock = NULL;
     return HDF_SUCCESS;
 }
 
 int32_t OsalSpinDestroy(OsalSpinlock *spinlock)
 {
-    (void)spinlock;
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
+    if (spinlock == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    spinlock->realSpinlock = NULL;
     return HDF_SUCCESS;
 }
 
 int32_t OsalSpinLock(OsalSpinlock *spinlock)
 {
-    (void)spinlock;
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
+    uint32_t intSave;
+
+    if (spinlock == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    intSave = PRT_IntLock();
+    spinlock->realSpinlock = (void *)(uintptr_t)intSave;
     return HDF_SUCCESS;
 }
 
 int32_t OsalSpinUnlock(OsalSpinlock *spinlock)
 {
-    (void)spinlock;
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
+    if (spinlock == NULL || spinlock->realSpinlock == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    PRT_IntRestore((uint32_t)(uintptr_t)spinlock->realSpinlock);
+    spinlock->realSpinlock = NULL;
     return HDF_SUCCESS;
 }
 
 int32_t OsalSpinLockIrq(OsalSpinlock *spinlock)
 {
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
     return OsalSpinLock(spinlock);
 }
 
 int32_t OsalSpinUnlockIrq(OsalSpinlock *spinlock)
 {
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
     return OsalSpinUnlock(spinlock);
 }
 
 int32_t OsalSpinLockIrqSave(OsalSpinlock *spinlock, uint32_t *flags)
 {
-    (void)flags;
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
-    return OsalSpinLock(spinlock);
+    uint32_t intSave;
+
+    if (spinlock == NULL || flags == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    intSave = PRT_IntLock();
+    *flags = intSave;
+    spinlock->realSpinlock = (void *)(uintptr_t)intSave;
+    return HDF_SUCCESS;
 }
 
 int32_t OsalSpinUnlockIrqRestore(OsalSpinlock *spinlock, uint32_t *flags)
 {
-    (void)flags;
-    /* On single-core cpu,only use kernel interface to implement Osal
-    * interface without other Mechanisms will cause cpu source waste.
-    * For this reason,leave unimplementation.
-    */
-    return OsalSpinUnlock(spinlock);
+    if (spinlock == NULL || flags == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    PRT_IntRestore(*flags);
+    spinlock->realSpinlock = NULL;
+    return HDF_SUCCESS;
 }
