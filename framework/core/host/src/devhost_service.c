@@ -144,7 +144,7 @@ int DevHostServiceDelDevice(struct IDevHostService *inst, devid_t devId)
     struct HdfDeviceNode *devNode = NULL;
 
     if (hostService == NULL) {
-        return HDF_ERR_INVALID_OBJECT;
+        return HDF_SUCCESS;
     }
 
     (void)OsalMutexLock(&g_devhostDeviceLock);
