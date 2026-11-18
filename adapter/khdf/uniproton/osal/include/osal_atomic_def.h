@@ -40,10 +40,43 @@ extern "C" {
 
 #define OsalAtomicReadWrapper(v)        ((v)->counter)
 #define OsalAtomicSetWrapper(v, value)  (v)->counter = (value)
-#define OsalAtomicIncWrapper(v)         ((v)->counter)++
-#define OsalAtomicIncRetWrapper(v)      (++((v)->counter))
-#define OsalAtomicDecWrapper(v)         (((v)->counter)--)
-#define OsalAtomicDecRetWrapper(v)      (--((v)->counter))
+
+static inline int32_t OsalAtomicIncWrapperInline(struct OsalAtomic *v)
+{
+    uint32_t intSave = PRT_IntLock();
+    (v)->counter++;
+    PRT_IntRestore(intSave);
+    return HDF_SUCCESS;
+}
+
+static inline int32_t OsalAtomicDecWrapperInline(struct OsalAtomic *v)
+{
+    uint32_t intSave = PRT_IntLock();
+    (v)->counter--;
+    PRT_IntRestore(intSave);
+    return HDF_SUCCESS;
+}
+
+static inline int32_t OsalAtomicIncRetWrapperInline(struct OsalAtomic *v)
+{
+    uint32_t intSave = PRT_IntLock();
+    int32_t val = ++((v)->counter);
+    PRT_IntRestore(intSave);
+    return val;
+}
+
+static inline int32_t OsalAtomicDecRetWrapperInline(struct OsalAtomic *v)
+{
+    uint32_t intSave = PRT_IntLock();
+    int32_t val = --((v)->counter);
+    PRT_IntRestore(intSave);
+    return val;
+}
+
+#define OsalAtomicIncWrapper(v)         OsalAtomicIncWrapperInline(v)
+#define OsalAtomicIncRetWrapper(v)      OsalAtomicIncRetWrapperInline(v)
+#define OsalAtomicDecWrapper(v)         OsalAtomicDecWrapperInline(v)
+#define OsalAtomicDecRetWrapper(v)      OsalAtomicDecRetWrapperInline(v)
 
 #define OSAL_BITS_PER_LONG 32
 #define OSAL_BIT_MASK(nr) (1UL << ((nr) % OSAL_BITS_PER_LONG))
