@@ -87,7 +87,7 @@ int HdfServiceObserverSubscribeService(
     OsalMutexUnlock(&serviceRecord->obsRecMutex);
     OsalMutexUnlock(&observer->observerMutex);
 
-    if (needNotify) {
+    if (needNotify && (notifyCallback.OnServiceConnected != NULL)) {
         notifyCallback.OnServiceConnected(notifyCallback.deviceObject, publisher);
     }
     return HDF_SUCCESS;

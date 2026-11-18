@@ -14,4 +14,7 @@
 {
   global:
     *;
+  global:
+    DevHostServiceDeviceLock;
+    DevHostServiceDeviceUnlock;
 };
