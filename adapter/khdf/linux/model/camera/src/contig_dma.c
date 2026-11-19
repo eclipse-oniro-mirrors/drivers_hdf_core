@@ -35,13 +35,14 @@ struct ContigBuffer {
 static unsigned long GetContiguousSize(struct sg_table *sgt)
 {
     struct scatterlist *slist = NULL;
-    dma_addr_t expected = sg_dma_address(sgt->sgl);
+    dma_addr_t expected;
     uint32_t i;
     unsigned long size = 0;
-    if (sgt == NULL) {
-        HDF_LOGE("sgt is NULL!");
+    if (sgt == NULL || sgt->sgl == NULL) {
+        HDF_LOGE("sgt or sgt->sgl is NULL!");
         return size;
     }
+    expected = sg_dma_address(sgt->sgl);
 
     for_each_sgtable_dma_sg(sgt, slist, i) {
         if (sg_dma_address(slist) != expected) {
