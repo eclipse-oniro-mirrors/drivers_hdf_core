@@ -191,7 +191,7 @@ HDF Core 模块核心业务实体的完整知识定义，涵盖静态概念、�
 | 子维度 | 内容 |
 |---|---|
 | 交互流程 | devhost `PublishService`：PUBLIC/CAPACITY → `DevSvcManagerClntAddService` IPC 到 Manager `DevSvcManagerStub`（含 SELinux 检查）→ 写入 `DevSvcRecord`；FRIENDLY/PRIVATE → `HdfServiceObserverPublishService`（`hdf_service_observer.c:84`）设置 publisher 并通知 subscribers。客户端 `SubscribeService` → `HdfServiceObserverSubscribeService`（`hdf_service_observer.c:39`），如 publisher 已存在则立即回调 `OnServiceConnected`。 |
-| 状态流转 | observer record：创建（首次 publish 或 subscribe）→ publisher 设置 → 通知 subscribers → 移除（`HdfServiceObserverRemoveRecord`，`hdf_service_observer.c:114`）。 |
+| 状态流转 | observer record：创建（初次 publish 或 subscribe）→ publisher 设置 → 通知 subscribers → 移除（`HdfServiceObserverRemoveRecord`，`hdf_service_observer.c:114`）。 |
 
 ### 规格与约束
 | 子维度 | 内容 |

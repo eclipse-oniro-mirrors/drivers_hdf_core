@@ -6,7 +6,7 @@
 
 | 原则 | 描述 | 理由 |
 |---|---|---|
-| Manager-Host 多进程隔离 | `hdf_devmgr` 管理生命周期，`devhost_*` 孵化驱动；每个 hostId 独立进程 | 单个驱动崩溃不影响 Manager 或其他 Host；进程边界提供权限隔离与 SELinux 粒度 |
+| Manager-Host 多进程隔离 | `hdf_devmgr` 管理生命周期，`devhost_*` 孵化驱动；每个 hostId 独立进程 | 单个驱动崩溃不影响 Manager 或其它 Host；进程边界提供权限隔离与 SELinux 粒度 |
 | 契约-实现分离 | `framework/core/shared/` 仅定义接口契约（虚表 + 头文件），不承载业务 | 框架层（`framework/core/manager`、`framework/core/host`）与适配层（`adapter/uhdf2/manager`、`adapter/uhdf2/host`）双侧实现同一契约，便于跨系统形态复用 |
 | 框架-适配-内核三分 | `framework/` 不含内核特定代码；内核适配进 `adapter/khdf/<内核>/`；用户态适配进 `adapter/uhdf2/`（standard）或 `adapter/uhdf/`（small） | 一次框架开发，多内核/多形态部署；避免 `<linux/*.h>` 污染框架 |
 | 驱动模型归一化 | 每类硬件（audio/camera/display/input/...）有独立 `framework/model/<类别>/` 框架 | 外设驱动在统一框架内实现，避免散落到 core/support |
@@ -100,7 +100,7 @@ Libhdi --> [samgr SA-ID 5100\nIServiceManager]
 | Manager hosts 列表并发 | `g_hostsLock`（`pthread_rwlock_t`，`framework/core/manager/src/devmgr_service.c:28`）保护 hosts DList 的读写 |
 | 配置解析性能 | `.hcs` 编译为 `.hcb` 二进制，运行时 `GenerateCfgTree` 直接构造树，避免文本解析开销 |
 | 驱动加载隔离 | `dlopen_ns` 使用 namespace 隔离驱动 .so 符号；VDI 加载前 `realpath` 校验路径必须位于 `HDF_LIBRARY_DIR` 下（防路径穿越） |
-| 电源状态一致性 | 唤醒反向遍历 hosts（后设备先醒），休眠正向遍历（先设备先睡）；单个设备失败不阻断其他设备（`devhost_service.c:172` 注释明确策略） |
+| 电源状态一致性 | 唤醒反向遍历 hosts（后设备先醒），休眠正向遍历（先设备先睡）；单个设备失败不阻断其它设备（`devhost_service.c:172` 注释明确策略） |
 | 跨内核可移植 | OSAL 接口统一于 `interfaces/inner_api/osal/shared/`，实现按内核分散；框架代码不含内核头文件 |
 | 错误码兼容 | `HDF_STATUS` 分段（通用 0/-1~-20、BSP -100 段、设备 -200 段），只新增不复用（`interfaces/inner_api/utils/hdf_base.h:42-77`） |
 
@@ -108,7 +108,7 @@ Libhdi --> [samgr SA-ID 5100\nIServiceManager]
 
 - **框架不含内核特定代码**
   - **what**：`framework/` 目录下禁止引入 `<linux/*.h>` 等内核头文件或内核专属 API；内核适配一律进 `adapter/khdf/<内核>/`。
-  - **why**：框架需跨 5 个内核 + 用户态 POSIX 复用，引入内核依赖会破坏可移植性并污染其他内核构建。
+  - **why**：框架需跨 5 个内核 + 用户态 POSIX 复用，引入内核依赖会破坏可移植性并污染其它内核构建。
 
 - **Manager-Host 双侧同步修改**
   - **what**：Manager 代码分布在 `framework/core/manager/` + `adapter/uhdf2/manager/`；Host 分布在 `framework/core/host/` + `adapter/uhdf2/host/`；新增交互先在 `framework/core/shared/include/` 定义契约。

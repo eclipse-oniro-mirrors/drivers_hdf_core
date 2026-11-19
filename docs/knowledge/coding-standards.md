@@ -14,7 +14,7 @@
 - **禁止**在 `.hcs` 中为 `deviceNode` 配置 `policy` 与 `preload` 之外的非法字段；`policy` 取值见 `interfaces/inner_api/host/shared/hdf_device_desc.h:56-70`（SERVICE_POLICY_NONE/PUBLIC/CAPACITY/FRIENDLY/PRIVATE）。
 
 ## API 与错误码兼容
-- **禁止**删除或修改 `framework/include/**`、`interfaces/inner_api/**` 中已发布函数的签名、参数语义或生命周期；**采用**仅新增函数并确认不与其他模块冲突。改动需走 API 兼容性评审（SIG-Driver Maintainer）。
+- **禁止**删除或修改 `framework/include/**`、`interfaces/inner_api/**` 中已发布函数的签名、参数语义或生命周期；**采用**仅新增函数并确认不与其它模块冲突。改动需走 API 兼容性评审（SIG-Driver Maintainer）。
 - **禁止**复用已废弃的 `HDF_STATUS` 码值；新增错误码**采用**落在已划定段（通用 `0/-1~-20`、BSP `-100` 段 `HDF_BSP_ERR_NUM(v)`、设备 `-200` 段 `HDF_DEV_ERR_NUM(v)`，定义于 `interfaces/inner_api/utils/hdf_base.h:42-77`）。
 - **禁止**修改 `enum HdfSbufType`（`interfaces/inner_api/utils/hdf_sbuf.h:50-55`）已有成员语义；`SBUF_IPC_HW` 为保留位，启用前须走架构评审；序列化格式变更需给出 wire-format 迁移方案。
 

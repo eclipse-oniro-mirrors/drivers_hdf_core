@@ -200,13 +200,13 @@ H -> M : AttachDevice(token)
 ### 解决的问题（Problem）
 | 子维度 | 内容 |
 |---|---|
-| 业务痛点 | 系统休眠/唤醒需按依赖顺序通知各驱动；部分驱动需 wake lock 持有异步保活；休眠失败不能阻断其他设备。 |
+| 业务痛点 | 系统休眠/唤醒需按依赖顺序通知各驱动；部分驱动需 wake lock 持有异步保活；休眠失败不能阻断其它设备。 |
 | 技术目标 | 提供两种 PM 模式（SYS_CTRL 事件推送 / DYNAMIC_CTRL 引用计数）；唤醒反向遍历（后设备先醒），休眠正向遍历（先设备先睡）；异步 PM 经专用任务队列。 |
 
 ### 原理（Principles）
 | 子维度 | 内容 |
 |---|---|
-| 核心机制 | 系统事件经 `OsalSysEvent`（`HDF_POWER_EVENT` 等）→ Manager `PowerStateChange` → 各 Host `PmNotify`（`framework/core/host/src/devhost_service.c:199`）→ 各 HdfDevice `ApplyDevicesPowerState`（`devhost_service.c:167`）→ 各 devNode `powerToken` 的 `PowerStateChange`（`power_state_token.c`）。SYS_CTRL 模式直接调 `listener->Suspend/Resume/Doze`；DYNAMIC_CTRL 模式用 `HdfSRef` 引用计数（`AcquireWakeLock` 首次→Resume，`ReleaseWakeLock` 末次→Suspend）。异步 PM：`HdfPmAcquireDeviceAsync`/`ReleaseDeviceAsync`（`interfaces/inner_api/host/shared/hdf_pm.h:42-43`）→ `HdfPmTaskPut`（`framework/core/host/src/hdf_power_manager.c:72`）入队 `PmTaskQueue` 专用线程处理。 |
+| 核心机制 | 系统事件经 `OsalSysEvent`（`HDF_POWER_EVENT` 等）→ Manager `PowerStateChange` → 各 Host `PmNotify`（`framework/core/host/src/devhost_service.c:199`）→ 各 HdfDevice `ApplyDevicesPowerState`（`devhost_service.c:167`）→ 各 devNode `powerToken` 的 `PowerStateChange`（`power_state_token.c`）。SYS_CTRL 模式直接调 `listener->Suspend/Resume/Idle`；DYNAMIC_CTRL 模式用 `HdfSRef` 引用计数（`AcquireWakeLock` 初次→Resume，`ReleaseWakeLock` 末次→Suspend）。异步 PM：`HdfPmAcquireDeviceAsync`/`ReleaseDeviceAsync`（`interfaces/inner_api/host/shared/hdf_pm.h:42-43`）→ `HdfPmTaskPut`（`framework/core/host/src/hdf_power_manager.c:72`）入队 `PmTaskQueue` 专用线程处理。 |
 | 关键流程 | 系统休眠事件 → Manager 正向遍历 hosts → devhost 正向遍历 devices → 正向遍历 devNodes → `PowerStateChange(SUSPEND)` → `listener->Suspend(deviceObject)`。唤醒反向。 |
 
 ### 使用方式（Usage）
@@ -258,7 +258,7 @@ H -> M : AttachDevice(token)
 | 子维度 | 内容 |
 |---|---|
 | 系统限制 | 用户态 API 依赖 IPC 往返，性能低于内核态直接调用；高频场景应考虑内核态或异步事件。`HdfIoServiceBind` 服务名需与驱动 `servName`（HCS `serviceName`）完全匹配（如 `HDF_PLATFORM_GPIO_MANAGER`）。 |
-| 并发约束 | `PlatformManager` 设备列表用 `OsalSpinLockIrqSave` 保护（`platform_manager.c:17-25`）；`DeviceServiceStubDispatch` 用读锁；用户态 `HdfIoService` 静态缓存单例，首次绑定后复用。 |
+| 并发约束 | `PlatformManager` 设备列表用 `OsalSpinLockIrqSave` 保护（`platform_manager.c:17-25`）；`DeviceServiceStubDispatch` 用读锁；用户态 `HdfIoService` 静态缓存单例，初次绑定后复用。 |
 | 安全约束 | 用户态调用经 IPC 到 devhost，受 devhost 进程权限与 SELinux 策略约束；内核态调用无额外权限检查。 |
 
 ## 异步消息机制

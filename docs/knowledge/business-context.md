@@ -103,5 +103,5 @@ Vendor --> Devhost : 提供驱动 .so
 | 注册的系统服务（SA-ID 5100 及各驱动服务） | `samgr` | 供客户端按 SA-ID 或 serviceName 发现并调用 |
 | `HdfRemoteService*` 句柄 | 客户端 | 作为 `HdfIoService.dispatcher->Dispatch` 的目标，承载 IO 调用 |
 | 驱动事件（`HdfDeviceSendEvent`） | 注册了 `HdfDevEventlistener` 的应用/驱动 | 驱动主动上报事件 |
-| 电源状态传播 | 各 devhost → 各 `PowerStateToken` | 驱动 Suspend/Resume/Doze |
+| 电源状态传播 | 各 devhost → 各 `PowerStateToken` | 驱动 Suspend/Resume/Idle |
 | Dump 输出 | CLI（`hdf_devmgr` / `devhost` Dump 命令） | 调试诊断设备/host/服务状态 |

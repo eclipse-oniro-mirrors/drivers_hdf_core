@@ -1,7 +1,7 @@
 # 术语表
 
 ## 驱动管理进程（hdf_devmgr / DevmgrService）
-HDF 子系统的中央管理守护进程，运行为独立系统服务（SA-ID 5100 的 IServiceManager 端点）。负责 Host 生命周期管理（启动/管理 `devhost_*` 子进程）、设备驱动加载/卸载、服务注册与发现、电源状态传播、PnP uevent 处理、Debug dump。入口为 `adapter/uhdf2/manager/device_manager.c`，就绪信号 `bootevent.hdf_devmgr.ready=true`。与"Host 进程"的区别：Manager 管理设备生命周期，不直接加载驱动；Host 孵化驱动实例但不管理其他 Host。详见 `docs/knowledge/hdf_devmgr.md`。
+HDF 子系统的中央管理守护进程，运行为独立系统服务（SA-ID 5100 的 IServiceManager 端点）。负责 Host 生命周期管理（启动/管理 `devhost_*` 子进程）、设备驱动加载/卸载、服务注册与发现、电源状态传播、PnP uevent 处理、Debug dump。入口为 `adapter/uhdf2/manager/device_manager.c`，就绪信号 `bootevent.hdf_devmgr.ready=true`。与"Host 进程"的区别：Manager 管理设备生命周期，不直接加载驱动；Host 孵化驱动实例但不管理其它 Host。详见 `docs/knowledge/hdf_devmgr.md`。
 
 ## 驱动孵化进程（hdf_devhost / DevHostService）
 标准系统用户空间驱动孵化进程，每种 host 类型独立进程（`devhost_*`）。负责 dlopen 动态加载驱动 .so、执行 Bind/Init/Release 生命周期、发布驱动服务到 servmgr、接收电源事件传播。设置 `PR_SET_PDEATHSIG(SIGKILL)` 在 Manager 死亡时自动退出。注意：可执行文件入口在 `drivers/peripheral/devhost/host/devhost.c`，链接本仓的 `libhdf_host` 共享库；本仓 `adapter/uhdf2/host/devhost.c` 含 `main()` 但本仓 BUILD.gn 不构建它。详见 `docs/knowledge/hdf_devhost.md`。
@@ -49,7 +49,7 @@ OpenHarmony 硬件设备接口，由 IDL 描述经 hdi-gen 生成 proxy/stub/ser
 驱动加载策略（`interfaces/inner_api/host/shared/hdf_device_desc.h:80-85`）：`ENABLE`(0) 系统启动时加载；`ENABLE_STEP2`(1) OS 启动后加载（快速启动模式）；`DISABLE`(2) 不自动加载，按需 LoadDevice。Manager 启动后 `LoadLeftDriver` 加载 STEP2 设备。
 
 ## PowerStateToken
-电源状态令牌（`framework/core/host/src/power_state_token.c`），每个注册了 `IPowerEventListener` 的 `HdfDeviceNode` 持有一个。两种模式（`interfaces/inner_api/host/shared/hdf_pm.h:14-18`）：`SYS_CTRL` 系统事件推送（直接调 listener Suspend/Resume/Doze）；`DYNAMIC_CTRL` 引用计数 wake lock（`HdfSRef`，Acquire 首次→Resume，Release 末次→Suspend）。异步 PM 经 `HdfPmTaskQueue` 专用线程处理（`framework/core/host/src/hdf_power_manager.c`）。
+电源状态令牌（`framework/core/host/src/power_state_token.c`），每个注册了 `IPowerEventListener` 的 `HdfDeviceNode` 持有一个。两种模式（`interfaces/inner_api/host/shared/hdf_pm.h:14-18`）：`SYS_CTRL` 系统事件推送（直接调 listener Suspend/Resume/Idle）；`DYNAMIC_CTRL` 引用计数 wake lock（`HdfSRef`，Acquire 初次→Resume，Release 末次→Suspend）。异步 PM 经 `HdfPmTaskQueue` 专用线程处理（`framework/core/host/src/hdf_power_manager.c`）。
 
 ## HdfServiceObserver
 本地服务观察者（`framework/core/host/src/hdf_service_observer.c`），实现 host 内 FRIENDLY/PRIVATE 策略的服务订阅。以 `HdfStringMakeHashKey(svcName)` 为 key 查找 `HdfServiceObserverRecord`。`PublishService` 设置 publisher 并通知已有 subscribers；`SubscribeService` 创建 subscriber，如 publisher 已存在则立即回调 `OnServiceConnected`。驱动通过 `HdfDeviceSubscribeService()` → deviceObject→devNode→hostService→observer 调用。
