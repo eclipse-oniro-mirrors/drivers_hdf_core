@@ -6,7 +6,7 @@
 
 `DevHostService`（devhost）是标准系统**用户空间驱动孵化进程**：
 
-- **进程隔离**：每种host类型独立进程（`devhost_*`），驱动崩溃不影响Manager或其他Host
+- **进程隔离**：每种host类型独立进程（`devhost_*`），驱动崩溃不影响Manager或其它Host
 - **驱动动态加载**：dlopen_ns/dlsym加载驱动.so，基于Manager下发的HCS配置指令
 - **设备生命周期**：创建→Bind→Init→发布服务→Release驱动实例
 - **服务发布**：IPC注册驱动服务到servmgr(SA-ID 5100)
@@ -122,13 +122,13 @@ HdfServiceObserver：hash key查找Record → Publish(设置publisher+NotifySubs
 
 ## 电源管理
 
-系统事件映射：SUSPEND→POWER_STATE_SUSPEND, DISPLAY_OFF→DOZE_SUSPEND, RESUME→POWER_STATE_RESUME, DISPLAY_ON→DOZE_RESUME
+系统事件映射：SUSPEND→POWER_STATE_SUSPEND, DISPLAY_OFF→IDLE_SUSPEND, RESUME→POWER_STATE_RESUME, DISPLAY_ON→IDLE_RESUME
 
 传播：唤醒反向遍历(后设备先醒)，休眠正向遍历(先设备先睡)
 
 PowerStateToken两种模式：
-- **SYS_CTRL**：系统事件推送，直接调用listener->Suspend/Resume/Doze
-- **DYNAMIC_CTRL**：HdfSRef引用计数wake lock，Acquire(首次→Resume)/Release(末次→Suspend)
+- **SYS_CTRL**：系统事件推送，直接调用listener->Suspend/Resume/Idle
+- **DYNAMIC_CTRL**：HdfSRef引用计数wake lock，Acquire(初次→Resume)/Release(末次→Suspend)
 
 PSM状态：IDLE→ACTIVE(Resume)→INACTIVE(Suspend)
 
