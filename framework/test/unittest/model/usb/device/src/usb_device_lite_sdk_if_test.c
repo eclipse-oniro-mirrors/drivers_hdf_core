@@ -675,7 +675,7 @@ int32_t UsbFnDviceTestGetProp007(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "name_test", buff), sizeof(buffer);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "name_test", buff, sizeof(buffer));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
