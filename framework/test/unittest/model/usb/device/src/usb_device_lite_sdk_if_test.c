@@ -575,7 +575,7 @@ int32_t UsbFnDviceTestGetProp(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "name_test", buff);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "name_test", buff, sizeof(buffer));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
@@ -596,7 +596,7 @@ int32_t UsbFnDviceTestGetProp002(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "unknown", buff);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "unknown", buff, sizeof(buffer));
     if (ret == HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop success!!", __func__);
         return HDF_FAILURE;
@@ -613,7 +613,7 @@ int32_t UsbFnDviceTestGetProp003(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "idProduct", buff);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "idProduct", buff, sizeof(buffer));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
@@ -626,7 +626,7 @@ int32_t UsbFnDviceTestGetProp004(void)
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
     struct UsbFnInterface *fn = NULL;
-    int32_t ret = UsbFnGetInterfaceProp(fn, "idProduct", buff);
+    int32_t ret = UsbFnGetInterfaceProp(fn, "idProduct", buff, sizeof(buffer));
     if (ret == HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop success!!", __func__);
         return HDF_FAILURE;
@@ -643,7 +643,7 @@ int32_t UsbFnDviceTestGetProp005(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "idVendor", buff);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "idVendor", buff, sizeof(buffer));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
@@ -658,7 +658,7 @@ int32_t UsbFnDviceTestGetProp006(void)
         return HDF_FAILURE;
     }
 
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "name_test", NULL);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "name_test", NULL, 0);
     if (ret == HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop success!!", __func__);
         return HDF_FAILURE;
@@ -675,7 +675,7 @@ int32_t UsbFnDviceTestGetProp007(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "name_test", buff);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "name_test", buff), sizeof(buffer);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
@@ -696,7 +696,7 @@ int32_t UsbFnDviceTestGetProp008(void)
 
     char buffer[BUFFER_LEN] = {0};
     char *buff = buffer;
-    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "idVendor", buff);
+    int32_t ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "idVendor", buff, sizeof(buffer));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
